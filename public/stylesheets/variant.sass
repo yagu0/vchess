@@ -1,0 +1,140 @@
+.container#variantPage
+  padding: 0
+
+// https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout
+figure.diagram-container > .diagram
+  display: block
+  width: 45%
+  min-width: 300px
+  max-width: 800px
+  margin-left: auto
+  margin-right: auto
+
+.connected, .disconnected
+  width: 20px
+  height: 20px
+  margin: 0 auto 15px auto
+  border: 1px solid brown
+
+.connected
+  background-color: green
+
+.disconnected
+  background-color: red
+
+// TODO: div.board, board9, board10, board11, board12
+div.board
+  float: left
+  width: 12.5%
+  height: 0
+  padding-bottom: 12.5%
+  display: inline-block
+  position: relative
+
+#choices
+	margin-bottom: 10px
+
+#choices
+	margin: 0 auto 0 auto
+	position: relative
+	z-index: 300
+	overflow-y: inherit
+	background-color: rgba(0,0,0,0) //transparent
+
+#choices img
+	cursor: pointer
+	background-color: #e6ee9c
+
+#choices img:hover
+	background-color: skyblue
+
+img.choice-piece
+	height: 0
+	width: 90%
+	padding: 5%
+	height: 90%
+
+img.piece, img.mark-square, img.choice-piece
+	max-width: 100%
+	height: auto
+	display: block
+
+img.mark-square
+	opacity: 0.6
+
+img.ghost
+	position: absolute
+	opacity: 0.4
+	top: 0
+
+img.piece
+  width: 100%
+
+img.mark-square
+  width: 76%
+  position: absolute
+  top: 12%
+  left: 12%
+  opacity: .7
+
+figure.diagram-container > figcaption
+  display: block
+  clear: both
+  padding-top: 5px
+
+.light-square
+  background-color: #f0d9b5
+.dark-square
+  background-color: #b58863
+
+.highlight
+  background-color: #00cc00
+
+.light-square-diag
+  background-color: #e5e5ca
+.dark-square-diag
+  background-color: #6f8f57
+
+p.boxed
+  background-color: #FFCC66
+  padding: 5px
+
+.stageDelimiter
+  color: purple
+
+// To show (new) pieces, and/or there values...
+figure.showPieces > img
+  width: 50px
+
+figure.showPieces > figcaption
+  color: #6C6C6C
+
+figure.diagram-container
+  margin: 15px 0 15px 0
+  text-align: center
+  width: 100%
+  display: block
+
+.section-title
+  padding: 0
+
+.section-title > h4
+  padding: 5px
+
+.section-content
+  padding: 5px
+
+ol, ul:not(.browser-default)
+  padding-left: 20px
+
+ul:not(.browser-default)
+  margin-top: 5px
+
+ul:not(.browser-default) > li
+  list-style-type: disc
+
+.rulesTitle
+  font-weight: bold
+  cursor: pointer
+  padding: 3px;
+  background-color: lightgrey

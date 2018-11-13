@@ -1,0 +1,24 @@
+extends layout
+
+block css
+	link(rel="stylesheet", href="/stylesheets/index.css")
+
+block content
+	.container#indexPage
+		.row
+			.col-sm-12
+				h1.text-center Welcome to v[ariant] chess club !
+		.row
+			my-variant-summary(
+				v-for="(v,idx) in sortedCounts",
+				v-show="v.name.startsWith(curPrefix)",
+				v-bind:vobj="v",
+				v-bind:key="v.name")
+
+block javascripts
+	script.
+		const variantArray = !{JSON.stringify(variantArray)};
+		//JSON.parse("!{variantArray}".replace(/\&quot;/g,'"'));
+	script(src="/javascripts/utils/socket_url.js")
+	script(src="/javascripts/components/variantSummary.js")
+	script(src="/javascripts/index.js")

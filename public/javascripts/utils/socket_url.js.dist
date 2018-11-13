@@ -1,0 +1,2 @@
+// URL of your socket server (rename into socket_url.js)
+const socketUrl = "ws://localhost:3000";

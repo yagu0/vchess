@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 2048 2048">
+ <path style="color:black;" d="m1024 205h-540q-40 100-40 209 0 185 105 332t270 210q-71 33-115 99t-45 151q0 105 70 182t172 89q-81 61-81 161 0 84 59 144t145 60q84 0 144-60t60-144q0-100-81-161 102-12 172-89t70-182q0-84-45-150t-116-100q165-63 270-210t105-332q0-108-39-209h-540z" fill-rule="nonzero" transform="translate(0,2048) scale(1,-1)" display="block" fill="#000"/>
+</svg>

@@ -1,0 +1,6 @@
+*.pdf filter=fat
+*.zip filter=fat
+*.tar.xz filter=fat
+*.wav filter=fat
+*.mp3 filter=fat
+*.png filter=fat

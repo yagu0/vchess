@@ -1,0 +1,72 @@
+p.boxed
+	| The capture of an enemy piece produces a new "checkered" piece belonging to both players.
+
+figure.showPieces.center-align
+	img(src="/images/tmp_checkered/cp.png")
+	img(src="/images/tmp_checkered/cr.png")
+	img(src="/images/tmp_checkered/cn.png")
+	img(src="/images/tmp_checkered/cb.png")
+	img(src="/images/tmp_checkered/cq.png")
+	img(src="/images/tmp_checkered/no_ck.png")
+	figcaption Checkered pieces, born after captures.
+
+h3 Specifications
+
+ul
+	li Chessboard: standard.
+	li Material: additional checkered pieces.
+	li Non-capturing moves: standard; see below.
+	li Special moves: standard; see below.
+	li Captures: standard; see below.
+	li End of game: standard.
+
+p The game potentially evolves in two stages.
+
+h2.stageDelimiter Stage 1
+
+h3 Basics
+
+ol
+	li Each capture produces a new piece, taking on nature of the capturing or captured one.
+	li The new piece arising from a capture has a new color: "checkered", as illustrated above.
+	li All checkered pieces belong to the player in turn and can capture the opponents pieces.
+
+span Remarks:
+ul
+	li A checkered move cannot be "undone" right after if this repeat the position.
+	li Checkered chess pieces cannot be captured.
+
+figure.diagram-container
+	.diagram
+		| fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
+	figcaption.
+		Black plays Rxh4=P. (Checkered pawn to) h5 is allowed then, because piece's nature changed.
+
+h3 Pawn moves
+
+ul
+	li A pawn captured on its starting square keeps the right to advance two squares.
+	li Checkered pawns cannot capture en passant.
+
+h2.stageDelimiter Stage 2
+
+p.
+	During the game one of the two players can decide to take control of the checkered pieces.
+	They thus become autonomous and vulnerable to being captured - stage 2 begins.
+	The other player is in charge of both the white and black pieces, and tries to eliminate checkered pieces.
+	The checkered side wins by checkmating either the white or black king.
+
+h3 Special moves
+
+span Checkered pawns can...
+ul
+	li move and capture in either direction;
+	li take en passant,
+	li be promoted on either the first or eighth row.
+
+h3 Credits
+
+ul
+	li The rules of Checkered Chess were thought up by Patrick Bernier and developed with the help of Benjamin Auder.
+	li Thanks to Bevis Martin for the initial english translation.
+	li Thanks also to Christian Poisson, Laurent Nouhaud and Frédéric Fradet.

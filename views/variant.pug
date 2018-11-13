@@ -1,0 +1,30 @@
+extends layout
+
+block css
+	link(rel="stylesheet", href="//fonts.googleapis.com/icon?family=Material+Icons")
+	link(rel="stylesheet", href="/stylesheets/variant.css")
+
+block content
+	.container#variantPage
+		.row
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				h4.rulesTitle.text-center(v-on:click="displayRules=!displayRules") #{variant} Rules
+				my-rules(v-show="displayRules")
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				my-game
+
+block javascripts
+	script(src="/javascripts/utils/socket_url.js")
+	script(src="/javascripts/utils/array.js")
+	script(src="/javascripts/base_rules.js")
+	script(src="/javascripts/variants/" + variant + ".js")
+	script.
+		const VariantRules = #{variant}Rules;
+		const variant = "#{variant}";
+	script(src="/javascripts/components/rules.js")
+	script(src="/javascripts/components/game.js")
+	script.
+		new Vue({
+			el: "#variantPage",
+			data: { displayRules: false },
+		});

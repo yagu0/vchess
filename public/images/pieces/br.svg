@@ -1,0 +1,10 @@
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 2048 2048">
+ <path style="color:black;" d="m1161 1706h170v137h274v-375l-222-171v-478l170-170v-205h153v-239h-1365v239h153v205l171 170v478l-222 171v375h273v-137h171v137h274v-137zm-597-1246v-102h920v102h-920zm460 1092h-512v-46l73-55h879l71 55v46h-511zm0-169h-350l60-47v-57h580v57l60 47h-350zm0-546h-290v-46l-60-58h700l-60 58v46h-290zm0-172h-414l-46-43v-58h920v58l-46 43h-414z" fill-rule="nonzero" transform="translate(0,2048) scale(1,-1)" display="block" fill="#000"/>
+ <g fill-rule="nonzero" fill="#fff">
+  <path style="color:black;" d="m564 1588v102h920v-102h-920z" display="block"/>
+  <path style="color:black;" d="m1024 496h-512v46l73 55h879l71-55v-46h-511z" display="block"/>
+  <path style="color:black;" d="m1024 665h-350l60 47v57h580v-57l60-47h-350z" display="block"/>
+  <path style="color:black;" d="m1024 1211h-290v46l-60 58h700l-60-58v-46h-290z" display="block"/>
+  <path style="color:black;" d="m1024 1383h-414l-46 43v58h920v-58l-46-43h-414z" display="block"/>
+ </g>
+</svg>

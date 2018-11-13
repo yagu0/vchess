@@ -1,0 +1,2 @@
+[rsync]
+remote = gitfat@auder.net:~/files/vchess

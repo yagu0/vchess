@@ -1,0 +1,40 @@
+p.boxed
+	| All captures result in an "explosion" through which all surrounding white and black pieces other than pawns are removed from play.
+
+h3 Specifications
+
+ul
+	li Chessboard: standard.
+	li Material: standard.
+	li Non-capturing moves: standard.
+	li Special moves: standard.
+	li Captures: explosions; see below.
+	li End of game: king explodes, or standard; see below.
+
+h3 Basics
+
+p
+	| When a piece captures an opponent figure on some square S, all pieces sitting on a square reachable by a king move from S are removed.
+	| The pawns, however, remain: they have to be taken directly to disappear.
+
+figure.diagram-container
+	.diagram
+		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
+	figcaption After the moves 1.Nc3 d6?? 2.Nd5 e5 3.Nxc7
+
+h3 End of the game
+
+p There are two ways to win, by decreasing strength order:
+ol
+	li Explode opponent king
+	li Checkmate opponent king
+
+p Explosions have priority: a checkmate followed by a king explosion loses.
+
+p Note: since suicide is forbidden, a king can touch the opponent king - and become immune to checks.
+
+h3 Credits
+
+p
+	| Many resources can be found on the web (this variation is played on lichess and FICS, among others).
+	| This game was played first in 1995 at the German Internet Chess Server (GICS) according to Wikipedia.
