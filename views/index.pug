@@ -8,6 +8,26 @@ block content
 		.row
 			.col-sm-12
 				h1.text-center Welcome to v[ariant] chess club !
+				h2.help.text-center(onClick="document.getElementById('modal-control').checked=true") Help ?
+				input#modal-control.modal(type="checkbox")
+				div(role="dialog")
+					.card
+						label.modal-close(for="modal-control")
+						h3.blue.section Modes
+						p.section.
+							Each variant page offers two modes: against a human or computer opponent.
+							The latter is not designed to play well: it is here to help learning the rules.
+							When you beat the bot easily consider playing human opponents!
+						h3.blue.section Initial position
+						p.section.
+							Whenever possible, all games start with a random assymetric position.
+							This might be unapplicable for some variants: Moscow Chess at least (coming soon),
+							Racing Kings probably too.
+						h3.blue.section Comments
+						p.section.
+							Games are untimed, and played anonymously. This website lacks a user/challenge/chat/... system,
+							both for technical reasons (difficult to maintain all that alone) and also a bit for
+							focusing on the essential: the moves! :)
 		.row
 			my-variant-summary(
 				v-for="(v,idx) in sortedCounts",
