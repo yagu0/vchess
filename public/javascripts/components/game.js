@@ -305,7 +305,7 @@ Vue.component('my-game', {
 			// random enough (TODO: function)
 			: (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
-		this.conn.onopen = () => {
+		const socketOpenListener = () => {
 			if (continuation)
 			{
 				// TODO: check FEN integrity with opponent
@@ -315,7 +315,7 @@ Vue.component('my-game', {
 				this.conn.send(JSON.stringify({code:"ping", oppid:this.oppId}));
 			}
 		};
-		this.conn.onmessage = msg => {
+		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
 			switch (data.code)
 			{
@@ -339,6 +339,16 @@ Vue.component('my-game', {
 					break;
 			}
 		};
+		const socketCloseListener = () => {
+			console.log("Lost connection -- reconnect"); //TODO: be more subtle than that, reconnect only when needed!
+			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
+			this.conn.addEventListener('open', socketOpenListener);
+			this.conn.addEventListener('message', socketMessageListener);
+			this.conn.addEventListener('close', socketCloseListener);
+		};
+		this.conn.onopen = socketOpenListener;
+		this.conn.onmessage = socketMessageListener;
+		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
 		endGame: function(message) {
@@ -351,7 +361,13 @@ Vue.component('my-game', {
 		},
 		resign: function() {
 			if (this.mode == "human" && this.oppConnected)
-				this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+			{
+				try {
+					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+				} catch (INVALID_STATE_ERR) {
+					return; //resign failed for some reason...
+				}
+			}
 			this.endGame("Try again!");
 		},
 		updateStorage: function() {
@@ -378,7 +394,11 @@ Vue.component('my-game', {
 			{
 				// Send game request and wait..
 				this.clearStorage(); //in case of
-				this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
+				try {
+					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
+				} catch (INVALID_STATE_ERR) {
+					return; //nothing achieved
+				}
 				document.getElementById("modal-control2").checked = true;
 				return;
 			}
@@ -529,7 +549,7 @@ Vue.component('my-game', {
 				try {
 					this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 				} catch(INVALID_STATE_ERR) {
-					return; //abort also if we lost connection
+					return; //abort also if sending failed
 				}
 			}
 			new Audio("/sounds/chessmove1.mp3").play();
