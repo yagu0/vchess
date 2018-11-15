@@ -47,7 +47,10 @@ module.exports = function(wss) {
 				switch (obj.code)
 				{
 					case "newmove":
-						clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+						// TODO: adjust with readyState? (+ setTimeout()?) + send opponent (re)disconnect
+						// https://github.com/websockets/ws/blob/master/lib/websocket.js line 313
+						if (!!clients[page][obj.oppid])
+							clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
 						break;
 					case "ping":
 						if (!!clients[page][obj.oppid])
@@ -62,6 +65,7 @@ module.exports = function(wss) {
 							delete games[page];
 							const mycolor = Math.random() < 0.5 ? 'w' : 'b';
 							socket.send(JSON.stringify({code:"newgame",fen:fen,oppid:oppId,color:mycolor}));
+							// TODO: check readyState, potential setTimeout()? + send opponent (re)disconnect
 							clients[page][oppId].send(JSON.stringify({code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w"}));
 						}
 						else

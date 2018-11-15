@@ -526,7 +526,11 @@ Vue.component('my-game', {
 			{
 				if (!this.oppConnected)
 					return; //abort move if opponent is gone
-				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
+				try {
+					this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
+				} catch(INVALID_STATE_ERR) {
+					return; //abort also if we lost connection
+				}
 			}
 			new Audio("/sounds/chessmove1.mp3").play();
 			this.vr.play(move, "ingame");
