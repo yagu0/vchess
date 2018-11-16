@@ -14,6 +14,7 @@ Vue.component('my-game', {
 			mode: "idle", //human, computer or idle (when not playing)
 			oppid: "", //opponent ID in case of HH game
 			oppConnected: false,
+			seek: false,
 		};
 	},
 	render(h) {
@@ -26,29 +27,39 @@ Vue.component('my-game', {
 		let squareWidth = !!square00
 			? parseFloat(window.getComputedStyle(square00).width.slice(0,-2))
 			: 0;
+		const playingHuman = (this.mode == "human");
+		const playingComp = (this.mode == "computer");
 		let actionArray = [
 			h('button',
 				{
 					on: {
 						click: () => {
-							if (localStorage.getItem("newgame") === variant)
+							if (this.seek)
 								delete localStorage["newgame"]; //cancel game seek
 							else
 							{
 								localStorage["newgame"] = variant;
 								this.newGame("human");
 							}
+							this.seek = !this.seek;
 						}
 					},
 					attrs: { "aria-label": 'New game VS human' },
-					'class': { "tooltip":true },
+					'class': {
+						"tooltip": true,
+						"seek": this.seek,
+						"playing": playingHuman,
+					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "accessibility")]),
 			h('button',
 				{
 					on: { click: () => this.newGame("computer") },
 					attrs: { "aria-label": 'New game VS computer' },
-					'class': { "tooltip":true },
+					'class': {
+						"tooltip":true,
+						"playing": playingComp,
+					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
 		];
@@ -329,6 +340,7 @@ Vue.component('my-game', {
 			else if (localStorage.getItem("newgame") === variant)
 			{
 				// New game request has been cancelled on disconnect
+				this.seek = true;
 				this.newGame("human");
 			}
 		};
@@ -370,7 +382,9 @@ Vue.component('my-game', {
 	methods: {
 		endGame: function(message) {
 			this.endofgame = message;
-			document.getElementById("modal-control").checked = true;
+			let modalBox = document.getElementById("modal-control");
+			modalBox.checked = true;
+			setTimeout(() => { modalBox.checked = false; }, 2000);
 			if (this.mode == "human")
 				this.clearStorage();
 			this.mode = "idle";
@@ -416,7 +430,9 @@ Vue.component('my-game', {
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
-				document.getElementById("modal-control2").checked = true;
+				let modalBox = document.getElementById("modal-control2");
+				modalBox.checked = true;
+				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
 			this.vr = new VariantRules(fen);
@@ -433,7 +449,8 @@ Vue.component('my-game', {
 				this.oppid = oppId;
 				this.oppConnected = true;
 				this.mycolor = color;
-				delete localStorage["newgame"]; //in case of
+				this.seek = false;
+				delete localStorage["newgame"];
 			}
 			else //against computer
 			{
