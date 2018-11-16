@@ -433,6 +433,7 @@ Vue.component('my-game', {
 				this.oppid = oppId;
 				this.oppConnected = true;
 				this.mycolor = color;
+				delete localStorage["newgame"]; //in case of
 			}
 			else //against computer
 			{
