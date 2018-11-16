@@ -47,9 +47,9 @@ class ChessRules
 	// INITIALIZATION
 
 	// fen = "position flags epSquare movesCount"
-	constructor(fen)
+	constructor(fen, moves)
 	{
-		this.moves = [];
+		this.moves = moves;
 		// Use fen string to initialize variables, flags and board
 		this.initVariables(fen);
 		this.flags = VariantRules.GetFlags(fen);
@@ -665,12 +665,15 @@ class ChessRules
 		move.flags = JSON.stringify(this.flags); //TODO: less costly
 		this.updateVariables(move);
 
+		if (!!ingame)
+		{
+			move.notation = this.getNotation(move);
+			this.moves.push(move);
+		}
+
 		this.epSquares.push( this.getEpSquare(move) );
 		VariantRules.PlayOnBoard(this.board, move);
 		this.movesCount++;
-
-		if (!!ingame)
-			this.moves.push(move);
 	}
 
 	undo(move)
@@ -1006,5 +1009,27 @@ class ChessRules
 			// Piece movement
 			return piece.toUpperCase() + (move.vanish.length > 1 ? "x" : "") + finalSquare;
 		}
+	}
+
+	// The score is already computed when calling this function
+	getPGN(mycolor, score)
+	{
+		let pgn = "";
+		pgn += '[Site "vchess.club"]<br>';
+		const d = new Date();
+		pgn += '[Date "' + d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '"]<br>';
+		pgn += '[White "' + (mycolor=='w'?'Myself':'Anonymous') + '"]<br>';
+		pgn += '[Black "' + (mycolor=='b'?'Myself':'Anonymous') + '"]<br>';
+		pgn += '[Result "' + score + '"]<br>';
+
+		for (let i=0; i<this.moves.length; i++)
+		{
+			if (i % 2 == 0)
+				pgn += ((i/2)+1) + ".";
+			pgn += this.moves[i].notation + " ";
+		}
+
+		pgn += score;
+		return pgn;
 	}
 }

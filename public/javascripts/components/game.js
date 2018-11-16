@@ -1,4 +1,4 @@
-// TODO: use indexedDB instead of localStorage: more flexible.
+// TODO: use indexedDB instead of localStorage? (more flexible...)
 
 Vue.component('my-game', {
 	data: function() {
@@ -10,7 +10,7 @@ Vue.component('my-game', {
 			start: {}, //pixels coordinates + id of starting square (click or drag)
 			selectedPiece: null, //moving piece (or clicked piece)
 			conn: null, //socket messages
-			endofgame: "", //end of game message
+			score: "*", //'*' means 'unfinished'
 			mode: "idle", //human, computer or idle (when not playing)
 			oppid: "", //opponent ID in case of HH game
 			oppConnected: false,
@@ -208,6 +208,51 @@ Vue.component('my-game', {
 	//				);
 	//				elementArray.push(reserve);
 	//			}
+			let eogMessage = "Unfinished";
+			switch (this.score)
+			{
+				case "1-0":
+					eogMessage = "White win";
+					break;
+				case "0-1":
+					eogMessage = "Black win";
+					break;
+				case "1/2":
+					eogMessage = "Draw";
+					break;
+			}
+			let elemsOfEog =
+			[
+				h('label',
+					{
+						attrs: { "for": "modal-control" },
+						"class": { "modal-close": true },
+					}
+				),
+				h('h3',
+					{
+						"class": { "section": true },
+						domProps: { innerHTML: "End of game" },
+					}
+				),
+				h('p',
+					{
+						"class": { "section": true },
+						domProps: { innerHTML: eogMessage },
+					}
+				)
+			];
+			if (this.score != "*")
+			{
+				elemsOfEog.push(
+					h('p', //'textarea', //TODO: selectable!
+						{
+							domProps: { innerHTML: this.vr.getPGN(this.mycolor, this.score) },
+							//attrs: { "readonly": true },
+						}
+					)
+				);
+			}
 			const modalEog = [
 				h('input',
 					{
@@ -223,26 +268,7 @@ Vue.component('my-game', {
 							{
 								"class": { "card": true, "smallpad": true },
 							},
-							[
-								h('label',
-									{
-										attrs: { "for": "modal-control" },
-										"class": { "modal-close": true },
-									}
-								),
-								h('h3',
-									{
-										"class": { "section": true },
-										domProps: { innerHTML: "End of game" },
-									}
-								),
-								h('p',
-									{
-										"class": { "section": true },
-										domProps: { innerHTML: this.endofgame },
-									}
-								)
-							]
+							elemsOfEog
 						)
 					]
 				)
@@ -332,8 +358,11 @@ Vue.component('my-game', {
 			if (continuation)
 			{
 				// TODO: check FEN integrity with opponent
-				this.newGame("human", localStorage.getItem("fen"),
-					localStorage.getItem("mycolor"), localStorage.getItem("oppid"), true);
+				const fen = localStorage.getItem("fen");
+				const mycolor = localStorage.getItem("mycolor");
+				const oppid = localStorage.getItem("oppid");
+				const moves = JSON.parse(localStorage.getItem("moves"));
+				this.newGame("human", fen, mycolor, oppid, moves, true);
 				// Send ping to server, which answers pong if opponent is connected
 				this.conn.send(JSON.stringify({code:"ping", oppid:this.oppId}));
 			}
@@ -358,7 +387,7 @@ Vue.component('my-game', {
 					this.oppConnected = true;
 					break;
 				case "resign": //..you won!
-					this.endGame("Victory!");
+					this.endGame(this.mycolor=="w"?"1-0":"0-1");
 					break;
 				// TODO: also use (dis)connect info to count online players
 				case "connect":
@@ -380,11 +409,11 @@ Vue.component('my-game', {
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
-		endGame: function(message) {
-			this.endofgame = message;
+		endGame: function(score) {
+			this.score = score;
 			let modalBox = document.getElementById("modal-control");
 			modalBox.checked = true;
-			setTimeout(() => { modalBox.checked = false; }, 2000);
+			//setTimeout(() => { modalBox.checked = false; }, 2000); //disabled, to show PGN
 			if (this.mode == "human")
 				this.clearStorage();
 			this.mode = "idle";
@@ -399,7 +428,7 @@ Vue.component('my-game', {
 					return; //resign failed for some reason...
 				}
 			}
-			this.endGame("Try again!");
+			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		updateStorage: function() {
 			if (!localStorage.getItem("myid"))
@@ -410,6 +439,7 @@ Vue.component('my-game', {
 				localStorage.setItem("oppid", this.oppid);
 			}
 			localStorage.setItem("fen", this.vr.getFen());
+			localStorage.setItem("moves", JSON.stringify(this.vr.moves));
 		},
 		clearStorage: function() {
 			delete localStorage["variant"];
@@ -417,10 +447,12 @@ Vue.component('my-game', {
 			delete localStorage["mycolor"];
 			delete localStorage["oppid"];
 			delete localStorage["fen"];
+			delete localStorage["moves"];
 		},
-		newGame: function(mode, fenInit, color, oppId, continuation) {
+		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
+			this.score = "*";
 			if (mode=="human" && !oppId)
 			{
 				// Send game request and wait..
@@ -435,7 +467,7 @@ Vue.component('my-game', {
 				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
-			this.vr = new VariantRules(fen);
+			this.vr = new VariantRules(fen, moves || []);
 			this.mode = mode;
 			if (mode=="human")
 			{
