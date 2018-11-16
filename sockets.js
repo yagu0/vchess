@@ -18,6 +18,9 @@ module.exports = function(wss) {
 	for (const v of Variants)
 		clients[v.name] = {};
 
+	// TODO: when relaying to opponent, check readyState, potential setTimeout()? + send opponent (re)disconnect
+	// (resign, newgame, newmove). See https://github.com/websockets/ws/blob/master/lib/websocket.js around line 313
+
 	wss.on("connection", (socket, req) => {
 		//const params = new URL("http://localhost" + req.url).searchParams;
 		var query = getJsonFromUrl(req.url);
@@ -47,10 +50,7 @@ module.exports = function(wss) {
 				switch (obj.code)
 				{
 					case "newmove":
-						// TODO: adjust with readyState? (+ setTimeout()?) + send opponent (re)disconnect
-						// https://github.com/websockets/ws/blob/master/lib/websocket.js line 313
-						if (!!clients[page][obj.oppid])
-							clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+						clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
 						break;
 					case "ping":
 						if (!!clients[page][obj.oppid])
@@ -65,7 +65,6 @@ module.exports = function(wss) {
 							delete games[page];
 							const mycolor = Math.random() < 0.5 ? 'w' : 'b';
 							socket.send(JSON.stringify({code:"newgame",fen:fen,oppid:oppId,color:mycolor}));
-							// TODO: check readyState, potential setTimeout()? + send opponent (re)disconnect
 							clients[page][oppId].send(JSON.stringify({code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w"}));
 						}
 						else

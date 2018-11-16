@@ -1,3 +1,5 @@
+// TODO: use indexedDB instead of localStorage: more flexible.
+
 Vue.component('my-game', {
 	data: function() {
 		return {
@@ -27,7 +29,17 @@ Vue.component('my-game', {
 		let actionArray = [
 			h('button',
 				{
-					on: { click: () => this.newGame("human") },
+					on: {
+						click: () => {
+							if (localStorage.getItem("newgame") === variant)
+								delete localStorage["newgame"]; //cancel game seek
+							else
+							{
+								localStorage["newgame"] = variant;
+								this.newGame("human");
+							}
+						}
+					},
 					attrs: { "aria-label": 'New game VS human' },
 					'class': { "tooltip":true },
 				},
@@ -137,7 +149,7 @@ Vue.component('my-game', {
 									)
 								);
 							}
-							const lm = this.vr.lastMove; //TODO: interruptions (FEN local storage..)
+							const lm = this.vr.lastMove;
 							const highlight = !!lm && _.isMatch(lm.end, {x:ci,y:cj}); //&& _.isMatch(lm.start, {x:ci,y:cj})
 							return h(
 								'div',
@@ -314,6 +326,11 @@ Vue.component('my-game', {
 				// Send ping to server, which answers pong if opponent is connected
 				this.conn.send(JSON.stringify({code:"ping", oppid:this.oppId}));
 			}
+			else if (localStorage.getItem("newgame") === variant)
+			{
+				// New game request has been cancelled on disconnect
+				this.newGame("human");
+			}
 		};
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
@@ -340,7 +357,7 @@ Vue.component('my-game', {
 			}
 		};
 		const socketCloseListener = () => {
-			console.log("Lost connection -- reconnect"); //TODO: be more subtle than that, reconnect only when needed!
+			console.log("Lost connection -- reconnect");
 			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 			this.conn.addEventListener('open', socketOpenListener);
 			this.conn.addEventListener('message', socketMessageListener);
