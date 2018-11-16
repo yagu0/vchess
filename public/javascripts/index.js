@@ -1,24 +1,9 @@
-const url = socketUrl;
-// random enough (TODO: function)
-const sid = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
-const conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
-
-conn.onmessage = msg => {
-	const data = JSON.parse(msg.data);
-	if (data.code == "counts")
-		//V.counts = data.counts;
-		Vue.set(V, "counts", data.counts);
-	else if (data.code == "increase")
-		V.counts[data.vname]++;
-	else if (data.code == "decrease")
-		V.counts[data.vname]--;
-}
-
-let V = new Vue({
+new Vue({
 	el: "#indexPage",
 	data: {
 		counts: {},
 		curPrefix: "",
+		conn: null,
 	},
 	computed: {
 		sortedCounts: function () {
@@ -36,6 +21,29 @@ let V = new Vue({
 				return a.name.localeCompare(b.name);
 			});
 		},
+	},
+	created: function() {
+		const url = socketUrl;
+		// random enough (TODO: function)
+		const sid = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
+		this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
+		const socketMessageListener = msg => {
+			const data = JSON.parse(msg.data);
+			if (data.code == "counts")
+				this.counts = data.counts;
+			else if (data.code == "increase")
+				this.counts[data.vname]++;
+			else if (data.code == "decrease")
+				this.counts[data.vname]--;
+		};
+		const socketCloseListener = () => {
+			console.log("Lost connection -- reconnect");
+			this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
+			this.conn.addEventListener('message', socketMessageListener);
+			this.conn.addEventListener('close', socketCloseListener);
+		};
+		this.conn.onmessage = socketMessageListener;
+		this.conn.onclose = socketCloseListener;
 	},
 	mounted: function() {
 		// Handle key stroke
