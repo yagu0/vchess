@@ -15,6 +15,7 @@ Vue.component('my-game', {
 			oppid: "", //opponent ID in case of HH game
 			oppConnected: false,
 			seek: false,
+			fenStart: "",
 		};
 	},
 	render(h) {
@@ -232,12 +233,6 @@ Vue.component('my-game', {
 				h('h3',
 					{
 						"class": { "section": true },
-						domProps: { innerHTML: "End of game" },
-					}
-				),
-				h('p',
-					{
-						"class": { "section": true },
 						domProps: { innerHTML: eogMessage },
 					}
 				)
@@ -247,7 +242,7 @@ Vue.component('my-game', {
 				elemsOfEog.push(
 					h('p', //'textarea', //TODO: selectable!
 						{
-							domProps: { innerHTML: this.vr.getPGN(this.mycolor, this.score) },
+							domProps: { innerHTML: this.vr.getPGN(this.mycolor, this.score, this.fenStart) },
 							//attrs: { "readonly": true },
 						}
 					)
@@ -430,22 +425,25 @@ Vue.component('my-game', {
 			}
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
-		updateStorage: function() {
-			if (!localStorage.getItem("myid"))
-			{
-				localStorage.setItem("myid", this.myid);
-				localStorage.setItem("variant", variant);
-				localStorage.setItem("mycolor", this.mycolor);
-				localStorage.setItem("oppid", this.oppid);
-			}
-			localStorage.setItem("fen", this.vr.getFen());
+		setStorage: function() {
+			localStorage.setItem("myid", this.myid);
+			localStorage.setItem("variant", variant);
+			localStorage.setItem("mycolor", this.mycolor);
+			localStorage.setItem("oppid", this.oppid);
+			localStorage.setItem("fenStart", this.fenStart);
 			localStorage.setItem("moves", JSON.stringify(this.vr.moves));
+			localStorage.setItem("fen", this.vr.getFen());
+		},
+		updateStorage: function() {
+			localStorage.setItem("moves", JSON.stringify(this.vr.moves));
+			localStorage.setItem("fen", this.vr.getFen());
 		},
 		clearStorage: function() {
 			delete localStorage["variant"];
 			delete localStorage["myid"];
 			delete localStorage["mycolor"];
 			delete localStorage["oppid"];
+			delete localStorage["fenStart"];
 			delete localStorage["fen"];
 			delete localStorage["moves"];
 		},
@@ -469,6 +467,9 @@ Vue.component('my-game', {
 			}
 			this.vr = new VariantRules(fen, moves || []);
 			this.mode = mode;
+			this.fenStart = continuation
+				? localStorage.getItem("fenStart")
+				: fen.split(" ")[0]; //Only the position matters
 			if (mode=="human")
 			{
 				// Opponent found!
@@ -483,6 +484,7 @@ Vue.component('my-game', {
 				this.mycolor = color;
 				this.seek = false;
 				delete localStorage["newgame"];
+				this.setStorage(); //in case of interruptions
 			}
 			else //against computer
 			{

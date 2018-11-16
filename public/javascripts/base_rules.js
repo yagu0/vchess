@@ -1012,7 +1012,7 @@ class ChessRules
 	}
 
 	// The score is already computed when calling this function
-	getPGN(mycolor, score)
+	getPGN(mycolor, score, fenStart)
 	{
 		let pgn = "";
 		pgn += '[Site "vchess.club"]<br>';
@@ -1020,7 +1020,8 @@ class ChessRules
 		pgn += '[Date "' + d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '"]<br>';
 		pgn += '[White "' + (mycolor=='w'?'Myself':'Anonymous') + '"]<br>';
 		pgn += '[Black "' + (mycolor=='b'?'Myself':'Anonymous') + '"]<br>';
-		pgn += '[Result "' + score + '"]<br>';
+		pgn += '[Fen "' + fenStart + '"]<br>';
+		pgn += '[Result "' + score + '"]<br><br>';
 
 		for (let i=0; i<this.moves.length; i++)
 		{
