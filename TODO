@@ -1,2 +1,4 @@
-End of game a bit too verbose: should just say "Black win" ... + show PGN
 Styles must be improved (full width for smartphones, selectable text for PGN...)
+Tooltip text should fade (even when mouse stay on it, especially for small screens)
+Checkered stage 2: switch button at reserve position.
+If a played disconnect right after opponent sent a move, it might be never received: secure this

@@ -16,6 +16,7 @@ Vue.component('my-game', {
 			oppConnected: false,
 			seek: false,
 			fenStart: "",
+			incheck: false,
 		};
 	},
 	render(h) {
@@ -35,6 +36,8 @@ Vue.component('my-game', {
 				{
 					on: {
 						click: () => {
+							if (this.mode == "human")
+								return; //no newgame while playing
 							if (this.seek)
 								delete localStorage["newgame"]; //cancel game seek
 							else
@@ -55,7 +58,13 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "accessibility")]),
 			h('button',
 				{
-					on: { click: () => this.newGame("computer") },
+					on: {
+						click: () => {
+							if (this.mode == "human")
+								return; //no newgame while playing
+							this.newGame("computer");
+						}
+					},
 					attrs: { "aria-label": 'New game VS computer' },
 					'class': {
 						"tooltip":true,
@@ -162,7 +171,9 @@ Vue.component('my-game', {
 								);
 							}
 							const lm = this.vr.lastMove;
-							const highlight = !!lm && _.isMatch(lm.end, {x:ci,y:cj}); //&& _.isMatch(lm.start, {x:ci,y:cj})
+							const highlight = !!lm && _.isMatch(lm.end, {x:ci,y:cj});
+							const incheck = this.incheck
+								&& _.isEqual(this.vr.kingPos[this.vr.turn], [ci,cj]);
 							return h(
 								'div',
 								{
@@ -171,6 +182,7 @@ Vue.component('my-game', {
 										'light-square': !highlight && (i+j)%2==0,
 										'dark-square': !highlight && (i+j)%2==1,
 										'highlight': highlight,
+										'incheck': incheck,
 									},
 									attrs: {
 										id: this.getSquareId({x:ci,y:cj}),
@@ -483,6 +495,14 @@ Vue.component('my-game', {
 				this.oppConnected = true;
 				this.mycolor = color;
 				this.seek = false;
+				if (!!moves && moves.length > 0) //imply continuation
+				{
+					const oppCol = this.vr.turn;
+					const lastMove = moves[moves.length-1];
+					this.vr.undo(lastMove);
+					this.incheck = this.vr.underCheck(lastMove, oppCol);
+					this.vr.play(lastMove, "ingame");
+				}
 				delete localStorage["newgame"];
 				this.setStorage(); //in case of interruptions
 			}
@@ -610,6 +630,8 @@ Vue.component('my-game', {
 				this.animateMove(move);
 				return;
 			}
+			const oppCol = this.vr.getOppCol(this.vr.turn);
+			this.incheck = this.vr.underCheck(move, oppCol); //is opponent in check?
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 			{

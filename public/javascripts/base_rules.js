@@ -517,6 +517,32 @@ class ChessRules
 		// No: if happen on last 1/2 move, could lead to forbidden moves, wrong evals
 		return this.filterValid(potentialMoves);
 	}
+	
+	// Stop at the first move found
+	atLeastOneMove(color)
+	{
+		const oppCol = this.getOppCol(color);
+		let [sizeX,sizeY] = VariantRules.size;
+		for (var i=0; i<sizeX; i++)
+		{
+			for (var j=0; j<sizeY; j++)
+			{
+				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) != oppCol)
+				{
+					const moves = this.getPotentialMovesFrom([i,j]);
+					if (moves.length > 0)
+					{
+						for (let i=0; i<moves.length; i++)
+						{
+							if (this.filterValid([moves[i]]).length > 0)
+								return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
 
 	// Check if pieces of color 'color' are attacking square x,y
 	isAttacked(sq, color)
@@ -676,11 +702,14 @@ class ChessRules
 		this.movesCount++;
 	}
 
-	undo(move)
+	undo(move, ingame)
 	{
 		VariantRules.UndoOnBoard(this.board, move);
 		this.epSquares.pop();
 		this.movesCount--;
+
+		if (!!ingame)
+			this.moves.pop();
 
 		// Update king position, and reset stored/computed flags
 		const c = this.getColor(move.start.x,move.start.y);
@@ -709,8 +738,7 @@ class ChessRules
 			}
 		}
 
-		// TODO: not required to generate ALL: just need one (callback ? hook ? ...)
-		if (this.getAllValidMoves(color).length > 0)
+		if (this.atLeastOneMove(color))
 		{
 			// game not over
 			return "*";
@@ -779,14 +807,14 @@ class ChessRules
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 
 		// TODO: show current analyzed move for depth 3, allow stopping eval (return moves1[0])
-//		for (let i=0; i<moves1.length; i++)
-//		{
-//			this.play(moves1[i]);
-//			// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
-//			moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(oppCol, color, 2, -1000, 1000);
-//			this.undo(moves1[i]);
-//		}
-//		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
+		for (let i=0; i<moves1.length; i++)
+		{
+			this.play(moves1[i]);
+			// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
+			moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(oppCol, color, 2, -1000, 1000);
+			this.undo(moves1[i]);
+		}
+		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 
 		let candidates = [0]; //indices of candidates moves
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -798,7 +826,7 @@ class ChessRules
 
 	alphabeta(color, oppCol, depth, alpha, beta)
   {
-		let moves = this.getAllValidMoves(color);
+		const moves = this.getAllValidMoves(color);
 		if (moves.length == 0)
 		{
 			switch (this.checkGameEnd(color))
