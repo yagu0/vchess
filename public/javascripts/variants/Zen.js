@@ -224,7 +224,7 @@ class ZenRules extends ChessRules
 			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
 
 		let notation = "";
-		let piece = this.rules.getPiece(move.start.x, move.start.y);
+		let piece = this.getPiece(move.start.x, move.start.y);
 		if (piece == VariantRules.PAWN)
 		{
 			// pawn move (TODO: enPassant indication)
