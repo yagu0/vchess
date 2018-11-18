@@ -67,13 +67,13 @@ module.exports = function(wss) {
 				switch (obj.code)
 				{
 					case "newmove":
-						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
+						if (!!clients[page][obj.oppid]) // && clients[page][obj.oppid].readyState == WebSocket.OPEN)
 							clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
 						else
 							newmoves[page][obj.oppid] = obj.move;
 						break;
 					case "ping":
-						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
+						if (!!clients[page][obj.oppid]) // && clients[page][obj.oppid].readyState == WebSocket.OPEN)
 							socket.send(JSON.stringify({code:"pong"}));
 						break;
 					case "newgame":
@@ -91,7 +91,7 @@ module.exports = function(wss) {
 							games[page] = {id:sid, fen:obj.fen}; //wait for opponent
 						break;
 					case "resign":
-						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
+						if (!!clients[page][obj.oppid]) // && clients[page][obj.oppid].readyState == WebSocket.OPEN)
 							clients[page][obj.oppid].send(JSON.stringify({code:"resign"}));
 						else
 							newresign[page][obj.oppid] = true;
