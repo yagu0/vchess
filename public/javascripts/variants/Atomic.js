@@ -131,6 +131,19 @@ class AtomicRules extends ChessRules
 		return res;
 	}
 
+	getCheckSquares(move, c)
+	{
+		const saveKingPos = this.kingPos[c]; //king might explode
+		this.play(move);
+		let res = [ ];
+		if (this.kingPos[c][0] < 0)
+			res = [saveKingPos];
+		else if (this.isAttacked(this.kingPos[c], this.getOppCol(c)))
+			res = [ this.kingPos[c] ]
+		this.undo(move);
+		return res;
+	}
+
 	checkGameEnd(color)
 	{
 		const kp = this.kingPos[color];

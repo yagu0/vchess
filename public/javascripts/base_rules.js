@@ -629,10 +629,22 @@ class ChessRules
 		return false;
 	}
 
+	// Is color c under check after move ?
 	underCheck(move, c)
 	{
 		this.play(move);
 		let res = this.isAttacked(this.kingPos[c], this.getOppCol(c));
+		this.undo(move);
+		return res;
+	}
+
+	// On which squares is color c under check (after move) ?
+	getCheckSquares(move, c)
+	{
+		this.play(move);
+		let res = this.isAttacked(this.kingPos[c], this.getOppCol(c))
+			? [ JSON.parse(JSON.stringify(this.kingPos[c])) ] //need to duplicate!
+			: [ ];
 		this.undo(move);
 		return res;
 	}

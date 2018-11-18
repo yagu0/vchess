@@ -1,7 +1,6 @@
 Styles must be improved (full width for smartphones, selectable text for PGN...)
 Tooltip text should fade (even when mouse stay on it, especially for small screens)
-Checkered stage 2: switch button at reserve position.
+Checkered stage 2: switch button at reserve position (or on top).
 If a played disconnect right after opponent sent a move, it might be never received: secure this
-Think about non-conventional variants with 2 kings for example: undercheck highlight?
-  --> underCheck should return a vector in this case. Adapt.
-	--> incheck should be an array of squares, in general. Think AntiKing
+Mode expert: game.js, button on top (with online indicator)
+Turn indicator on top too (black or white)

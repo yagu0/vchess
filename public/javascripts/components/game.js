@@ -16,7 +16,7 @@ Vue.component('my-game', {
 			oppConnected: false,
 			seek: false,
 			fenStart: "",
-			incheck: false,
+			incheck: [],
 		};
 	},
 	render(h) {
@@ -24,6 +24,9 @@ Vue.component('my-game', {
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
+		// Also precompute in-check squares
+		let incheckSq = doubleArray(sizeX, sizeY, false);
+		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 		let elementArray = [];
 		let square00 = document.getElementById("sq-0-0");
 		let squareWidth = !!square00
@@ -172,8 +175,6 @@ Vue.component('my-game', {
 							}
 							const lm = this.vr.lastMove;
 							const highlight = !!lm && _.isMatch(lm.end, {x:ci,y:cj});
-							const incheck = this.incheck
-								&& _.isEqual(this.vr.kingPos[this.vr.turn], [ci,cj]);
 							return h(
 								'div',
 								{
@@ -182,7 +183,7 @@ Vue.component('my-game', {
 										'light-square': !highlight && (i+j)%2==0,
 										'dark-square': !highlight && (i+j)%2==1,
 										'highlight': highlight,
-										'incheck': incheck,
+										'incheck': incheckSq[ci][cj],
 									},
 									attrs: {
 										id: this.getSquareId({x:ci,y:cj}),
@@ -499,8 +500,8 @@ Vue.component('my-game', {
 				{
 					const oppCol = this.vr.turn;
 					const lastMove = moves[moves.length-1];
-					this.vr.undo(lastMove);
-					this.incheck = this.vr.underCheck(lastMove, oppCol);
+					this.vr.undo(lastMove, "ingame");
+					this.incheck = this.vr.getCheckSquares(lastMove, oppCol);
 					this.vr.play(lastMove, "ingame");
 				}
 				delete localStorage["newgame"];
@@ -631,7 +632,7 @@ Vue.component('my-game', {
 				return;
 			}
 			const oppCol = this.vr.getOppCol(this.vr.turn);
-			this.incheck = this.vr.underCheck(move, oppCol); //is opponent in check?
+			this.incheck = this.vr.getCheckSquares(move, oppCol); //is opponent in check?
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 			{

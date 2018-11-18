@@ -20,6 +20,7 @@ module.exports = function(wss) {
 
 	// TODO: when relaying to opponent, check readyState, potential setTimeout()? + send opponent (re)disconnect
 	// (resign, newgame, newmove). See https://github.com/websockets/ws/blob/master/lib/websocket.js around line 313
+	// TODO: awaiting newmove, resign, newgame :: in memory structure
 
 	wss.on("connection", (socket, req) => {
 		//const params = new URL("http://localhost" + req.url).searchParams;
