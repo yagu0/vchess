@@ -1,4 +1,4 @@
-// TODO: use indexedDB instead of localStorage? (more flexible...)
+// TODO: use indexedDB instead of localStorage? (more flexible: allow several games)
 
 Vue.component('my-game', {
 	data: function() {
@@ -365,14 +365,13 @@ Vue.component('my-game', {
 		const socketOpenListener = () => {
 			if (continuation)
 			{
-				// TODO: check FEN integrity with opponent
 				const fen = localStorage.getItem("fen");
 				const mycolor = localStorage.getItem("mycolor");
 				const oppid = localStorage.getItem("oppid");
 				const moves = JSON.parse(localStorage.getItem("moves"));
 				this.newGame("human", fen, mycolor, oppid, moves, true);
-				// Send ping to server, which answers pong if opponent is connected
-				this.conn.send(JSON.stringify({code:"ping", oppid:this.oppId}));
+				// Send ping to server (answer pong if opponent is connected)
+				this.conn.send(JSON.stringify({code:"ping",oppid:this.oppId}));
 			}
 			else if (localStorage.getItem("newgame") === variant)
 			{
@@ -391,9 +390,46 @@ Vue.component('my-game', {
 				case "newmove": //..he played!
 					this.play(data.move, "animate");
 					break;
-				case "pong": //sent when opponent stayed online after we disconnected
+				case "pong": //received if opponent sent a ping
 					this.oppConnected = true;
+					const L = this.vr.moves.length;
+					// Send our "last state" informations to opponent (we are still playing)
+					this.conn.send(JSON.stringify({
+						code:"lastate",
+						oppid:this.oppId,
+						lastMove:L>0?this.vr.moves[L-1]:undefined,
+						movesCount:L,
+					}));
 					break;
+				case "lastate": //got opponent infos about last move (we might have resigned)
+					if (this.mode!="human" || this.oppid!=data.oppid)
+					{
+						// OK, we resigned
+						this.conn.send(JSON.stringify({
+							code:"lastate",
+							oppid:this.oppId,
+							lastMove:undefined,
+							movesCount:-1,
+						}));
+					}
+					else if (data.movesCount < 0)
+					{
+						// OK, he resigned
+						this.endGame(this.mycolor=="w"?"1-0":"0-1");
+					}
+					else if (data.movesCount < this.vr.moves.length)
+					{
+						// We must tell last move to opponent
+						const L = this.vr.moves.length;
+						this.conn.send(JSON.stringify({
+							code:"lastate",
+							oppid:this.oppId,
+							lastMove:this.vr.moves[L-1],
+							movesCount:L,
+						}));
+					}
+					else if (data.movesCount > this.vr.moves.length) //just got last move from him
+						this.play(data.lastMove, "animate");
 				case "resign": //..you won!
 					this.endGame(this.mycolor=="w"?"1-0":"0-1");
 					break;
@@ -433,7 +469,7 @@ Vue.component('my-game', {
 				try {
 					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
 				} catch (INVALID_STATE_ERR) {
-					return; //resign failed for some reason...
+					return; //socket is not ready (and not yet reconnected)
 				}
 			}
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
@@ -646,15 +682,7 @@ Vue.component('my-game', {
 			this.incheck = this.vr.getCheckSquares(move, oppCol); //is opponent in check?
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
-			{
-				if (!this.oppConnected)
-					return; //abort move if opponent is gone
-				try {
-					this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-				} catch(INVALID_STATE_ERR) {
-					return; //abort also if sending failed
-				}
-			}
+				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			new Audio("/sounds/chessmove1.mp3").play();
 			this.vr.play(move, "ingame");
 			if (this.mode == "human")
