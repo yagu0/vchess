@@ -480,6 +480,7 @@ Vue.component('my-game', {
 			}
 			this.vr = new VariantRules(fen, moves || []);
 			this.mode = mode;
+			this.incheck = []; //in case of
 			this.fenStart = continuation
 				? localStorage.getItem("fenStart")
 				: fen.split(" ")[0]; //Only the position matters
