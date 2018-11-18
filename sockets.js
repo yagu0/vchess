@@ -18,9 +18,15 @@ module.exports = function(wss) {
 	for (const v of Variants)
 		clients[v.name] = {};
 
-	// TODO: when relaying to opponent, check readyState, potential setTimeout()? + send opponent (re)disconnect
 	// (resign, newgame, newmove). See https://github.com/websockets/ws/blob/master/lib/websocket.js around line 313
-	// TODO: awaiting newmove, resign, newgame :: in memory structure (use Redis ?)
+	// TODO: awaiting newmove, resign, (+newgame?) :: in memory structure (use Redis ?)
+	let newmoves = {};
+	let newresign = {};
+	for (const v of Variants)
+	{
+		newmoves[v.name] = {};
+		newresign[v.name] = {};
+	}
 
 	wss.on("connection", (socket, req) => {
 		//const params = new URL("http://localhost" + req.url).searchParams;
@@ -46,15 +52,28 @@ module.exports = function(wss) {
 			Object.keys(clients[page]).forEach( k => {
 				clients[page][k].send(JSON.stringify({code:"connect",id:sid}));
 			});
+			if (!!newmoves[page][sid])
+			{
+				socket.send(JSON.stringify({code:"newmove",move:newmoves[page][sid]}));
+				delete newmoves[page][sid];
+			}
+			if (!!newresign[page][sid])
+			{
+				socket.send(JSON.stringify({code:"resign"}));
+				delete newresign[page][sid];
+			}
 			socket.on("message", objtxt => {
 				let obj = JSON.parse(objtxt);
 				switch (obj.code)
 				{
 					case "newmove":
-						clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
+							clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+						else
+							newmoves[page][obj.oppid] = obj.move;
 						break;
 					case "ping":
-						if (!!clients[page][obj.oppid])
+						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
 							socket.send(JSON.stringify({code:"pong"}));
 						break;
 					case "newgame":
@@ -72,7 +91,10 @@ module.exports = function(wss) {
 							games[page] = {id:sid, fen:obj.fen}; //wait for opponent
 						break;
 					case "resign":
-						clients[page][obj.oppid].send(JSON.stringify({code:"resign"}));
+						if (!!clients[page][obj.oppid] && clients[page][obj.oppid].readyState == WebSocket.OPEN)
+							clients[page][obj.oppid].send(JSON.stringify({code:"resign"}));
+						else
+							newresign[page][obj.oppid] = true;
 						break;
 				}
 			});

@@ -378,7 +378,7 @@ Vue.component('my-game', {
 			{
 				// New game request has been cancelled on disconnect
 				this.seek = true;
-				this.newGame("human");
+				this.newGame("human", "reconnect");
 			}
 		};
 		const socketMessageListener = msg => {
@@ -480,9 +480,12 @@ Vue.component('my-game', {
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
-				let modalBox = document.getElementById("modal-control2");
-				modalBox.checked = true;
-				setTimeout(() => { modalBox.checked = false; }, 2000);
+				if (!fenInit || fenInit!="reconnect") //TODO: bad HACK...
+				{
+					let modalBox = document.getElementById("modal-control2");
+					modalBox.checked = true;
+					setTimeout(() => { modalBox.checked = false; }, 2000);
+				}
 				return;
 			}
 			this.vr = new VariantRules(fen, moves || []);

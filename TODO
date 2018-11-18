@@ -1,6 +1,6 @@
 Styles must be improved (full width for smartphones, selectable text for PGN...)
 Tooltip text should fade (even when mouse stay on it, especially for small screens)
 Checkered stage 2: switch button at reserve position (or on top).
-If a played disconnect right after opponent sent a move, it might be never received: secure this
 Mode expert: game.js, button on top (with online indicator)
 Turn indicator on top too (black or white)
+incheck by checkered pawns: not marked (because of turn changed?)
