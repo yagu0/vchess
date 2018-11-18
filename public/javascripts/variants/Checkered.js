@@ -36,6 +36,7 @@ class CheckeredRules extends ChessRules
 	{
 		super.initVariables(fen);
 		// Decode last non-capturing checkered move (if any)
+		// TODO: since now we store moves list, this can disappear
 		const cmove = fen.split(" ")[4];
 		if (cmove != "-")
 		{
@@ -349,6 +350,18 @@ class CheckeredRules extends ChessRules
 		this.play(move);
 		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
 			|| this.isAttacked(this.kingPos[color], 'c'); //TODO: quite inefficient...
+		this.undo(move);
+		return res;
+	}
+
+	getCheckSquares(move, c)
+	{
+		this.play(move);
+		const kingAttacked = this.isAttacked(this.kingPos[c], this.getOppCol(c))
+			|| this.isAttacked(this.kingPos[c], 'c');
+		let res = kingAttacked
+			? [ JSON.parse(JSON.stringify(this.kingPos[c])) ] //need to duplicate!
+			: [ ];
 		this.undo(move);
 		return res;
 	}
