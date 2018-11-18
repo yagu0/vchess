@@ -466,6 +466,13 @@ Vue.component('my-game', {
 			this.score = "*";
 			if (mode=="human" && !oppId)
 			{
+				const storageVariant = localStorage.getItem("variant");
+				if (!!storageVariant && storageVariant !== variant)
+				{
+					// TODO: find a better way to ensure this. Newgame system is currently a mess.
+					alert("Finish your " + storageVariant + " game first!");
+					return;
+				}
 				// Send game request and wait..
 				this.clearStorage(); //in case of
 				try {
