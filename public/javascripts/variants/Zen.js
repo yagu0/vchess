@@ -1,5 +1,11 @@
 class ZenRules extends ChessRules
 {
+	// NOTE: enPassant, if enabled, would need to redefine carefully getEpSquare
+	getEpSquare(move)
+	{
+		return undefined;
+	}
+
 	// TODO: some duplicated code in 2 next functions
 	getSlideNJumpMoves(x, y, color, steps, oneStep)
 	{
@@ -135,21 +141,7 @@ class ZenRules extends ChessRules
 			});
 		}
 
-		// En passant
-		const Lep = this.epSquares.length;
-		const epSquare = Lep>0 ? this.epSquares[Lep-1] : undefined;
-		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
-		{
-			let epStep = epSquare.y - y;
-			var enpassantMove = this.getBasicMove(x, y, x+shift, y+epStep);
-			enpassantMove.vanish.push({
-				x: x,
-				y: y+epStep,
-				p: 'p',
-				c: this.getColor(x,y+epStep)
-			});
-			moves.push(enpassantMove);
-		}
+		// No en passant here
 
 		// Add "zen" captures
 		Array.prototype.push.apply(moves, this.findCaptures(x, y, color));

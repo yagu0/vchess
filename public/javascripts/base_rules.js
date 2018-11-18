@@ -98,6 +98,7 @@ class ChessRules
 				j++;
 			}
 		}
+		// TODO: since we keep moves stack, next 2 are redundant
 		let epSq = undefined;
 		if (fenParts[2] != "-")
 		{
@@ -838,8 +839,7 @@ class ChessRules
 
 	alphabeta(color, oppCol, depth, alpha, beta)
   {
-		const moves = this.getAllValidMoves(color);
-		if (moves.length == 0)
+		if (!this.atLeastOneMove(color))
 		{
 			switch (this.checkGameEnd(color))
 			{
@@ -849,6 +849,7 @@ class ChessRules
 		}
 		if (depth == 0)
       return this.evalPosition();
+		const moves = this.getAllValidMoves(color);
     let v = color=="w" ? -1000 : 1000;
 		if (color == "w")
 		{
