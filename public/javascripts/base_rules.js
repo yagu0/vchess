@@ -51,9 +51,9 @@ class ChessRules
 	{
 		this.moves = moves;
 		// Use fen string to initialize variables, flags and board
-		this.initVariables(fen);
 		this.board = VariantRules.GetBoard(fen);
 		this.flags = VariantRules.GetFlags(fen);
+		this.initVariables(fen);
 	}
 
 	initVariables(fen)
