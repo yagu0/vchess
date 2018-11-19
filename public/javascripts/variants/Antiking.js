@@ -8,10 +8,10 @@ class AntikingRules
 
 	static get ANTIKING() { return 'a'; }
 
-	// TODO: more subtle than that, require changing args: wp, bk and not just colors
-	canTake(color1, color2)
+	canTake(color1, color2, [x,y])
 	{
-		return color1 != color2;
+		const piece = this.getPiece(x,y);
+		return (piece != "a" && color1 != color2) || (piece == "a" && color1 == color2);
 	}
 
 	getPotentialMovesFrom([x,y])
@@ -25,6 +25,8 @@ class AntikingRules
 				return super.getPotentielMovesFrom([x,y]);
 		}
 	}
+
+// TODO: generaliser (à moindre coût) base_rules ? Ou spécialiser variantes ?
 
 	getPotentialAntikingMoves(x, y, c)
 	{

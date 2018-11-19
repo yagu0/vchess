@@ -268,8 +268,7 @@ class ChessRules
 		{
 			var i = x + step[0];
 			var j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] == VariantRules.EMPTY)
+			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
 			{
 				moves.push(this.getBasicMove(x, y, i, j));
 				if (oneStep !== undefined)
