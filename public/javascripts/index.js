@@ -37,7 +37,6 @@ new Vue({
 				this.counts[data.vname]--;
 		};
 		const socketCloseListener = () => {
-			console.log("Lost connection -- reconnect");
 			this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);

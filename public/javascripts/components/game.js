@@ -207,7 +207,7 @@ Vue.component('my-game', {
 			[
 				h('label',
 					{
-						attrs: { "for": "modal-control" },
+						attrs: { "for": "modal-eog" },
 						"class": { "modal-close": true },
 					}
 				),
@@ -232,7 +232,7 @@ Vue.component('my-game', {
 			const modalEog = [
 				h('input',
 					{
-						attrs: { "id": "modal-control", type: "checkbox" },
+						attrs: { "id": "modal-eog", type: "checkbox" },
 						"class": { "modal": true },
 					}),
 				h('div',
@@ -254,7 +254,7 @@ Vue.component('my-game', {
 		const modalNewgame = [
 			h('input',
 				{
-					attrs: { "id": "modal-control2", type: "checkbox" },
+					attrs: { "id": "modal-newgame", type: "checkbox" },
 					"class": { "modal": true },
 				}),
 			h('div',
@@ -269,7 +269,7 @@ Vue.component('my-game', {
 						[
 							h('label',
 								{
-									attrs: { "id": "close-newgame", "for": "modal-control2" },
+									attrs: { "id": "close-newgame", "for": "modal-newgame" },
 									"class": { "modal-close": true },
 								}
 							),
@@ -339,7 +339,7 @@ Vue.component('my-game', {
 				const moves = JSON.parse(localStorage.getItem("moves"));
 				this.newGame("human", fen, mycolor, oppid, moves, true);
 				// Send ping to server (answer pong if opponent is connected)
-				this.conn.send(JSON.stringify({code:"ping",oppid:this.oppId}));
+				this.conn.send(JSON.stringify({code:"ping",oppid:this.oppid}));
 			}
 			else if (localStorage.getItem("newgame") === variant)
 			{
@@ -399,6 +399,7 @@ Vue.component('my-game', {
 					}
 					else if (data.movesCount > this.vr.moves.length) //just got last move from him
 						this.play(data.lastMove, "animate");
+					break;
 				case "resign": //..you won!
 					this.endGame(this.mycolor=="w"?"1-0":"0-1");
 					break;
@@ -411,7 +412,6 @@ Vue.component('my-game', {
 			}
 		};
 		const socketCloseListener = () => {
-			console.log("Lost connection -- reconnect");
 			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 			this.conn.addEventListener('open', socketOpenListener);
 			this.conn.addEventListener('message', socketMessageListener);
@@ -424,7 +424,7 @@ Vue.component('my-game', {
 	methods: {
 		endGame: function(score) {
 			this.score = score;
-			let modalBox = document.getElementById("modal-control");
+			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
 			//setTimeout(() => { modalBox.checked = false; }, 2000); //disabled, to show PGN
 			if (this.mode == "human")
@@ -520,7 +520,7 @@ Vue.component('my-game', {
 				}
 				if (continuation !== "reconnect") //TODO: bad HACK...
 				{
-					let modalBox = document.getElementById("modal-control2");
+					let modalBox = document.getElementById("modal-newgame");
 					modalBox.checked = true;
 					setTimeout(() => { modalBox.checked = false; }, 2000);
 				}
@@ -537,9 +537,9 @@ Vue.component('my-game', {
 				// Opponent found!
 				if (!continuation)
 				{
-					// Playing sound fails on game continuation:
-					new Audio("/sounds/newgame.mp3").play();
-					document.getElementById("modal-control2").checked = false;
+					// Not playing sound on game continuation:
+					new Audio("/sounds/newgame.mp3").play().catch(err => {});
+					document.getElementById("modal-newgame").checked = false;
 				}
 				this.oppid = oppId;
 				this.oppConnected = true;
@@ -685,7 +685,7 @@ Vue.component('my-game', {
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			new Audio("/sounds/chessmove1.mp3").play();
+			new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
 			this.vr.play(move, "ingame");
 			if (this.mode == "human")
 				this.updateStorage(); //after our moves and opponent moves
