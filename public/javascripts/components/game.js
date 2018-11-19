@@ -334,10 +334,20 @@ Vue.component('my-game', {
 		{
 			elementArray.push(
 				h('div',
-					{ },
+					{ attrs: { id: "pgn-div" } },
 					[
+						h('a',
+							{
+								attrs: {
+									id: "download",
+									href: "#",
+								}
+							}
+						),
 						h('p',
 							{
+								attrs: { id: "pgn-game" },
+								on: { click: this.download },
 								domProps: {
 									innerHTML: this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode)
 								}
@@ -470,6 +480,15 @@ Vue.component('my-game', {
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
+		download: function() {
+			let content = document.getElementById("pgn-game").innerHTML;
+			content = content.replace(/<br>/g, "\n");
+			// Prepare and trigger download link
+			let downloadAnchor = document.getElementById("download");
+			downloadAnchor.setAttribute("download", "game.pgn");
+			downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
+			downloadAnchor.click();
+		},
 		endGame: function(score) {
 			this.score = score;
 			let modalBox = document.getElementById("modal-eog");

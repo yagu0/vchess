@@ -114,6 +114,7 @@ class ZenRules extends ChessRules
 		let [sizeX,sizeY] = VariantRules.size;
 		let shift = (color == 'w' ? -1 : 1);
 		let startRank = (color == 'w' ? sizeY-2 : 1);
+		let firstRank = (color == 'w' ? sizeY-1 : 0);
 		let lastRank = (color == "w" ? 0 : sizeY-1);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
@@ -122,7 +123,7 @@ class ZenRules extends ChessRules
 			if (this.board[x+shift][y] == V.EMPTY)
 			{
 				moves.push(this.getBasicMove(x, y, x+shift, y));
-				if (x==startRank && this.board[x+2*shift][y] == V.EMPTY)
+				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
 				{
 					//two squares jump
 					moves.push(this.getBasicMove(x, y, x+2*shift, y));
