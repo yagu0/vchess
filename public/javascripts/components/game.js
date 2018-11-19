@@ -668,7 +668,7 @@ Vue.component('my-game', {
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
 				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				this.possibleMoves = this.vr.canIplay(this.mycolor,startSquare)
+				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
 				e.target.parentNode.appendChild(this.selectedPiece);
