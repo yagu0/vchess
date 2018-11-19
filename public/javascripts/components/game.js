@@ -203,32 +203,6 @@ Vue.component('my-game', {
 	//				elementArray.push(reserve);
 	//			}
 			const eogMessage = this.getEndgameMessage(this.score);
-			let elemsOfEog =
-			[
-				h('label',
-					{
-						attrs: { "for": "modal-eog" },
-						"class": { "modal-close": true },
-					}
-				),
-				h('h3',
-					{
-						"class": { "section": true },
-						domProps: { innerHTML: eogMessage },
-					}
-				)
-			];
-			if (this.score != "*")
-			{
-				elemsOfEog.push(
-					h('p', //'textarea', //TODO: selectable!
-						{
-							domProps: { innerHTML: this.vr.getPGN(this.mycolor, this.score, this.fenStart) },
-							//attrs: { "readonly": true },
-						}
-					)
-				);
-			}
 			const modalEog = [
 				h('input',
 					{
@@ -244,7 +218,20 @@ Vue.component('my-game', {
 							{
 								"class": { "card": true, "smallpad": true },
 							},
-							elemsOfEog
+							[
+								h('label',
+									{
+										attrs: { "for": "modal-eog" },
+										"class": { "modal-close": true },
+									}
+								),
+								h('h3',
+									{
+										"class": { "section": true },
+										domProps: { innerHTML: eogMessage },
+									}
+								)
+							]
 						)
 					]
 				)
@@ -299,6 +286,23 @@ Vue.component('my-game', {
 			actionArray
 		);
 		elementArray.push(actions);
+		if (this.score != "*")
+		{
+			elementArray.push(
+				h('div',
+					{ },
+					[
+						h('p',
+							{
+								domProps: {
+									innerHTML: this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode)
+								}
+							}
+						)
+					]
+				)
+			);
+		}
 		return h(
 			'div',
 			{
@@ -426,7 +430,7 @@ Vue.component('my-game', {
 			this.score = score;
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
-			//setTimeout(() => { modalBox.checked = false; }, 2000); //disabled, to show PGN
+			setTimeout(() => { modalBox.checked = false; }, 2000);
 			if (this.mode == "human")
 				this.clearStorage();
 			this.mode = "idle";
@@ -485,13 +489,12 @@ Vue.component('my-game', {
 			if (this.mode == "human")
 				return; //no newgame while playing
 			if (this.seek)
-				delete localStorage["newgame"]; //cancel game seek
-			else
 			{
-				localStorage["newgame"] = variant;
-				this.newGame("human");
+				delete localStorage["newgame"]; //cancel game seek
+				this.seek = false;
 			}
-			this.seek = !this.seek;
+			else
+				this.newGame("human");
 		},
 		clickComputerGame: function() {
 			if (this.mode == "human")
@@ -507,11 +510,12 @@ Vue.component('my-game', {
 				const storageVariant = localStorage.getItem("variant");
 				if (!!storageVariant && storageVariant !== variant)
 				{
-					// TODO: find a better way to ensure this. Newgame system is currently a mess.
 					alert("Finish your " + storageVariant + " game first!");
 					return;
 				}
 				// Send game request and wait..
+				localStorage["newgame"] = variant;
+				this.seek = true;
 				this.clearStorage(); //in case of
 				try {
 					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));

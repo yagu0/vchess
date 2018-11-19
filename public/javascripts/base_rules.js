@@ -1037,14 +1037,15 @@ class ChessRules
 	}
 
 	// The score is already computed when calling this function
-	getPGN(mycolor, score, fenStart)
+	getPGN(mycolor, score, fenStart, mode)
 	{
 		let pgn = "";
 		pgn += '[Site "vchess.club"]<br>';
 		const d = new Date();
+		const opponent = this.mode=="human" ? "Anonymous" : "Computer";
 		pgn += '[Date "' + d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '"]<br>';
-		pgn += '[White "' + (mycolor=='w'?'Myself':'Anonymous') + '"]<br>';
-		pgn += '[Black "' + (mycolor=='b'?'Myself':'Anonymous') + '"]<br>';
+		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
+		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
 		pgn += '[Fen "' + fenStart + '"]<br>';
 		pgn += '[Result "' + score + '"]<br><br>';
 

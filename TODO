@@ -1,4 +1,6 @@
-Styles must be improved (full width for smartphones, selectable text for PGN...)
+Styles must be improved (full width for smartphones, ...)
+PGN text is not selectable (understand why?!)
+Change cursor when computer "think" (sablier)
 Tooltip text should fade (even when mouse stay on it, especially for small screens)
 Checkered stage 2: switch button at reserve position (or on top).
 Mode expert: game.js, button on top (with online indicator)
