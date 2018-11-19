@@ -1,5 +1,4 @@
 // TODO: use indexedDB instead of localStorage? (more flexible: allow several games)
-
 Vue.component('my-game', {
 	data: function() {
 		return {
@@ -37,20 +36,7 @@ Vue.component('my-game', {
 		let actionArray = [
 			h('button',
 				{
-					on: {
-						click: () => {
-							if (this.mode == "human")
-								return; //no newgame while playing
-							if (this.seek)
-								delete localStorage["newgame"]; //cancel game seek
-							else
-							{
-								localStorage["newgame"] = variant;
-								this.newGame("human");
-							}
-							this.seek = !this.seek;
-						}
-					},
+					on: { click: this.clickGameSeek },
 					attrs: { "aria-label": 'New game VS human' },
 					'class': {
 						"tooltip": true,
@@ -61,13 +47,7 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "accessibility")]),
 			h('button',
 				{
-					on: {
-						click: () => {
-							if (this.mode == "human")
-								return; //no newgame while playing
-							this.newGame("computer");
-						}
-					},
+					on: { click: this.clickComputerGame },
 					attrs: { "aria-label": 'New game VS computer' },
 					'class': {
 						"tooltip":true,
@@ -222,19 +202,7 @@ Vue.component('my-game', {
 	//				);
 	//				elementArray.push(reserve);
 	//			}
-			let eogMessage = "Unfinished";
-			switch (this.score)
-			{
-				case "1-0":
-					eogMessage = "White win";
-					break;
-				case "0-1":
-					eogMessage = "Black win";
-					break;
-				case "1/2":
-					eogMessage = "Draw";
-					break;
-			}
+			const eogMessage = this.getEndgameMessage(this.score);
 			let elemsOfEog =
 			[
 				h('label',
@@ -382,6 +350,7 @@ Vue.component('my-game', {
 		};
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
+			console.log("Receive message: " + data.code);
 			switch (data.code)
 			{
 				case "newgame": //opponent found
@@ -390,13 +359,13 @@ Vue.component('my-game', {
 				case "newmove": //..he played!
 					this.play(data.move, "animate");
 					break;
-				case "pong": //received if opponent sent a ping
+				case "pong": //received if we sent a ping (game still alive on our side)
 					this.oppConnected = true;
 					const L = this.vr.moves.length;
-					// Send our "last state" informations to opponent (we are still playing)
+					// Send our "last state" informations to opponent
 					this.conn.send(JSON.stringify({
 						code:"lastate",
-						oppid:this.oppId,
+						oppid:this.oppid,
 						lastMove:L>0?this.vr.moves[L-1]:undefined,
 						movesCount:L,
 					}));
@@ -407,7 +376,7 @@ Vue.component('my-game', {
 						// OK, we resigned
 						this.conn.send(JSON.stringify({
 							code:"lastate",
-							oppid:this.oppId,
+							oppid:this.oppid,
 							lastMove:undefined,
 							movesCount:-1,
 						}));
@@ -423,7 +392,7 @@ Vue.component('my-game', {
 						const L = this.vr.moves.length;
 						this.conn.send(JSON.stringify({
 							code:"lastate",
-							oppid:this.oppId,
+							oppid:this.oppid,
 							lastMove:this.vr.moves[L-1],
 							movesCount:L,
 						}));
@@ -433,7 +402,7 @@ Vue.component('my-game', {
 				case "resign": //..you won!
 					this.endGame(this.mycolor=="w"?"1-0":"0-1");
 					break;
-				// TODO: also use (dis)connect info to count online players
+				// TODO: also use (dis)connect info to count online players?
 				case "connect":
 				case "disconnect":
 					if (this.mode == "human" && this.oppid == data.id)
@@ -462,6 +431,22 @@ Vue.component('my-game', {
 				this.clearStorage();
 			this.mode = "idle";
 			this.oppid = "";
+		},
+		getEndgameMessage: function(score) {
+			let eogMessage = "Unfinished";
+			switch (this.score)
+			{
+				case "1-0":
+					eogMessage = "White win";
+					break;
+				case "0-1":
+					eogMessage = "Black win";
+					break;
+				case "1/2":
+					eogMessage = "Draw";
+					break;
+			}
+			return eogMessage;
 		},
 		resign: function() {
 			if (this.mode == "human" && this.oppConnected)
@@ -496,6 +481,23 @@ Vue.component('my-game', {
 			delete localStorage["fen"];
 			delete localStorage["moves"];
 		},
+		clickGameSeek: function() {
+			if (this.mode == "human")
+				return; //no newgame while playing
+			if (this.seek)
+				delete localStorage["newgame"]; //cancel game seek
+			else
+			{
+				localStorage["newgame"] = variant;
+				this.newGame("human");
+			}
+			this.seek = !this.seek;
+		},
+		clickComputerGame: function() {
+			if (this.mode == "human")
+				return; //no newgame while playing
+			this.newGame("computer");
+		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
@@ -516,7 +518,7 @@ Vue.component('my-game', {
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
-				if (continuation == "reconnect") //TODO: bad HACK...
+				if (continuation !== "reconnect") //TODO: bad HACK...
 				{
 					let modalBox = document.getElementById("modal-control2");
 					modalBox.checked = true;

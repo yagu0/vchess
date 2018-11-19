@@ -45,7 +45,10 @@ module.exports = function(wss) {
 						break;
 					case "lastate":
 						if (!!clients[page][obj.oppid])
-							clients[page][obj.oppid].send(objtxt);
+						{
+							obj.oppid = sid; //I'm oppid for my opponent
+							clients[page][obj.oppid].send(JSON.stringify(obj));
+						}
 						break;
 					case "newgame":
 						if (!!games[page])

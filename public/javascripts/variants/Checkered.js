@@ -32,25 +32,6 @@ class CheckeredRules extends ChessRules
 		return ChessRules.fen2board(f);
 	}
 
-	initVariables(fen)
-	{
-		super.initVariables(fen);
-		// Decode last non-capturing checkered move (if any)
-		// TODO: since now we store moves list, this can disappear
-		const cmove = fen.split(" ")[4];
-		if (cmove != "-")
-		{
-			const piece = cmove.charAt(0);
-			const startEnd = cmove.substr(1).split(";");
-			const start = startEnd[0].split(",");
-			const end = startEnd[1].split(",");
-			this.moves.push(new Move({
-				appear: [ new PiPo({c:"c", p:piece, x:end[0], y:end[1]}) ],
-				vanish: [ new PiPo({c:"c", p:piece, x:start[0], y:start[1]}) ]
-			}));
-		}
-	}
-
 	static GetFlags(fen)
 	{
 		let flags = [
@@ -450,23 +431,7 @@ class CheckeredRules extends ChessRules
 
 	static GenRandInitFen()
 	{
-		let fen = ChessRules.GenRandInitFen();
-		return fen.replace(/ - 0$/, "1111111111111111 - 0 -");
-	}
-
-	getFen()
-	{
-		let fen = super.getFen() + " ";
-		const L = this.moves.length;
-		if (L > 0 && this.moves[L-1].vanish.length==1 && this.moves[L-1].appear[0].c=="c")
-		{
-			// Ok, un-cancellable checkered move
-			fen += this.moves[L-1].appear[0].p
-				+ this.moves[L-1].start.x + "," + this.moves[L-1].start.y + ";"
-				+ this.moves[L-1].end.x + "," + this.moves[L-1].end.y;
-		}
-		else fen += "-";
-		return fen;
+		return ChessRules.GenRandInitFen() + "1111111111111111"; //add 16 pawns flags
 	}
 
 	getFlagsFen()

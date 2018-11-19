@@ -52,8 +52,8 @@ class ChessRules
 		this.moves = moves;
 		// Use fen string to initialize variables, flags and board
 		this.initVariables(fen);
-		this.flags = VariantRules.GetFlags(fen);
 		this.board = VariantRules.GetBoard(fen);
+		this.flags = VariantRules.GetFlags(fen);
 	}
 
 	initVariables(fen)
@@ -98,15 +98,8 @@ class ChessRules
 				j++;
 			}
 		}
-		// TODO: since we keep moves stack, next 2 are redundant
-		let epSq = undefined;
-		if (fenParts[2] != "-")
-		{
-			const digits = fenParts[2].split(","); //3,2 ...
-			epSq = { x:Number.parseInt(digits[0]), y:Number.parseInt(digits[1]) };
-		}
+		const epSq = this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined;
 		this.epSquares = [ epSq ];
-		this.movesCount = Number.parseInt(fenParts[3]);
 	}
 
 	// Turn diagram fen into double array ["wb","wp","bk",...]
@@ -950,19 +943,14 @@ class ChessRules
 		let fen = pieces[0].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces[1].join("").toUpperCase() +
-			" 1111 - 0"; //flags + enPassant + movesCount
+			" 1111"; //add flags
 		return fen;
 	}
 
 	// Return current fen according to pieces+colors state
 	getFen()
 	{
-		const L = this.epSquares.length;
-		const epSq = this.epSquares[L-1]===undefined
-			? "-"
-			: this.epSquares[L-1].x+","+this.epSquares[L-1].y;
-		return this.getBaseFen() + " " + this.getFlagsFen()
-			+ " " + epSq + " " + this.movesCount;
+		return this.getBaseFen() + " " + this.getFlagsFen();
 	}
 
 	getBaseFen()
