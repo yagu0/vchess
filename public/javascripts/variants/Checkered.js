@@ -338,11 +338,13 @@ class CheckeredRules extends ChessRules
 	getCheckSquares(move, c)
 	{
 		this.play(move);
+		this.moves.push(move); //artifically change turn, for checkered pawns (TODO)
 		const kingAttacked = this.isAttacked(this.kingPos[c], this.getOppCol(c))
 			|| this.isAttacked(this.kingPos[c], 'c');
 		let res = kingAttacked
 			? [ JSON.parse(JSON.stringify(this.kingPos[c])) ] //need to duplicate!
 			: [ ];
+		this.moves.pop();
 		this.undo(move);
 		return res;
 	}

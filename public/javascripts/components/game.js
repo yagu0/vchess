@@ -549,7 +549,7 @@ Vue.component('my-game', {
 				{
 					const oppCol = this.vr.turn;
 					const lastMove = moves[moves.length-1];
-					this.vr.undo(lastMove, "ingame");
+					this.vr.undo(lastMove);
 					this.incheck = this.vr.getCheckSquares(lastMove, oppCol);
 					this.vr.play(lastMove, "ingame");
 				}

@@ -3,4 +3,3 @@ Tooltip text should fade (even when mouse stay on it, especially for small scree
 Checkered stage 2: switch button at reserve position (or on top).
 Mode expert: game.js, button on top (with online indicator)
 Turn indicator on top too (black or white)
-incheck by checkered pawns: not marked (because of turn changed?)

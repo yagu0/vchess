@@ -712,7 +712,7 @@ class ChessRules
 		VariantRules.PlayOnBoard(this.board, move);
 	}
 
-	undo(move, ingame)
+	undo(move)
 	{
 		VariantRules.UndoOnBoard(this.board, move);
 		this.epSquares.pop();
