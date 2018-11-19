@@ -40,6 +40,7 @@ Vue.component('my-game', {
 					attrs: { "aria-label": 'New game VS human' },
 					'class': {
 						"tooltip": true,
+						"bottom": true, //display below
 						"seek": this.seek,
 						"playing": playingHuman,
 					},
@@ -51,6 +52,7 @@ Vue.component('my-game', {
 					attrs: { "aria-label": 'New game VS computer' },
 					'class': {
 						"tooltip":true,
+						"bottom": true,
 						"playing": playingComp,
 					},
 				},
@@ -180,7 +182,10 @@ Vue.component('my-game', {
 					{
 						on: { click: this.resign },
 						attrs: { "aria-label": 'Resign' },
-						'class': { "tooltip":true },
+						'class': {
+							"tooltip":true,
+							"bottom": true,
+						},
 					},
 					[h('i', { 'class': { "material-icons": true } }, "flag")])
 			);
