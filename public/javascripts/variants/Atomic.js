@@ -96,10 +96,9 @@ class AtomicRules extends ChessRules
 		}
 	}
 
-	undo(move)
+	unupdateVariables(move)
 	{
-		super.undo(move);
-
+		super.unupdateVariables(move);
 		const c = this.getColor(move.start.x,move.start.y);
 		const oppCol = this.getOppCol(c);
 		if ([this.kingPos[c][0],this.kingPos[oppCol][0]].some(e => { return e < 0; }))

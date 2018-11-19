@@ -46,7 +46,7 @@ class ChessRules
 	/////////////////
 	// INITIALIZATION
 
-	// fen = "position flags epSquare movesCount"
+	// fen == "position flags"
 	constructor(fen, moves)
 	{
 		this.moves = moves;
@@ -152,7 +152,7 @@ class ChessRules
 		return L>0 ? this.moves[L-1] : null;
 	}
 	get turn() {
-		return this.movesCount%2==0 ? 'w' : 'b';
+		return this.moves.length%2==0 ? 'w' : 'b';
 	}
 
 	// Pieces codes
@@ -470,8 +470,8 @@ class ChessRules
 
 	canIplay(color, sq)
 	{
-		return ((color=='w' && this.movesCount%2==0)
-				|| (color=='b' && this.movesCount%2==1))
+		return ((color=='w' && this.moves.length%2==0)
+				|| (color=='b' && this.moves.length%2==1))
 			&& this.getColor(sq[0], sq[1]) == color;
 	}
 
@@ -660,7 +660,7 @@ class ChessRules
 			board[psq.x][psq.y] = psq.c + psq.p;
 	}
 
-	// Before move is played:
+	// Before move is played, update variables + flags
 	updateVariables(move)
 	{
 		const piece = this.getPiece(move.start.x,move.start.y);
@@ -691,37 +691,33 @@ class ChessRules
 		}
 	}
 
+	unupdateVariables(move)
+	{
+		// (Potentially) Reset king position
+		const c = this.getColor(move.start.x,move.start.y);
+		if (this.getPiece(move.start.x,move.start.y) == VariantRules.KING)
+			this.kingPos[c] = [move.start.x, move.start.y];
+	}
+
 	play(move, ingame)
 	{
-		// Save flags (for undo)
-		move.flags = JSON.stringify(this.flags); //TODO: less costly
-		this.updateVariables(move);
-
 		if (!!ingame)
-		{
 			move.notation = this.getNotation(move);
-			this.moves.push(move);
-		}
 
+		// Save flags (for undo)
+		move.flags = JSON.stringify(this.flags); //TODO: less costly?
+		this.updateVariables(move);
+		this.moves.push(move);
 		this.epSquares.push( this.getEpSquare(move) );
 		VariantRules.PlayOnBoard(this.board, move);
-		this.movesCount++;
 	}
 
 	undo(move, ingame)
 	{
 		VariantRules.UndoOnBoard(this.board, move);
 		this.epSquares.pop();
-		this.movesCount--;
-
-		if (!!ingame)
-			this.moves.pop();
-
-		// Update king position, and reset stored/computed flags
-		const c = this.getColor(move.start.x,move.start.y);
-		if (this.getPiece(move.start.x,move.start.y) == VariantRules.KING)
-			this.kingPos[c] = [move.start.x, move.start.y];
-
+		this.moves.pop();
+		this.unupdateVariables(move);
 		this.flags = JSON.parse(move.flags);
 	}
 

@@ -276,8 +276,8 @@ class CheckeredRules extends ChessRules
 
 	canIplay(color, sq)
 	{
-		return ((color=='w' && this.movesCount%2==0) || color=='c'
-				|| (color=='b' && this.movesCount%2==1))
+		return ((color=='w' && this.moves.length%2==0) || color=='c'
+				|| (color=='b' && this.moves.length%2==1))
 			&& [color,'c'].includes(this.getColor(sq[0], sq[1]));
 	}
 
@@ -383,19 +383,6 @@ class CheckeredRules extends ChessRules
 		const secondRank = [1,6];
 		if (secondRank.includes(move.start.x) && move.vanish[0].p == VariantRules.PAWN)
 			this.flags[1][move.start.x==6 ? "w" : "b"][move.start.y] = false;
-	}
-
-	play(move, ingame)
-	{
-		super.play(move, ingame);
-		if (!ingame)
-			this.moves.push(move); //needed for turn indication for checkered pieces
-	}
-
-	undo(move)
-	{
-		super.undo(move);
-		this.moves.pop();
 	}
 
 	checkGameEnd(color)
