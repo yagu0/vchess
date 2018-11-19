@@ -27,10 +27,6 @@ Vue.component('my-game', {
 		let incheckSq = doubleArray(sizeX, sizeY, false);
 		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 		let elementArray = [];
-		let square00 = document.getElementById("sq-0-0");
-		let squareWidth = !!square00
-			? parseFloat(window.getComputedStyle(square00).width.slice(0,-2))
-			: 0;
 		const playingHuman = (this.mode == "human");
 		const playingComp = (this.mode == "computer");
 		let actionArray = [
@@ -60,25 +56,51 @@ Vue.component('my-game', {
 		];
 		if (!!this.vr)
 		{
+			const square00 = document.getElementById("sq-0-0");
+			const squareWidth = !!square00
+				? parseFloat(window.getComputedStyle(square00).width.slice(0,-2))
+				: 0;
+			const indicWidth = (squareWidth>0 ? squareWidth/2 : 20);
 			if (this.mode == "human")
 			{
 				let connectedIndic = h(
 					'div',
 					{
 						"class": {
+							"topindicator": true,
+							"indic-left": true,
 							"connected": this.oppConnected,
 							"disconnected": !this.oppConnected,
+						},
+						style: {
+							"width": indicWidth + "px",
+							"height": indicWidth + "px",
 						},
 					}
 				);
 				elementArray.push(connectedIndic);
 			}
+			let turnIndic = h(
+				'div',
+				{
+					"class": {
+						"topindicator": true,
+						"indic-right": true,
+						"white-turn": this.vr.turn=="w",
+						"black-turn": this.vr.turn=="b",
+					},
+					style: {
+						"width": indicWidth + "px",
+						"height": indicWidth + "px",
+					},
+				}
+			);
+			elementArray.push(turnIndic);
 			let choices = h('div',
 				{
 					attrs: { "id": "choices" },
 					'class': { 'row': true },
 					style: {
-						//"position": "relative",
 						"display": this.choices.length>0?"block":"none",
 						"top": "-" + ((sizeY/2)*squareWidth+squareWidth/2) + "px",
 						"width": (this.choices.length * squareWidth) + "px",

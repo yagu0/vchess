@@ -35,17 +35,29 @@ figure.diagram-container > .diagram
   margin-left: auto
   margin-right: auto
 
-.connected, .disconnected
-  width: 20px
-  height: 20px
-  margin: 0 auto 15px auto
+.topindicator
+  position: relative
   border: 1px solid brown
+
+.indic-left
+  float: left
+  margin: 0 0 10px 20px
+
+.indic-right
+  float: right
+  margin: 0 20px 10px 0
 
 .connected
   background-color: green
 
 .disconnected
   background-color: red
+
+.white-turn
+  background-color: white
+
+.black-turn
+  background-color: black
 
 // TODO: div.board, board9, board10, board11, board12
 div.board
@@ -55,6 +67,9 @@ div.board
   padding-bottom: 12.5%
   display: inline-block
   position: relative
+
+.game
+  clear: both
 
 .game .board
   cursor: pointer
