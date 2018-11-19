@@ -538,7 +538,7 @@ Vue.component('my-game', {
 				if (!continuation)
 				{
 					// Not playing sound on game continuation:
-					new Audio("/sounds/newgame.mp3").play().catch(err => {});
+					new Audio("/sounds/newgame.mp3").play().then(() => {}).catch(err => {});
 					document.getElementById("modal-newgame").checked = false;
 				}
 				this.oppid = oppId;
@@ -685,7 +685,7 @@ Vue.component('my-game', {
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
+			new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
 			this.vr.play(move, "ingame");
 			if (this.mode == "human")
 				this.updateStorage(); //after our moves and opponent moves
