@@ -16,6 +16,7 @@ Vue.component('my-game', {
 			seek: false,
 			fenStart: "",
 			incheck: [],
+			expert: document.cookie.length>0 ? document.cookie.substr(-1)=="1" : false,
 		};
 	},
 	render(h) {
@@ -96,6 +97,22 @@ Vue.component('my-game', {
 				}
 			);
 			elementArray.push(turnIndic);
+			let expertSwitch = h(
+				'button',
+				{
+					on: { click: this.toggleExpertMode },
+					attrs: { "aria-label": 'Toggle expert mode' },
+					'class': {
+						"tooltip":true,
+						"topindicator": true,
+						"indic-right": true,
+						"expert-switch": true,
+						"expert-mode": this.expert,
+					},
+				},
+				[h('i', { 'class': { "material-icons": true } }, "remove_red_eye")]
+			);
+			elementArray.push(expertSwitch);
 			let choices = h('div',
 				{
 					attrs: { "id": "choices" },
@@ -161,7 +178,7 @@ Vue.component('my-game', {
 									)
 								);
 							}
-							if (hintSquares[ci][cj])
+							if (!this.expert && hintSquares[ci][cj])
 							{
 								elems.push(
 									h(
@@ -184,10 +201,10 @@ Vue.component('my-game', {
 								{
 									'class': {
 										'board': true,
-										'light-square': !highlight && (i+j)%2==0,
-										'dark-square': !highlight && (i+j)%2==1,
-										'highlight': highlight,
-										'incheck': incheckSq[ci][cj],
+										'light-square': (i+j)%2==0 && (this.expert || !highlight),
+										'dark-square': (i+j)%2==1 && (this.expert || !highlight),
+										'highlight': !this.expert && highlight,
+										'incheck': !this.expert && incheckSq[ci][cj],
 									},
 									attrs: {
 										id: this.getSquareId({x:ci,y:cj}),
@@ -478,6 +495,10 @@ Vue.component('my-game', {
 					break;
 			}
 			return eogMessage;
+		},
+		toggleExpertMode: function() {
+			this.expert = !this.expert;
+			document.cookie = "expert=" + (this.expert ? "1" : "0");
 		},
 		resign: function() {
 			if (this.mode == "human" && this.oppConnected)
