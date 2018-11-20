@@ -493,10 +493,12 @@ Vue.component('my-game', {
 			this.score = score;
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
-			setTimeout(() => { modalBox.checked = false; }, 2000);
+			setTimeout(() => {
+				modalBox.checked = false;
+				this.mode = "idle"; //TODO: not the best way... (to see correct opponent in PGN)
+			}, 2000);
 			if (this.mode == "human")
 				this.clearStorage();
-			this.mode = "idle";
 			this.oppid = "";
 		},
 		getEndgameMessage: function(score) {
@@ -616,7 +618,6 @@ Vue.component('my-game', {
 				this.oppConnected = true;
 				this.mycolor = color;
 				this.seek = false;
-				this.mode = "human";
 				if (!!moves && moves.length > 0) //imply continuation
 				{
 					const lastMove = moves[moves.length-1];
@@ -629,7 +630,6 @@ Vue.component('my-game', {
 			}
 			else //against computer
 			{
-				this.mode = "computer";
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
