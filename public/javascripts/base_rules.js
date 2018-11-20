@@ -621,7 +621,7 @@ class ChessRules
 	getCheckSquares(move)
 	{
 		this.play(move);
-		const color = this.turn;
+		const color = this.turn; //opponent
 		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
 			: [ ];

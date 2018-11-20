@@ -1,0 +1,43 @@
+p.boxed
+	| You have a king and an antiking. King must stay away from checks, but antiking must always stay in check.
+	| Antiking captures his own kind.
+
+h3 Specifications
+
+ul
+	li Chessboard: standard.
+	li Material: additional antiking.
+	li Non-capturing moves: standard.
+	li Special moves: standard.
+	li Captures: special case of antiking (see below).
+	li End of game: Checkmate or anti-checkmate.
+
+h3 Basics
+
+p
+	| The additional piece is a royal figure, thus cannot be captured.
+	| It captures the pieces of his color (to help checkmate opponent antiking, but by doing so it also make standard checkmate more difficult...).
+	| It should always remains under check (if it cannot, game is over).
+
+figure.diagram-container
+	.diagram
+		| fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR:
+	figcaption Initial position (non-random). 1.Ae5 is forbidden.
+
+h3 End of the game
+
+p There are two ways to win:
+ol
+	li Checkmate opponent king
+	li Anti-checkmate opponent antiking
+p ...Or maybe do both at the same time?
+
+p Note 1: athough antiking captures his color, it doesn't check his king.
+
+p Note 2: since it would allow a basic tactic (keep antiking touching opponent's king), kings do not attack antikings.
+
+h3 Credits
+
+p
+	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html") Antiking chess 
+	| on chessvariants.com.

@@ -217,18 +217,21 @@ Vue.component('my-game', {
 					);
 				}), choices]
 			);
-			actionArray.push(
-				h('button',
-					{
-						on: { click: this.resign },
-						attrs: { "aria-label": 'Resign' },
-						'class': {
-							"tooltip":true,
-							"bottom": true,
+			if (this.mode != "idle")
+			{
+				actionArray.push(
+					h('button',
+						{
+							on: { click: this.resign },
+							attrs: { "aria-label": 'Resign' },
+							'class': {
+								"tooltip":true,
+								"bottom": true,
+							},
 						},
-					},
-					[h('i', { 'class': { "material-icons": true } }, "flag")])
-			);
+						[h('i', { 'class': { "material-icons": true } }, "flag")])
+				);
+			}
 			elementArray.push(gameDiv);
 	//			if (!!vr.reserve)
 	//			{
@@ -494,6 +497,7 @@ Vue.component('my-game', {
 			this.score = score;
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
+			// Variants may have special PGN structure (so next function isn't defined here)
 			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
 			setTimeout(() => { modalBox.checked = false; }, 2000);
 			if (this.mode == "human")
