@@ -1,4 +1,4 @@
-class MagneticRules
+class MagneticRules extends ChessRules
 {
 	getEpSquare(move)
 	{
@@ -8,7 +8,86 @@ class MagneticRules
 	// Complete a move with magnetic actions
 	applyMagneticLaws([x,y], move)
 	{
-		// TODO
+		const standardMove = JSON.parse(JSON.stringify(move));
+		this.play(standardMove);
+		const color = this.getColor(x,y);
+		const [sizeX,sizeY] = VariantRules.size;
+		for (let step of [[-1,0],[1,0],[0,-1],[0,1]])
+		{
+			let [i,j] = [x+step[0],y+step[1]];
+			while (i>=0 && i<sizeX && j>=0 && j<sizeY)
+			{
+				if (this.board[i][j] != VariantRules.EMPTY)
+				{
+					// Found something. Same color or not?
+					if (this.getColor(i,j) != color)
+					{
+						// Attraction
+						if ((Math.abs(i-x)>=2 || Math.abs(j-y)>=2)
+							&& this.getPiece(i,j) != VariantRules.KING)
+						{
+							move.vanish.push(
+								new PiPo({
+									p:this.getPiece(i,j),
+									c:this.getColor(i,j),
+									x:i,
+									y:j
+								})
+							);
+							move.appear.push(
+								new PiPo({
+									p:this.getPiece(i,j),
+									c:this.getColor(i,j),
+									x:x+step[0],
+									y:y+step[1]
+								})
+							);
+						}
+					}
+					else
+					{
+						// Repulsion
+						if (this.getPiece(i,j) != VariantRules.KING)
+						{
+							// Push it until we meet an obstacle or edge of the board
+							let [ii,jj] = [i+step[0],j+step[1]];
+							while (ii>=0 && ii<sizeX && jj>=0 && jj<sizeY)
+							{
+								if (this.board[ii][jj] != VariantRules.EMPTY)
+									break;
+								ii += step[0];
+								jj += step[1];
+							}
+							ii -= step[0];
+							jj -= step[1];
+							if (Math.abs(ii-i)>=1 || Math.abs(jj-j)>=1)
+							{
+								move.vanish.push(
+									new PiPo({
+										p:this.getPiece(i,j),
+										c:this.getColor(i,j),
+										x:i,
+										y:j
+									})
+								);
+								move.appear.push(
+									new PiPo({
+										p:this.getPiece(i,j),
+										c:this.getColor(i,j),
+										x:ii,
+										y:jj
+									})
+								);
+							}
+						}
+					}
+					break;
+				}
+				i += step[0];
+				j += step[1];
+			}
+		}
+		this.undo(standardMove);
 	}
 
 	getBasicMove([sx,sy], [ex,ey], tr)
@@ -45,6 +124,57 @@ class MagneticRules
 		}
 		this.applyMagneticLaws([ex,ey], mv);
 		return mv;
+	}
+
+	getPotentialPawnMoves([x,y])
+	{
+		const color = this.getColor(x,y);
+		var moves = [];
+		var V = VariantRules;
+		const [sizeX,sizeY] = VariantRules.size;
+		let shift = (color == "w" ? -1 : 1);
+		let startRank = (color == "w" ? sizeY-2 : 1);
+		let firstRank = (color == 'w' ? sizeY-1 : 0);
+		let lastRank = (color == "w" ? 0 : sizeY-1);
+
+		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
+		{
+			// Normal moves
+			if (this.board[x+shift][y] == V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y]));
+				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
+				{
+					// Two squares jump
+					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
+				}
+			}
+			// Captures
+			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+		}
+
+		if (x+shift == lastRank)
+		{
+			// Promotion
+			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
+			promotionPieces.forEach(p => {
+				// Normal move
+				if (this.board[x+shift][y] == V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
+				// Captures
+				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+			});
+		}
+
+		// No en passant
+
+		return moves;
 	}
 
 	getCastleMoves([x,y])
@@ -135,7 +265,7 @@ class MagneticRules
 		const saveKingPos = this.kingPos[c]; //king might be taken
 		this.play(move);
 		// The only way to be "under check" is to have lost the king (thus game over)
-		let res = this.kingPos[c][0] < 0;
+		let res = this.kingPos[c][0] < 0
 			? [ JSON.parse(JSON.stringify(saveKingPos)) ]
 			: [ ];
 		this.undo(move);
