@@ -1,8 +1,8 @@
 class AtomicRules extends ChessRules
 {
-	getPotentialMovesFrom([x,y], c, lastMove)
+	getPotentialMovesFrom([x,y])
 	{
-		let moves = super.getPotentialMovesFrom([x,y], c, lastMove);
+		let moves = super.getPotentialMovesFrom([x,y]);
 
 		// Handle explosions
 		moves.forEach(m => {
@@ -28,7 +28,7 @@ class AtomicRules extends ChessRules
 		return moves;
 	}
 
-	getPotentialKingMoves(x, y, c)
+	getPotentialKingMoves([x,y])
 	{
 		// King cannot capture:
 		let moves = [];
@@ -39,20 +39,20 @@ class AtomicRules extends ChessRules
 			var i = x + step[0];
 			var j = y + step[1];
 			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
-				moves.push(this.getBasicMove(x, y, i, j));
+				moves.push(this.getBasicMove([x,y], [i,j]));
 		}
-		return moves.concat(this.getCastleMoves(x,y,c));
+		return moves.concat(this.getCastleMoves([x,y]));
 	}
 
-	isAttacked(sq, color)
+	isAttacked(sq, colors)
 	{
-		if (this.getPiece(sq[0],sq[1]) == VariantRules.KING && this.isAttackedByKing(sq, color))
+		if (this.getPiece(sq[0],sq[1]) == VariantRules.KING && this.isAttackedByKing(sq, colors))
 			return false; //king cannot take...
-		return (this.isAttackedByPawn(sq, color)
-			|| this.isAttackedByRook(sq, color)
-			|| this.isAttackedByKnight(sq, color)
-			|| this.isAttackedByBishop(sq, color)
-			|| this.isAttackedByQueen(sq, color));
+		return (this.isAttackedByPawn(sq, colors)
+			|| this.isAttackedByRook(sq, colors)
+			|| this.isAttackedByKnight(sq, colors)
+			|| this.isAttackedByBishop(sq, colors)
+			|| this.isAttackedByQueen(sq, colors));
 	}
 
 	updateVariables(move)
@@ -112,8 +112,9 @@ class AtomicRules extends ChessRules
 		}
 	}
 
-	underCheck(move, c)
+	underCheck(move)
 	{
+		const c = this.turn;
 		const oppCol = this.getOppCol(c);
 		this.play(move);
 		let res = undefined;
@@ -130,8 +131,9 @@ class AtomicRules extends ChessRules
 		return res;
 	}
 
-	getCheckSquares(move, c)
+	getCheckSquares(move)
 	{
+		const c = this.getOppCol(this.turn);
 		const saveKingPos = this.kingPos[c]; //king might explode
 		this.play(move);
 		let res = [ ];
@@ -143,8 +145,9 @@ class AtomicRules extends ChessRules
 		return res;
 	}
 
-	checkGameEnd(color)
+	checkGameEnd()
 	{
+		const color = this.turn;
 		const kp = this.kingPos[color];
 		if (kp[0] < 0) //king disappeared
 			return color == "w" ? "0-1" : "1-0";

@@ -618,10 +618,9 @@ Vue.component('my-game', {
 				this.seek = false;
 				if (!!moves && moves.length > 0) //imply continuation
 				{
-					const oppCol = this.vr.turn;
 					const lastMove = moves[moves.length-1];
 					this.vr.undo(lastMove);
-					this.incheck = this.vr.getCheckSquares(lastMove, oppCol);
+					this.incheck = this.vr.getCheckSquares(lastMove);
 					this.vr.play(lastMove, "ingame");
 				}
 				delete localStorage["newgame"];
@@ -635,8 +634,7 @@ Vue.component('my-game', {
 			}
 		},
 		playComputerMove: function() {
-			const compColor = this.mycolor=='w' ? 'b' : 'w';
-			const compMove = this.vr.getComputerMove(compColor);
+			const compMove = this.vr.getComputerMove();
 			// HACK: avoid selecting elements before they appear on page:
 			setTimeout(() => this.play(compMove, "animate"), 500);
 		},
@@ -751,8 +749,7 @@ Vue.component('my-game', {
 				this.animateMove(move);
 				return;
 			}
-			const oppCol = this.vr.getOppCol(this.vr.turn);
-			this.incheck = this.vr.getCheckSquares(move, oppCol); //is opponent in check?
+			this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
@@ -760,7 +757,7 @@ Vue.component('my-game', {
 			this.vr.play(move, "ingame");
 			if (this.mode == "human")
 				this.updateStorage(); //after our moves and opponent moves
-			const eog = this.vr.checkGameOver(this.vr.turn);
+			const eog = this.vr.checkGameOver();
 			if (eog != "*")
 				this.endGame(eog);
 			else if (this.mode == "computer" && this.vr.turn != this.mycolor)

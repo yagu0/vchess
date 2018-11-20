@@ -106,7 +106,7 @@ class ChessRules
 	static GetBoard(fen)
 	{
 		let rows = fen.split(" ")[0].split("/");
-		let [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		let board = doubleArray(sizeX, sizeY, "");
 		for (let i=0; i<rows.length; i++)
 		{
@@ -190,10 +190,10 @@ class ChessRules
 		return undefined; //default
 	}
 
-	// can color1 take color2?
-	canTake(color1, color2)
+	// can thing on square1 take thing on square2
+	canTake([x1,y1], [x2,y2])
 	{
-		return color1 != color2;
+		return this.getColor(x1,y1) != this.getColor(x2,y2);
 	}
 
 	///////////////////
@@ -202,35 +202,33 @@ class ChessRules
 	// All possible moves from selected square (assumption: color is OK)
 	getPotentialMovesFrom([x,y])
 	{
-		let c = this.getColor(x,y);
-		// Fill possible moves according to piece type
 		switch (this.getPiece(x,y))
 		{
 			case VariantRules.PAWN:
-				return this.getPotentialPawnMoves(x,y,c);
+				return this.getPotentialPawnMoves([x,y]);
 			case VariantRules.ROOK:
-				return this.getPotentialRookMoves(x,y,c);
+				return this.getPotentialRookMoves([x,y]);
 			case VariantRules.KNIGHT:
-				return this.getPotentialKnightMoves(x,y,c);
+				return this.getPotentialKnightMoves([x,y]);
 			case VariantRules.BISHOP:
-				return this.getPotentialBishopMoves(x,y,c);
+				return this.getPotentialBishopMoves([x,y]);
 			case VariantRules.QUEEN:
-				return this.getPotentialQueenMoves(x,y,c);
+				return this.getPotentialQueenMoves([x,y]);
 			case VariantRules.KING:
-				return this.getPotentialKingMoves(x,y,c);
+				return this.getPotentialKingMoves([x,y]);
 		}
 	}
 
 	// Build a regular move from its initial and destination squares; tr: transformation
-	getBasicMove(sx, sy, ex, ey, tr)
+	getBasicMove([sx,sy], [ex,ey], tr)
 	{
 		var mv = new Move({
 			appear: [
 				new PiPo({
 					x: ex,
 					y: ey,
-					c: this.getColor(sx,sy),
-					p: !!tr ? tr : this.getPiece(sx,sy)
+					c: !!tr ? tr.c : this.getColor(sx,sy),
+					p: !!tr ? tr.p : this.getPiece(sx,sy)
 				})
 			],
 			vanish: [
@@ -259,35 +257,37 @@ class ChessRules
 	}
 
 	// Generic method to find possible moves of non-pawn pieces ("sliding or jumping")
-	getSlideNJumpMoves(x, y, color, steps, oneStep)
+	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
+		const color = this.getColor(x,y);
 		var moves = [];
-		let [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
 		for (let step of steps)
 		{
-			var i = x + step[0];
-			var j = y + step[1];
+			let i = x + step[0];
+			let j = y + step[1];
 			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
 			{
-				moves.push(this.getBasicMove(x, y, i, j));
+				moves.push(this.getBasicMove([x,y], [i,j]));
 				if (oneStep !== undefined)
 					continue outerLoop;
 				i += step[0];
 				j += step[1];
 			}
-			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake(color, this.getColor(i,j)))
-				moves.push(this.getBasicMove(x, y, i, j));
+			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake([x,y], [i,j]))
+				moves.push(this.getBasicMove([x,y], [i,j]));
 		}
 		return moves;
 	}
 
 	// What are the pawn moves from square x,y considering color "color" ?
-	getPotentialPawnMoves(x, y, color)
+	getPotentialPawnMoves([x,y])
 	{
+		const color = this.getColor(x,y);
 		var moves = [];
 		var V = VariantRules;
-		let [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		let shift = (color == "w" ? -1 : 1);
 		let startRank = (color == "w" ? sizeY-2 : 1);
 		let lastRank = (color == "w" ? 0 : sizeY-1);
@@ -297,24 +297,18 @@ class ChessRules
 			// Normal moves
 			if (this.board[x+shift][y] == V.EMPTY)
 			{
-				moves.push(this.getBasicMove(x, y, x+shift, y));
+				moves.push(this.getBasicMove([x,y], [x+shift,y]));
 				if (x==startRank && this.board[x+2*shift][y] == V.EMPTY)
 				{
 					// Two squares jump
-					moves.push(this.getBasicMove(x, y, x+2*shift, y));
+					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
 				}
 			}
 			// Captures
-			if (y>0 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y-1))
-				&& this.board[x+shift][y-1] != V.EMPTY)
-			{
-				moves.push(this.getBasicMove(x, y, x+shift, y-1));
-			}
-			if (y<sizeY-1 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y+1))
-				&& this.board[x+shift][y+1] != V.EMPTY)
-			{
-				moves.push(this.getBasicMove(x, y, x+shift, y+1));
-			}
+			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
 		}
 
 		if (x+shift == lastRank)
@@ -324,18 +318,12 @@ class ChessRules
 			promotionPieces.forEach(p => {
 				// Normal move
 				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove(x, y, x+shift, y, p));
+					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
 				// Captures
-				if (y>0 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y-1))
-					&& this.board[x+shift][y-1] != V.EMPTY)
-				{
-					moves.push(this.getBasicMove(x, y, x+shift, y-1, p));
-				}
-				if (y<sizeY-1 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y+1))
-					&& this.board[x+shift][y+1] != V.EMPTY)
-				{
-					moves.push(this.getBasicMove(x, y, x+shift, y+1, p));
-				}
+				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
 			});
 		}
 
@@ -345,7 +333,7 @@ class ChessRules
 		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
 		{
 			let epStep = epSquare.y - y;
-			var enpassantMove = this.getBasicMove(x, y, x+shift, y+epStep);
+			var enpassantMove = this.getBasicMove([x,y], [x+shift,y+epStep]);
 			enpassantMove.vanish.push({
 				x: x,
 				y: y+epStep,
@@ -359,45 +347,40 @@ class ChessRules
 	}
 
 	// What are the rook moves from square x,y ?
-	getPotentialRookMoves(x, y, color)
+	getPotentialRookMoves(sq)
 	{
-		return this.getSlideNJumpMoves(
-			x, y, color, VariantRules.steps[VariantRules.ROOK]);
+		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.ROOK]);
 	}
 
 	// What are the knight moves from square x,y ?
-	getPotentialKnightMoves(x, y, color)
+	getPotentialKnightMoves(sq)
 	{
-		return this.getSlideNJumpMoves(
-			x, y, color, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
+		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 	}
 
 	// What are the bishop moves from square x,y ?
-	getPotentialBishopMoves(x, y, color)
+	getPotentialBishopMoves(sq)
 	{
-		return this.getSlideNJumpMoves(
-			x, y, color, VariantRules.steps[VariantRules.BISHOP]);
+		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.BISHOP]);
 	}
 
 	// What are the queen moves from square x,y ?
-	getPotentialQueenMoves(x, y, color)
+	getPotentialQueenMoves(sq)
 	{
-		return this.getSlideNJumpMoves(
-			x, y, color, VariantRules.steps[VariantRules.QUEEN]);
+		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN]);
 	}
 
 	// What are the king moves from square x,y ?
-	getPotentialKingMoves(x, y, c)
+	getPotentialKingMoves(sq)
 	{
 		// Initialize with normal moves
-		var moves = this.getSlideNJumpMoves(x, y, c,
-			VariantRules.steps[VariantRules.QUEEN], "oneStep");
-
-		return moves.concat(this.getCastleMoves(x,y,c));
+		let moves = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		return moves.concat(this.getCastleMoves(sq));
 	}
 
-	getCastleMoves(x,y,c)
+	getCastleMoves([x,y])
 	{
+		const c = this.getColor(x,y);
 		if (x != (c=="w" ? 7 : 0) || y != this.INIT_COL_KING[c])
 			return []; //x isn't first rank, or king has moved (shortcut)
 
@@ -467,11 +450,10 @@ class ChessRules
 	///////////////////
 	// MOVES VALIDATION
 
-	canIplay(color, sq)
+	canIplay(side, [x,y])
 	{
-		return ((color=='w' && this.moves.length%2==0)
-				|| (color=='b' && this.moves.length%2==1))
-			&& this.getColor(sq[0], sq[1]) == color;
+		return ((side=='w' && this.moves.length%2==0) || (side=='b' && this.moves.length%2==1))
+			&& this.getColor(x,y) == side;
 	}
 
 	getPossibleMovesFrom(sq)
@@ -485,15 +467,14 @@ class ChessRules
 	{
 		if (moves.length == 0)
 			return [];
-		let color = this.getColor( moves[0].start.x, moves[0].start.y );
-		return moves.filter(m => {
-			return !this.underCheck(m, color);
-		});
+		let color = this.turn;
+		return moves.filter(m => { return !this.underCheck(m, color); });
 	}
 
 	// Search for all valid moves considering current turn (for engine and game end)
-	getAllValidMoves(color)
+	getAllValidMoves()
 	{
+		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		var potentialMoves = [];
 		let [sizeX,sizeY] = VariantRules.size;
@@ -512,8 +493,9 @@ class ChessRules
 	}
 	
 	// Stop at the first move found
-	atLeastOneMove(color)
+	atLeastOneMove()
 	{
+		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		let [sizeX,sizeY] = VariantRules.size;
 		for (var i=0; i<sizeX; i++)
@@ -537,29 +519,32 @@ class ChessRules
 		return false;
 	}
 
-	// Check if pieces of color 'color' are attacking square x,y
-	isAttacked(sq, color)
+	// Check if pieces of color 'colors' are attacking square x,y
+	isAttacked(sq, colors)
 	{
-		return (this.isAttackedByPawn(sq, color)
-			|| this.isAttackedByRook(sq, color)
-			|| this.isAttackedByKnight(sq, color)
-			|| this.isAttackedByBishop(sq, color)
-			|| this.isAttackedByQueen(sq, color)
-			|| this.isAttackedByKing(sq, color));
+		return (this.isAttackedByPawn(sq, colors)
+			|| this.isAttackedByRook(sq, colors)
+			|| this.isAttackedByKnight(sq, colors)
+			|| this.isAttackedByBishop(sq, colors)
+			|| this.isAttackedByQueen(sq, colors)
+			|| this.isAttackedByKing(sq, colors));
 	}
 
 	// Is square x,y attacked by pawns of color c ?
-	isAttackedByPawn([x,y], c)
+	isAttackedByPawn([x,y], colors)
 	{
-		let pawnShift = (c=="w" ? 1 : -1);
-		if (x+pawnShift>=0 && x+pawnShift<8)
+		for (let c of colors)
 		{
-			for (let i of [-1,1])
+			let pawnShift = (c=="w" ? 1 : -1);
+			if (x+pawnShift>=0 && x+pawnShift<8)
 			{
-				if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
-					&& this.getColor(x+pawnShift,y+i)==c)
+				for (let i of [-1,1])
 				{
-					return true;
+					if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
+						&& this.getColor(x+pawnShift,y+i)==c)
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -567,42 +552,42 @@ class ChessRules
 	}
 
 	// Is square x,y attacked by rooks of color c ?
-	isAttackedByRook(sq, color)
+	isAttackedByRook(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, color,
+		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.ROOK, VariantRules.steps[VariantRules.ROOK]);
 	}
 
 	// Is square x,y attacked by knights of color c ?
-	isAttackedByKnight(sq, color)
+	isAttackedByKnight(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, color,
+		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.KNIGHT, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 	}
 
 	// Is square x,y attacked by bishops of color c ?
-	isAttackedByBishop(sq, color)
+	isAttackedByBishop(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, color,
+		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.BISHOP, VariantRules.steps[VariantRules.BISHOP]);
 	}
 
 	// Is square x,y attacked by queens of color c ?
-	isAttackedByQueen(sq, color)
+	isAttackedByQueen(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, color,
+		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.QUEEN, VariantRules.steps[VariantRules.QUEEN]);
 	}
 
 	// Is square x,y attacked by king of color c ?
-	isAttackedByKing(sq, color)
+	isAttackedByKing(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, color,
+		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.KING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
 	}
 
 	// Generic method for non-pawn pieces ("sliding or jumping"): is x,y attacked by piece != color ?
-	isAttackedBySlideNJump([x,y], c,piece,steps,oneStep)
+	isAttackedBySlideNJump([x,y], colors, piece, steps, oneStep)
 	{
 		for (let step of steps)
 		{
@@ -614,7 +599,7 @@ class ChessRules
 				ry += step[1];
 			}
 			if (rx>=0 && rx<8 && ry>=0 && ry<8 && this.board[rx][ry] != VariantRules.EMPTY
-				&& this.getPiece(rx,ry) == piece && this.getColor(rx,ry) == c)
+				&& this.getPiece(rx,ry) == piece && colors.includes(this.getColor(rx,ry)))
 			{
 				return true;
 			}
@@ -623,20 +608,22 @@ class ChessRules
 	}
 
 	// Is color c under check after move ?
-	underCheck(move, c)
+	underCheck(move)
 	{
+		const color = this.turn;
 		this.play(move);
-		let res = this.isAttacked(this.kingPos[c], this.getOppCol(c));
+		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color));
 		this.undo(move);
 		return res;
 	}
 
 	// On which squares is color c under check (after move) ?
-	getCheckSquares(move, c)
+	getCheckSquares(move)
 	{
 		this.play(move);
-		let res = this.isAttacked(this.kingPos[c], this.getOppCol(c))
-			? [ JSON.parse(JSON.stringify(this.kingPos[c])) ] //need to duplicate!
+		const color = this.turn;
+		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
+			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
 			: [ ];
 		this.undo(move);
 		return res;
@@ -723,7 +710,7 @@ class ChessRules
 	//////////////
 	// END OF GAME
 
-	checkGameOver(color)
+	checkGameOver()
 	{
 		// Check for 3 repetitions
 		if (this.moves.length >= 8)
@@ -739,19 +726,20 @@ class ChessRules
 			}
 		}
 
-		if (this.atLeastOneMove(color))
+		if (this.atLeastOneMove())
 		{
 			// game not over
 			return "*";
 		}
 
 		// Game over
-		return this.checkGameEnd(color);
+		return this.checkGameEnd();
 	}
 
-	// Useful stand-alone for engine
-	checkGameEnd(color)
+	// No moves are possible: compute score
+	checkGameEnd()
 	{
+		const color = this.turn;
 		// No valid move: stalemate or checkmate?
 		if (!this.isAttacked(this.kingPos[color], this.getOppCol(color)))
 			return "1/2";
@@ -775,12 +763,12 @@ class ChessRules
 	}
 
 	// Assumption: at least one legal move
-	getComputerMove(color)
+	getComputerMove()
 	{
-		const oppCol = this.getOppCol(color);
+		const color = this.turn;
 
 		// Rank moves using a min-max at depth 2
-		let moves1 = this.getAllValidMoves(color);
+		let moves1 = this.getAllValidMoves();
 
 		for (let i=0; i<moves1.length; i++)
 		{
@@ -788,10 +776,10 @@ class ChessRules
 			let eval2 = (color=="w" ? 1 : -1) * 1000; //initialized with very high (checkmate) value
 			this.play(moves1[i]);
 			// Second half-move:
-			let moves2 = this.getAllValidMoves(oppCol);
+			let moves2 = this.getAllValidMoves();
 			// If no possible moves AND underCheck, eval2 is correct.
 			// If !underCheck, eval2 is 0 (stalemate).
-			if (moves2.length == 0 && this.checkGameEnd(oppCol) == "1/2")
+			if (moves2.length == 0 && this.checkGameEnd() == "1/2")
 				eval2 = 0;
 			for (let j=0; j<moves2.length; j++)
 			{
@@ -812,7 +800,7 @@ class ChessRules
 		{
 			this.play(moves1[i]);
 			// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
-			moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(oppCol, color, 2, -1000, 1000);
+			moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(2, -1000, 1000);
 			this.undo(moves1[i]);
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
@@ -825,11 +813,12 @@ class ChessRules
 		return moves1[_.sample(candidates, 1)];
 	}
 
-	alphabeta(color, oppCol, depth, alpha, beta)
+	alphabeta(depth, alpha, beta)
   {
-		if (!this.atLeastOneMove(color))
+		const color = this.turn;
+		if (!this.atLeastOneMove())
 		{
-			switch (this.checkGameEnd(color))
+			switch (this.checkGameEnd())
 			{
 				case "1/2": return 0;
 				default: return color=="w" ? -1000 : 1000;
@@ -837,14 +826,14 @@ class ChessRules
 		}
 		if (depth == 0)
       return this.evalPosition();
-		const moves = this.getAllValidMoves(color);
+		const moves = this.getAllValidMoves();
     let v = color=="w" ? -1000 : 1000;
 		if (color == "w")
 		{
 			for (let i=0; i<moves.length; i++)
       {
 				this.play(moves[i]);
-				v = Math.max(v, this.alphabeta(oppCol, color, depth-1, alpha, beta));
+				v = Math.max(v, this.alphabeta(depth-1, alpha, beta));
 				this.undo(moves[i]);
 				alpha = Math.max(alpha, v);
 				if (alpha >= beta)
@@ -856,7 +845,7 @@ class ChessRules
 			for (let i=0; i<moves.length; i++)
 			{
 				this.play(moves[i]);
-				v = Math.min(v, this.alphabeta(oppCol, color, depth-1, alpha, beta));
+				v = Math.min(v, this.alphabeta(depth-1, alpha, beta));
 				this.undo(moves[i]);
 				beta = Math.min(beta, v);
 				if (alpha >= beta)

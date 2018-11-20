@@ -50,87 +50,58 @@ class CheckeredRules extends ChessRules
 		return flags;
 	}
 
-	// can color1 take color2?
-	canTake(color1, color2)
+	canTake([x1,y1], [x2,y2])
 	{
+		const color1 = this.getColor(x1,y1);
+		const color2 = this.getColor(x2,y2);
 		// Checkered aren't captured
 		return color1 != color2 && color2 != 'c' && (color1 != 'c' || color2 != this.turn);
 	}
 
-	// Build regular move(s) from its initial and destination squares; tr: transformation
-	getBasicMove(sx, sy, ex, ey, tr)
+	addCaptures([sx,sy], [ex,ey], moves)
 	{
-		if (this.board[ex][ey] == VariantRules.EMPTY)
+		const piece = this.getPiece(sx,sy);
+		if (piece != VariantRules.KING)
 		{
-			// No capture, standard move construction
-			return [super.getBasicMove(sx,sy,ex,ey,tr)];
+			moves.push(this.getBasicMove([sx,sy], [ex,ey], {c:'c',p:piece}));
+			const takePiece = this.getPiece(ex,ey);
+			if (takePiece != piece)
+				moves.push(this.getBasicMove([sx,sy], [ex,ey], {c:'c',p:takePiece}));
 		}
-		let moves = []; //captures: generally 2 choices, unless 'tr' is specified or piece==king
-		const startPiece = this.getPiece(sx,sy);
-		const endPiece = this.getPiece(ex,ey);
-		const startColor = this.getColor(sx,sy);
-		const endColor = this.getColor(ex,ey);
-		for (let piece of !!tr ? [tr] :
-			(startPiece==VariantRules.KING ? VariantRules.KING : _.uniq([startPiece,endPiece])))
-		{
-			var mv = new Move({
-				appear: [
-					new PiPo({
-						x: ex,
-						y: ey,
-						c: startPiece==VariantRules.KING ? startColor : 'c',
-						p: piece
-					})
-				],
-				vanish: [
-					new PiPo({
-						x: sx,
-						y: sy,
-						c: startColor,
-						p: startPiece
-					}),
-					new PiPo({
-						x: ex,
-						y: ey,
-						c: endColor,
-						p: endPiece
-					})
-				]
-			});
-			moves.push(mv);
-		}
-		return moves;
+		else
+			moves.push(this.getBasicMove([sx,sy], [ex,ey]));
 	}
 
 	// Generic method to find possible moves of non-pawn pieces ("sliding or jumping")
-	getSlideNJumpMoves(x, y, color, steps, oneStep)
+	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
-		var moves = [];
-		let [sizeX,sizeY] = VariantRules.size;
+		const color = this.getColor(x,y);
+		let moves = [];
+		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
 		for (var loop=0; loop<steps.length; loop++)
 		{
-			var step = steps[loop];
-			var i = x + step[0];
-			var j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] == VariantRules.EMPTY)
+			let step = steps[loop];
+			let i = x + step[0];
+			let j = y + step[1];
+			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
 			{
-				moves.push(this.getBasicMove(x, y, i, j)[0]); //no capture
+				moves.push(this.getBasicMove([x,y], [i,j])); //no capture
 				if (oneStep !== undefined)
 					continue outerLoop;
 				i += step[0];
 				j += step[1];
 			}
-			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake(color, this.getColor(i,j)))
-				moves = moves.concat(this.getBasicMove(x, y, i, j));
+			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake([x,y], [i,j]))
+				this.addCaptures([x,y], [i,j], moves);
 		}
 		return moves;
 	}
 
 	// What are the pawn moves from square x,y considering color "color" ?
-	getPotentialPawnMoves(x, y, color)
+	getPotentialPawnMoves([x,y])
 	{
+		const color = this.getColor(x,y);
 		var moves = [];
 		var V = VariantRules;
 		let [sizeX,sizeY] = VariantRules.size;
@@ -144,24 +115,18 @@ class CheckeredRules extends ChessRules
 			// Normal moves
 			if (this.board[x+shift][y] == V.EMPTY)
 			{
-				moves.push(this.getBasicMove(x, y, x+shift, y)[0]);
+				moves.push(this.getBasicMove([x,y], [x+shift,y]));
 				if (x==startRank && this.board[x+2*shift][y] == V.EMPTY && this.flags[1][c][y])
 				{
 					// Two squares jump
-					moves.push(this.getBasicMove(x, y, x+2*shift, y)[0]);
+					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
 				}
 			}
 			// Captures
-			if (y>0 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y-1))
-				&& this.board[x+shift][y-1] != V.EMPTY)
-			{
-				moves = moves.concat(this.getBasicMove(x, y, x+shift, y-1));
-			}
-			if (y<sizeY-1 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y+1))
-				&& this.board[x+shift][y+1] != V.EMPTY)
-			{
-				moves = moves.concat(this.getBasicMove(x, y, x+shift, y+1));
-			}
+			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				this.addCaptures([x,y], [x+shift,y-1], moves);
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				this.addCaptures([x,y], [x+shift,y+1], moves);
 		}
 
 		if (x+shift == lastRank)
@@ -171,18 +136,12 @@ class CheckeredRules extends ChessRules
 			promotionPieces.forEach(p => {
 				// Normal move
 				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove(x, y, x+shift, y, p)[0]);
+					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
 				// Captures
-				if (y>0 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y-1))
-					&& this.board[x+shift][y-1] != V.EMPTY)
-				{
-					moves = moves.concat(this.getBasicMove(x, y, x+shift, y-1, p));
-				}
-				if (y<sizeY-1 && this.canTake(this.getColor(x,y), this.getColor(x+shift,y+1))
-					&& this.board[x+shift][y+1] != V.EMPTY)
-				{
-					moves = moves.concat(this.getBasicMove(x, y, x+shift, y+1, p));
-				}
+				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:'c',p:p}));
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:'c',p:p}));
 			});
 		}
 
@@ -192,7 +151,7 @@ class CheckeredRules extends ChessRules
 		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
 		{
 			let epStep = epSquare.y - y;
-			var enpassantMove = this.getBasicMove(x, y, x+shift, y+epStep)[0];
+			var enpassantMove = this.getBasicMove([x,y], [x+shift,y+epStep]);
 			enpassantMove.vanish.push({
 				x: x,
 				y: y+epStep,
@@ -206,8 +165,9 @@ class CheckeredRules extends ChessRules
 		return moves;
 	}
 
-	getCastleMoves(x,y,c)
+	getCastleMoves([x,y])
 	{
+		const c = this.getColor(x,y);
 		if (x != (c=="w" ? 7 : 0) || y != this.INIT_COL_KING[c])
 			return []; //x isn't first rank, or king has moved (shortcut)
 
@@ -274,11 +234,10 @@ class CheckeredRules extends ChessRules
 		return moves;
 	}
 
-	canIplay(color, sq)
+	canIplay(side, [x,y])
 	{
-		return ((color=='w' && this.moves.length%2==0) || color=='c'
-				|| (color=='b' && this.moves.length%2==1))
-			&& [color,'c'].includes(this.getColor(sq[0], sq[1]));
+		return ((side=='w' && this.moves.length%2==0) || (side=='b' && this.moves.length%2==1))
+			&& [side,'c'].includes(this.getColor(x,y));
 	}
 
 	// Does m2 un-do m1 ? (to disallow undoing checkered moves)
@@ -286,8 +245,6 @@ class CheckeredRules extends ChessRules
 	{
 		return m1.appear.length == 1 && m2.appear.length == 1
 			&& m1.vanish.length == 1 && m2.vanish.length == 1
-//			&& _.isEqual(m1.appear[0], m2.vanish[0]) //fails in HH case
-//			&& _.isEqual(m1.vanish[0], m2.appear[0]);
 			&& m1.start.x == m2.end.x && m1.end.x == m2.start.x
 			&& m1.start.y == m2.end.y && m1.end.y == m2.start.y
 			&& m1.appear[0].c == m2.vanish[0].c && m1.appear[0].p == m2.vanish[0].p
@@ -298,51 +255,53 @@ class CheckeredRules extends ChessRules
 	{
 		if (moves.length == 0)
 			return [];
-		let color = this.getColor( moves[0].start.x, moves[0].start.y );
+		const color = this.turn;
 		return moves.filter(m => {
 			const L = this.moves.length;
 			if (L > 0 && this.oppositeMoves(this.moves[L-1], m))
 				return false;
-			return !this.underCheck(m, color);
+			return !this.underCheck(m);
 		});
 	}
 
-  isAttackedByPawn([x,y], c)
-  {
-		const color = (c=="c" ? this.turn : c);
-    let pawnShift = (color=="w" ? 1 : -1);
-    if (x+pawnShift>=0 && x+pawnShift<8)
-    {
-      for (let i of [-1,1])
-      {
-        if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
-          && this.getColor(x+pawnShift,y+i)==c)
-        {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-	underCheck(move, c)
+	isAttackedByPawn([x,y], colors)
 	{
-		const color = c == 'c' ? this.turn : c;
+		for (let c of colors)
+		{
+			const color = (c=="c" ? this.turn : c);
+			let pawnShift = (color=="w" ? 1 : -1);
+			if (x+pawnShift>=0 && x+pawnShift<8)
+			{
+				for (let i of [-1,1])
+				{
+					if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
+						&& this.getColor(x+pawnShift,y+i)==c)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	underCheck(move)
+	{
+		const color = this.turn;
 		this.play(move);
-		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
-			|| this.isAttacked(this.kingPos[color], 'c'); //TODO: quite inefficient...
+		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
 		this.undo(move);
 		return res;
 	}
 
-	getCheckSquares(move, c)
+	getCheckSquares(move)
 	{
 		this.play(move);
+		const color = this.turn;
 		this.moves.push(move); //artifically change turn, for checkered pawns (TODO)
-		const kingAttacked = this.isAttacked(this.kingPos[c], this.getOppCol(c))
-			|| this.isAttacked(this.kingPos[c], 'c');
+		const kingAttacked = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
 		let res = kingAttacked
-			? [ JSON.parse(JSON.stringify(this.kingPos[c])) ] //need to duplicate!
+			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
 			: [ ];
 		this.moves.pop();
 		this.undo(move);
@@ -387,8 +346,9 @@ class CheckeredRules extends ChessRules
 			this.flags[1][move.start.x==6 ? "w" : "b"][move.start.y] = false;
 	}
 
-	checkGameEnd(color)
+	checkGameEnd()
 	{
+		const color = this.turn;
 		if (!this.isAttacked(this.kingPos[color], this.getOppCol(color))
 			&& !this.isAttacked(this.kingPos[color], 'c'))
 		{
