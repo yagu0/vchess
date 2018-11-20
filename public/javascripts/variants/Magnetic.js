@@ -90,6 +90,7 @@ class MagneticRules extends ChessRules
 		this.undo(standardMove);
 	}
 
+	// TODO: when pawn is pushed to 8th rank, apply promotions (similar change as in Checkered)
 	getBasicMove([sx,sy], [ex,ey], tr)
 	{
 		var mv = new Move({
