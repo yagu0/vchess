@@ -616,6 +616,7 @@ Vue.component('my-game', {
 				this.oppConnected = true;
 				this.mycolor = color;
 				this.seek = false;
+				this.mode = "human";
 				if (!!moves && moves.length > 0) //imply continuation
 				{
 					const lastMove = moves[moves.length-1];
@@ -628,6 +629,7 @@ Vue.component('my-game', {
 			}
 			else //against computer
 			{
+				this.mode = "computer";
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
