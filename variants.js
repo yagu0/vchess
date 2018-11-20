@@ -4,7 +4,7 @@ module.exports = [
 	{ "name" : "Atomic", "description" : "Explosive captures" },
 	{ "name" : "Chess960", "description" : "Standard rules" },
   { "name" : "Antiking", "description" : "Keep antiking in check" },
-//  { "name" : "Magnetic", "description" : "Laws of attraction" },
+  { "name" : "Magnetic", "description" : "Laws of attraction" },
 //  { "name" : "Alice", "description" : "Both sides of the mirror" },
 //  { "name" : "Grand", "description" : "Big board" },
 //  { "name" : "Wildebeest", "description" : "Balanced sliders & leapers" },

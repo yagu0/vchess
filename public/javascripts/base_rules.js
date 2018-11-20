@@ -710,7 +710,7 @@ class ChessRules
 	//////////////
 	// END OF GAME
 
-	checkGameOver()
+	checkRepetition()
 	{
 		// Check for 3 repetitions
 		if (this.moves.length >= 8)
@@ -722,15 +722,19 @@ class ChessRules
 				_.isEqual(this.moves[L-3], this.moves[L-7]) &&
 				_.isEqual(this.moves[L-4], this.moves[L-8]))
 			{
-				return "1/2 (repetition)";
+				return true;
 			}
 		}
+		return false;
+	}
 
-		if (this.atLeastOneMove())
-		{
-			// game not over
+	checkGameOver()
+	{
+		if (this.checkRepetition())
+			return "1/2";
+
+		if (this.atLeastOneMove()) // game not over
 			return "*";
-		}
 
 		// Game over
 		return this.checkGameEnd();

@@ -134,13 +134,14 @@ class AtomicRules extends ChessRules
 	getCheckSquares(move)
 	{
 		const c = this.getOppCol(this.turn);
-		const saveKingPos = this.kingPos[c]; //king might explode
+		// King might explode:
+		const saveKingPos = JSON.parse(JSON.stringify(this.kingPos[c]));
 		this.play(move);
 		let res = [ ];
 		if (this.kingPos[c][0] < 0)
 			res = [saveKingPos];
 		else if (this.isAttacked(this.kingPos[c], this.getOppCol(c)))
-			res = [ this.kingPos[c] ]
+			res = [ JSON.parse(JSON.stringify(this.kingPos[c])) ]
 		this.undo(move);
 		return res;
 	}
