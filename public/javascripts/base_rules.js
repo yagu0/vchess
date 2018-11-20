@@ -65,37 +65,37 @@ class ChessRules
 		const position = fenParts[0].split("/");
 		for (let i=0; i<position.length; i++)
 		{
-			let j = 0;
-			while (j < position[i].length)
+			let k = 0; //column index on board
+			for (let j=0; j<position[i].length; j++)
 			{
 				switch (position[i].charAt(j))
 				{
 					case 'k':
-						this.kingPos['b'] = [i,j];
-						this.INIT_COL_KING['b'] = j;
+						this.kingPos['b'] = [i,k];
+						this.INIT_COL_KING['b'] = k;
 						break;
 					case 'K':
-						this.kingPos['w'] = [i,j];
-						this.INIT_COL_KING['w'] = j;
+						this.kingPos['w'] = [i,k];
+						this.INIT_COL_KING['w'] = k;
 						break;
 					case 'r':
 						if (this.INIT_COL_ROOK['b'][0] < 0)
-							this.INIT_COL_ROOK['b'][0] = j;
+							this.INIT_COL_ROOK['b'][0] = k;
 						else
-							this.INIT_COL_ROOK['b'][1] = j;
+							this.INIT_COL_ROOK['b'][1] = k;
 						break;
 					case 'R':
 						if (this.INIT_COL_ROOK['w'][0] < 0)
-							this.INIT_COL_ROOK['w'][0] = j;
+							this.INIT_COL_ROOK['w'][0] = k;
 						else
-							this.INIT_COL_ROOK['w'][1] = j;
+							this.INIT_COL_ROOK['w'][1] = k;
 						break;
 					default:
 						let num = parseInt(position[i].charAt(j));
 						if (!isNaN(num))
-							j += (num-1);
+							k += (num-1);
 				}
-				j++;
+				k++;
 			}
 		}
 		const epSq = this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined;

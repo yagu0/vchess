@@ -15,23 +15,23 @@ class AntikingRules extends ChessRules
 		const position = fen.split(" ")[0].split("/");
 		for (let i=0; i<position.length; i++)
 		{
-			let j = 0;
-			while (j < position[i].length)
+			let k = 0;
+			for (let j=0; j<position[i].length; j++)
 			{
 				switch (position[i].charAt(j))
 				{
 					case 'a':
-						this.antikingPos['b'] = [i,j];
+						this.antikingPos['b'] = [i,k];
 						break;
 					case 'A':
-						this.antikingPos['w'] = [i,j];
+						this.antikingPos['w'] = [i,k];
 						break;
 					default:
 						let num = parseInt(position[i].charAt(j));
 						if (!isNaN(num))
-							j += (num-1);
+							k += (num-1);
 				}
-				j++;
+				k++;
 			}
 		}
 	}
@@ -67,12 +67,19 @@ class AntikingRules extends ChessRules
 		return (super.isAttacked(sq, colors) || this.isAttackedByAntiking(sq, colors));
 	}
 
+	isAttackedByKing([x,y], colors)
+	{
+		if (this.getPiece(x,y) == VariantRules.ANTIKING)
+			return false; //antiking is not attacked by king
+		return this.isAttackedBySlideNJump([x,y], colors,
+			VariantRules.KING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+	}
+
 	isAttackedByAntiking([x,y], colors)
 	{
-		console.log(x + " " + y); //TODO: debug -1, -1 (wrong undo ?!)
 		if (this.getPiece(x,y) == VariantRules.KING)
 			return false; //king is not attacked by antiking
-		return super.isAttackedBySlideNJump([x,y], colors,
+		return this.isAttackedBySlideNJump([x,y], colors,
 			VariantRules.ANTIKING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
 	}
 
