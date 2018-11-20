@@ -16,6 +16,7 @@ Vue.component('my-game', {
 			seek: false,
 			fenStart: "",
 			incheck: [],
+			pgnTxt: "",
 			expert: document.cookie.length>0 ? document.cookie.substr(-1)=="1" : false,
 		};
 	},
@@ -349,7 +350,7 @@ Vue.component('my-game', {
 								attrs: { id: "pgn-game" },
 								on: { click: this.download },
 								domProps: {
-									innerHTML: this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode)
+									innerHTML: this.pgnTxt
 								}
 							}
 						)
@@ -493,12 +494,11 @@ Vue.component('my-game', {
 			this.score = score;
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
-			setTimeout(() => {
-				modalBox.checked = false;
-				this.mode = "idle"; //TODO: not the best way... (to see correct opponent in PGN)
-			}, 2000);
+			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
+			setTimeout(() => { modalBox.checked = false; }, 2000);
 			if (this.mode == "human")
 				this.clearStorage();
+			this.mode = "idle";
 			this.oppid = "";
 		},
 		getEndgameMessage: function(score) {
@@ -600,6 +600,7 @@ Vue.component('my-game', {
 				return;
 			}
 			this.vr = new VariantRules(fen, moves || []);
+			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
 			this.incheck = []; //in case of
 			this.fenStart = continuation
