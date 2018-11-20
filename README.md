@@ -14,12 +14,12 @@ But, a few important points:
 ## Resources
 
 Server side:
- - node + npm packages (see package.json),
- - pug,
+ - node,
+ - npm packages (see package.json),
 
 Client side:
  - Vue.js,
- - underscore.js
+ - underscore.js (TODO: remove this dependency),
  - mini.css,
  - Google font 'Open Sans' + a few icons,
 
