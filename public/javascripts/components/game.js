@@ -575,7 +575,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
+			const fen = "brnbnkrq/pppppppp/8/8/8/8/PPPPPPPP/BNNRKBQR 11111111111111111111";//fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
 			if (mode=="human" && !oppId)
@@ -635,7 +635,7 @@ Vue.component('my-game', {
 			}
 			else //against computer
 			{
-				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
+				this.mycolor = "w";//Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
 			}

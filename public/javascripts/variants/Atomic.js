@@ -72,7 +72,7 @@ class AtomicRules extends ChessRules
 				&& Math.abs(this.kingPos[c][1]-move.end.y) <= 1)
 			{
 				this.kingPos[c] = [-1,-1];
-				this.flags[c] = [false,false];
+				this.castleFlags[c] = [false,false];
 			}
 
 			// Did we explode opponent king ?
@@ -80,7 +80,7 @@ class AtomicRules extends ChessRules
 				&& Math.abs(this.kingPos[oppCol][1]-move.end.y) <= 1)
 			{
 				this.kingPos[oppCol] = [-1,-1];
-				this.flags[oppCol] = [false,false];
+				this.castleFlags[oppCol] = [false,false];
 			}
 			else
 			{
@@ -88,9 +88,9 @@ class AtomicRules extends ChessRules
 				if (Math.abs(move.end.x-oppFirstRank) <= 1)
 				{
 					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][0]) <= 1)
-						this.flags[oppCol][0] = false;
+						this.castleFlags[oppCol][0] = false;
 					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][1]) <= 1)
-						this.flags[oppCol][1] = false;
+						this.castleFlags[oppCol][1] = false;
 				}
 			}
 		}

@@ -32,22 +32,32 @@ class CheckeredRules extends ChessRules
 		return ChessRules.fen2board(f);
 	}
 
-	static GetFlags(fen)
+	setFlags(fen)
 	{
-		let flags = [
-			ChessRules.GetFlags(fen), //castle
-			{
-				"w": new Array(8), //pawns can move 2 squares
-				"b": new Array(8)
-			}
-		];
-		const fenFlags = fen.split(" ")[1].substr(4); //skip first 4 digits, for castle
+		super.setFlags(fen); //castleFlags
+		this.pawnFlags =
+		{
+			"w": new Array(8), //pawns can move 2 squares?
+			"b": new Array(8)
+		};
+		const flags = fen.split(" ")[1].substr(4); //skip first 4 digits, for castle
 		for (let c of ['w','b'])
 		{
 			for (let i=0; i<8; i++)
-				flags[1][c][i] = (fenFlags.charAt((c=='w'?0:8)+i) == '1');
+				this.pawnFlags[c][i] = (flags.charAt((c=='w'?0:8)+i) == '1');
 		}
-		return flags;
+	}
+
+	// Aggregates flags into one object
+	get flags() {
+		return [this.castleFlags, this.pawnFlags];
+	}
+
+	// Reverse operation
+	parseFlags(flags)
+	{
+		this.castleFlags = flags[0];
+		this.pawnFlags = flags[1];
 	}
 
 	canTake([x1,y1], [x2,y2])
@@ -58,179 +68,35 @@ class CheckeredRules extends ChessRules
 		return color1 != color2 && color2 != 'c' && (color1 != 'c' || color2 != this.turn);
 	}
 
-	addCaptures([sx,sy], [ex,ey], moves)
+	// Post-processing: apply "checkerization" of standard moves
+	getPotentialMovesFrom([x,y])
 	{
-		const piece = this.getPiece(sx,sy);
-		if (piece != VariantRules.KING)
-		{
-			moves.push(this.getBasicMove([sx,sy], [ex,ey], {c:'c',p:piece}));
-			const takePiece = this.getPiece(ex,ey);
-			if (takePiece != piece)
-				moves.push(this.getBasicMove([sx,sy], [ex,ey], {c:'c',p:takePiece}));
-		}
-		else
-			moves.push(this.getBasicMove([sx,sy], [ex,ey]));
-	}
-
-	// Generic method to find possible moves of non-pawn pieces ("sliding or jumping")
-	getSlideNJumpMoves([x,y], steps, oneStep)
-	{
-		const color = this.getColor(x,y);
+		let standardMoves = super.getPotentialMovesFrom([x,y]);
+		if (this.getPiece(x,y) == VariantRules.KING)
+			return standardMoves; //king has to be treated differently (for castles)
 		let moves = [];
-		const [sizeX,sizeY] = VariantRules.size;
-		outerLoop:
-		for (var loop=0; loop<steps.length; loop++)
-		{
-			let step = steps[loop];
-			let i = x + step[0];
-			let j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
+		standardMoves.forEach(m => {
+			if (m.vanish[0].p == VariantRules.PAWN && Math.abs(m.end.x-m.start.x)==2
+				&& !this.pawnFlags[this.turn][m.start.y])
 			{
-				moves.push(this.getBasicMove([x,y], [i,j])); //no capture
-				if (oneStep !== undefined)
-					continue outerLoop;
-				i += step[0];
-				j += step[1];
+				return; //skip forbidden 2-squares jumps
 			}
-			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake([x,y], [i,j]))
-				this.addCaptures([x,y], [i,j], moves);
-		}
-		return moves;
-	}
-
-	// What are the pawn moves from square x,y considering color "color" ?
-	getPotentialPawnMoves([x,y])
-	{
-		const color = this.getColor(x,y);
-		var moves = [];
-		var V = VariantRules;
-		let [sizeX,sizeY] = VariantRules.size;
-		const c = (color == 'c' ? this.turn : color);
-		const shift = (c == "w" ? -1 : 1);
-		let startRank = (c == "w" ? sizeY-2 : 1);
-		let lastRank = (c == "w" ? 0 : sizeY-1);
-
-		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
-		{
-			// Normal moves
-			if (this.board[x+shift][y] == V.EMPTY)
+			if (m.vanish.length == 1)
+				moves.push(m); //no capture
+			else
 			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				if (x==startRank && this.board[x+2*shift][y] == V.EMPTY && this.flags[1][c][y])
+				// A capture occured (m.vanish.length == 2)
+				m.appear[0].c = "c";
+				moves.push(JSON.parse(JSON.stringify(m)));
+				if (m.appear[0].p != m.vanish[1].p)
 				{
-					// Two squares jump
-					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
+					// Add transformation into captured piece
+					let m2 = JSON.parse(JSON.stringify(m));
+					m2.vanish[1].p = m.appear[0].p;
+					moves.push(m2);
 				}
 			}
-			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
-				this.addCaptures([x,y], [x+shift,y-1], moves);
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
-				this.addCaptures([x,y], [x+shift,y+1], moves);
-		}
-
-		if (x+shift == lastRank)
-		{
-			// Promotion
-			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
-			promotionPieces.forEach(p => {
-				// Normal move
-				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
-				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:'c',p:p}));
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:'c',p:p}));
-			});
-		}
-
-		// En passant
-		const Lep = this.epSquares.length;
-		const epSquare = Lep>0 ? this.epSquares[Lep-1] : undefined;
-		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
-		{
-			let epStep = epSquare.y - y;
-			var enpassantMove = this.getBasicMove([x,y], [x+shift,y+epStep]);
-			enpassantMove.vanish.push({
-				x: x,
-				y: y+epStep,
-				p: 'p',
-				c: this.getColor(x,y+epStep)
-			});
-			enpassantMove.appear[0].c = 'c';
-			moves.push(enpassantMove);
-		}
-
-		return moves;
-	}
-
-	getCastleMoves([x,y])
-	{
-		const c = this.getColor(x,y);
-		if (x != (c=="w" ? 7 : 0) || y != this.INIT_COL_KING[c])
-			return []; //x isn't first rank, or king has moved (shortcut)
-
-		const V = VariantRules;
-
-		// Castling ?
-		const oppCol = this.getOppCol(c);
-		let moves = [];
-		let i = 0;
-		const finalSquares = [ [2,3], [6,5] ]; //king, then rook
-		castlingCheck:
-		for (let castleSide=0; castleSide < 2; castleSide++) //large, then small
-		{
-			if (!this.flags[0][c][castleSide])
-				continue;
-			// If this code is reached, rooks and king are on initial position
-
-			// Nothing on the path of the king (and no checks; OK also if y==finalSquare)?
-			let step = finalSquares[castleSide][0] < y ? -1 : 1;
-			for (i=y; i!=finalSquares[castleSide][0]; i+=step)
-			{
-				if (this.isAttacked([x,i], oppCol) || (this.board[x][i] != V.EMPTY &&
-					// NOTE: next check is enough, because of chessboard constraints
-					(this.getColor(x,i) != c || ![V.KING,V.ROOK].includes(this.getPiece(x,i)))))
-				{
-					continue castlingCheck;
-				}
-			}
-
-			// Nothing on the path to the rook?
-			step = castleSide == 0 ? -1 : 1;
-			for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step)
-			{
-				if (this.board[x][i] != V.EMPTY)
-					continue castlingCheck;
-			}
-			const rookPos = this.INIT_COL_ROOK[c][castleSide];
-
-			// Nothing on final squares, except maybe king and castling rook?
-			for (i=0; i<2; i++)
-			{
-				if (this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-					this.getPiece(x,finalSquares[castleSide][i]) != V.KING &&
-					finalSquares[castleSide][i] != rookPos)
-				{
-					continue castlingCheck;
-				}
-			}
-
-			// If this code is reached, castle is valid
-			moves.push( new Move({
-				appear: [
-					new PiPo({x:x,y:finalSquares[castleSide][0],p:V.KING,c:c}),
-					new PiPo({x:x,y:finalSquares[castleSide][1],p:V.ROOK,c:c})],
-				vanish: [
-					new PiPo({x:x,y:y,p:V.KING,c:c}),
-					new PiPo({x:x,y:rookPos,p:V.ROOK,c:c})],
-				end: Math.abs(y - rookPos) <= 2
-					? {x:x, y:rookPos}
-					: {x:x, y:y + 2 * (castleSide==0 ? -1 : 1)}
-			}) );
-		}
-
+		});
 		return moves;
 	}
 
@@ -310,40 +176,14 @@ class CheckeredRules extends ChessRules
 
 	updateVariables(move)
 	{
-		const piece = this.getPiece(move.start.x,move.start.y);
 		const c = this.getColor(move.start.x,move.start.y);
-
 		if (c != 'c') //checkered not concerned by castle flags
-		{
-			const firstRank = (c == "w" ? 7 : 0);
-			// Update king position + flags
-			if (piece == VariantRules.KING && move.appear.length > 0)
-			{
-				this.kingPos[c][0] = move.appear[0].x;
-				this.kingPos[c][1] = move.appear[0].y;
-				this.flags[0][c] = [false,false];
-				return;
-			}
-			const oppCol = this.getOppCol(c);
-			const oppFirstRank = 7 - firstRank;
-			if (move.start.x == firstRank //our rook moves?
-				&& this.INIT_COL_ROOK[c].includes(move.start.y))
-			{
-				const flagIdx = move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1;
-				this.flags[0][c][flagIdx] = false;
-			}
-			else if (move.end.x == oppFirstRank //we took opponent rook?
-				&& this.INIT_COL_ROOK[c].includes(move.end.y))
-			{
-				const flagIdx = move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1;
-				this.flags[0][oppCol][flagIdx] = false;
-			}
-		}
+			super.updateVariables(move);
 
 		// Does it turn off a 2-squares pawn flag?
 		const secondRank = [1,6];
 		if (secondRank.includes(move.start.x) && move.vanish[0].p == VariantRules.PAWN)
-			this.flags[1][move.start.x==6 ? "w" : "b"][move.start.y] = false;
+			this.pawnFlags[move.start.x==6 ? "w" : "b"][move.start.y] = false;
 	}
 
 	checkGameEnd()
@@ -385,18 +225,12 @@ class CheckeredRules extends ChessRules
 
 	getFlagsFen()
 	{
-		let fen = "";
-		// Add castling flags
-		for (let c of ['w','b'])
-		{
-			for (let i=0; i<2; i++)
-				fen += this.flags[0][c][i] ? '1' : '0';
-		}
+		let fen = super.getFlagsFen();
 		// Add pawns flags
 		for (let c of ['w','b'])
 		{
 			for (let i=0; i<8; i++)
-				fen += this.flags[1][c][i] ? '1' : '0';
+				fen += this.pawnFlags[c][i] ? '1' : '0';
 		}
 		return fen;
 	}

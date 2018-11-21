@@ -52,7 +52,7 @@ class ChessRules
 		this.moves = moves;
 		// Use fen string to initialize variables, flags and board
 		this.board = VariantRules.GetBoard(fen);
-		this.flags = VariantRules.GetFlags(fen);
+		this.setFlags(fen);
 		this.initVariables(fen);
 	}
 
@@ -125,14 +125,13 @@ class ChessRules
 	}
 
 	// Overridable: flags can change a lot
-	static GetFlags(fen)
+	setFlags(fen)
 	{
 		// white a-castle, h-castle, black a-castle, h-castle
-		let flags = {'w': new Array(2), 'b': new Array(2)};
-		let fenFlags = fen.split(" ")[1]; //flags right after position
+		this.castleFlags = {'w': new Array(2), 'b': new Array(2)};
+		let flags = fen.split(" ")[1]; //flags right after position
 		for (let i=0; i<4; i++)
-			flags[i < 2 ? 'w' : 'b'][i%2] = (fenFlags.charAt(i) == '1');
-		return flags;
+			this.castleFlags[i < 2 ? 'w' : 'b'][i%2] = (flags.charAt(i) == '1');
 	}
 
 	///////////////////
@@ -174,6 +173,17 @@ class ChessRules
 			'b': [ [-1,-1],[-1,1],[1,-1],[1,1] ],
 			'q': [ [-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1] ]
 		};
+	}
+
+	// Aggregates flags into one object
+	get flags() {
+		return this.castleFlags;
+	}
+
+	// Reverse operation
+	parseFlags(flags)
+	{
+		this.castleFlags = flags;
 	}
 
 	// En-passant square, if any
@@ -222,7 +232,7 @@ class ChessRules
 	// Build a regular move from its initial and destination squares; tr: transformation
 	getBasicMove([sx,sy], [ex,ey], tr)
 	{
-		var mv = new Move({
+		let mv = new Move({
 			appear: [
 				new PiPo({
 					x: ex,
@@ -260,7 +270,7 @@ class ChessRules
 	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
 		const color = this.getColor(x,y);
-		var moves = [];
+		let moves = [];
 		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
 		for (let step of steps)
@@ -284,13 +294,14 @@ class ChessRules
 	// What are the pawn moves from square x,y considering color "color" ?
 	getPotentialPawnMoves([x,y])
 	{
-		const color = this.getColor(x,y);
-		var moves = [];
-		var V = VariantRules;
+		const color = this.turn;
+		let moves = [];
+		const V = VariantRules;
 		const [sizeX,sizeY] = VariantRules.size;
-		let shift = (color == "w" ? -1 : 1);
-		let startRank = (color == "w" ? sizeY-2 : 1);
-		let lastRank = (color == "w" ? 0 : sizeY-1);
+		const shift = (color == "w" ? -1 : 1);
+		const firstRank = (color == 'w' ? sizeY-1 : 0);
+		const startRank = (color == "w" ? sizeY-2 : 1);
+		const lastRank = (color == "w" ? 0 : sizeY-1);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
 		{
@@ -298,7 +309,8 @@ class ChessRules
 			if (this.board[x+shift][y] == V.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				if (x==startRank && this.board[x+2*shift][y] == V.EMPTY)
+				// Next condition because variants with pawns on 1st rank generally allow them to jump
+				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
 				{
 					// Two squares jump
 					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
@@ -394,7 +406,7 @@ class ChessRules
 		castlingCheck:
 		for (let castleSide=0; castleSide < 2; castleSide++) //large, then small
 		{
-			if (!this.flags[c][castleSide])
+			if (!this.castleFlags[c][castleSide])
 				continue;
 			// If this code is reached, rooks and king are on initial position
 
@@ -658,7 +670,7 @@ class ChessRules
 		{
 			this.kingPos[c][0] = move.appear[0].x;
 			this.kingPos[c][1] = move.appear[0].y;
-			this.flags[c] = [false,false];
+			this.castleFlags[c] = [false,false];
 			return;
 		}
 		const oppCol = this.getOppCol(c);
@@ -666,14 +678,14 @@ class ChessRules
 		if (move.start.x == firstRank //our rook moves?
 			&& this.INIT_COL_ROOK[c].includes(move.start.y))
 		{
-			const flagIdx = move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1;
-			this.flags[c][flagIdx] = false;
+			const flagIdx = (move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1);
+			this.castleFlags[c][flagIdx] = false;
 		}
 		else if (move.end.x == oppFirstRank //we took opponent rook?
 			&& this.INIT_COL_ROOK[c].includes(move.end.y))
 		{
-			const flagIdx = move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1;
-			this.flags[oppCol][flagIdx] = false;
+			const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
+			this.castleFlags[oppCol][flagIdx] = false;
 		}
 	}
 
@@ -687,11 +699,11 @@ class ChessRules
 
 	play(move, ingame)
 	{
+		console.log("AVANT " + this.getNotation(move) + " "  + this.board[1][5]);
 		if (!!ingame)
 			move.notation = this.getNotation(move);
 
-		// Save flags (for undo)
-		move.flags = JSON.stringify(this.flags); //TODO: less costly?
+		move.flags = JSON.stringify(this.flags); //save flags (for undo)
 		this.updateVariables(move);
 		this.moves.push(move);
 		this.epSquares.push( this.getEpSquare(move) );
@@ -704,7 +716,8 @@ class ChessRules
 		this.epSquares.pop();
 		this.moves.pop();
 		this.unupdateVariables(move);
-		this.flags = JSON.parse(move.flags);
+		this.parseFlags(JSON.parse(move.flags));
+		console.log("APRES " + this.getNotation(move) + " "  + this.board[1][5]);
 	}
 
 	//////////////
@@ -982,7 +995,7 @@ class ChessRules
 		for (let i of ['w','b'])
 		{
 			for (let j=0; j<2; j++)
-				fen += this.flags[i][j] ? '1' : '0';
+				fen += this.castleFlags[i][j] ? '1' : '0';
 		}
 		return fen;
 	}

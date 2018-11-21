@@ -5,10 +5,24 @@ class MagneticRules extends ChessRules
 		return undefined; //no en-passant
 	}
 
-	// Complete a move with magnetic actions
-	applyMagneticLaws([x,y], move)
+	getPotentialMovesFrom([x,y])
 	{
-		const standardMove = JSON.parse(JSON.stringify(move));
+		const standardMoves = super.getPotentialMovesFrom([x,y]);
+		let moves = [];
+		standardMoves.forEach(m => {
+			let newMove_s = this.applyMagneticLaws(m);
+			if (newMove_s.length == 1)
+				moves.push(newMove_s[0]);
+			else //promotion
+				moves = moves.concat(moves, newMove_s);
+		});
+	}
+
+	// Complete a move with magnetic actions
+	applyMagneticLaws(standardMove)
+	{
+		const [x,y] = [moves.start.x, move.start.y];
+		let move = JSON.parse(JSON.stringify(standardMove));
 		this.play(standardMove);
 		const color = this.getColor(x,y);
 		const [sizeX,sizeY] = VariantRules.size;
@@ -88,172 +102,22 @@ class MagneticRules extends ChessRules
 			}
 		}
 		this.undo(standardMove);
-	}
-
-	// TODO: when pawn is pushed to 8th rank, apply promotions (similar change as in Checkered)
-	getBasicMove([sx,sy], [ex,ey], tr)
-	{
-		var mv = new Move({
-			appear: [
-				new PiPo({
-					x: ex,
-					y: ey,
-					c: !!tr ? tr.c : this.getColor(sx,sy),
-					p: !!tr ? tr.p : this.getPiece(sx,sy)
-				})
-			],
-			vanish: [
-				new PiPo({
-					x: sx,
-					y: sy,
-					c: this.getColor(sx,sy),
-					p: this.getPiece(sx,sy)
-				})
-			]
-		});
-
-		if (this.board[ex][ey] != VariantRules.EMPTY)
-		{
-			mv.vanish.push(
-				new PiPo({
-					x: ex,
-					y: ey,
-					c: this.getColor(ex,ey),
-					p: this.getPiece(ex,ey)
-				})
-			);
-		}
-		this.applyMagneticLaws([ex,ey], mv);
-		return mv;
-	}
-
-	getPotentialPawnMoves([x,y])
-	{
-		const color = this.getColor(x,y);
-		var moves = [];
-		var V = VariantRules;
-		const [sizeX,sizeY] = VariantRules.size;
-		let shift = (color == "w" ? -1 : 1);
-		let startRank = (color == "w" ? sizeY-2 : 1);
-		let firstRank = (color == 'w' ? sizeY-1 : 0);
-		let lastRank = (color == "w" ? 0 : sizeY-1);
-
-		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
-		{
-			// Normal moves
-			if (this.board[x+shift][y] == V.EMPTY)
-			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
-				{
-					// Two squares jump
-					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
-				}
-			}
-			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
-				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
-				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
-		}
-
-		if (x+shift == lastRank)
-		{
-			// Promotion
-			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
-			promotionPieces.forEach(p => {
-				// Normal move
-				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
-				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
-			});
-		}
-
-		// No en passant
-
-		return moves;
-	}
-
-	getCastleMoves([x,y])
-	{
-		const c = this.getColor(x,y);
-		if (x != (c=="w" ? 7 : 0) || y != this.INIT_COL_KING[c])
-			return []; //x isn't first rank, or king has moved (shortcut)
-
-		const V = VariantRules;
-
-		// Castling ?
-		const oppCol = this.getOppCol(c);
 		let moves = [];
-		let i = 0;
-		const finalSquares = [ [2,3], [6,5] ]; //king, then rook
-		castlingCheck:
-		for (let castleSide=0; castleSide < 2; castleSide++) //large, then small
+		if (..condition pawn promote)
 		{
-			if (!this.flags[c][castleSide])
-				continue;
-			// If this code is reached, rooks and king are on initial position
-
-			// Nothing on the path of the king (and no checks; OK also if y==finalSquare)?
-			let step = finalSquares[castleSide][0] < y ? -1 : 1;
-			for (i=y; i!=finalSquares[castleSide][0]; i+=step)
-			{
-				if (this.isAttacked([x,i], oppCol) || (this.board[x][i] != V.EMPTY &&
-					// NOTE: next check is enough, because of chessboard constraints
-					(this.getColor(x,i) != c || ![V.KING,V.ROOK].includes(this.getPiece(x,i)))))
-				{
-					continue castlingCheck;
-				}
-			}
-
-			// Nothing on the path to the rook?
-			step = castleSide == 0 ? -1 : 1;
-			for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step)
-			{
-				if (this.board[x][i] != V.EMPTY)
-					continue castlingCheck;
-			}
-			const rookPos = this.INIT_COL_ROOK[c][castleSide];
-
-			// Nothing on final squares, except maybe king and castling rook?
-			for (i=0; i<2; i++)
-			{
-				if (this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-					this.getPiece(x,finalSquares[castleSide][i]) != V.KING &&
-					finalSquares[castleSide][i] != rookPos)
-				{
-					continue castlingCheck;
-				}
-			}
-
-			// If this code is reached, castle is valid
-			let cmove = new Move({
-				appear: [
-					new PiPo({x:x,y:finalSquares[castleSide][0],p:V.KING,c:c}),
-					new PiPo({x:x,y:finalSquares[castleSide][1],p:V.ROOK,c:c})],
-				vanish: [
-					new PiPo({x:x,y:y,p:V.KING,c:c}),
-					new PiPo({x:x,y:rookPos,p:V.ROOK,c:c})],
-				end: Math.abs(y - rookPos) <= 2
-					? {x:x, y:rookPos}
-					: {x:x, y:y + 2 * (castleSide==0 ? -1 : 1)}
-			});
-			this.applyMagneticLaws([x,finalSquares[castleSide][1]], cmove);
-			moves.push(cmove);
+			move. ... = ... //loop
+			moves.push(...);
 		}
-
+		else
+			moves.push(move);
 		return moves;
 	}
 
 	// TODO: verify this assertion
-//	atLeastOneMove()
-//	{
-//		return true; //always at least one possible move
-//	}
+	atLeastOneMove()
+	{
+		return true; //always at least one possible move
+	}
 
 	underCheck(move)
 	{
@@ -284,7 +148,7 @@ class MagneticRules extends ChessRules
 			// We took opponent king !
 			const oppCol = this.getOppCol(c);
 			this.kingPos[oppCol] = [-1,-1];
-			this.flags[oppCol] = [false,false];
+			this.castleFlags[oppCol] = [false,false];
 		}
 	}
 
