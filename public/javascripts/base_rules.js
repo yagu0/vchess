@@ -682,7 +682,7 @@ class ChessRules
 			this.castleFlags[c][flagIdx] = false;
 		}
 		else if (move.end.x == oppFirstRank //we took opponent rook?
-			&& this.INIT_COL_ROOK[c].includes(move.end.y))
+			&& this.INIT_COL_ROOK[oppCol].includes(move.end.y))
 		{
 			const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
 			this.castleFlags[oppCol][flagIdx] = false;
@@ -699,7 +699,6 @@ class ChessRules
 
 	play(move, ingame)
 	{
-		console.log("AVANT " + this.getNotation(move) + " "  + this.board[1][5]);
 		if (!!ingame)
 			move.notation = this.getNotation(move);
 
@@ -717,7 +716,6 @@ class ChessRules
 		this.moves.pop();
 		this.unupdateVariables(move);
 		this.parseFlags(JSON.parse(move.flags));
-		console.log("APRES " + this.getNotation(move) + " "  + this.board[1][5]);
 	}
 
 	//////////////
@@ -1003,7 +1001,7 @@ class ChessRules
 	// Context: just before move is played, turn hasn't changed
 	getNotation(move)
 	{
-		if (move.appear.length == 2)
+		if (move.appear.length == 2 && move.appear[0].p == VariantRules.KING)
 		{
 			// Castle
 			if (move.end.y < move.start.y)

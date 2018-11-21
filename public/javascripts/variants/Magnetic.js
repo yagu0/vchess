@@ -7,7 +7,7 @@ class MagneticRules extends ChessRules
 
 	getPotentialMovesFrom([x,y])
 	{
-		const standardMoves = super.getPotentialMovesFrom([x,y]);
+		let standardMoves = super.getPotentialMovesFrom([x,y]);
 		let moves = [];
 		standardMoves.forEach(m => {
 			let newMove_s = this.applyMagneticLaws(m);
@@ -16,29 +16,35 @@ class MagneticRules extends ChessRules
 			else //promotion
 				moves = moves.concat(moves, newMove_s);
 		});
+		return moves;
 	}
 
 	// Complete a move with magnetic actions
-	applyMagneticLaws(standardMove)
+	applyMagneticLaws(move)
 	{
-		const [x,y] = [moves.start.x, move.start.y];
-		let move = JSON.parse(JSON.stringify(standardMove));
+		const V = VariantRules;
+		if (move.appear[0].p == V.KING && move.appear.length==1)
+			return [move]; //kings are not charged
+		const aIdx = (move.appear[0].p != V.KING ? 0 : 1); //if castling, rook is charged
+		const [x,y] = [move.appear[aIdx].x, move.appear[aIdx].y];
+		const color = this.turn;
+		const lastRank = (color=="w" ? 0 : 7);
+		const standardMove = JSON.parse(JSON.stringify(move));
 		this.play(standardMove);
-		const color = this.getColor(x,y);
-		const [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = V.size;
 		for (let step of [[-1,0],[1,0],[0,-1],[0,1]])
 		{
 			let [i,j] = [x+step[0],y+step[1]];
 			while (i>=0 && i<sizeX && j>=0 && j<sizeY)
 			{
-				if (this.board[i][j] != VariantRules.EMPTY)
+				if (this.board[i][j] != V.EMPTY)
 				{
 					// Found something. Same color or not?
 					if (this.getColor(i,j) != color)
 					{
 						// Attraction
 						if ((Math.abs(i-x)>=2 || Math.abs(j-y)>=2)
-							&& this.getPiece(i,j) != VariantRules.KING)
+							&& this.getPiece(i,j) != V.KING)
 						{
 							move.vanish.push(
 								new PiPo({
@@ -61,13 +67,13 @@ class MagneticRules extends ChessRules
 					else
 					{
 						// Repulsion
-						if (this.getPiece(i,j) != VariantRules.KING)
+						if (this.getPiece(i,j) != V.KING)
 						{
 							// Push it until we meet an obstacle or edge of the board
 							let [ii,jj] = [i+step[0],j+step[1]];
 							while (ii>=0 && ii<sizeX && jj>=0 && jj<sizeY)
 							{
-								if (this.board[ii][jj] != VariantRules.EMPTY)
+								if (this.board[ii][jj] != V.EMPTY)
 									break;
 								ii += step[0];
 								jj += step[1];
@@ -103,12 +109,29 @@ class MagneticRules extends ChessRules
 		}
 		this.undo(standardMove);
 		let moves = [];
-		if (..condition pawn promote)
+		// Scan move for pawn (max 1) on 8th rank
+		for (let i=1; i<move.appear.length; i++)
 		{
-			move. ... = ... //loop
-			moves.push(...);
+			if (move.appear[i].p==V.PAWN && move.appear[i].x==lastRank)
+			{
+				move.appear[i].p = V.ROOK;
+				moves.push(move);
+				for (let piece of [V.KNIGHT, V.BISHOP, V.QUEEN])
+				{
+					let cmove = JSON.parse(JSON.stringify(move));
+					cmove.appear[i].p = piece;
+					moves.push(cmove);
+				}
+				// Swap appear[i] and appear[0] for moves presentation (TODO: this is awkward)
+				moves.forEach(m => {
+					let tmp = m.appear[0];
+					m.appear[0] = m.appear[i];
+					m.appear[i] = tmp;
+				});
+				break;
+			}
 		}
-		else
+		if (moves.length == 0) //no pawn on 8th rank
 			moves.push(move);
 		return moves;
 	}

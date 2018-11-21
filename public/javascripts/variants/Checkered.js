@@ -72,6 +72,7 @@ class CheckeredRules extends ChessRules
 	getPotentialMovesFrom([x,y])
 	{
 		let standardMoves = super.getPotentialMovesFrom([x,y]);
+		const lastRank = this.turn == "w" ? 0 : 7;
 		if (this.getPiece(x,y) == VariantRules.KING)
 			return standardMoves; //king has to be treated differently (for castles)
 		let moves = [];
@@ -87,12 +88,13 @@ class CheckeredRules extends ChessRules
 			{
 				// A capture occured (m.vanish.length == 2)
 				m.appear[0].c = "c";
-				moves.push(JSON.parse(JSON.stringify(m)));
-				if (m.appear[0].p != m.vanish[1].p)
+				moves.push(m);
+				if (m.appear[0].p != m.vanish[1].p //avoid promotions:
+					&& (m.vanish[0].p != VariantRules.PAWN || m.end.x != lastRank))
 				{
 					// Add transformation into captured piece
 					let m2 = JSON.parse(JSON.stringify(m));
-					m2.vanish[1].p = m.appear[0].p;
+					m2.appear[0].p = m.vanish[1].p;
 					moves.push(m2);
 				}
 			}

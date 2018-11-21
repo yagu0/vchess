@@ -412,7 +412,6 @@ Vue.component('my-game', {
 		};
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
-			console.log("Receive message: " + data.code);
 			switch (data.code)
 			{
 				case "newgame": //opponent found
@@ -575,7 +574,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			const fen = "brnbnkrq/pppppppp/8/8/8/8/PPPPPPPP/BNNRKBQR 11111111111111111111";//fenInit || VariantRules.GenRandInitFen();
+			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
 			if (mode=="human" && !oppId)
