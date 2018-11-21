@@ -1019,7 +1019,7 @@ class ChessRules
 		{
 			// Pawn move
 			let notation = "";
-			if (move.vanish.length > 1)
+			if (move.vanish.length > move.appear.length)
 			{
 				// Capture
 				let startColumn = String.fromCharCode(97 + move.start.y);

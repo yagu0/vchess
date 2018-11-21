@@ -1,6 +1,5 @@
 class CheckeredRules extends ChessRules
 {
-	// Path to pieces
 	static getPpath(b)
 	{
 		return b[0]=='c' ? "Checkered/"+b : b;

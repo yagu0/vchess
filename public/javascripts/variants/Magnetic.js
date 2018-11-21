@@ -20,6 +20,7 @@ class MagneticRules extends ChessRules
 	}
 
 	// Complete a move with magnetic actions
+	// TODO: job is done multiple times for (normal) promotions.
 	applyMagneticLaws(move)
 	{
 		const V = VariantRules;
@@ -43,8 +44,7 @@ class MagneticRules extends ChessRules
 					if (this.getColor(i,j) != color)
 					{
 						// Attraction
-						if ((Math.abs(i-x)>=2 || Math.abs(j-y)>=2)
-							&& this.getPiece(i,j) != V.KING)
+						if ((Math.abs(i-x)>=2 || Math.abs(j-y)>=2) && this.getPiece(i,j) != V.KING)
 						{
 							move.vanish.push(
 								new PiPo({
