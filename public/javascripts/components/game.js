@@ -574,7 +574,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			const fen = "rbnqknbr/pppppppp/8/8/8/8/PPPPPPPP/BQRKNNRB 1111";//fenInit || VariantRules.GenRandInitFen();
+			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
 			if (mode=="human" && !oppId)
@@ -634,7 +634,7 @@ Vue.component('my-game', {
 			}
 			else //against computer
 			{
-				this.mycolor = "w";//Math.random() < 0.5 ? 'w' : 'b';
+				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
 			}
@@ -672,7 +672,7 @@ Vue.component('my-game', {
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
 				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				this.possibleMoves = true //this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
+				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
 				console.log(this.possibleMoves);

@@ -14,7 +14,7 @@ class MagneticRules extends ChessRules
 			if (newMove_s.length == 1)
 				moves.push(newMove_s[0]);
 			else //promotion
-				moves = moves.concat(moves, newMove_s);
+				moves = moves.concat(newMove_s);
 		});
 		return moves;
 	}

@@ -1035,7 +1035,8 @@ class ChessRules
 		else
 		{
 			// Piece movement
-			return piece.toUpperCase() + (move.vanish.length > 1 ? "x" : "") + finalSquare;
+			return piece.toUpperCase() +
+				(move.vanish.length > move.appear.length ? "x" : "") + finalSquare;
 		}
 	}
 
