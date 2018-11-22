@@ -672,10 +672,9 @@ Vue.component('my-game', {
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
 				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
+				this.possibleMoves = true//this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
-				console.log(this.possibleMoves);
 				e.target.parentNode.appendChild(this.selectedPiece);
 			}
 		},

@@ -699,6 +699,8 @@ class ChessRules
 
 	play(move, ingame)
 	{
+		console.log("play " + this.getNotation(move));
+		console.log(JSON.stringify(move));
 		if (!!ingame)
 			move.notation = this.getNotation(move);
 
@@ -716,6 +718,7 @@ class ChessRules
 		this.moves.pop();
 		this.unupdateVariables(move);
 		this.parseFlags(JSON.parse(move.flags));
+		console.log("undo " + this.getNotation(move));
 	}
 
 	//////////////
@@ -1011,10 +1014,10 @@ class ChessRules
 		}
 
 		// Translate final square
-		let finalSquare =
+		const finalSquare =
 			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
 
-		let piece = this.getPiece(move.start.x, move.start.y);
+		const piece = this.getPiece(move.start.x, move.start.y);
 		if (piece == VariantRules.PAWN)
 		{
 			// Pawn move
@@ -1022,7 +1025,7 @@ class ChessRules
 			if (move.vanish.length > move.appear.length)
 			{
 				// Capture
-				let startColumn = String.fromCharCode(97 + move.start.y);
+				const startColumn = String.fromCharCode(97 + move.start.y);
 				notation = startColumn + "x" + finalSquare;
 			}
 			else //no capture
