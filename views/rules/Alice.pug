@@ -1,0 +1,49 @@
+p.boxed
+	| Every move played ends up on another board (the "other side of the mirror"). So there are two boards. All pieces start on board 1.
+
+h3 Specifications
+
+ul
+	li Chessboard: standard.
+	li Material: standard + Alice pieces.
+	li Non-capturing moves: standard.
+	li Special moves: standard.
+	li Captures: standard (if on same board).
+	li End of game: standard.
+
+h3 Basics
+
+p
+	| Two boards are used in this variant. Pieces from board 2 are represented on the main board, upside down.
+	| Any move played must be valid on the board it is played on.
+	| In addition, the final square should not be occupied by a piece from the other board
+	| (thus allowing to represent all on one board).
+
+p Notation for Alice pieces was chosen as follow:
+ul
+	li Pawn : S
+	li Rook : U
+	li Knight : O
+	li Bishop : C
+	li Queen : T
+	li King : L
+
+figure.diagram-container
+	.diagram
+		| fen:rnbqkbnr/ppp1pppp/8/8/2p5/5O2/PP1PPPPP/RNBQKB1R:
+	figcaption After the moves 1.Nf3 Pd5 2.Pc4 Sxc4
+
+h3 End of the game
+
+p As in the orthodox game, win by checkmating the king. It shouldn't be able to escape the check, not even by moving to the other board.
+
+p Note: en-passant and castle occur as they do in the standard game.
+
+h3 Credits
+
+p
+	| Alice chess pages on
+	a(href="https://www.chessvariants.com/other.dir/alice.html") chessvariants.com 
+	| and on 
+	a(href="https://www.schemingmind.com/journalarticle.aspx?article_id=9") schemingmind.com
+	| .
