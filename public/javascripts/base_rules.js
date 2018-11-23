@@ -503,25 +503,25 @@ class ChessRules
 		// No: if happen on last 1/2 move, could lead to forbidden moves, wrong evals
 		return this.filterValid(potentialMoves);
 	}
-	
+
 	// Stop at the first move found
 	atLeastOneMove()
 	{
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		let [sizeX,sizeY] = VariantRules.size;
-		for (var i=0; i<sizeX; i++)
+		for (let i=0; i<sizeX; i++)
 		{
-			for (var j=0; j<sizeY; j++)
+			for (let j=0; j<sizeY; j++)
 			{
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) != oppCol)
 				{
 					const moves = this.getPotentialMovesFrom([i,j]);
 					if (moves.length > 0)
 					{
-						for (let i=0; i<moves.length; i++)
+						for (let k=0; k<moves.length; k++)
 						{
-							if (this.filterValid([moves[i]]).length > 0)
+							if (this.filterValid([moves[k]]).length > 0)
 								return true;
 						}
 					}
@@ -824,7 +824,7 @@ class ChessRules
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
 
-		//console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
+//		console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 		return moves1[_.sample(candidates, 1)];
 	}
 

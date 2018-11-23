@@ -132,6 +132,9 @@ class AliceRules extends ChessRules
 					psq.p = VariantRules.ALICE_CODES[psq.p];
 				});
 			}
+			// Fix en-passant captures
+			if (m.vanish.length == 2 && this.board[m.end.x][m.end.y] == VariantRules.EMPTY)
+				m.vanish[1].c = this.getOppCol(this.getColor(x,y));
 			return true;
 		});
 	}
@@ -224,5 +227,22 @@ class AliceRules extends ChessRules
 			res = (color == "w" ? "0-1" : "1-0");
 		this.board = saveBoard;
 		return res;
+	}
+
+	static get VALUES() {
+		return {
+			'p': 1,
+			's': 1,
+			'r': 5,
+			'u': 5,
+			'n': 3,
+			'o': 3,
+			'b': 3,
+			'c': 3,
+			'q': 9,
+			't': 9,
+			'k': 1000,
+			'l': 1000
+		};
 	}
 }
