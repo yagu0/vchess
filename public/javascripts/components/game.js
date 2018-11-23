@@ -574,6 +574,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
+			//const fen = "3b1l2/ppp1p1pp/4o1r1/4N3/8/8/PPPPPPPP/RN1BBKQR 1111";//"rqbbnnkr/pppppppp/8/8/8/8/PPPPPPPP/RNNBBKQR 1111";//fenInit || VariantRules.GenRandInitFen();
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";

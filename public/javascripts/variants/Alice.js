@@ -28,6 +28,38 @@ class AliceRules extends ChessRules
 		return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
 	}
 
+	initVariables(fen)
+	{
+		super.initVariables(fen);
+		const fenParts = fen.split(" ");
+		const position = fenParts[0].split("/");
+		if (this.kingPos["w"][0] < 0 || this.kingPos["b"][0] < 0)
+		{
+			// INIT_COL_XXX won't be used, so no need to set them for Alice kings
+			for (let i=0; i<position.length; i++)
+			{
+				let k = 0; //column index on board
+				for (let j=0; j<position[i].length; j++)
+				{
+					switch (position[i].charAt(j))
+					{
+						case 'l':
+							this.kingPos['b'] = [i,k];
+							break;
+						case 'L':
+							this.kingPos['w'] = [i,k];
+							break;
+						default:
+							let num = parseInt(position[i].charAt(j));
+							if (!isNaN(num))
+								k += (num-1);
+					}
+					k++;
+				}
+			}
+		}
+	}
+
 	getBoardOfPiece([x,y])
 	{
 		const V = VariantRules;
@@ -50,6 +82,7 @@ class AliceRules extends ChessRules
 		return sideBoard;
 	}
 
+	// TODO: move board building one level up (findAllMoves()) to avoid re-building at every piece...
 	// NOTE: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
 	// --> Should be OK as is.
 	getPotentialMovesFrom([x,y])
@@ -93,8 +126,12 @@ class AliceRules extends ChessRules
 					psq.p = VariantRules.ALICE_CODES[psq.p]; //goto board2
 				});
 			}
-			else //move on board2: mark vanishing piece as Alice
-				m.vanish[0].p = VariantRules.ALICE_CODES[m.vanish[0].p]
+			else //move on board2: mark vanishing pieces as Alice
+			{
+				m.vanish.forEach(psq => {
+					psq.p = VariantRules.ALICE_CODES[psq.p];
+				});
+			}
 			return true;
 		});
 	}
@@ -125,6 +162,28 @@ class AliceRules extends ChessRules
 		this.board = saveBoard;
 		this.undo(move);
 		return res;
+	}
+
+	updateVariables(move)
+	{
+		super.updateVariables(move); //standard king
+		const piece = this.getPiece(move.start.x,move.start.y);
+		const c = this.getColor(move.start.x,move.start.y);
+		// "l" = Alice king
+		if (piece == "l")
+		{
+			this.kingPos[c][0] = move.appear[0].x;
+			this.kingPos[c][1] = move.appear[0].y;
+			this.castleFlags[c] = [false,false];
+		}
+	}
+
+	unupdateVariables(move)
+	{
+		super.unupdateVariables(move);
+		const c = this.getColor(move.start.x,move.start.y);
+		if (this.getPiece(move.start.x,move.start.y) == "l")
+			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
 	getNotation(move)
