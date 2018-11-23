@@ -574,7 +574,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
+			const fen = "pppppppp/rnbqkbnr/8/8/8/8/PPPPPPPP/ROBQKBOR 1111"; //fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
 			if (mode=="human" && !oppId)

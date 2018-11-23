@@ -76,12 +76,15 @@ class AliceRules extends ChessRules
 					return false;
 				}
 			}
-			m.appear.forEach(psq => {
-				if (Object.keys(VariantRules.ALICE_CODES).includes(psq.p))
+			// If the move is computed on board1, m.appear change for Alice pieces.
+			if (mirrorSide==1)
+			{
+				m.appear.forEach(psq => { //forEach: castling taken into account
 					psq.p = VariantRules.ALICE_CODES[psq.p]; //goto board2
-				else
-					psq.p = VariantRules.ALICE_PIECES[psq.p]; //goto board1
-			});
+				});
+			}
+			else //move on board2: mark vanishing piece as Alice
+				m.vanish[0].p = VariantRules.ALICE_CODES[m.vanish[0].p]
 			return true;
 		});
 	}
