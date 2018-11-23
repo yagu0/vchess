@@ -1,0 +1,11 @@
+[Site "vchess.club"]
+[Variant "Alice"]
+[Date "2018-11-23"]
+[White "Computer"]
+[Black "Myself"]
+[Fen "nrkbbqrn/pppppppp/8/8/8/8/PPPPPPPP/BRKQRNNB"]
+[Result "1-0"]
+
+1.Pb4 Pc5 2.Sbxc5 Pb5 3.Rxb8 1-0
+
+Move 3.Rxb8 erronously flip b5 pawn

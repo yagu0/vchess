@@ -189,31 +189,6 @@ class AliceRules extends ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
-	getNotation(move)
-	{
-		if (move.appear.length == 2 && move.appear[0].p == VariantRules.KING)
-		{
-			if (move.end.y < move.start.y)
-				return "0-0-0";
-			else
-				return "0-0";
-		}
-
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
-		const piece = this.getPiece(move.start.x, move.start.y);
-
-		// Piece or pawn movement
-		let notation = piece.toUpperCase() +
-			(move.vanish.length > move.appear.length ? "x" : "") + finalSquare;
-		if (['s','p'].includes(piece) && !['s','p'].includes(move.appear[0].p))
-		{
-			// Promotion
-			notation += "=" + move.appear[0].p.toUpperCase();
-		}
-		return notation;
-	}
-
 	checkGameEnd()
 	{
 		const color = this.turn;
@@ -244,5 +219,34 @@ class AliceRules extends ChessRules
 			'k': 1000,
 			'l': 1000
 		};
+	}
+
+	getNotation(move)
+	{
+		if (move.appear.length == 2 && move.appear[0].p == VariantRules.KING)
+		{
+			if (move.end.y < move.start.y)
+				return "0-0-0";
+			else
+				return "0-0";
+		}
+
+		const finalSquare =
+			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+		const piece = this.getPiece(move.start.x, move.start.y);
+
+		const captureMark = (move.vanish.length > move.appear.length ? "x" : "");
+		let pawnMark = "";
+		if (["p","s"].includes(piece) && captureMark.length == 1)
+			pawnMark = String.fromCharCode(97 + move.start.y); //start column
+
+		// Piece or pawn movement
+		let notation = piece.toUpperCase() + pawnMark + captureMark + finalSquare;
+		if (['s','p'].includes(piece) && !['s','p'].includes(move.appear[0].p))
+		{
+			// Promotion
+			notation += "=" + move.appear[0].p.toUpperCase();
+		}
+		return notation;
 	}
 }

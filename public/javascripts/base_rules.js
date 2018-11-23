@@ -1047,6 +1047,7 @@ class ChessRules
 		pgn += '[Site "vchess.club"]<br>';
 		const d = new Date();
 		const opponent = mode=="human" ? "Anonymous" : "Computer";
+		pgn += '[Variant "' + variant + '"]<br>';
 		pgn += '[Date "' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '"]<br>';
 		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
 		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
