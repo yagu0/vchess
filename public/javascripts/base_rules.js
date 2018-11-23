@@ -699,8 +699,6 @@ class ChessRules
 
 	play(move, ingame)
 	{
-		console.log("play " + this.getNotation(move));
-		console.log(JSON.stringify(move));
 		if (!!ingame)
 			move.notation = this.getNotation(move);
 
@@ -718,7 +716,6 @@ class ChessRules
 		this.moves.pop();
 		this.unupdateVariables(move);
 		this.parseFlags(JSON.parse(move.flags));
-		console.log("undo " + this.getNotation(move));
 	}
 
 	//////////////

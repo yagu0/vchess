@@ -50,10 +50,8 @@ class AliceRules extends ChessRules
 		return sideBoard;
 	}
 
-	// TODO: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
-	// TODO: enPassant seulement si l'on est du même coté que le coté de départ du pion adverse
-	// (en passant en sortant du monde... : il faut donc ajouter des coups non trouvés)
-	// castle: check that all destination squares are not occupied
+	// NOTE: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
+	// --> Should be OK as is.
 	getPotentialMovesFrom([x,y])
 	{
 		let sideBoard = this.getBoardOfPiece([x,y]);
@@ -67,8 +65,20 @@ class AliceRules extends ChessRules
 		// Finally filter impossible moves
 		const mirrorSide = (Object.keys(VariantRules.ALICE_CODES).includes(this.getPiece(x,y)) ? 1 : 2);
 		return moves.filter(m => {
-			if (this.board[m.end.x][m.end.y] != VariantRules.EMPTY)
+			if (m.appear.length == 2) //castle
 			{
+				// If appear[i] not in vanish array, then must be empty square on other board
+				m.appear.forEach(psq => {
+					if (this.board[psq.x][psq.y] != VariantRules.EMPTY &&
+						![m.vanish[0].y,m.vanish[1].y].includes(psq.y))
+					{
+						return false;
+					}
+				});
+			}
+			else if (this.board[m.end.x][m.end.y] != VariantRules.EMPTY)
+			{
+				// Attempt to capture
 				const piece = this.getPiece(m.end.x,m.end.y);
 				if ((mirrorSide==1 && Object.keys(VariantRules.ALICE_PIECES).includes(piece))
 					|| (mirrorSide==2 && Object.keys(VariantRules.ALICE_CODES).includes(piece)))
