@@ -781,10 +781,9 @@ class ChessRules
 	getComputerMove()
 	{
 		const color = this.turn;
-
-		// Rank moves using a min-max at depth 2
 		let moves1 = this.getAllValidMoves();
 
+		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves1.length; i++)
 		{
 			moves1[i].eval = (color=="w" ? -1 : 1) * 1000; //very low, I'm checkmated

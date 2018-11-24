@@ -95,8 +95,11 @@ class AliceRules extends ChessRules
 		let moves = super.getPotentialMovesFrom([x,y]);
 		this.board = saveBoard;
 
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		const codes = Object.keys(VariantRules.ALICE_PIECES);
+
 		// Finally filter impossible moves
-		const mirrorSide = (Object.keys(VariantRules.ALICE_CODES).includes(this.getPiece(x,y)) ? 1 : 2);
+		const mirrorSide = (pieces.includes(this.getPiece(x,y)) ? 1 : 2);
 		return moves.filter(m => {
 			if (m.appear.length == 2) //castle
 			{
@@ -113,8 +116,8 @@ class AliceRules extends ChessRules
 			{
 				// Attempt to capture
 				const piece = this.getPiece(m.end.x,m.end.y);
-				if ((mirrorSide==1 && Object.keys(VariantRules.ALICE_PIECES).includes(piece))
-					|| (mirrorSide==2 && Object.keys(VariantRules.ALICE_CODES).includes(piece)))
+				if ((mirrorSide==1 && codes.includes(piece))
+					|| (mirrorSide==2 && pieces.includes(piece)))
 				{
 					return false;
 				}
@@ -134,7 +137,17 @@ class AliceRules extends ChessRules
 			}
 			// Fix en-passant captures
 			if (m.vanish.length == 2 && this.board[m.end.x][m.end.y] == VariantRules.EMPTY)
+			{
 				m.vanish[1].c = this.getOppCol(this.getColor(x,y));
+				// In the special case of en-passant, if
+				//  - board1 takes board2 : vanish[1] --> Alice
+				//  - board2 takes board1 : vanish[1] --> normal
+				let van = m.vanish[1];
+				if (mirrorSide==1 && codes.includes(this.getPiece(van.x,van.y)))
+					van.p = VariantRules.ALICE_CODES[van.p];
+				else if (mirrorSide==2 && pieces.includes(this.getPiece(van.x,van.y)))
+					van.p = VariantRules.ALICE_PIECES[van.p];
+			}
 			return true;
 		});
 	}
