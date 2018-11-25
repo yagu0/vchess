@@ -479,8 +479,7 @@ class ChessRules
 	{
 		if (moves.length == 0)
 			return [];
-		let color = this.turn;
-		return moves.filter(m => { return !this.underCheck(m, color); });
+		return moves.filter(m => { return !this.underCheck(m); });
 	}
 
 	// Search for all valid moves considering current turn (for engine and game end)

@@ -60,11 +60,10 @@ class AliceRules extends ChessRules
 		}
 	}
 
-	getBoardOfPiece([x,y])
+	// Build board of the given (mirror)side
+	getSideBoard(mirrorSide)
 	{
 		const V = VariantRules;
-		// Build board where the piece is
-		const mirrorSide = (Object.keys(V.ALICE_CODES).includes(this.getPiece(x,y)) ? 1 : 2);
 		// Build corresponding board from complete board
 		const [sizeX,sizeY] = V.size;
 		let sideBoard = doubleArray(sizeX, sizeY, "");
@@ -82,25 +81,22 @@ class AliceRules extends ChessRules
 		return sideBoard;
 	}
 
-	// TODO: move board building one level up (findAllMoves()) to avoid re-building at every piece...
 	// NOTE: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
 	// --> Should be OK as is.
-	getPotentialMovesFrom([x,y])
+	getPotentialMovesFrom([x,y], sideBoard)
 	{
-		let sideBoard = this.getBoardOfPiece([x,y]);
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		const codes = Object.keys(VariantRules.ALICE_PIECES);
+		const mirrorSide = (pieces.includes(this.getPiece(x,y)) ? 1 : 2);
 
 		// Search valid moves on sideBoard
 		let saveBoard = this.board;
-		this.board = sideBoard;
+		this.board = sideBoard || this.getSideBoard(mirrorSide);
 		let moves = super.getPotentialMovesFrom([x,y]);
 		this.board = saveBoard;
 
-		const pieces = Object.keys(VariantRules.ALICE_CODES);
-		const codes = Object.keys(VariantRules.ALICE_PIECES);
-
 		// Finally filter impossible moves
-		const mirrorSide = (pieces.includes(this.getPiece(x,y)) ? 1 : 2);
-		return moves.filter(m => {
+		let res = moves.filter(m => {
 			if (m.appear.length == 2) //castle
 			{
 				// If appear[i] not in vanish array, then must be empty square on other board
@@ -150,15 +146,54 @@ class AliceRules extends ChessRules
 			}
 			return true;
 		});
+		return res;
 	}
 
-	underCheck(move)
+	// NOTE: alternative implementation, recompute sideBoard's in this function
+	filterValid(moves, sideBoard)
+	{
+		if (moves.length == 0)
+			return [];
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		return moves.filter(m => {
+			// WARNING: for underCheck(), we need the sideBoard of the arrival world !
+			const mirrorSide = (pieces.includes(this.getPiece(m.start.x,m.start.y)) ? 2 : 1);
+			return !this.underCheck(m, !!sideBoard ? sideBoard[mirrorSide-1] : null);
+		});
+	}
+
+	getAllValidMoves()
+	{
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		var potentialMoves = [];
+		let [sizeX,sizeY] = VariantRules.size;
+		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
+		for (var i=0; i<sizeX; i++)
+		{
+			for (var j=0; j<sizeY; j++)
+			{
+				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == color)
+				{
+					const mirrorSide =
+						(Object.keys(VariantRules.ALICE_CODES).includes(this.getPiece(i,j)) ? 1 : 2);
+					Array.prototype.push.apply(potentialMoves,
+						this.getPotentialMovesFrom([i,j], sideBoard[mirrorSide-1]));
+				}
+			}
+		}
+		return this.filterValid(potentialMoves, sideBoard);
+	}
+
+	underCheck(move, sideBoard)
 	{
 		const color = this.turn;
 		this.play(move);
-		let sideBoard = this.getBoardOfPiece(this.kingPos[color]);
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		const kp = this.kingPos[color];
+		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);
 		let saveBoard = this.board;
-		this.board = sideBoard;
+		this.board = sideBoard || this.getSideBoard(mirrorSide);
 		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color));
 		this.board = saveBoard;
 		this.undo(move);
@@ -169,7 +204,10 @@ class AliceRules extends ChessRules
 	{
 		this.play(move);
 		const color = this.turn; //opponent
-		let sideBoard = this.getBoardOfPiece(this.kingPos[color]);
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		const kp = this.kingPos[color];
+		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);
+		let sideBoard = this.getSideBoard(mirrorSide);
 		let saveBoard = this.board;
 		this.board = sideBoard;
 		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
@@ -204,8 +242,11 @@ class AliceRules extends ChessRules
 
 	checkGameEnd()
 	{
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
 		const color = this.turn;
-		let sideBoard = this.getBoardOfPiece(this.kingPos[color]);
+		const kp = this.kingPos[color];
+		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);
+		let sideBoard = this.getSideBoard(mirrorSide);
 		let saveBoard = this.board;
 		this.board = sideBoard;
 		let res = "*";
