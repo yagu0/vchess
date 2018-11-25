@@ -132,7 +132,8 @@ class AliceRules extends ChessRules
 				});
 			}
 			// Fix en-passant captures
-			if (m.vanish.length == 2 && this.board[m.end.x][m.end.y] == VariantRules.EMPTY)
+			if (m.vanish[0].p == VariantRules.PAWN
+				&& m.vanish.length == 2 && this.board[m.end.x][m.end.y] == VariantRules.EMPTY)
 			{
 				m.vanish[1].c = this.getOppCol(this.getColor(x,y));
 				// In the special case of en-passant, if

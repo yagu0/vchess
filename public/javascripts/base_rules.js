@@ -698,6 +698,10 @@ class ChessRules
 
 	play(move, ingame)
 	{
+		// DEBUG:
+//		if (!this.states) this.states = [];
+//		if (!ingame) this.states.push(JSON.stringify(this.board));
+
 		if (!!ingame)
 			move.notation = this.getNotation(move);
 
@@ -715,6 +719,11 @@ class ChessRules
 		this.moves.pop();
 		this.unupdateVariables(move);
 		this.parseFlags(JSON.parse(move.flags));
+
+		// DEBUG:
+//		let state = this.states.pop();
+//		if (JSON.stringify(this.board) != state)
+//			debugger;
 	}
 
 	//////////////
