@@ -785,17 +785,28 @@ class ChessRules
 		};
 	}
 
+	static get INFINITY() {
+		return 9999; //"checkmate" (unreachable eval)
+	}
+
+	static get THRESHOLD_MATE() {
+		// At this value or above, the game is over
+		return VariantRules.INFINITY;
+	}
+
 	// Assumption: at least one legal move
-	getComputerMove()
+	getComputerMove(moves1) //moves1 might be precomputed (Magnetic chess)
 	{
+		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
-		let moves1 = this.getAllValidMoves();
+		if (!moves1)
+			moves1 = this.getAllValidMoves();
 
 		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves1.length; i++)
 		{
-			moves1[i].eval = (color=="w" ? -1 : 1) * 1000; //very low, I'm checkmated
-			let eval2 = (color=="w" ? 1 : -1) * 1000; //initialized with very high (checkmate) value
+			moves1[i].eval = (color=="w" ? -1 : 1) * maxeval; //very low, I'm checkmated
+			let eval2 = (color=="w" ? 1 : -1) * maxeval; //initialized with checkmate value
 			this.play(moves1[i]);
 			// Second half-move:
 			let moves2 = this.getAllValidMoves();
@@ -817,39 +828,43 @@ class ChessRules
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 
-		// TODO: show current analyzed move for depth 3, allow stopping eval (return moves1[0])
-		for (let i=0; i<moves1.length; i++)
+		// Skip depth 3 if we found a checkmate (or if we are checkmated in 1...)
+		if (Math.abs(moves1[0].eval) < VariantRules.THRESHOLD_MATE)
 		{
-			this.play(moves1[i]);
-			// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
-			moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(2, -1000, 1000);
-			this.undo(moves1[i]);
+			// TODO: show current analyzed move for depth 3, allow stopping eval (return moves1[0])
+			for (let i=0; i<moves1.length; i++)
+			{
+				this.play(moves1[i]);
+				// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
+				moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(2, -maxeval, maxeval);
+				this.undo(moves1[i]);
+			}
+			moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 		}
-		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 
 		let candidates = [0]; //indices of candidates moves
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
-
 //		console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 		return moves1[_.sample(candidates, 1)];
 	}
 
 	alphabeta(depth, alpha, beta)
   {
+		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
 		if (!this.atLeastOneMove())
 		{
 			switch (this.checkGameEnd())
 			{
 				case "1/2": return 0;
-				default: return color=="w" ? -1000 : 1000;
+				default: return color=="w" ? -maxeval : maxeval;
 			}
 		}
 		if (depth == 0)
       return this.evalPosition();
 		const moves = this.getAllValidMoves();
-    let v = color=="w" ? -1000 : 1000;
+    let v = color=="w" ? -maxeval : maxeval;
 		if (color == "w")
 		{
 			for (let i=0; i<moves.length; i++)
