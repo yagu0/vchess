@@ -190,13 +190,12 @@ class CheckeredRules extends ChessRules
 	checkGameEnd()
 	{
 		const color = this.turn;
-		if (!this.isAttacked(this.kingPos[color], this.getOppCol(color))
-			&& !this.isAttacked(this.kingPos[color], 'c'))
-		{
-			return "1/2";
-		}
-		// OK, checkmate
-		return color == "w" ? "0-1" : "1-0";
+		this.moves.length++; //artifically change turn, for checkered pawns (TODO)
+		const res = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c'])
+			? (color == "w" ? "0-1" : "1-0")
+			: "1/2";
+		this.moves.length--;
+		return res;
 	}
 
 	evalPosition()
