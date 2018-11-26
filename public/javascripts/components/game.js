@@ -393,6 +393,11 @@ Vue.component('my-game', {
 			? localStorage.getItem("myid")
 			// random enough (TODO: function)
 			: (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
+		if (!continuation)
+		{
+			// HACK: play a small silent sound to allow "new game" sound later if tab not focused
+			new Audio("/sounds/silent.mp3").play().then(() => {}).catch(err => {});
+		}
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 		const socketOpenListener = () => {
 			if (continuation)
@@ -734,8 +739,9 @@ Vue.component('my-game', {
 			let rectStart = startSquare.getBoundingClientRect();
 			let rectEnd = endSquare.getBoundingClientRect();
 			let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
-			let movingPiece = document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
-			// HACK for animation (otherwise with positive translate, image slides "under background"...)
+			let movingPiece =
+				document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
+			// HACK for animation (with positive translate, image slides "under background"...)
 			// Possible improvement: just alter squares on the piece's way...
 			squares = document.getElementsByClassName("board");
 			for (let i=0; i<squares.length; i++)
