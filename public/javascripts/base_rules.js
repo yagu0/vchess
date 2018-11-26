@@ -395,7 +395,8 @@ class ChessRules
 	getCastleMoves([x,y])
 	{
 		const c = this.getColor(x,y);
-		if (x != (c=="w" ? 7 : 0) || y != this.INIT_COL_KING[c])
+		const [sizeX,sizeY] = VariantRules.size;
+		if (x != (c=="w" ? sizeX-1 : 0) || y != this.INIT_COL_KING[c])
 			return []; //x isn't first rank, or king has moved (shortcut)
 
 		const V = VariantRules;
@@ -404,7 +405,7 @@ class ChessRules
 		const oppCol = this.getOppCol(c);
 		let moves = [];
 		let i = 0;
-		const finalSquares = [ [2,3], [6,5] ]; //king, then rook
+		const finalSquares = [ [2,3], [sizeY-2,sizeY-3] ]; //king, then rook
 		castlingCheck:
 		for (let castleSide=0; castleSide < 2; castleSide++) //large, then small
 		{
@@ -489,8 +490,8 @@ class ChessRules
 	{
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
-		var potentialMoves = [];
-		let [sizeX,sizeY] = VariantRules.size;
+		let potentialMoves = [];
+		const [sizeX,sizeY] = VariantRules.size;
 		for (var i=0; i<sizeX; i++)
 		{
 			for (var j=0; j<sizeY; j++)
@@ -510,7 +511,7 @@ class ChessRules
 	{
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
-		let [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		for (let i=0; i<sizeX; i++)
 		{
 			for (let j=0; j<sizeY; j++)
@@ -666,7 +667,8 @@ class ChessRules
 	{
 		const piece = this.getPiece(move.start.x,move.start.y);
 		const c = this.getColor(move.start.x,move.start.y);
-		const firstRank = (c == "w" ? 7 : 0);
+		const [sizeX,sizeY] = VariantRules.size;
+		const firstRank = (c == "w" ? sizeX-1 : 0);
 
 		// Update king position + flags
 		if (piece == VariantRules.KING && move.appear.length > 0)
@@ -677,7 +679,7 @@ class ChessRules
 			return;
 		}
 		const oppCol = this.getOppCol(c);
-		const oppFirstRank = 7 - firstRank;
+		const oppFirstRank = (sizeX-1) - firstRank;
 		if (move.start.x == firstRank //our rook moves?
 			&& this.INIT_COL_ROOK[c].includes(move.start.y))
 		{
