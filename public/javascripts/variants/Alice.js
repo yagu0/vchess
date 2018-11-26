@@ -1,3 +1,4 @@
+// NOTE: alternative implementation, probably cleaner = use only 1 board
 class AliceRules extends ChessRules
 {
 	static get ALICE_PIECES()
@@ -82,7 +83,6 @@ class AliceRules extends ChessRules
 	}
 
 	// NOTE: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
-	// --> Should be OK as is.
 	getPotentialMovesFrom([x,y], sideBoard)
 	{
 		const pieces = Object.keys(VariantRules.ALICE_CODES);
@@ -150,17 +150,12 @@ class AliceRules extends ChessRules
 		return res;
 	}
 
-	// NOTE: alternative implementation, recompute sideBoard's in this function
-	filterValid(moves, sideBoard)
+	filterValid(moves)
 	{
 		if (moves.length == 0)
 			return [];
-		const pieces = Object.keys(VariantRules.ALICE_CODES);
-		return moves.filter(m => {
-			// WARNING: for underCheck(), we need the sideBoard of the arrival world !
-			const mirrorSide = (pieces.includes(this.getPiece(m.start.x,m.start.y)) ? 2 : 1);
-			return !this.underCheck(m, !!sideBoard ? sideBoard[mirrorSide-1] : null);
-		});
+		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
+		return moves.filter(m => { return !this.underCheck(m, sideBoard); });
 	}
 
 	getAllValidMoves()
@@ -186,18 +181,51 @@ class AliceRules extends ChessRules
 		return this.filterValid(potentialMoves, sideBoard);
 	}
 
-	underCheck(move, sideBoard)
+	// Play on sideboards [TODO: only one sideBoard required]
+	playSide(move, sideBoard)
+	{
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		move.vanish.forEach(psq => {
+			const mirrorSide = (pieces.includes(psq.p) ? 1 : 2);
+			sideBoard[mirrorSide-1][psq.x][psq.y] = VariantRules.EMPTY;
+		});
+		move.appear.forEach(psq => {
+			const mirrorSide = (pieces.includes(psq.p) ? 1 : 2);
+			const piece = (mirrorSide == 1 ? psq.p : VariantRules.ALICE_PIECES[psq.p]);
+			sideBoard[mirrorSide-1][psq.x][psq.y] = psq.c + piece;
+			if (piece == VariantRules.KING)
+				this.kingPos[psq.c] = [psq.x,psq.y];
+		});
+	}
+
+	// Undo on sideboards
+	undoSide(move, sideBoard)
+	{
+		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		move.appear.forEach(psq => {
+			const mirrorSide = (pieces.includes(psq.p) ? 1 : 2);
+			sideBoard[mirrorSide-1][psq.x][psq.y] = VariantRules.EMPTY;
+		});
+		move.vanish.forEach(psq => {
+			const mirrorSide = (pieces.includes(psq.p) ? 1 : 2);
+			const piece = (mirrorSide == 1 ? psq.p : VariantRules.ALICE_PIECES[psq.p]);
+			sideBoard[mirrorSide-1][psq.x][psq.y] = psq.c + piece;
+			if (piece == VariantRules.KING)
+				this.kingPos[psq.c] = [psq.x,psq.y];
+		});
+	}
+
+	underCheck(move, sideBoard) //sideBoard arg always provided
 	{
 		const color = this.turn;
-		this.play(move);
-		const pieces = Object.keys(VariantRules.ALICE_CODES);
+		this.playSide(move, sideBoard); //no need to track flags
 		const kp = this.kingPos[color];
-		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);
+		const mirrorSide = sideBoard[0][kp[0]][kp[1]] != VariantRules.EMPTY ? 1 : 2;
 		let saveBoard = this.board;
-		this.board = sideBoard || this.getSideBoard(mirrorSide);
-		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color));
+		this.board = sideBoard[mirrorSide-1];
+		let res = this.isAttacked(kp, this.getOppCol(color));
 		this.board = saveBoard;
-		this.undo(move);
+		this.undoSide(move, sideBoard);
 		return res;
 	}
 

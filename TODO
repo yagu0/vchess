@@ -1,3 +1,4 @@
 For animation, moves should contains "moving" and "fading" maybe...
 Depth 2 or 3 depending on variant and if we detect smartphone or not?
 (static get SEARCH_DEPTH() { return 2; })
+Sur page d'accueil lien "contact" avec mail + instrus en cas de bug

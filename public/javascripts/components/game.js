@@ -1,4 +1,3 @@
-// TODO: use indexedDB instead of localStorage? (more flexible: allow several games)
 Vue.component('my-game', {
 	data: function() {
 		return {
@@ -136,7 +135,8 @@ Vue.component('my-game', {
 						},
 						[h('img',
 							{
-								attrs: { "src": '/images/pieces/' + VariantRules.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
+								attrs: { "src": '/images/pieces/' +
+									VariantRules.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
 								'class': { 'choice-piece': true, 'board': true },
 								on: { "click": e => { this.play(m); this.choices=[]; } },
 							})
@@ -170,10 +170,12 @@ Vue.component('my-game', {
 										{
 											'class': {
 												'piece': true,
-												'ghost': !!this.selectedPiece && this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
+												'ghost': !!this.selectedPiece
+													&& this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
 											},
 											attrs: {
-												src: "/images/pieces/" + VariantRules.getPpath(this.vr.board[ci][cj]) + ".svg",
+												src: "/images/pieces/" +
+													VariantRules.getPpath(this.vr.board[ci][cj]) + ".svg",
 											},
 										}
 									)
@@ -574,7 +576,7 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			//const fen = "qrbnkbrn/pppppppp/8/8/8/8/PPPPPPPP/BNNBRKRQ 1111";//fenInit || VariantRules.GenRandInitFen();
+			//const fen = "1n2T1n0/p2pO2p/1s1k1s2/8/3S2p1/2U2cO1/P3PuPP/3K1BR1 0100";
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
@@ -641,9 +643,11 @@ Vue.component('my-game', {
 			}
 		},
 		playComputerMove: function() {
+			const timeStart = Date.now();
 			const compMove = this.vr.getComputerMove();
-			// HACK: avoid selecting elements before they appear on page:
-			setTimeout(() => this.play(compMove, "animate"), 500);
+			// (first move) HACK: avoid selecting elements before they appear on page:
+			const delay = Math.max(500-(Date.now()-timeStart), 0);
+			setTimeout(() => this.play(compMove, "animate"), delay);
 		},
 		// Get the identifier of a HTML table cell from its numeric coordinates o.x,o.y.
 		getSquareId: function(o) {
