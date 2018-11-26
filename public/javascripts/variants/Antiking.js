@@ -59,7 +59,9 @@ class AntikingRules extends ChessRules
 
 	getPotentialAntikingMoves(sq)
 	{
-		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		const V = VariantRules;
+		return this.getSlideNJumpMoves(sq,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
 	isAttacked(sq, colors)
@@ -69,18 +71,20 @@ class AntikingRules extends ChessRules
 
 	isAttackedByKing([x,y], colors)
 	{
-		if (this.getPiece(x,y) == VariantRules.ANTIKING)
+		const V = VariantRules;
+		if (this.getPiece(x,y) == V.ANTIKING)
 			return false; //antiking is not attacked by king
-		return this.isAttackedBySlideNJump([x,y], colors,
-			VariantRules.KING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		return this.isAttackedBySlideNJump([x,y], colors, V.KING,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
 	isAttackedByAntiking([x,y], colors)
 	{
-		if (this.getPiece(x,y) == VariantRules.KING)
+		const V = VariantRules;
+		if (this.getPiece(x,y) == V.KING)
 			return false; //king is not attacked by antiking
-		return this.isAttackedBySlideNJump([x,y], colors,
-			VariantRules.ANTIKING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		return this.isAttackedBySlideNJump([x,y], colors, V.ANTIKING,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
 	underCheck(move)

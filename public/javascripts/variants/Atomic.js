@@ -30,10 +30,11 @@ class AtomicRules extends ChessRules
 
 	getPotentialKingMoves([x,y])
 	{
+		const V = VariantRules;
 		// King cannot capture:
 		let moves = [];
-		let [sizeX,sizeY] = VariantRules.size;
-		const steps = VariantRules.steps[VariantRules.QUEEN];
+		let [sizeX,sizeY] = V.size;
+		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		for (let step of steps)
 		{
 			var i = x + step[0];

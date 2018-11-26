@@ -171,7 +171,6 @@ class ChessRules
 			'r': [ [-1,0],[1,0],[0,-1],[0,1] ],
 			'n': [ [-1,-2],[-1,2],[1,-2],[1,2],[-2,-1],[-2,1],[2,-1],[2,1] ],
 			'b': [ [-1,-1],[-1,1],[1,-1],[1,1] ],
-			'q': [ [-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1] ]
 		};
 	}
 
@@ -379,14 +378,17 @@ class ChessRules
 	// What are the queen moves from square x,y ?
 	getPotentialQueenMoves(sq)
 	{
-		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN]);
+		const V = VariantRules;
+		return this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 	}
 
 	// What are the king moves from square x,y ?
 	getPotentialKingMoves(sq)
 	{
+		const V = VariantRules;
 		// Initialize with normal moves
-		let moves = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		let moves = this.getSlideNJumpMoves(sq,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 		return moves.concat(this.getCastleMoves(sq));
 	}
 
@@ -586,15 +588,17 @@ class ChessRules
 	// Is square x,y attacked by queens of color c ?
 	isAttackedByQueen(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, colors,
-			VariantRules.QUEEN, VariantRules.steps[VariantRules.QUEEN]);
+		const V = VariantRules;
+		return this.isAttackedBySlideNJump(sq, colors, V.QUEEN,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 	}
 
 	// Is square x,y attacked by king of color c ?
 	isAttackedByKing(sq, colors)
 	{
-		return this.isAttackedBySlideNJump(sq, colors,
-			VariantRules.KING, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		const V = VariantRules;
+		return this.isAttackedBySlideNJump(sq, colors, V.KING,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
 	// Generic method for non-pawn pieces ("sliding or jumping"): is x,y attacked by piece != color ?

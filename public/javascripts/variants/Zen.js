@@ -157,7 +157,8 @@ class ZenRules extends ChessRules
 
 	getPotentialKnightMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
+		let noCaptures = this.getSlideNJumpMoves(sq,
+			VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
@@ -171,15 +172,18 @@ class ZenRules extends ChessRules
 
 	getPotentialQueenMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN]);
+		const V = VariantRules;
+		let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.ROOK.concat(V.steps[V.BISHOP])]);
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialKingMoves(sq)
 	{
+		const V = VariantRules;
 		// Initialize with normal moves
-		let noCaptures = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.QUEEN], "oneStep");
+		let noCaptures = this.getSlideNJumpMoves(sq,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures).concat(this.getCastleMoves(sq));
 	}
