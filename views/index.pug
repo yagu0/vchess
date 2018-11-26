@@ -15,17 +15,22 @@ block content
 						label.modal-close(for="modal-control")
 						h3.blue.section Modes
 						p.section.
-							Each variant page offers two modes: against a human or computer opponent.
-							The latter is not designed to play well: it is here to help learning the rules.
-							When you beat the bot easily consider playing human opponents!
-						h3.blue.section Initial position
-						p.section.
-							All games start with a random assymetric position.
+							Each variant page offers two modes: against a human or computer opponent,
+							which is here to help learning the rules.
 						h3.blue.section Comments
 						p.section.
-							Games are untimed, and played anonymously. This website lacks a user/challenge/chat/... system,
-							both for technical reasons (difficult to maintain all that alone) and also a bit for
-							focusing on the essential: the moves! :)
+							All games start with a random assymetric position. #[br]
+							Games are untimed, and played anonymously. #[br]
+							No chat, to rather focus on the moves :)
+						h3.purple.section Bug report
+						p.section.
+							If you find a bug in a game, please follow this procedure: #[br]
+							1. stop playing (click on the resign button); #[br]
+							2. click on the PGN to download it; #[br]
+							3. send an email to #[a(href="mailto:contact@vchess.club?subject=Bug report") this address],
+							describing the situation (what is expected vs. what is observed),
+							with the PGN attached :)#[br]
+							Thank you!
 		.row
 			my-variant-summary(
 				v-for="(v,idx) in sortedCounts",
