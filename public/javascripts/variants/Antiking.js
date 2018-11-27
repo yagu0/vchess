@@ -42,7 +42,7 @@ class AntikingRules extends ChessRules
 		const piece2 = this.getPiece(x2,y2);
 		const color1 = this.getColor(x1,y1);
 		const color2 = this.getColor(x2,y2);
-		return !["a","A"].includes(piece2) &&
+		return piece2 != "a" &&
 			((piece1 != "a" && color1 != color2) || (piece1 == "a" && color1 == color2));
 	}
 

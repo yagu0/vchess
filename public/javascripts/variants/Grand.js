@@ -171,9 +171,9 @@ class GrandRules extends ChessRules
 			|| this.isAttackedBySlideNJump(sq, colors, V.CARDINAL, V.steps[V.KNIGHT], "oneStep");
 	}
 
-	play(move, ingame)
+	updateVariables(move)
 	{
-		super.play(move, ingame);
+		super.updateVariables(move);
 		if (move.vanish.length==2 && move.appear.length==1
 			&& move.vanish[1].p != VariantRules.PAWN)
 		{
@@ -185,9 +185,9 @@ class GrandRules extends ChessRules
 		}
 	}
 
-	undo(move)
+	unupdateVariables(move)
 	{
-		super.undo(move);
+		super.unupdateVariables(move);
 		if (move.vanish.length==2 && move.appear.length==1
 			&& move.vanish[1].p != VariantRules.PAWN)
 		{

@@ -492,9 +492,9 @@ class ChessRules
 		const oppCol = this.getOppCol(color);
 		let potentialMoves = [];
 		const [sizeX,sizeY] = VariantRules.size;
-		for (var i=0; i<sizeX; i++)
+		for (let i=0; i<sizeX; i++)
 		{
-			for (var j=0; j<sizeY; j++)
+			for (let j=0; j<sizeY; j++)
 			{
 				// Next condition ... != oppCol is a little HACK to work with checkered variant
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) != oppCol)
@@ -808,13 +808,23 @@ class ChessRules
 	}
 
 	// Assumption: at least one legal move
-	getComputerMove(moves1) //moves1 might be precomputed (Magnetic chess)
+	// NOTE: works also for extinction chess because depth is 3...
+	getComputerMove()
 	{
 		this.shouldReturn = false;
 		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
-		if (!moves1)
-			moves1 = this.getAllValidMoves();
+		let moves1 = this.getAllValidMoves();
+
+		// Can I mate in 1 ? (for Magnetic & Extinction)
+		for (let i of _.shuffle(_.range(moves1.length)))
+		{
+			this.play(moves1[i]);
+			const finish = (Math.abs(this.evalPosition()) >= VariantRules.THRESHOLD_MATE);
+			this.undo(moves1[i]);
+			if (finish)
+				return moves1[i];
+		}
 
 		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves1.length; i++)
@@ -847,11 +857,10 @@ class ChessRules
 			candidates.push(j);
 		let currentBest = moves1[_.sample(candidates, 1)];
 
-		// Skip depth 3 if we found a checkmate (or if we are checkmated in 1...)
+		// Skip depth 3+ if we found a checkmate (or if we are checkmated in 1...)
 		if (VariantRules.SEARCH_DEPTH >= 3
 			&& Math.abs(moves1[0].eval) < VariantRules.THRESHOLD_MATE)
 		{
-			// TODO: show current analyzed move for depth 3, allow stopping eval (return moves1[0])
 			for (let i=0; i<moves1.length; i++)
 			{
 				if (this.shouldReturn)
@@ -921,7 +930,7 @@ class ChessRules
 	{
 		const [sizeX,sizeY] = VariantRules.size;
 		let evaluation = 0;
-		//Just count material for now
+		// Just count material for now
 		for (let i=0; i<sizeX; i++)
 		{
 			for (let j=0; j<sizeY; j++)

@@ -216,19 +216,4 @@ class MagneticRules extends ChessRules
 	static get THRESHOLD_MATE() {
 		return 500; //checkmates evals may be slightly below 1000
 	}
-
-	getComputerMove()
-	{
-		let moves1 = this.getAllValidMoves();
-		// Can I mate in 1 ?
-		for (let i of _.shuffle(_.range(moves1.length)))
-		{
-			this.play(moves1[i]);
-			const finish = (Math.abs(this.evalPosition()) >= VariantRules.THRESHOLD_MATE);
-			this.undo(moves1[i]);
-			if (finish)
-				return moves1[i];
-		}
-		return super.getComputerMove(moves1);
-	}
 }
