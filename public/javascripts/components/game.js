@@ -129,7 +129,7 @@ Vue.component('my-game', {
 						{
 							'class': {
 								'board': true,
-								['board'+sizeX]: true,
+								['board'+sizeY]: true,
 							},
 							style: {
 								'width': (100/this.choices.length) + "%",
@@ -207,7 +207,7 @@ Vue.component('my-game', {
 								{
 									'class': {
 										'board': true,
-										['board'+sizeX]: true,
+										['board'+sizeY]: true,
 										'light-square': (i+j)%2==0 && (this.expert || !highlight),
 										'dark-square': (i+j)%2==1 && (this.expert || !highlight),
 										'highlight': !this.expert && highlight,

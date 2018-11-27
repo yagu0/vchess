@@ -76,7 +76,7 @@ class GrandRules extends ChessRules
 				{
 					// Two squares jump
 					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
-					if (x == startRanks[0] && this.board[x+2*shift][y] == V.EMPTY)
+					if (x == startRanks[0] && this.board[x+3*shift][y] == V.EMPTY)
 					{
 						// 3-squares jump
 						moves.push(this.getBasicMove([x,y], [x+3*shift,y]));
@@ -93,7 +93,7 @@ class GrandRules extends ChessRules
 		if (lastRanks.includes(x+shift))
 		{
 			// Promotion
-			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
+			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN,V.MARSHALL,V.CARDINAL];
 			promotionPieces.forEach(p => {
 				if (!this.captures[color][p] || this.captures[color][p]==0)
 					return;
@@ -133,6 +133,8 @@ class GrandRules extends ChessRules
 
 		return moves;
 	}
+
+	// TODO: different castle?
 
 	getPotentialMarshallMoves(sq)
 	{
