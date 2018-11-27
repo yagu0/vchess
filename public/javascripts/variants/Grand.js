@@ -191,7 +191,6 @@ class GrandRules extends ChessRules
 		if (move.vanish.length==2 && move.appear.length==1
 			&& move.vanish[1].p != VariantRules.PAWN)
 		{
-			// Capture: update this.captures
 			this.captures[move.vanish[1].c][move.vanish[1].p] =
 				Math.max(0, this.captures[move.vanish[1].c][move.vanish[1].p]-1);
 		}

@@ -284,7 +284,7 @@ class ChessRules
 				i += step[0];
 				j += step[1];
 			}
-			if (i>=0 && i<8 && j>=0 && j<8 && this.canTake([x,y], [i,j]))
+			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.canTake([x,y], [i,j]))
 				moves.push(this.getBasicMove([x,y], [i,j]));
 		}
 		return moves;
@@ -547,14 +547,15 @@ class ChessRules
 	// Is square x,y attacked by pawns of color c ?
 	isAttackedByPawn([x,y], colors)
 	{
+		const [sizeX,sizeY] = VariantRules.size;
 		for (let c of colors)
 		{
 			let pawnShift = (c=="w" ? 1 : -1);
-			if (x+pawnShift>=0 && x+pawnShift<8)
+			if (x+pawnShift>=0 && x+pawnShift<sizeX)
 			{
 				for (let i of [-1,1])
 				{
-					if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
+					if (y+i>=0 && y+i<sizeY && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
 						&& this.getColor(x+pawnShift,y+i)==c)
 					{
 						return true;
@@ -605,16 +606,18 @@ class ChessRules
 	// Generic method for non-pawn pieces ("sliding or jumping"): is x,y attacked by piece != color ?
 	isAttackedBySlideNJump([x,y], colors, piece, steps, oneStep)
 	{
+		const [sizeX,sizeY] = VariantRules.size;
 		for (let step of steps)
 		{
 			let rx = x+step[0], ry = y+step[1];
-			while (rx>=0 && rx<8 && ry>=0 && ry<8 && this.board[rx][ry] == VariantRules.EMPTY
-				&& !oneStep)
+			while (rx>=0 && rx<sizeX && ry>=0 && ry<sizeY
+				&& this.board[rx][ry] == VariantRules.EMPTY && !oneStep)
 			{
 				rx += step[0];
 				ry += step[1];
 			}
-			if (rx>=0 && rx<8 && ry>=0 && ry<8 && this.board[rx][ry] != VariantRules.EMPTY
+			if (rx>=0 && rx<sizeX && ry>=0 && ry<sizeY
+				&& this.board[rx][ry] != VariantRules.EMPTY
 				&& this.getPiece(rx,ry) == piece && colors.includes(this.getColor(rx,ry)))
 			{
 				return true;

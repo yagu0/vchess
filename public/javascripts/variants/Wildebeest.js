@@ -165,6 +165,8 @@ class WildebeestRules extends ChessRules
 			V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]));
 	}
 
+	// TODO: stalemate is a win (?!)
+
 	static get VALUES() {
 		return Object.assign(
 			ChessRules.VALUES,

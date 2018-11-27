@@ -17,6 +17,7 @@ Vue.component('my-game', {
 			incheck: [],
 			pgnTxt: "",
 			expert: document.cookie.length>0 ? document.cookie.substr(-1)=="1" : false,
+			gameId: "", //used to limit computer moves' time
 		};
 	},
 	render(h) {
@@ -585,7 +586,6 @@ Vue.component('my-game', {
 			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			//const fen = "1n2T1n0/p2pO2p/1s1k1s2/8/3S2p1/2U2cO1/P3PuPP/3K1BR1 0100";
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			this.score = "*";
@@ -614,6 +614,8 @@ Vue.component('my-game', {
 				}
 				return;
 			}
+			// random enough (TODO: function)
+			this.gameId = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
 			this.vr = new VariantRules(fen, moves || []);
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
@@ -654,8 +656,11 @@ Vue.component('my-game', {
 		playComputerMove: function() {
 			const timeStart = Date.now();
 			const nbMoves = this.vr.moves.length; //using played moves to know if search finished
+			const gameId = this.gameId; //to know if game was reset before timer end
 			setTimeout(
 				() => {
+					if (gameId != this.gameId)
+						return; //game stopped
 					const L = this.vr.moves.length;
 					if (nbMoves == L || !this.vr.moves[L-1].notation) //move search didn't finish
 						this.vr.shouldReturn = true;
