@@ -20,7 +20,7 @@ Vue.component('my-game', {
 		};
 	},
 	render(h) {
-		let [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
@@ -127,7 +127,10 @@ Vue.component('my-game', {
 				this.choices.map( m => { //a "choice" is a move
 					return h('div',
 						{
-							'class': { 'board': true },
+							'class': {
+								'board': true,
+								['board'+sizeX]: true,
+							},
 							style: {
 								'width': (100/this.choices.length) + "%",
 								'padding-bottom': (100/this.choices.length) + "%",
@@ -137,7 +140,7 @@ Vue.component('my-game', {
 							{
 								attrs: { "src": '/images/pieces/' +
 									VariantRules.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
-								'class': { 'choice-piece': true, 'board': true },
+								'class': { 'choice-piece': true },
 								on: { "click": e => { this.play(m); this.choices=[]; } },
 							})
 						]
@@ -204,6 +207,7 @@ Vue.component('my-game', {
 								{
 									'class': {
 										'board': true,
+										['board'+sizeX]: true,
 										'light-square': (i+j)%2==0 && (this.expert || !highlight),
 										'dark-square': (i+j)%2==1 && (this.expert || !highlight),
 										'highlight': !this.expert && highlight,
