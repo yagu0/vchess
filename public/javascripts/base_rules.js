@@ -800,9 +800,14 @@ class ChessRules
 		return VariantRules.INFINITY;
 	}
 
+	static get SEARCH_DEPTH() {
+		return 3; //2 for high branching factor, 4 for small (Loser chess)
+	}
+
 	// Assumption: at least one legal move
 	getComputerMove(moves1) //moves1 might be precomputed (Magnetic chess)
 	{
+		this.shouldReturn = false;
 		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
 		if (!moves1)
@@ -834,21 +839,32 @@ class ChessRules
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 
+		let candidates = [0]; //indices of candidates moves
+		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
+			candidates.push(j);
+		let currentBest = moves1[_.sample(candidates, 1)];
+
 		// Skip depth 3 if we found a checkmate (or if we are checkmated in 1...)
-		if (Math.abs(moves1[0].eval) < VariantRules.THRESHOLD_MATE)
+		if (VariantRules.SEARCH_DEPTH >= 3
+			&& Math.abs(moves1[0].eval) < VariantRules.THRESHOLD_MATE)
 		{
 			// TODO: show current analyzed move for depth 3, allow stopping eval (return moves1[0])
 			for (let i=0; i<moves1.length; i++)
 			{
+				if (this.shouldReturn)
+					return currentBest; //depth-2, minimum
 				this.play(moves1[i]);
 				// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
-				moves1[i].eval = 0.1*moves1[i].eval + this.alphabeta(2, -maxeval, maxeval);
+				moves1[i].eval = 0.1*moves1[i].eval +
+					this.alphabeta(VariantRules.SEARCH_DEPTH-1, -maxeval, maxeval);
 				this.undo(moves1[i]);
 			}
 			moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 		}
+		else
+			return currentBest;
 
-		let candidates = [0]; //indices of candidates moves
+		candidates = [0];
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
 //		console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));

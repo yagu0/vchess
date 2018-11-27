@@ -155,6 +155,8 @@ class GrandRules extends ChessRules
 		);
 	}
 
+	static get SEARCH_DEPTH() { return 2; }
+
 	// TODO:
 	static GenRandInitFen()
 	{

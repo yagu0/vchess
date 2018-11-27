@@ -649,6 +649,13 @@ Vue.component('my-game', {
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
+			const nbMoves = this.vr.moves.length; //using played moves to know if search finished
+			setTimeout(
+				() => {
+					const L = this.vr.moves.length;
+					if (nbMoves == L || !this.vr.moves[L-1].notation) //move search didn't finish
+						this.vr.shouldReturn = true;
+				}, 5000);
 			const compMove = this.vr.getComputerMove();
 			// (first move) HACK: avoid selecting elements before they appear on page:
 			const delay = Math.max(500-(Date.now()-timeStart), 0);
