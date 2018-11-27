@@ -63,8 +63,8 @@ class WildebeestRules extends ChessRules
 		const V = VariantRules;
 		const [sizeX,sizeY] = VariantRules.size;
 		const shift = (color == "w" ? -1 : 1);
-		const startRanks = (color == "w" ? [sizeY-2,sizeY-3] : [1,2]);
-		const lastRank = (color == "w" ? 0 : sizeY-1);
+		const startRanks = (color == "w" ? [sizeX-2,sizeX-3] : [1,2]);
+		const lastRank = (color == "w" ? 0 : sizeX-1);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
 		{
@@ -155,17 +155,21 @@ class WildebeestRules extends ChessRules
 	isAttackedByCamel(sq, colors)
 	{
 		return this.isAttackedBySlideNJump(sq, colors,
-			VariantRules.CAMEL, VariantRules.steps[VariantRules.CAMEL]);
+			VariantRules.CAMEL, VariantRules.steps[VariantRules.CAMEL], "oneStep");
 	}
 
 	isAttackedByWildebeest(sq, colors)
 	{
 		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.WILDEBEEST,
-			V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]));
+			V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
 	}
 
-	// TODO: stalemate is a win (?!)
+	checkGameEnd()
+	{
+		// No valid move: game is lost (stalemate is a win)
+		return this.turn == "w" ? "0-1" : "1-0";
+	}
 
 	static get VALUES() {
 		return Object.assign(

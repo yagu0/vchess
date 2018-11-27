@@ -127,7 +127,7 @@ class AtomicRules extends ChessRules
 			res = false;
 		// Otherwise, if we remain under check, move is not valid
 		else
-			res = this.isAttacked(this.kingPos[c], oppCol);
+			res = this.isAttacked(this.kingPos[c], [oppCol]);
 		this.undo(move);
 		return res;
 	}
@@ -141,7 +141,7 @@ class AtomicRules extends ChessRules
 		let res = [ ];
 		if (this.kingPos[c][0] < 0)
 			res = [saveKingPos];
-		else if (this.isAttacked(this.kingPos[c], this.getOppCol(c)))
+		else if (this.isAttacked(this.kingPos[c], [this.getOppCol(c)]))
 			res = [ JSON.parse(JSON.stringify(this.kingPos[c])) ]
 		this.undo(move);
 		return res;
@@ -153,7 +153,7 @@ class AtomicRules extends ChessRules
 		const kp = this.kingPos[color];
 		if (kp[0] < 0) //king disappeared
 			return color == "w" ? "0-1" : "1-0";
-		if (!this.isAttacked(kp, this.getOppCol(color)))
+		if (!this.isAttacked(kp, [this.getOppCol(color)]))
 			return "1/2";
 		// Checkmate
 		return color == "w" ? "0-1" : "1-0";

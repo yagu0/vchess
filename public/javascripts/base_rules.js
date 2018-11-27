@@ -298,9 +298,9 @@ class ChessRules
 		const V = VariantRules;
 		const [sizeX,sizeY] = VariantRules.size;
 		const shift = (color == "w" ? -1 : 1);
-		const firstRank = (color == 'w' ? sizeY-1 : 0);
-		const startRank = (color == "w" ? sizeY-2 : 1);
-		const lastRank = (color == "w" ? 0 : sizeY-1);
+		const firstRank = (color == 'w' ? sizeX-1 : 0);
+		const startRank = (color == "w" ? sizeX-2 : 1);
+		const lastRank = (color == "w" ? 0 : sizeX-1);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
 		{
@@ -417,7 +417,7 @@ class ChessRules
 			let step = finalSquares[castleSide][0] < y ? -1 : 1;
 			for (i=y; i!=finalSquares[castleSide][0]; i+=step)
 			{
-				if (this.isAttacked([x,i], oppCol) || (this.board[x][i] != V.EMPTY &&
+				if (this.isAttacked([x,i], [oppCol]) || (this.board[x][i] != V.EMPTY &&
 					// NOTE: next check is enough, because of chessboard constraints
 					(this.getColor(x,i) != c || ![V.KING,V.ROOK].includes(this.getPiece(x,i)))))
 				{
@@ -631,7 +631,7 @@ class ChessRules
 	{
 		const color = this.turn;
 		this.play(move);
-		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color));
+		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)]);
 		this.undo(move);
 		return res;
 	}
@@ -641,7 +641,7 @@ class ChessRules
 	{
 		this.play(move);
 		const color = this.turn; //opponent
-		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
+		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
 			: [ ];
 		this.undo(move);
@@ -773,7 +773,7 @@ class ChessRules
 	{
 		const color = this.turn;
 		// No valid move: stalemate or checkmate?
-		if (!this.isAttacked(this.kingPos[color], this.getOppCol(color)))
+		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
 			return "1/2";
 		// OK, checkmate
 		return color == "w" ? "0-1" : "1-0";

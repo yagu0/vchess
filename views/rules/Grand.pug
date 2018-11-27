@@ -1,0 +1,52 @@
+p.boxed
+	| Two new pieces: marshall and cardinal. Bigger board. Orthodox rules with a few adaptations.
+
+h3 Specifications
+
+ul
+	li Chessboard: 10x10.
+	li Material: standard + marshall + cardinal.
+	li Non-capturing moves: standard (+ new pieces).
+	li Special moves: standard (see below).
+	li Captures: standard.
+	li End of game: standard.
+
+h3 Basics
+
+p.
+	Notation for marshall is M and cardinal is C. A marshall has the moving abilities of
+	a knight + a rook, while the cardinal equals a knight + a bishop.
+
+figure.diagram-container
+	.diagram
+		| fen:10/10/10/10/10/2R2Q4/10/4c5/10/10:
+	figcaption The black cardinal can take on c5 and f5.
+
+h3 Special moves
+
+p.
+	Castling is possible as in orthodox 8x8 game. The white king move to c1 or i1
+	(one square to the left of bottom-right corner) for large (resp. small) castle.
+	Same for black on the other side.
+
+p.
+	Promotion is mandatory for a pawn reaching the last rank. However, they can only
+	promote into a friendly piece captured (which is back on the board). If none is
+	available, the promotion on last rank is impossible and the pawn cannot move.
+
+p Pawn promotion is possible (but not forced) on the two ranks before last.
+
+h3 End of the game
+
+p As in the orthodox game, win by checkmating the king.
+
+p.
+	Note: I changed the author's starting position, to facilitate random start.
+	Thus the castling rule was introduced compared to the rules described on chessvariants.com.
+
+h3 Credits
+
+p
+	| Grand chess page on
+	a(href="https://www.chessvariants.com/large.dir/freeling.html") chessvariants.com
+	| .

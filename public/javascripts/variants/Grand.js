@@ -63,8 +63,8 @@ class GrandRules extends ChessRules
 		const V = VariantRules;
 		const [sizeX,sizeY] = VariantRules.size;
 		const shift = (color == "w" ? -1 : 1);
-		const startRanks = (color == "w" ? [sizeY-2,sizeY-3] : [1,2]);
-		const lastRanks = (color == "w" ? [0,1,2] : [sizeY-1,sizeY-2,sizeY-3]);
+		const startRanks = (color == "w" ? [sizeX-2,sizeX-3] : [1,2]);
+		const lastRanks = (color == "w" ? [0,1,2] : [sizeX-1,sizeX-2,sizeX-3]);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRanks[0])
 		{

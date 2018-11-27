@@ -1,0 +1,50 @@
+p.boxed
+	| Two new pieces: camel and wildebeest. Bigger board. Orthodox rules with a few adaptations.
+
+h3 Specifications
+
+ul
+	li Chessboard: 11x10.
+	li Material: standard + camel + wildebeest.
+	li Non-capturing moves: standard (+ new pieces).
+	li Special moves: standard (see below).
+	li Captures: standard.
+	li End of game: checkmate or stalemate win.
+
+h3 Basics
+
+p.
+	Notation for camel is C and wildebeest is W. A camel moves as a knight but with a
+	longer jump: 3 squares in one direction, and 1 left or right after that.
+	The wildebeest combines the moving abilities of a camel and a knight.
+
+figure.diagram-container
+	.diagram
+		| fen:11/11/11/11/11/4C6/11/11/11/11 w f2,h4,h6,f8,d8,b6,b4,d2:
+	figcaption Squares reachable by the white camel on e5.
+
+h3 Special moves
+
+p.
+	Castling is possible as in orthodox 8x8 game. The white king move to c1 or i1
+	(one square to the left of bottom-right corner) for large (resp. small) castle.
+	Same for black on the other side.
+
+p.
+	Promotion occurs when pawns reach last rank.
+	They can only transform into a queen or a wildebeest.
+
+h3 End of the game
+
+p You can win by checkmating or stalemating the enemy king.
+
+p.
+	Note: the castling rule is more restrictive than described in the original rules.
+	I have a feeling that the game is OK like that, but I may change this soon.
+
+h3 Credits
+
+p
+	| Wildebeest page on
+	a(href="https://www.chessvariants.com/large.dir/wildebeest.html") chessvariants.com
+	| .

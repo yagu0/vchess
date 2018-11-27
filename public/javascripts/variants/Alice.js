@@ -223,7 +223,7 @@ class AliceRules extends ChessRules
 		const mirrorSide = sideBoard[0][kp[0]][kp[1]] != VariantRules.EMPTY ? 1 : 2;
 		let saveBoard = this.board;
 		this.board = sideBoard[mirrorSide-1];
-		let res = this.isAttacked(kp, this.getOppCol(color));
+		let res = this.isAttacked(kp, [this.getOppCol(color)]);
 		this.board = saveBoard;
 		this.undoSide(move, sideBoard);
 		return res;
@@ -239,7 +239,7 @@ class AliceRules extends ChessRules
 		let sideBoard = this.getSideBoard(mirrorSide);
 		let saveBoard = this.board;
 		this.board = sideBoard;
-		let res = this.isAttacked(this.kingPos[color], this.getOppCol(color))
+		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ]
 			: [ ];
 		this.board = saveBoard;
@@ -279,7 +279,7 @@ class AliceRules extends ChessRules
 		let saveBoard = this.board;
 		this.board = sideBoard;
 		let res = "*";
-		if (!this.isAttacked(this.kingPos[color], this.getOppCol(color)))
+		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
 			res = "1/2";
 		else
 			res = (color == "w" ? "0-1" : "1-0");

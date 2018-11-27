@@ -52,7 +52,7 @@ Vue.component('my-rules', {
 				for (let j=startY; j>=0 && j<sizeY; j+=inc)
 				{
 					// NOTE: 'board' to distinguish from coords
-					boardDiv += "<div class='board lichess " +
+					boardDiv += "<div class='board board" + sizeY + " " +
 						((i+j)%2==0 ? "light-square-diag" : "dark-square-diag") + "'>";
 					if (markArray.length>0 && markArray[i][j])
 						boardDiv += "<img src='/images/mark.svg' class='markSquare'/>";
