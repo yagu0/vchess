@@ -31,6 +31,22 @@ class CrazyhouseRules extends ChessRules
 			else if (m.vanish.length == 0)
 				this.reserve[m.appear[0].c][m.appear[0].p]--;
 		});
+		// TODO: keep track of promoted pawns ==> give a pawn if captured.
+	}
+
+	getColor(i,j)
+	{
+		const sizeX = VariantRules.size[0];
+		if (i >= sizeX)
+			return (i==sizeX ? "w" : "b");
+		return this.board[i][j].charAt(0);
+	}
+	getPiece(i,j)
+	{
+		const sizeX = VariantRules.size[0];
+		if (i >= sizeX)
+			return VariantRules.RESERVE_PIECES[j];
+		return this.board[i][j].charAt(1);
 	}
 
 	// Used by the interface:
@@ -52,11 +68,13 @@ class CrazyhouseRules extends ChessRules
 		if (this.reserve[color][p] == 0)
 			return [];
 		let moves = [];
-		for (let i=0; i<sizeX; i++)
+		const [sizeX,sizeY] = VariantRules.size;
+		const pawnShift = (p==VariantRules.PAWN ? 1 : 0);
+		for (let i=pawnShift; i<sizeX-pawnShift; i++)
 		{
 			for (let j=0; j<sizeY; j++)
 			{
-				if (this.board[i][j] != VariantRules.EMPTY)
+				if (this.board[i][j] == VariantRules.EMPTY)
 				{
 					let mv = new Move({
 						appear: [
@@ -66,7 +84,10 @@ class CrazyhouseRules extends ChessRules
 								c: color,
 								p: p
 							})
-						]
+						],
+						vanish: [],
+						start: {x:sizeX, y:y}, //a bit artificial...
+						end: {x:i, y:j}
 					});
 					moves.push(mv);
 				}
@@ -116,7 +137,7 @@ class CrazyhouseRules extends ChessRules
 		super.updateVariables(move);
 		const color = this.turn;
 		if (move.vanish.length==2)
-			this.reserve[color][move.appear[0].p]++;
+			this.reserve[color][move.vanish[1].p]++;
 		if (move.vanish.length==0)
 			this.reserve[color][move.appear[0].p]--;
 	}
@@ -126,7 +147,7 @@ class CrazyhouseRules extends ChessRules
 		super.unupdateVariables(move);
 		const color = this.turn;
 		if (move.vanish.length==2)
-			this.reserve[color][move.appear[0].p]--;
+			this.reserve[color][move.vanish[1].p]--;
 		if (move.vanish.length==0)
 			this.reserve[color][move.appear[0].p]++;
 	}
@@ -139,7 +160,7 @@ class CrazyhouseRules extends ChessRules
 			return super.getNotation(move);
 		// Rebirth:
 		const piece =
-			(move.appear[0].p != VariantRules.PAWN ? move.appear.p.toUpperCase() : "");
+			(move.appear[0].p != VariantRules.PAWN ? move.appear[0].p.toUpperCase() : "");
 		const finalSquare =
 			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
 		return piece + "@" + finalSquare;

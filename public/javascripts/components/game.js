@@ -240,38 +240,75 @@ Vue.component('my-game', {
 				);
 			}
 			elementArray.push(gameDiv);
-			if (!!this.vr.reserve) //TODO: table, show counts for reserve pieces
-				//<tr style="padding:0">
-				//    <td style="padding:0;font-size:10px">3</td>
+			if (!!this.vr.reserve)
 			{
-				let reservePiecesArray = [];
+				let myReservePiecesArray = [];
 				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
 				{
-					reservePiecesArray.push(h('img',
+					myReservePiecesArray.push(h('div',
+					{
+						'class': {'board':true, ['board'+sizeY]:true},
+						attrs: { id: this.getSquareId({x:sizeX,y:i}) }
+					},
+					[
+						h('img',
 						{
 							'class': {"piece":true},
 							attrs: {
 								"src": "/images/pieces/" +
 									this.vr.getReservePpath(this.mycolor,i) + ".svg",
-								id: this.getSquareId({x:sizeX,y:i}),
 							}
-						})
-					);
+						}),
+						h('sup',
+							{style: { "padding-left":"40%"} },
+							[ this.vr.reserve[this.mycolor][VariantRules.RESERVE_PIECES[i]] ]
+						)
+					]));
 				}
-				let reserve = h('div',
-					{'class':{'game':true}}, [
+				let oppReservePiecesArray = [];
+				const oppCol = this.vr.getOppCol(this.mycolor);
+				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
+				{
+					oppReservePiecesArray.push(h('div',
+					{
+						'class': {'board':true, ['board'+sizeY]:true},
+						attrs: { id: this.getSquareId({x:sizeX,y:i}) }
+					},
+					[
+						h('img',
+						{
+							'class': {"piece":true},
+							attrs: {
+								"src": "/images/pieces/" +
+									this.vr.getReservePpath(oppCol,i) + ".svg",
+							}
+						}),
+						h('sup',
+							{style: { "padding-left":"40%"} },
+							[ this.vr.reserve[oppCol][VariantRules.RESERVE_PIECES[i]] ]
+						)
+					]));
+				}
+				let reserves = h('div',
+					{
+						'class':{'game':true},
+						style: {"margin-bottom": "20px"},
+					},
+					[
+						h('div',
+							{
+								'class': { 'row': true },
+								style: {"margin-bottom": "15px"},
+							},
+							myReservePiecesArray
+						),
 						h('div',
 							{ 'class': { 'row': true }},
-							[
-								h('div',
-									{'class':{'board':true, ['board'+sizeY]:true}},
-									reservePiecesArray
-								)
-							]
+							oppReservePiecesArray
 						)
-					],
+					]
 				);
-				elementArray.push(reserve);
+				elementArray.push(reserves);
 			}
 			const eogMessage = this.getEndgameMessage(this.score);
 			const modalEog = [
