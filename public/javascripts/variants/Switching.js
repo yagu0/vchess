@@ -3,7 +3,6 @@ class SwitchingRules extends ChessRules
 	// Build switch move between squares x1,y1 and x2,y2
 	getSwitchMove_s([x1,y1],[x2,y2])
 	{
-
 		const c = this.getColor(x1,y1); //same as color at square 2
 		const p1 = this.getPiece(x1,y1);
 		const p2 = this.getPiece(x2,y2);
@@ -24,15 +23,25 @@ class SwitchingRules extends ChessRules
 		const lastRank = (c == "w" ? 0 : sizeX-1);
 		const V = VariantRules;
 		let moves = [];
-		if (p1==V.PAWN && x2==lastRank) //TODO: also the case p2==V.PAWN and x1==lastRank! see Magnetic chess
+		if ((p1==V.PAWN && x2==lastRank) || (p2==V.PAWN && x1==lastRank))
 		{
-			move.appear[0].p = V.ROOK;
+			const idx = (p1==V.PAWN ? 0 : 1);
+			move.appear[idx].p = V.ROOK;
 			moves.push(move);
 			for (let piece of [V.KNIGHT, V.BISHOP, V.QUEEN])
 			{
 				let cmove = JSON.parse(JSON.stringify(move));
-				cmove.appear[0].p = piece;
+				cmove.appear[idx].p = piece;
 				moves.push(cmove);
+			}
+			if (idx == 1)
+			{
+				// Swap moves[i].appear[0] and [1] for moves presentation [TODO...]
+				moves.forEach(m => {
+					let tmp = m.appear[0];
+					m.appear[0] = m.appear[1];
+					m.appear[1] = tmp;
+				});
 			}
 		}
 		else //other cases
@@ -67,6 +76,29 @@ class SwitchingRules extends ChessRules
 			}
 		}
 		return moves;
+	}
+
+	updateVariables(move)
+	{
+		super.updateVariables(move);
+		if (move.appear.length == 2 && move.vanish.length == 2
+			&& move.appear[1].p == VariantRules.KING)
+		{
+			// Switch with the king; not castle, and not handled by main class
+			const color = this.getColor(move.start.x, move.start.y);
+			this.kingPos[color] = [move.appear[1].x, move.appear[1].y];
+		}
+	}
+
+	unupdateVariables(move)
+	{
+		super.unupdateVariables(move);
+		if (move.appear.length == 2 && move.vanish.length == 2
+			&& move.appear[1].p == VariantRules.KING)
+		{
+			const color = this.getColor(move.start.x, move.start.y);
+			this.kingPos[color] = [move.appear[0].x, move.appear[0].y];
+		}
 	}
 
 	static get SEARCH_DEPTH() { return 2; } //branching factor is quite high
