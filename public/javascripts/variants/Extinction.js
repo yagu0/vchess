@@ -27,6 +27,37 @@ class ExtinctionRules extends ChessRules
 		};
 	}
 
+	getPotentialPawnMoves([x,y])
+	{
+		let moves = super.getPotentialPawnMoves([x,y]);
+		// Add potential promotions into king
+		const color = this.turn;
+		const V = VariantRules;
+		const [sizeX,sizeY] = V.size;
+		const shift = (color == "w" ? -1 : 1);
+		const lastRank = (color == "w" ? 0 : sizeX-1);
+
+		if (x+shift == lastRank)
+		{
+			// Normal move
+			if (this.board[x+shift][y] == V.EMPTY)
+				moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:V.KING}));
+			// Captures
+			if (y>0 && this.canTake([x,y], [x+shift,y-1])
+				&& this.board[x+shift][y-1] != V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:V.KING}));
+			}
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+				&& this.board[x+shift][y+1] != V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:V.KING}));
+			}
+		}
+
+		return moves;
+	}
+
 	// TODO: verify this assertion
 	atLeastOneMove()
 	{
@@ -46,13 +77,24 @@ class ExtinctionRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-		if (move.vanish.length==2 && move.appear.length==1)
+		// Treat the promotion case: (not the capture part)
+		if (move.appear[0].p != move.vanish[0].p)
+		{
+			this.material[move.appear[0].c][move.appear[0].p]++;
+			this.material[move.appear[0].c][VariantRules.PAWN]--;
+		}
+		if (move.vanish.length==2 && move.appear.length==1) //capture
 			this.material[move.vanish[1].c][move.vanish[1].p]--;
 	}
 
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
+		if (move.appear[0].p != move.vanish[0].p)
+		{
+			this.material[move.appear[0].c][move.appear[0].p]--;
+			this.material[move.appear[0].c][VariantRules.PAWN]++;
+		}
 		if (move.vanish.length==2 && move.appear.length==1)
 			this.material[move.vanish[1].c][move.vanish[1].p]++;
 	}
@@ -73,14 +115,23 @@ class ExtinctionRules extends ChessRules
 			return "*";
 		}
 
-		return this.checkGameEnd();
+		return this.checkGameEnd(); //NOTE: currently unreachable...
+	}
+
+	checkGameEnd()
+	{
+		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
 	// Very negative (resp. positive) if white (reps. black) pieces set is incomplete
 	evalPosition()
 	{
-		if (this.missAkind())
-			return (this.turn=="w"?-1:1) * VariantRules.INFINITY;
+		const color = this.turn;
+		if (Object.keys(this.material[color]).some(
+			p => { return this.material[color][p] == 0; }))
+		{
+			return (color=="w"?-1:1) * VariantRules.INFINITY;
+		}
 		return super.evalPosition();
 	}
 }

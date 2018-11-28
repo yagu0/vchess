@@ -112,7 +112,8 @@ class MagneticRules extends ChessRules
 		// Scan move for pawn (max 1) on 8th rank
 		for (let i=1; i<move.appear.length; i++)
 		{
-			if (move.appear[i].p==V.PAWN && move.appear[i].c==color && move.appear[i].x==lastRank)
+			if (move.appear[i].p==V.PAWN && move.appear[i].c==color
+				&& move.appear[i].x==lastRank)
 			{
 				move.appear[i].p = V.ROOK;
 				moves.push(move);

@@ -1,0 +1,32 @@
+p.boxed
+	| In addition to standard moves, a piece can be exchanged with an adjacent friendly unit.
+
+h3 Specifications
+
+ul
+	li Chessboard: standard.
+	li Material: standard.
+	li Non-capturing moves: standard + switch.
+	li Special moves: standard.
+	li Captures: standard.
+	li End of game: standard.
+
+h3 Basics
+
+p
+	| Instead of a normal move, a piece may be exchanged with an adjacent friendly one.
+	| Switching can move pawns until rank 1 or final rank. In the first case a 2-squares,
+	| jump is possible, and in the second a promotion occurs.
+	| Switching must involves two different units.
+	| Switching while the king is under check is not allowed.
+
+p.
+	Note: if the king and rook are on two adjacent squares, castling and switching
+	from the king are triggered in the same way. Castling takes priority:
+	if you wanna switch, use the rook.
+
+h3 Credits
+
+p
+	a(href="https://www.chessvariants.com/diffmove.dir/switching.html") Switching chess 
+	| on chessvariants.com.

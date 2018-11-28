@@ -276,7 +276,8 @@ class ChessRules
 		{
 			let i = x + step[0];
 			let j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
+			while (i>=0 && i<sizeX && j>=0 && j<sizeY
+				&& this.board[i][j] == VariantRules.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [i,j]));
 				if (oneStep !== undefined)
@@ -296,7 +297,7 @@ class ChessRules
 		const color = this.turn;
 		let moves = [];
 		const V = VariantRules;
-		const [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = V.size;
 		const shift = (color == "w" ? -1 : 1);
 		const firstRank = (color == 'w' ? sizeX-1 : 0);
 		const startRank = (color == "w" ? sizeX-2 : 1);
@@ -308,7 +309,7 @@ class ChessRules
 			if (this.board[x+shift][y] == V.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				// Next condition because variants with pawns on 1st rank generally allow them to jump
+				// Next condition because variants with pawns on 1st rank allow them to jump
 				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
 				{
 					// Two squares jump
@@ -316,10 +317,16 @@ class ChessRules
 				}
 			}
 			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+			if (y>0 && this.canTake([x,y], [x+shift,y-1])
+				&& this.board[x+shift][y-1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+			}
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+				&& this.board[x+shift][y+1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+			}
 		}
 
 		if (x+shift == lastRank)
@@ -331,10 +338,16 @@ class ChessRules
 				if (this.board[x+shift][y] == V.EMPTY)
 					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
 				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				if (y>0 && this.canTake([x,y], [x+shift,y-1])
+					&& this.board[x+shift][y-1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				}
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+					&& this.board[x+shift][y+1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+				}
 			});
 		}
 
@@ -603,7 +616,8 @@ class ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
-	// Generic method for non-pawn pieces ("sliding or jumping"): is x,y attacked by piece != color ?
+	// Generic method for non-pawn pieces ("sliding or jumping"):
+	// is x,y attacked by piece !of color in colors?
 	isAttackedBySlideNJump([x,y], colors, piece, steps, oneStep)
 	{
 		const [sizeX,sizeY] = VariantRules.size;

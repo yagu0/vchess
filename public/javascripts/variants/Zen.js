@@ -10,14 +10,14 @@ class ZenRules extends ChessRules
 	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
 		const color = this.getColor(x,y);
-		var moves = [];
-		let [sizeX,sizeY] = VariantRules.size;
+		let moves = [];
+		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
-		for (var loop=0; loop<steps.length; loop++)
+		for (let loop=0; loop<steps.length; loop++)
 		{
-			var step = steps[loop];
-			var i = x + step[0];
-			var j = y + step[1];
+			const step = steps[loop];
+			let i = x + step[0];
+			let j = y + step[1];
 			while (i>=0 && i<sizeX && j>=0 && j<sizeY
 				&& this.board[i][j] == VariantRules.EMPTY)
 			{
@@ -38,22 +38,21 @@ class ZenRules extends ChessRules
 	{
 		const color = this.getColor(x,y);
 		var moves = [];
-		var V = VariantRules;
-		var steps = asA != V.PAWN
-			? V.steps[asA]
+		const V = VariantRules;
+		const steps = asA != V.PAWN
+			? (asA==V.QUEEN ? V.steps[V.ROOK].concat(V.steps[V.BISHOP]) : V.steps[asA])
 			: color=='w' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
-		var oneStep = (asA==V.KNIGHT || asA==V.PAWN); //we don't capture king
-		let [sizeX,sizeY] = V.size;
-		let lastRank = (color == 'w' ? 0 : sizeY-1);
-		let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
+		const oneStep = (asA==V.KNIGHT || asA==V.PAWN); //we don't capture king
+		const [sizeX,sizeY] = V.size;
+		const lastRank = (color == 'w' ? 0 : sizeY-1);
+		const promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 		outerLoop:
-		for (var loop=0; loop<steps.length; loop++)
+		for (let loop=0; loop<steps.length; loop++)
 		{
-			var step = steps[loop];
-			var i = x + step[0];
-			var j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] == V.EMPTY)
+			const step = steps[loop];
+			let i = x + step[0];
+			let j = y + step[1];
+			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
 			{
 				if (oneStep)
 					continue outerLoop;
@@ -173,7 +172,8 @@ class ZenRules extends ChessRules
 	getPotentialQueenMoves(sq)
 	{
 		const V = VariantRules;
-		let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.ROOK.concat(V.steps[V.BISHOP])]);
+		let noCaptures =
+			this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}

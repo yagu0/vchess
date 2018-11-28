@@ -240,23 +240,39 @@ Vue.component('my-game', {
 				);
 			}
 			elementArray.push(gameDiv);
-	//			if (!!vr.reserve)
-	//			{
-	//				let reserve = h('div',
-	//					{'class':{'game':true}}, [
-	//						h('div',
-	//							{ 'class': { 'row': true }},
-	//							[
-	//								h('div',
-	//									{'class':{'board':true}},
-	//									[h('img',{'class':{"piece":true},attrs:{"src":"/images/pieces/wb.svg"}})]
-	//								)
-	//							]
-	//						)
-	//					],
-	//				);
-	//				elementArray.push(reserve);
-	//			}
+			if (!!this.vr.reserve) //TODO: table, show counts for reserve pieces
+				//<tr style="padding:0">
+				//    <td style="padding:0;font-size:10px">3</td>
+			{
+				let reservePiecesArray = [];
+				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
+				{
+					reservePiecesArray.push(h('img',
+						{
+							'class': {"piece":true},
+							attrs: {
+								"src": "/images/pieces/" +
+									this.vr.getReservePpath(this.mycolor,i) + ".svg",
+								id: this.getSquareId({x:sizeX,y:i}),
+							}
+						})
+					);
+				}
+				let reserve = h('div',
+					{'class':{'game':true}}, [
+						h('div',
+							{ 'class': { 'row': true }},
+							[
+								h('div',
+									{'class':{'board':true, ['board'+sizeY]:true}},
+									reservePiecesArray
+								)
+							]
+						)
+					],
+				);
+				elementArray.push(reserve);
+			}
 			const eogMessage = this.getEndgameMessage(this.score);
 			const modalEog = [
 				h('input',
