@@ -4,4 +4,9 @@ setInterval "CRON" task in sockets.js to check connected clients
 (every 1hour maybe, or more)
 Systematically show init+dest squares in PGN, maybe after short notation
 (2 moves list, second for de-ambiguification)
-Crazyhouse: keep track of promoted pawns.
+Button to show all pieces that can move (next to expert mode; change icons)
+
+Bugs, limitations:
+ - switching chess when castling: show 2 promotion kings (??)
+ - Crazyhouse: TODO = keep track of promoted pawns.
+ - Checkered: implement stage 2 ?!
