@@ -6,6 +6,9 @@ class SwitchingRules extends ChessRules
 		const c = this.getColor(x1,y1); //same as color at square 2
 		const p1 = this.getPiece(x1,y1);
 		const p2 = this.getPiece(x2,y2);
+		const V = VariantRules;
+		if (p1 == V.KING && p2 == V.ROOK)
+			return []; //avoid duplicate moves (potential conflict with castle)
 		let move = new Move({
 			appear: [
 				new PiPo({x:x2,y:y2,c:c,p:p1}),
@@ -21,7 +24,6 @@ class SwitchingRules extends ChessRules
 		// Move completion: promote switched pawns (as in Magnetic)
 		const sizeX = VariantRules.size[0];
 		const lastRank = (c == "w" ? 0 : sizeX-1);
-		const V = VariantRules;
 		let moves = [];
 		if ((p1==V.PAWN && x2==lastRank) || (p2==V.PAWN && x1==lastRank))
 		{

@@ -242,13 +242,14 @@ Vue.component('my-game', {
 			elementArray.push(gameDiv);
 			if (!!this.vr.reserve)
 			{
+				const shiftIdx = (this.mycolor=="w" ? 0 : 1);
 				let myReservePiecesArray = [];
 				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
 				{
 					myReservePiecesArray.push(h('div',
 					{
 						'class': {'board':true, ['board'+sizeY]:true},
-						attrs: { id: this.getSquareId({x:sizeX,y:i}) }
+						attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
 					},
 					[
 						h('img',
@@ -272,7 +273,7 @@ Vue.component('my-game', {
 					oppReservePiecesArray.push(h('div',
 					{
 						'class': {'board':true, ['board'+sizeY]:true},
-						attrs: { id: this.getSquareId({x:sizeX,y:i}) }
+						attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
 					},
 					[
 						h('img',
@@ -754,6 +755,8 @@ Vue.component('my-game', {
 				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
+				console.log(this.possibleMoves);
+				console.log(this.vr.promoted);
 				e.target.parentNode.appendChild(this.selectedPiece);
 			}
 		},

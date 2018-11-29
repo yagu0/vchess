@@ -726,7 +726,7 @@ class ChessRules
 //		if (!ingame) this.states.push(JSON.stringify(this.board));
 
 		if (!!ingame)
-			move.notation = this.getNotation(move);
+			move.notation = [this.getNotation(move), this.getLongNotation(move)];
 
 		move.flags = JSON.stringify(this.flags); //save flags (for undo)
 		this.updateVariables(move);
@@ -1110,6 +1110,16 @@ class ChessRules
 		}
 	}
 
+	// Complete the usual notation, may be required for de-ambiguification
+	getLongNotation(move)
+	{
+		const startSquare =
+			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+		const finalSquare =
+			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+		return startSquare + finalSquare; //not encoding move. But short+long is enough
+	}
+
 	// The score is already computed when calling this function
 	getPGN(mycolor, score, fenStart, mode)
 	{
@@ -1124,14 +1134,24 @@ class ChessRules
 		pgn += '[Fen "' + fenStart + '"]<br>';
 		pgn += '[Result "' + score + '"]<br><br>';
 
+		// Standard PGN
 		for (let i=0; i<this.moves.length; i++)
 		{
 			if (i % 2 == 0)
 				pgn += ((i/2)+1) + ".";
-			pgn += this.moves[i].notation + " ";
+			pgn += this.moves[i].notation[0] + " ";
 		}
+		pgn += score + "<br><br>";
 
+		// "Complete moves" PGN (helping in ambiguous cases)
+		for (let i=0; i<this.moves.length; i++)
+		{
+			if (i % 2 == 0)
+				pgn += ((i/2)+1) + ".";
+			pgn += this.moves[i].notation[1] + " ";
+		}
 		pgn += score;
+
 		return pgn;
 	}
 }

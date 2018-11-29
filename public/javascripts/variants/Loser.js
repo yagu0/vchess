@@ -2,7 +2,8 @@ class LoserRules extends ChessRules
 {
 	initVariables(fen)
 	{
-		// No castling, hence no flags
+		// No castling, hence no flags; but flags defined for compatibility
+		this.flags = "-";
 		const epSq = this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined;
 		this.epSquares = [ epSq ];
 	}
@@ -102,21 +103,10 @@ class LoserRules extends ChessRules
 		return [];
 	}
 
-	play(move, ingame)
-	{
-		if (!!ingame)
-			move.notation = this.getNotation(move);
-		this.moves.push(move);
-		this.epSquares.push( this.getEpSquare(move) );
-		VariantRules.PlayOnBoard(this.board, move);
-	}
-
-	undo(move)
-	{
-		VariantRules.UndoOnBoard(this.board, move);
-		this.epSquares.pop();
-		this.moves.pop();
-	}
+	// Unused:
+	updateVariables(move) { }
+	unupdateVariables(move) { }
+	parseFlags(flags) { }
 
 	checkGameEnd()
 	{

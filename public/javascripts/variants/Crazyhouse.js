@@ -24,14 +24,10 @@ class CrazyhouseRules extends ChessRules
 				[V.QUEEN]: 0,
 			}
 		};
-		// May be a continuation: adjust numbers of pieces according to captures + rebirths
-		this.moves.forEach(m => {
-			if (m.vanish.length == 2)
-				this.reserve[m.appear[0].c][m.vanish[1].p]++;
-			else if (m.vanish.length == 0)
-				this.reserve[m.appear[0].c][m.appear[0].p]--;
-		});
-		// TODO: keep track of promoted pawns ==> give a pawn if captured.
+		const [sizeX,sizeY] = VariantRules.size;
+		this.promoted = doubleArray(sizeX, sizeY, false);
+		// May be a continuation: adjust numbers of pieces in reserve + promoted pieces
+		this.moves.forEach(m => { this.updateVariables(m); });
 	}
 
 	getColor(i,j)
@@ -86,7 +82,7 @@ class CrazyhouseRules extends ChessRules
 							})
 						],
 						vanish: [],
-						start: {x:sizeX, y:y}, //a bit artificial...
+						start: {x:x, y:y}, //a bit artificial...
 						end: {x:i, y:j}
 					});
 					moves.push(mv);
@@ -99,10 +95,13 @@ class CrazyhouseRules extends ChessRules
 	getPotentialMovesFrom([x,y])
 	{
 		const sizeX = VariantRules.size[0];
-		if (x < sizeX)
-			return super.getPotentialMovesFrom([x,y]);
-		// Reserves, outside of board: x == sizeX
-		return this.getReserveMoves([x,y]);
+		if (x >= sizeX)
+		{
+			// Reserves, outside of board: x == sizeX
+			return this.getReserveMoves([x,y]);
+		}
+		// Standard moves
+		return super.getPotentialMovesFrom([x,y]);
 	}
 
 	getAllValidMoves()
@@ -111,7 +110,7 @@ class CrazyhouseRules extends ChessRules
 		const color = this.turn;
 		const sizeX = VariantRules.size[0];
 		for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
-			moves = moves.concat(this.getReserveMoves([sizeX,i]));
+			moves = moves.concat(this.getReserveMoves([sizeX+(color=="w"?0:1),i]));
 		return this.filterValid(moves);
 	}
 
@@ -135,24 +134,100 @@ class CrazyhouseRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
+		if (move.vanish.length == 2 && move.appear.length == 2)
+			return; //skip castle
 		const color = this.turn;
-		if (move.vanish.length==2)
-			this.reserve[color][move.vanish[1].p]++;
-		if (move.vanish.length==0)
+		const V = VariantRules;
+		// Three types of move:
+		//   1. Rebirth: just update material
+		//   2. Standard move:
+		//     a. check if a promoted piece is moving
+		//     b. check if it's a promotion (mutually exclusive)
+		//   3. Capture:
+		//     a. check if a promoted piece is captured (and mark move)
+		//     b. check if a promoted piece is moving
+		//     c. check if it's a promotion (mutually exclusive with b)
+		if (move.vanish.length == 0)
 			this.reserve[color][move.appear[0].p]--;
+		else if (move.vanish.length == 1)
+		{
+			if (this.promoted[move.start.x][move.start.y])
+			{
+				this.promoted[move.start.x][move.start.y] = false;
+				this.promoted[move.end.x][move.end.y] = true;
+			}
+			else if (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN)
+				this.promoted[move.end.x][move.end.y] = true;
+		}
+		else //capture
+		{
+			if (this.promoted[move.end.x][move.end.y])
+			{
+				move.capturePromoted = true; //required for undo
+				this.reserve[color][VariantRules.PAWN]++;
+				this.promoted[move.end.x][move.end.y] = false;
+			}
+			else
+				this.reserve[color][move.vanish[1].p]++;
+			if (this.promoted[move.start.x][move.start.y])
+			{
+				this.promoted[move.start.x][move.start.y] = false;
+				this.promoted[move.end.x][move.end.y] = true;
+			}
+			else if (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN)
+				this.promoted[move.end.x][move.end.y] = true;
+		}
 	}
 
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
 		const color = this.turn;
-		if (move.vanish.length==2)
-			this.reserve[color][move.vanish[1].p]--;
-		if (move.vanish.length==0)
+		const V = VariantRules;
+		if (move.vanish.length == 0)
 			this.reserve[color][move.appear[0].p]++;
+		else if (move.vanish.length == 1)
+		{
+			if (this.promoted[move.end.x][move.end.y])
+			{
+				this.promoted[move.end.x][move.end.y] = false;
+				if (move.vanish[0].p != V.PAWN || move.appear[0].p == V.PAWN)
+				{
+					// Not a promotion (= promoted piece creation)
+					this.promoted[move.start.x][move.start.y] = true;
+				}
+			}
+		}
+		else //capture
+		{
+			if (this.promoted[move.end.x][move.end.y])
+			{
+				this.promoted[move.end.x][move.end.y] = !!move.capturePromoted;
+				if (move.vanish[0].p != V.PAWN || move.appear[0].p == V.PAWN)
+					this.promoted[move.start.x][move.start.y] = true;
+			}
+			// Un-update material:
+			if (move.capturePromoted)
+				this.reserve[color][VariantRules.PAWN]--;
+			else
+				this.reserve[color][move.vanish[1].p]--;
+		}
 	}
 
 	static get SEARCH_DEPTH() { return 2; } //high branching factor
+
+	evalPosition()
+	{
+		let evaluation = super.evalPosition();
+		// Add reserves:
+		for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
+		{
+			const p = VariantRules.RESERVE_PIECES[i];
+			evaluation += this.reserve["w"][p] * VariantRules.VALUES[p];
+			evaluation -= this.reserve["b"][p] * VariantRules.VALUES[p];
+		}
+		return evaluation;
+	}
 
 	getNotation(move)
 	{
@@ -164,5 +239,14 @@ class CrazyhouseRules extends ChessRules
 		const finalSquare =
 			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
 		return piece + "@" + finalSquare;
+	}
+
+	getLongNotation(move)
+	{
+		if (move.vanish.length > 0)
+			return super.getLongNotation(move);
+		const finalSquare =
+			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+		return "@" + finalSquare;
 	}
 }
