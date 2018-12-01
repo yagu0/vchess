@@ -4,3 +4,4 @@ setInterval "CRON" task in sockets.js to check connected clients
 (every 1hour maybe, or more)
 Button to show all pieces that can move (next to expert mode; change icons)
 Style (crazyhouse): ghost image of reserve pieces are initially translated
+Some bots are very weak, others quite slow...
