@@ -2,13 +2,15 @@ class LoserRules extends ChessRules
 {
 	initVariables(fen)
 	{
-		// No castling, hence no flags; but flags defined for compatibility
-		this.flags = "-";
 		const epSq = this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined;
 		this.epSquares = [ epSq ];
 	}
 
-	setFlags(fen) { }
+	setFlags(fen)
+	{
+		// No castling, hence no flags; but flags defined for compatibility
+		this.castleFlags = "0000";
+	}
 
 	getPotentialPawnMoves([x,y])
 	{
