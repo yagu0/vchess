@@ -138,80 +138,41 @@ class CrazyhouseRules extends ChessRules
 			return; //skip castle
 		const color = this.turn;
 		const V = VariantRules;
-		// Three types of move:
-		//   1. Rebirth: just update material
-		//   2. Standard move:
-		//     a. check if a promoted piece is moving
-		//     b. check if it's a promotion (mutually exclusive)
-		//   3. Capture:
-		//     a. check if a promoted piece is captured (and mark move)
-		//     b. check if a promoted piece is moving
-		//     c. check if it's a promotion (mutually exclusive with b)
 		if (move.vanish.length == 0)
+		{
 			this.reserve[color][move.appear[0].p]--;
-		else if (move.vanish.length == 1)
-		{
-			if (this.promoted[move.start.x][move.start.y])
-			{
-				this.promoted[move.start.x][move.start.y] = false;
-				this.promoted[move.end.x][move.end.y] = true;
-			}
-			else if (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN)
-				this.promoted[move.end.x][move.end.y] = true;
+			return;
 		}
-		else //capture
-		{
-			if (this.promoted[move.end.x][move.end.y])
-			{
-				move.capturePromoted = true; //required for undo
-				this.reserve[color][VariantRules.PAWN]++;
-				this.promoted[move.end.x][move.end.y] = false;
-			}
-			else
-				this.reserve[color][move.vanish[1].p]++;
-			if (this.promoted[move.start.x][move.start.y])
-			{
-				this.promoted[move.start.x][move.start.y] = false;
-				this.promoted[move.end.x][move.end.y] = true;
-			}
-			else if (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN)
-				this.promoted[move.end.x][move.end.y] = true;
-		}
+		move.movePromoted = this.promoted[move.start.x][move.start.y];
+		move.capturePromoted = this.promoted[move.end.x][move.end.y]
+		this.promoted[move.start.x][move.start.y] = false;
+		this.promoted[move.end.x][move.end.y] = move.movePromoted
+			|| (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN);
+		if (move.capturePromoted)
+			this.reserve[color][VariantRules.PAWN]++;
+		else if (move.vanish.length == 2)
+			this.reserve[color][move.vanish[1].p]++;
 	}
 
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
+		if (move.vanish.length == 2 && move.appear.length == 2)
+			return;
 		const color = this.turn;
 		const V = VariantRules;
 		if (move.vanish.length == 0)
+		{
 			this.reserve[color][move.appear[0].p]++;
-		else if (move.vanish.length == 1)
-		{
-			if (this.promoted[move.end.x][move.end.y])
-			{
-				this.promoted[move.end.x][move.end.y] = false;
-				if (move.vanish[0].p != V.PAWN || move.appear[0].p == V.PAWN)
-				{
-					// Not a promotion (= promoted piece creation)
-					this.promoted[move.start.x][move.start.y] = true;
-				}
-			}
+			return;
 		}
-		else //capture
-		{
-			if (this.promoted[move.end.x][move.end.y])
-			{
-				this.promoted[move.end.x][move.end.y] = !!move.capturePromoted;
-				if (move.vanish[0].p != V.PAWN || move.appear[0].p == V.PAWN)
-					this.promoted[move.start.x][move.start.y] = true;
-			}
-			// Un-update material:
-			if (move.capturePromoted)
-				this.reserve[color][VariantRules.PAWN]--;
-			else
-				this.reserve[color][move.vanish[1].p]--;
-		}
+		if (move.movePromoted)
+			this.promoted[move.start.x][move.start.y] = true;
+		this.promoted[move.end.x][move.end.y] = move.capturePromoted;
+		if (move.capturePromoted)
+			this.reserve[color][VariantRules.PAWN]--;
+		else if (move.vanish.length == 2)
+			this.reserve[color][move.vanish[1].p]--;
 	}
 
 	static get SEARCH_DEPTH() { return 2; } //high branching factor

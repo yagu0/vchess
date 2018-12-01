@@ -724,6 +724,8 @@ class ChessRules
 		// DEBUG:
 //		if (!this.states) this.states = [];
 //		if (!ingame) this.states.push(JSON.stringify(this.board));
+//		if (!this.rstates) this.rstates = [];
+//		if (!ingame) this.rstates.push(JSON.stringify(this.promoted)+"-"+JSON.stringify(this.reserve));
 
 		if (!!ingame)
 			move.notation = [this.getNotation(move), this.getLongNotation(move)];
@@ -745,7 +747,8 @@ class ChessRules
 
 		// DEBUG:
 //		let state = this.states.pop();
-//		if (JSON.stringify(this.board) != state)
+//		let rstate = this.rstates.pop();
+//		if (JSON.stringify(this.board) != state || JSON.stringify(this.promoted)+"-"+JSON.stringify(this.reserve) != rstate)
 //			debugger;
 	}
 
