@@ -61,23 +61,28 @@ class AliceRules extends ChessRules
 		}
 	}
 
+	// Return the (standard) color+piece notation at a square for a board
+	getSquareOccupation(i, j, mirrorSide)
+	{
+		const piece = this.getPiece(i,j);
+		const V = VariantRules;
+		if (mirrorSide==1 && Object.keys(V.ALICE_CODES).includes(piece))
+			return this.board[i][j];
+		else if (mirrorSide==2 && Object.keys(V.ALICE_PIECES).includes(piece))
+			return this.getColor(i,j) + V.ALICE_PIECES[piece];
+		return "";
+	}
+
 	// Build board of the given (mirror)side
 	getSideBoard(mirrorSide)
 	{
-		const V = VariantRules;
 		// Build corresponding board from complete board
-		const [sizeX,sizeY] = V.size;
+		const [sizeX,sizeY] = VariantRules.size;
 		let sideBoard = doubleArray(sizeX, sizeY, "");
 		for (let i=0; i<sizeX; i++)
 		{
 			for (let j=0; j<sizeY; j++)
-			{
-				const piece = this.getPiece(i,j);
-				if (mirrorSide==1 && Object.keys(V.ALICE_CODES).includes(piece))
-					sideBoard[i][j] = this.board[i][j];
-				else if (mirrorSide==2 && Object.keys(V.ALICE_PIECES).includes(piece))
-					sideBoard[i][j] = this.getColor(i,j) + V.ALICE_PIECES[piece];
-			}
+				sideBoard[i][j] = this.getSquareOccupation(i, j, mirrorSide);
 		}
 		return sideBoard;
 	}
@@ -99,14 +104,12 @@ class AliceRules extends ChessRules
 		let res = moves.filter(m => {
 			if (m.appear.length == 2) //castle
 			{
-				// If appear[i] not in vanish array, then must be empty square on other board
-				m.appear.forEach(psq => {
-					if (this.board[psq.x][psq.y] != VariantRules.EMPTY &&
-						![m.vanish[0].y,m.vanish[1].y].includes(psq.y))
-					{
+				// appear[i] must be an empty square on the other board
+				for (let psq of m.appear)
+				{
+					if (this.getSquareOccupation(psq.x,psq.y,3-mirrorSide) != VariantRules.EMPTY)
 						return false;
-					}
-				});
+				}
 			}
 			else if (this.board[m.end.x][m.end.y] != VariantRules.EMPTY)
 			{
