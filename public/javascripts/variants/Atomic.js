@@ -66,7 +66,8 @@ class AtomicRules extends ChessRules
 			&& this.board[move.end.x][move.end.y] != VariantRules.EMPTY)
 		{
 			const oppCol = this.getOppCol(c);
-			const oppFirstRank = (oppCol == "w" ? 7 : 0);
+			const firstRank = (c == "w" ? 7 : 0);
+			const oppFirstRank = 7 - firstRank;
 
 			// Did we explode our king ? (TODO: remove move earlier)
 			if (Math.abs(this.kingPos[c][0]-move.end.x) <= 1
@@ -74,6 +75,17 @@ class AtomicRules extends ChessRules
 			{
 				this.kingPos[c] = [-1,-1];
 				this.castleFlags[c] = [false,false];
+			}
+			else
+			{
+				// Now check if our init rook(s) exploded
+				if (Math.abs(move.end.x-firstRank) <= 1)
+				{
+					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][0]) <= 1)
+						this.castleFlags[c][0] = false;
+					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][1]) <= 1)
+						this.castleFlags[c][1] = false;
+				}
 			}
 
 			// Did we explode opponent king ?
