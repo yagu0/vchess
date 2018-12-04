@@ -755,7 +755,8 @@ Vue.component('my-game', {
 				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
-				e.target.parentNode.appendChild(this.selectedPiece);
+				// Next line add moving piece just after current image (required for Crazyhouse reserve)
+				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
 			}
 		},
 		mousemove: function(e) {
