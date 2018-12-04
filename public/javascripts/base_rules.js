@@ -847,7 +847,9 @@ class ChessRules
 			for (let j=0; j<moves2.length; j++)
 			{
 				this.play(moves2[j]);
-				let evalPos = this.evalPosition();
+				let evalPos = this.atLeastOneMove()
+					? this.evalPosition("yes")
+					: (this.checkGameEnd()=="1/2" ? 0 : (this.turn=="w"?-maxeval:maxeval));
 				if ((color == "w" && evalPos < eval2) || (color=="b" && evalPos > eval2))
 					eval2 = evalPos;
 				this.undo(moves2[j]);
@@ -857,6 +859,7 @@ class ChessRules
 			this.undo(moves1[i]);
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
+		//console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
 		let candidates = [0]; //indices of candidates moves
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -881,15 +884,14 @@ class ChessRules
 		}
 		else
 			return currentBest;
+		//console.log(moves1.map(m => { return [this.getNotation(m)[0], m.eval]; }));
 
 		candidates = [0];
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
-//		console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 		return moves1[_.sample(candidates, 1)];
 	}
 
-	// TODO: some optimisations, understand why CH get mated in 2
 	alphabeta(depth, alpha, beta)
   {
 		const maxeval = VariantRules.INFINITY;
