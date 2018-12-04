@@ -1142,7 +1142,8 @@ class ChessRules
 		pgn += '[Date "' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '"]<br>';
 		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
 		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
-		pgn += '[Fen "' + fenStart + '"]<br>';
+		pgn += '[FenStart "' + fenStart + '"]<br>';
+		pgn += '[Fen "' + this.getFen() + '"]<br>';
 		pgn += '[Result "' + score + '"]<br><br>';
 
 		// Standard PGN
