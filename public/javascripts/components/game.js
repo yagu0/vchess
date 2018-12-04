@@ -413,9 +413,24 @@ Vue.component('my-game', {
 							{
 								attrs: { id: "pgn-game" },
 								on: { click: this.download },
-								domProps: {
-									innerHTML: this.pgnTxt
-								}
+								domProps: { innerHTML: this.pgnTxt }
+							}
+						)
+					]
+				)
+			);
+		}
+		else if (this.mode != "idle")
+		{
+			// Show current FEN (at least for debug)
+			elementArray.push(
+				h('div',
+					{ attrs: { id: "fen-div" } },
+					[
+						h('p',
+							{
+								attrs: { id: "fen-string" },
+								domProps: { innerHTML: this.vr.getBaseFen() }
 							}
 						)
 					]
