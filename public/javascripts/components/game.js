@@ -755,8 +755,6 @@ Vue.component('my-game', {
 				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
 					? this.vr.getPossibleMovesFrom(startSquare)
 					: [];
-				console.log(this.possibleMoves);
-				console.log(this.vr.promoted);
 				e.target.parentNode.appendChild(this.selectedPiece);
 			}
 		},

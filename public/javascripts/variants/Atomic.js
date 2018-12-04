@@ -59,51 +59,31 @@ class AtomicRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-
-		const c = this.getColor(move.start.x,move.start.y);
+		const color = this.getColor(move.start.x,move.start.y);
 		// Next condition to avoid conflicts with harmless castle moves
-		if (c != this.getColor(move.end.x,move.end.y)
+		if (color != this.getColor(move.end.x,move.end.y)
 			&& this.board[move.end.x][move.end.y] != VariantRules.EMPTY)
 		{
-			const oppCol = this.getOppCol(c);
-			const firstRank = (c == "w" ? 7 : 0);
-			const oppFirstRank = 7 - firstRank;
-
-			// Did we explode our king ? (TODO: remove move earlier)
-			if (Math.abs(this.kingPos[c][0]-move.end.x) <= 1
-				&& Math.abs(this.kingPos[c][1]-move.end.y) <= 1)
+			const firstRank = {"w": 7, "b": 0};
+			for (let c of ["w","b"])
 			{
-				this.kingPos[c] = [-1,-1];
-				this.castleFlags[c] = [false,false];
-			}
-			else
-			{
-				// Now check if our init rook(s) exploded
-				if (Math.abs(move.end.x-firstRank) <= 1)
+				// Did we explode king of color c ? (TODO: remove move earlier)
+				if (Math.abs(this.kingPos[c][0]-move.end.x) <= 1
+					&& Math.abs(this.kingPos[c][1]-move.end.y) <= 1)
 				{
-					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][0]) <= 1)
-						this.castleFlags[c][0] = false;
-					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][1]) <= 1)
-						this.castleFlags[c][1] = false;
+					this.kingPos[c] = [-1,-1];
+					this.castleFlags[c] = [false,false];
 				}
-			}
-
-			// Did we explode opponent king ?
-			if (Math.abs(this.kingPos[oppCol][0]-move.end.x) <= 1
-				&& Math.abs(this.kingPos[oppCol][1]-move.end.y) <= 1)
-			{
-				this.kingPos[oppCol] = [-1,-1];
-				this.castleFlags[oppCol] = [false,false];
-			}
-			else
-			{
-				// Now check if opponent init rook(s) exploded
-				if (Math.abs(move.end.x-oppFirstRank) <= 1)
+				else
 				{
-					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][0]) <= 1)
-						this.castleFlags[oppCol][0] = false;
-					if (Math.abs(move.end.y-this.INIT_COL_ROOK[oppCol][1]) <= 1)
-						this.castleFlags[oppCol][1] = false;
+					// Now check if init rook(s) exploded
+					if (Math.abs(move.end.x-firstRank[c]) <= 1)
+					{
+						if (Math.abs(move.end.y-this.INIT_COL_ROOK[c][0]) <= 1)
+							this.castleFlags[c][0] = false;
+						if (Math.abs(move.end.y-this.INIT_COL_ROOK[c][1]) <= 1)
+							this.castleFlags[c][1] = false;
+					}
 				}
 			}
 		}
