@@ -432,7 +432,7 @@ Vue.component('my-game', {
 					"col-lg-6":true,
 					"col-lg-offset-3":true,
 				},
-				// NOTE: click = mousedown + mouseup --> what about smartphone?!
+				// NOTE: click = mousedown + mouseup
 				on: {
 					mousedown: this.mousedown,
 					mousemove: this.mousemove,

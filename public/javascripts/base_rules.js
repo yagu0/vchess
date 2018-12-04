@@ -124,7 +124,7 @@ class ChessRules
 		return board;
 	}
 
-	// Overridable: flags can change a lot
+	// Extract (relevant) flags from fen
 	setFlags(fen)
 	{
 		// white a-castle, h-castle, black a-castle, h-castle
@@ -137,7 +137,6 @@ class ChessRules
 	///////////////////
 	// GETTERS, SETTERS
 
-	// Simple useful getters
 	static get size() { return [8,8]; }
 	// Two next functions return 'undefined' if called on empty square
 	getColor(i,j) { return this.board[i][j].charAt(0); }
@@ -199,7 +198,7 @@ class ChessRules
 		return undefined; //default
 	}
 
-	// can thing on square1 take thing on square2
+	// Can thing on square1 take thing on square2
 	canTake([x1,y1], [x2,y2])
 	{
 		return this.getColor(x1,y1) != this.getColor(x2,y2);
@@ -291,7 +290,7 @@ class ChessRules
 		return moves;
 	}
 
-	// What are the pawn moves from square x,y considering color "color" ?
+	// What are the pawn moves from square x,y ?
 	getPotentialPawnMoves([x,y])
 	{
 		const color = this.turn;
@@ -546,7 +545,7 @@ class ChessRules
 		return false;
 	}
 
-	// Check if pieces of color 'colors' are attacking square x,y
+	// Check if pieces of color in array 'colors' are attacking square x,y
 	isAttacked(sq, colors)
 	{
 		return (this.isAttackedByPawn(sq, colors)
@@ -557,7 +556,7 @@ class ChessRules
 			|| this.isAttackedByKing(sq, colors));
 	}
 
-	// Is square x,y attacked by pawns of color c ?
+	// Is square x,y attacked by 'colors' pawns ?
 	isAttackedByPawn([x,y], colors)
 	{
 		const [sizeX,sizeY] = VariantRules.size;
@@ -579,28 +578,28 @@ class ChessRules
 		return false;
 	}
 
-	// Is square x,y attacked by rooks of color c ?
+	// Is square x,y attacked by 'colors' rooks ?
 	isAttackedByRook(sq, colors)
 	{
 		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.ROOK, VariantRules.steps[VariantRules.ROOK]);
 	}
 
-	// Is square x,y attacked by knights of color c ?
+	// Is square x,y attacked by 'colors' knights ?
 	isAttackedByKnight(sq, colors)
 	{
 		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.KNIGHT, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 	}
 
-	// Is square x,y attacked by bishops of color c ?
+	// Is square x,y attacked by 'colors' bishops ?
 	isAttackedByBishop(sq, colors)
 	{
 		return this.isAttackedBySlideNJump(sq, colors,
 			VariantRules.BISHOP, VariantRules.steps[VariantRules.BISHOP]);
 	}
 
-	// Is square x,y attacked by queens of color c ?
+	// Is square x,y attacked by 'colors' queens ?
 	isAttackedByQueen(sq, colors)
 	{
 		const V = VariantRules;
@@ -608,7 +607,7 @@ class ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 	}
 
-	// Is square x,y attacked by king of color c ?
+	// Is square x,y attacked by 'colors' king(s) ?
 	isAttackedByKing(sq, colors)
 	{
 		const V = VariantRules;
@@ -617,7 +616,7 @@ class ChessRules
 	}
 
 	// Generic method for non-pawn pieces ("sliding or jumping"):
-	// is x,y attacked by piece !of color in colors?
+	// is x,y attacked by a piece of color in array 'colors' ?
 	isAttackedBySlideNJump([x,y], colors, piece, steps, oneStep)
 	{
 		const [sizeX,sizeY] = VariantRules.size;
@@ -640,7 +639,7 @@ class ChessRules
 		return false;
 	}
 
-	// Is color c under check after move ?
+	// Is current player under check after his move ?
 	underCheck(move)
 	{
 		const color = this.turn;
@@ -650,7 +649,7 @@ class ChessRules
 		return res;
 	}
 
-	// On which squares is color c under check (after move) ?
+	// On which squares is opponent under check after our move ?
 	getCheckSquares(move)
 	{
 		this.play(move);
@@ -711,6 +710,8 @@ class ChessRules
 		}
 	}
 
+	// After move is undo-ed, un-update variables (flags are reset)
+	// TODO: more symmetry, by storing flags increment in move...
 	unupdateVariables(move)
 	{
 		// (Potentially) Reset king position
@@ -721,12 +722,6 @@ class ChessRules
 
 	play(move, ingame)
 	{
-		// DEBUG:
-//		if (!this.states) this.states = [];
-//		if (!ingame) this.states.push(JSON.stringify(this.board));
-//		if (!this.rstates) this.rstates = [];
-//		if (!ingame) this.rstates.push(JSON.stringify(this.promoted)+"-"+JSON.stringify(this.reserve));
-
 		if (!!ingame)
 			move.notation = [this.getNotation(move), this.getLongNotation(move)];
 
@@ -744,23 +739,16 @@ class ChessRules
 		this.moves.pop();
 		this.unupdateVariables(move);
 		this.parseFlags(JSON.parse(move.flags));
-
-		// DEBUG:
-//		let state = this.states.pop();
-//		let rstate = this.rstates.pop();
-//		if (JSON.stringify(this.board) != state || JSON.stringify(this.promoted)+"-"+JSON.stringify(this.reserve) != rstate)
-//			debugger;
 	}
 
 	//////////////
 	// END OF GAME
 
+	// Basic check for 3 repetitions (in the last moves only)
 	checkRepetition()
 	{
-		// Check for 3 repetitions
 		if (this.moves.length >= 8)
 		{
-			// NOTE: crude detection, only moves repetition
 			const L = this.moves.length;
 			if (_.isEqual(this.moves[L-1], this.moves[L-5]) &&
 				_.isEqual(this.moves[L-2], this.moves[L-6]) &&
@@ -773,6 +761,7 @@ class ChessRules
 		return false;
 	}
 
+	// Is game over ? And if yes, what is the score ?
 	checkGameOver()
 	{
 		if (this.checkRepetition())
@@ -900,6 +889,7 @@ class ChessRules
 		return moves1[_.sample(candidates, 1)];
 	}
 
+	// TODO: some optimisations, understand why CH get mated in 2
 	alphabeta(depth, alpha, beta)
   {
 		const maxeval = VariantRules.INFINITY;
@@ -965,7 +955,7 @@ class ChessRules
 	////////////
 	// FEN utils
 
-	// Overridable..
+	// Setup the initial random (assymetric) position
 	static GenRandInitFen()
 	{
 		let pieces = [new Array(8), new Array(8)];
@@ -1025,6 +1015,7 @@ class ChessRules
 		return this.getBaseFen() + " " + this.getFlagsFen();
 	}
 
+	// Position part of the FEN string
 	getBaseFen()
 	{
 		let fen = "";
@@ -1058,7 +1049,7 @@ class ChessRules
 		return fen;
 	}
 
-	// Overridable..
+	// Flags part of the FEN string
 	getFlagsFen()
 	{
 		let fen = "";
