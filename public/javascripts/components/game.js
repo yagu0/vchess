@@ -437,9 +437,9 @@ Vue.component('my-game', {
 					mousedown: this.mousedown,
 					mousemove: this.mousemove,
 					mouseup: this.mouseup,
-					touchstart: this.mousedown,
-					touchmove: this.mousemove,
-					touchend: this.mouseup,
+//					touchstart: this.mousedown, //TODO...
+//					touchmove: this.mousemove,
+//					touchend: this.mouseup,
 				},
 			},
 			elementArray
