@@ -88,7 +88,7 @@ class CheckeredRules extends ChessRules
 				// A capture occured (m.vanish.length == 2)
 				m.appear[0].c = "c";
 				moves.push(m);
-				if (m.appear[0].p != m.vanish[1].p //avoid promotions:
+				if (m.appear[0].p != m.vanish[1].p //avoid promotions (already treated):
 					&& (m.vanish[0].p != VariantRules.PAWN || m.end.x != lastRank))
 				{
 					// Add transformation into captured piece

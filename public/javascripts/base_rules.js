@@ -331,21 +331,22 @@ class ChessRules
 		if (x+shift == lastRank)
 		{
 			// Promotion
+			const pawnColor = this.getColor(x,y); //can be different for checkered
 			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 			promotionPieces.forEach(p => {
 				// Normal move
 				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
+					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:pawnColor,p:p}));
 				// Captures
 				if (y>0 && this.canTake([x,y], [x+shift,y-1])
 					&& this.board[x+shift][y-1] != V.EMPTY)
 				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
+					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:pawnColor,p:p}));
 				}
 				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
 					&& this.board[x+shift][y+1] != V.EMPTY)
 				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:pawnColor,p:p}));
 				}
 			});
 		}
@@ -836,23 +837,34 @@ class ChessRules
 		for (let i=0; i<moves1.length; i++)
 		{
 			moves1[i].eval = (color=="w" ? -1 : 1) * maxeval; //very low, I'm checkmated
-			let eval2 = (color=="w" ? 1 : -1) * maxeval; //initialized with checkmate value
 			this.play(moves1[i]);
-			// Second half-move:
-			let moves2 = this.getAllValidMoves();
-			// If no possible moves AND underCheck, eval2 is correct.
-			// If !underCheck, eval2 is 0 (stalemate).
-			if (moves2.length == 0 && this.checkGameEnd() == "1/2")
-				eval2 = 0;
-			for (let j=0; j<moves2.length; j++)
+			let eval2 = undefined;
+			if (this.atLeastOneMove())
 			{
-				this.play(moves2[j]);
-				let evalPos = this.atLeastOneMove()
-					? this.evalPosition("yes")
-					: (this.checkGameEnd()=="1/2" ? 0 : (this.turn=="w"?-maxeval:maxeval));
-				if ((color == "w" && evalPos < eval2) || (color=="b" && evalPos > eval2))
-					eval2 = evalPos;
-				this.undo(moves2[j]);
+				eval2 = (color=="w" ? 1 : -1) * maxeval; //initialized with checkmate value
+				// Second half-move:
+				let moves2 = this.getAllValidMoves();
+				for (let j=0; j<moves2.length; j++)
+				{
+					this.play(moves2[j]);
+					let evalPos = undefined;
+					if (this.atLeastOneMove())
+						evalPos = this.evalPosition()
+					else
+					{
+						// Work with scores for Loser variant
+						const score = this.checkGameEnd();
+						evalPos = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
+					}
+					if ((color == "w" && evalPos < eval2) || (color=="b" && evalPos > eval2))
+						eval2 = evalPos;
+					this.undo(moves2[j]);
+				}
+			}
+			else
+			{
+				const score = this.checkGameEnd();
+				eval2 = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 			}
 			if ((color=="w" && eval2 > moves1[i].eval) || (color=="b" && eval2 < moves1[i].eval))
 				moves1[i].eval = eval2;
@@ -884,7 +896,7 @@ class ChessRules
 		}
 		else
 			return currentBest;
-		//console.log(moves1.map(m => { return [this.getNotation(m)[0], m.eval]; }));
+		//console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
 		candidates = [0];
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -900,8 +912,11 @@ class ChessRules
 		{
 			switch (this.checkGameEnd())
 			{
-				case "1/2": return 0;
-				default: return color=="w" ? -maxeval : maxeval;
+				case "1/2":
+					return 0;
+				default:
+					const score = this.checkGameEnd();
+					return (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 			}
 		}
 		if (depth == 0)
