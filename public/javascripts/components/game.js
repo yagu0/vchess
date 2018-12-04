@@ -736,6 +736,19 @@ Vue.component('my-game', {
 		},
 		mousedown: function(e) {
 			e = e || window.event;
+			let ingame = false;
+			let elem = e.target;
+			while (!ingame && elem !== null)
+			{
+				if (elem.classList.contains("game"))
+				{
+					ingame = true;
+					break;
+				}
+				elem = elem.parentElement;
+			}
+			if (!ingame) //let default behavior (click on button...)
+				return;
 			e.preventDefault(); //disable native drag & drop
 			if (!this.selectedPiece && e.target.classList.contains("piece"))
 			{
