@@ -452,9 +452,9 @@ Vue.component('my-game', {
 					mousedown: this.mousedown,
 					mousemove: this.mousemove,
 					mouseup: this.mouseup,
-//					touchstart: this.mousedown, //TODO...
-//					touchmove: this.mousemove,
-//					touchend: this.mouseup,
+					touchstart: this.mousedown,
+					touchmove: this.mousemove,
+					touchend: this.mouseup,
 				},
 			},
 			elementArray
@@ -794,8 +794,11 @@ Vue.component('my-game', {
 			// If there is an active element, move it around
 			if (!!this.selectedPiece)
 			{
-				this.selectedPiece.style.left = (e.clientX-this.start.x) + "px";
-				this.selectedPiece.style.top = (e.clientY-this.start.y) + "px";
+				const [offsetX,offsetY] = !!e.clientX
+					? [e.clientX,e.clientY] //desktop browser
+					: [e.changedTouches[0].pageX, e.changedTouches[0].pageY]; //smartphone
+				this.selectedPiece.style.left = (offsetX-this.start.x) + "px";
+				this.selectedPiece.style.top = (offsetY-this.start.y) + "px";
 			}
 		},
 		mouseup: function(e) {
@@ -804,7 +807,10 @@ Vue.component('my-game', {
 			e = e || window.event;
 			// Read drop target (or parentElement, parentNode... if type == "img")
 			this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coordinates
-			let landing = document.elementFromPoint(e.clientX, e.clientY);
+			const [offsetX,offsetY] = !!e.clientX
+				? [e.clientX,e.clientY]
+				: [e.changedTouches[0].pageX, e.changedTouches[0].pageY];
+			let landing = document.elementFromPoint(offsetX, offsetY);
 			this.selectedPiece.style.zIndex = 3000;
 			while (landing.tagName == "IMG") //classList.contains(piece) fails because of mark/highlight
 				landing = landing.parentNode;
