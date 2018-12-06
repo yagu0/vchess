@@ -81,8 +81,8 @@ class AntikingRules extends ChessRules
 	isAttackedByAntiking([x,y], colors)
 	{
 		const V = VariantRules;
-		if (this.getPiece(x,y) == V.KING)
-			return false; //king is not attacked by antiking
+		if ([V.KING,V.ANTIKING].includes(this.getPiece(x,y)))
+			return false; //(anti)king is not attacked by antiking
 		return this.isAttackedBySlideNJump([x,y], colors, V.ANTIKING,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
