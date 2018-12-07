@@ -174,6 +174,16 @@ class MagneticRules extends ChessRules
 			this.kingPos[oppCol] = [-1,-1];
 			this.castleFlags[oppCol] = [false,false];
 		}
+		// Did we move our (init) rooks or opponents' ones ?
+		const firstRank = (c == "w" ? 7 : 0);
+		const oppFirstRank = 7 - firstRank;
+		const oppCol = this.getOppCol(c);
+		move.vanish.forEach(psq => {
+			if (psq.x == firstRank && this.INIT_COL_ROOK[c].includes(psq.y))
+				this.castleFlags[c][psq.y==this.INIT_COL_ROOK[c][0] ? 0 : 1] = false;
+			else if (psq.x == oppFirstRank && this.INIT_COL_ROOK[oppCol].includes(psq.y))
+				this.castleFlags[oppCol][psq.y==this.INIT_COL_ROOK[oppCol][0] ? 0 : 1] = false;
+		});
 	}
 
 	unupdateVariables(move)
