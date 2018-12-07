@@ -157,15 +157,56 @@ class AntikingRules extends ChessRules
 
 	static GenRandInitFen()
 	{
-		let randFen = ChessRules.GenRandInitFen();
-		// Black side
-		let antikingPos = _.random(7);
-		let ranks23 = "pppppppp/" + (antikingPos>0?antikingPos:"") + "A" + (antikingPos<7?7-antikingPos:"");
-		randFen = randFen.replace("pppppppp/8", ranks23);
-		// White side
-		antikingPos = _.random(7);
-		ranks23 = (antikingPos>0?antikingPos:"") + "a" + (antikingPos<7?7-antikingPos:"") + "/PPPPPPPP";
-		randFen = randFen.replace("8/PPPPPPPP", ranks23);
-		return randFen;
+		let pieces = { "w": new Array(8), "b": new Array(8) };
+		let antikingPos = { "w": -1, "b": -1 };
+		for (let c of ["w","b"])
+		{
+			let positions = _.range(8);
+
+			// Get random squares for bishops, but avoid corners; because,
+			// if an antiking blocks a cornered bishop, it can never be checkmated
+			let randIndex = 2 * _.random(1,3);
+			const bishop1Pos = positions[randIndex];
+			let randIndex_tmp = 2 * _.random(2) + 1;
+			const bishop2Pos = positions[randIndex_tmp];
+			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
+			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
+
+			randIndex = _.random(5);
+			const knight1Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+			randIndex = _.random(4);
+			const knight2Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			randIndex = _.random(3);
+			const queenPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			const rook1Pos = positions[0];
+			const kingPos = positions[1];
+			const rook2Pos = positions[2];
+
+			// Random squares for antikings
+			antikingPos[c] = _.random(7);
+
+			pieces[c][rook1Pos] = 'r';
+			pieces[c][knight1Pos] = 'n';
+			pieces[c][bishop1Pos] = 'b';
+			pieces[c][queenPos] = 'q';
+			pieces[c][kingPos] = 'k';
+			pieces[c][bishop2Pos] = 'b';
+			pieces[c][knight2Pos] = 'n';
+			pieces[c][rook2Pos] = 'r';
+		}
+		const ranks23_black = "pppppppp/" + (antikingPos["w"]>0?antikingPos["w"]:"")
+			+ "A" + (antikingPos["w"]<7?7-antikingPos["w"]:"");
+		const ranks23_white = (antikingPos["b"]>0?antikingPos["b"]:"") + "a"
+			+ (antikingPos["b"]<7?7-antikingPos["b"]:"") + "/PPPPPPPP";
+		let fen = pieces["b"].join("") + "/" + ranks23_black +
+			"/8/8/" +
+			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
+			" 1111"; //add flags
+		return fen;
 	}
 }
