@@ -1153,7 +1153,7 @@ class ChessRules
 				pgn += ((i/2)+1) + ".";
 			pgn += this.moves[i].notation[0] + " ";
 		}
-		pgn += score + "<br><br>";
+		pgn += "<br><br>";
 
 		// "Complete moves" PGN (helping in ambiguous cases)
 		for (let i=0; i<this.moves.length; i++)
@@ -1162,7 +1162,6 @@ class ChessRules
 				pgn += ((i/2)+1) + ".";
 			pgn += this.moves[i].notation[1] + " ";
 		}
-		pgn += score;
 
 		return pgn;
 	}
