@@ -249,20 +249,12 @@ Vue.component('my-game', {
 							style: { "margin-left": "30px" },
 							on: { click: e => this.undo() },
 							attrs: { "aria-label": 'Undo' },
-							'class': {
-								"tooltip":true,
-								"bottom": true,
-							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
 					h('button',
 						{
 							on: { click: e => this.play() },
 							attrs: { "aria-label": 'Play' },
-							'class': {
-								"tooltip":true,
-								"bottom": true,
-							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
 					]
@@ -349,7 +341,7 @@ Vue.component('my-game', {
 					}),
 				h('div',
 					{
-						attrs: { "role": "dialog", "aria-labelledby": "dialog-title" },
+						attrs: { "role": "dialog", "aria-labelledby": "modal-eog" },
 					},
 					[
 						h('div',
@@ -384,7 +376,7 @@ Vue.component('my-game', {
 				}),
 			h('div',
 				{
-					attrs: { "role": "dialog", "aria-labelledby": "dialog-title" },
+					attrs: { "role": "dialog", "aria-labelledby": "modal-newgame" },
 				},
 				[
 					h('div',
@@ -516,7 +508,6 @@ Vue.component('my-game', {
 			else if (localStorage.getItem("newgame") === variant)
 			{
 				// New game request has been cancelled on disconnect
-				this.seek = true;
 				this.newGame("human", undefined, undefined, undefined, undefined, "reconnect");
 			}
 		};
@@ -643,21 +634,6 @@ Vue.component('my-game', {
 			}
 			return eogMessage;
 		},
-		toggleExpertMode: function() {
-			this.expert = !this.expert;
-			document.cookie = "expert=" + (this.expert ? "1" : "0");
-		},
-		resign: function() {
-			if (this.mode == "human" && this.oppConnected)
-			{
-				try {
-					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
-				} catch (INVALID_STATE_ERR) {
-					return; //socket is not ready (and not yet reconnected)
-				}
-			}
-			this.endGame(this.mycolor=="w"?"0-1":"1-0");
-		},
 		setStorage: function() {
 			localStorage.setItem("myid", this.myid);
 			localStorage.setItem("variant", variant);
@@ -680,7 +656,13 @@ Vue.component('my-game', {
 			delete localStorage["fen"];
 			delete localStorage["moves"];
 		},
-		clickGameSeek: function() {
+		// HACK because mini-css tooltips are persistent after click...
+		getRidOfTooltip: function(elt) {
+			elt.style.visibility = "hidden";
+			setTimeout(() => { elt.style.visibility="visible"; }, 100);
+		},
+		clickGameSeek: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human")
 				return; //no newgame while playing
 			if (this.seek)
@@ -691,15 +673,31 @@ Vue.component('my-game', {
 			else
 				this.newGame("human");
 		},
-		clickComputerGame: function() {
+		clickComputerGame: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human")
 				return; //no newgame while playing
 			this.newGame("computer");
 		},
+		toggleExpertMode: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			this.expert = !this.expert;
+			document.cookie = "expert=" + (this.expert ? "1" : "0");
+		},
+		resign: function() {
+			if (this.mode == "human" && this.oppConnected)
+			{
+				try {
+					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+				} catch (INVALID_STATE_ERR) {
+					return; //socket is not ready (and not yet reconnected)
+				}
+			}
+			this.endGame(this.mycolor=="w"?"0-1":"1-0");
+		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
-			this.score = "*";
 			if (mode=="human" && !oppId)
 			{
 				const storageVariant = localStorage.getItem("variant");
@@ -728,6 +726,7 @@ Vue.component('my-game', {
 			// random enough (TODO: function)
 			this.gameId = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
 			this.vr = new VariantRules(fen, moves || []);
+			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
 			this.incheck = []; //in case of
