@@ -821,7 +821,9 @@ class ChessRules
 		this.shouldReturn = false;
 		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
-		let moves1 = this.getAllValidMoves();
+		// Some variants may show a bigger moves list to the human (Switching),
+		// thus the argument "computer" below (which is generally ignored)
+		let moves1 = this.getAllValidMoves("computer");
 
 		// Can I mate in 1 ? (for Magnetic & Extinction)
 		for (let i of _.shuffle(_.range(moves1.length)))
@@ -843,7 +845,7 @@ class ChessRules
 			{
 				eval2 = (color=="w" ? 1 : -1) * maxeval; //initialized with checkmate value
 				// Second half-move:
-				let moves2 = this.getAllValidMoves();
+				let moves2 = this.getAllValidMoves("computer");
 				for (let j=0; j<moves2.length; j++)
 				{
 					this.play(moves2[j]);
@@ -921,7 +923,7 @@ class ChessRules
 		}
 		if (depth == 0)
       return this.evalPosition();
-		const moves = this.getAllValidMoves();
+		const moves = this.getAllValidMoves("computer");
     let v = color=="w" ? -maxeval : maxeval;
 		if (color == "w")
 		{
@@ -1082,14 +1084,8 @@ class ChessRules
 	// Context: just before move is played, turn hasn't changed
 	getNotation(move)
 	{
-		if (move.appear.length == 2 && move.appear[0].p == VariantRules.KING)
-		{
-			// Castle
-			if (move.end.y < move.start.y)
-				return "0-0-0";
-			else
-				return "0-0";
-		}
+		if (move.appear.length == 2 && move.appear[0].p == VariantRules.KING) //castle
+			return (move.end.y < move.start.y ? "0-0-0" : "0-0");
 
 		// Translate final square
 		const finalSquare =

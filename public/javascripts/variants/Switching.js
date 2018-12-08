@@ -51,10 +51,10 @@ class SwitchingRules extends ChessRules
 		return moves;
 	}
 
-	getPotentialMovesFrom([x,y])
+	getPotentialMovesFrom([x,y], computer)
 	{
 		let moves = super.getPotentialMovesFrom([x,y]);
-		// Add switches:
+		// Add switches: respecting chessboard ordering if "computer" is on
 		const V = VariantRules;
 		const color = this.turn;
 		const piece = this.getPiece(x,y);
@@ -65,6 +65,8 @@ class SwitchingRules extends ChessRules
 		for (let step of steps)
 		{
 			let [i,j] = [x+step[0],y+step[1]];
+			if (!!computer && (i<x || (i==x && j<y)))
+				continue; //only switch with superior indices
 			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]!=V.EMPTY
 				&& this.getColor(i,j)==color && this.getPiece(i,j)!=piece
 				// No switching under check (theoretically non-king pieces could, but not)
@@ -78,6 +80,26 @@ class SwitchingRules extends ChessRules
 			}
 		}
 		return moves;
+	}
+
+	getAllValidMoves(computer)
+	{
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		let potentialMoves = [];
+		const [sizeX,sizeY] = VariantRules.size;
+		for (let i=0; i<sizeX; i++)
+		{
+			for (let j=0; j<sizeY; j++)
+			{
+				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == color)
+				{
+					Array.prototype.push.apply(potentialMoves,
+						this.getPotentialMovesFrom([i,j], computer));
+				}
+			}
+		}
+		return this.filterValid(potentialMoves);
 	}
 
 	updateVariables(move)
@@ -103,5 +125,20 @@ class SwitchingRules extends ChessRules
 		}
 	}
 
-	static get SEARCH_DEPTH() { return 2; } //branching factor is quite high
+	static get SEARCH_DEPTH() { return 2; } //high branching factor
+
+	getNotation(move)
+	{
+		if (move.appear.length == 1)
+			return super.getNotation(move); //no switch
+		// Switch or castle
+		if (move.appear[0].p == VariantRules.KING && move.appear[1].p == VariantRules.ROOK)
+			return (move.end.y < move.start.y ? "0-0-0" : "0-0");
+		// Switch:
+		const startSquare =
+			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+		const finalSquare =
+			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+		return "S" + startSquare + finalSquare;
+	}
 }
