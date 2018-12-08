@@ -9,7 +9,7 @@ class LoserRules extends ChessRules
 	setFlags(fen)
 	{
 		// No castling, hence no flags; but flags defined for compatibility
-		this.castleFlags = "0000";
+		this.castleFlags = { "w":[false,false], "b":[false,false] };
 	}
 
 	getPotentialPawnMoves([x,y])
@@ -109,6 +109,11 @@ class LoserRules extends ChessRules
 	updateVariables(move) { }
 	unupdateVariables(move) { }
 	parseFlags(flags) { }
+
+	getFlagsFen()
+	{
+		return "";
+	}
 
 	checkGameEnd()
 	{

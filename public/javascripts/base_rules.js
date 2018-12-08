@@ -1076,7 +1076,7 @@ class ChessRules
 		for (let i of ['w','b'])
 		{
 			for (let j=0; j<2; j++)
-				fen += this.castleFlags[i][j] ? '1' : '0';
+				fen += (this.castleFlags[i][j] ? '1' : '0');
 		}
 		return fen;
 	}
