@@ -202,17 +202,18 @@ Vue.component('my-game', {
 								);
 							}
 							const lm = this.vr.lastMove;
-							const highlight = !!lm && _.isMatch(lm.end, {x:ci,y:cj});
+							const showLight = !this.expert &&
+								(this.mode!="idle" || this.cursor==this.vr.moves.length);
 							return h(
 								'div',
 								{
 									'class': {
 										'board': true,
 										['board'+sizeY]: true,
-										'light-square': (i+j)%2==0 && (this.expert || !highlight),
-										'dark-square': (i+j)%2==1 && (this.expert || !highlight),
-										'highlight': !this.expert && highlight,
-										'incheck': !this.expert && incheckSq[ci][cj],
+										'light-square': (i+j)%2==0,
+										'dark-square': (i+j)%2==1,
+										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
+										'incheck': showLight && incheckSq[ci][cj],
 									},
 									attrs: {
 										id: this.getSquareId({x:ci,y:cj}),
@@ -919,15 +920,20 @@ Vue.component('my-game', {
 				this.animateMove(move);
 				return;
 			}
-			this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
 			if (this.mode != "idle")
+			{
+				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
+			}
 			else
+			{
 				VariantRules.PlayOnBoard(this.vr.board, move);
+				this.$forceUpdate(); //TODO: ?!
+			}
 			if (this.mode == "human")
 				this.updateStorage(); //after our moves and opponent moves
 			if (this.mode != "idle")
@@ -943,6 +949,8 @@ Vue.component('my-game', {
 			// Navigate after game is over
 			if (this.cursor == 0)
 				return; //already at the beginning
+			if (this.cursor == this.vr.moves.length)
+				this.incheck = []; //in case of...
 			const move = this.vr.moves[--this.cursor];
 			VariantRules.UndoOnBoard(this.vr.board, move);
 			this.$forceUpdate(); //TODO: ?!
