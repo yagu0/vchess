@@ -15,6 +15,9 @@ pids
 *.swp
 *~
 
+# Demo video
+*.webm
+
 # socket URL file
 /public/javascripts/utils/socket_url.js
 

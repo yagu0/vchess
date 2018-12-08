@@ -2,6 +2,5 @@
 *.zip filter=fat
 *.tar.xz filter=fat
 *.wav filter=fat
-*.webm filter=fat
 *.mp3 filter=fat
 *.png filter=fat
