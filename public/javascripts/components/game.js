@@ -239,6 +239,34 @@ Vue.component('my-game', {
 						[h('i', { 'class': { "material-icons": true } }, "flag")])
 				);
 			}
+			else if (this.vr.moves.length > 0)
+			{
+				// A game finished, and another is not started yet: allow navigation
+				actionArray = actionArray.concat([
+					h('button',
+						{
+							style: { "margin-left": "30px" },
+							on: { click: e => this.undo() },
+							attrs: { "aria-label": 'Undo' },
+							'class': {
+								"tooltip":true,
+								"bottom": true,
+							},
+						},
+						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
+					h('button',
+						{
+							on: { click: e => this.play() },
+							attrs: { "aria-label": 'Play' },
+							'class': {
+								"tooltip":true,
+								"bottom": true,
+							},
+						},
+						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
+					]
+				);
+			}
 			elementArray.push(gameDiv);
 			if (!!this.vr.reserve)
 			{
@@ -562,6 +590,18 @@ Vue.component('my-game', {
 		this.conn.onopen = socketOpenListener;
 		this.conn.onmessage = socketMessageListener;
 		this.conn.onclose = socketCloseListener;
+		// Listen to keyboard left/right to navigate in game
+		document.onkeydown = event => {
+			if (this.mode == "idle" && this.vr.moves.length > 0
+				&& [37,39].includes(event.keyCode))
+			{
+				event.preventDefault();
+				if (event.keyCode == 37) //Back
+					this.undo();
+				else //Forward (39)
+					this.play();
+			}
+		};
 	},
 	methods: {
 		download: function() {
@@ -583,6 +623,7 @@ Vue.component('my-game', {
 			if (this.mode == "human")
 				this.clearStorage();
 			this.mode = "idle";
+			this.cursor = this.vr.moves.length; //to navigate in finished game
 			this.oppid = "";
 		},
 		getEndgameMessage: function(score) {
@@ -866,6 +907,13 @@ Vue.component('my-game', {
 			}, 200);
 		},
 		play: function(move, programmatic) {
+			if (!move)
+			{
+				// Navigate after game is over
+				if (this.cursor >= this.vr.moves.length)
+					return; //already at the end
+				move = this.vr.moves[this.cursor++];
+			}
 			if (!!programmatic) //computer or human opponent
 			{
 				this.animateMove(move);
@@ -876,14 +924,28 @@ Vue.component('my-game', {
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
-			this.vr.play(move, "ingame");
+			if (this.mode != "idle")
+				this.vr.play(move, "ingame");
+			else
+				VariantRules.PlayOnBoard(this.vr.board, move);
 			if (this.mode == "human")
 				this.updateStorage(); //after our moves and opponent moves
-			const eog = this.vr.checkGameOver();
-			if (eog != "*")
-				this.endGame(eog);
-			else if (this.mode == "computer" && this.vr.turn != this.mycolor)
+			if (this.mode != "idle")
+			{
+				const eog = this.vr.checkGameOver();
+				if (eog != "*")
+					this.endGame(eog);
+			}
+			if (this.mode == "computer" && this.vr.turn != this.mycolor)
 				setTimeout(this.playComputerMove, 500);
 		},
+		undo: function() {
+			// Navigate after game is over
+			if (this.cursor == 0)
+				return; //already at the beginning
+			const move = this.vr.moves[--this.cursor];
+			VariantRules.UndoOnBoard(this.vr.board, move);
+			this.$forceUpdate(); //TODO: ?!
+		}
 	},
 })
