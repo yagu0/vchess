@@ -16,7 +16,7 @@ Vue.component('my-game', {
 			fenStart: "",
 			incheck: [],
 			pgnTxt: "",
-			expert: document.cookie.length>0 ? document.cookie.substr(-1)=="1" : false,
+			expert: getCookie("expert") === "1" ? true : false,
 			gameId: "", //used to limit computer moves' time
 		};
 	},
@@ -484,10 +484,7 @@ Vue.component('my-game', {
 	created: function() {
 		const url = socketUrl;
 		const continuation = (localStorage.getItem("variant") === variant);
-		this.myid = continuation
-			? localStorage.getItem("myid")
-			// random enough (TODO: function)
-			: (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
+		this.myid = continuation ? localStorage.getItem("myid") : getRandString();
 		if (!continuation)
 		{
 			// HACK: play a small silent sound to allow "new game" sound later if tab not focused
@@ -683,7 +680,7 @@ Vue.component('my-game', {
 		toggleExpertMode: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
 			this.expert = !this.expert;
-			document.cookie = "expert=" + (this.expert ? "1" : "0");
+			setCookie("expert", this.expert ? "1" : "0");
 		},
 		resign: function() {
 			if (this.mode == "human" && this.oppConnected)
@@ -724,8 +721,7 @@ Vue.component('my-game', {
 				}
 				return;
 			}
-			// random enough (TODO: function)
-			this.gameId = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
+			this.gameId = getRandString();
 			this.vr = new VariantRules(fen, moves || []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner

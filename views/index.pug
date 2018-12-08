@@ -7,12 +7,14 @@ block content
 	.container#indexPage
 		.row
 			.col-sm-12
-				h1.text-center Welcome to v[ariant] chess club !
-				h2.help.text-center(onClick="document.getElementById('modal-control').checked=true") Help ?
-				input#modal-control.modal(type="checkbox")
+				h1.text-center(style="font-style:italic") Welcome to v[ariant] chess club !
+				h2.text-center
+					span.help(onClick="document.getElementById('modal-help').checked=true") Help ? 
+					a(href="/demo.webm") Demo !
+				input#modal-help.modal(type="checkbox")
 				div(role="dialog")
 					.card
-						label.modal-close(for="modal-control")
+						label.modal-close(for="modal-help")
 						h3.blue.section Modes
 						p.section.
 							Each variant page offers two modes: against a human or computer opponent,
@@ -30,6 +32,44 @@ block content
 							3. send an email to
 							#[a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report") contact@vchess.club]
 							with relevant comments and the PGN attached. Thank you!
+				input#modal-welcome.modal(type="checkbox")
+				div(role="dialog")
+					#welcome.card.text-center
+						label.modal-close(for="modal-welcome")
+						h3.blue.section Welcome to vchess.club!
+						.section
+							p A fun place to play chess variants in real time!
+							p But wait... what is a chess variant?
+							img(src="/images/Hexagonal_chess.svg")
+							p.
+								As suggested by the picture, a variant setup generally
+								looks more or less like a chessboard with regular pieces
+								(otherwise it's no longer a variant but a whole new game!).
+							p(style="font-style:italic;color:purple") However...
+							p Each variant has its own new rules, which can involve
+							ul
+								li * different pieces movements
+								li * different chessboard(s)&nbsp;&nbsp;&nbsp;
+								li * new pieces&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								li * moves side effects&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								li ...and so on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						.section
+							p.
+								Example: imagine that a capture is an atomic explosion, wiping all adjacent squares
+								&ndash; except the pawns, which as cockroaches can resist this kind of event.
+							p Also state a goal: make the opponent's king explode.
+							p &rarr; Congrats, you defined Atomic chess! (Playable here)
+						.section
+							p(style="font-style:italic;color:purple") OK, this all sounds interesting, but why would that be fun?
+							p.
+								Because all games here start with a random setup: no more boring
+								openings memorization, you have to rely on your chess skills only :)
+							p Moreover, I claim that the chosen variants here are fun to play :P
+							p.
+								For informations about hundreds (if not thousands!) of variants, you
+								can visit the excellent #[a(href="https://www.chessvariants.com/") chessvariants] website.
+						p(style="cursor:pointer;color:darkgrey" onClick="setCookie('visited','1');document.getElementById('modal-welcome').checked=false") Do not annoy me again!
+						p(style="font-size:0.8em") Image credit: #[a(href="https://en.wikipedia.org/wiki/List_of_chess_variants#/media/File:Hexagonal_chess.svg") Wikpedia]
 		.row
 			my-variant-summary(
 				v-for="(v,idx) in sortedCounts",
@@ -41,6 +81,7 @@ block javascripts
 	script.
 		const variantArray = !{JSON.stringify(variantArray)};
 		//JSON.parse("!{variantArray}".replace(/\&quot;/g,'"'));
+	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/utils/socket_url.js")
 	script(src="/javascripts/components/variantSummary.js")
 	script(src="/javascripts/index.js")

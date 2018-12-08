@@ -24,8 +24,7 @@ new Vue({
 	},
 	created: function() {
 		const url = socketUrl;
-		// random enough (TODO: function)
-		const sid = (Date.now().toString(36) + Math.random().toString(36).substr(2, 7)).toUpperCase();
+		const sid = getRandString();
 		this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
@@ -70,5 +69,9 @@ new Vue({
 			}
 			// ...ignore everything else
 		};
+		// Show welcome dialog box if "first visit"
+		const visited = getCookie("visited");
+		if (!visited || visited !== "1")
+			document.getElementById("modal-welcome").checked = true;
 	},
 });
