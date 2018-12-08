@@ -667,6 +667,7 @@ Vue.component('my-game', {
 				return; //no newgame while playing
 			if (this.seek)
 			{
+				this.conn.send(JSON.stringify({code:"cancelnewgame"}));
 				delete localStorage["newgame"]; //cancel game seek
 				this.seek = false;
 			}

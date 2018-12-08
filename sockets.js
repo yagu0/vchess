@@ -88,6 +88,9 @@ module.exports = function(wss) {
 						else
 							games[page] = {id:sid, fen:obj.fen}; //wait for opponent
 						break;
+					case "cancelnewgame": //if a user cancel his seek
+						delete games[page];
+						break;
 					case "resign":
 						if (!!clients[page][obj.oppid])
 							clients[page][obj.oppid].send(JSON.stringify({code:"resign"}), noop);
