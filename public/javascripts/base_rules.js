@@ -10,6 +10,7 @@ class PiPo //Piece+Position
 	}
 }
 
+// TODO: for animation, moves should contains "moving" and "fading" maybe...
 class Move
 {
 	// o: {appear, vanish, [start,] [end,]}

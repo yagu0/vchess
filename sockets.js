@@ -8,6 +8,19 @@ module.exports = function(wss) {
 	for (const v of Variants)
 		clients[v.name] = {};
 
+//	// Safety counter (TODO: is it necessary ?)
+//	setInterval(() => {
+//		Object.keys(clients).forEach(k => {
+//			Object.keys(clients[k]).forEach(ck => {
+//				if (!clients[k][ck] || clients[k][ck].readyState != 1)
+//					delete clients[k][ck];
+//			});
+//		});
+//	}, 60000); //every minute (will be lowered if a lot of users...)
+
+	// No-op function as a callback when sending messages
+	const noop = () => { };
+
 	wss.on("connection", (socket, req) => {
 		const params = new URL("http://localhost" + req.url).searchParams;
 		const sid = params.get("sid");
@@ -25,11 +38,11 @@ module.exports = function(wss) {
 		{
 			// Send to every client connected on index an update message for counts
 			Object.keys(clients["index"]).forEach( k => {
-				clients["index"][k].send(JSON.stringify({code:"increase",vname:page}));
+				clients["index"][k].send(JSON.stringify({code:"increase",vname:page}), noop);
 			});
 			// Also notify potential opponents: hit all clients which check if sid corresponds
 			Object.keys(clients[page]).forEach( k => {
-				clients[page][k].send(JSON.stringify({code:"connect",id:sid}));
+				clients[page][k].send(JSON.stringify({code:"connect",id:sid}), noop);
 			});
 			socket.on("message", objtxt => {
 				let obj = JSON.parse(objtxt);
@@ -37,7 +50,10 @@ module.exports = function(wss) {
 				{
 					case "newmove":
 						if (!!clients[page][obj.oppid])
-							clients[page][obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+						{
+							clients[page][obj.oppid].send(
+								JSON.stringify({code:"newmove",move:obj.move}), noop);
+						}
 						break;
 					case "ping":
 						if (!!clients[page][obj.oppid])
@@ -48,7 +64,7 @@ module.exports = function(wss) {
 						{
 							const oppId = obj.oppid;
 							obj.oppid = sid; //I'm oppid for my opponent
-							clients[page][oppId].send(JSON.stringify(obj));
+							clients[page][oppId].send(JSON.stringify(obj), noop);
 						}
 						break;
 					case "newgame":
@@ -59,16 +75,22 @@ module.exports = function(wss) {
 							const fen = games[page]["fen"];
 							delete games[page];
 							const mycolor = Math.random() < 0.5 ? 'w' : 'b';
-							socket.send(JSON.stringify({code:"newgame",fen:fen,oppid:oppId,color:mycolor}));
+							socket.send(
+								JSON.stringify({code:"newgame",fen:fen,oppid:oppId,color:mycolor}));
 							if (!!clients[page][oppId])
-								clients[page][oppId].send(JSON.stringify({code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w"}));
+							{
+								clients[page][oppId].send(
+									JSON.stringify(
+										{code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w"}),
+									noop);
+							}
 						}
 						else
 							games[page] = {id:sid, fen:obj.fen}; //wait for opponent
 						break;
 					case "resign":
 						if (!!clients[page][obj.oppid])
-							clients[page][obj.oppid].send(JSON.stringify({code:"resign"}));
+							clients[page][obj.oppid].send(JSON.stringify({code:"resign"}), noop);
 						break;
 				}
 			});
@@ -82,12 +104,12 @@ module.exports = function(wss) {
 			{
 				// Send to every client connected on index an update message for counts
 				Object.keys(clients["index"]).forEach( k => {
-					clients["index"][k].send(JSON.stringify({code:"decrease",vname:page}));
+					clients["index"][k].send(JSON.stringify({code:"decrease",vname:page}), noop);
 				});
 			}
 			// Also notify potential opponents: hit all clients which check if sid corresponds
 			Object.keys(clients[page]).forEach( k => {
-				clients[page][k].send(JSON.stringify({code:"disconnect",id:sid}));
+				clients[page][k].send(JSON.stringify({code:"disconnect",id:sid}), noop);
 			});
 		});
 	});

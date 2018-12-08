@@ -1,4 +1,0 @@
-For animation, moves should contains "moving" and "fading" maybe...
-(But it's really just for Magnetic chess)
-setInterval "CRON" task in sockets.js to check connected clients
-(every 1hour maybe, or more)

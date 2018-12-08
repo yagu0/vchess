@@ -262,9 +262,11 @@ class CheckeredRules extends ChessRules
 				notation = startColumn + "x" + finalSquare + "=" + move.appear[0].p.toUpperCase();
 			}
 			else //no capture
+			{
 				notation = finalSquare;
-			if (move.appear.length > 0 && piece != move.appear[0].p) //promotion
-				notation += "=" + move.appear[0].p.toUpperCase();
+				if (move.appear.length > 0 && piece != move.appear[0].p) //promotion
+					notation += "=" + move.appear[0].p.toUpperCase();
+			}
 			return notation;
 		}
 
