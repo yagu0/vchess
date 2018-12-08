@@ -6,7 +6,7 @@ const Variants = require("../variants");
 // Home
 router.get('/', function(req, res, next) {
   res.render('index', {
-		title: 'Express',
+		title: 'club',
 		variantArray: Variants, //JSON.stringify(Variants)
 	});
 });
