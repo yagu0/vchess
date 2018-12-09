@@ -30,23 +30,20 @@ Vue.component('my-game', {
 		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 		let elementArray = [];
 		let actionArray = [];
-		if (["idle","human"].includes(this.mode))
-		{
-			actionArray.push(
-				h('button',
-				{
-					on: { click: this.clickGameSeek },
-					attrs: { "aria-label": 'New online game' },
-					'class': {
-						"tooltip": true,
-						"bottom": true, //display below
-						"seek": this.seek,
-						"playing": this.mode == "human",
-					},
+		actionArray.push(
+			h('button',
+			{
+				on: { click: this.clickGameSeek },
+				attrs: { "aria-label": 'New online game' },
+				'class': {
+					"tooltip": true,
+					"bottom": true, //display below
+					"seek": this.seek,
+					"playing": this.mode == "human",
 				},
-				[h('i', { 'class': { "material-icons": true } }, "accessibility")])
-			);
-		}
+			},
+			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
+		);
 		if (["idle","computer"].includes(this.mode))
 		{
 			actionArray.push(
