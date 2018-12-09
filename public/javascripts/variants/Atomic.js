@@ -60,9 +60,7 @@ class AtomicRules extends ChessRules
 	{
 		super.updateVariables(move);
 		const color = this.getColor(move.start.x,move.start.y);
-		// Next condition to avoid conflicts with harmless castle moves
-		if (color != this.getColor(move.end.x,move.end.y)
-			&& this.board[move.end.x][move.end.y] != VariantRules.EMPTY)
+		if (move.appear.length == 0) //capture
 		{
 			const firstRank = {"w": 7, "b": 0};
 			for (let c of ["w","b"])
