@@ -9,7 +9,7 @@ Vue.component('my-game', {
 			selectedPiece: null, //moving piece (or clicked piece)
 			conn: null, //socket messages
 			score: "*", //'*' means 'unfinished'
-			mode: "idle", //human, computer or idle (when not playing)
+			mode: "idle", //human, friend, computer or idle (when not playing)
 			oppid: "", //opponent ID in case of HH game
 			oppConnected: false,
 			seek: false,
@@ -29,33 +29,56 @@ Vue.component('my-game', {
 		let incheckSq = doubleArray(sizeX, sizeY, false);
 		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 		let elementArray = [];
-		const playingHuman = (this.mode == "human");
-		const playingComp = (this.mode == "computer");
-		let actionArray = [
-			h('button',
+		let actionArray = [];
+		if (["idle","human"].includes(this.mode))
+		{
+			actionArray.push(
+				h('button',
 				{
 					on: { click: this.clickGameSeek },
-					attrs: { "aria-label": 'New game VS human' },
+					attrs: { "aria-label": 'New online game' },
 					'class': {
 						"tooltip": true,
 						"bottom": true, //display below
 						"seek": this.seek,
-						"playing": playingHuman,
+						"playing": this.mode == "human",
 					},
 				},
-				[h('i', { 'class': { "material-icons": true } }, "accessibility")]),
-			h('button',
+				[h('i', { 'class': { "material-icons": true } }, "accessibility")])
+			);
+		}
+		if (["idle","computer"].includes(this.mode))
+		{
+			actionArray.push(
+				h('button',
 				{
 					on: { click: this.clickComputerGame },
 					attrs: { "aria-label": 'New game VS computer' },
 					'class': {
 						"tooltip":true,
 						"bottom": true,
-						"playing": playingComp,
+						"playing": this.mode == "computer",
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
-		];
+			);
+		}
+		if (["idle","friend"].includes(this.mode))
+		{
+			actionArray.push(
+				h('button',
+				{
+					on: { click: this.clickFriendGame },
+					attrs: { "aria-label": 'New IRL game' },
+					'class': {
+						"tooltip":true,
+						"bottom": true,
+						"playing": this.mode == "friend",
+					},
+				},
+				[h('i', { 'class': { "material-icons": true } }, "people")])
+			);
+		}
 		if (!!this.vr)
 		{
 			const square00 = document.getElementById("sq-0-0");
@@ -111,7 +134,7 @@ Vue.component('my-game', {
 						"expert-mode": this.expert,
 					},
 				},
-				[h('i', { 'class': { "material-icons": true } }, "remove_red_eye")]
+				[h('i', { 'class': { "material-icons": true } }, "visibility_off")]
 			);
 			elementArray.push(expertSwitch);
 			let choices = h('div',
@@ -259,6 +282,27 @@ Vue.component('my-game', {
 						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
 					]
 				);
+			}
+			if (this.mode == "friend")
+			{
+				actionArray = actionArray.concat(
+				[
+					h('button',
+						{
+							style: { "margin-left": "30px" },
+							on: { click: this.undoInGame },
+							attrs: { "aria-label": 'Undo' },
+						},
+						[h('i', { 'class': { "material-icons": true } }, "undo")]
+					),
+					h('button',
+						{
+							on: { click: () => { this.mycolor = this.vr.getOppCol(this.mycolor) } },
+							attrs: { "aria-label": 'Flip' },
+						},
+						[h('i', { 'class': { "material-icons": true } }, "cached")]
+					),
+				]);
 			}
 			elementArray.push(gameDiv);
 			if (!!this.vr.reserve)
@@ -408,6 +452,72 @@ Vue.component('my-game', {
 			)
 		];
 		elementArray = elementArray.concat(modalNewgame);
+		const modalFenEdit = [
+			h('input',
+				{
+					attrs: { "id": "modal-fenedit", type: "checkbox" },
+					"class": { "modal": true },
+				}),
+			h('div',
+				{
+					attrs: { "role": "dialog", "aria-labelledby": "modal-fenedit" },
+				},
+				[
+					h('div',
+						{
+							"class": { "card": true, "smallpad": true },
+						},
+						[
+							h('label',
+								{
+									attrs: { "id": "close-fenedit", "for": "modal-fenedit" },
+									"class": { "modal-close": true },
+								}
+							),
+							h('h3',
+								{
+									"class": { "section": true },
+									domProps: { innerHTML: "Position + flags (FEN):" },
+								}
+							),
+							h('input',
+								{
+									attrs: {
+										"id": "input-fen",
+										type: "text",
+										value: VariantRules.GenRandInitFen(),
+									},
+								}
+							),
+							h('button',
+								{
+									on: { click:
+										() => {
+											const fen = document.getElementById("input-fen").value;
+											document.getElementById("modal-fenedit").checked = false;
+											this.newGame("friend", fen);
+										}
+									},
+									domProps: { innerHTML: "Ok" },
+								}
+							),
+							h('button',
+								{
+									on: { click:
+										() => {
+											document.getElementById("input-fen").value =
+												VariantRules.GenRandInitFen();
+										}
+									},
+									domProps: { innerHTML: "Random" },
+								}
+							),
+						]
+					)
+				]
+			)
+		];
+		elementArray = elementArray.concat(modalFenEdit);
 		const actions = h('div',
 			{
 				attrs: { "id": "actions" },
@@ -443,7 +553,7 @@ Vue.component('my-game', {
 		}
 		else if (this.mode != "idle")
 		{
-			// Show current FEN (at least for debug)
+			// Show current FEN
 			elementArray.push(
 				h('div',
 					{ attrs: { id: "fen-div" } },
@@ -451,7 +561,7 @@ Vue.component('my-game', {
 						h('p',
 							{
 								attrs: { id: "fen-string" },
-								domProps: { innerHTML: this.vr.getBaseFen() }
+								domProps: { innerHTML: this.vr.getFen() }
 							}
 						)
 					]
@@ -581,7 +691,7 @@ Vue.component('my-game', {
 		this.conn.onclose = socketCloseListener;
 		// Listen to keyboard left/right to navigate in game
 		document.onkeydown = event => {
-			if (this.mode == "idle" && this.vr.moves.length > 0
+			if (this.mode == "idle" && !!this.vr && this.vr.moves.length > 0
 				&& [37,39].includes(event.keyCode))
 			{
 				event.preventDefault();
@@ -677,12 +787,17 @@ Vue.component('my-game', {
 				return; //no newgame while playing
 			this.newGame("computer");
 		},
+		clickFriendGame: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			document.getElementById("modal-fenedit").checked = true;
+		},
 		toggleExpertMode: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
 			this.expert = !this.expert;
 			setCookie("expert", this.expert ? "1" : "0");
 		},
-		resign: function() {
+		resign: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human" && this.oppConnected)
 			{
 				try {
@@ -727,9 +842,7 @@ Vue.component('my-game', {
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
 			this.incheck = []; //in case of
-			this.fenStart = continuation
-				? localStorage.getItem("fenStart")
-				: fen.split(" ")[0]; //Only the position matters
+			this.fenStart = (continuation ? localStorage.getItem("fenStart") : fen);
 			if (mode=="human")
 			{
 				// Opponent found!
@@ -753,12 +866,13 @@ Vue.component('my-game', {
 				delete localStorage["newgame"];
 				this.setStorage(); //in case of interruptions
 			}
-			else //against computer
+			else if (mode == "computer")
 			{
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
 			}
+			//else: against a (IRL) friend: nothing more to do
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
@@ -818,9 +932,9 @@ Vue.component('my-game', {
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
 				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				this.possibleMoves = this.mode!="idle" && this.vr.canIplay(this.mycolor,startSquare)
-					? this.vr.getPossibleMovesFrom(startSquare)
-					: [];
+				const iCanPlay = this.mode!="idle"
+					&& (this.mode=="friend" || this.vr.canIplay(this.mycolor,startSquare));
+				this.possibleMoves = iCanPlay ? this.vr.getPossibleMovesFrom(startSquare) : [];
 				// Next line add moving piece just after current image (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
 			}
@@ -950,6 +1064,11 @@ Vue.component('my-game', {
 			const move = this.vr.moves[--this.cursor];
 			VariantRules.UndoOnBoard(this.vr.board, move);
 			this.$forceUpdate(); //TODO: ?!
-		}
+		},
+		undoInGame: function() {
+			const lm = this.vr.lastMove;
+			if (!!lm)
+				this.vr.undo(lm);
+		},
 	},
 })
