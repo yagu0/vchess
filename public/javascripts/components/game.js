@@ -22,6 +22,7 @@ Vue.component('my-game', {
 	},
 	render(h) {
 		const [sizeX,sizeY] = VariantRules.size;
+		const smallScreen = (screen.width <= 500);
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
@@ -40,6 +41,7 @@ Vue.component('my-game', {
 					"bottom": true, //display below
 					"seek": this.seek,
 					"playing": this.mode == "human",
+					"small": smallScreen,
 				},
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
@@ -55,6 +57,7 @@ Vue.component('my-game', {
 						"tooltip":true,
 						"bottom": true,
 						"playing": this.mode == "computer",
+						"small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
@@ -71,6 +74,7 @@ Vue.component('my-game', {
 						"tooltip":true,
 						"bottom": true,
 						"playing": this.mode == "friend",
+						"small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "people")])
@@ -129,6 +133,7 @@ Vue.component('my-game', {
 						"indic-right": true,
 						"expert-switch": true,
 						"expert-mode": this.expert,
+						"small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "visibility_off")]
@@ -255,6 +260,7 @@ Vue.component('my-game', {
 							'class': {
 								"tooltip":true,
 								"bottom": true,
+								"small": smallScreen,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "flag")])
@@ -269,12 +275,14 @@ Vue.component('my-game', {
 							style: { "margin-left": "30px" },
 							on: { click: e => this.undo() },
 							attrs: { "aria-label": 'Undo' },
+							"class": { "small": smallScreen },
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
 					h('button',
 						{
 							on: { click: e => this.play() },
 							attrs: { "aria-label": 'Play' },
+							"class": { "small": smallScreen },
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
 					]
@@ -289,6 +297,7 @@ Vue.component('my-game', {
 							style: { "margin-left": "30px" },
 							on: { click: this.undoInGame },
 							attrs: { "aria-label": 'Undo' },
+							"class": { "small": smallScreen },
 						},
 						[h('i', { 'class': { "material-icons": true } }, "undo")]
 					),
@@ -296,6 +305,7 @@ Vue.component('my-game', {
 						{
 							on: { click: () => { this.mycolor = this.vr.getOppCol(this.mycolor) } },
 							attrs: { "aria-label": 'Flip' },
+							"class": { "small": smallScreen },
 						},
 						[h('i', { 'class': { "material-icons": true } }, "cached")]
 					),
