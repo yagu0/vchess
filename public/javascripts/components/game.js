@@ -18,7 +18,6 @@ Vue.component('my-game', {
 			incheck: [],
 			pgnTxt: "",
 			expert: (getCookie("expert") === "1" ? true : false),
-			gameId: "", //used to limit computer moves' time
 		};
 	},
 	render(h) {
@@ -855,7 +854,6 @@ Vue.component('my-game', {
 				}
 				return;
 			}
-			this.gameId = getRandString();
 			this.vr = new VariantRules(fen, moves || []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
@@ -895,17 +893,6 @@ Vue.component('my-game', {
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
-			// We use moves' count to know if search finished:
-			const nbMoves = this.vr.moves.length;
-			const gameId = this.gameId; //to know if game was reset before timer end
-			setTimeout(
-				() => {
-					if (gameId != this.gameId)
-						return; //game stopped
-					const L = this.vr.moves.length;
-					if (nbMoves == L || !this.vr.moves[L-1].notation) //move search didn't finish
-						this.vr.shouldReturn = true;
-				}, 5000);
 			const compMove = this.vr.getComputerMove();
 			// (first move) HACK: avoid selecting elements before they appear on page:
 			const delay = Math.max(500-(Date.now()-timeStart), 0);

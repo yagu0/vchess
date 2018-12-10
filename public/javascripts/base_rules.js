@@ -824,7 +824,6 @@ class ChessRules
 	// NOTE: works also for extinction chess because depth is 3...
 	getComputerMove()
 	{
-		this.shouldReturn = false;
 		const maxeval = VariantRules.INFINITY;
 		const color = this.turn;
 		// Some variants may show a bigger moves list to the human (Switching),
@@ -889,14 +888,17 @@ class ChessRules
 			candidates.push(j);
 		let currentBest = moves1[_.sample(candidates, 1)];
 
+		// From here, depth >= 3: may take a while, so we control time
+		const timeStart = Date.now();
+
 		// Skip depth 3+ if we found a checkmate (or if we are checkmated in 1...)
 		if (VariantRules.SEARCH_DEPTH >= 3
 			&& Math.abs(moves1[0].eval) < VariantRules.THRESHOLD_MATE)
 		{
 			for (let i=0; i<moves1.length; i++)
 			{
-				if (this.shouldReturn)
-					return currentBest; //depth-2, minimum
+				if (Date.now()-timeStart >= 5000) //more than 5 seconds
+					return currentBest; //depth 2 at least
 				this.play(moves1[i]);
 				// 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
 				moves1[i].eval = 0.1*moves1[i].eval +
