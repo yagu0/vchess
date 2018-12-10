@@ -22,7 +22,7 @@ Vue.component('my-game', {
 	},
 	render(h) {
 		const [sizeX,sizeY] = VariantRules.size;
-		const smallScreen = (screen.width <= 500);
+		const smallScreen = (screen.width <= 420);
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
@@ -127,6 +127,7 @@ Vue.component('my-game', {
 				{
 					on: { click: this.toggleExpertMode },
 					attrs: { "aria-label": 'Toggle expert mode' },
+					style: { "padding-top": "0", "margin-top": "0" },
 					'class': {
 						"tooltip":true,
 						"topindicator": true,
