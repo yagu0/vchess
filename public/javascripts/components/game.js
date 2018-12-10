@@ -1,13 +1,14 @@
+// Game logic on a variant page
 Vue.component('my-game', {
 	data: function() {
 		return {
 			vr: null, //object to check moves, store them, FEN..
 			mycolor: "w",
 			possibleMoves: [], //filled after each valid click/dragstart
-			choices: [], //promotion pieces, or checkered captures... (contain possible pieces)
+			choices: [], //promotion pieces, or checkered captures... (as moves)
 			start: {}, //pixels coordinates + id of starting square (click or drag)
 			selectedPiece: null, //moving piece (or clicked piece)
-			conn: null, //socket messages
+			conn: null, //socket connection
 			score: "*", //'*' means 'unfinished'
 			mode: "idle", //human, friend, computer or idle (when not playing)
 			oppid: "", //opponent ID in case of HH game
@@ -16,7 +17,7 @@ Vue.component('my-game', {
 			fenStart: "",
 			incheck: [],
 			pgnTxt: "",
-			expert: getCookie("expert") === "1" ? true : false,
+			expert: (getCookie("expert") === "1" ? true : false),
 			gameId: "", //used to limit computer moves' time
 		};
 	},
@@ -127,7 +128,6 @@ Vue.component('my-game', {
 				{
 					on: { click: this.toggleExpertMode },
 					attrs: { "aria-label": 'Toggle expert mode' },
-					style: { "padding-top": "0", "margin-top": "0" },
 					'class': {
 						"tooltip":true,
 						"topindicator": true,
@@ -273,10 +273,12 @@ Vue.component('my-game', {
 				actionArray = actionArray.concat([
 					h('button',
 						{
-							style: { "margin-left": "30px" },
 							on: { click: e => this.undo() },
 							attrs: { "aria-label": 'Undo' },
-							"class": { "small": smallScreen },
+							"class": {
+								"small": smallScreen,
+								"marginleft": true,
+							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
 					h('button',
@@ -295,10 +297,12 @@ Vue.component('my-game', {
 				[
 					h('button',
 						{
-							style: { "margin-left": "30px" },
 							on: { click: this.undoInGame },
 							attrs: { "aria-label": 'Undo' },
-							"class": { "small": smallScreen },
+							"class": {
+								"small": smallScreen,
+								"marginleft": true,
+							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "undo")]
 					),
@@ -334,7 +338,7 @@ Vue.component('my-game', {
 							}
 						}),
 						h('sup',
-							{style: { "padding-left":"40%"} },
+							{"class": { "reserve-count": true } },
 							[ this.vr.reserve[this.mycolor][VariantRules.RESERVE_PIECES[i]] ]
 						)
 					]));
@@ -358,21 +362,25 @@ Vue.component('my-game', {
 							}
 						}),
 						h('sup',
-							{style: { "padding-left":"40%"} },
+							{"class": { "reserve-count": true } },
 							[ this.vr.reserve[oppCol][VariantRules.RESERVE_PIECES[i]] ]
 						)
 					]));
 				}
 				let reserves = h('div',
 					{
-						'class':{'game':true},
-						style: {"margin-bottom": "20px"},
+						'class':{
+							'game': true,
+							"reserve-div": true,
+						},
 					},
 					[
 						h('div',
 							{
-								'class': { 'row': true },
-								style: {"margin-bottom": "15px"},
+								'class': {
+									'row': true,
+									"reserve-row-1": true,
+								},
 							},
 							myReservePiecesArray
 						),
@@ -605,7 +613,8 @@ Vue.component('my-game', {
 		this.myid = continuation ? localStorage.getItem("myid") : getRandString();
 		if (!continuation)
 		{
-			// HACK: play a small silent sound to allow "new game" sound later if tab not focused
+			// HACK: play a small silent sound to allow "new game" sound later
+			// if tab not focused (TODO: does it really work ?!)
 			new Audio("/sounds/silent.mp3").play().then(() => {}).catch(err => {});
 		}
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
@@ -631,7 +640,8 @@ Vue.component('my-game', {
 			switch (data.code)
 			{
 				case "newgame": //opponent found
-					this.newGame("human", data.fen, data.color, data.oppid); //oppid: opponent socket ID
+					// oppid: opponent socket ID
+					this.newGame("human", data.fen, data.color, data.oppid);
 					break;
 				case "newmove": //..he played!
 					this.play(data.move, "animate");
@@ -717,7 +727,8 @@ Vue.component('my-game', {
 			// Prepare and trigger download link
 			let downloadAnchor = document.getElementById("download");
 			downloadAnchor.setAttribute("download", "game.pgn");
-			downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
+			downloadAnchor.href = "data:text/plain;charset=utf-8," +
+				encodeURIComponent(content);
 			downloadAnchor.click();
 		},
 		endGame: function(score) {
@@ -884,7 +895,8 @@ Vue.component('my-game', {
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
-			const nbMoves = this.vr.moves.length; //using played moves to know if search finished
+			// We use moves' count to know if search finished:
+			const nbMoves = this.vr.moves.length;
 			const gameId = this.gameId; //to know if game was reset before timer end
 			setTimeout(
 				() => {
@@ -943,7 +955,8 @@ Vue.component('my-game', {
 				const iCanPlay = this.mode!="idle"
 					&& (this.mode=="friend" || this.vr.canIplay(this.mycolor,startSquare));
 				this.possibleMoves = iCanPlay ? this.vr.getPossibleMovesFrom(startSquare) : [];
-				// Next line add moving piece just after current image (required for Crazyhouse reserve)
+				// Next line add moving piece just after current image
+				// (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
 			}
 		},
@@ -966,16 +979,20 @@ Vue.component('my-game', {
 				return;
 			e = e || window.event;
 			// Read drop target (or parentElement, parentNode... if type == "img")
-			this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coordinates
+			this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coords
 			const [offsetX,offsetY] = !!e.clientX
 				? [e.clientX,e.clientY]
 				: [e.changedTouches[0].pageX, e.changedTouches[0].pageY];
 			let landing = document.elementFromPoint(offsetX, offsetY);
 			this.selectedPiece.style.zIndex = 3000;
-			while (landing.tagName == "IMG") //classList.contains(piece) fails because of mark/highlight
+			// Next condition: classList.contains(piece) fails because of marks
+			while (landing.tagName == "IMG")
 				landing = landing.parentNode;
-			if (this.start.id == landing.id) //a click: selectedPiece and possibleMoves already filled
+			if (this.start.id == landing.id)
+			{
+				// A click: selectedPiece and possibleMoves are already filled
 				return;
+			}
 			// OK: process move attempt
 			let endSquare = this.getSquareFromId(landing.id);
 			let moves = this.findMatchingMoves(endSquare);
@@ -1006,7 +1023,7 @@ Vue.component('my-game', {
 			let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
 			let movingPiece =
 				document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
-			// HACK for animation (with positive translate, image slides "under background"...)
+			// HACK for animation (with positive translate, image slides "under background")
 			// Possible improvement: just alter squares on the piece's way...
 			squares = document.getElementsByClassName("board");
 			for (let i=0; i<squares.length; i++)
@@ -1015,7 +1032,8 @@ Vue.component('my-game', {
 				if (square.id != this.getSquareId(move.start))
 					square.style.zIndex = "-1";
 			}
-			movingPiece.style.transform = "translate(" + translation.x + "px," + translation.y + "px)";
+			movingPiece.style.transform = "translate(" + translation.x + "px," +
+				translation.y + "px)";
 			movingPiece.style.transitionDuration = "0.2s";
 			movingPiece.style.zIndex = "3000";
 			setTimeout( () => {

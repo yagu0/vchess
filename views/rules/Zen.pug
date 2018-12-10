@@ -1,6 +1,7 @@
 p.boxed
 	| Zen chess only change one thing to the standard rules:
-	| a piece A captures an opponent piece B if and only if B can take A according to the orthodox rules.
+	| a piece A captures an opponent piece B if and only if B can take A
+	| according to the orthodox rules.
 
 figure.diagram-container
 	.diagram
@@ -26,16 +27,20 @@ figure.diagram-container
 		| fen:8/8/8/3r1k2/8/8/3K4/8:
 	figcaption The white king can take the rook
 
-p However, the king is attacked in the same way as in regular chess - and it's the only exception.
+p.
+	However, the king is attacked in the same way as in regular chess -
+	and it's the only exception.
 
 figure.diagram-container
 	.diagram
 		| fen:r7/2n5/1q6/5k2/8/8/K7/8:
-	figcaption The king cannot take on a8 because it's guarded by the knight: it's checkmate
+	figcaption.
+		The king cannot take on a8 because it's guarded by the knight: it's checkmate
 
 h3 Credits
 
 p.
-	Very few resources about this variation: #[a(href="http://play.chessvariants.org/erf/ZenChess.html") this webpage] 
+	Very few resources about this variation:
+	#[a(href="http://play.chessvariants.org/erf/ZenChess.html") this webpage] 
 	and #[a(href="http://www.pathguy.com/chess/ZenChess.htm") this one].
 	Ed Friedlander developed the Zen Chess applet from the link above.

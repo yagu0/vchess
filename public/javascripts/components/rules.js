@@ -1,3 +1,4 @@
+// Load rules on variant page
 Vue.component('my-rules', {
 	data: function() {
 		return { content: "" };
@@ -16,7 +17,7 @@ Vue.component('my-rules', {
 		};
 		xhr.open("GET", "/rules/" + variant, true);
 		xhr.setRequestHeader('X-Requested-With', "XMLHttpRequest");
-		xhr.send(null); //TODO: or just xhr.send() ?
+		xhr.send();
 	},
 	methods: {
 		drawDiag: function(fen) {
@@ -51,7 +52,6 @@ Vue.component('my-rules', {
 				boardDiv += "<div class='row'>";
 				for (let j=startY; j>=0 && j<sizeY; j+=inc)
 				{
-					// NOTE: 'board' to distinguish from coords
 					boardDiv += "<div class='board board" + sizeY + " " +
 						((i+j)%2==0 ? "light-square-diag" : "dark-square-diag") + "'>";
 					if (markArray.length>0 && markArray[i][j])

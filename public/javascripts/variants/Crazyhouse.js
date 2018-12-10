@@ -51,7 +51,7 @@ class CrazyhouseRules extends ChessRules
 		return color + VariantRules.RESERVE_PIECES[index];
 	}
 
-	// Put an ordering on reserve pieces
+	// Ordering on reserve pieces
 	static get RESERVE_PIECES() {
 		const V = VariantRules;
 		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
@@ -97,7 +97,7 @@ class CrazyhouseRules extends ChessRules
 		const sizeX = VariantRules.size[0];
 		if (x >= sizeX)
 		{
-			// Reserves, outside of board: x == sizeX
+			// Reserves, outside of board: x == sizeX(+1)
 			return this.getReserveMoves([x,y]);
 		}
 		// Standard moves

@@ -174,7 +174,7 @@ class MagneticRules extends ChessRules
 			this.kingPos[oppCol] = [-1,-1];
 			this.castleFlags[oppCol] = [false,false];
 		}
-		// Did we move our (init) rooks or opponents' ones ?
+		// Did we magnetically move our (init) rooks or opponents' ones ?
 		const firstRank = (c == "w" ? 7 : 0);
 		const oppFirstRank = 7 - firstRank;
 		const oppCol = this.getOppCol(c);

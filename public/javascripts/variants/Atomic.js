@@ -8,7 +8,7 @@ class AtomicRules extends ChessRules
 		moves.forEach(m => {
 			if (m.vanish.length > 1 && m.appear.length <= 1) //avoid castles
 			{
-				// Explosion! TODO: drop moves which explode our king here
+				// Explosion! TODO(?): drop moves which explode our king here
 				let steps = [ [-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1] ];
 				for (let step of steps)
 				{
@@ -17,7 +17,8 @@ class AtomicRules extends ChessRules
 					if (x>=0 && x<8 && y>=0 && y<8 && this.board[x][y] != VariantRules.EMPTY
 						&& this.getPiece(x,y) != VariantRules.PAWN)
 					{
-						m.vanish.push(new PiPo({p:this.getPiece(x,y),c:this.getColor(x,y),x:x,y:y}));
+						m.vanish.push(
+							new PiPo({p:this.getPiece(x,y),c:this.getColor(x,y),x:x,y:y}));
 					}
 				}
 				m.end = {x:m.appear[0].x, y:m.appear[0].y};
@@ -47,8 +48,11 @@ class AtomicRules extends ChessRules
 
 	isAttacked(sq, colors)
 	{
-		if (this.getPiece(sq[0],sq[1]) == VariantRules.KING && this.isAttackedByKing(sq, colors))
+		if (this.getPiece(sq[0],sq[1]) == VariantRules.KING
+			&& this.isAttackedByKing(sq, colors))
+		{
 			return false; //king cannot take...
+		}
 		return (this.isAttackedByPawn(sq, colors)
 			|| this.isAttackedByRook(sq, colors)
 			|| this.isAttackedByKnight(sq, colors)
@@ -145,7 +149,6 @@ class AtomicRules extends ChessRules
 			return color == "w" ? "0-1" : "1-0";
 		if (!this.isAttacked(kp, [this.getOppCol(color)]))
 			return "1/2";
-		// Checkmate
-		return color == "w" ? "0-1" : "1-0";
+		return color == "w" ? "0-1" : "1-0"; //checkmate
 	}
 }

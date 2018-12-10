@@ -24,15 +24,20 @@ class LoserRules extends ChessRules
 		const lastRank = (color == "w" ? 0 : sizeX-1);
 		if (x+shift == lastRank)
 		{
-			let p = V.KING;
 			// Normal move
 			if (this.board[x+shift][y] == V.EMPTY)
-				moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
+				moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:V.KING}));
 			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
-				moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
-				moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+			if (y>0 && this.canTake([x,y], [x+shift,y-1])
+				&& this.board[x+shift][y-1] != V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:V.KING}));
+			}
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+				&& this.board[x+shift][y+1] != V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:V.KING}));
+			}
 		}
 
 		return moves;
@@ -112,7 +117,7 @@ class LoserRules extends ChessRules
 
 	getFlagsFen()
 	{
-		return "";
+		return "-";
 	}
 
 	checkGameEnd()

@@ -1,4 +1,3 @@
-//https://www.chessvariants.com/large.dir/wildebeest.html
 class WildebeestRules extends ChessRules
 {
 	static getPpath(b)
@@ -84,10 +83,16 @@ class WildebeestRules extends ChessRules
 				}
 			}
 			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+			if (y>0 && this.canTake([x,y], [x+shift,y-1])
+				&& this.board[x+shift][y-1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+			}
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+				&& this.board[x+shift][y+1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+			}
 		}
 
 		if (x+shift == lastRank)
@@ -99,10 +104,16 @@ class WildebeestRules extends ChessRules
 				if (this.board[x+shift][y] == V.EMPTY)
 					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
 				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				if (y>0 && this.canTake([x,y], [x+shift,y-1])
+					&& this.board[x+shift][y-1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				}
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+					&& this.board[x+shift][y+1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+				}
 			});
 		}
 
@@ -136,13 +147,15 @@ class WildebeestRules extends ChessRules
 
 	getPotentialCamelMoves(sq)
 	{
-		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.CAMEL], "oneStep");
+		return this.getSlideNJumpMoves(
+			sq, VariantRules.steps[VariantRules.CAMEL], "oneStep");
 	}
 
 	getPotentialWildebeestMoves(sq)
 	{
 		const V = VariantRules;
-		return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
+		return this.getSlideNJumpMoves(
+			sq, V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
 	}
 
 	isAttacked(sq, colors)
@@ -182,9 +195,8 @@ class WildebeestRules extends ChessRules
 
 	static GenRandInitFen()
 	{
-		let pieces = [new Array(10), new Array(10)];
-		// Shuffle pieces on first and last rank
-		for (let c = 0; c <= 1; c++)
+		let pieces = { "w": new Array(10), "b": new Array(10) };
+		for (let c of ["w","b"])
 		{
 			let positions = _.range(11);
 
@@ -196,11 +208,12 @@ class WildebeestRules extends ChessRules
 			let randIndexes_tmp = _.sample(_.range(5), 2).map(i => { return 2*i+1; });
 			let bishop2Pos = positions[randIndexes_tmp[0]];
 			let camel2Pos = positions[randIndexes_tmp[1]];
-			// Remove chosen squares
-			for (let idx of randIndexes.concat(randIndexes_tmp).sort((a,b) => { return b-a; }))
+			for (let idx of randIndexes.concat(randIndexes_tmp)
+				.sort((a,b) => { return b-a; })) //largest indices first
+			{
 				positions.splice(idx, 1);
+			}
 
-			// Get random squares for knights
 			let randIndex = _.random(6);
 			let knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
@@ -208,22 +221,19 @@ class WildebeestRules extends ChessRules
 			let knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			// Get random square for queen
 			randIndex = _.random(4);
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			// ...random square for wildebeest
+			// Random square for wildebeest
 			randIndex = _.random(3);
 			let wildebeestPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			// Rooks and king positions are now fixed, because of the ordering rook-king-rook
 			let rook1Pos = positions[0];
 			let kingPos = positions[1];
 			let rook2Pos = positions[2];
 
-			// Finally put the shuffled pieces in the board array
 			pieces[c][rook1Pos] = 'r';
 			pieces[c][knight1Pos] = 'n';
 			pieces[c][bishop1Pos] = 'b';
@@ -236,9 +246,9 @@ class WildebeestRules extends ChessRules
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		let fen = pieces[0].join("") +
+		let fen = pieces["b"].join("") +
 			"/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
-			pieces[1].join("").toUpperCase() +
+			pieces["w"].join("").toUpperCase() +
 			" 1111";
 		return fen;
 	}

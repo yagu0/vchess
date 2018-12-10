@@ -103,7 +103,8 @@ class CheckeredRules extends ChessRules
 
 	canIplay(side, [x,y])
 	{
-		return ((side=='w' && this.moves.length%2==0) || (side=='b' && this.moves.length%2==1))
+		return ((side=='w' && this.moves.length%2==0)
+				|| (side=='b' && this.moves.length%2==1))
 			&& [side,'c'].includes(this.getColor(x,y));
 	}
 
@@ -166,7 +167,8 @@ class CheckeredRules extends ChessRules
 		this.play(move);
 		const color = this.turn;
 		this.moves.push(move); //artifically change turn, for checkered pawns (TODO)
-		const kingAttacked = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
+		const kingAttacked = this.isAttacked(
+			this.kingPos[color], [this.getOppCol(color),'c']);
 		let res = kingAttacked
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
 			: [ ];
@@ -259,7 +261,8 @@ class CheckeredRules extends ChessRules
 			{
 				// Capture
 				let startColumn = String.fromCharCode(97 + move.start.y);
-				notation = startColumn + "x" + finalSquare + "=" + move.appear[0].p.toUpperCase();
+				notation = startColumn + "x" + finalSquare +
+					"=" + move.appear[0].p.toUpperCase();
 			}
 			else //no capture
 			{

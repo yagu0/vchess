@@ -1,6 +1,6 @@
 p.boxed
-	| You have a king and an antiking. King must stay away from checks, but antiking must always stay in check.
-	| Antiking captures his own kind.
+	| You have a king and an antiking. King must stay away from checks, but antiking
+	| must always stay in check. Antiking captures his own kind.
 
 h3 Specifications
 
@@ -16,7 +16,8 @@ h3 Basics
 
 p
 	| The additional piece is a royal figure, thus cannot be captured.
-	| It captures the pieces of his color (to help checkmate opponent antiking, but by doing so it also make standard checkmate more difficult...).
+	| It captures the pieces of his color (to help checkmate opponent antiking,
+	| but by doing so it also make standard checkmate more difficult...).
 	| It should always remains under check (if it cannot, game is over).
 
 figure.diagram-container
@@ -34,12 +35,15 @@ p ...Or maybe do both at the same time?
 
 p Note 1: athough antiking captures his color, it doesn't check his king.
 
-p Note 2: since it would allow a basic tactic (keep antiking touching opponent's king), kings do not attack antikings.
+p
+	| Note 2: since it would allow a basic tactic (keep antiking touching opponent's
+	| king), kings do not attack antikings.
 
 p Note 3: an antiking does not check opponent's antiking.
 
 h3 Credits
 
 p
-	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html") Antiking chess 
+	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+		| Antiking chess 
 	| on chessvariants.com.

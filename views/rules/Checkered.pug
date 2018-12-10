@@ -1,5 +1,6 @@
 p.boxed
-	| The capture of an enemy piece produces a new "checkered" piece belonging to both players.
+	| The capture of an enemy piece produces a new "checkered" piece belonging
+	| to both players.
 
 figure.showPieces.center-align
 	img(src="/images/tmp_checkered/cp.png")
@@ -27,9 +28,15 @@ h2.stageDelimiter Stage 1
 h3 Basics
 
 ol
-	li Each capture produces a new piece, taking on nature of the capturing or captured one.
-	li The new piece arising from a capture has a new color: "checkered", as illustrated above.
-	li All checkered pieces belong to the player in turn and can capture the opponents pieces.
+	li
+		| Each capture produces a new piece, taking on nature of
+		| the capturing or captured one.
+	li
+		| The new piece arising from a capture has a new color:
+		| "checkered", as illustrated above.
+	li
+		| All checkered pieces belong to the player in turn and can
+		| capture the opponents pieces.
 
 span Remarks:
 ul
@@ -40,7 +47,8 @@ figure.diagram-container
 	.diagram
 		| fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
 	figcaption.
-		Black plays Rxh4=P. (Checkered pawn to) h5 is allowed then, because piece's nature changed.
+		Black plays Rxh4=P. (Checkered pawn to) h5 is allowed then,
+		because piece's nature changed.
 
 h3 Pawn moves
 
@@ -53,7 +61,8 @@ h2.stageDelimiter Stage 2
 p.warn This stage is not (and probably will never be) implemented.
 
 p.
-	During the game one of the two players can decide to take control of the checkered pieces.
+	During the game one of the two players can decide to take control of the
+	checkered pieces.
 	They thus become autonomous and vulnerable to being captured - stage 2 begins.
 	The other player is in charge of both the white and black pieces, and tries to
 	eliminate checkered pieces.
@@ -61,7 +70,8 @@ p.
 
 h4 Variant of stage 2
 p.
-	An observer could decide to join the game by taking the checkered pieces at any moment.
+	An observer could decide to join the game by taking the checkered pieces
+	at any moment.
 	It then becomes a chess game with three players, with some subtelties to be resolved.
 	It was tested in some (real life) games organised by the variant creator.
 

@@ -1,4 +1,5 @@
-//https://www.chessvariants.com/large.dir/freeling.html
+// NOTE: initial setup differs from the original; see
+// https://www.chessvariants.com/large.dir/freeling.html
 class GrandRules extends ChessRules
 {
 	static getPpath(b)
@@ -84,10 +85,16 @@ class GrandRules extends ChessRules
 				}
 			}
 			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+			if (y>0 && this.canTake([x,y], [x+shift,y-1])
+				&& this.board[x+shift][y-1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+			}
+			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+				&& this.board[x+shift][y+1] != V.EMPTY)
+			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+			}
 		}
 
 		if (lastRanks.includes(x+shift))
@@ -101,10 +108,16 @@ class GrandRules extends ChessRules
 				if (this.board[x+shift][y] == V.EMPTY)
 					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
 				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1]) && this.board[x+shift][y-1] != V.EMPTY)
+				if (y>0 && this.canTake([x,y], [x+shift,y-1])
+					&& this.board[x+shift][y-1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1]) && this.board[x+shift][y+1] != V.EMPTY)
+				}
+				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+					&& this.board[x+shift][y+1] != V.EMPTY)
+				{
 					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
+				}
 			});
 		}
 
@@ -161,14 +174,16 @@ class GrandRules extends ChessRules
 	{
 		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.MARSHALL, V.steps[V.ROOK])
-			|| this.isAttackedBySlideNJump(sq, colors, V.MARSHALL, V.steps[V.KNIGHT], "oneStep");
+			|| this.isAttackedBySlideNJump(
+				sq, colors, V.MARSHALL, V.steps[V.KNIGHT], "oneStep");
 	}
 
 	isAttackedByCardinal(sq, colors)
 	{
 		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.CARDINAL, V.steps[V.BISHOP])
-			|| this.isAttackedBySlideNJump(sq, colors, V.CARDINAL, V.steps[V.KNIGHT], "oneStep");
+			|| this.isAttackedBySlideNJump(
+				sq, colors, V.CARDINAL, V.steps[V.KNIGHT], "oneStep");
 	}
 
 	updateVariables(move)
@@ -208,9 +223,9 @@ class GrandRules extends ChessRules
 	// TODO: this function could be generalized and shared better
 	static GenRandInitFen()
 	{
-		let pieces = [new Array(10), new Array(10)];
+		let pieces = { "w": new Array(10), "b": new Array(10) };
 		// Shuffle pieces on first and last rank
-		for (let c = 0; c <= 1; c++)
+		for (let c of ["w","b"])
 		{
 			let positions = _.range(10);
 
@@ -264,9 +279,9 @@ class GrandRules extends ChessRules
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		let fen = pieces[0].join("") +
+		let fen = pieces["b"].join("") +
 			"/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/" +
-			pieces[1].join("").toUpperCase() +
+			pieces["w"].join("").toUpperCase() +
 			" 1111";
 		return fen;
 	}

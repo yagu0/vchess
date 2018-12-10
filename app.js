@@ -19,7 +19,8 @@ if (app.get('env') === 'development')
 }
 else
 {
-	app.set('trust proxy', true); //http://dev.rdybarra.com/2016/06/23/Production-Logging-With-Morgan-In-Express/
+	// http://dev.rdybarra.com/2016/06/23/Production-Logging-With-Morgan-In-Express/
+	app.set('trust proxy', true);
 	// In prod, only log error responses (https://github.com/expressjs/morgan)
 	app.use(logger('combined', {
 		skip: function (req, res) { return res.statusCode < 400 }

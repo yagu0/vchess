@@ -123,13 +123,13 @@ class ExtinctionRules extends ChessRules
 		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
-	// Very negative (resp. positive) if white (reps. black) pieces set is incomplete
 	evalPosition()
 	{
 		const color = this.turn;
 		if (Object.keys(this.material[color]).some(
 			p => { return this.material[color][p] == 0; }))
 		{
+			// Very negative (resp. positive) if white (reps. black) pieces set is incomplete
 			return (color=="w"?-1:1) * VariantRules.INFINITY;
 		}
 		return super.evalPosition();

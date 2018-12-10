@@ -1,5 +1,4 @@
 // Source: https://www.quirksmode.org/js/cookies.html
-
 function setCookie(name,value)
 {
 	var date = new Date();
@@ -22,9 +21,9 @@ function getCookie(name) {
 	return null;
 }
 
+// Random (enough) string for socket and game IDs
 function getRandString()
 {
-	// Random enough (for socket and game IDs)
 	return (Date.now().toString(36) + Math.random().toString(36).substr(2, 7))
 		.toUpperCase();
 }

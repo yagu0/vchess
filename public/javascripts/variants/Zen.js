@@ -6,7 +6,7 @@ class ZenRules extends ChessRules
 		return undefined;
 	}
 
-	// TODO: some duplicated code in 2 next functions
+	// TODO(?): some duplicated code in 2 next functions
 	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
 		const color = this.getColor(x,y);
@@ -83,21 +83,12 @@ class ZenRules extends ChessRules
 	// Find possible captures from a square: look in every direction!
 	findCaptures(sq)
 	{
-		var moves = [];
+		let moves = [];
 
-		// PAWN
 		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.PAWN));
-
-		// ROOK
 		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.ROOK));
-
-		// KNIGHT
 		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.KNIGHT));
-
-		// BISHOP
 		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.BISHOP));
-
-		// QUEEN
 		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.QUEEN));
 
 		return moves;
@@ -149,22 +140,24 @@ class ZenRules extends ChessRules
 
 	getPotentialRookMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.ROOK]);
+		let noCaptures = this.getSlideNJumpMoves(
+			sq, VariantRules.steps[VariantRules.ROOK]);
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialKnightMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(sq,
-			VariantRules.steps[VariantRules.KNIGHT], "oneStep");
+		let noCaptures = this.getSlideNJumpMoves(
+			sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialBishopMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.BISHOP]);
+		let noCaptures = this.getSlideNJumpMoves(
+			sq, VariantRules.steps[VariantRules.BISHOP]);
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
@@ -172,8 +165,8 @@ class ZenRules extends ChessRules
 	getPotentialQueenMoves(sq)
 	{
 		const V = VariantRules;
-		let noCaptures =
-			this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
+		let noCaptures = this.getSlideNJumpMoves(
+			sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}

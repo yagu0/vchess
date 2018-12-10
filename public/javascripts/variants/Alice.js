@@ -175,7 +175,9 @@ class AliceRules extends ChessRules
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == color)
 				{
 					const mirrorSide =
-						(Object.keys(VariantRules.ALICE_CODES).includes(this.getPiece(i,j)) ? 1 : 2);
+						Object.keys(VariantRules.ALICE_CODES).includes(this.getPiece(i,j))
+							? 1
+							: 2;
 					Array.prototype.push.apply(potentialMoves,
 						this.getPotentialMovesFrom([i,j], sideBoard[mirrorSide-1]));
 				}
@@ -291,20 +293,17 @@ class AliceRules extends ChessRules
 	}
 
 	static get VALUES() {
-		return {
-			'p': 1,
-			's': 1,
-			'r': 5,
-			'u': 5,
-			'n': 3,
-			'o': 3,
-			'b': 3,
-			'c': 3,
-			'q': 9,
-			't': 9,
-			'k': 1000,
-			'l': 1000
-		};
+		return Object.assign(
+			ChessRules.VALUES,
+			{
+				's': 1,
+				'u': 5,
+				'o': 3,
+				'c': 3,
+				't': 9,
+				'l': 1000,
+			}
+		);
 	}
 
 	getNotation(move)

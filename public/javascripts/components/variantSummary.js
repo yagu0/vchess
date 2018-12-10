@@ -1,3 +1,4 @@
+// Show a variant summary on index
 Vue.component('my-variant-summary', {
 	props: ['vobj'],
 	template: `

@@ -1,3 +1,6 @@
+// (Orthodox) Chess rules are defined in ChessRules class.
+// Variants generally inherit from it, and modify some parts.
+
 class PiPo //Piece+Position
 {
 	// o: {piece[p], color[c], posX[x], posY[y]}
@@ -61,7 +64,7 @@ class ChessRules
 	{
 		this.INIT_COL_KING = {'w':-1, 'b':-1};
 		this.INIT_COL_ROOK = {'w':[-1,-1], 'b':[-1,-1]};
-		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]}; //respective squares of white and black king
+		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]}; //squares of white and black king
 		const fenParts = fen.split(" ");
 		const position = fenParts[0].split("/");
 		for (let i=0; i<position.length; i++)
@@ -380,7 +383,8 @@ class ChessRules
 	// What are the knight moves from square x,y ?
 	getPotentialKnightMoves(sq)
 	{
-		return this.getSlideNJumpMoves(sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
+		return this.getSlideNJumpMoves(
+			sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
 	}
 
 	// What are the bishop moves from square x,y ?
@@ -481,7 +485,8 @@ class ChessRules
 
 	canIplay(side, [x,y])
 	{
-		return ((side=='w' && this.moves.length%2==0) || (side=='b' && this.moves.length%2==1))
+		return ((side=='w' && this.moves.length%2==0)
+				|| (side=='b' && this.moves.length%2==1))
 			&& this.getColor(x,y) == side;
 	}
 
@@ -491,7 +496,7 @@ class ChessRules
 		return this.filterValid( this.getPotentialMovesFrom(sq) );
 	}
 
-	// TODO: once a promotion is filtered, the others results are same: useless computations
+	// TODO: promotions (into R,B,N,Q) should be filtered only once
 	filterValid(moves)
 	{
 		if (moves.length == 0)
@@ -510,7 +515,7 @@ class ChessRules
 		{
 			for (let j=0; j<sizeY; j++)
 			{
-				// Next condition ... != oppCol is a little HACK to work with checkered variant
+				// Next condition "!= oppCol" = harmless hack to work with checkered variant
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) != oppCol)
 					Array.prototype.push.apply(potentialMoves, this.getPotentialMovesFrom([i,j]));
 			}
@@ -869,8 +874,11 @@ class ChessRules
 				const score = this.checkGameEnd();
 				eval2 = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 			}
-			if ((color=="w" && eval2 > moves1[i].eval) || (color=="b" && eval2 < moves1[i].eval))
+			if ((color=="w" && eval2 > moves1[i].eval)
+				|| (color=="b" && eval2 < moves1[i].eval))
+			{
 				moves1[i].eval = eval2;
+			}
 			this.undo(moves1[i]);
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
@@ -1137,7 +1145,8 @@ class ChessRules
 		const d = new Date();
 		const opponent = mode=="human" ? "Anonymous" : "Computer";
 		pgn += '[Variant "' + variant + '"]<br>';
-		pgn += '[Date "' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + zeroPad(d.getDate()) + '"]<br>';
+		pgn += '[Date "' + d.getFullYear() + '-' + (d.getMonth()+1) +
+			'-' + zeroPad(d.getDate()) + '"]<br>';
 		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
 		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
 		pgn += '[FenStart "' + fenStart + '"]<br>';

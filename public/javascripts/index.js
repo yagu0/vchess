@@ -1,3 +1,4 @@
+// Javascript for index page: mostly counters updating
 new Vue({
 	el: "#indexPage",
 	data: {
@@ -78,6 +79,10 @@ new Vue({
 		showWelcomeMsg: function() {
 			document.getElementById("modal-b4welcome").checked = false;
 			document.getElementById("modal-welcome").checked = true;
+		},
+		markAsVisited: function() {
+			setCookie('visited', '1');
+			document.getElementById('modal-welcome').checked = false;
 		},
 	},
 });

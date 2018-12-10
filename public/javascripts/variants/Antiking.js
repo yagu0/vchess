@@ -1,6 +1,5 @@
 class AntikingRules extends ChessRules
 {
-	// Path to pieces
 	static getPpath(b)
 	{
 		return b[1]=='a' ? "Antiking/"+b : b;
@@ -142,17 +141,11 @@ class AntikingRules extends ChessRules
 		return color == "w" ? "0-1" : "1-0";
 	}
 
-	// Pieces values (TODO: use Object.assign() + ChessRules.VALUES ?)
 	static get VALUES() {
-		return {
-			'p': 1,
-			'r': 5,
-			'n': 3,
-			'b': 3,
-			'q': 9,
-			'k': 1000,
-			'a': 1000
-		};
+		return Object.assign(
+			ChessRules.VALUES,
+			{ 'a': 1000 }
+		);
 	}
 
 	static GenRandInitFen()
@@ -206,7 +199,7 @@ class AntikingRules extends ChessRules
 		let fen = pieces["b"].join("") + "/" + ranks23_black +
 			"/8/8/" +
 			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
-			" 1111"; //add flags
+			" 1111";
 		return fen;
 	}
 }

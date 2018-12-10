@@ -28,6 +28,7 @@ Pieces images where found at various locations.
 ## Installation (for developers)
 
  0. Install git-fat https://github.com/jedbrown/git-fat
- 1. Rename public/javascripts/utils/socket\_url.js.dist into socket\_url.js and adjust its content.
+ 1. Rename public/javascripts/utils/socket\_url.js.dist into socket\_url.js
+    and adjust its content.
  2. git fat init && git fat pull
  3. npm i && npm start
