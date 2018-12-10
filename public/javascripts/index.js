@@ -72,6 +72,12 @@ new Vue({
 		// Show welcome dialog box if "first visit"
 		const visited = getCookie("visited");
 		if (!visited || visited !== "1")
+			document.getElementById("modal-b4welcome").checked = true;
+	},
+	methods: {
+		showWelcomeMsg: function() {
+			document.getElementById("modal-b4welcome").checked = false;
 			document.getElementById("modal-welcome").checked = true;
+		},
 	},
 });

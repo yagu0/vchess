@@ -32,6 +32,14 @@ block content
 							3. send an email to
 							#[a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report") contact@vchess.club]
 							with relevant comments and the PGN attached. Thank you!
+				input#modal-b4welcome.modal(type="checkbox")
+				div(role="dialog")
+					#b4welcome.card.text-center
+						label.modal-close(for="modal-b4welcome")
+						h3.blue.section First visit?
+						p Please 
+							span(style="color:blue;text-decoration:underline;cursor:pointer" @click="showWelcomeMsg") read this
+							span &nbsp;before playing &#9786;
 				input#modal-welcome.modal(type="checkbox")
 				div(role="dialog")
 					#welcome.card.text-center
@@ -74,7 +82,7 @@ block content
 							p.
 								For informations about hundreds (if not thousands!) of variants, you
 								can visit the excellent #[a(href="https://www.chessvariants.com/") chessvariants] website.
-						p(style="cursor:pointer;color:darkgrey" onClick="setCookie('visited','1');document.getElementById('modal-welcome').checked=false") Do not annoy me again!
+						p(style="cursor:pointer;color:darkred" onClick="setCookie('visited','1');document.getElementById('modal-welcome').checked=false") Click here to not show this message next time
 						p(style="font-size:0.8em") Image credit: #[a(href="https://en.wikipedia.org/wiki/List_of_chess_variants#/media/File:Hexagonal_chess.svg") Wikpedia]
 		.row
 			my-variant-summary(
