@@ -20,7 +20,7 @@ Vue.component('my-game', {
 			hints: (getCookie("hints") === "1" ? true : false),
 			color: getCookie("color", "lichess"), //lichess, chesscom or chesstempo
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
-			sound: getCookie("sound", "2"),
+			sound: parseInt(getCookie("sound", "2")),
 		};
 	},
 	render(h) {
