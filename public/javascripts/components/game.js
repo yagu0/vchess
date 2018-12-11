@@ -17,7 +17,9 @@ Vue.component('my-game', {
 			fenStart: "",
 			incheck: [],
 			pgnTxt: "",
-			expert: (getCookie("expert") === "1" ? true : false),
+			hints: (getCookie("hints") === "1" ? true : false),
+			//color: TODO (lichess, chess.com, chesstempo)
+			//sound: TODO (0,1, 2)
 		};
 	},
 	render(h) {
@@ -86,7 +88,10 @@ Vue.component('my-game', {
 			const squareWidth = !!square00
 				? parseFloat(window.getComputedStyle(square00).width.slice(0,-2))
 				: 0;
-			const indicWidth = (squareWidth>0 ? squareWidth/2 : 20);
+			const settingsBtnElt = document.getElementById("settingsBtn");
+			const indicWidth = !!settingsBtnElt //-2 for border:
+				? parseFloat(window.getComputedStyle(settingsBtnElt).height.slice(0,-2)) - 2
+				: 30;
 			if (this.mode == "human")
 			{
 				let connectedIndic = h(
@@ -122,23 +127,25 @@ Vue.component('my-game', {
 				}
 			);
 			elementArray.push(turnIndic);
-			let expertSwitch = h(
+			let settingsBtn = h(
 				'button',
 				{
-					on: { click: this.toggleExpertMode },
-					attrs: { "aria-label": 'Toggle expert mode' },
+					on: { click: this.showSettings },
+					attrs: {
+						"aria-label": 'Settings',
+						"id": "settingsBtn",
+					},
 					'class': {
-						"tooltip":true,
+						"tooltip": true,
 						"topindicator": true,
 						"indic-right": true,
-						"expert-switch": true,
-						"expert-mode": this.expert,
+						"settings-btn": true,
 						"small": smallScreen,
 					},
 				},
-				[h('i', { 'class': { "material-icons": true } }, "visibility_off")]
+				[h('i', { 'class': { "material-icons": true } }, "settings")]
 			);
-			elementArray.push(expertSwitch);
+			elementArray.push(settingsBtn);
 			let choices = h('div',
 				{
 					attrs: { "id": "choices" },
@@ -210,7 +217,7 @@ Vue.component('my-game', {
 									)
 								);
 							}
-							if (!this.expert && hintSquares[ci][cj])
+							if (this.hints && hintSquares[ci][cj])
 							{
 								elems.push(
 									h(
@@ -227,7 +234,7 @@ Vue.component('my-game', {
 								);
 							}
 							const lm = this.vr.lastMove;
-							const showLight = !this.expert &&
+							const showLight = this.hints &&
 								(this.mode!="idle" || this.cursor==this.vr.moves.length);
 							return h(
 								'div',
@@ -533,6 +540,44 @@ Vue.component('my-game', {
 			)
 		];
 		elementArray = elementArray.concat(modalFenEdit);
+		const modalSettings = [
+			h('input',
+				{
+					attrs: { "id": "modal-settings", type: "checkbox" },
+					"class": { "modal": true },
+				}),
+			h('div',
+				{
+					attrs: { "role": "dialog", "aria-labelledby": "modal-settings" },
+				},
+				[
+					h('div',
+						{
+							"class": { "card": true, "smallpad": true },
+						},
+						[
+							h('label',
+								{
+									attrs: { "id": "close-settings", "for": "modal-settings" },
+									"class": { "modal-close": true },
+								}
+							),
+							h('h3',
+								{
+									"class": { "section": true },
+									domProps: { innerHTML: "User settings" },
+								}
+							),
+							// https://minicss.org/docs#forms-and-input
+							h('p', { domProps: { innerHTML: "TODO: hints" } }),
+							h('p', { domProps: { innerHTML: "TODO: board(color)" } }),
+							h('p', { domProps: { innerHTML: "TODO: sound(level)" } }),
+						]
+					)
+				]
+			)
+		];
+		elementArray = elementArray.concat(modalSettings);
 		const actions = h('div',
 			{
 				attrs: { "id": "actions" },
@@ -786,6 +831,14 @@ Vue.component('my-game', {
 			elt.style.visibility = "hidden";
 			setTimeout(() => { elt.style.visibility="visible"; }, 100);
 		},
+		showSettings: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			document.getElementById("modal-settings").checked = true;
+		},
+		toggleHints: function() {
+			this.hints = !this.hints;
+			setCookie("hints", this.hints ? "1" : "0");
+		},
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human")
@@ -808,11 +861,6 @@ Vue.component('my-game', {
 		clickFriendGame: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
 			document.getElementById("modal-fenedit").checked = true;
-		},
-		toggleExpertMode: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			this.expert = !this.expert;
-			setCookie("expert", this.expert ? "1" : "0");
 		},
 		resign: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
