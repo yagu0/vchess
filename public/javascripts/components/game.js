@@ -435,7 +435,7 @@ Vue.component('my-game', {
 			];
 			elementArray = elementArray.concat(modalEog);
 		}
-		// TODO: next 3 modals in (pug) view directly?!
+		// NOTE: this modal could be in Pug view (no usage of Vue functions or variables)
 		const modalNewgame = [
 			h('input',
 				{
@@ -570,26 +570,123 @@ Vue.component('my-game', {
 									domProps: { innerHTML: "Preferences" },
 								}
 							),
-							// https://minicss.org/docs#forms-and-input
-							h('input',
-								{
-									attrs: {
-										"id": "setHints",
-										type: "checkbox",
-										checked: this.hints,
-									},
-								}
+							h('fieldset',
+							  { },
+								[
+									//h('legend', { domProps: { innerHTML: "Show " } }),
+									h('label',
+										{
+											attrs: {
+												for: "setHints",
+											},
+											domProps: { innerHTML: "Show hints?" },
+										},
+									),
+									h('input',
+										{
+											attrs: {
+												"id": "setHints",
+												type: "checkbox",
+												checked: this.hints,
+											},
+											on: { "change": this.toggleHints },
+										}
+									),
+								]
 							),
-							h('label',
-								{
-									attrs: {
-										for: "setHints",
-									},
-									domProps: { innerHTML: "Show hints?" },
-								},
+							h('fieldset',
+								{ },
+								[
+									h('label',
+										{
+											attrs: {
+												for: "selectColor",
+											},
+											domProps: { innerHTML: "Board colors" },
+										},
+									),
+									h("select",
+										{
+											attrs: { "id": "selectColor" },
+											on: { "change": this.setColor },
+										},
+										[
+											h("option",
+												{
+													domProps: {
+														"value": "lichess",
+														innerHTML: "lichess"
+													},
+													attrs: { "selected": this.color=="lichess" },
+												}
+											),
+											h("option",
+												{
+													domProps: {
+														"value": "chesscom",
+														innerHTML: "chess.com"
+													},
+													attrs: { "selected": this.color=="chesscom" },
+												}
+											),
+											h("option",
+												{
+													domProps: {
+														"value": "chesstempo",
+														innerHTML: "chesstempo"
+													},
+													attrs: { "selected": this.color=="chesstempo" },
+												}
+											),
+										],
+									),
+								]
 							),
-							h('p', { domProps: { innerHTML: "TODO: board(color)" } }),
-							h('p', { domProps: { innerHTML: "TODO: sound(level)" } }),
+							h('fieldset',
+								{ },
+								[
+									h('label',
+										{
+											attrs: {
+												for: "selectSound",
+											},
+											domProps: { innerHTML: "Sound level" },
+										},
+									),
+									h("select",
+										{
+											attrs: { "id": "selectSound" },
+											on: { "change": this.setSound },
+										},
+										[
+											h("option",
+												{
+													domProps: {
+														"value": "0",
+														innerHTML: "No sound"
+													},
+												}
+											),
+											h("option",
+												{
+													domProps: {
+														"value": "1",
+														innerHTML: "Newgame sound"
+													},
+												}
+											),
+											h("option",
+												{
+													domProps: {
+														"value": "2",
+														innerHTML: "All sounds"
+													},
+												}
+											),
+										],
+									),
+								]
+							),
 						]
 					)
 				]
@@ -856,6 +953,13 @@ Vue.component('my-game', {
 		toggleHints: function() {
 			this.hints = !this.hints;
 			setCookie("hints", this.hints ? "1" : "0");
+		},
+		// TODO:
+		setColor: function() {
+			alert("Change");
+		},
+		setSound: function() {
+			alert("Change");
 		},
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
