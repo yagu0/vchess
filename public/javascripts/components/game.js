@@ -573,12 +573,10 @@ Vue.component('my-game', {
 							h('fieldset',
 							  { },
 								[
-									//h('legend', { domProps: { innerHTML: "Show " } }),
+									//h('legend', { domProps: { innerHTML: "Legend title" } }),
 									h('label',
 										{
-											attrs: {
-												for: "setHints",
-											},
+											attrs: { for: "setHints" },
 											domProps: { innerHTML: "Show hints?" },
 										},
 									),
@@ -599,9 +597,7 @@ Vue.component('my-game', {
 								[
 									h('label',
 										{
-											attrs: {
-												for: "selectColor",
-											},
+											attrs: { for: "selectColor" },
 											domProps: { innerHTML: "Board colors" },
 										},
 									),
@@ -615,7 +611,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "lichess",
-														innerHTML: "lichess"
+														innerHTML: "brown"
 													},
 													attrs: { "selected": this.color=="lichess" },
 												}
@@ -624,7 +620,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "chesscom",
-														innerHTML: "chess.com"
+														innerHTML: "green"
 													},
 													attrs: { "selected": this.color=="chesscom" },
 												}
@@ -633,7 +629,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "chesstempo",
-														innerHTML: "chesstempo"
+														innerHTML: "blue"
 													},
 													attrs: { "selected": this.color=="chesstempo" },
 												}
@@ -647,9 +643,7 @@ Vue.component('my-game', {
 								[
 									h('label',
 										{
-											attrs: {
-												for: "selectSound",
-											},
+											attrs: { for: "selectSound" },
 											domProps: { innerHTML: "Sound level" },
 										},
 									),
@@ -954,12 +948,13 @@ Vue.component('my-game', {
 			this.hints = !this.hints;
 			setCookie("hints", this.hints ? "1" : "0");
 		},
-		// TODO:
-		setColor: function() {
-			alert("Change");
+		setColor: function(e) {
+			this.color = e.target.options[e.target.selectedIndex].value;
+			setCookie("color", this.color);
 		},
-		setSound: function() {
-			alert("Change");
+		setSound: function(e) {
+			this.sound = e.target.options[e.target.selectedIndex].value;
+			setCookie("sound", this.sound);
 		},
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
@@ -1033,10 +1028,10 @@ Vue.component('my-game', {
 			if (mode=="human")
 			{
 				// Opponent found!
-				if (!continuation)
+				if (!continuation) //not playing sound on game continuation
 				{
-					// Not playing sound on game continuation:
-					new Audio("/sounds/newgame.mp3").play().then(() => {}).catch(err => {});
+					if (this.sound >= 1)
+						new Audio("/sounds/newgame.mp3").play().then(() => {}).catch(err => {});
 					document.getElementById("modal-newgame").checked = false;
 				}
 				this.oppid = oppId;
@@ -1216,7 +1211,8 @@ Vue.component('my-game', {
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
+			if (this.sound == 2)
+				new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
 			if (this.mode != "idle")
 			{
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
