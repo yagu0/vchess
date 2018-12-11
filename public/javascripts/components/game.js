@@ -18,8 +18,9 @@ Vue.component('my-game', {
 			incheck: [],
 			pgnTxt: "",
 			hints: (getCookie("hints") === "1" ? true : false),
-			//color: TODO (lichess, chess.com, chesstempo)
-			//sound: TODO (0,1, 2)
+			color: getCookie("color", "lichess"), //lichess, chesscom or chesstempo
+			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
+			sound: getCookie("sound", "2"),
 		};
 	},
 	render(h) {
@@ -91,7 +92,7 @@ Vue.component('my-game', {
 			const settingsBtnElt = document.getElementById("settingsBtn");
 			const indicWidth = !!settingsBtnElt //-2 for border:
 				? parseFloat(window.getComputedStyle(settingsBtnElt).height.slice(0,-2)) - 2
-				: 30;
+				: 37; //TODO: always 37?
 			if (this.mode == "human")
 			{
 				let connectedIndic = h(
@@ -140,7 +141,6 @@ Vue.component('my-game', {
 						"topindicator": true,
 						"indic-right": true,
 						"settings-btn": true,
-						"small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "settings")]
@@ -244,6 +244,7 @@ Vue.component('my-game', {
 										['board'+sizeY]: true,
 										'light-square': (i+j)%2==0,
 										'dark-square': (i+j)%2==1,
+										[this.color]: true,
 										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
 										'incheck': showLight && incheckSq[ci][cj],
 									},
@@ -434,6 +435,7 @@ Vue.component('my-game', {
 			];
 			elementArray = elementArray.concat(modalEog);
 		}
+		// TODO: next 3 modals in (pug) view directly?!
 		const modalNewgame = [
 			h('input',
 				{
@@ -565,11 +567,27 @@ Vue.component('my-game', {
 							h('h3',
 								{
 									"class": { "section": true },
-									domProps: { innerHTML: "User settings" },
+									domProps: { innerHTML: "Preferences" },
 								}
 							),
 							// https://minicss.org/docs#forms-and-input
-							h('p', { domProps: { innerHTML: "TODO: hints" } }),
+							h('input',
+								{
+									attrs: {
+										"id": "setHints",
+										type: "checkbox",
+										checked: this.hints,
+									},
+								}
+							),
+							h('label',
+								{
+									attrs: {
+										for: "setHints",
+									},
+									domProps: { innerHTML: "Show hints?" },
+								},
+							),
 							h('p', { domProps: { innerHTML: "TODO: board(color)" } }),
 							h('p', { domProps: { innerHTML: "TODO: sound(level)" } }),
 						]

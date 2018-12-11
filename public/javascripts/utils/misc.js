@@ -1,5 +1,5 @@
 // Source: https://www.quirksmode.org/js/cookies.html
-function setCookie(name,value)
+function setCookie(name, value)
 {
 	var date = new Date();
 	date.setTime(date.getTime()+(183*24*60*60*1000)); //6 months
@@ -7,7 +7,7 @@ function setCookie(name,value)
 	document.cookie = name+"="+value+expires+"; path=/";
 }
 
-function getCookie(name) {
+function getCookie(name, defaut) {
 	var nameEQ = name + "=";
 	var ca = document.cookie.split(';');
 	for (var i=0;i < ca.length;i++)
@@ -18,7 +18,7 @@ function getCookie(name) {
 		if (c.indexOf(nameEQ) == 0)
 			return c.substring(nameEQ.length,c.length);
 	}
-	return null;
+	return defaut; //cookie not found
 }
 
 // Random (enough) string for socket and game IDs
