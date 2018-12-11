@@ -752,6 +752,7 @@ class ChessRules
 	// END OF GAME
 
 	// Basic check for 3 repetitions (in the last moves only)
+	// TODO: extend to usual 3-repetition recognition (storing FEN with move?)
 	checkRepetition()
 	{
 		if (this.moves.length >= 8)
@@ -988,9 +989,9 @@ class ChessRules
 	// Setup the initial random (assymetric) position
 	static GenRandInitFen()
 	{
-		let pieces = [new Array(8), new Array(8)];
+		let pieces = { "w": new Array(8), "b": new Array(8) };
 		// Shuffle pieces on first and last rank
-		for (let c = 0; c <= 1; c++)
+		for (let c of ["w","b"])
 		{
 			let positions = _.range(8);
 
@@ -1032,9 +1033,9 @@ class ChessRules
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		let fen = pieces[0].join("") +
+		let fen = pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
-			pieces[1].join("").toUpperCase() +
+			pieces["w"].join("").toUpperCase() +
 			" 1111"; //add flags
 		return fen;
 	}

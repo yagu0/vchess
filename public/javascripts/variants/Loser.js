@@ -113,7 +113,6 @@ class LoserRules extends ChessRules
 	// Unused:
 	updateVariables(move) { }
 	unupdateVariables(move) { }
-	parseFlags(flags) { }
 
 	getFlagsFen()
 	{
