@@ -1,5 +1,0 @@
-Idée pour bouton settings de même taille que turn indicators :
-dessiner un bouton de taille selon écran, invisible mais toujours là
---> le prendre comme référence (pour turn indicator)
-==> non, mais 2 tailles a priori (small sur smallscreens: à déterminer)
-modals --> in pug view
