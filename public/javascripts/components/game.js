@@ -92,7 +92,7 @@ Vue.component('my-game', {
 			const settingsBtnElt = document.getElementById("settingsBtn");
 			const indicWidth = !!settingsBtnElt //-2 for border:
 				? parseFloat(window.getComputedStyle(settingsBtnElt).height.slice(0,-2)) - 2
-				: 37; //TODO: always 37?
+				: (smallScreen ? 31 : 37);
 			if (this.mode == "human")
 			{
 				let connectedIndic = h(
@@ -140,8 +140,8 @@ Vue.component('my-game', {
 						"tooltip": true,
 						"topindicator": true,
 						"indic-right": true,
-						"settings-btn": true,
-						"small": smallScreen,
+						"settings-btn": !smallScreen,
+						"settings-btn-small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "settings")]
