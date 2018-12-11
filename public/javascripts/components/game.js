@@ -141,6 +141,7 @@ Vue.component('my-game', {
 						"topindicator": true,
 						"indic-right": true,
 						"settings-btn": true,
+						"small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "settings")]
@@ -181,6 +182,9 @@ Vue.component('my-game', {
 				})
 			);
 			// Create board element (+ reserves if needed by variant or mode)
+			const lm = this.vr.lastMove;
+			const showLight = this.hints &&
+				(this.mode!="idle" || this.cursor==this.vr.moves.length);
 			let gameDiv = h('div',
 				{
 					'class': { 'game': true },
@@ -233,9 +237,6 @@ Vue.component('my-game', {
 									)
 								);
 							}
-							const lm = this.vr.lastMove;
-							const showLight = this.hints &&
-								(this.mode!="idle" || this.cursor==this.vr.moves.length);
 							return h(
 								'div',
 								{
@@ -644,7 +645,7 @@ Vue.component('my-game', {
 									h('label',
 										{
 											attrs: { for: "selectSound" },
-											domProps: { innerHTML: "Sound level" },
+											domProps: { innerHTML: "Play sounds?" },
 										},
 									),
 									h("select",
@@ -657,7 +658,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "0",
-														innerHTML: "No sound"
+														innerHTML: "None"
 													},
 												}
 											),
@@ -665,7 +666,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "1",
-														innerHTML: "Newgame sound"
+														innerHTML: "Newgame"
 													},
 												}
 											),
@@ -673,7 +674,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "2",
-														innerHTML: "All sounds"
+														innerHTML: "All"
 													},
 												}
 											),
@@ -953,7 +954,7 @@ Vue.component('my-game', {
 			setCookie("color", this.color);
 		},
 		setSound: function(e) {
-			this.sound = e.target.options[e.target.selectedIndex].value;
+			this.sound = parseInt(e.target.options[e.target.selectedIndex].value);
 			setCookie("sound", this.sound);
 		},
 		clickGameSeek: function(e) {
