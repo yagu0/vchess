@@ -660,6 +660,7 @@ Vue.component('my-game', {
 														"value": "0",
 														innerHTML: "None"
 													},
+													attrs: { "selected": this.sound==0 },
 												}
 											),
 											h("option",
@@ -668,6 +669,7 @@ Vue.component('my-game', {
 														"value": "1",
 														innerHTML: "Newgame"
 													},
+													attrs: { "selected": this.sound==1 },
 												}
 											),
 											h("option",
@@ -676,6 +678,7 @@ Vue.component('my-game', {
 														"value": "2",
 														innerHTML: "All"
 													},
+													attrs: { "selected": this.sound==2 },
 												}
 											),
 										],
