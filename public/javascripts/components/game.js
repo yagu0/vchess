@@ -700,7 +700,10 @@ Vue.component('my-game', {
 		{
 			elementArray.push(
 				h('div',
-					{ attrs: { id: "pgn-div" } },
+					{
+						attrs: { id: "pgn-div" },
+						"class": { "section-content": true },
+					},
 					[
 						h('a',
 							{
@@ -713,10 +716,16 @@ Vue.component('my-game', {
 						h('p',
 							{
 								attrs: { id: "pgn-game" },
-								on: { click: this.download },
 								domProps: { innerHTML: this.pgnTxt }
 							}
-						)
+						),
+						h('button',
+							{
+								attrs: { "id": "downloadBtn" },
+								on: { click: this.download },
+								domProps: { innerHTML: "Download game" },
+							}
+						),
 					]
 				)
 			);
@@ -726,7 +735,10 @@ Vue.component('my-game', {
 			// Show current FEN
 			elementArray.push(
 				h('div',
-					{ attrs: { id: "fen-div" } },
+					{
+						attrs: { id: "fen-div" },
+						"class": { "section-content": true },
+					},
 					[
 						h('p',
 							{
