@@ -276,14 +276,17 @@ class UltimaRules extends ChessRules
 		return super.getPotentialQueenMoves(sq).concat(this.getKnightCaptures(sq));
 	}
 
-	getPotentialBishopMoves(sq)
+	getPotentialBishopMoves([x,y])
 	{
-		let moves = super.getPotentialQueenMoves(sq)
-			.concat(this.getKnightCaptures(sq,"asChameleon"));
-		// NOTE: no "addKingCaptures" because the king isn't captured
+		let moves = super.getPotentialQueenMoves([x,y])
+			.concat(this.getKnightCaptures([x,y],"asChameleon"));
 		this.addPawnCaptures(moves, "asChameleon");
 		this.addRookCaptures(moves, "asChameleon");
 		this.addQueenCaptures(moves, "asChameleon");
+		// Add king capture if it's within range
+		const oppKp = this.kingPos[this.getOppCol(this.turn)];
+		if (Math.abs(x-oppKp[0]) <= 1 && Math.abs(y-oppKp[1]) <= 1)
+			moves.push(this.getBasicMove([x,y],oppKp));
 		// Post-processing: merge similar moves, concatenating vanish arrays
 		let mergedMoves = {};
 		const [sizeX,sizeY] = VariantRules.size;
@@ -365,141 +368,33 @@ class UltimaRules extends ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
-	// isAttacked() is OK because the immobilizer doesn't take
-
-	isAttackedByPawn([x,y], colors)
+	// TODO: verify this assertion
+	atLeastOneMove()
 	{
-		// Square (x,y) must be surrounded by two enemy pieces,
-		// and one of them at least should be a pawn.
-		const dirs = [ [1,0],[0,1],[1,1],[-1,1] ];
-		const [sizeX,sizeY] = VariantRules.size;
-		for (let dir of dirs)
-		{
-			const [i1,j1] = [x-dir[0],y-dir[1]]; //"before"
-			const [i2,j2] = [x+dir[0],y+dir[1]]; //"after"
-			if (i1>=0 && i1<sizeX && i2>=0 && i2<sizeX
-				&& j1>=0 && j1<sizeY && j2>=0 && j2<sizeY
-				&& this.board[i1][j1]!=VariantRules.EMPTY
-				&& this.board[i2][j2]!=VariantRules.EMPTY
-				&& colors.includes(this.getColor(i1,j1))
-				&& colors.includes(this.getColor(i2,j2))
-				&& [this.getPiece(i1,j1),this.getPiece(i2,j2)].includes(VariantRules.PAWN))
-			{
-				return true;
-			}
-		}
-		return false;
+		return true; //always at least one possible move
 	}
 
-	isAttackedByRook([x,y], colors)
+	underCheck(move)
 	{
-		const [sizeX,sizeY] = VariantRules.size;
-		// King must be on same column and a rook on same row (or reverse)
-		if (x == this.kingPos[colors[0]][0]) //using colors[0], only element in this case
-		{
-			// Look for enemy rook on this column
-			for (let i=0; i<sizeY; i++)
-			{
-				if (this.board[x][i] != VariantRules.EMPTY
-					&& colors.includes(this.getColor(x,i))
-					&& this.getPiece(x,i) == VariantRules.ROOK)
-				{
-					return true;
-				}
-			}
-		}
-		else if (y == this.kingPos[colors[0]][1])
-		{
-			// Look for enemy rook on this row
-			for (let i=0; i<sizeX; i++)
-			{
-				if (this.board[i][y] != VariantRules.EMPTY
-					&& colors.includes(this.getColor(i,y))
-					&& this.getPiece(i,y) == VariantRules.ROOK)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
+		return false; //there is no check
 	}
 
-	isAttackedByKnight([x,y], colors)
+	getCheckSquares(move)
 	{
-		// Square (x,y) must be on same line as a knight,
-		// and there must be empty square(s) behind.
-		const V = VariantRules;
-		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
-		for (let step of steps)
-		{
-			const [i0,j0] = [x+step[0],y+step[1]];
-			if (i0>=0 && i0<sizeX && j0>=0 && j0<sizeY && this.board[i0][j0] == V.EMPTY)
-			{
-				// Try in opposite direction:
-				let [i,j] = [x-step[0],y-step[1]];
-				while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
-				{
-					i -= step[0];
-					j -= step[1];
-				}
-				if (i>=0 && i<sizeX && j>=0 && j<sizeY && colors.includes(this.getColor(i,j))
-					&& this.getPiece(i,j) == V.KNIGHT)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	isAttackedByBishop([x,y], colors)
-	{
-		// We cheat a little here: since this function is used exclusively for king,
-		// it's enough to check the immediate surrounding of the square.
-		const V = VariantRules;
-		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
-		for (let step of adjacentSteps)
-		{
-			const [i,j] = [x+step[0],y+step[1]];
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]!=V.EMPTY
-				&& colors.includes(this.getColor(i,j)) && this.getPiece(i,j) == V.BISHOP)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	isAttackedByQueen([x,y], colors)
-	{
-		// Square (x,y) must be adjacent to a queen, and the queen must have
-		// some free space in the opposite direction from (x,y)
-		const V = VariantRules;
-		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
-		for (let step of adjacentSteps)
-		{
-			const sq2 = [x+2*step[0],y+2*step[1]];
-			if (sq2[0]>=0 && sq2[0]<sizeX && sq2[1]>=0 && sq2[1]<sizeY
-				&& this.board[sq2[0]][sq2[1]] == V.EMPTY)
-			{
-				const sq1 = [x+step[0],y+step[1]];
-				if (this.board[sq1[0]][sq1[1]] != V.EMPTY
-					&& colors.includes(this.getColor(sq1[0],sq1[1]))
-					&& this.getPiece(sq1[0],sq1[1]) == V.QUEEN)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
+		const c = this.getOppCol(this.turn); //opponent
+		const saveKingPos = this.kingPos[c]; //king might be taken
+		this.play(move);
+		// The only way to be "under check" is to have lost the king (thus game over)
+		let res = this.kingPos[c][0] < 0
+			? [ JSON.parse(JSON.stringify(saveKingPos)) ]
+			: [ ];
+		this.undo(move);
+		return res;
 	}
 
 	updateVariables(move)
 	{
-		// Just update king position
+		// Just update king(s) position(s)
 		const piece = this.getPiece(move.start.x,move.start.y);
 		const c = this.getColor(move.start.x,move.start.y);
 		if (piece == VariantRules.KING && move.appear.length > 0)
@@ -507,11 +402,53 @@ class UltimaRules extends ChessRules
 			this.kingPos[c][0] = move.appear[0].x;
 			this.kingPos[c][1] = move.appear[0].y;
 		}
+		// Does this move takes opponent's king?
+		const oppCol = this.getOppCol(c);
+		for (let psq of move.vanish)
+		{
+			if (psq.p == VariantRules.KING)
+			{
+				this.kingPos[oppCol] = [-1,-1];
+				break;
+			}
+		}
+	}
+
+	unupdateVariables(move)
+	{
+		super.unupdateVariables(move);
+		const c = this.getColor(move.start.x,move.start.y);
+		const oppCol = this.getOppCol(c);
+		if (this.kingPos[oppCol][0] < 0)
+		{
+			// Last move took opponent's king
+			for (let psq of move.vanish)
+			{
+				if (psq.p == 'k')
+				{
+					this.kingPos[oppCol] = [psq.x, psq.y];
+					break;
+				}
+			}
+		}
+	}
+
+	checkGameOver()
+	{
+		if (this.checkRepetition())
+			return "1/2";
+
+		const color = this.turn;
+		// TODO: do we need "atLeastOneMove()"?
+		if (this.atLeastOneMove() && this.kingPos[color][0] >= 0)
+			return "*";
+
+		return this.checkGameEnd();
 	}
 
 	checkGameEnd()
 	{
-		// No valid move: game is lost (stalemate is a win)
+		// No valid move: our king disappeared
 		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
@@ -528,6 +465,10 @@ class UltimaRules extends ChessRules
 	}
 
 	static get SEARCH_DEPTH() { return 2; } //TODO?
+
+	static get THRESHOLD_MATE() {
+		return 500; //checkmates evals may be slightly below 1000
+	}
 
 	static GenRandInitFen()
 	{
