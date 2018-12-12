@@ -13,5 +13,4 @@ module.exports = [
 	{ "name": "Switching", "description": "Exchange pieces positions" },
 	{ "name": "Extinction", "description": "Capture all of a kind" },
 	{ "name": "Ultima", "description": "Non-standard captures" },
-	{ "name": "Half", "description": "Small board" },
 ];
