@@ -1033,11 +1033,10 @@ class ChessRules
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		let fen = pieces["b"].join("") +
+		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
 			" 1111"; //add flags
-		return fen;
 	}
 
 	// Return current fen according to pieces+colors state

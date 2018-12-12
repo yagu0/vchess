@@ -142,4 +142,60 @@ class LoserRules extends ChessRules
 	{
 		return - super.evalPosition(); //better with less material
 	}
+
+	static GenRandInitFen()
+	{
+		let pieces = { "w": new Array(8), "b": new Array(8) };
+		// Shuffle pieces on first and last rank
+		for (let c of ["w","b"])
+		{
+			let positions = _.range(8);
+
+			// Get random squares for bishops
+			let randIndex = 2 * _.random(3);
+			let bishop1Pos = positions[randIndex];
+			// The second bishop must be on a square of different color
+			let randIndex_tmp = 2 * _.random(3) + 1;
+			let bishop2Pos = positions[randIndex_tmp];
+			// Remove chosen squares
+			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
+			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
+
+			// Get random squares for knights
+			randIndex = _.random(5);
+			let knight1Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+			randIndex = _.random(4);
+			let knight2Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// Get random square for queen
+			randIndex = _.random(3);
+			let queenPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// Random square for king (no castle)
+			randIndex = _.random(2);
+			let kingPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// Rooks positions are now fixed
+			let rook1Pos = positions[0];
+			let rook2Pos = positions[1];
+
+			// Finally put the shuffled pieces in the board array
+			pieces[c][rook1Pos] = 'r';
+			pieces[c][knight1Pos] = 'n';
+			pieces[c][bishop1Pos] = 'b';
+			pieces[c][queenPos] = 'q';
+			pieces[c][kingPos] = 'k';
+			pieces[c][bishop2Pos] = 'b';
+			pieces[c][knight2Pos] = 'n';
+			pieces[c][rook2Pos] = 'r';
+		}
+		return pieces["b"].join("") +
+			"/pppppppp/8/8/8/8/PPPPPPPP/" +
+			pieces["w"].join("").toUpperCase() +
+			" 0000"; //add flags (TODO?!)
+	}
 }

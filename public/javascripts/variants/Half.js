@@ -1,8 +1,35 @@
+// Standard rules on a 4x8 board with no pawns
 class HalfRules extends ChessRules
 {
-	// Standard rules on a 4x8 board with no pawns
-
-	initVariables(fen) { } //nothing to do
+	initVariables(fen)
+	{
+		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]};
+		const fenParts = fen.split(" ");
+		const position = fenParts[0].split("/");
+		for (let i=0; i<position.length; i++)
+		{
+			let k = 0;
+			for (let j=0; j<position[i].length; j++)
+			{
+				switch (position[i].charAt(j))
+				{
+					case 'k':
+						this.kingPos['b'] = [i,k];
+						break;
+					case 'K':
+						this.kingPos['w'] = [i,k];
+						break;
+					default:
+						let num = parseInt(position[i].charAt(j));
+						if (!isNaN(num))
+							k += (num-1);
+				}
+				k++;
+			}
+		}
+		// No pawns so no ep., but otherwise we must redefine play()
+		this.epSquares = [];
+	}
 
 	setFlags(fen)
 	{
@@ -10,7 +37,7 @@ class HalfRules extends ChessRules
 		this.castleFlags = { "w":[false,false], "b":[false,false] };
 	}
 
-	static get size() { return [8,4]; }
+	static get size() { return [4,8]; }
 
 	getPotentialKingMoves(sq)
 	{
@@ -29,11 +56,17 @@ class HalfRules extends ChessRules
 			|| this.isAttackedByKing(sq, colors));
 	}
 
-	// Unused:
-	updateVariables(move) { }
-	unupdateVariables(move) { }
-
-	static get SEARCH_DEPTH() { return 4; }
+	updateVariables(move)
+	{
+		// Just update king position
+		const piece = this.getPiece(move.start.x,move.start.y);
+		const c = this.getColor(move.start.x,move.start.y);
+		if (piece == VariantRules.KING)
+		{
+			this.kingPos[c][0] = move.appear[0].x;
+			this.kingPos[c][1] = move.appear[0].y;
+		}
+	}
 
 	static GenRandInitFen()
 	{
@@ -71,18 +104,29 @@ class HalfRules extends ChessRules
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
+			// Random square for king (no castle)
+			randIndex = _.random(2);
+			let kingPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
 			// Rooks and king positions:
 			let rook1Pos = positions[0];
-			let kingPos = positions[1];
-			let rook2Pos = positions[2];
+			let rook2Pos = positions[1];
 
 			majorPieces[c][rook1Pos] = 'r';
 			majorPieces[c][rook2Pos] = 'r';
 			majorPieces[c][kingPos] = 'k';
 			majorPieces[c][queenPos] = 'q';
 		}
-		return majorPieces["b"].join("") + "/" + minorPieces["b"].join("") + "/4/4/4/4/" +
-			minorPieces["w"].join("").toUpperCase() + "/" +
-			majorPieces["w"].join("").toUpperCase() + " 0000"; //TODO: flags?!
+		let fen = "";
+		for (let i=0; i<4; i++)
+		{
+			fen += majorPieces["b"][i] + minorPieces["b"][i] + "4" +
+				minorPieces["w"][i].toUpperCase() + majorPieces["w"][i].toUpperCase();
+			if (i < 3)
+				fen += "/";
+		}
+		fen += " 0000"; //TODO: flags?!
+		return fen;
 	}
 }
