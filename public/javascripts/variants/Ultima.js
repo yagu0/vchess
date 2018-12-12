@@ -72,7 +72,7 @@ class UltimaRules extends ChessRules
 				{
 					return [ new Move({
 						appear: [],
-						vanish: [{x:x,y:y,p:piece,c:color}],
+						vanish: [new PiPo({x:x,y:y,p:piece,c:color})],
 						start: {x:x,y:y},
 						end: {x:i,y:j}
 					}) ];
@@ -118,23 +118,58 @@ class UltimaRules extends ChessRules
 		return moves;
 	}
 
+	// Modify capturing moves among listed pawn moves
+	addPawnCaptures(moves, byChameleon)
+	{
+		const steps = VariantRules.steps[VariantRules.ROOK];
+		const [sizeX,sizeY] = VariantRules.size;
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		moves.forEach(m => {
+			if (!!byChameleon && m.start.x!=m.end.x && m.start.y!=m.end.y)
+				return; //chameleon not moving as pawn
+			// Try capturing in every direction
+			for (let step of steps)
+			{
+				const sq2 = [m.end.x+2*step[0],m.end.y+2*step[1]];
+				if (sq2[0]>=0 && sq2[0]<sizeX && sq2[1]>=0 && sq2[1]<sizeY
+					&& this.board[sq2[0]][sq2[1]] != VariantRules.EMPTY
+					&& this.getColor(sq2[0],sq2[1]) == color)
+				{
+					// Potential capture
+					const sq1 = [m.end.x+step[0],m.end.y+step[1]];
+					if (this.board[sq1[0]][sq1[1]] != VariantRules.EMPTY
+						&& this.getColor(sq1[0],sq1[1]) == oppCol)
+					{
+						const piece1 = this.getPiece(sq1[0],sq1[1]);
+						if (!byChameleon || piece1 == VariantRules.PAWN)
+						{
+							m.vanish.push(new PiPo({
+								x:sq1[0],
+								y:sq1[1],
+								c:oppCol,
+								p:piece1
+							}));
+						}
+					}
+				}
+			}
+		});
+	}
+
 	// "Pincher"
 	getPotentialPawnMoves([x,y])
 	{
 		let moves = super.getPotentialRookMoves([x,y]);
-		// Add captures
-		moves.forEach(m => {
-			if (m
-		});
+		this.addPawnCaptures(moves);
+		return moves;
 	}
 
-	// Coordinator
-	getPotentialRookMoves(sq)
+	addRookCaptures(moves, byChameleon)
 	{
-		const color = this.getColor(sq);
+		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		const kp = this.kingPos[color];
-		let moves = super.getPotentialQueenMoves(sq);
 		moves.forEach(m => {
 			// Check piece-king rectangle (if any) corners for enemy pieces
 			if (m.end.x == kp[0] || m.end.y == kp[1])
@@ -145,27 +180,42 @@ class UltimaRules extends ChessRules
 			{
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == oppCol)
 				{
-					m.vanish.push( new PiPo({
-						x:i,
-						y:j,
-						p:this.getPiece(i,j),
-						c:oppCol
-					}) );
+					const piece = this.getPiece(i,j);
+					if (!byChameleon || piece == VariantRules.ROOK)
+					{
+						m.vanish.push( new PiPo({
+							x:i,
+							y:j,
+							p:piece,
+							c:oppCol
+						}) );
+					}
 				}
 			}
 		});
+	}
+
+	// Coordinator
+	getPotentialRookMoves(sq)
+	{
+		let moves = super.getPotentialQueenMoves(sq);
+		this.addRookCaptures(moves);
 		return moves;
 	}
 
 	// Long-leaper
-	getPotentialKnightMoves([x,y])
+	getKnightCaptures(startSquare, byChameleon)
 	{
-		let moves = super.getPotentialQueenMoves(sq);
 		// Look in every direction for captures
 		const V = VariantRules;
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		const [sizeX,sizeY] = V.size;
-		const color = this.getColor(x,y);
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		let moves = [];
+		const [x,y] = [startSquare[0],startSquare[1]];
+		const piece = this.getPiece(x,y); //might be a chameleon!
+		outerLoop:
 		for (let step of steps)
 		{
 			let [i,j] = [x+step[0], y+step[1]];
@@ -174,44 +224,115 @@ class UltimaRules extends ChessRules
 				i += step[0];
 				j += step[1];
 			}
-			if (i<0 && i>=sizeX || j<0 || j>=sizeY || this.getColor(i,j)==color)
+			if (i<0 || i>=sizeX || j<0 || j>=sizeY || this.getColor(i,j)==color
+				|| (!!byChameleon && this.getPiece(i,j)!=V.KNIGHT))
+			{
 				continue;
-			// Found an enemy piece: potential capture (if empty space behind)
-			// So, while we find enemy pieces + space in this direction, add captures!
-			i += step[0];
-			j += step[1];
-			while ( ) //TODO: finish........
+			}
+			// last(thing), cur(thing) : stop if "cur" is our color, or beyond board limits,
+			// or if "last" isn't empty and cur neither. Otherwise, if cur is empty then
+			// add move until cur square; if cur is occupied then stop if !!byChameleon and
+			// the square not occupied by a leaper.
+			let last = [i,j];
+			let cur = [i+step[0],j+step[1]];
+			let vanished = [ new PiPo({x:x,y:y,c:color,p:piece}) ];
+			while (cur[0]>=0 && cur[0]<sizeX && cur[1]>=0 && cur[1]<sizeY)
+			{
+				if (this.board[last[0]][last[1]] != V.EMPTY)
+				{
+					const oppPiece = this.getPiece(last[0],last[1]);
+					if (!!byChameleon && oppPiece != V.KNIGHT)
+						continue outerLoop;
+					// Something to eat:
+					vanished.push( new PiPo({x:last[0],y:last[1],c:oppCol,p:oppPiece}) );
+				}
+				if (this.board[cur[0]][cur[1]] != V.EMPTY)
+				{
+					if (this.getColor(cur[0],cur[1]) == color
+						|| this.board[last[0]][last[1]] != V.EMPTY) //TODO: redundant test
+					{
+						continue outerLoop;
+					}
+				}
+				else
+				{
+					moves.push(new Move({
+						appear: [ new PiPo({x:cur[0],y:cur[1],c:color,p:piece}) ],
+						vanish: JSON.parse(JSON.stringify(vanished)), //TODO: required?
+						start: {x:x,y:y},
+						end: {x:cur[0],y:cur[1]}
+					}));
+				}
+				last = [last[0]+step[0],last[1]+step[1]];
+				cur = [cur[0]+step[0],cur[1]+step[1]];
+			}
 		}
 		return moves;
 	}
 
-	getPotentialBishopMoves(sq)
+	// Long-leaper
+	getPotentialKnightMoves(sq)
 	{
-		return super.getPotentialQueenMoves(sq);
-		// TODO: add captures of coordinators,pinchers,withdrawers... by re-using code
+		return super.getPotentialQueenMoves(sq).concat(this.getKnightCaptures(sq));
 	}
 
-	getPotentialQueenMoves([x,y])
+	getPotentialBishopMoves(sq)
 	{
-		let moves = super.getPotentialQueenMoves(sq);
+		let moves = super.getPotentialQueenMoves(sq)
+			.concat(this.getKnightCaptures(sq,"asChameleon"));
+		// NOTE: no "addKingCaptures" because the king isn't captured
+		this.addPawnCaptures(moves, "asChameleon");
+		this.addRookCaptures(moves, "asChameleon");
+		this.addQueenCaptures(moves, "asChameleon");
+		// Post-processing: merge similar moves, concatenating vanish arrays
+		let mergedMoves = {};
+		const [sizeX,sizeY] = VariantRules.size;
+		moves.forEach(m => {
+			const key = m.end.x + sizeX * m.end.y;
+			if (!mergedMoves[key])
+				mergedMoves[key] = m;
+			else
+			{
+				for (let i=1; i<m.vanish.length; i++)
+					mergedMoves[key].vanish.push(m.vanish[i]);
+			}
+		});
+		// Finally return an array
+		moves = [];
+		Object.keys(mergedMoves).forEach(k => { moves.push(mergedMoves[k]); });
+		return moves;
+	}
+
+	// Withdrawer
+	addQueenCaptures(moves, byChameleon)
+	{
+		if (moves.length == 0)
+			return;
+		const [x,y] = [moves[0].start.x,moves[0].start.y];
 		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		let capturingDirections = [];
-		const color = this.getColor(x,y);
+		const color = this.turn;
 		const oppCol = this.getOppCol(color);
+		const [sizeX,sizeY] = V.size;
 		adjacentSteps.forEach(step => {
 			const [i,j] = [x+step[0],y+step[1]];
-			if (this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol)
+			if (i>=0 && i<sizeX && j>=0 && j<sizeY
+				&& this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol
+				&& (!byChameleon || this.getPiece(i,j) == V.QUEEN))
+			{
 				capturingDirections.push(step);
+			}
 		});
 		moves.forEach(m => {
 			const step = [
 				m.end.x!=x ? (m.end.x-x)/Math.abs(m.end.x-x) : 0,
 				m.end.y!=y ? (m.end.y-y)/Math.abs(m.end.y-y) : 0
 			];
-			// NOTE: includes() function does not work on complex array elements
+			// NOTE: includes() and even _.isEqual() functions fail...
 			// TODO: this test should be done only once per direction
-			if (capturingDirection.some(dir => _.isEqual(dir, step)))
+			if (capturingDirections.some(dir =>
+				{ return (dir[0]==-step[0] && dir[1]==-step[1]); }))
 			{
 				const [i,j] = [x-step[0],y-step[1]];
 				m.vanish.push(new PiPo({
@@ -224,8 +345,16 @@ class UltimaRules extends ChessRules
 		});
 	}
 
+	getPotentialQueenMoves(sq)
+	{
+		let moves = super.getPotentialQueenMoves(sq);
+		this.addQueenCaptures(moves);
+		return moves;
+	}
+
 	getPotentialImmobilizerMoves(sq)
 	{
+		// Immobilizer doesn't capture
 		return super.getPotentialQueenMoves(sq);
 	}
 
@@ -248,12 +377,14 @@ class UltimaRules extends ChessRules
 	isAttackedByRook(sq, colors)
 	{
 		// Enemy king must be on same file and a rook on same row (or reverse)
+		return false;
 	}
 
 	isAttackedByKnight(sq, colors)
 	{
 		// Square (x,y) must be on same line as a knight,
 		// and there must be empty square(s) behind.
+		return false;
 	}
 
 	isAttackedByBishop(sq, colors)
@@ -261,12 +392,14 @@ class UltimaRules extends ChessRules
 		// switch on piece nature on square sq: a chameleon attack as this piece
 		// ==> call the appropriate isAttackedBy... (exception of immobilizers)
 		// Other exception: a chameleon cannot attack a chameleon (seemingly...)
+		return false;
 	}
 
 	isAttackedByQueen(sq, colors)
 	{
 		// Square (x,y) must be adjacent to a queen, and the queen must have
 		// some free space in the opposite direction from (x,y)
+		return false;
 	}
 
 	updateVariables(move)
@@ -279,6 +412,12 @@ class UltimaRules extends ChessRules
 			this.kingPos[c][0] = move.appear[0].x;
 			this.kingPos[c][1] = move.appear[0].y;
 		}
+	}
+
+	checkGameEnd()
+	{
+		// No valid move: game is lost (stalemate is a win)
+		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
 	static get VALUES() { //TODO: totally experimental!
@@ -351,5 +490,16 @@ class UltimaRules extends ChessRules
 	getFlagsFen()
 	{
 		return "0000"; //TODO: or "-" ?
+	}
+
+	getNotation(move)
+	{
+		if (move.appear.length == 0)
+		{
+			const startSquare =
+				String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+			return "^" + startSquare; //suicide
+		}
+		return super.getNotation(move);
 	}
 }
