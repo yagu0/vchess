@@ -52,6 +52,7 @@ class UltimaRules extends ChessRules
 
 	getPotentialMovesFrom([x,y])
 	{
+		// TODO: pre-check: is thing on this square immobilized? If yes, return []
 		switch (this.getPiece(x,y))
 		{
 			case VariantRules.IMMOBILIZER:
@@ -117,6 +118,11 @@ class UltimaRules extends ChessRules
 	}
 
 	getPotentialQueenMoves(sq)
+	{
+		return super.getPotentialQueenMoves(sq);
+	}
+
+	getPotentialImmobilizerMoves(sq)
 	{
 		return super.getPotentialQueenMoves(sq);
 	}
@@ -223,7 +229,7 @@ class UltimaRules extends ChessRules
 			randIndex = _.random(1);
 			const rookPos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			const immobilizerPos = positions[2];
+			const immobilizerPos = positions[0];
 
 			pieces[c][bishop1Pos] = 'b';
 			pieces[c][bishop2Pos] = 'b';
