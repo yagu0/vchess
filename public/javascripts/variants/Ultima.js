@@ -404,9 +404,9 @@ class UltimaRules extends ChessRules
 		}
 		// Does this move takes opponent's king?
 		const oppCol = this.getOppCol(c);
-		for (let psq of move.vanish)
+		for (let i=1; i<move.vanish.length; i++)
 		{
-			if (psq.p == VariantRules.KING)
+			if (move.vanish[i].p == VariantRules.KING)
 			{
 				this.kingPos[oppCol] = [-1,-1];
 				break;
@@ -422,8 +422,9 @@ class UltimaRules extends ChessRules
 		if (this.kingPos[oppCol][0] < 0)
 		{
 			// Last move took opponent's king
-			for (let psq of move.vanish)
+			for (let i=1; i<move.vanish.length; i++)
 			{
+				const psq = move.vanish[i];
 				if (psq.p == 'k')
 				{
 					this.kingPos[oppCol] = [psq.x, psq.y];
