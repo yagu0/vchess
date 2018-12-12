@@ -370,35 +370,130 @@ class UltimaRules extends ChessRules
 	isAttackedByPawn([x,y], colors)
 	{
 		// Square (x,y) must be surrounded by two enemy pieces,
-		// and one of them at least should be a pawn
+		// and one of them at least should be a pawn.
+		const dirs = [ [1,0],[0,1],[1,1],[-1,1] ];
+		const [sizeX,sizeY] = VariantRules.size;
+		for (let dir of dirs)
+		{
+			const [i1,j1] = [x-dir[0],y-dir[1]]; //"before"
+			const [i2,j2] = [x+dir[0],y+dir[1]]; //"after"
+			if (i1>=0 && i1<sizeX && i2>=0 && i2<sizeX
+				&& j1>=0 && j1<sizeY && j2>=0 && j2<sizeY
+				&& this.board[i1][j1]!=VariantRules.EMPTY
+				&& this.board[i2][j2]!=VariantRules.EMPTY
+				&& colors.includes(this.getColor(i1,j1))
+				&& colors.includes(this.getColor(i2,j2))
+				&& [this.getPiece(i1,j1),this.getPiece(i2,j2)].includes(VariantRules.PAWN))
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
-	isAttackedByRook(sq, colors)
+	isAttackedByRook([x,y], colors)
 	{
-		// Enemy king must be on same file and a rook on same row (or reverse)
+		const [sizeX,sizeY] = VariantRules.size;
+		// King must be on same column and a rook on same row (or reverse)
+		if (x == this.kingPos[colors[0]][0]) //using colors[0], only element in this case
+		{
+			// Look for enemy rook on this column
+			for (let i=0; i<sizeY; i++)
+			{
+				if (this.board[x][i] != VariantRules.EMPTY
+					&& colors.includes(this.getColor(x,i))
+					&& this.getPiece(x,i) == VariantRules.ROOK)
+				{
+					return true;
+				}
+			}
+		}
+		else if (y == this.kingPos[colors[0]][1])
+		{
+			// Look for enemy rook on this row
+			for (let i=0; i<sizeX; i++)
+			{
+				if (this.board[i][y] != VariantRules.EMPTY
+					&& colors.includes(this.getColor(i,y))
+					&& this.getPiece(i,y) == VariantRules.ROOK)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
-	isAttackedByKnight(sq, colors)
+	isAttackedByKnight([x,y], colors)
 	{
 		// Square (x,y) must be on same line as a knight,
 		// and there must be empty square(s) behind.
+		const V = VariantRules;
+		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+		const [sizeX,sizeY] = V.size;
+		for (let step of steps)
+		{
+			const [i0,j0] = [x+step[0],y+step[1]];
+			if (i0>=0 && i0<sizeX && j0>=0 && j0<sizeY && this.board[i0][j0] == V.EMPTY)
+			{
+				// Try in opposite direction:
+				let [i,j] = [x-step[0],y-step[1]];
+				while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
+				{
+					i -= step[0];
+					j -= step[1];
+				}
+				if (i>=0 && i<sizeX && j>=0 && j<sizeY && colors.includes(this.getColor(i,j))
+					&& this.getPiece(i,j) == V.KNIGHT)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
-	isAttackedByBishop(sq, colors)
+	isAttackedByBishop([x,y], colors)
 	{
-		// switch on piece nature on square sq: a chameleon attack as this piece
-		// ==> call the appropriate isAttackedBy... (exception of immobilizers)
-		// Other exception: a chameleon cannot attack a chameleon (seemingly...)
+		// We cheat a little here: since this function is used exclusively for king,
+		// it's enough to check the immediate surrounding of the square.
+		const V = VariantRules;
+		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+		const [sizeX,sizeY] = V.size;
+		for (let step of adjacentSteps)
+		{
+			const [i,j] = [x+step[0],y+step[1]];
+			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]!=V.EMPTY
+				&& colors.includes(this.getColor(i,j)) && this.getPiece(i,j) == V.BISHOP)
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
-	isAttackedByQueen(sq, colors)
+	isAttackedByQueen([x,y], colors)
 	{
 		// Square (x,y) must be adjacent to a queen, and the queen must have
 		// some free space in the opposite direction from (x,y)
+		const V = VariantRules;
+		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+		const [sizeX,sizeY] = V.size;
+		for (let step of adjacentSteps)
+		{
+			const sq2 = [x+2*step[0],y+2*step[1]];
+			if (sq2[0]>=0 && sq2[0]<sizeX && sq2[1]>=0 && sq2[1]<sizeY
+				&& this.board[sq2[0]][sq2[1]] == V.EMPTY)
+			{
+				const sq1 = [x+step[0],y+step[1]];
+				if (this.board[sq1[0]][sq1[1]] != V.EMPTY
+					&& colors.includes(this.getColor(sq1[0],sq1[1]))
+					&& this.getPiece(sq1[0],sq1[1]) == V.QUEEN)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
