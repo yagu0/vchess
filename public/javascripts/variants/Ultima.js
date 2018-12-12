@@ -368,12 +368,6 @@ class UltimaRules extends ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
-	// TODO: verify this assertion
-	atLeastOneMove()
-	{
-		return true; //always at least one possible move
-	}
-
 	underCheck(move)
 	{
 		return false; //there is no check
@@ -440,7 +434,6 @@ class UltimaRules extends ChessRules
 			return "1/2";
 
 		const color = this.turn;
-		// TODO: do we need "atLeastOneMove()"?
 		if (this.atLeastOneMove() && this.kingPos[color][0] >= 0)
 			return "*";
 
@@ -449,7 +442,7 @@ class UltimaRules extends ChessRules
 
 	checkGameEnd()
 	{
-		// No valid move: our king disappeared
+		// Stalemate, or our king disappeared
 		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
