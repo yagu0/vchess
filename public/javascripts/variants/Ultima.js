@@ -445,6 +445,7 @@ class UltimaRules extends ChessRules
 				for (let j=0; j<sizeY; j++)
 				{
 					if (this.board[i][j] != VariantRules.EMPTY
+						&& colors.includes(this.getColor(i,j))
 						&& this.getPiece(i,j) == VariantRules.ROOK)
 					{
 						if (this.isImmobilized([i,j]))
