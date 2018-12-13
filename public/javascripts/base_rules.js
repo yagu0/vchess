@@ -54,6 +54,7 @@ class ChessRules
 	constructor(fen, moves)
 	{
 		this.moves = moves;
+		this.hashStates = {}; //for repetitions detection
 		// Use fen string to initialize variables, flags and board
 		this.board = VariantRules.GetBoard(fen);
 		this.setFlags(fen);
@@ -727,6 +728,18 @@ class ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
+	// Store a hash of the position + flags + turn after a move is played
+	// (for repetitions detection)
+	addHashState()
+	{
+		const strToHash = this.getFen() + " " + this.turn;
+		const hash = hex_md5(strToHash);
+		if (!this.hashStates[hash])
+			this.hashStates[hash] = 1;
+		else
+			this.hashStates[hash]++;
+	}
+
 	play(move, ingame)
 	{
 		// DEBUG:
@@ -741,6 +754,9 @@ class ChessRules
 		this.moves.push(move);
 		this.epSquares.push( this.getEpSquare(move) );
 		VariantRules.PlayOnBoard(this.board, move);
+
+		if (!!ingame)
+			this.addHashState();
 	}
 
 	undo(move)
@@ -760,22 +776,10 @@ class ChessRules
 	//////////////
 	// END OF GAME
 
-	// Basic check for 3 repetitions (in the last moves only)
-	// TODO: extend to usual 3-repetition recognition (storing FEN with move?)
+	// Check for 3 repetitions (position + flags + turn)
 	checkRepetition()
 	{
-		if (this.moves.length >= 8)
-		{
-			const L = this.moves.length;
-			if (_.isEqual(this.moves[L-1], this.moves[L-5]) &&
-				_.isEqual(this.moves[L-2], this.moves[L-6]) &&
-				_.isEqual(this.moves[L-3], this.moves[L-7]) &&
-				_.isEqual(this.moves[L-4], this.moves[L-8]))
-			{
-				return true;
-			}
-		}
-		return false;
+		return Object.values(this.hashStates).some(elt => { return (elt >= 3); });
 	}
 
 	// Is game over ? And if yes, what is the score ?
