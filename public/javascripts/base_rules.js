@@ -54,7 +54,6 @@ class ChessRules
 	constructor(fen, moves)
 	{
 		this.moves = moves;
-		this.hashStates = {}; //for repetitions detection
 		// Use fen string to initialize variables, flags and board
 		this.board = VariantRules.GetBoard(fen);
 		this.setFlags(fen);
@@ -728,16 +727,10 @@ class ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
-	// Store a hash of the position + flags + turn after a move is played
-	// (for repetitions detection)
-	addHashState()
+	// Hash of position+flags+turn after a move is played (to detect repetitions)
+	getHashState()
 	{
-		const strToHash = this.getFen() + " " + this.turn;
-		const hash = hex_md5(strToHash);
-		if (!this.hashStates[hash])
-			this.hashStates[hash] = 1;
-		else
-			this.hashStates[hash]++;
+		return hex_md5(this.getFen() + " " + this.turn);
 	}
 
 	play(move, ingame)
@@ -756,7 +749,7 @@ class ChessRules
 		VariantRules.PlayOnBoard(this.board, move);
 
 		if (!!ingame)
-			this.addHashState();
+			move.hash = this.getHashState();
 	}
 
 	undo(move)
@@ -779,6 +772,20 @@ class ChessRules
 	// Check for 3 repetitions (position + flags + turn)
 	checkRepetition()
 	{
+		if (!this.hashStates)
+			this.hashStates = {};
+		const startIndex =
+			Object.values(this.hashStates).reduce((a,b) => { return a+b; }, 0)
+		// Update this.hashStates with last move (or all moves if continuation)
+		// NOTE: redundant storage, but faster and moderate size
+		for (let i=startIndex; i<this.moves.length; i++)
+		{
+			const move = this.moves[i];
+			if (!this.hashStates[move.hash])
+				this.hashStates[move.hash] = 1;
+			else
+				this.hashStates[move.hash]++;
+		}
 		return Object.values(this.hashStates).some(elt => { return (elt >= 3); });
 	}
 

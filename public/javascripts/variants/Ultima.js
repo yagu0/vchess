@@ -623,4 +623,25 @@ class UltimaRules extends ChessRules
 	{
 		return "0000"; //TODO: or "-" ?
 	}
+
+	getNotation(move)
+	{
+		const initialSquare =
+			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+		const finalSquare =
+			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+		let notation = undefined;
+		if (move.appear[0].p == VariantRules.PAWN)
+		{
+			// Pawn: generally ambiguous short notation, so we use full description
+			notation = "P" + initialSquare + finalSquare;
+		}
+		else if (move.appear[0].p == VariantRules.KING)
+			notation = "K" + (move.vanish.length>1 ? "x" : "") + finalSquare;
+		else
+			notation = move.appear[0].p.toUpperCase() + finalSquare;
+		if (move.vanish.length > 1 && move.appear[0].p != VariantRules.KING)
+			notation += "X"; //capture mark (not describing what is captured...)
+		return notation;
+	}
 }

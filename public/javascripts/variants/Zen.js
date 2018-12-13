@@ -194,15 +194,15 @@ class ZenRules extends ChessRules
 		}
 
 		// Translate initial square (because pieces may fly unusually in this variant!)
-		let initialSquare =
+		const initialSquare =
 			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
 
 		// Translate final square
-		let finalSquare =
+		const finalSquare =
 			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
 
 		let notation = "";
-		let piece = this.getPiece(move.start.x, move.start.y);
+		const piece = this.getPiece(move.start.x, move.start.y);
 		if (piece == VariantRules.PAWN)
 		{
 			// pawn move (TODO: enPassant indication)

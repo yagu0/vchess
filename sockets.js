@@ -25,6 +25,12 @@ module.exports = function(wss) {
 		const params = new URL("http://localhost" + req.url).searchParams;
 		const sid = params.get("sid");
 		const page = params.get("page");
+		// Ignore duplicate connections:
+		if (!!clients[page][sid])
+		{
+			socket.send(JSON.stringify({code:"duplicate"}));
+			return;
+		}
 		clients[page][sid] = socket;
 		if (page == "index")
 		{

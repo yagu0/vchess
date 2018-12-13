@@ -25,7 +25,7 @@ Vue.component('my-game', {
 	},
 	render(h) {
 		const [sizeX,sizeY] = VariantRules.size;
-		const smallScreen = (screen.width <= 420);
+		const smallScreen = (window.innerWidth <= 420);
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
@@ -779,7 +779,7 @@ Vue.component('my-game', {
 	created: function() {
 		const url = socketUrl;
 		const continuation = (localStorage.getItem("variant") === variant);
-		this.myid = continuation ? localStorage.getItem("myid") : getRandString();
+		this.myid = (continuation ? localStorage.getItem("myid") : getRandString());
 		if (!continuation)
 		{
 			// HACK: play a small silent sound to allow "new game" sound later
@@ -808,6 +808,12 @@ Vue.component('my-game', {
 			const data = JSON.parse(msg.data);
 			switch (data.code)
 			{
+				case "duplicate":
+					// We opened another tab on the same game
+					this.mode = "idle";
+					this.vr = null;
+					alert("Already playing a game in this variant on another tab!");
+					break;
 				case "newgame": //opponent found
 					// oppid: opponent socket ID
 					this.newGame("human", data.fen, data.color, data.oppid);
@@ -1051,7 +1057,7 @@ Vue.component('my-game', {
 					document.getElementById("modal-newgame").checked = false;
 				}
 				this.oppid = oppId;
-				this.oppConnected = true;
+				this.oppConnected = !continuation;
 				this.mycolor = color;
 				this.seek = false;
 				if (!!moves && moves.length > 0) //imply continuation

@@ -54,13 +54,13 @@ Vue.component('my-rules', {
 				{
 					boardDiv += "<div class='board board" + sizeY + " " +
 						((i+j)%2==0 ? "light-square-diag" : "dark-square-diag") + "'>";
-					if (markArray.length>0 && markArray[i][j])
-						boardDiv += "<img src='/images/mark.svg' class='markSquare'/>";
 					if (board[i][j] != VariantRules.EMPTY)
 					{
 						boardDiv += "<img src='/images/pieces/" +
 							VariantRules.getPpath(board[i][j]) + ".svg' class='piece'/>";
 					}
+					if (markArray.length>0 && markArray[i][j])
+						boardDiv += "<img src='/images/mark.svg' class='mark-square'/>";
 					boardDiv += "</div>";
 				}
 				boardDiv += "</div>";
