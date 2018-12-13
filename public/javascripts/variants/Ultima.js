@@ -189,8 +189,8 @@ class UltimaRules extends ChessRules
 			// Check piece-king rectangle (if any) corners for enemy pieces
 			if (m.end.x == kp[0] || m.end.y == kp[1])
 				return; //"flat rectangle"
-			const corner1 = [Math.max(m.end.x,kp[0]), Math.min(m.end.y,kp[1])];
-			const corner2 = [Math.min(m.end.x,kp[0]), Math.max(m.end.y,kp[1])];
+			const corner1 = [m.end.x, kp[1]];
+			const corner2 = [kp[0], m.end.y];
 			for (let [i,j] of [corner1,corner2])
 			{
 				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == oppCol)
@@ -480,16 +480,25 @@ class UltimaRules extends ChessRules
 			{
 				// Try in opposite direction:
 				let [i,j] = [x-step[0],y-step[1]];
-				while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
+				while (i>=0 && i<sizeX && j>=0 && j<sizeY)
 				{
-					i -= step[0];
-					j -= step[1];
-				}
-				if (i>=0 && i<sizeX && j>=0 && j<sizeY && colors.includes(this.getColor(i,j))
-					&& this.getPiece(i,j) == V.KNIGHT)
-				{
-					if (!this.isImmobilized([i,j]))
-						return true;
+					while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
+					{
+						i -= step[0];
+						j -= step[1];
+					}
+					if (i>=0 && i<sizeX && j>=0 && j<sizeY)
+					{
+						if (colors.includes(this.getColor(i,j)))
+						{
+							if (this.getPiece(i,j) == V.KNIGHT && !this.isImmobilized([i,j]))
+								return true;
+							continue outerLoop;
+						}
+						// [else] Our color, could be captured
+						i -= step[0];
+						j -= step[1];
+					}
 				}
 			}
 		}
