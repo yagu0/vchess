@@ -53,36 +53,6 @@ class UltimaRules extends ChessRules
 	// Is piece on square (x,y) immobilized?
 	isImmobilized([x,y])
 	{
-					// Final check: is this knight immobilized?
-					let foundImmobilizer = false;
-					let neutralized = false;
-					outerLoop:
-					for (let step of steps)
-					{
-						const [i2,j2] = [i+step[0],j+step[1]];
-						if (i2>=0 && i2<sizeX && j2>=0 && j2<sizeY
-							&& this.board[i2][j2] != V.EMPTY
-							&& this.getColor(i2,j2) == oppCol
-							&& this.getPiece(i2,j2) == V.IMMOBILIZER)
-						{
-							foundImmobilizer = true;
-							// Moving is possible only if this immobilizer is neutralized
-							for (let step2 of steps)
-							{
-								const [i3,j3] = [i2+step2[0],j2+step2[1]];
-								if (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
-									&& this.board[i3][j3] != V.EMPTY && this.getColor(i3,j3) == color
-									&& [V.BISHOP,V.IMMOBILIZER].includes(this.getPiece(i3,j3)))
-								{
-									neutralized = true;
-									break outerLoop;
-								}
-							}
-						}
-					}
-					if (!foundImmobilizer || neutralized)
-						return false;
-		
 		const piece = this.getPiece(x,y);
 		const color = this.getColor(x,y);
 		const oppCol = this.getOppCol(color);
@@ -98,7 +68,7 @@ class UltimaRules extends ChessRules
 			{
 				const oppPiece = this.getPiece(i,j);
 				if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER)
-					return [];
+					return true;
 				if (oppPiece == V.IMMOBILIZER && ![V.BISHOP,V.IMMOBILIZER].includes(piece))
 				{
 					// Moving is impossible only if this immobilizer is not neutralized
@@ -108,15 +78,15 @@ class UltimaRules extends ChessRules
 						if (i2>=0 && i2<sizeX && j2>=0 && j2<sizeY
 							&& this.board[i2][j2] != V.EMPTY && this.getColor(i2,j2) == color)
 						{
-							const friendlyPiece = this.getPiece(i2,j2);
-							if ([V.BISHOP,V.IMMOBILIZER].includes(friendlyPiece))
-								break outerLoop;
+							if ([V.BISHOP,V.IMMOBILIZER].includes(this.getPiece(i2,j2)))
+								return false;
 						}
 					}
-					return []; //immobilizer isn't neutralized
+					return true; //immobilizer isn't neutralized
 				}
 			}
 		}
+		return false;
 	}
 
 	getPotentialMovesFrom([x,y])
@@ -412,59 +382,82 @@ class UltimaRules extends ChessRules
 
 	// isAttacked() is OK because the immobilizer doesn't take
 
-	// TODO: check if any pawn can reach capturing square + !immobilized
 	isAttackedByPawn([x,y], colors)
 	{
-		// Square (x,y) must be surrounded by two enemy pieces,
-		// and one of them at least should be a pawn.
+		// Square (x,y) must be surroundable by two enemy pieces,
+		// and one of them at least should be a pawn (moving).
 		const dirs = [ [1,0],[0,1],[1,1],[-1,1] ];
+		const steps = VariantRules.steps[VariantRules.ROOK]
+			.concat(VariantRules.steps[VariantRules.BISHOP]);
 		const [sizeX,sizeY] = VariantRules.size;
 		for (let dir of dirs)
 		{
 			const [i1,j1] = [x-dir[0],y-dir[1]]; //"before"
 			const [i2,j2] = [x+dir[0],y+dir[1]]; //"after"
 			if (i1>=0 && i1<sizeX && i2>=0 && i2<sizeX
-				&& j1>=0 && j1<sizeY && j2>=0 && j2<sizeY
-				&& this.board[i1][j1]!=VariantRules.EMPTY
-				&& this.board[i2][j2]!=VariantRules.EMPTY
-				&& colors.includes(this.getColor(i1,j1))
-				&& colors.includes(this.getColor(i2,j2))
-				&& [this.getPiece(i1,j1),this.getPiece(i2,j2)].includes(VariantRules.PAWN))
+				&& j1>=0 && j1<sizeY && j2>=0 && j2<sizeY)
 			{
-				return true;
+				if ((this.board[i1][j1]!=VariantRules.EMPTY
+					&& colors.includes(this.getColor(i1,j1))
+					&& this.board[i2][j2]==VariantRules.EMPTY)
+						||
+					(this.board[i2][j2]!=VariantRules.EMPTY
+					&& colors.includes(this.getColor(i2,j2))
+					&& this.board[i1][j1]==VariantRules.EMPTY))
+				{
+					// Search a movable enemy pawn landing on the empty square
+					for (let step of steps)
+					{
+						let [ii,jj] = (this.board[i1][j1]==VariantRules.EMPTY ? [i1,j1] : [i2,j2]);
+						let [i3,j3] = [ii+step[0],jj+step[1]];
+						while (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
+							&& this.board[i3][j3]==VariantRules.EMPTY)
+						{
+							i3 += step[0];
+							j3 += step[1];
+						}
+						if (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
+							&& this.getPiece(i3,j3) == VariantRules.PAWN
+							&& !this.isImmobilized([i3,j3]))
+						{
+							return true;
+						}
+					}
+				}
 			}
 		}
 		return false;
 	}
 
-	// TODO: check if enemy's rook can reach capturing squares + !immobilized
 	isAttackedByRook([x,y], colors)
 	{
+		// King must be on same column or row,
+		// and a rook should be able to reach a capturing square
 		const [sizeX,sizeY] = VariantRules.size;
-		// King must be on same column and a rook on same row (or reverse)
-		if (x == this.kingPos[colors[0]][0]) //using colors[0], only element in this case
+		// colors contains only one element, giving the oppCol and thus king position
+		const sameRow = (x == this.kingPos[colors[0]][0]);
+		const sameColumn = (y == this.kingPos[colors[0]][1]);
+		if (sameRow || sameColumn)
 		{
-			// Look for enemy rook on this column
-			for (let i=0; i<sizeY; i++)
-			{
-				if (this.board[x][i] != VariantRules.EMPTY
-					&& colors.includes(this.getColor(x,i))
-					&& this.getPiece(x,i) == VariantRules.ROOK)
-				{
-					return true;
-				}
-			}
-		}
-		else if (y == this.kingPos[colors[0]][1])
-		{
-			// Look for enemy rook on this row
+			// Look for the enemy rook (maximum 1)
 			for (let i=0; i<sizeX; i++)
 			{
-				if (this.board[i][y] != VariantRules.EMPTY
-					&& colors.includes(this.getColor(i,y))
-					&& this.getPiece(i,y) == VariantRules.ROOK)
+				for (let j=0; j<sizeY; j++)
 				{
-					return true;
+					if (this.board[i][j] != VariantRules.EMPTY
+						&& this.getPiece(i,j) == VariantRules.ROOK)
+					{
+						if (this.isImmobilized([i,j]))
+							return false; //because only one rook
+						// Can it reach a capturing square?
+						// Easy but quite suboptimal way (TODO): generate all moves (turn is OK)
+						const moves = this.getPotentialMovesFrom([i,j]);
+						for (let move of moves)
+						{
+							if (sameRow && move.end.y == y || sameColumn && move.end.x == x)
+								return true;
+						}
+					}
 				}
 			}
 		}
