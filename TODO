@@ -1,5 +1,1 @@
 Full detection of repeated positions (including turn)
-In UltimaChess, consider these rules modifications: http://www.inference.org.uk/mackay/ultima/ultima.html
-Reintroduce isAttackedBy in Ultima, and fix it for pawns --> underCheck + stalemate
---> take into account that an immobilized piece does not give check.
-(chameleons cannot be immobilized)
