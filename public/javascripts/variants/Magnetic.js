@@ -137,10 +137,11 @@ class MagneticRules extends ChessRules
 		return moves;
 	}
 
-	// TODO: verify this assertion
 	atLeastOneMove()
 	{
-		return true; //always at least one possible move
+		if (this.kingPos[this.turn][0] < 0)
+			return false;
+		return true; //TODO: is it right?
 	}
 
 	underCheck(move)
@@ -203,19 +204,6 @@ class MagneticRules extends ChessRules
 				}
 			}
 		}
-	}
-
-	checkGameOver()
-	{
-		if (this.checkRepetition())
-			return "1/2";
-
-		const color = this.turn;
-		// TODO: do we need "atLeastOneMove()"?
-		if (this.atLeastOneMove() && this.kingPos[color][0] >= 0)
-			return "*";
-
-		return this.checkGameEnd();
 	}
 
 	checkGameEnd()

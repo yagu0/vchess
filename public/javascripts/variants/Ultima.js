@@ -53,13 +53,13 @@ class UltimaRules extends ChessRules
 	getPotentialMovesFrom([x,y])
 	{
 		// Pre-check: is thing on this square immobilized?
-		// In this case add potential suicide as a move "taking the immobilizer"
 		const piece = this.getPiece(x,y);
 		const color = this.getColor(x,y);
 		const oppCol = this.getOppCol(color);
 		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		const [sizeX,sizeY] = V.size;
+		outerLoop:
 		for (let step of adjacentSteps)
 		{
 			const [i,j] = [x+step[0],y+step[1]];
@@ -67,15 +67,23 @@ class UltimaRules extends ChessRules
 				&& this.getColor(i,j) == oppCol)
 			{
 				const oppPiece = this.getPiece(i,j);
-				if (oppPiece == V.IMMOBILIZER
-					|| (oppPiece == V.BISHOP && piece == V.IMMOBILIZER))
+				if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER)
+					return [];
+				if (oppPiece == V.IMMOBILIZER && ![V.BISHOP,V.IMMOBILIZER].includes(piece))
 				{
-					return [ new Move({
-						appear: [],
-						vanish: [new PiPo({x:x,y:y,p:piece,c:color})],
-						start: {x:x,y:y},
-						end: {x:i,y:j}
-					}) ];
+					// Moving is impossible only if this immobilizer is not neutralized
+					for (let step2 of adjacentSteps)
+					{
+						const [i2,j2] = [i+step2[0],j+step2[1]];
+						if (i2>=0 && i2<sizeX && j2>=0 && j2<sizeY
+							&& this.board[i2][j2] != V.EMPTY && this.getColor(i2,j2) == color)
+						{
+							const friendlyPiece = this.getPiece(i2,j2);
+							if ([V.BISHOP,V.IMMOBILIZER].includes(friendlyPiece))
+								break outerLoop;
+						}
+					}
+					return []; //immobilizer isn't neutralized
 				}
 			}
 		}
@@ -368,6 +376,13 @@ class UltimaRules extends ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
+	atLeastOneMove()
+	{
+		if (this.kingPos[this.turn][0] < 0)
+			return false;
+		return super.atLeastOneMove();
+	}
+
 	underCheck(move)
 	{
 		return false; //there is no check
@@ -426,18 +441,6 @@ class UltimaRules extends ChessRules
 				}
 			}
 		}
-	}
-
-	checkGameOver()
-	{
-		if (this.checkRepetition())
-			return "1/2";
-
-		const color = this.turn;
-		if (this.atLeastOneMove() && this.kingPos[color][0] >= 0)
-			return "*";
-
-		return this.checkGameEnd();
 	}
 
 	checkGameEnd()
@@ -520,16 +523,5 @@ class UltimaRules extends ChessRules
 	getFlagsFen()
 	{
 		return "0000"; //TODO: or "-" ?
-	}
-
-	getNotation(move)
-	{
-		if (move.appear.length == 0)
-		{
-			const startSquare =
-				String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
-			return "^" + startSquare; //suicide
-		}
-		return super.getNotation(move);
 	}
 }
