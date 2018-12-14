@@ -24,14 +24,34 @@
 .seek, button.seek:hover
   background-color: #cc99ff
 
+figure.diagram-container
+  margin: 15px 0 15px 0
+  text-align: center
+  width: 100%
+  display: block
+
 // https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout
 figure.diagram-container > .diagram
   display: block
-  width: 45%
+  width: 40%
   min-width: 300px
   max-width: 800px
   margin-left: auto
   margin-right: auto
+
+figure.diagram-container > .diagram2
+  display: block
+  float: left
+  width: 40%
+  min-width: 300px
+  max-width: 800px
+  margin-right: 40px
+  margin-bottom: 10px
+
+figure.diagram-container > figcaption
+  display: block
+  clear: both
+  padding-top: 5px
 
 .topindicator
   position: relative
@@ -145,11 +165,6 @@ img.mark-square
   left: 12%
   opacity: .7
 
-figure.diagram-container > figcaption
-  display: block
-  clear: both
-  padding-top: 5px
-
 .highlight
   background-color: #00cc66 !important
 
@@ -187,12 +202,6 @@ figure.showPieces > img
 
 figure.showPieces > figcaption
   color: #6C6C6C
-
-figure.diagram-container
-  margin: 15px 0 15px 0
-  text-align: center
-  width: 100%
-  display: block
 
 .section-title
   padding: 0
