@@ -386,9 +386,8 @@ class UltimaRules extends ChessRules
 	{
 		// Square (x,y) must be surroundable by two enemy pieces,
 		// and one of them at least should be a pawn (moving).
-		const dirs = [ [1,0],[0,1],[1,1],[-1,1] ];
-		const steps = VariantRules.steps[VariantRules.ROOK]
-			.concat(VariantRules.steps[VariantRules.BISHOP]);
+		const dirs = [ [1,0],[0,1] ];
+		const steps = VariantRules.steps[VariantRules.ROOK];
 		const [sizeX,sizeY] = VariantRules.size;
 		for (let dir of dirs)
 		{
@@ -417,6 +416,7 @@ class UltimaRules extends ChessRules
 							j3 += step[1];
 						}
 						if (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
+							&& colors.includes(this.getColor(i3,j3))
 							&& this.getPiece(i3,j3) == VariantRules.PAWN
 							&& !this.isImmobilized([i3,j3]))
 						{
@@ -495,7 +495,9 @@ class UltimaRules extends ChessRules
 								return true;
 							continue outerLoop;
 						}
-						// [else] Our color, could be captured
+						// [else] Our color, could be captured *if there was an empty space*
+						if (this.board[i+step[0]][j+step[1]] != V.EMPTY)
+							continue outerLoop;
 						i -= step[0];
 						j -= step[1];
 					}
