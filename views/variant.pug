@@ -8,17 +8,17 @@ block content
 	.container#variantPage
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.rulesTitle.text-center(v-on:click="display='rules'")
+				h4.variantpage-title.text-center(v-on:click="toggleDisplay('rules')")
 					| #{variant} Rules
 				my-rules(v-show="display=='rules'")
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.rulesTitle.text-center(v-on:click="display='game'")
+				h4.variantpage-title.text-center(v-on:click="toggleDisplay('game')")
 					| #{variant} Game
 				my-game(v-show="display=='game'")
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.rulesTitle.text-center(v-on:click="display='problems'")
+				h4.variantpage-title.text-center(v-on:click="toggleDisplay('problems')")
 					| #{variant} Problems
-				my-game(v-show="display=='problems'")
+				my-problems(v-show="display=='problems'")
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")
@@ -34,3 +34,4 @@ block javascripts
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/components/problems.js")
+	script(src="/javascripts/variant.js")

@@ -1083,7 +1083,10 @@ Vue.component('my-game', {
 			const compMove = this.vr.getComputerMove();
 			// (first move) HACK: avoid selecting elements before they appear on page:
 			const delay = Math.max(500-(Date.now()-timeStart), 0);
-			setTimeout(() => this.play(compMove, "animate"), delay);
+			setTimeout(() => {
+				if (this.mode == "computer") //Warning: mode could have changed!
+					this.play(compMove, "animate")
+			}, delay);
 		},
 		// Get the identifier of a HTML table cell from its numeric coordinates o.x,o.y.
 		getSquareId: function(o) {

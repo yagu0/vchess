@@ -12,3 +12,12 @@
 //
 // click on problem ==> masque problems, affiche game tab, launch new game Friend with
 //   FEN + turn + flags + rappel instructions / solution on click sous l'échiquier
+
+Vue.component('my-problems', {
+	//props: ['vobj'],
+	template: `
+		<div class="variant col-sm-12">
+			<p>Hello</p>
+		</div>
+	`,
+})
