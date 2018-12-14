@@ -41,7 +41,7 @@ ol
 span Remarks:
 ul
 	li A checkered move cannot be "undone" right after if this repeat the position.
-	li Checkered chess pieces cannot be captured.
+	li Checkered pieces cannot be captured.
 
 figure.diagram-container
 	.diagram
@@ -53,8 +53,15 @@ figure.diagram-container
 h3 Pawn moves
 
 ul
-	li A pawn captured on its starting square keeps the right to advance two squares.
-	li Checkered pawns cannot capture en passant.
+	li.
+		Pawns can jump two squares only from their initial rank, and only once in the game:
+		a checkered pawn returning on the pawns' start rank cannot jump. However:
+	li.
+		A pawn captured on its starting square (thus becoming "checkered") keeps the
+		right to advance two squares.
+	li.
+		Checkered pawns cannot capture en passant, because while the pawn was "passing"
+		they were of the same color.
 
 h2.stageDelimiter Stage 2
 

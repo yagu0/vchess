@@ -67,14 +67,14 @@ class UltimaRules extends ChessRules
 				&& this.getColor(i,j) == oppCol)
 			{
 				const oppPiece = this.getPiece(i,j);
-				if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER)
-					return true;
-				if (oppPiece == V.IMMOBILIZER && ![V.BISHOP,V.IMMOBILIZER].includes(piece))
+				if (oppPiece == V.IMMOBILIZER)
 				{
 					// Moving is impossible only if this immobilizer is not neutralized
 					for (let step2 of adjacentSteps)
 					{
 						const [i2,j2] = [i+step2[0],j+step2[1]];
+						if (i2 == x && j2 == y)
+							continue; //skip initial piece!
 						if (i2>=0 && i2<sizeX && j2>=0 && j2<sizeY
 							&& this.board[i2][j2] != V.EMPTY && this.getColor(i2,j2) == color)
 						{
@@ -84,6 +84,9 @@ class UltimaRules extends ChessRules
 					}
 					return true; //immobilizer isn't neutralized
 				}
+				// Chameleons can't be immobilized twice, because there is only one immobilizer
+				if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER)
+					return true;
 			}
 		}
 		return false;

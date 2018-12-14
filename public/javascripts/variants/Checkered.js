@@ -76,10 +76,15 @@ class CheckeredRules extends ChessRules
 			return standardMoves; //king has to be treated differently (for castles)
 		let moves = [];
 		standardMoves.forEach(m => {
-			if (m.vanish[0].p == VariantRules.PAWN && Math.abs(m.end.x-m.start.x)==2
-				&& !this.pawnFlags[this.turn][m.start.y])
+			if (m.vanish[0].p == VariantRules.PAWN)
 			{
-				return; //skip forbidden 2-squares jumps
+				if (Math.abs(m.end.x-m.start.x)==2 && !this.pawnFlags[this.turn][m.start.y])
+					return; //skip forbidden 2-squares jumps
+				if (this.board[m.end.x][m.end.y] == VariantRules.EMPTY
+					&& m.vanish.length==2 && this.getColor(m.start.x,m.start.y) == 'c')
+				{
+					return; //checkered pawns cannot take en-passant
+				}
 			}
 			if (m.vanish.length == 1)
 				moves.push(m); //no capture

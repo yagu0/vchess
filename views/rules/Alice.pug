@@ -41,7 +41,14 @@ p
 	| As in the orthodox game, win by checkmating the king. It shouldn't be able to
 	| escape the check, not even by moving to the other board.
 
-p Note: en-passant and castle occur as they do in the standard game.
+p.
+	Note: en-passant and castle occur as they do in the standard game.
+	More specifically, en-passant is possible regardless of the worlds pawns are in.
+	This is justified because pawns "go through the mirror" while moving, and can
+	thus be captured either right after or just before they pass the mirror.
+	Castling should be legal according to orthodox rules on the board 1 (it cannot
+	occur on board 2, because it would mean king and rook moved). Moreover, the
+	king cannot be in check on board 2 after castling.
 
 h3 Credits
 
