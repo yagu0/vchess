@@ -18,10 +18,8 @@ class LoserRules extends ChessRules
 
 		// Complete with promotion(s) into king, if possible
 		const color = this.turn;
-		const V = VariantRules;
-		const [sizeX,sizeY] = VariantRules.size;
 		const shift = (color == "w" ? -1 : 1);
-		const lastRank = (color == "w" ? 0 : sizeX-1);
+		const lastRank = (color == "w" ? 0 : V.size.x-1);
 		if (x+shift == lastRank)
 		{
 			// Normal move
@@ -33,7 +31,7 @@ class LoserRules extends ChessRules
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:V.KING}));
 			}
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
+			if (y<V.size.y-1 && this.canTake([x,y], [x+shift,y+1])
 				&& this.board[x+shift][y+1] != V.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:V.KING}));
@@ -45,7 +43,6 @@ class LoserRules extends ChessRules
 
 	getPotentialKingMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(sq,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
@@ -55,12 +52,11 @@ class LoserRules extends ChessRules
 	{
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
-		const [sizeX,sizeY] = VariantRules.size;
-		for (let i=0; i<sizeX; i++)
+		for (let i=0; i<V.size.x; i++)
 		{
-			for (let j=0; j<sizeY; j++)
+			for (let j=0; j<V.size.y; j++)
 			{
-				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) != oppCol)
+				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) != oppCol)
 				{
 					const moves = this.getPotentialMovesFrom([i,j]);
 					if (moves.length > 0)
@@ -88,7 +84,7 @@ class LoserRules extends ChessRules
 		let moves = this.filterValid( this.getPotentialMovesFrom(sq) );
 		// This is called from interface: we need to know if a capture is possible
 		if (this.atLeastOneCapture())
-			moves = VariantRules.KeepCaptures(moves);
+			moves = V.KeepCaptures(moves);
 		return moves;
 	}
 
@@ -96,7 +92,7 @@ class LoserRules extends ChessRules
 	{
 		let moves = super.getAllValidMoves();
 		if (moves.some(m => { return m.vanish.length == 2; }))
-			moves = VariantRules.KeepCaptures(moves);
+			moves = V.KeepCaptures(moves);
 		return moves;
 	}
 

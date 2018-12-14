@@ -49,7 +49,7 @@ class AntikingRules extends ChessRules
 	{
 		switch (this.getPiece(x,y))
 		{
-			case VariantRules.ANTIKING:
+			case V.ANTIKING:
 				return this.getPotentialAntikingMoves([x,y]);
 			default:
 				return super.getPotentialMovesFrom([x,y]);
@@ -58,7 +58,6 @@ class AntikingRules extends ChessRules
 
 	getPotentialAntikingMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(sq,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
@@ -70,7 +69,6 @@ class AntikingRules extends ChessRules
 
 	isAttackedByKing([x,y], colors)
 	{
-		const V = VariantRules;
 		if (this.getPiece(x,y) == V.ANTIKING)
 			return false; //antiking is not attacked by king
 		return this.isAttackedBySlideNJump([x,y], colors, V.KING,
@@ -79,7 +77,6 @@ class AntikingRules extends ChessRules
 
 	isAttackedByAntiking([x,y], colors)
 	{
-		const V = VariantRules;
 		if ([V.KING,V.ANTIKING].includes(this.getPiece(x,y)))
 			return false; //(anti)king is not attacked by antiking
 		return this.isAttackedBySlideNJump([x,y], colors, V.ANTIKING,
@@ -114,7 +111,7 @@ class AntikingRules extends ChessRules
 		const piece = this.getPiece(move.start.x,move.start.y);
 		const c = this.getColor(move.start.x,move.start.y);
 		// Update antiking position
-		if (piece == VariantRules.ANTIKING)
+		if (piece == V.ANTIKING)
 		{
 			this.antikingPos[c][0] = move.appear[0].x;
 			this.antikingPos[c][1] = move.appear[0].y;
@@ -125,7 +122,7 @@ class AntikingRules extends ChessRules
 	{
 		super.unupdateVariables(move);
 		const c = this.getColor(move.start.x,move.start.y);
-		if (this.getPiece(move.start.x,move.start.y) == VariantRules.ANTIKING)
+		if (this.getPiece(move.start.x,move.start.y) == V.ANTIKING)
 			this.antikingPos[c] = [move.start.x, move.start.y];
 	}
 

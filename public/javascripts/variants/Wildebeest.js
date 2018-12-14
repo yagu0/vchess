@@ -2,11 +2,10 @@ class WildebeestRules extends ChessRules
 {
 	static getPpath(b)
 	{
-		const V = VariantRules;
 		return ([V.CAMEL,V.WILDEBEEST].includes(b[1]) ? "Wildebeest/" : "") + b;
 	}
 
-	static get size() { return [10,11]; }
+	static get size() { return {x:10,y:11}; }
 
 	static get CAMEL() { return 'c'; }
 	static get WILDEBEEST() { return 'w'; }
@@ -22,7 +21,7 @@ class WildebeestRules extends ChessRules
 	getEpSquare(move)
 	{
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
-		if (this.getPiece(sx,sy) == VariantRules.PAWN && Math.abs(sx - ex) >= 2)
+		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) >= 2)
 		{
 			const step = (ex-sx) / Math.abs(ex-sx);
 			let res = [{
@@ -45,9 +44,9 @@ class WildebeestRules extends ChessRules
 	{
 		switch (this.getPiece(x,y))
 		{
-			case VariantRules.CAMEL:
+			case V.CAMEL:
 				return this.getPotentialCamelMoves([x,y]);
-			case VariantRules.WILDEBEEST:
+			case V.WILDEBEEST:
 				return this.getPotentialWildebeestMoves([x,y]);
 			default:
 				return super.getPotentialMovesFrom([x,y])
@@ -59,8 +58,7 @@ class WildebeestRules extends ChessRules
 	{
 		const color = this.turn;
 		let moves = [];
-		const V = VariantRules;
-		const [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		const shift = (color == "w" ? -1 : 1);
 		const startRanks = (color == "w" ? [sizeX-2,sizeX-3] : [1,2]);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
@@ -147,13 +145,11 @@ class WildebeestRules extends ChessRules
 
 	getPotentialCamelMoves(sq)
 	{
-		return this.getSlideNJumpMoves(
-			sq, VariantRules.steps[VariantRules.CAMEL], "oneStep");
+		return this.getSlideNJumpMoves(sq, V.steps[V.CAMEL], "oneStep");
 	}
 
 	getPotentialWildebeestMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(
 			sq, V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
 	}
@@ -168,12 +164,11 @@ class WildebeestRules extends ChessRules
 	isAttackedByCamel(sq, colors)
 	{
 		return this.isAttackedBySlideNJump(sq, colors,
-			VariantRules.CAMEL, VariantRules.steps[VariantRules.CAMEL], "oneStep");
+			V.CAMEL, V.steps[V.CAMEL], "oneStep");
 	}
 
 	isAttackedByWildebeest(sq, colors)
 	{
-		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.WILDEBEEST,
 			V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
 	}

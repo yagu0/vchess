@@ -3,7 +3,6 @@ class ExtinctionRules extends ChessRules
 	initVariables(fen)
 	{
 		super.initVariables(fen);
-		const V = VariantRules;
 		this.material =
 		{
 			"w":
@@ -32,10 +31,8 @@ class ExtinctionRules extends ChessRules
 		let moves = super.getPotentialPawnMoves([x,y]);
 		// Add potential promotions into king
 		const color = this.turn;
-		const V = VariantRules;
-		const [sizeX,sizeY] = V.size;
 		const shift = (color == "w" ? -1 : 1);
-		const lastRank = (color == "w" ? 0 : sizeX-1);
+		const lastRank = (color == "w" ? 0 : V.size.x-1);
 
 		if (x+shift == lastRank)
 		{
@@ -43,13 +40,13 @@ class ExtinctionRules extends ChessRules
 			if (this.board[x+shift][y] == V.EMPTY)
 				moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:V.KING}));
 			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1])
-				&& this.board[x+shift][y-1] != V.EMPTY)
+			if (y>0 && this.board[x+shift][y-1] != V.EMPTY
+				&& this.canTake([x,y], [x+shift,y-1]))
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:V.KING}));
 			}
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
-				&& this.board[x+shift][y+1] != V.EMPTY)
+			if (y<V.size.y-1 && this.board[x+shift][y+1] != V.EMPTY
+				&& this.canTake([x,y], [x+shift,y+1]))
 			{
 				moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:V.KING}));
 			}
@@ -81,7 +78,7 @@ class ExtinctionRules extends ChessRules
 		if (move.appear[0].p != move.vanish[0].p)
 		{
 			this.material[move.appear[0].c][move.appear[0].p]++;
-			this.material[move.appear[0].c][VariantRules.PAWN]--;
+			this.material[move.appear[0].c][V.PAWN]--;
 		}
 		if (move.vanish.length==2 && move.appear.length==1) //capture
 			this.material[move.vanish[1].c][move.vanish[1].p]--;
@@ -93,7 +90,7 @@ class ExtinctionRules extends ChessRules
 		if (move.appear[0].p != move.vanish[0].p)
 		{
 			this.material[move.appear[0].c][move.appear[0].p]--;
-			this.material[move.appear[0].c][VariantRules.PAWN]++;
+			this.material[move.appear[0].c][V.PAWN]++;
 		}
 		if (move.vanish.length==2 && move.appear.length==1)
 			this.material[move.vanish[1].c][move.vanish[1].p]++;
@@ -130,7 +127,7 @@ class ExtinctionRules extends ChessRules
 			p => { return this.material[color][p] == 0; }))
 		{
 			// Very negative (resp. positive) if white (reps. black) pieces set is incomplete
-			return (color=="w"?-1:1) * VariantRules.INFINITY;
+			return (color=="w"?-1:1) * V.INFINITY;
 		}
 		return super.evalPosition();
 	}

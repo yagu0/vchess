@@ -72,16 +72,16 @@ class CheckeredRules extends ChessRules
 	{
 		let standardMoves = super.getPotentialMovesFrom([x,y]);
 		const lastRank = this.turn == "w" ? 0 : 7;
-		if (this.getPiece(x,y) == VariantRules.KING)
+		if (this.getPiece(x,y) == V.KING)
 			return standardMoves; //king has to be treated differently (for castles)
 		let moves = [];
 		standardMoves.forEach(m => {
-			if (m.vanish[0].p == VariantRules.PAWN)
+			if (m.vanish[0].p == V.PAWN)
 			{
 				if (Math.abs(m.end.x-m.start.x)==2 && !this.pawnFlags[this.turn][m.start.y])
 					return; //skip forbidden 2-squares jumps
-				if (this.board[m.end.x][m.end.y] == VariantRules.EMPTY
-					&& m.vanish.length==2 && this.getColor(m.start.x,m.start.y) == 'c')
+				if (this.board[m.end.x][m.end.y] == V.EMPTY && m.vanish.length==2
+					&& this.getColor(m.start.x,m.start.y) == 'c')
 				{
 					return; //checkered pawns cannot take en-passant
 				}
@@ -94,7 +94,7 @@ class CheckeredRules extends ChessRules
 				m.appear[0].c = "c";
 				moves.push(m);
 				if (m.appear[0].p != m.vanish[1].p //avoid promotions (already treated):
-					&& (m.vanish[0].p != VariantRules.PAWN || m.end.x != lastRank))
+					&& (m.vanish[0].p != V.PAWN || m.end.x != lastRank))
 				{
 					// Add transformation into captured piece
 					let m2 = JSON.parse(JSON.stringify(m));
@@ -147,7 +147,7 @@ class CheckeredRules extends ChessRules
 			{
 				for (let i of [-1,1])
 				{
-					if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==VariantRules.PAWN
+					if (y+i>=0 && y+i<8 && this.getPiece(x+pawnShift,y+i)==V.PAWN
 						&& this.getColor(x+pawnShift,y+i)==c)
 					{
 						return true;
@@ -184,13 +184,10 @@ class CheckeredRules extends ChessRules
 
 	updateVariables(move)
 	{
-		const c = this.getColor(move.start.x,move.start.y);
-		if (c != 'c') //checkered not concerned by castle flags
-			super.updateVariables(move);
-
-		// Does it turn off a 2-squares pawn flag?
+		super.updateVariables(move);
+		// Does this move turn off a 2-squares pawn flag?
 		const secondRank = [1,6];
-		if (secondRank.includes(move.start.x) && move.vanish[0].p == VariantRules.PAWN)
+		if (secondRank.includes(move.start.x) && move.vanish[0].p == V.PAWN)
 			this.pawnFlags[move.start.x==6 ? "w" : "b"][move.start.y] = false;
 	}
 
@@ -207,18 +204,17 @@ class CheckeredRules extends ChessRules
 
 	evalPosition()
 	{
-		const [sizeX,sizeY] = VariantRules.size;
 		let evaluation = 0;
 		//Just count material for now, considering checkered neutral (...)
-		for (let i=0; i<sizeX; i++)
+		for (let i=0; i<V.size.x; i++)
 		{
-			for (let j=0; j<sizeY; j++)
+			for (let j=0; j<V.size.y; j++)
 			{
-				if (this.board[i][j] != VariantRules.EMPTY)
+				if (this.board[i][j] != V.EMPTY)
 				{
 					const sqColor = this.getColor(i,j);
 					const sign = sqColor == "w" ? 1 : (sqColor=="b" ? -1 : 0);
-					evaluation += sign * VariantRules.VALUES[this.getPiece(i,j)];
+					evaluation += sign * V.VALUES[this.getPiece(i,j)];
 				}
 			}
 		}
@@ -255,10 +251,10 @@ class CheckeredRules extends ChessRules
 
 		// Translate final square
 		let finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 
 		let piece = this.getPiece(move.start.x, move.start.y);
-		if (piece == VariantRules.PAWN)
+		if (piece == V.PAWN)
 		{
 			// Pawn move
 			let notation = "";

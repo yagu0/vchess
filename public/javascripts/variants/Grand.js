@@ -4,7 +4,6 @@ class GrandRules extends ChessRules
 {
 	static getPpath(b)
 	{
-		const V = VariantRules;
 		return ([V.MARSHALL,V.CARDINAL].includes(b[1]) ? "Grand/" : "") + b;
 	}
 
@@ -14,7 +13,7 @@ class GrandRules extends ChessRules
 		this.captures = { "w": {}, "b": {} }; //for promotions
 	}
 
-	static get size() { return [10,10]; }
+	static get size() { return {x:10,y:10}; }
 
 	static get MARSHALL() { return 'm'; } //rook+knight
 	static get CARDINAL() { return 'c'; } //bishop+knight
@@ -23,7 +22,7 @@ class GrandRules extends ChessRules
 	getEpSquare(move)
 	{
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
-		if (this.getPiece(sx,sy) == VariantRules.PAWN && Math.abs(sx - ex) >= 2)
+		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) >= 2)
 		{
 			const step = (ex-sx) / Math.abs(ex-sx);
 			let res = [{
@@ -46,9 +45,9 @@ class GrandRules extends ChessRules
 	{
 		switch (this.getPiece(x,y))
 		{
-			case VariantRules.MARSHALL:
+			case V.MARSHALL:
 				return this.getPotentialMarshallMoves([x,y]);
-			case VariantRules.CARDINAL:
+			case V.CARDINAL:
 				return this.getPotentialCardinalMoves([x,y]);
 			default:
 				return super.getPotentialMovesFrom([x,y])
@@ -61,8 +60,7 @@ class GrandRules extends ChessRules
 	{
 		const color = this.turn;
 		let moves = [];
-		const V = VariantRules;
-		const [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		const shift = (color == "w" ? -1 : 1);
 		const startRanks = (color == "w" ? [sizeX-2,sizeX-3] : [1,2]);
 		const lastRanks = (color == "w" ? [0,1,2] : [sizeX-1,sizeX-2,sizeX-3]);
@@ -151,14 +149,12 @@ class GrandRules extends ChessRules
 
 	getPotentialMarshallMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
 			this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"));
 	}
 
 	getPotentialCardinalMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
 			this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"));
 	}
@@ -172,7 +168,6 @@ class GrandRules extends ChessRules
 
 	isAttackedByMarshall(sq, colors)
 	{
-		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.MARSHALL, V.steps[V.ROOK])
 			|| this.isAttackedBySlideNJump(
 				sq, colors, V.MARSHALL, V.steps[V.KNIGHT], "oneStep");
@@ -180,7 +175,6 @@ class GrandRules extends ChessRules
 
 	isAttackedByCardinal(sq, colors)
 	{
-		const V = VariantRules;
 		return this.isAttackedBySlideNJump(sq, colors, V.CARDINAL, V.steps[V.BISHOP])
 			|| this.isAttackedBySlideNJump(
 				sq, colors, V.CARDINAL, V.steps[V.KNIGHT], "oneStep");
@@ -189,8 +183,7 @@ class GrandRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-		if (move.vanish.length==2 && move.appear.length==1
-			&& move.vanish[1].p != VariantRules.PAWN)
+		if (move.vanish.length==2 && move.appear.length==1 && move.vanish[1].p != V.PAWN)
 		{
 			// Capture: update this.captures
 			if (!this.captures[move.vanish[1].c][move.vanish[1].p])
@@ -203,8 +196,7 @@ class GrandRules extends ChessRules
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
-		if (move.vanish.length==2 && move.appear.length==1
-			&& move.vanish[1].p != VariantRules.PAWN)
+		if (move.vanish.length==2 && move.appear.length==1 && move.vanish[1].p != V.PAWN)
 		{
 			this.captures[move.vanish[1].c][move.vanish[1].p] =
 				Math.max(0, this.captures[move.vanish[1].c][move.vanish[1].p]-1);

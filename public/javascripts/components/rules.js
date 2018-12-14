@@ -21,7 +21,7 @@ Vue.component('my-rules', {
 	},
 	methods: {
 		drawDiag: function(fen) {
-			let [sizeX,sizeY] = VariantRules.size;
+			let [sizeX,sizeY] = [V.size.x,V.size.y];
 			let fenParts = fen.split(" ");
 			// Obtain array of pieces images names
 			let board = VariantRules.GetBoard(fenParts[0]);

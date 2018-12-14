@@ -56,14 +56,12 @@ class UltimaRules extends ChessRules
 		const piece = this.getPiece(x,y);
 		const color = this.getColor(x,y);
 		const oppCol = this.getOppCol(color);
-		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
 		outerLoop:
 		for (let step of adjacentSteps)
 		{
 			const [i,j] = [x+step[0],y+step[1]];
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] != V.EMPTY
+			if (V.OnBoard(i,j) && this.board[i][j] != V.EMPTY
 				&& this.getColor(i,j) == oppCol)
 			{
 				const oppPiece = this.getPiece(i,j);
@@ -75,8 +73,8 @@ class UltimaRules extends ChessRules
 						const [i2,j2] = [i+step2[0],j+step2[1]];
 						if (i2 == x && j2 == y)
 							continue; //skip initial piece!
-						if (i2>=0 && i2<sizeX && j2>=0 && j2<sizeY
-							&& this.board[i2][j2] != V.EMPTY && this.getColor(i2,j2) == color)
+						if (V.OnBoard(i2,j2) && this.board[i2][j2] != V.EMPTY
+							&& this.getColor(i2,j2) == color)
 						{
 							if ([V.BISHOP,V.IMMOBILIZER].includes(this.getPiece(i2,j2)))
 								return false;
@@ -99,7 +97,7 @@ class UltimaRules extends ChessRules
 			return [];
 		switch (this.getPiece(x,y))
 		{
-			case VariantRules.IMMOBILIZER:
+			case V.IMMOBILIZER:
 				return this.getPotentialImmobilizerMoves([x,y]);
 			default:
 				return super.getPotentialMovesFrom([x,y]);
@@ -111,14 +109,12 @@ class UltimaRules extends ChessRules
 		const color = this.getColor(x,y);
 		const piece = this.getPiece(x,y);
 		let moves = [];
-		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
 		for (let step of steps)
 		{
 			let i = x + step[0];
 			let j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] == VariantRules.EMPTY)
+			while (V.OnBoard(i,j) && this.board[i][j] == V.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [i,j]));
 				if (oneStep !== undefined)
@@ -127,11 +123,8 @@ class UltimaRules extends ChessRules
 				j += step[1];
 			}
 			// Only king can take on occupied square:
-			if (piece==VariantRules.KING && i>=0 && i<sizeX && j>=0
-				&& j<sizeY && this.canTake([x,y], [i,j]))
-			{
+			if (piece==V.KING && V.OnBoard(i,j) && this.canTake([x,y], [i,j]))
 				moves.push(this.getBasicMove([x,y], [i,j]));
-			}
 		}
 		return moves;
 	}
@@ -139,8 +132,7 @@ class UltimaRules extends ChessRules
 	// Modify capturing moves among listed pawn moves
 	addPawnCaptures(moves, byChameleon)
 	{
-		const steps = VariantRules.steps[VariantRules.ROOK];
-		const [sizeX,sizeY] = VariantRules.size;
+		const steps = V.steps[V.ROOK];
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		moves.forEach(m => {
@@ -150,17 +142,16 @@ class UltimaRules extends ChessRules
 			for (let step of steps)
 			{
 				const sq2 = [m.end.x+2*step[0],m.end.y+2*step[1]];
-				if (sq2[0]>=0 && sq2[0]<sizeX && sq2[1]>=0 && sq2[1]<sizeY
-					&& this.board[sq2[0]][sq2[1]] != VariantRules.EMPTY
+				if (V.OnBoard(sq2[0],sq2[1]) && this.board[sq2[0]][sq2[1]] != V.EMPTY
 					&& this.getColor(sq2[0],sq2[1]) == color)
 				{
 					// Potential capture
 					const sq1 = [m.end.x+step[0],m.end.y+step[1]];
-					if (this.board[sq1[0]][sq1[1]] != VariantRules.EMPTY
+					if (this.board[sq1[0]][sq1[1]] != V.EMPTY
 						&& this.getColor(sq1[0],sq1[1]) == oppCol)
 					{
 						const piece1 = this.getPiece(sq1[0],sq1[1]);
-						if (!byChameleon || piece1 == VariantRules.PAWN)
+						if (!byChameleon || piece1 == V.PAWN)
 						{
 							m.vanish.push(new PiPo({
 								x:sq1[0],
@@ -196,10 +187,10 @@ class UltimaRules extends ChessRules
 			const corner2 = [kp[0], m.end.y];
 			for (let [i,j] of [corner1,corner2])
 			{
-				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == oppCol)
+				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol)
 				{
 					const piece = this.getPiece(i,j);
-					if (!byChameleon || piece == VariantRules.ROOK)
+					if (!byChameleon || piece == V.ROOK)
 					{
 						m.vanish.push( new PiPo({
 							x:i,
@@ -225,9 +216,7 @@ class UltimaRules extends ChessRules
 	getKnightCaptures(startSquare, byChameleon)
 	{
 		// Look in every direction for captures
-		const V = VariantRules;
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		let moves = [];
@@ -237,12 +226,12 @@ class UltimaRules extends ChessRules
 		for (let step of steps)
 		{
 			let [i,j] = [x+step[0], y+step[1]];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]==V.EMPTY)
+			while (V.OnBoard(i,j) && this.board[i][j]==V.EMPTY)
 			{
 				i += step[0];
 				j += step[1];
 			}
-			if (i<0 || i>=sizeX || j<0 || j>=sizeY || this.getColor(i,j)==color
+			if (!V.OnBoard(i,j) || this.getColor(i,j)==color
 				|| (!!byChameleon && this.getPiece(i,j)!=V.KNIGHT))
 			{
 				continue;
@@ -254,7 +243,7 @@ class UltimaRules extends ChessRules
 			let last = [i,j];
 			let cur = [i+step[0],j+step[1]];
 			let vanished = [ new PiPo({x:x,y:y,c:color,p:piece}) ];
-			while (cur[0]>=0 && cur[0]<sizeX && cur[1]>=0 && cur[1]<sizeY)
+			while (V.OnBoard(cur[0],cur[1]))
 			{
 				if (this.board[last[0]][last[1]] != V.EMPTY)
 				{
@@ -304,9 +293,8 @@ class UltimaRules extends ChessRules
 		this.addQueenCaptures(moves, "asChameleon");
 		// Post-processing: merge similar moves, concatenating vanish arrays
 		let mergedMoves = {};
-		const [sizeX,sizeY] = VariantRules.size;
 		moves.forEach(m => {
-			const key = m.end.x + sizeX * m.end.y;
+			const key = m.end.x + V.size.x * m.end.y;
 			if (!mergedMoves[key])
 				mergedMoves[key] = m;
 			else
@@ -327,16 +315,13 @@ class UltimaRules extends ChessRules
 		if (moves.length == 0)
 			return;
 		const [x,y] = [moves[0].start.x,moves[0].start.y];
-		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		let capturingDirections = [];
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
-		const [sizeX,sizeY] = V.size;
 		adjacentSteps.forEach(step => {
 			const [i,j] = [x+step[0],y+step[1]];
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol
+			if (V.OnBoard(i,j) && this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol
 				&& (!byChameleon || this.getPiece(i,j) == V.QUEEN))
 			{
 				capturingDirections.push(step);
@@ -378,7 +363,6 @@ class UltimaRules extends ChessRules
 
 	getPotentialKingMoves(sq)
 	{
-		const V = VariantRules;
 		return this.getSlideNJumpMoves(sq,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
@@ -390,38 +374,31 @@ class UltimaRules extends ChessRules
 		// Square (x,y) must be surroundable by two enemy pieces,
 		// and one of them at least should be a pawn (moving).
 		const dirs = [ [1,0],[0,1] ];
-		const steps = VariantRules.steps[VariantRules.ROOK];
-		const [sizeX,sizeY] = VariantRules.size;
+		const steps = V.steps[V.ROOK];
 		for (let dir of dirs)
 		{
 			const [i1,j1] = [x-dir[0],y-dir[1]]; //"before"
 			const [i2,j2] = [x+dir[0],y+dir[1]]; //"after"
-			if (i1>=0 && i1<sizeX && i2>=0 && i2<sizeX
-				&& j1>=0 && j1<sizeY && j2>=0 && j2<sizeY)
+			if (V.OnBoard(i1,j1) && V.OnBoard(i2,j2))
 			{
-				if ((this.board[i1][j1]!=VariantRules.EMPTY
-					&& colors.includes(this.getColor(i1,j1))
-					&& this.board[i2][j2]==VariantRules.EMPTY)
+				if ((this.board[i1][j1]!=V.EMPTY && colors.includes(this.getColor(i1,j1))
+					&& this.board[i2][j2]==V.EMPTY)
 						||
-					(this.board[i2][j2]!=VariantRules.EMPTY
-					&& colors.includes(this.getColor(i2,j2))
-					&& this.board[i1][j1]==VariantRules.EMPTY))
+					(this.board[i2][j2]!=V.EMPTY && colors.includes(this.getColor(i2,j2))
+					&& this.board[i1][j1]==V.EMPTY))
 				{
 					// Search a movable enemy pawn landing on the empty square
 					for (let step of steps)
 					{
-						let [ii,jj] = (this.board[i1][j1]==VariantRules.EMPTY ? [i1,j1] : [i2,j2]);
+						let [ii,jj] = (this.board[i1][j1]==V.EMPTY ? [i1,j1] : [i2,j2]);
 						let [i3,j3] = [ii+step[0],jj+step[1]];
-						while (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
-							&& this.board[i3][j3]==VariantRules.EMPTY)
+						while (V.OnBoard(i3,j3) && this.board[i3][j3]==V.EMPTY)
 						{
 							i3 += step[0];
 							j3 += step[1];
 						}
-						if (i3>=0 && i3<sizeX && j3>=0 && j3<sizeY
-							&& colors.includes(this.getColor(i3,j3))
-							&& this.getPiece(i3,j3) == VariantRules.PAWN
-							&& !this.isImmobilized([i3,j3]))
+						if (V.OnBoard(i3,j3) && colors.includes(this.getColor(i3,j3))
+							&& this.getPiece(i3,j3) == V.PAWN && !this.isImmobilized([i3,j3]))
 						{
 							return true;
 						}
@@ -436,20 +413,18 @@ class UltimaRules extends ChessRules
 	{
 		// King must be on same column or row,
 		// and a rook should be able to reach a capturing square
-		const [sizeX,sizeY] = VariantRules.size;
 		// colors contains only one element, giving the oppCol and thus king position
 		const sameRow = (x == this.kingPos[colors[0]][0]);
 		const sameColumn = (y == this.kingPos[colors[0]][1]);
 		if (sameRow || sameColumn)
 		{
 			// Look for the enemy rook (maximum 1)
-			for (let i=0; i<sizeX; i++)
+			for (let i=0; i<V.size.x; i++)
 			{
-				for (let j=0; j<sizeY; j++)
+				for (let j=0; j<V.size.y; j++)
 				{
-					if (this.board[i][j] != VariantRules.EMPTY
-						&& colors.includes(this.getColor(i,j))
-						&& this.getPiece(i,j) == VariantRules.ROOK)
+					if (this.board[i][j] != V.EMPTY && colors.includes(this.getColor(i,j))
+						&& this.getPiece(i,j) == V.ROOK)
 					{
 						if (this.isImmobilized([i,j]))
 							return false; //because only one rook
@@ -472,25 +447,23 @@ class UltimaRules extends ChessRules
 	{
 		// Square (x,y) must be on same line as a knight,
 		// and there must be empty square(s) behind.
-		const V = VariantRules;
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
 		outerLoop:
 		for (let step of steps)
 		{
 			const [i0,j0] = [x+step[0],y+step[1]];
-			if (i0>=0 && i0<sizeX && j0>=0 && j0<sizeY && this.board[i0][j0] == V.EMPTY)
+			if (V.OnBoard(i0,j0) && this.board[i0][j0] == V.EMPTY)
 			{
 				// Try in opposite direction:
 				let [i,j] = [x-step[0],y-step[1]];
-				while (i>=0 && i<sizeX && j>=0 && j<sizeY)
+				while (V.OnBoard(i,j))
 				{
-					while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
+					while (V.OnBoard(i,j) && this.board[i][j] == V.EMPTY)
 					{
 						i -= step[0];
 						j -= step[1];
 					}
-					if (i>=0 && i<sizeX && j>=0 && j<sizeY)
+					if (V.OnBoard(i,j))
 					{
 						if (colors.includes(this.getColor(i,j)))
 						{
@@ -514,13 +487,11 @@ class UltimaRules extends ChessRules
 	{
 		// We cheat a little here: since this function is used exclusively for king,
 		// it's enough to check the immediate surrounding of the square.
-		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
 		for (let step of adjacentSteps)
 		{
 			const [i,j] = [x+step[0],y+step[1]];
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]!=V.EMPTY
+			if (V.OnBoard(i,j) && this.board[i][j]!=V.EMPTY
 				&& colors.includes(this.getColor(i,j)) && this.getPiece(i,j) == V.BISHOP)
 			{
 				return true; //bishops are never immobilized
@@ -533,14 +504,11 @@ class UltimaRules extends ChessRules
 	{
 		// Square (x,y) must be adjacent to a queen, and the queen must have
 		// some free space in the opposite direction from (x,y)
-		const V = VariantRules;
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-		const [sizeX,sizeY] = V.size;
 		for (let step of adjacentSteps)
 		{
 			const sq2 = [x+2*step[0],y+2*step[1]];
-			if (sq2[0]>=0 && sq2[0]<sizeX && sq2[1]>=0 && sq2[1]<sizeY
-				&& this.board[sq2[0]][sq2[1]] == V.EMPTY)
+			if (V.OnBoard(sq2[0],sq2[1]) && this.board[sq2[0]][sq2[1]] == V.EMPTY)
 			{
 				const sq1 = [x+step[0],y+step[1]];
 				if (this.board[sq1[0]][sq1[1]] != V.EMPTY
@@ -560,7 +528,7 @@ class UltimaRules extends ChessRules
 		// Just update king(s) position(s)
 		const piece = this.getPiece(move.start.x,move.start.y);
 		const c = this.getColor(move.start.x,move.start.y);
-		if (piece == VariantRules.KING && move.appear.length > 0)
+		if (piece == V.KING && move.appear.length > 0)
 		{
 			this.kingPos[c][0] = move.appear[0].x;
 			this.kingPos[c][1] = move.appear[0].y;
@@ -642,20 +610,19 @@ class UltimaRules extends ChessRules
 	getNotation(move)
 	{
 		const initialSquare =
-			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
+		const finalSquare = String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 		let notation = undefined;
-		if (move.appear[0].p == VariantRules.PAWN)
+		if (move.appear[0].p == V.PAWN)
 		{
 			// Pawn: generally ambiguous short notation, so we use full description
 			notation = "P" + initialSquare + finalSquare;
 		}
-		else if (move.appear[0].p == VariantRules.KING)
+		else if (move.appear[0].p == V.KING)
 			notation = "K" + (move.vanish.length>1 ? "x" : "") + finalSquare;
 		else
 			notation = move.appear[0].p.toUpperCase() + finalSquare;
-		if (move.vanish.length > 1 && move.appear[0].p != VariantRules.KING)
+		if (move.vanish.length > 1 && move.appear[0].p != V.KING)
 			notation += "X"; //capture mark (not describing what is captured...)
 		return notation;
 	}

@@ -11,15 +11,13 @@ class ZenRules extends ChessRules
 	{
 		const color = this.getColor(x,y);
 		let moves = [];
-		const [sizeX,sizeY] = VariantRules.size;
 		outerLoop:
 		for (let loop=0; loop<steps.length; loop++)
 		{
 			const step = steps[loop];
 			let i = x + step[0];
 			let j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY
-				&& this.board[i][j] == VariantRules.EMPTY)
+			while (V.OnBoard(i,j) && this.board[i][j] == V.EMPTY)
 			{
 				moves.push(this.getBasicMove([x,y], [i,j]));
 				if (!!oneStep)
@@ -38,13 +36,11 @@ class ZenRules extends ChessRules
 	{
 		const color = this.getColor(x,y);
 		var moves = [];
-		const V = VariantRules;
 		const steps = asA != V.PAWN
 			? (asA==V.QUEEN ? V.steps[V.ROOK].concat(V.steps[V.BISHOP]) : V.steps[asA])
 			: color=='w' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
 		const oneStep = (asA==V.KNIGHT || asA==V.PAWN); //we don't capture king
-		const [sizeX,sizeY] = V.size;
-		const lastRank = (color == 'w' ? 0 : sizeY-1);
+		const lastRank = (color == 'w' ? 0 : V.size.x-1);
 		const promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 		outerLoop:
 		for (let loop=0; loop<steps.length; loop++)
@@ -52,15 +48,15 @@ class ZenRules extends ChessRules
 			const step = steps[loop];
 			let i = x + step[0];
 			let j = y + step[1];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == V.EMPTY)
+			while (V.OnBoard(i,j) && this.board[i][j] == V.EMPTY)
 			{
 				if (oneStep)
 					continue outerLoop;
 				i += step[0];
 				j += step[1];
 			}
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY &&
-				this.getColor(i,j) == this.getOppCol(color) && this.getPiece(i,j) == asA)
+			if (V.OnBoard(i,j) && this.getColor(i,j) == this.getOppCol(color)
+				&& this.getPiece(i,j) == asA)
 			{
 				// eat!
 				if (this.getPiece(x,y) == V.PAWN && i == lastRank)
@@ -85,11 +81,11 @@ class ZenRules extends ChessRules
 	{
 		let moves = [];
 
-		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.PAWN));
-		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.ROOK));
-		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.KNIGHT));
-		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.BISHOP));
-		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, VariantRules.QUEEN));
+		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.PAWN));
+		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.ROOK));
+		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.KNIGHT));
+		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.BISHOP));
+		Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.QUEEN));
 
 		return moves;
 	}
@@ -97,13 +93,12 @@ class ZenRules extends ChessRules
 	getPotentialPawnMoves([x,y])
 	{
 		const color = this.getColor(x,y);
-		var moves = [];
-		var V = VariantRules;
-		let [sizeX,sizeY] = VariantRules.size;
-		let shift = (color == 'w' ? -1 : 1);
-		let startRank = (color == 'w' ? sizeY-2 : 1);
-		let firstRank = (color == 'w' ? sizeY-1 : 0);
-		let lastRank = (color == "w" ? 0 : sizeY-1);
+		let moves = [];
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
+		const shift = (color == 'w' ? -1 : 1);
+		const startRank = (color == 'w' ? sizeY-2 : 1);
+		const firstRank = (color == 'w' ? sizeY-1 : 0);
+		const lastRank = (color == "w" ? 0 : sizeY-1);
 
 		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
 		{
@@ -140,31 +135,27 @@ class ZenRules extends ChessRules
 
 	getPotentialRookMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(
-			sq, VariantRules.steps[VariantRules.ROOK]);
+		let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.ROOK]);
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialKnightMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(
-			sq, VariantRules.steps[VariantRules.KNIGHT], "oneStep");
+		let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialBishopMoves(sq)
 	{
-		let noCaptures = this.getSlideNJumpMoves(
-			sq, VariantRules.steps[VariantRules.BISHOP]);
+		let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]);
 		let captures = this.findCaptures(sq);
 		return noCaptures.concat(captures);
 	}
 
 	getPotentialQueenMoves(sq)
 	{
-		const V = VariantRules;
 		let noCaptures = this.getSlideNJumpMoves(
 			sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 		let captures = this.findCaptures(sq);
@@ -173,7 +164,6 @@ class ZenRules extends ChessRules
 
 	getPotentialKingMoves(sq)
 	{
-		const V = VariantRules;
 		// Initialize with normal moves
 		let noCaptures = this.getSlideNJumpMoves(sq,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
@@ -195,15 +185,15 @@ class ZenRules extends ChessRules
 
 		// Translate initial square (because pieces may fly unusually in this variant!)
 		const initialSquare =
-			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
 
 		// Translate final square
 		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 
 		let notation = "";
 		const piece = this.getPiece(move.start.x, move.start.y);
-		if (piece == VariantRules.PAWN)
+		if (piece == V.PAWN)
 		{
 			// pawn move (TODO: enPassant indication)
 			if (move.vanish.length > 1)

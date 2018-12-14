@@ -24,7 +24,7 @@ Vue.component('my-game', {
 		};
 	},
 	render(h) {
-		const [sizeX,sizeY] = VariantRules.size;
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		const smallScreen = (window.innerWidth <= 420);
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);

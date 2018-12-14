@@ -23,6 +23,7 @@ block javascripts
 	script(src="/javascripts/variants/" + variant + ".js")
 	script.
 		const VariantRules = #{variant}Rules;
+		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")

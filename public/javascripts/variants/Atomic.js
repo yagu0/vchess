@@ -14,8 +14,8 @@ class AtomicRules extends ChessRules
 				{
 					let x = m.end.x + step[0];
 					let y = m.end.y + step[1];
-					if (x>=0 && x<8 && y>=0 && y<8 && this.board[x][y] != VariantRules.EMPTY
-						&& this.getPiece(x,y) != VariantRules.PAWN)
+					if (V.OnBoard(x,y) && this.board[x][y] != V.EMPTY
+						&& this.getPiece(x,y) != V.PAWN)
 					{
 						m.vanish.push(
 							new PiPo({p:this.getPiece(x,y),c:this.getColor(x,y),x:x,y:y}));
@@ -31,16 +31,14 @@ class AtomicRules extends ChessRules
 
 	getPotentialKingMoves([x,y])
 	{
-		const V = VariantRules;
 		// King cannot capture:
 		let moves = [];
-		let [sizeX,sizeY] = V.size;
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		for (let step of steps)
 		{
-			var i = x + step[0];
-			var j = y + step[1];
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j] == VariantRules.EMPTY)
+			const i = x + step[0];
+			const j = y + step[1];
+			if (V.OnBoard(i,j) && this.board[i][j] == V.EMPTY)
 				moves.push(this.getBasicMove([x,y], [i,j]));
 		}
 		return moves.concat(this.getCastleMoves([x,y]));
@@ -48,11 +46,8 @@ class AtomicRules extends ChessRules
 
 	isAttacked(sq, colors)
 	{
-		if (this.getPiece(sq[0],sq[1]) == VariantRules.KING
-			&& this.isAttackedByKing(sq, colors))
-		{
+		if (this.getPiece(sq[0],sq[1]) == V.KING && this.isAttackedByKing(sq, colors))
 			return false; //king cannot take...
-		}
 		return (this.isAttackedByPawn(sq, colors)
 			|| this.isAttackedByRook(sq, colors)
 			|| this.isAttackedByKnight(sq, colors)

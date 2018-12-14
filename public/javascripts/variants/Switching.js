@@ -6,7 +6,6 @@ class SwitchingRules extends ChessRules
 		const c = this.getColor(x1,y1); //same as color at square 2
 		const p1 = this.getPiece(x1,y1);
 		const p2 = this.getPiece(x2,y2);
-		const V = VariantRules;
 		if (p1 == V.KING && p2 == V.ROOK)
 			return []; //avoid duplicate moves (potential conflict with castle)
 		let move = new Move({
@@ -22,8 +21,7 @@ class SwitchingRules extends ChessRules
 			end: {x:x2,y:y2}
 		});
 		// Move completion: promote switched pawns (as in Magnetic)
-		const sizeX = VariantRules.size[0];
-		const lastRank = (c == "w" ? 0 : sizeX-1);
+		const lastRank = (c == "w" ? 0 : V.size.x-1);
 		let moves = [];
 		if ((p1==V.PAWN && x2==lastRank) || (p2==V.PAWN && x1==lastRank))
 		{
@@ -55,10 +53,8 @@ class SwitchingRules extends ChessRules
 	{
 		let moves = super.getPotentialMovesFrom([x,y]);
 		// Add switches: respecting chessboard ordering if "computer" is on
-		const V = VariantRules;
 		const color = this.turn;
 		const piece = this.getPiece(x,y);
-		const [sizeX,sizeY] = V.size;
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		const kp = this.kingPos[color];
 		const oppCol = this.getOppCol(color);
@@ -67,7 +63,7 @@ class SwitchingRules extends ChessRules
 			let [i,j] = [x+step[0],y+step[1]];
 			if (!!computer && (i<x || (i==x && j<y)))
 				continue; //only switch with superior indices
-			if (i>=0 && i<sizeX && j>=0 && j<sizeY && this.board[i][j]!=V.EMPTY
+			if (V.OnBoard(i,j) && this.board[i][j]!=V.EMPTY
 				&& this.getColor(i,j)==color && this.getPiece(i,j)!=piece
 				// No switching under check (theoretically non-king pieces could, but not)
 				&& !this.isAttacked(kp, [oppCol]))
@@ -87,12 +83,11 @@ class SwitchingRules extends ChessRules
 		const color = this.turn;
 		const oppCol = this.getOppCol(color);
 		let potentialMoves = [];
-		const [sizeX,sizeY] = VariantRules.size;
-		for (let i=0; i<sizeX; i++)
+		for (let i=0; i<V.size.x; i++)
 		{
-			for (let j=0; j<sizeY; j++)
+			for (let j=0; j<V.size.y; j++)
 			{
-				if (this.board[i][j] != VariantRules.EMPTY && this.getColor(i,j) == color)
+				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) == color)
 				{
 					Array.prototype.push.apply(potentialMoves,
 						this.getPotentialMovesFrom([i,j], computer));
@@ -106,7 +101,7 @@ class SwitchingRules extends ChessRules
 	{
 		super.updateVariables(move);
 		if (move.appear.length == 2 && move.vanish.length == 2
-			&& move.appear[1].p == VariantRules.KING)
+			&& move.appear[1].p == V.KING)
 		{
 			// Switch with the king; not castle, and not handled by main class
 			const color = this.getColor(move.start.x, move.start.y);
@@ -118,7 +113,7 @@ class SwitchingRules extends ChessRules
 	{
 		super.unupdateVariables(move);
 		if (move.appear.length == 2 && move.vanish.length == 2
-			&& move.appear[1].p == VariantRules.KING)
+			&& move.appear[1].p == V.KING)
 		{
 			const color = this.getColor(move.start.x, move.start.y);
 			this.kingPos[color] = [move.appear[0].x, move.appear[0].y];
@@ -132,13 +127,13 @@ class SwitchingRules extends ChessRules
 		if (move.appear.length == 1)
 			return super.getNotation(move); //no switch
 		// Switch or castle
-		if (move.appear[0].p == VariantRules.KING && move.appear[1].p == VariantRules.ROOK)
+		if (move.appear[0].p == V.KING && move.appear[1].p == V.ROOK)
 			return (move.end.y < move.start.y ? "0-0-0" : "0-0");
 		// Switch:
 		const startSquare =
-			String.fromCharCode(97 + move.start.y) + (VariantRules.size[0]-move.start.x);
+			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
 		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 		return "S" + startSquare + finalSquare;
 	}
 }

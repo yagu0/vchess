@@ -23,7 +23,6 @@ class MagneticRules extends ChessRules
 	// TODO: job is done multiple times for (normal) promotions.
 	applyMagneticLaws(move)
 	{
-		const V = VariantRules;
 		if (move.appear[0].p == V.KING && move.appear.length==1)
 			return [move]; //kings are not charged
 		const aIdx = (move.appear[0].p != V.KING ? 0 : 1); //if castling, rook is charged
@@ -32,11 +31,10 @@ class MagneticRules extends ChessRules
 		const lastRank = (color=="w" ? 0 : 7);
 		const standardMove = JSON.parse(JSON.stringify(move));
 		this.play(standardMove);
-		const [sizeX,sizeY] = V.size;
 		for (let step of [[-1,0],[1,0],[0,-1],[0,1]])
 		{
 			let [i,j] = [x+step[0],y+step[1]];
-			while (i>=0 && i<sizeX && j>=0 && j<sizeY)
+			while (V.OnBoard(i,j))
 			{
 				if (this.board[i][j] != V.EMPTY)
 				{
@@ -71,7 +69,7 @@ class MagneticRules extends ChessRules
 						{
 							// Push it until we meet an obstacle or edge of the board
 							let [ii,jj] = [i+step[0],j+step[1]];
-							while (ii>=0 && ii<sizeX && jj>=0 && jj<sizeY)
+							while (V.OnBoard(ii,jj))
 							{
 								if (this.board[ii][jj] != V.EMPTY)
 									break;
@@ -166,9 +164,9 @@ class MagneticRules extends ChessRules
 	{
 		super.updateVariables(move);
 		const c = this.getColor(move.start.x,move.start.y);
-		if (this.board[move.end.x][move.end.y] != VariantRules.EMPTY
+		if (this.board[move.end.x][move.end.y] != V.EMPTY
 			&& c != this.getColor(move.end.x,move.end.y)
-			&& this.getPiece(move.end.x,move.end.y) == VariantRules.KING)
+			&& this.getPiece(move.end.x,move.end.y) == V.KING)
 		{
 			// We took opponent king !
 			const oppCol = this.getOppCol(c);

@@ -4,7 +4,6 @@ class CrazyhouseRules extends ChessRules
 	{
 		super.initVariables(fen);
 		// Also init reserves (used by the interface to show landing pieces)
-		const V = VariantRules;
 		this.reserve =
 		{
 			"w":
@@ -24,53 +23,48 @@ class CrazyhouseRules extends ChessRules
 				[V.QUEEN]: 0,
 			}
 		};
-		const [sizeX,sizeY] = VariantRules.size;
-		this.promoted = doubleArray(sizeX, sizeY, false);
+		this.promoted = doubleArray(V.size.x, V.size.y, false);
 		// May be a continuation: adjust numbers of pieces in reserve + promoted pieces
 		this.moves.forEach(m => { this.updateVariables(m); });
 	}
 
 	getColor(i,j)
 	{
-		const sizeX = VariantRules.size[0];
-		if (i >= sizeX)
-			return (i==sizeX ? "w" : "b");
+		if (i >= V.size.x)
+			return (i==V.size.x ? "w" : "b");
 		return this.board[i][j].charAt(0);
 	}
 	getPiece(i,j)
 	{
-		const sizeX = VariantRules.size[0];
-		if (i >= sizeX)
-			return VariantRules.RESERVE_PIECES[j];
+		if (i >= V.size.x)
+			return V.RESERVE_PIECES[j];
 		return this.board[i][j].charAt(1);
 	}
 
 	// Used by the interface:
 	getReservePpath(color, index)
 	{
-		return color + VariantRules.RESERVE_PIECES[index];
+		return color + V.RESERVE_PIECES[index];
 	}
 
 	// Ordering on reserve pieces
 	static get RESERVE_PIECES() {
-		const V = VariantRules;
 		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 	}
 
 	getReserveMoves([x,y])
 	{
 		const color = this.turn;
-		const p = VariantRules.RESERVE_PIECES[y];
+		const p = V.RESERVE_PIECES[y];
 		if (this.reserve[color][p] == 0)
 			return [];
 		let moves = [];
-		const [sizeX,sizeY] = VariantRules.size;
-		const pawnShift = (p==VariantRules.PAWN ? 1 : 0);
-		for (let i=pawnShift; i<sizeX-pawnShift; i++)
+		const pawnShift = (p==V.PAWN ? 1 : 0);
+		for (let i=pawnShift; i<V.size.x-pawnShift; i++)
 		{
-			for (let j=0; j<sizeY; j++)
+			for (let j=0; j<V.size.y; j++)
 			{
-				if (this.board[i][j] == VariantRules.EMPTY)
+				if (this.board[i][j] == V.EMPTY)
 				{
 					let mv = new Move({
 						appear: [
@@ -94,8 +88,7 @@ class CrazyhouseRules extends ChessRules
 
 	getPotentialMovesFrom([x,y])
 	{
-		const sizeX = VariantRules.size[0];
-		if (x >= sizeX)
+		if (x >= V.size.x)
 		{
 			// Reserves, outside of board: x == sizeX(+1)
 			return this.getReserveMoves([x,y]);
@@ -108,9 +101,8 @@ class CrazyhouseRules extends ChessRules
 	{
 		let moves = super.getAllValidMoves();
 		const color = this.turn;
-		const sizeX = VariantRules.size[0];
-		for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
-			moves = moves.concat(this.getReserveMoves([sizeX+(color=="w"?0:1),i]));
+		for (let i=0; i<V.RESERVE_PIECES.length; i++)
+			moves = moves.concat(this.getReserveMoves([V.size.x+(color=="w"?0:1),i]));
 		return this.filterValid(moves);
 	}
 
@@ -118,11 +110,12 @@ class CrazyhouseRules extends ChessRules
 	{
 		if (!super.atLeastOneMove())
 		{
-			const sizeX = VariantRules.size[0];
-			// Scan for reserve moves
-			for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
+			const color = this.turn;
+			// Search one reserve move
+			for (let i=0; i<V.RESERVE_PIECES.length; i++)
 			{
-				let moves = this.filterValid(this.getReserveMoves([sizeX,i]));
+				let moves = this.filterValid(
+					this.getReserveMoves([V.size.x+(this.turn=="w"?0:1), i]) );
 				if (moves.length > 0)
 					return true;
 			}
@@ -137,7 +130,6 @@ class CrazyhouseRules extends ChessRules
 		if (move.vanish.length == 2 && move.appear.length == 2)
 			return; //skip castle
 		const color = this.turn;
-		const V = VariantRules;
 		if (move.vanish.length == 0)
 		{
 			this.reserve[color][move.appear[0].p]--;
@@ -149,7 +141,7 @@ class CrazyhouseRules extends ChessRules
 		this.promoted[move.end.x][move.end.y] = move.movePromoted
 			|| (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN);
 		if (move.capturePromoted)
-			this.reserve[color][VariantRules.PAWN]++;
+			this.reserve[color][V.PAWN]++;
 		else if (move.vanish.length == 2)
 			this.reserve[color][move.vanish[1].p]++;
 	}
@@ -160,7 +152,6 @@ class CrazyhouseRules extends ChessRules
 		if (move.vanish.length == 2 && move.appear.length == 2)
 			return;
 		const color = this.turn;
-		const V = VariantRules;
 		if (move.vanish.length == 0)
 		{
 			this.reserve[color][move.appear[0].p]++;
@@ -170,7 +161,7 @@ class CrazyhouseRules extends ChessRules
 			this.promoted[move.start.x][move.start.y] = true;
 		this.promoted[move.end.x][move.end.y] = move.capturePromoted;
 		if (move.capturePromoted)
-			this.reserve[color][VariantRules.PAWN]--;
+			this.reserve[color][V.PAWN]--;
 		else if (move.vanish.length == 2)
 			this.reserve[color][move.vanish[1].p]--;
 	}
@@ -181,11 +172,11 @@ class CrazyhouseRules extends ChessRules
 	{
 		let evaluation = super.evalPosition();
 		// Add reserves:
-		for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
+		for (let i=0; i<V.RESERVE_PIECES.length; i++)
 		{
-			const p = VariantRules.RESERVE_PIECES[i];
-			evaluation += this.reserve["w"][p] * VariantRules.VALUES[p];
-			evaluation -= this.reserve["b"][p] * VariantRules.VALUES[p];
+			const p = V.RESERVE_PIECES[i];
+			evaluation += this.reserve["w"][p] * V.VALUES[p];
+			evaluation -= this.reserve["b"][p] * V.VALUES[p];
 		}
 		return evaluation;
 	}
@@ -196,9 +187,9 @@ class CrazyhouseRules extends ChessRules
 			return super.getNotation(move);
 		// Rebirth:
 		const piece =
-			(move.appear[0].p != VariantRules.PAWN ? move.appear[0].p.toUpperCase() : "");
+			(move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "");
 		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 		return piece + "@" + finalSquare;
 	}
 
@@ -207,7 +198,7 @@ class CrazyhouseRules extends ChessRules
 		if (move.vanish.length > 0)
 			return super.getLongNotation(move);
 		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (VariantRules.size[0]-move.end.x);
+			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
 		return "@" + finalSquare;
 	}
 }
