@@ -1024,10 +1024,7 @@ Vue.component('my-game', {
 			{
 				const storageVariant = localStorage.getItem("variant");
 				if (!!storageVariant && storageVariant !== variant)
-				{
-					alert("Finish your " + storageVariant + " game first!");
-					return;
-				}
+					return alert("Finish your " + storageVariant + " game first!");
 				// Send game request and wait..
 				localStorage["newgame"] = variant;
 				this.seek = true;

@@ -6,6 +6,11 @@ class LoserRules extends ChessRules
 		this.epSquares = [ epSq ];
 	}
 
+	static IsGoodFlags(flags)
+	{
+		return true; //anything is good: no flags
+	}
+
 	setFlags(fen)
 	{
 		// No castling, hence no flags; but flags defined for compatibility

@@ -29,6 +29,10 @@ class AliceRules extends ChessRules
 		return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
 	}
 
+	static get PIECES() {
+		return ChessRules.PIECES.concat(Object.keys(V.ALICE_PIECES));
+	}
+
 	initVariables(fen)
 	{
 		super.initVariables(fen);

@@ -54,12 +54,15 @@ class ChessRules
 	constructor(fen, moves)
 	{
 		this.moves = moves;
-		// Use fen string to initialize variables, flags and board
-		this.board = V.GetBoard(fen);
-		this.setFlags(fen);
+		// Use fen string to initialize variables, flags, turn and board
+		const fenParts = fen.split(" ");
+		this.board = V.GetBoard(fenParts[0]);
+		this.setFlags(fenParts[1]); //NOTE: fenParts[1] might be undefined
+		this.setTurn(fenParts[2]); //Same note
 		this.initVariables(fen);
 	}
 
+	// Some additional variables from FEN (variant dependant)
 	initVariables(fen)
 	{
 		this.INIT_COL_KING = {'w':-1, 'b':-1};
@@ -95,7 +98,7 @@ class ChessRules
 							this.INIT_COL_ROOK['w'][1] = k;
 						break;
 					default:
-						let num = parseInt(position[i].charAt(j));
+						const num = parseInt(position[i].charAt(j));
 						if (!isNaN(num))
 							k += (num-1);
 				}
@@ -106,18 +109,68 @@ class ChessRules
 		this.epSquares = [ epSq ];
 	}
 
+	// Check if FEN describe a position
+	static IsGoodFen(fen)
+	{
+		const fenParts = fen.split(" ");
+		if (fenParts.length== 0 || fenParts.length > 3)
+			return false;
+		// 1) Check position
+		const position = fenParts[0];
+		const rows = position.split("/");
+		if (rows.length != V.size.x)
+			return false;
+		for (let row of rows)
+		{
+			let sumElts = 0;
+			for (let i=0; i<row.length; i++)
+			{
+				if (V.PIECES.includes(row[i].toLowerCase()))
+					sumElts++;
+				else
+				{
+					const num = parseInt(row[i]);
+					if (isNaN(num))
+						return false;
+					sumElts += num;
+				}
+			}
+			if (sumElts != V.size.y)
+				return false;
+		}
+		// 2) Check flags (if present)
+		if (fenParts.length >= 2)
+		{
+			if (!V.IsGoodFlags(fenParts[1]))
+				return false;
+		}
+		// 3) Check turn (if present)
+		if (fenParts.length == 3)
+		{
+			if (!["w","b"].includes(fenParts[2]))
+				return false;
+		}
+		return true;
+	}
+
+	// For FEN checking
+	static IsGoodFlags(flags)
+	{
+		return !!flags.match(/^[01]{4,4}$/);
+	}
+
 	// Turn diagram fen into double array ["wb","wp","bk",...]
 	static GetBoard(fen)
 	{
-		let rows = fen.split(" ")[0].split("/");
+		const rows = fen.split(" ")[0].split("/");
 		let board = doubleArray(V.size.x, V.size.y, "");
 		for (let i=0; i<rows.length; i++)
 		{
 			let j = 0;
 			for (let indexInRow = 0; indexInRow < rows[i].length; indexInRow++)
 			{
-				let character = rows[i][indexInRow];
-				let num = parseInt(character);
+				const character = rows[i][indexInRow];
+				const num = parseInt(character);
 				if (!isNaN(num))
 					j += num; //just shift j
 				else //something at position i,j
@@ -128,13 +181,20 @@ class ChessRules
 	}
 
 	// Extract (relevant) flags from fen
-	setFlags(fen)
+	setFlags(fenflags)
 	{
 		// white a-castle, h-castle, black a-castle, h-castle
-		this.castleFlags = {'w': new Array(2), 'b': new Array(2)};
-		let flags = fen.split(" ")[1]; //flags right after position
+		this.castleFlags = {'w': [true,true], 'b': [true,true]};
+		if (!fenflags)
+			return;
 		for (let i=0; i<4; i++)
-			this.castleFlags[i < 2 ? 'w' : 'b'][i%2] = (flags.charAt(i) == '1');
+			this.castleFlags[i < 2 ? 'w' : 'b'][i%2] = (fenflags.charAt(i) == '1');
+	}
+
+	// Initialize turn (white or black)
+	setTurn(turnflag)
+	{
+		this.turn = turnflag || "w";
 	}
 
 	///////////////////
@@ -154,10 +214,6 @@ class ChessRules
 		return (L>0 ? this.moves[L-1] : null);
 	}
 
-	get turn() {
-		return (this.moves.length%2==0 ? 'w' : 'b');
-	}
-
 	// Pieces codes
 	static get PAWN() { return 'p'; }
 	static get ROOK() { return 'r'; }
@@ -165,6 +221,11 @@ class ChessRules
 	static get BISHOP() { return 'b'; }
 	static get QUEEN() { return 'q'; }
 	static get KING() { return 'k'; }
+
+	// For FEN checking:
+	static get PIECES() {
+		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN,V.KING];
+	}
 
 	// Empty square
 	static get EMPTY() { return ''; }
@@ -483,9 +544,7 @@ class ChessRules
 
 	canIplay(side, [x,y])
 	{
-		return ((side=='w' && this.moves.length%2==0)
-				|| (side=='b' && this.moves.length%2==1))
-			&& this.getColor(x,y) == side;
+		return (this.turn == side && this.getColor(x,y) == side);
 	}
 
 	getPossibleMovesFrom(sq)
@@ -717,7 +776,7 @@ class ChessRules
 	// Hash of position+flags+turn after a move is played (to detect repetitions)
 	getHashState()
 	{
-		return hex_md5(this.getFen() + " " + this.turn);
+		return hex_md5(this.getFen());
 	}
 
 	play(move, ingame)
@@ -1054,7 +1113,7 @@ class ChessRules
 	// Return current fen according to pieces+colors state
 	getFen()
 	{
-		return this.getBaseFen() + " " + this.getFlagsFen();
+		return this.getBaseFen() + " " + this.getFlagsFen() + " " + this.turn;
 	}
 
 	// Position part of the FEN string

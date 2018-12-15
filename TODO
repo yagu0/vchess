@@ -1,0 +1,2 @@
+Finish showProblem() in components/problemSummary.js (send event with infos, and pass message to game component)
+Add new mode in game component: "problem", in which we show description + hidden solution (reveal on click)

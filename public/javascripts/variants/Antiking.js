@@ -6,7 +6,11 @@ class AntikingRules extends ChessRules
 	}
 
 	static get ANTIKING() { return 'a'; }
-	
+
+	static get PIECES() {
+		return ChessRules.PIECES.concat([V.ANTIKING]);
+	}
+
 	initVariables(fen)
 	{
 		super.initVariables(fen);

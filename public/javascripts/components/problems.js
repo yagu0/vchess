@@ -6,14 +6,11 @@ Vue.component('my-problems', {
 	},
 	template: `
 		<div>
-			<button>Previous</button>
-			<button>Next</button>
+			<button @click="fetchProblems('backward')">Previous</button>
+			<button @click="fetchProblems('forward')">Next</button>
 			<button @click="showNewproblemModal">New</button>
 			<my-problem-summary
-				v-for="(p,idx) in sortedProblems",
-				v-bind:prob="p",
-				v-bind:key="idx",
-				@click="showProblem(p)"
+				v-for="(p,idx) in sortedProblems" v-bind:prob="p" v-bind:key="idx">
 			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal">
 			<div role="dialog" aria-labelledby="newProblemTxt">
@@ -23,7 +20,8 @@ Vue.component('my-problems', {
 					<form @submit.prevent="postNewProblem">
 						<fieldset>
 							<label for="newpbFen">Fen</label>
-							<input type="text" id="newpbFen" placeholder="Position [+ flags [+ turn]]"/>
+							<input type="text" id="newpbFen"
+								placeholder="Position [+ flags [+ turn]]"/>
 						</fieldset>
 						<fieldset>
 							<p class="emphasis">
@@ -47,8 +45,9 @@ Vue.component('my-problems', {
 	`,
 	computed: {
 		sortedProblems: function() {
+			console.log("call");
 			// Newest problem first
-			return problems.sort((p1,p2) => { return p2.added - p1.added; });
+			return this.problems.sort((p1,p2) => { return p2.added - p1.added; });
 		},
 		mailErrProblem: function() {
 			return "mailto:contact@vchess.club?subject=[" + variant + " problems] error";
@@ -56,26 +55,43 @@ Vue.component('my-problems', {
 	},
 	methods: {
 		fetchProblems: function(direction) {
-			// TODO: ajax call return list of max 10 problems
-			// Do not do anything if no older problems (and store this result in cache!)
-			// TODO: ajax call return list of max 10 problems
-			// Do not do anything if no newer problems
-		},
-		showProblem: function(prob) {
-			//TODO: send event with object prob.fen, prob.instructions, prob.solution
-			//Event should propagate to game, which set mode=="problem" + other variables
-			//click on a problem ==> land on variant page with mode==friend, FEN prefilled... ok
-			// click on problem ==> masque problems, affiche game tab, launch new game Friend with
-			//   FEN + turn + flags + rappel instructions / solution on click sous l'échiquier
+			return; //TODO: re-activate after server side is implemented (see routes/all.js)
+			if (this.problems.length == 0)
+				return; //what could we do?!
+			// Search for newest date (or oldest)
+			let last_dt = this.problems[0].added;
+			for (let i=0; i<this.problems.length; i++)
+			{
+				if ((direction == "forward" && this.problems[i].added > last_dt) ||
+					(direction == "backward" && this.problems[i].added < last_dt))
+				{
+					last_dt = this.problems[i].added;
+				}
+			}
+			ajax("/problems/" + variant, "GET", {
+				direction: direction,
+				last_dt: last_dt,
+			}, response => {
+				if (response.problems.length > 0)
+					this.problems = response.problems;
+			});
 		},
 		showNewproblemModal: function() {
 			document.getElementById("modal-newproblem").checked = true;
 		},
 		postNewProblem: function() {
 			const fen = document.getElementById("newpbFen").value;
+			if (!V.IsGoodFen(fen))
+				return alert("Bad FEN string");
 			const instructions = document.getElementById("newpbInstructions").value;
 			const solution = document.getElementById("newpbSolution").value;
-			
+			ajax("/problems/" + variant, "POST", {
+				fen: fen,
+				instructions: instructions,
+				solution: solution,
+			}, response => {
+				document.getElementById("modal-newproblem").checked = false;
+			});
 		},
 	},
 })

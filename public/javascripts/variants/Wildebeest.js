@@ -10,6 +10,10 @@ class WildebeestRules extends ChessRules
 	static get CAMEL() { return 'c'; }
 	static get WILDEBEEST() { return 'w'; }
 
+	static get PIECES() {
+		return ChessRules.PIECES.concat([V.CAMEL,V.WILDEBEEST]);
+	}
+
 	static get steps() {
 		return Object.assign(
 			ChessRules.steps, //add camel moves:

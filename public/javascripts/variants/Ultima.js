@@ -7,6 +7,15 @@ class UltimaRules extends ChessRules
 		return b; //usual piece
 	}
 
+	static get PIECES() {
+		return ChessRules.PIECES.concat([V.IMMOBILIZER]);
+	}
+
+	static IsGoodFlags(flags)
+	{
+		return true; //anything is good: no flags
+	}
+
 	initVariables(fen)
 	{
 		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]};

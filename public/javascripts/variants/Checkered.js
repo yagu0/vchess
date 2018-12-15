@@ -19,16 +19,32 @@ class CheckeredRules extends ChessRules
 	}
 	static fen2board(f)
 	{
+		// Tolerate upper-case versions of checkered pieces (why not?)
 		const checkered_pieces = {
 			's': 'p',
+			'S': 'p',
 			't': 'q',
+			'T': 'q',
 			'u': 'r',
+			'U': 'r',
 			'c': 'b',
+			'C': 'b',
 			'o': 'n',
+			'O': 'n',
 		};
 		if (Object.keys(checkered_pieces).includes(f))
 			return 'c'+checkered_pieces[f];
 		return ChessRules.fen2board(f);
+	}
+
+	static get PIECES() {
+		return ChessRules.PIECES.concat(['s','t','u','c','o']);
+	}
+
+	static IsGoodFlags(flags)
+	{
+		// 4 for castle + 16 for pawns
+		return !!flags.match(/^[01]{20,20}$/);
 	}
 
 	setFlags(fen)
@@ -108,9 +124,7 @@ class CheckeredRules extends ChessRules
 
 	canIplay(side, [x,y])
 	{
-		return ((side=='w' && this.moves.length%2==0)
-				|| (side=='b' && this.moves.length%2==1))
-			&& [side,'c'].includes(this.getColor(x,y));
+		return (side == this.turn && [side,'c'].includes(this.getColor(x,y)));
 	}
 
 	// Does m2 un-do m1 ? (to disallow undoing checkered moves)
@@ -194,11 +208,12 @@ class CheckeredRules extends ChessRules
 	checkGameEnd()
 	{
 		const color = this.turn;
-		this.moves.length++; //artifically change turn, for checkered pawns (TODO)
+		// Artifically change turn, for checkered pawns
+		this.turn = this.getOppCol(this.turn);
 		const res = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c'])
 			? (color == "w" ? "0-1" : "1-0")
 			: "1/2";
-		this.moves.length--;
+		this.turn = this.getOppCol(this.turn);
 		return res;
 	}
 

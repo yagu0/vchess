@@ -18,6 +18,10 @@ class GrandRules extends ChessRules
 	static get MARSHALL() { return 'm'; } //rook+knight
 	static get CARDINAL() { return 'c'; } //bishop+knight
 
+	static get PIECES() {
+		return ChessRules.PIECES.concat([V.MARSHALL,V.CARDINAL]);
+	}
+
 	// En-passant after 2-sq or 3-sq jumps
 	getEpSquare(move)
 	{
