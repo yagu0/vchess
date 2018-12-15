@@ -409,7 +409,7 @@ Vue.component('my-game', {
 					}),
 				h('div',
 					{
-						attrs: { "role": "dialog", "aria-labelledby": "modal-eog" },
+						attrs: { "role": "dialog", "aria-labelledby": "eogMessage" },
 					},
 					[
 						h('div',
@@ -425,6 +425,7 @@ Vue.component('my-game', {
 								),
 								h('h3',
 									{
+										attrs: { "id": "eogMessage" },
 										"class": { "section": true },
 										domProps: { innerHTML: eogMessage },
 									}
@@ -445,7 +446,7 @@ Vue.component('my-game', {
 				}),
 			h('div',
 				{
-					attrs: { "role": "dialog", "aria-labelledby": "modal-newgame" },
+					attrs: { "role": "dialog", "aria-labelledby": "newGameTxt" },
 				},
 				[
 					h('div',
@@ -461,6 +462,7 @@ Vue.component('my-game', {
 							),
 							h('h3',
 								{
+									attrs: { "id": "newGameTxt" },
 									"class": { "section": true },
 									domProps: { innerHTML: "New game" },
 								}
@@ -485,7 +487,7 @@ Vue.component('my-game', {
 				}),
 			h('div',
 				{
-					attrs: { "role": "dialog", "aria-labelledby": "modal-fenedit" },
+					attrs: { "role": "dialog", "aria-labelledby": "titleFenedit" },
 				},
 				[
 					h('div',
@@ -501,6 +503,7 @@ Vue.component('my-game', {
 							),
 							h('h3',
 								{
+									attrs: { "id": "titleFenedit" },
 									"class": { "section": true },
 									domProps: { innerHTML: "Position + flags (FEN):" },
 								}
@@ -551,7 +554,7 @@ Vue.component('my-game', {
 				}),
 			h('div',
 				{
-					attrs: { "role": "dialog", "aria-labelledby": "modal-settings" },
+					attrs: { "role": "dialog", "aria-labelledby": "settingsTitle" },
 				},
 				[
 					h('div',
@@ -567,6 +570,7 @@ Vue.component('my-game', {
 							),
 							h('h3',
 								{
+									attrs: { "id": "settingsTitle" },
 									"class": { "section": true },
 									domProps: { innerHTML: "Preferences" },
 								}

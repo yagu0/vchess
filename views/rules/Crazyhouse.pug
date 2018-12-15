@@ -16,10 +16,19 @@ h3 Basics
 
 p
 	| Orthodox rules apply, with only one change:
-	| every time you capture a piece, your "reserve" of waiting pieces is augmented
-	| with this figure. At every move, you may choose to land one of your reserve
-	| pieces anywhere on the board (except last rank for pawns),
+	| every time a piece is captured, the capturer "reserve" of waiting pieces is
+	| augmented with this figure. At every move, you may choose to land one of your
+	| reserve pieces anywhere on the board (except last rank for pawns),
 	| instead of playing a regular move.
+
+p.
+	Move notation: an arobase '@' indicate piece landing. For example B@d4 means
+	a bishop rebirth on d4 square, and @f3 is a pawn landing on f3.
+
+figure.diagram-container
+	.diagram
+		| fen:qnbrkbnr/ppNppp1p/2p2p2/8/8/5N2/P1PPPPPP/BRNQKBNR:
+	figcaption After 1.b3 Nf6 2.Bxf6 gxf6 3.Nf3 c6?? 4.N@c7#
 
 p.
 	Note: when a promoted pawn is captured, capturing it put a pawn in the reserve,

@@ -4,3 +4,4 @@
 *.wav filter=fat
 *.mp3 filter=fat
 *.png filter=fat
+*.sqlite filter=fat

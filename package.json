@@ -13,10 +13,12 @@
     "morgan": "~1.9.1",
     "node-sass-middleware": "~0.11.0",
     "pug": "~2.0.3",
+    "sanitize-html": "^1.19.3",
     "serve-favicon": "~2.5.0",
-    "ws": "~6.1.0"
+    "sqlite3": "^4.0.4",
+    "ws": "^6.1.2"
   },
   "devDependencies": {
-    "gulp-nodemon": "~2.4.1"
+    "gulp-nodemon": "^2.4.2"
   }
 }

@@ -25,13 +25,17 @@ block javascripts
 	script(src="/javascripts/utils/socket_url.js")
 	script(src="/javascripts/utils/array.js")
 	script(src="/javascripts/utils/md5.js")
+	script(src="/javascripts/utils/printDiagram.js")
+	script(src="/javascripts/utils/ajax.js")
 	script(src="/javascripts/base_rules.js")
 	script(src="/javascripts/variants/" + variant + ".js")
 	script.
 		const VariantRules = #{variant}Rules;
 		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
+		const problemArray = !{JSON.stringify(problemArray)};
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")
+	script(src="/javascripts/components/problemSummary.js")
 	script(src="/javascripts/components/problems.js")
 	script(src="/javascripts/variant.js")
