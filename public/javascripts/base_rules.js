@@ -50,7 +50,7 @@ class ChessRules
 	/////////////////
 	// INITIALIZATION
 
-	// fen == "position flags"
+	// fen == "position [flags [turn]]"
 	constructor(fen, moves)
 	{
 		this.moves = moves;
@@ -1107,7 +1107,7 @@ class ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 1111"; //add flags
+			" 1111 w"; //add flags + turn
 	}
 
 	// Return current fen according to pieces+colors state
@@ -1209,14 +1209,11 @@ class ChessRules
 	// The score is already computed when calling this function
 	getPGN(mycolor, score, fenStart, mode)
 	{
-		const zeroPad = x => { return (x<10 ? "0" : "") + x; };
 		let pgn = "";
 		pgn += '[Site "vchess.club"]<br>';
-		const d = new Date();
 		const opponent = mode=="human" ? "Anonymous" : "Computer";
 		pgn += '[Variant "' + variant + '"]<br>';
-		pgn += '[Date "' + d.getFullYear() + '-' + (d.getMonth()+1) +
-			'-' + zeroPad(d.getDate()) + '"]<br>';
+		pgn += '[Date "' + getDate(new Date()) + '"]<br>';
 		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
 		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
 		pgn += '[FenStart "' + fenStart + '"]<br>';

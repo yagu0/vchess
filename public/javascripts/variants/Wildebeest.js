@@ -245,10 +245,9 @@ class WildebeestRules extends ChessRules
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		let fen = pieces["b"].join("") +
+		return pieces["b"].join("") +
 			"/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 1111";
-		return fen;
+			" 1111 w";
 	}
 }

@@ -197,10 +197,9 @@ class AntikingRules extends ChessRules
 			+ "A" + (antikingPos["w"]<7?7-antikingPos["w"]:"");
 		const ranks23_white = (antikingPos["b"]>0?antikingPos["b"]:"") + "a"
 			+ (antikingPos["b"]<7?7-antikingPos["b"]:"") + "/PPPPPPPP";
-		let fen = pieces["b"].join("") + "/" + ranks23_black +
+		return pieces["b"].join("") + "/" + ranks23_black +
 			"/8/8/" +
 			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
-			" 1111";
-		return fen;
+			" 1111 w";
 	}
 }

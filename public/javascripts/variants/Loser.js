@@ -11,7 +11,7 @@ class LoserRules extends ChessRules
 		return true; //anything is good: no flags
 	}
 
-	setFlags(fen)
+	setFlags(fenflags)
 	{
 		// No castling, hence no flags; but flags defined for compatibility
 		this.castleFlags = { "w":[false,false], "b":[false,false] };
@@ -197,6 +197,6 @@ class LoserRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 0000"; //add flags (TODO?!)
+			" 0000 w"; //add flags (TODO?!)
 	}
 }

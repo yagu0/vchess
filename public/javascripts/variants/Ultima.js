@@ -45,7 +45,7 @@ class UltimaRules extends ChessRules
 		this.epSquares = []; //no en-passant here
 	}
 
-	setFlags(fen)
+	setFlags(fenflags)
 	{
 		// TODO: for compatibility?
 		this.castleFlags = {"w":[false,false], "b":[false,false]};
@@ -608,7 +608,7 @@ class UltimaRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 0000"; //TODO: flags?!
+			" 0000 w"; //TODO: flags?!
 	}
 
 	getFlagsFen()

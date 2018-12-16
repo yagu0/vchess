@@ -47,15 +47,17 @@ class CheckeredRules extends ChessRules
 		return !!flags.match(/^[01]{20,20}$/);
 	}
 
-	setFlags(fen)
+	setFlags(fenflags)
 	{
-		super.setFlags(fen); //castleFlags
+		super.setFlags(fenflags); //castleFlags
 		this.pawnFlags =
 		{
-			"w": new Array(8), //pawns can move 2 squares?
-			"b": new Array(8)
+			"w": _.map(_.range(8), i => true), //pawns can move 2 squares?
+			"b": _.map(_.range(8), i => true)
 		};
-		const flags = fen.split(" ")[1].substr(4); //skip first 4 digits, for castle
+		if (!fenflags)
+			return;
+		const flags = fenflags.substr(4); //skip first 4 digits, for castle
 		for (let c of ['w','b'])
 		{
 			for (let i=0; i<8; i++)
@@ -238,7 +240,9 @@ class CheckeredRules extends ChessRules
 
 	static GenRandInitFen()
 	{
-		return ChessRules.GenRandInitFen() + "1111111111111111"; //add 16 pawns flags
+		const randFen = ChessRules.GenRandInitFen();
+		// Add 16 pawns flags:
+		return randFen.replace(" 1111 w", " 11111111111111111111 w");
 	}
 
 	getFlagsFen()

@@ -5,7 +5,7 @@ Vue.component('my-problem-summary', {
 		<div class="problem col-sm-12" @click="showProblem()">
 			<div class="diagram" v-html="getDiagram(prob.fen)"></div>
 			<div class="problem-instructions" v-html="prob.instructions.substr(0,32)"></div>
-			<div class="problem-time">{{ timestamp2datetime(prob.added) }}</div>
+			<div class="problem-time">{{ timestamp2date(prob.added) }}</div>
 		</div>
 	`,
 	methods: {
@@ -17,18 +17,12 @@ Vue.component('my-problem-summary', {
 				turn: fenParts[2],
 			});
 		},
-		timestamp2datetime(ts) {
-			// TODO
-			return ts;
+		timestamp2date(ts) {
+			return getDate(new Date(ts));
 		},
+		// Propagate "show problem" event to parent component (my-problems)
 		showProblem: function() {
-			alert("show problem");
-			//..........
-			//TODO: send event with object prob.fen, prob.instructions, prob.solution
-			//Event should propagate to game, which set mode=="problem" + other variables
-			//click on a problem ==> land on variant page with mode==friend, FEN prefilled... ok
-			// click on problem ==> masque problems, affiche game tab, launch new game Friend with
-			//   FEN + turn + flags + rappel instructions / solution on click sous l'échiquier
+			this.$emit('show-problem');
 		},
 	},
 })

@@ -14,11 +14,12 @@ block content
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				h4.variantpage-title.text-center(v-on:click="toggleDisplay('game')")
 					| #{variant} Game
-				my-game(v-show="display=='game'")
+				my-game(v-show="display=='game'" v-bind:problem="problem")
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				h4.variantpage-title.text-center(v-on:click="toggleDisplay('problems')")
 					| #{variant} Problems
-				my-problems(v-show="display=='problems'")
+				my-problems(v-show="display=='problems'"
+					v-on:show-problem="showProblem($event)")
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")
@@ -27,6 +28,7 @@ block javascripts
 	script(src="/javascripts/utils/md5.js")
 	script(src="/javascripts/utils/printDiagram.js")
 	script(src="/javascripts/utils/ajax.js")
+	script(src="/javascripts/utils/datetime.js")
 	script(src="/javascripts/base_rules.js")
 	script(src="/javascripts/variants/" + variant + ".js")
 	script.

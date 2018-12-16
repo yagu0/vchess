@@ -9,7 +9,7 @@ Vue.component('my-problems', {
 			<button @click="fetchProblems('backward')">Previous</button>
 			<button @click="fetchProblems('forward')">Next</button>
 			<button @click="showNewproblemModal">New</button>
-			<my-problem-summary
+			<my-problem-summary v-on:show-problem="bubbleUp(p)"
 				v-for="(p,idx) in sortedProblems" v-bind:prob="p" v-bind:key="idx">
 			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal">
@@ -45,7 +45,6 @@ Vue.component('my-problems', {
 	`,
 	computed: {
 		sortedProblems: function() {
-			console.log("call");
 			// Newest problem first
 			return this.problems.sort((p1,p2) => { return p2.added - p1.added; });
 		},
@@ -54,6 +53,10 @@ Vue.component('my-problems', {
 		},
 	},
 	methods: {
+		// Propagate "show problem" event to parent component (my-variant)
+		bubbleUp: function(problem) {
+			this.$emit('show-problem', JSON.stringify(problem));
+		},
 		fetchProblems: function(direction) {
 			return; //TODO: re-activate after server side is implemented (see routes/all.js)
 			if (this.problems.length == 0)

@@ -1,15 +1,19 @@
 new Vue({
 	el: "#variantPage",
-	data: { display: "" }, //do not show anything...
-	// TODO: listen event "show problem", avec le probleme stringifié en arg
-	// Alors: display=game, mode=friend, newGame(fen, turn, ...),
-	//   et set Instructions+Soluce
+	data: {
+		display: "", //do not show anything...
+		problem: undefined, //current problem in view
+	},
 	methods: {
 		toggleDisplay: function(elt) {
 			if (this.display == elt)
 				this.display = ""; //hide
 			else
 				this.display = elt; //show
+		},
+		showProblem: function(problemTxt) {
+			this.problem = JSON.parse(problemTxt);
+			this.display = "game";
 		},
 	},
 });

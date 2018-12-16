@@ -1,5 +1,6 @@
 // Game logic on a variant page
 Vue.component('my-game', {
+	props: ["problem"],
 	data: function() {
 		return {
 			vr: null, //object to check moves, store them, FEN..
@@ -22,6 +23,15 @@ Vue.component('my-game', {
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
 			sound: parseInt(getCookie("sound", "2")),
 		};
+	},
+	watch: {
+		problem: function(p, pp) {
+			// 'problem' prop changed: update board state
+			// TODO: FEN + turn + flags + rappel instructions / solution on click sous l'échiquier
+			// TODO: trouver moyen de passer la situation des reserves pour Crazyhouse,
+			// et l'état des captures pour Grand... bref compléter le descriptif de l'état.
+			this.newGame("problem", p.fen, p.fen.split(" ")[2]);
+		},
 	},
 	render(h) {
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
@@ -1077,7 +1087,7 @@ Vue.component('my-game', {
 				if (this.mycolor == 'b')
 					setTimeout(this.playComputerMove, 500);
 			}
-			//else: against a (IRL) friend: nothing more to do
+			//else: against a (IRL) friend or problem solving: nothing more to do
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
@@ -1130,8 +1140,9 @@ Vue.component('my-game', {
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
 				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				const iCanPlay = this.mode!="idle"
-					&& (this.mode=="friend" || this.vr.canIplay(this.mycolor,startSquare));
+				const iCanPlay = this.mode!="idle" &&
+					(["friend","problem"].includes(this.mode) ||
+					this.vr.canIplay(this.mycolor,startSquare));
 				this.possibleMoves = iCanPlay ? this.vr.getPossibleMovesFrom(startSquare) : [];
 				// Next line add moving piece just after current image
 				// (required for Crazyhouse reserve)
