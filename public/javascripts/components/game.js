@@ -792,17 +792,12 @@ Vue.component('my-game', {
 	},
 	created: function() {
 		const url = socketUrl;
-		const continuation = (localStorage.getItem("variant") === variant);
-		this.myid = (continuation ? localStorage.getItem("myid") : getRandString());
-		if (!continuation)
-		{
-			// HACK: play a small silent sound to allow "new game" sound later
-			// if tab not focused (TODO: does it really work ?!)
-			new Audio("/sounds/silent.mp3").play().then(() => {}).catch(err => {});
-		}
+		const humanContinuation = (localStorage.getItem("variant") === variant);
+		const computerContinuation = (localStorage.getItem("comp-variant") === variant);
+		this.myid = (humanContinuation ? localStorage.getItem("myid") : getRandString());
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 		const socketOpenListener = () => {
-			if (continuation)
+			if (humanContinuation) //game VS human has priority
 			{
 				const fen = localStorage.getItem("fen");
 				const mycolor = localStorage.getItem("mycolor");
@@ -812,10 +807,12 @@ Vue.component('my-game', {
 				// Send ping to server (answer pong if opponent is connected)
 				this.conn.send(JSON.stringify({code:"ping",oppid:this.oppid}));
 			}
-			else if (localStorage.getItem("newgame") === variant)
+			else if (computerContinuation)
 			{
-				// New game request has been cancelled on disconnect
-				this.newGame("human", undefined, undefined, undefined, undefined, "reconnect");
+				const fen = localStorage.getItem("comp-fen");
+				const mycolor = localStorage.getItem("comp-mycolor");
+				const moves = JSON.parse(localStorage.getItem("comp-moves"));
+				this.newGame("computer", fen, mycolor, undefined, moves, true);
 			}
 		};
 		const socketMessageListener = msg => {
@@ -927,7 +924,7 @@ Vue.component('my-game', {
 			// Variants may have special PGN structure (so next function isn't defined here)
 			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
 			setTimeout(() => { modalBox.checked = false; }, 2000);
-			if (this.mode == "human")
+			if (["human","computer"].includes(this.mode))
 				this.clearStorage();
 			this.mode = "idle";
 			this.cursor = this.vr.moves.length; //to navigate in finished game
@@ -950,26 +947,36 @@ Vue.component('my-game', {
 			return eogMessage;
 		},
 		setStorage: function() {
-			localStorage.setItem("myid", this.myid);
-			localStorage.setItem("variant", variant);
-			localStorage.setItem("mycolor", this.mycolor);
-			localStorage.setItem("oppid", this.oppid);
-			localStorage.setItem("fenStart", this.fenStart);
-			localStorage.setItem("moves", JSON.stringify(this.vr.moves));
-			localStorage.setItem("fen", this.vr.getFen());
+			if (this.mode=="human")
+			{
+				localStorage.setItem("myid", this.myid);
+				localStorage.setItem("oppid", this.oppid);
+			}
+			// 'prefix' = "comp-" to resume games vs. computer
+			const prefix = (this.mode=="computer" ? "comp-" : "");
+			localStorage.setItem(prefix+"variant", variant);
+			localStorage.setItem(prefix+"mycolor", this.mycolor);
+			localStorage.setItem(prefix+"fenStart", this.fenStart);
+			localStorage.setItem(prefix+"moves", JSON.stringify(this.vr.moves));
+			localStorage.setItem(prefix+"fen", this.vr.getFen());
 		},
 		updateStorage: function() {
-			localStorage.setItem("moves", JSON.stringify(this.vr.moves));
-			localStorage.setItem("fen", this.vr.getFen());
+			const prefix = (this.mode=="computer" ? "comp-" : "");
+			localStorage.setItem(prefix+"moves", JSON.stringify(this.vr.moves));
+			localStorage.setItem(prefix+"fen", this.vr.getFen());
 		},
 		clearStorage: function() {
-			delete localStorage["variant"];
-			delete localStorage["myid"];
-			delete localStorage["mycolor"];
-			delete localStorage["oppid"];
-			delete localStorage["fenStart"];
-			delete localStorage["fen"];
-			delete localStorage["moves"];
+			if (this.mode=="human")
+			{
+				delete localStorage["myid"];
+				delete localStorage["oppid"];
+			}
+			const prefix = (this.mode=="computer" ? "comp-" : "");
+			delete localStorage[prefix+"variant"];
+			delete localStorage[prefix+"mycolor"];
+			delete localStorage[prefix+"fenStart"];
+			delete localStorage[prefix+"fen"];
+			delete localStorage[prefix+"moves"];
 		},
 		// HACK because mini-css tooltips are persistent after click...
 		getRidOfTooltip: function(elt) {
@@ -999,7 +1006,6 @@ Vue.component('my-game', {
 			if (this.seek)
 			{
 				this.conn.send(JSON.stringify({code:"cancelnewgame"}));
-				delete localStorage["newgame"]; //cancel game seek
 				this.seek = false;
 			}
 			else
@@ -1036,30 +1042,40 @@ Vue.component('my-game', {
 				if (!!storageVariant && storageVariant !== variant)
 					return alert("Finish your " + storageVariant + " game first!");
 				// Send game request and wait..
-				localStorage["newgame"] = variant;
 				this.seek = true;
-				this.clearStorage(); //in case of
 				try {
 					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
-				if (continuation !== "reconnect") //TODO: bad HACK...
-				{
-					let modalBox = document.getElementById("modal-newgame");
-					modalBox.checked = true;
-					setTimeout(() => { modalBox.checked = false; }, 2000);
-				}
+				let modalBox = document.getElementById("modal-newgame");
+				modalBox.checked = true;
+				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
+			}
+			if (this.mode == "computer" && mode == "human") { }
+			{
+				// Save current computer game to resume it later
+				this.setStorage();
 			}
 			this.vr = new VariantRules(fen, moves || []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
-			this.incheck = []; //in case of
+			this.incheck = continuation
+				? this.vr
+				: [];
 			this.fenStart = (continuation ? localStorage.getItem("fenStart") : fen);
 			if (mode=="human")
 			{
+
+
+
+//TODO: refactor this. (for computer mode too), lastMove getCheckSquares...
+
+
+
+
 				// Opponent found!
 				if (!continuation) //not playing sound on game continuation
 				{
@@ -1078,7 +1094,6 @@ Vue.component('my-game', {
 					this.incheck = this.vr.getCheckSquares(lastMove);
 					this.vr.play(lastMove, "ingame");
 				}
-				delete localStorage["newgame"];
 				this.setStorage(); //in case of interruptions
 			}
 			else if (mode == "computer")
@@ -1139,11 +1154,16 @@ Vue.component('my-game', {
 				this.selectedPiece.style.top = 0;
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
-				let startSquare = this.getSquareFromId(e.target.parentNode.id);
-				const iCanPlay = this.mode!="idle" &&
-					(["friend","problem"].includes(this.mode) ||
-					this.vr.canIplay(this.mycolor,startSquare));
-				this.possibleMoves = iCanPlay ? this.vr.getPossibleMovesFrom(startSquare) : [];
+				const startSquare = this.getSquareFromId(e.target.parentNode.id);
+				this.possibleMoves = [];
+				if (this.mode != "idle")
+				{
+					const color = ["friend","problem"].includes(this.mode)
+						? this.vr.turn
+						: this.mycolor;
+					if (this.vr.canIplay(color,startSquare))
+						this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+				}
 				// Next line add moving piece just after current image
 				// (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
@@ -1260,7 +1280,7 @@ Vue.component('my-game', {
 				VariantRules.PlayOnBoard(this.vr.board, move);
 				this.$forceUpdate(); //TODO: ?!
 			}
-			if (this.mode == "human")
+			if (["human","computer"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
 			if (this.mode != "idle")
 			{

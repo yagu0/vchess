@@ -105,15 +105,14 @@ class ChessRules
 				k++;
 			}
 		}
-		const epSq = (this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined);
-		this.epSquares = [ epSq ];
+		this.epSquares = [ this.getEpSquare(this.lastMove || fenParts[3]) ];
 	}
 
 	// Check if FEN describe a position
 	static IsGoodFen(fen)
 	{
 		const fenParts = fen.split(" ");
-		if (fenParts.length== 0 || fenParts.length > 3)
+		if (fenParts.length== 0)
 			return false;
 		// 1) Check position
 		const position = fenParts[0];
@@ -145,7 +144,7 @@ class ChessRules
 				return false;
 		}
 		// 3) Check turn (if present)
-		if (fenParts.length == 3)
+		if (fenParts.length >= 3)
 		{
 			if (!["w","b"].includes(fenParts[2]))
 				return false;
@@ -251,8 +250,20 @@ class ChessRules
 	}
 
 	// En-passant square, if any
-	getEpSquare(move)
+	getEpSquare(moveOrSquare)
 	{
+		if (typeof moveOrSquare === "string")
+		{
+			const square = moveOrSquare;
+			if (square == "-")
+				return undefined;
+			return {
+				x: square[0].charCodeAt()-97,
+				y: V.size.x-parseInt(square[1])
+			};
+		}
+		// Argument is a move:
+		const move = moveOrSquare;
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
 		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) == 2)
 		{
@@ -792,6 +803,7 @@ class ChessRules
 		this.updateVariables(move);
 		this.moves.push(move);
 		this.epSquares.push( this.getEpSquare(move) );
+		this.turn = this.getOppCol(this.turn);
 		V.PlayOnBoard(this.board, move);
 
 		if (!!ingame)
@@ -801,6 +813,7 @@ class ChessRules
 	undo(move)
 	{
 		V.UndoOnBoard(this.board, move);
+		this.turn = this.getOppCol(this.turn);
 		this.epSquares.pop();
 		this.moves.pop();
 		this.unupdateVariables(move);
