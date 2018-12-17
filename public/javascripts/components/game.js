@@ -27,10 +27,7 @@ Vue.component('my-game', {
 	watch: {
 		problem: function(p, pp) {
 			// 'problem' prop changed: update board state
-			// TODO: FEN + turn + flags + rappel instructions / solution on click sous l'échiquier
-			// TODO: trouver moyen de passer la situation des reserves pour Crazyhouse,
-			// et l'état des captures pour Grand... bref compléter le descriptif de l'état.
-			this.newGame("problem", p.fen, p.fen.split(" ")[2]);
+			this.newGame("problem", p.fen, V.ParseFen(p.fen).turn);
 		},
 	},
 	render(h) {
@@ -105,7 +102,7 @@ Vue.component('my-game', {
 				: (smallScreen ? 31 : 37);
 			if (this.mode == "human")
 			{
-				let connectedIndic = h(
+				const connectedIndic = h(
 					'div',
 					{
 						"class": {
@@ -122,7 +119,7 @@ Vue.component('my-game', {
 				);
 				elementArray.push(connectedIndic);
 			}
-			let turnIndic = h(
+			const turnIndic = h(
 				'div',
 				{
 					"class": {
@@ -138,7 +135,7 @@ Vue.component('my-game', {
 				}
 			);
 			elementArray.push(turnIndic);
-			let settingsBtn = h(
+			const settingsBtn = h(
 				'button',
 				{
 					on: { click: this.showSettings },
@@ -157,7 +154,27 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "settings")]
 			);
 			elementArray.push(settingsBtn);
-			let choices = h('div',
+			if (this.mode == "problem")
+			{
+				// Show problem instructions
+				elementArray.push(
+					h('div',
+						{
+							attrs: { id: "instructions-div" },
+							"class": { "section-content": true },
+						},
+						[
+							h('p',
+								{
+									attrs: { id: "problem-instructions" },
+									domProps: { innerHTML: this.problem.instructions }
+								}
+							)
+						]
+					)
+				);
+			}
+			const choices = h('div',
 				{
 					attrs: { "id": "choices" },
 					'class': { 'row': true },
@@ -195,7 +212,7 @@ Vue.component('my-game', {
 			const lm = this.vr.lastMove;
 			const showLight = this.hints &&
 				(this.mode!="idle" || this.cursor==this.vr.moves.length);
-			let gameDiv = h('div',
+			const gameDiv = h('div',
 				{
 					'class': { 'game': true },
 				},
@@ -410,7 +427,6 @@ Vue.component('my-game', {
 				);
 				elementArray.push(reserves);
 			}
-			const eogMessage = this.getEndgameMessage(this.score);
 			const modalEog = [
 				h('input',
 					{
@@ -437,7 +453,7 @@ Vue.component('my-game', {
 									{
 										attrs: { "id": "eogMessage" },
 										"class": { "section": true },
-										domProps: { innerHTML: eogMessage },
+										domProps: { innerHTML: this.endgameMessage },
 									}
 								)
 							]
@@ -713,7 +729,7 @@ Vue.component('my-game', {
 			actionArray
 		);
 		elementArray.push(actions);
-		if (this.score != "*")
+		if (this.score != "*" && this.pgnTxt.length > 0)
 		{
 			elementArray.push(
 				h('div',
@@ -749,6 +765,32 @@ Vue.component('my-game', {
 		}
 		else if (this.mode != "idle")
 		{
+			if (this.mode == "problem")
+			{
+				// Show problem solution (on click)
+				elementArray.push(
+					h('div',
+						{
+							attrs: { id: "solution-div" },
+							"class": { "section-content": true },
+						},
+						[
+							h('h3',
+								{
+									domProps: { innerHTML: "Show solution" },
+									on: { click: "toggleShowSolution" }
+								}
+							),
+							h('p',
+								{
+									attrs: { id: "problem-solution" },
+									domProps: { innerHTML: this.problem.solution }
+								}
+							)
+						]
+					)
+				);
+			}
 			// Show current FEN
 			elementArray.push(
 				h('div',
@@ -760,7 +802,7 @@ Vue.component('my-game', {
 						h('p',
 							{
 								attrs: { id: "fen-string" },
-								domProps: { innerHTML: this.vr.getFen() }
+								domProps: { innerHTML: this.vr.getBaseFen() }
 							}
 						)
 					]
@@ -789,6 +831,24 @@ Vue.component('my-game', {
 			},
 			elementArray
 		);
+	},
+	computed: {
+		endgameMessage: function() {
+			let eogMessage = "Unfinished";
+			switch (this.score)
+			{
+				case "1-0":
+					eogMessage = "White win";
+					break;
+				case "0-1":
+					eogMessage = "Black win";
+					break;
+				case "1/2":
+					eogMessage = "Draw";
+					break;
+			}
+			return eogMessage;
+		},
 	},
 	created: function() {
 		const url = socketUrl;
@@ -907,6 +967,12 @@ Vue.component('my-game', {
 		};
 	},
 	methods: {
+		toggleShowSolution: function() {
+			let problemSolution = document.getElementById("problem-solution");
+			problemSolution.style.display = problemSolution.style.display == "none"
+				? "block"
+				: "none";
+		},
 		download: function() {
 			let content = document.getElementById("pgn-game").innerHTML;
 			content = content.replace(/<br>/g, "\n");
@@ -917,34 +983,21 @@ Vue.component('my-game', {
 				encodeURIComponent(content);
 			downloadAnchor.click();
 		},
-		endGame: function(score) {
-			this.score = score;
+		showScoreMsg: function() {
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
+			setTimeout(() => { modalBox.checked = false; }, 2000);
+		},
+		endGame: function(score) {
+			this.score = score;
+			this.showScoreMsg();
 			// Variants may have special PGN structure (so next function isn't defined here)
 			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
-			setTimeout(() => { modalBox.checked = false; }, 2000);
 			if (["human","computer"].includes(this.mode))
 				this.clearStorage();
 			this.mode = "idle";
 			this.cursor = this.vr.moves.length; //to navigate in finished game
 			this.oppid = "";
-		},
-		getEndgameMessage: function(score) {
-			let eogMessage = "Unfinished";
-			switch (this.score)
-			{
-				case "1-0":
-					eogMessage = "White win";
-					break;
-				case "0-1":
-					eogMessage = "Black win";
-					break;
-				case "1/2":
-					eogMessage = "Draw";
-					break;
-			}
-			return eogMessage;
 		},
 		setStorage: function() {
 			if (this.mode=="human")
@@ -1042,18 +1095,30 @@ Vue.component('my-game', {
 				if (!!storageVariant && storageVariant !== variant)
 					return alert("Finish your " + storageVariant + " game first!");
 				// Send game request and wait..
-				this.seek = true;
 				try {
 					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
+				this.seek = true;
 				let modalBox = document.getElementById("modal-newgame");
 				modalBox.checked = true;
 				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
-			if (this.mode == "computer" && mode == "human") { }
+			if (mode == "computer" && !continuation)
+			{
+				const storageVariant = localStorage.getItem("comp-variant");
+				if (!!storageVariant && storageVariant !== variant)
+				{
+					if (!confirm("Unfinished " + storageVariant +
+						" computer game will be erased"))
+					{
+						return;
+					}
+				}
+			}
+			if (this.mode == "computer" && mode == "human")
 			{
 				// Save current computer game to resume it later
 				this.setStorage();
@@ -1062,45 +1127,42 @@ Vue.component('my-game', {
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
-			this.incheck = continuation
-				? this.vr
-				: [];
-			this.fenStart = (continuation ? localStorage.getItem("fenStart") : fen);
+			if (continuation && moves.length > 0) //NOTE: "continuation": redundant test
+			{
+				const lastMove = moves[moves.length-1];
+				this.vr.undo(lastMove);
+				this.incheck = this.vr.getCheckSquares(lastMove);
+				this.vr.play(lastMove, "ingame");
+			}
+			else
+				this.incheck = [];
+			if (continuation)
+			{
+				const prefix = (mode=="computer" ? "comp-" : "");
+				this.fenStart = localStorage.getItem(prefix+"fenStart");
+			}
+			else
+				this.fenStart = fen;
 			if (mode=="human")
 			{
-
-
-
-//TODO: refactor this. (for computer mode too), lastMove getCheckSquares...
-
-
-
-
 				// Opponent found!
 				if (!continuation) //not playing sound on game continuation
 				{
 					if (this.sound >= 1)
-						new Audio("/sounds/newgame.mp3").play().then(() => {}).catch(err => {});
+						new Audio("/sounds/newgame.mp3").play().catch(err => {});
 					document.getElementById("modal-newgame").checked = false;
 				}
 				this.oppid = oppId;
 				this.oppConnected = !continuation;
 				this.mycolor = color;
 				this.seek = false;
-				if (!!moves && moves.length > 0) //imply continuation
-				{
-					const lastMove = moves[moves.length-1];
-					this.vr.undo(lastMove);
-					this.incheck = this.vr.getCheckSquares(lastMove);
-					this.vr.play(lastMove, "ingame");
-				}
 				this.setStorage(); //in case of interruptions
 			}
 			else if (mode == "computer")
 			{
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
-					setTimeout(this.playComputerMove, 500);
+					this.playComputerMove();
 			}
 			//else: against a (IRL) friend or problem solving: nothing more to do
 		},
@@ -1250,7 +1312,7 @@ Vue.component('my-game', {
 					squares.item(i).style.zIndex = "auto";
 				movingPiece.style = {}; //required e.g. for 0-0 with KR swap
 				this.play(move);
-			}, 200);
+			}, 250);
 		},
 		play: function(move, programmatic) {
 			if (!move)
@@ -1269,7 +1331,7 @@ Vue.component('my-game', {
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			if (this.sound == 2)
-				new Audio("/sounds/chessmove1.mp3").play().then(() => {}).catch(err => {});
+				new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
 			if (this.mode != "idle")
 			{
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
@@ -1286,10 +1348,19 @@ Vue.component('my-game', {
 			{
 				const eog = this.vr.checkGameOver();
 				if (eog != "*")
-					this.endGame(eog);
+				{
+					if (["human","computer"].includes(this.mode))
+						this.endGame(eog);
+					else
+					{
+						// Just show score on screen (allow undo)
+						this.score = eog;
+						this.showScoreMsg();
+					}
+				}
 			}
 			if (this.mode == "computer" && this.vr.turn != this.mycolor)
-				setTimeout(this.playComputerMove, 500);
+				this.playComputerMove;
 		},
 		undo: function() {
 			// Navigate after game is over

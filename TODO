@@ -1,2 +1,4 @@
-Finish showProblem() in components/problemSummary.js (send event with infos, and pass message to game component)
-Add new mode in game component: "problem", in which we show description + hidden solution (reveal on click)
+global lang cookie, + display (remember in each variant what is shown...)
+translations (how ? switch on index page only, then find ideas...)
+for each variant, adapt FEN (Crazyhouse, Grand, Loser, ...)
+Improve style for various screen sizes

@@ -31,91 +31,33 @@ class Move
 // NOTE: x coords = top to bottom; y = left to right (from white player perspective)
 class ChessRules
 {
+	//////////////
+	// MISC UTILS
+
 	// Path to pieces
 	static getPpath(b)
 	{
 		return b; //usual pieces in pieces/ folder
 	}
+
 	// Turn "wb" into "B" (for FEN)
 	static board2fen(b)
 	{
 		return b[0]=='w' ? b[1].toUpperCase() : b[1];
 	}
+
 	// Turn "p" into "bp" (for board)
 	static fen2board(f)
 	{
 		return f.charCodeAt()<=90 ? "w"+f.toLowerCase() : "b"+f;
 	}
 
-	/////////////////
-	// INITIALIZATION
-
-	// fen == "position [flags [turn]]"
-	constructor(fen, moves)
-	{
-		this.moves = moves;
-		// Use fen string to initialize variables, flags, turn and board
-		const fenParts = fen.split(" ");
-		this.board = V.GetBoard(fenParts[0]);
-		this.setFlags(fenParts[1]); //NOTE: fenParts[1] might be undefined
-		this.setTurn(fenParts[2]); //Same note
-		this.initVariables(fen);
-	}
-
-	// Some additional variables from FEN (variant dependant)
-	initVariables(fen)
-	{
-		this.INIT_COL_KING = {'w':-1, 'b':-1};
-		this.INIT_COL_ROOK = {'w':[-1,-1], 'b':[-1,-1]};
-		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]}; //squares of white and black king
-		const fenParts = fen.split(" ");
-		const position = fenParts[0].split("/");
-		for (let i=0; i<position.length; i++)
-		{
-			let k = 0; //column index on board
-			for (let j=0; j<position[i].length; j++)
-			{
-				switch (position[i].charAt(j))
-				{
-					case 'k':
-						this.kingPos['b'] = [i,k];
-						this.INIT_COL_KING['b'] = k;
-						break;
-					case 'K':
-						this.kingPos['w'] = [i,k];
-						this.INIT_COL_KING['w'] = k;
-						break;
-					case 'r':
-						if (this.INIT_COL_ROOK['b'][0] < 0)
-							this.INIT_COL_ROOK['b'][0] = k;
-						else
-							this.INIT_COL_ROOK['b'][1] = k;
-						break;
-					case 'R':
-						if (this.INIT_COL_ROOK['w'][0] < 0)
-							this.INIT_COL_ROOK['w'][0] = k;
-						else
-							this.INIT_COL_ROOK['w'][1] = k;
-						break;
-					default:
-						const num = parseInt(position[i].charAt(j));
-						if (!isNaN(num))
-							k += (num-1);
-				}
-				k++;
-			}
-		}
-		this.epSquares = [ this.getEpSquare(this.lastMove || fenParts[3]) ];
-	}
-
 	// Check if FEN describe a position
 	static IsGoodFen(fen)
 	{
-		const fenParts = fen.split(" ");
-		if (fenParts.length== 0)
-			return false;
+		const fenParsed = V.ParseFen(fen);
 		// 1) Check position
-		const position = fenParts[0];
+		const position = fenParsed.position;
 		const rows = position.split("/");
 		if (rows.length != V.size.x)
 			return false;
@@ -138,15 +80,16 @@ class ChessRules
 				return false;
 		}
 		// 2) Check flags (if present)
-		if (fenParts.length >= 2)
-		{
-			if (!V.IsGoodFlags(fenParts[1]))
-				return false;
-		}
+		if (!!fenParsed.flags && !V.IsGoodFlags(fenParsed.flags))
+			return false;
 		// 3) Check turn (if present)
-		if (fenParts.length >= 3)
+		if (!!fenParsed.turn && !["w","b"].includes(fenParsed.turn))
+			return false;
+		// 4) Check enpassant (if present)
+		if (!!fenParsed.enpassant)
 		{
-			if (!["w","b"].includes(fenParts[2]))
+			const ep = V.SquareToCoords(fenParsed.enpassant);
+			if (ep.y < 0 || ep.y > V.size.y || isNaN(ep.x) || ep.x < 0 || ep.x > V.size.x)
 				return false;
 		}
 		return true;
@@ -158,93 +101,29 @@ class ChessRules
 		return !!flags.match(/^[01]{4,4}$/);
 	}
 
-	// Turn diagram fen into double array ["wb","wp","bk",...]
-	static GetBoard(fen)
+	// a4 --> {x:3,y:0}
+	static SquareToCoords(sq)
 	{
-		const rows = fen.split(" ")[0].split("/");
-		let board = doubleArray(V.size.x, V.size.y, "");
-		for (let i=0; i<rows.length; i++)
-		{
-			let j = 0;
-			for (let indexInRow = 0; indexInRow < rows[i].length; indexInRow++)
-			{
-				const character = rows[i][indexInRow];
-				const num = parseInt(character);
-				if (!isNaN(num))
-					j += num; //just shift j
-				else //something at position i,j
-					board[i][j++] = V.fen2board(character);
-			}
-		}
-		return board;
-	}
-
-	// Extract (relevant) flags from fen
-	setFlags(fenflags)
-	{
-		// white a-castle, h-castle, black a-castle, h-castle
-		this.castleFlags = {'w': [true,true], 'b': [true,true]};
-		if (!fenflags)
-			return;
-		for (let i=0; i<4; i++)
-			this.castleFlags[i < 2 ? 'w' : 'b'][i%2] = (fenflags.charAt(i) == '1');
-	}
-
-	// Initialize turn (white or black)
-	setTurn(turnflag)
-	{
-		this.turn = turnflag || "w";
-	}
-
-	///////////////////
-	// GETTERS, SETTERS
-
-	static get size() { return {x:8, y:8}; }
-
-	// Two next functions return 'undefined' if called on empty square
-	getColor(i,j) { return this.board[i][j].charAt(0); }
-	getPiece(i,j) { return this.board[i][j].charAt(1); }
-
-	// Color
-	getOppCol(color) { return (color=="w" ? "b" : "w"); }
-
-	get lastMove() {
-		const L = this.moves.length;
-		return (L>0 ? this.moves[L-1] : null);
-	}
-
-	// Pieces codes
-	static get PAWN() { return 'p'; }
-	static get ROOK() { return 'r'; }
-	static get KNIGHT() { return 'n'; }
-	static get BISHOP() { return 'b'; }
-	static get QUEEN() { return 'q'; }
-	static get KING() { return 'k'; }
-
-	// For FEN checking:
-	static get PIECES() {
-		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN,V.KING];
-	}
-
-	// Empty square
-	static get EMPTY() { return ''; }
-
-	// Some pieces movements
-	static get steps() {
 		return {
-			'r': [ [-1,0],[1,0],[0,-1],[0,1] ],
-			'n': [ [-1,-2],[-1,2],[1,-2],[1,2],[-2,-1],[-2,1],[2,-1],[2,1] ],
-			'b': [ [-1,-1],[-1,1],[1,-1],[1,1] ],
+			x: V.size.x - parseInt(sq.substr(1)),
+			y: sq[0].charCodeAt() - 97
 		};
 	}
 
+	// {x:0,y:4} --> e8
+	static CoordsToSquare(coords)
+	{
+		return String.fromCharCode(97 + coords.y) + (V.size.x - coords.x);
+	}
+
 	// Aggregates flags into one object
-	get flags() {
+	aggregateFlags()
+	{
 		return this.castleFlags;
 	}
 
 	// Reverse operation
-	parseFlags(flags)
+	disaggregateFlags(flags)
 	{
 		this.castleFlags = flags;
 	}
@@ -252,6 +131,8 @@ class ChessRules
 	// En-passant square, if any
 	getEpSquare(moveOrSquare)
 	{
+		if (!moveOrSquare)
+			return undefined;
 		if (typeof moveOrSquare === "string")
 		{
 			const square = moveOrSquare;
@@ -281,7 +162,314 @@ class ChessRules
 		return this.getColor(x1,y1) !== this.getColor(x2,y2);
 	}
 
-	///////////////////
+	// Is (x,y) on the chessboard?
+	static OnBoard(x,y)
+	{
+		return (x>=0 && x<V.size.x && y>=0 && y<V.size.y);
+	}
+
+	// Used in interface: 'side' arg == player color
+	canIplay(side, [x,y])
+	{
+		return (this.turn == side && this.getColor(x,y) == side);
+	}
+
+	// On which squares is opponent under check after our move ? (for interface)
+	getCheckSquares(move)
+	{
+		this.play(move);
+		const color = this.turn; //opponent
+		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
+			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
+			: [];
+		this.undo(move);
+		return res;
+	}
+
+	/////////////
+	// FEN UTILS
+
+	// Setup the initial random (assymetric) position
+	static GenRandInitFen()
+	{
+		let pieces = { "w": new Array(8), "b": new Array(8) };
+		// Shuffle pieces on first and last rank
+		for (let c of ["w","b"])
+		{
+			let positions = _.range(8);
+
+			// Get random squares for bishops
+			let randIndex = 2 * _.random(3);
+			let bishop1Pos = positions[randIndex];
+			// The second bishop must be on a square of different color
+			let randIndex_tmp = 2 * _.random(3) + 1;
+			let bishop2Pos = positions[randIndex_tmp];
+			// Remove chosen squares
+			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
+			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
+
+			// Get random squares for knights
+			randIndex = _.random(5);
+			let knight1Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+			randIndex = _.random(4);
+			let knight2Pos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// Get random square for queen
+			randIndex = _.random(3);
+			let queenPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// Rooks and king positions are now fixed, because of the ordering rook-king-rook
+			let rook1Pos = positions[0];
+			let kingPos = positions[1];
+			let rook2Pos = positions[2];
+
+			// Finally put the shuffled pieces in the board array
+			pieces[c][rook1Pos] = 'r';
+			pieces[c][knight1Pos] = 'n';
+			pieces[c][bishop1Pos] = 'b';
+			pieces[c][queenPos] = 'q';
+			pieces[c][kingPos] = 'k';
+			pieces[c][bishop2Pos] = 'b';
+			pieces[c][knight2Pos] = 'n';
+			pieces[c][rook2Pos] = 'r';
+		}
+		return pieces["b"].join("") +
+			"/pppppppp/8/8/8/8/PPPPPPPP/" +
+			pieces["w"].join("").toUpperCase() +
+			" w 1111 -"; //add turn + flags + enpassant
+	}
+
+	// "Parse" FEN: just return untransformed string data
+	static ParseFen(fen)
+	{
+		const fenParts = fen.split(" ");
+		return {
+			position: fenParts[0],
+			turn: fenParts[1],
+			flags: fenParts[2],
+			enpassant: fenParts[3],
+		};
+	}
+
+	// Return current fen (game state)
+	getFen()
+	{
+		return this.getBaseFen() + " " + this.turn + " " +
+			this.getFlagsFen() + " " + this.getEnpassantFen();
+	}
+
+	// Position part of the FEN string
+	getBaseFen()
+	{
+		let position = "";
+		for (let i=0; i<V.size.x; i++)
+		{
+			let emptyCount = 0;
+			for (let j=0; j<V.size.y; j++)
+			{
+				if (this.board[i][j] == V.EMPTY)
+					emptyCount++;
+				else
+				{
+					if (emptyCount > 0)
+					{
+						// Add empty squares in-between
+						position += emptyCount;
+						emptyCount = 0;
+					}
+					fen += V.board2fen(this.board[i][j]);
+				}
+			}
+			if (emptyCount > 0)
+			{
+				// "Flush remainder"
+				position += emptyCount;
+			}
+			if (i < V.size.x - 1)
+				position += "/"; //separate rows
+		}
+		return position;
+	}
+
+	// Flags part of the FEN string
+	getFlagsFen()
+	{
+		let flags = "";
+		// Add castling flags
+		for (let i of ['w','b'])
+		{
+			for (let j=0; j<2; j++)
+				flags += (this.castleFlags[i][j] ? '1' : '0');
+		}
+		return flags;
+	}
+
+	// Enpassant part of the FEN string
+	getEnpassantFen()
+	{
+		const L = this.epSquares.length;
+		if (L == 0)
+			return "-"; //no en-passant
+		return V.CoordsToSquare(this.epSquares[L-1]);
+	}
+
+	// Turn position fen into double array ["wb","wp","bk",...]
+	static GetBoard(position)
+	{
+		const rows = position.split("/");
+		let board = doubleArray(V.size.x, V.size.y, "");
+		for (let i=0; i<rows.length; i++)
+		{
+			let j = 0;
+			for (let indexInRow = 0; indexInRow < rows[i].length; indexInRow++)
+			{
+				const character = rows[i][indexInRow];
+				const num = parseInt(character);
+				if (!isNaN(num))
+					j += num; //just shift j
+				else //something at position i,j
+					board[i][j++] = V.fen2board(character);
+			}
+		}
+		return board;
+	}
+
+	// Extract (relevant) flags from fen
+	setFlags(fenflags)
+	{
+		// white a-castle, h-castle, black a-castle, h-castle
+		this.castleFlags = {'w': [true,true], 'b': [true,true]};
+		if (!fenflags)
+			return;
+		for (let i=0; i<4; i++)
+			this.castleFlags[i < 2 ? 'w' : 'b'][i%2] = (fenflags.charAt(i) == '1');
+	}
+
+	//////////////////
+	// INITIALIZATION
+
+	// Fen string fully describes the game state
+	constructor(fen, moves)
+	{
+		this.moves = moves;
+		const fenParsed = V.ParseFen(fen);
+		this.board = V.GetBoard(fenParsed.position);
+		this.turn = (fenParsed.turn || "w");
+		this.setOtherVariables(fen);
+	}
+
+	// Some additional variables from FEN (variant dependant)
+	setOtherVariables(fen)
+	{
+		// Set flags and enpassant:
+		const parsedFen = V.ParseFen(fen);
+		this.setFlags(fenParsed.flags);
+		this.epSquares = [ V.SquareToCoords(parsedFen.enpassant) ];
+		// Search for king and rooks positions:
+		this.INIT_COL_KING = {'w':-1, 'b':-1};
+		this.INIT_COL_ROOK = {'w':[-1,-1], 'b':[-1,-1]};
+		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]}; //squares of white and black king
+		const fenRows = parsedFen.position.split("/");
+		for (let i=0; i<fenRows.length; i++)
+		{
+			let k = 0; //column index on board
+			for (let j=0; j<fenRows[i].length; j++)
+			{
+				switch (fenRows[i].charAt(j))
+				{
+					case 'k':
+						this.kingPos['b'] = [i,k];
+						this.INIT_COL_KING['b'] = k;
+						break;
+					case 'K':
+						this.kingPos['w'] = [i,k];
+						this.INIT_COL_KING['w'] = k;
+						break;
+					case 'r':
+						if (this.INIT_COL_ROOK['b'][0] < 0)
+							this.INIT_COL_ROOK['b'][0] = k;
+						else
+							this.INIT_COL_ROOK['b'][1] = k;
+						break;
+					case 'R':
+						if (this.INIT_COL_ROOK['w'][0] < 0)
+							this.INIT_COL_ROOK['w'][0] = k;
+						else
+							this.INIT_COL_ROOK['w'][1] = k;
+						break;
+					default:
+						const num = parseInt(fenRows[i].charAt(j));
+						if (!isNaN(num))
+							k += (num-1);
+				}
+				k++;
+			}
+		}
+	}
+
+	/////////////////////
+	// GETTERS & SETTERS
+
+	static get size()
+	{
+		return {x:8, y:8};
+	}
+
+	// Color of thing on suqare (i,j). 'undefined' if square is empty
+	getColor(i,j)
+	{
+		return this.board[i][j].charAt(0);
+	}
+
+	// Piece type on square (i,j). 'undefined' if square is empty
+	getPiece(i,j)
+	{
+		return this.board[i][j].charAt(1);
+	}
+
+	// Get opponent color
+	getOppCol(color)
+	{
+		return (color=="w" ? "b" : "w");
+	}
+
+	get lastMove()
+	{
+		const L = this.moves.length;
+		return (L>0 ? this.moves[L-1] : null);
+	}
+
+	// Pieces codes (for a clearer code)
+	static get PAWN() { return 'p'; }
+	static get ROOK() { return 'r'; }
+	static get KNIGHT() { return 'n'; }
+	static get BISHOP() { return 'b'; }
+	static get QUEEN() { return 'q'; }
+	static get KING() { return 'k'; }
+
+	// For FEN checking:
+	static get PIECES()
+	{
+		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN,V.KING];
+	}
+
+	// Empty square
+	static get EMPTY() { return ""; }
+
+	// Some pieces movements
+	static get steps()
+	{
+		return {
+			'r': [ [-1,0],[1,0],[0,-1],[0,1] ],
+			'n': [ [-1,-2],[-1,2],[1,-2],[1,2],[-2,-1],[-2,1],[2,-1],[2,1] ],
+			'b': [ [-1,-1],[-1,1],[1,-1],[1,1] ],
+		};
+	}
+
+	////////////////////
 	// MOVES GENERATION
 
 	// All possible moves from selected square (assumption: color is OK)
@@ -339,12 +527,6 @@ class ChessRules
 			);
 		}
 		return mv;
-	}
-
-	// Is (x,y) on the chessboard?
-	static OnBoard(x,y)
-	{
-		return (x>=0 && x<V.size.x && y>=0 && y<V.size.y);
 	}
 
 	// Generic method to find possible moves of non-pawn pieces ("sliding or jumping")
@@ -550,13 +732,8 @@ class ChessRules
 		return moves;
 	}
 
-	///////////////////
+	////////////////////
 	// MOVES VALIDATION
-
-	canIplay(side, [x,y])
-	{
-		return (this.turn == side && this.getColor(x,y) == side);
-	}
 
 	getPossibleMovesFrom(sq)
 	{
@@ -618,7 +795,7 @@ class ChessRules
 		return false;
 	}
 
-	// Check if pieces of color in array 'colors' are attacking square x,y
+	// Check if pieces of color in array 'colors' are attacking (king) on square x,y
 	isAttacked(sq, colors)
 	{
 		return (this.isAttackedByPawn(sq, colors)
@@ -714,17 +891,8 @@ class ChessRules
 		return res;
 	}
 
-	// On which squares is opponent under check after our move ?
-	getCheckSquares(move)
-	{
-		this.play(move);
-		const color = this.turn; //opponent
-		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
-			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
-			: [ ];
-		this.undo(move);
-		return res;
-	}
+	/////////////////
+	// MOVES PLAYING
 
 	// Apply a move on board
 	static PlayOnBoard(board, move)
@@ -774,8 +942,8 @@ class ChessRules
 		}
 	}
 
-	// After move is undo-ed, un-update variables (flags are reset)
-	// TODO: more symmetry, by storing flags increment in move...
+	// After move is undo-ed *and flags resetted*, un-update other variables
+	// TODO: more symmetry, by storing flags increment in move (?!)
 	unupdateVariables(move)
 	{
 		// (Potentially) Reset king position
@@ -784,22 +952,16 @@ class ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
-	// Hash of position+flags+turn after a move is played (to detect repetitions)
-	getHashState()
-	{
-		return hex_md5(this.getFen());
-	}
-
 	play(move, ingame)
 	{
 		// DEBUG:
 //		if (!this.states) this.states = [];
-//		if (!ingame) this.states.push(JSON.stringify(this.board));
+//		if (!ingame) this.states.push(this.getFen());
 
 		if (!!ingame)
 			move.notation = [this.getNotation(move), this.getLongNotation(move)];
 
-		move.flags = JSON.stringify(this.flags); //save flags (for undo)
+		move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
 		this.updateVariables(move);
 		this.moves.push(move);
 		this.epSquares.push( this.getEpSquare(move) );
@@ -807,7 +969,10 @@ class ChessRules
 		V.PlayOnBoard(this.board, move);
 
 		if (!!ingame)
-			move.hash = this.getHashState();
+		{
+			// Hash of current game state *after move*, to detect repetitions
+			move.hash = hex_md5(this.getFen();
+		}
 	}
 
 	undo(move)
@@ -817,15 +982,15 @@ class ChessRules
 		this.epSquares.pop();
 		this.moves.pop();
 		this.unupdateVariables(move);
-		this.parseFlags(JSON.parse(move.flags));
+		this.disaggregateFlags(JSON.parse(move.flags));
 
 		// DEBUG:
-//		if (JSON.stringify(this.board) != this.states[this.states.length-1])
+//		if (this.getFen() != this.states[this.states.length-1])
 //			debugger;
 //		this.states.pop();
 	}
 
-	//////////////
+	///////////////
 	// END OF GAME
 
 	// Check for 3 repetitions (position + flags + turn)
@@ -872,11 +1037,12 @@ class ChessRules
 		return color == "w" ? "0-1" : "1-0";
 	}
 
-	////////
-	//ENGINE
+	///////////////
+	// ENGINE PLAY
 
 	// Pieces values
-	static get VALUES() {
+	static get VALUES()
+	{
 		return {
 			'p': 1,
 			'r': 5,
@@ -887,18 +1053,14 @@ class ChessRules
 		};
 	}
 
-	static get INFINITY() {
-		return 9999; //"checkmate" (unreachable eval)
-	}
+	// "Checkmate" (unreachable eval)
+	static get INFINITY() { return 9999; }
 
-	static get THRESHOLD_MATE() {
-		// At this value or above, the game is over
-		return V.INFINITY;
-	}
+	// At this value or above, the game is over
+	static get THRESHOLD_MATE() { return V.INFINITY; }
 
-	static get SEARCH_DEPTH() {
-		return 3; //2 for high branching factor, 4 for small (Loser chess)
-	}
+	// Search depth: 2 for high branching factor, 4 for small (Loser chess, eg.)
+	static get SEARCH_DEPTH() { return 3; }
 
 	// Assumption: at least one legal move
 	// NOTE: works also for extinction chess because depth is 3...
@@ -917,7 +1079,7 @@ class ChessRules
 			let finish = (Math.abs(this.evalPosition()) >= V.THRESHOLD_MATE);
 			if (!finish && !this.atLeastOneMove())
 			{
-				// Try mate (for other variants)
+				// Test mate (for other variants)
 				const score = this.checkGameEnd();
 				if (score != "1/2")
 					finish = true;
@@ -946,7 +1108,7 @@ class ChessRules
 						evalPos = this.evalPosition()
 					else
 					{
-						// Work with scores for Loser variant
+						// Working with scores is more accurate (necessary for Loser variant)
 						const score = this.checkGameEnd();
 						evalPos = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 					}
@@ -968,7 +1130,6 @@ class ChessRules
 			this.undo(moves1[i]);
 		}
 		moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
-		//console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
 		let candidates = [0]; //indices of candidates moves
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -1067,113 +1228,9 @@ class ChessRules
 		return evaluation;
 	}
 
-	////////////
-	// FEN utils
-
-	// Setup the initial random (assymetric) position
-	static GenRandInitFen()
-	{
-		let pieces = { "w": new Array(8), "b": new Array(8) };
-		// Shuffle pieces on first and last rank
-		for (let c of ["w","b"])
-		{
-			let positions = _.range(8);
-
-			// Get random squares for bishops
-			let randIndex = 2 * _.random(3);
-			let bishop1Pos = positions[randIndex];
-			// The second bishop must be on a square of different color
-			let randIndex_tmp = 2 * _.random(3) + 1;
-			let bishop2Pos = positions[randIndex_tmp];
-			// Remove chosen squares
-			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
-			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
-
-			// Get random squares for knights
-			randIndex = _.random(5);
-			let knight1Pos = positions[randIndex];
-			positions.splice(randIndex, 1);
-			randIndex = _.random(4);
-			let knight2Pos = positions[randIndex];
-			positions.splice(randIndex, 1);
-
-			// Get random square for queen
-			randIndex = _.random(3);
-			let queenPos = positions[randIndex];
-			positions.splice(randIndex, 1);
-
-			// Rooks and king positions are now fixed, because of the ordering rook-king-rook
-			let rook1Pos = positions[0];
-			let kingPos = positions[1];
-			let rook2Pos = positions[2];
-
-			// Finally put the shuffled pieces in the board array
-			pieces[c][rook1Pos] = 'r';
-			pieces[c][knight1Pos] = 'n';
-			pieces[c][bishop1Pos] = 'b';
-			pieces[c][queenPos] = 'q';
-			pieces[c][kingPos] = 'k';
-			pieces[c][bishop2Pos] = 'b';
-			pieces[c][knight2Pos] = 'n';
-			pieces[c][rook2Pos] = 'r';
-		}
-		return pieces["b"].join("") +
-			"/pppppppp/8/8/8/8/PPPPPPPP/" +
-			pieces["w"].join("").toUpperCase() +
-			" 1111 w"; //add flags + turn
-	}
-
-	// Return current fen according to pieces+colors state
-	getFen()
-	{
-		return this.getBaseFen() + " " + this.getFlagsFen() + " " + this.turn;
-	}
-
-	// Position part of the FEN string
-	getBaseFen()
-	{
-		let fen = "";
-		for (let i=0; i<V.size.x; i++)
-		{
-			let emptyCount = 0;
-			for (let j=0; j<V.size.y; j++)
-			{
-				if (this.board[i][j] == V.EMPTY)
-					emptyCount++;
-				else
-				{
-					if (emptyCount > 0)
-					{
-						// Add empty squares in-between
-						fen += emptyCount;
-						emptyCount = 0;
-					}
-					fen += V.board2fen(this.board[i][j]);
-				}
-			}
-			if (emptyCount > 0)
-			{
-				// "Flush remainder"
-				fen += emptyCount;
-			}
-			if (i < V.size.x - 1)
-				fen += "/"; //separate rows
-		}
-		return fen;
-	}
-
-	// Flags part of the FEN string
-	getFlagsFen()
-	{
-		let fen = "";
-		// Add castling flags
-		for (let i of ['w','b'])
-		{
-			for (let j=0; j<2; j++)
-				fen += (this.castleFlags[i][j] ? '1' : '0');
-		}
-		return fen;
-	}
+	/////////////////////////
+	// MOVES + GAME NOTATION
+	/////////////////////////
 
 	// Context: just before move is played, turn hasn't changed
 	getNotation(move)
@@ -1182,7 +1239,7 @@ class ChessRules
 			return (move.end.y < move.start.y ? "0-0-0" : "0-0");
 
 		// Translate final square
-		const finalSquare = String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
+		const finalSquare = V.CoordsToSquare(move.end);
 
 		const piece = this.getPiece(move.start.x, move.start.y);
 		if (piece == V.PAWN)
@@ -1213,10 +1270,8 @@ class ChessRules
 	// Complete the usual notation, may be required for de-ambiguification
 	getLongNotation(move)
 	{
-		const startSquare =
-			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
-		const finalSquare = String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
-		return startSquare + finalSquare; //not encoding move. But short+long is enough
+		// Not encoding move. But short+long is enough
+		return V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
 	}
 
 	// The score is already computed when calling this function
