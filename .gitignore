@@ -15,8 +15,9 @@ pids
 *.swp
 *~
 
-# Demo video
+# Demo video, database
 *.webm
+/db/vchess.sqlite
 
 # socket URL file
 /public/javascripts/utils/socket_url.js

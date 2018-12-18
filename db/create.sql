@@ -1,3 +1,5 @@
+-- database should be in this folder, and named 'vchess.sqlite'
+
 create table Variants (
 	name varchar primary key,
 	description text
