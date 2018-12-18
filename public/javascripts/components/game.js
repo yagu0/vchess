@@ -326,7 +326,7 @@ Vue.component('my-game', {
 					]
 				);
 			}
-			if (this.mode == "friend")
+			if (["friend","problem"].includes(this.mode))
 			{
 				actionArray = actionArray.concat(
 				[
@@ -778,7 +778,7 @@ Vue.component('my-game', {
 							h('h3',
 								{
 									domProps: { innerHTML: "Show solution" },
-									on: { click: "toggleShowSolution" }
+									on: { click: this.toggleShowSolution },
 								}
 							),
 							h('p',
@@ -969,9 +969,10 @@ Vue.component('my-game', {
 	methods: {
 		toggleShowSolution: function() {
 			let problemSolution = document.getElementById("problem-solution");
-			problemSolution.style.display = problemSolution.style.display == "none"
-				? "block"
-				: "none";
+			problemSolution.style.display =
+				!problemSolution.style.display || problemSolution.style.display == "none"
+					? "block"
+					: "none";
 		},
 		download: function() {
 			let content = document.getElementById("pgn-game").innerHTML;
@@ -1142,7 +1143,7 @@ Vue.component('my-game', {
 				this.fenStart = localStorage.getItem(prefix+"fenStart");
 			}
 			else
-				this.fenStart = fen;
+				this.fenStart = V.ParseFen(fen).position; //this is enough
 			if (mode=="human")
 			{
 				// Opponent found!
@@ -1168,6 +1169,8 @@ Vue.component('my-game', {
 		},
 		playComputerMove: function() {
 			const timeStart = Date.now();
+			// TODO: next call asynchronous (avoid freezing interface while computer "think").
+			// This would also allow to remove some artificial setTimeouts
 			const compMove = this.vr.getComputerMove();
 			// (first move) HACK: avoid selecting elements before they appear on page:
 			const delay = Math.max(250-(Date.now()-timeStart), 0);
@@ -1375,7 +1378,18 @@ Vue.component('my-game', {
 		undoInGame: function() {
 			const lm = this.vr.lastMove;
 			if (!!lm)
+			{
 				this.vr.undo(lm);
+				const lmBefore = this.vr.lastMove;
+				if (!!lmBefore)
+				{
+					this.vr.undo(lmBefore);
+					this.incheck = this.vr.getCheckSquares(lmBefore);
+					this.vr.play(lmBefore, "ingame");
+				}
+				else
+					this.incheck = [];
+			}
 		},
 	},
 })

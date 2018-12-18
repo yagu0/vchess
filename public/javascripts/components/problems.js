@@ -16,7 +16,8 @@ Vue.component('my-problems', {
 			<button @click="fetchProblems('forward')">Next</button>
 			<button @click="showNewproblemModal">New</button>
 			<my-problem-summary v-on:show-problem="bubbleUp(p)"
-				v-for="(p,idx) in sortedProblems" v-bind:prob="p" v-bind:key="idx">
+				v-for="(p,idx) in sortedProblems"
+				v-bind:prob="p" v-bind:preview="false" v-bind:key="idx">
 			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal">
 			<div role="dialog" aria-labelledby="newProblemTxt">
@@ -32,18 +33,22 @@ Vue.component('my-problems', {
 							<p class="emphasis">Safe HTML tags allowed</p>
 							<label for="newpbInstructions">Instructions</label>
 							<textarea id="newpbInstructions" v-model="newProblem.instructions"
-								placeholder="Explain the problem here"/>
+								placeholder="Explain the problem here"></textarea>
 							<label for="newpbSolution">Solution</label>
 							<textarea id="newpbSolution" v-model="newProblem.solution"
-								placeholder="How to solve the problem?"/>
+								placeholder="How to solve the problem?"></textarea>
 							<button class="center-btn">Preview</button>
 						</fieldset>
 					</form>
 				</div>
 				<div v-show="newProblem.stage=='preview'" class="card newproblem-preview">
-					// TODO: we don't want exactly the same display (-date +solution)
-					<my-problem-summary v-bind:prob="newProblem"></my-problem-summary>
-					<button @click="sendNewProblem()" class="center-btn">Send</button>
+					<label for="modal-newproblem" class="modal-close"></label>
+					<my-problem-summary v-bind:prob="newProblem" v-bind:preview="true">
+					</my-problem-summary>
+					<div class="col-sm-12 col-md-6 col-lg-3 col-lg-offset-3 topspace">
+						<button @click="sendNewProblem()">Send</button>
+						<button @click="newProblem.stage='nothing'">Cancel</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -99,6 +104,8 @@ Vue.component('my-problems', {
 				instructions: this.newProblem.instructions,
 				solution: this.newProblem.solution,
 			}, response => {
+				this.newProblem.added = Date.now();
+				this.problems.push(JSON.parse(JSON.stringify(this.newProblem)));
 				document.getElementById("modal-newproblem").checked = false;
 				this.newProblem.stage = "nothing";
 			});

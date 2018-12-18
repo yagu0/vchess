@@ -69,7 +69,7 @@ router.post("/problems/:variant([a-zA-Z0-9]+)", (req,res) => {
 	const timestamp = Date.now();
 	// Sanitize them
 	const fen = req.body["fen"];
-	if (!fen.match(/^[a-zA-Z0-9 /]*$/))
+	if (!fen.match(/^[a-zA-Z0-9, /-]*$/))
 		return res.json({errmsg: "Bad characters in FEN string"});
 	const instructions = sanitizeHtml(req.body["instructions"]);
 	const solution = sanitizeHtml(req.body["solution"]);
