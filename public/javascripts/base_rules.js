@@ -273,7 +273,7 @@ class ChessRules
 			turn: fenParts[1],
 		};
 		let nextIdx = 2;
-		if (V.hasFlags)
+		if (V.HasFlags)
 			Object.assign(res, {flags: fenParts[nextIdx++]});
 		if (V.HasEnpassant)
 			Object.assign(res, {enpassant: fenParts[nextIdx]});
@@ -307,7 +307,7 @@ class ChessRules
 						position += emptyCount;
 						emptyCount = 0;
 					}
-					fen += V.board2fen(this.board[i][j]);
+					position += V.board2fen(this.board[i][j]);
 				}
 			}
 			if (emptyCount > 0)
@@ -438,7 +438,7 @@ class ChessRules
 		// Set flags and enpassant:
 		const parsedFen = V.ParseFen(fen);
 		if (V.HasFlags)
-			this.setFlags(fenParsed.flags);
+			this.setFlags(parsedFen.flags);
 		if (V.HasEnpassant)
 		{
 			const epSq = parsedFen.enpassant != "-"
@@ -1013,7 +1013,7 @@ class ChessRules
 		if (!!ingame)
 		{
 			// Hash of current game state *after move*, to detect repetitions
-			move.hash = hex_md5(this.getFen();
+			move.hash = hex_md5(this.getFen());
 		}
 	}
 

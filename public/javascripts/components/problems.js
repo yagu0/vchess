@@ -1,7 +1,13 @@
 Vue.component('my-problems', {
 	data: function () {
 		return {
-			problems: problemArray //initial value
+			problems: problemArray, //initial value
+			newProblem: {
+				fen: V.GenRandInitFen(),
+				instructions: "",
+				solution: "",
+				stage: "nothing", //or "preview" after new problem is filled
+			},
 		};
 	},
 	template: `
@@ -14,31 +20,30 @@ Vue.component('my-problems', {
 			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal">
 			<div role="dialog" aria-labelledby="newProblemTxt">
-				<div class="card newproblem">
+				<div v-show="newProblem.stage=='nothing'" class="card newproblem-form">
 					<label for="modal-newproblem" class="modal-close"></label>
 					<h3 id="newProblemTxt">Add problem</h3>
-					<form @submit.prevent="postNewProblem">
+					<form @submit.prevent="previewNewProblem">
 						<fieldset>
 							<label for="newpbFen">Fen</label>
-							<input type="text" id="newpbFen"
-								placeholder="Position [+ flags [+ turn]]"/>
+							<input id="newpbFen" type="text" v-model="newProblem.fen"/>
 						</fieldset>
 						<fieldset>
-							<p class="emphasis">
-								Allowed HTML tags:
-								&lt;p&gt;,&lt;br&gt;,&lt,ul&gt;,&lt;ol&gt;,&lt;li&gt;
-							</p>
+							<p class="emphasis">Safe HTML tags allowed</p>
 							<label for="newpbInstructions">Instructions</label>
-							<textarea id="newpbInstructions" placeholder="Explain the problem here"/>
+							<textarea id="newpbInstructions" v-model="newProblem.instructions"
+								placeholder="Explain the problem here"/>
 							<label for="newpbSolution">Solution</label>
-							<textarea id="newpbSolution" placeholder="How to solve the problem?"/>
-							<button class="center-btn">Send</button>
+							<textarea id="newpbSolution" v-model="newProblem.solution"
+								placeholder="How to solve the problem?"/>
+							<button class="center-btn">Preview</button>
 						</fieldset>
-						<p class="mistake-newproblem">
-							Note: if you made a mistake, please let me know at
-							<a :href="mailErrProblem">contact@vchess.club</a>
-						</p>
 					</form>
+				</div>
+				<div v-show="newProblem.stage=='preview'" class="card newproblem-preview">
+					// TODO: we don't want exactly the same display (-date +solution)
+					<my-problem-summary v-bind:prob="newProblem"></my-problem-summary>
+					<button @click="sendNewProblem()" class="center-btn">Send</button>
 				</div>
 			</div>
 		</div>
@@ -82,18 +87,20 @@ Vue.component('my-problems', {
 		showNewproblemModal: function() {
 			document.getElementById("modal-newproblem").checked = true;
 		},
-		postNewProblem: function() {
-			const fen = document.getElementById("newpbFen").value;
-			if (!V.IsGoodFen(fen))
+		previewNewProblem: function() {
+			if (!V.IsGoodFen(this.newProblem.fen))
 				return alert("Bad FEN string");
-			const instructions = document.getElementById("newpbInstructions").value;
-			const solution = document.getElementById("newpbSolution").value;
+			this.newProblem.stage = "preview";
+		},
+		sendNewProblem: function() {
+			// Send it to the server and close modal
 			ajax("/problems/" + variant, "POST", {
-				fen: fen,
-				instructions: instructions,
-				solution: solution,
+				fen: this.newProblem.fen,
+				instructions: this.newProblem.instructions,
+				solution: this.newProblem.solution,
 			}, response => {
 				document.getElementById("modal-newproblem").checked = false;
+				this.newProblem.stage = "nothing";
 			});
 		},
 	},

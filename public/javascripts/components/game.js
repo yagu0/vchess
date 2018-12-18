@@ -1162,7 +1162,7 @@ Vue.component('my-game', {
 			{
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
-					this.playComputerMove();
+					setTimeout(this.playComputerMove, 100); //small delay for drawing board
 			}
 			//else: against a (IRL) friend or problem solving: nothing more to do
 		},
@@ -1170,7 +1170,7 @@ Vue.component('my-game', {
 			const timeStart = Date.now();
 			const compMove = this.vr.getComputerMove();
 			// (first move) HACK: avoid selecting elements before they appear on page:
-			const delay = Math.max(500-(Date.now()-timeStart), 0);
+			const delay = Math.max(250-(Date.now()-timeStart), 0);
 			setTimeout(() => {
 				if (this.mode == "computer") //Warning: mode could have changed!
 					this.play(compMove, "animate")
@@ -1360,7 +1360,7 @@ Vue.component('my-game', {
 				}
 			}
 			if (this.mode == "computer" && this.vr.turn != this.mycolor)
-				this.playComputerMove;
+				setTimeout(this.playComputerMove, 250); //small delay for animation
 		},
 		undo: function() {
 			// Navigate after game is over
