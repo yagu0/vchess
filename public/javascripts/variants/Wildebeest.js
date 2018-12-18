@@ -10,20 +10,50 @@ class WildebeestRules extends ChessRules
 	static get CAMEL() { return 'c'; }
 	static get WILDEBEEST() { return 'w'; }
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat([V.CAMEL,V.WILDEBEEST]);
 	}
 
-	static get steps() {
+	static get steps()
+	{
 		return Object.assign(
 			ChessRules.steps, //add camel moves:
 			{'c': [ [-3,-1],[-3,1],[-1,-3],[-1,3],[1,-3],[1,3],[3,-1],[3,1] ]}
 		);
 	}
 
-	// En-passant after 2-sq or 3-sq jumps
-	getEpSquare(move)
+	// There may be 2 enPassant squares (if pawn jump 3 squares)
+	getEnpassantFen()
 	{
+		const L = this.epSquares.length;
+		if (!this.epSquares[L-1])
+			return "-"; //no en-passant
+		let res = "";
+		this.epSquares[L-1].forEach(sq => {
+			res += V.CoordsToSquare(sq) + ",";
+		});
+		return res.slice(0,-1); //remove last comma
+	}
+
+	// En-passant after 2-sq or 3-sq jumps
+	getEpSquare(moveOrSquare)
+	{
+		if (!moveOrSquare)
+			return undefined;
+		if (typeof moveOrSquare === "string")
+		{
+			const square = moveOrSquare;
+			if (square == "-")
+				return undefined;
+			let res = [];
+			square.split(",").forEach(sq => {
+				res.push(V.SquareToCoords(sq));
+			});
+			return res;
+		}
+		// Argument is a move:
+		const move = moveOrSquare;
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
 		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) >= 2)
 		{
@@ -248,6 +278,6 @@ class WildebeestRules extends ChessRules
 		return pieces["b"].join("") +
 			"/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 1111 w";
+			" w 1111 -";
 	}
 }

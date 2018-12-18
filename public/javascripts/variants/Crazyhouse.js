@@ -1,31 +1,97 @@
 class CrazyhouseRules extends ChessRules
 {
-	initVariables(fen)
+	static IsGoodFen(fen)
 	{
-		super.initVariables(fen);
-		// Also init reserves (used by the interface to show landing pieces)
+		if (!ChessRules.IsGoodFen(fen))
+			return false;
+		const fenParsed = V.ParseFen(fen);
+		// 5) Check reserves
+		if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{10,10}$/))
+			return false;
+		// 6) Check promoted array
+		if (!fenParsed.promoted)
+			return false;
+		fenpromoted = fenParsed.promoted;
+		if (fenpromoted == "-")
+			return true; //no promoted piece on board
+		const squares = fenpromoted.split(",");
+		for (let square of squares)
+		{
+			const c = V.SquareToCoords(square);
+			if (c.y < 0 || c.y > V.size.y || isNaN(c.x) || c.x < 0 || c.x > V.size.x)
+				return false;
+		}
+		return true;
+	}
+
+	static GenRandInitFen()
+	{
+		const fen = ChessRules.GenRandInitFen();
+		return fen.replace(" w 1111", " w 1111 0000000000 -");
+	}
+
+	getFen()
+	{
+		return super.getFen() + " " + this.getReserveFen() + " " + this.getPromotedFen();
+	}
+
+	getReserveFen()
+	{
+		let counts = _.map(_.range(10), 0);
+		for (let i=0; i<V.PIECES.length; i++)
+		{
+			counts[i] = this.reserve["w"][V.PIECES[i]];
+			counts[5+i] = this.reserve["b"][V.PIECES[i]];
+		}
+		return counts.join("");
+	}
+
+	getPromotedFen()
+	{
+		let res = "";
+		for (let i=0; i<V.size.x; i++)
+		{
+			for (let j=0; j<V.size.y; j++)
+			{
+				if (this.promoted[i][j])
+					res += V.CoordsToSquare({x:i,y:j});
+			}
+		}
+		if (res.length > 0)
+			res = res.slice(0,-1); //remove last comma
+		return res;
+	}
+
+	setOtherVariables(fen)
+	{
+		super.setOtherVariables(fen);
+		const fenParsed = V.ParseFen(fen);
+		// Also init reserves (used by the interface to show landable pieces)
 		this.reserve =
 		{
 			"w":
 			{
-				[V.PAWN]: 0,
-				[V.ROOK]: 0,
-				[V.KNIGHT]: 0,
-				[V.BISHOP]: 0,
-				[V.QUEEN]: 0,
+				[V.PAWN]: parseInt(fenParsed.reserve[0]),
+				[V.ROOK]: parseInt(fenParsed.reserve[1]),
+				[V.KNIGHT]: parseInt(fenParsed.reserve[2]),
+				[V.BISHOP]: parseInt(fenParsed.reserve[3]),
+				[V.QUEEN]: parseInt(fenParsed.reserve[4]),
 			},
 			"b":
 			{
-				[V.PAWN]: 0,
-				[V.ROOK]: 0,
-				[V.KNIGHT]: 0,
-				[V.BISHOP]: 0,
-				[V.QUEEN]: 0,
+				[V.PAWN]: parseInt(fenParsed.reserve[5]),
+				[V.ROOK]: parseInt(fenParsed.reserve[6]),
+				[V.KNIGHT]: parseInt(fenParsed.reserve[7]),
+				[V.BISHOP]: parseInt(fenParsed.reserve[8]),
+				[V.QUEEN]: parseInt(fenParsed.reserve[9]),
 			}
 		};
 		this.promoted = doubleArray(V.size.x, V.size.y, false);
-		// May be a continuation: adjust numbers of pieces in reserve + promoted pieces
-		this.moves.forEach(m => { this.updateVariables(m); });
+		for (let square of fenParsd.promoted.split(","))
+		{
+			const [x,y] = V.SquareToCoords(square);
+			promoted[x][y] = true;
+		}
 	}
 
 	getColor(i,j)
@@ -34,6 +100,7 @@ class CrazyhouseRules extends ChessRules
 			return (i==V.size.x ? "w" : "b");
 		return this.board[i][j].charAt(0);
 	}
+
 	getPiece(i,j)
 	{
 		if (i >= V.size.x)
@@ -48,7 +115,8 @@ class CrazyhouseRules extends ChessRules
 	}
 
 	// Ordering on reserve pieces
-	static get RESERVE_PIECES() {
+	static get RESERVE_PIECES()
+	{
 		return [V.PAWN,V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 	}
 
@@ -188,17 +256,13 @@ class CrazyhouseRules extends ChessRules
 		// Rebirth:
 		const piece =
 			(move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "");
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
-		return piece + "@" + finalSquare;
+		return piece + "@" + V.CoordsToSquare(move.end);
 	}
 
 	getLongNotation(move)
 	{
 		if (move.vanish.length > 0)
 			return super.getLongNotation(move);
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
-		return "@" + finalSquare;
+		return "@" + V.CoordsToSquare(move.end);
 	}
 }

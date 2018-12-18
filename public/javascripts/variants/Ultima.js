@@ -1,5 +1,9 @@
 class UltimaRules extends ChessRules
 {
+	static get HasFlags { return false; }
+
+	static get HasEnpassant { return false; }
+
 	static getPpath(b)
 	{
 		if (b[1] == "m") //'m' for Immobilizer (I is too similar to 1)
@@ -7,16 +11,13 @@ class UltimaRules extends ChessRules
 		return b; //usual piece
 	}
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat([V.IMMOBILIZER]);
 	}
 
-	static IsGoodFlags(flags)
-	{
-		return true; //anything is good: no flags
-	}
-
-	initVariables(fen)
+	// No castling, but checks, so keep track of kings
+	setOtherVariables(fen)
 	{
 		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]};
 		const fenParts = fen.split(" ");
@@ -42,13 +43,6 @@ class UltimaRules extends ChessRules
 				k++;
 			}
 		}
-		this.epSquares = []; //no en-passant here
-	}
-
-	setFlags(fenflags)
-	{
-		// TODO: for compatibility?
-		this.castleFlags = {"w":[false,false], "b":[false,false]};
 	}
 
 	static get IMMOBILIZER() { return 'm'; }
@@ -544,7 +538,9 @@ class UltimaRules extends ChessRules
 		}
 	}
 
-	static get VALUES() { //TODO: totally experimental!
+	static get VALUES()
+	{
+		// TODO: totally experimental!
 		return {
 			'p': 1,
 			'r': 2,
@@ -608,19 +604,13 @@ class UltimaRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 0000 w"; //TODO: flags?!
-	}
-
-	getFlagsFen()
-	{
-		return "0000"; //TODO: or "-" ?
+			" w";
 	}
 
 	getNotation(move)
 	{
-		const initialSquare =
-			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
-		const finalSquare = String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
+		const initialSquare = V.CoordsToSquare(move.start);
+		const finalSquare = V.CoordsToSquare(move.end);
 		let notation = undefined;
 		if (move.appear[0].p == V.PAWN)
 		{

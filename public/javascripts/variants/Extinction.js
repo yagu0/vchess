@@ -1,27 +1,30 @@
 class ExtinctionRules extends ChessRules
 {
-	initVariables(fen)
+	setOtherVariables(fen)
 	{
-		super.initVariables(fen);
+		super.setOtherVariables(fen);
+		const pos = V.ParseFen(fen).position;
+		// NOTE: no need for safety "|| []", because each piece type must be present
+		// (otherwise game is already over!)
 		this.material =
 		{
 			"w":
 			{
-				[V.KING]: 1,
-				[V.QUEEN]: 1,
-				[V.ROOK]: 2,
-				[V.KNIGHT]: 2,
-				[V.BISHOP]: 2,
-				[V.PAWN]: 8
+				[V.KING]: pos.match(/K/g).length,
+				[V.QUEEN]: pos.match(/Q/g).length,
+				[V.ROOK]: pos.match(/R/g).length,
+				[V.KNIGHT]: pos.match(/N/g).length,
+				[V.BISHOP]: pos.match(/B/g).length,
+				[V.PAWN]: pos.match(/P/g).length
 			},
 			"b":
 			{
-				[V.KING]: 1,
-				[V.QUEEN]: 1,
-				[V.ROOK]: 2,
-				[V.KNIGHT]: 2,
-				[V.BISHOP]: 2,
-				[V.PAWN]: 8
+				[V.KING]: pos.match(/k/g).length,
+				[V.QUEEN]: pos.match(/q/g).length,
+				[V.ROOK]: pos.match(/r/g).length,
+				[V.KNIGHT]: pos.match(/n/g).length,
+				[V.BISHOP]: pos.match(/b/g).length,
+				[V.PAWN]: pos.match(/p/g).length
 			}
 		};
 	}
@@ -117,7 +120,7 @@ class ExtinctionRules extends ChessRules
 
 	checkGameEnd()
 	{
-		return this.turn == "w" ? "0-1" : "1-0";
+		return (this.turn == "w" ? "0-1" : "1-0");
 	}
 
 	evalPosition()

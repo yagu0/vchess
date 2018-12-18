@@ -1,10 +1,7 @@
 class ZenRules extends ChessRules
 {
 	// NOTE: enPassant, if enabled, would need to redefine carefully getEpSquare
-	getEpSquare(move)
-	{
-		return undefined;
-	}
+	static get HasEnpassant { return false; }
 
 	// TODO(?): some duplicated code in 2 next functions
 	getSlideNJumpMoves([x,y], steps, oneStep)
@@ -184,12 +181,10 @@ class ZenRules extends ChessRules
 		}
 
 		// Translate initial square (because pieces may fly unusually in this variant!)
-		const initialSquare =
-			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
+		const initialSquare = V.CoordsToSquare(move.start);
 
 		// Translate final square
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
+		const finalSquare = V.CoordsToSquare(move.end);
 
 		let notation = "";
 		const piece = this.getPiece(move.start.x, move.start.y);
@@ -218,7 +213,9 @@ class ZenRules extends ChessRules
 		return notation;
 	}
 
-	static get VALUES() { //TODO: experimental
+	static get VALUES()
+	{
+		// TODO: experimental
 		return {
 			'p': 1,
 			'r': 3,

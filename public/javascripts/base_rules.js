@@ -34,6 +34,10 @@ class ChessRules
 	//////////////
 	// MISC UTILS
 
+	static get HasFlags() { return true; } //some variants don't have flags
+
+	static get HasEnpassant() { return true; } //some variants don't have ep.
+
 	// Path to pieces
 	static getPpath(b)
 	{
@@ -57,7 +61,34 @@ class ChessRules
 	{
 		const fenParsed = V.ParseFen(fen);
 		// 1) Check position
-		const position = fenParsed.position;
+		if (!V.IsGoodPosition(fenParsed.position))
+			return false;
+		// 2) Check turn
+		if (!fenParsed.turn || !["w","b"].includes(fenParsed.turn))
+			return false;
+		// 3) Check flags
+		if (V.HasFlags && (!fenParsed.flags || !V.IsGoodFlags(fenParsed.flags)))
+			return false;
+		// 4) Check enpassant
+		if (V.HasEnpassant)
+		{
+			if (!fenParsed.enpassant)
+				return false;
+			if (fenParsed.enpassant != "-")
+			{
+				const ep = V.SquareToCoords(fenParsed.enpassant);
+				if (ep.y < 0 || ep.y > V.size.y || isNaN(ep.x) || ep.x < 0 || ep.x > V.size.x)
+					return false;
+			}
+		}
+		return true;
+	}
+
+	// Is position part of the FEN a priori correct?
+	static IsGoodPosition(position)
+	{
+		if (position.length == 0)
+			return false;
 		const rows = position.split("/");
 		if (rows.length != V.size.x)
 			return false;
@@ -79,19 +110,6 @@ class ChessRules
 			if (sumElts != V.size.y)
 				return false;
 		}
-		// 2) Check flags (if present)
-		if (!!fenParsed.flags && !V.IsGoodFlags(fenParsed.flags))
-			return false;
-		// 3) Check turn (if present)
-		if (!!fenParsed.turn && !["w","b"].includes(fenParsed.turn))
-			return false;
-		// 4) Check enpassant (if present)
-		if (!!fenParsed.enpassant)
-		{
-			const ep = V.SquareToCoords(fenParsed.enpassant);
-			if (ep.y < 0 || ep.y > V.size.y || isNaN(ep.x) || ep.x < 0 || ep.x > V.size.x)
-				return false;
-		}
 		return true;
 	}
 
@@ -99,6 +117,12 @@ class ChessRules
 	static IsGoodFlags(flags)
 	{
 		return !!flags.match(/^[01]{4,4}$/);
+	}
+
+	// 3 --> d (column letter from number)
+	static GetColumn(colnum)
+	{
+		return String.fromCharCode(97 + colnum);
 	}
 
 	// a4 --> {x:3,y:0}
@@ -113,7 +137,7 @@ class ChessRules
 	// {x:0,y:4} --> e8
 	static CoordsToSquare(coords)
 	{
-		return String.fromCharCode(97 + coords.y) + (V.size.x - coords.x);
+		return V.GetColumn(coords.y) + (V.size.x - coords.x);
 	}
 
 	// Aggregates flags into one object
@@ -138,10 +162,7 @@ class ChessRules
 			const square = moveOrSquare;
 			if (square == "-")
 				return undefined;
-			return {
-				x: square[0].charCodeAt()-97,
-				y: V.size.x-parseInt(square[1])
-			};
+			return V.SquareToCoords(square);
 		}
 		// Argument is a move:
 		const move = moveOrSquare;
@@ -246,19 +267,25 @@ class ChessRules
 	static ParseFen(fen)
 	{
 		const fenParts = fen.split(" ");
-		return {
+		let res =
+		{
 			position: fenParts[0],
 			turn: fenParts[1],
-			flags: fenParts[2],
-			enpassant: fenParts[3],
 		};
+		let nextIdx = 2;
+		if (V.hasFlags)
+			Object.assign(res, {flags: fenParts[nextIdx++]});
+		if (V.HasEnpassant)
+			Object.assign(res, {enpassant: fenParts[nextIdx]});
+		return res;
 	}
 
 	// Return current fen (game state)
 	getFen()
 	{
-		return this.getBaseFen() + " " + this.turn + " " +
-			this.getFlagsFen() + " " + this.getEnpassantFen();
+		return this.getBaseFen() + " " + this.turn +
+			(V.HasFlags ? (" " + this.getFlagsFen()) : "") +
+			(V.HasEnpassant ? (" " + this.getEnpassantFen()) : "");
 	}
 
 	// Position part of the FEN string
@@ -311,7 +338,7 @@ class ChessRules
 	getEnpassantFen()
 	{
 		const L = this.epSquares.length;
-		if (L == 0)
+		if (!this.epSquares[L-1])
 			return "-"; //no en-passant
 		return V.CoordsToSquare(this.epSquares[L-1]);
 	}
@@ -361,18 +388,13 @@ class ChessRules
 		this.setOtherVariables(fen);
 	}
 
-	// Some additional variables from FEN (variant dependant)
-	setOtherVariables(fen)
+	// Scan board for kings and rooks positions
+	scanKingsRooks(fen)
 	{
-		// Set flags and enpassant:
-		const parsedFen = V.ParseFen(fen);
-		this.setFlags(fenParsed.flags);
-		this.epSquares = [ V.SquareToCoords(parsedFen.enpassant) ];
-		// Search for king and rooks positions:
 		this.INIT_COL_KING = {'w':-1, 'b':-1};
 		this.INIT_COL_ROOK = {'w':[-1,-1], 'b':[-1,-1]};
 		this.kingPos = {'w':[-1,-1], 'b':[-1,-1]}; //squares of white and black king
-		const fenRows = parsedFen.position.split("/");
+		const fenRows = V.ParseFen(fen).position.split("/");
 		for (let i=0; i<fenRows.length; i++)
 		{
 			let k = 0; //column index on board
@@ -408,6 +430,24 @@ class ChessRules
 				k++;
 			}
 		}
+	}
+
+	// Some additional variables from FEN (variant dependant)
+	setOtherVariables(fen)
+	{
+		// Set flags and enpassant:
+		const parsedFen = V.ParseFen(fen);
+		if (V.HasFlags)
+			this.setFlags(fenParsed.flags);
+		if (V.HasEnpassant)
+		{
+			const epSq = parsedFen.enpassant != "-"
+				? V.SquareToCoords(parsedFen.enpassant)
+				: undefined;
+			this.epSquares = [ epSq ];
+		}
+		// Search for king and rooks positions:
+		this.scanKingsRooks(fen);
 	}
 
 	/////////////////////
@@ -615,7 +655,7 @@ class ChessRules
 
 		// En passant
 		const Lep = this.epSquares.length;
-		const epSquare = (Lep>0 ? this.epSquares[Lep-1] : undefined);
+		const epSquare = this.epSquares[Lep-1]; //always at least one element
 		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
 		{
 			const epStep = epSquare.y - y;
@@ -961,10 +1001,12 @@ class ChessRules
 		if (!!ingame)
 			move.notation = [this.getNotation(move), this.getLongNotation(move)];
 
-		move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
+		if (V.HasFlags)
+			move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
 		this.updateVariables(move);
 		this.moves.push(move);
-		this.epSquares.push( this.getEpSquare(move) );
+		if (V.HasEnpassant)
+			this.epSquares.push( this.getEpSquare(move) );
 		this.turn = this.getOppCol(this.turn);
 		V.PlayOnBoard(this.board, move);
 
@@ -979,10 +1021,12 @@ class ChessRules
 	{
 		V.UndoOnBoard(this.board, move);
 		this.turn = this.getOppCol(this.turn);
-		this.epSquares.pop();
+		if (V.HasEnpassant)
+			this.epSquares.pop();
 		this.moves.pop();
 		this.unupdateVariables(move);
-		this.disaggregateFlags(JSON.parse(move.flags));
+		if (V.HasFlags)
+			this.disaggregateFlags(JSON.parse(move.flags));
 
 		// DEBUG:
 //		if (this.getFen() != this.states[this.states.length-1])

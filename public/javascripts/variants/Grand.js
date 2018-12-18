@@ -7,10 +7,63 @@ class GrandRules extends ChessRules
 		return ([V.MARSHALL,V.CARDINAL].includes(b[1]) ? "Grand/" : "") + b;
 	}
 
-	initVariables(fen)
+	static IsGoodFen(fen)
 	{
-		super.initVariables(fen);
-		this.captures = { "w": {}, "b": {} }; //for promotions
+		if (!ChessRules.IsGoodFen(fen))
+			return false;
+		const fenParsed = V.ParseFen(fen);
+		// 5) Check captures
+		if (!fenParsed.captured || !fenParsed.captured.match(/^[0-9]{10,10}$/))
+			return false;
+		return true;
+	}
+
+	static GenRandInitFen()
+	{
+		const fen = ChessRules.GenRandInitFen();
+		return fen.replace(" w 1111", " w 1111 0000000000");
+	}
+
+	getFen()
+	{
+		return super.getFen() + " " + this.getCapturedFen();
+	}
+
+	getCapturedFen()
+	{
+		let counts = _.map(_.range(10), 0);
+		for (let i=0; i<V.PIECES.length; i++)
+		{
+			counts[i] = this.captured["w"][V.PIECES[i]];
+			counts[5+i] = this.captured["b"][V.PIECES[i]];
+		}
+		return counts.join("");
+	}
+
+	setOtherVariables(fen)
+	{
+		super.setOtherVariables(fen);
+		const fenParsed = V.ParseFen(fen);
+		// Initialize captured pieces' counts from FEN
+		this.captured =
+		{
+			"w":
+			{
+				[V.PAWN]: parseInt(fenParsed.captured[0]),
+				[V.ROOK]: parseInt(fenParsed.captured[1]),
+				[V.KNIGHT]: parseInt(fenParsed.captured[2]),
+				[V.BISHOP]: parseInt(fenParsed.captured[3]),
+				[V.QUEEN]: parseInt(fenParsed.captured[4]),
+			},
+			"b":
+			{
+				[V.PAWN]: parseInt(fenParsed.captured[5]),
+				[V.ROOK]: parseInt(fenParsed.captured[6]),
+				[V.KNIGHT]: parseInt(fenParsed.captured[7]),
+				[V.BISHOP]: parseInt(fenParsed.captured[8]),
+				[V.QUEEN]: parseInt(fenParsed.captured[9]),
+			}
+		};
 	}
 
 	static get size() { return {x:10,y:10}; }
@@ -18,13 +71,42 @@ class GrandRules extends ChessRules
 	static get MARSHALL() { return 'm'; } //rook+knight
 	static get CARDINAL() { return 'c'; } //bishop+knight
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat([V.MARSHALL,V.CARDINAL]);
 	}
 
-	// En-passant after 2-sq or 3-sq jumps
-	getEpSquare(move)
+	// There may be 2 enPassant squares (if pawn jump 3 squares)
+	getEnpassantFen()
 	{
+		const L = this.epSquares.length;
+		if (!this.epSquares[L-1])
+			return "-"; //no en-passant
+		let res = "";
+		this.epSquares[L-1].forEach(sq => {
+			res += V.CoordsToSquare(sq) + ",";
+		});
+		return res.slice(0,-1); //remove last comma
+	}
+
+	// En-passant after 2-sq or 3-sq jumps
+	getEpSquare(moveOrSquare)
+	{
+		if (!moveOrSquare)
+			return undefined;
+		if (typeof moveOrSquare === "string")
+		{
+			const square = moveOrSquare;
+			if (square == "-")
+				return undefined;
+			let res = [];
+			square.split(",").forEach(sq => {
+				res.push(V.SquareToCoords(sq));
+			});
+			return res;
+		}
+		// Argument is a move:
+		const move = moveOrSquare;
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
 		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) >= 2)
 		{
@@ -104,7 +186,7 @@ class GrandRules extends ChessRules
 			// Promotion
 			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN,V.MARSHALL,V.CARDINAL];
 			promotionPieces.forEach(p => {
-				if (!this.captures[color][p] || this.captures[color][p]==0)
+				if (this.captured[color][p]==0)
 					return;
 				// Normal move
 				if (this.board[x+shift][y] == V.EMPTY)
@@ -189,11 +271,8 @@ class GrandRules extends ChessRules
 		super.updateVariables(move);
 		if (move.vanish.length==2 && move.appear.length==1 && move.vanish[1].p != V.PAWN)
 		{
-			// Capture: update this.captures
-			if (!this.captures[move.vanish[1].c][move.vanish[1].p])
-				this.captures[move.vanish[1].c][move.vanish[1].p] = 1;
-			else
-				this.captures[move.vanish[1].c][move.vanish[1].p]++;
+			// Capture: update this.captured
+			this.captured[move.vanish[1].c][move.vanish[1].p]++;
 		}
 	}
 
@@ -201,13 +280,11 @@ class GrandRules extends ChessRules
 	{
 		super.unupdateVariables(move);
 		if (move.vanish.length==2 && move.appear.length==1 && move.vanish[1].p != V.PAWN)
-		{
-			this.captures[move.vanish[1].c][move.vanish[1].p] =
-				Math.max(0, this.captures[move.vanish[1].c][move.vanish[1].p]-1);
-		}
+			this.captured[move.vanish[1].c][move.vanish[1].p]--;
 	}
 
-	static get VALUES() {
+	static get VALUES()
+	{
 		return Object.assign(
 			ChessRules.VALUES,
 			{'c': 5, 'm': 7} //experimental
@@ -216,7 +293,7 @@ class GrandRules extends ChessRules
 
 	static get SEARCH_DEPTH() { return 2; }
 
-	// TODO: this function could be generalized and shared better
+	// TODO: this function could be generalized and shared better (how ?!...)
 	static GenRandInitFen()
 	{
 		let pieces = { "w": new Array(10), "b": new Array(10) };
@@ -278,6 +355,6 @@ class GrandRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 1111 w";
+			" w 1111 -";
 	}
 }

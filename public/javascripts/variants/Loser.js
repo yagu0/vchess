@@ -1,20 +1,15 @@
 class LoserRules extends ChessRules
 {
-	initVariables(fen)
+	static get HasFlags() { return false; }
+
+	setOtherVariables(fen)
 	{
-		const epSq = this.moves.length > 0 ? this.getEpSquare(this.lastMove) : undefined;
+		const parsedFen = V.ParseFen(fen);
+		const epSq = parsedFen.enpassant != "-"
+			? V.SquareToCoords(parsedFen.enpassant)
+			: undefined;
 		this.epSquares = [ epSq ];
-	}
-
-	static IsGoodFlags(flags)
-	{
-		return true; //anything is good: no flags
-	}
-
-	setFlags(fenflags)
-	{
-		// No castling, hence no flags; but flags defined for compatibility
-		this.castleFlags = { "w":[false,false], "b":[false,false] };
+		this.scanKingsRooks(fen);
 	}
 
 	getPotentialPawnMoves([x,y])
@@ -48,6 +43,7 @@ class LoserRules extends ChessRules
 
 	getPotentialKingMoves(sq)
 	{
+		// No castle:
 		return this.getSlideNJumpMoves(sq,
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
@@ -111,14 +107,9 @@ class LoserRules extends ChessRules
 		return [];
 	}
 
-	// Unused:
+	// No variables update because no castling
 	updateVariables(move) { }
 	unupdateVariables(move) { }
-
-	getFlagsFen()
-	{
-		return "-";
-	}
 
 	checkGameEnd()
 	{
@@ -126,7 +117,9 @@ class LoserRules extends ChessRules
 		return this.turn == "w" ? "1-0" : "0-1";
 	}
 
-	static get VALUES() { //experimental...
+	static get VALUES()
+	{
+		// Experimental...
 		return {
 			'p': 1,
 			'r': 7,
@@ -197,6 +190,6 @@ class LoserRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" 0000 w"; //add flags (TODO?!)
+			" w -"; //no en-passant
 	}
 }

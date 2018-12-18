@@ -1,8 +1,13 @@
 class MagneticRules extends ChessRules
 {
-	getEpSquare(move)
+	static get HasEnpassant { return false; }
+
+	setOtherVariables(fen)
 	{
-		return undefined; //no en-passant
+		// No en-passant:
+		const parsedFen = V.ParseFen(fen);
+		this.setFlags(fenParsed.flags);
+		this.scanKingsRooks(fen);
 	}
 
 	getPotentialMovesFrom([x,y])
@@ -17,6 +22,67 @@ class MagneticRules extends ChessRules
 				moves = moves.concat(newMove_s);
 		});
 		return moves;
+	}
+
+	getPotentialPawnMoves([x,y])
+	{
+		const color = this.turn;
+		let moves = [];
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
+		const shift = (color == "w" ? -1 : 1);
+		const firstRank = (color == 'w' ? sizeX-1 : 0);
+		const startRank = (color == "w" ? sizeX-2 : 1);
+		const lastRank = (color == "w" ? 0 : sizeX-1);
+
+		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
+		{
+			// Normal moves
+			if (this.board[x+shift][y] == V.EMPTY)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y]));
+				// Next condition because variants with pawns on 1st rank allow them to jump
+				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
+				{
+					// Two squares jump
+					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
+				}
+			}
+			// Captures
+			if (y>0 && this.board[x+shift][y-1] != V.EMPTY
+				&& this.canTake([x,y], [x+shift,y-1]))
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
+			}
+			if (y<sizeY-1 && this.board[x+shift][y+1] != V.EMPTY
+				&& this.canTake([x,y], [x+shift,y+1]))
+			{
+				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+			}
+		}
+
+		if (x+shift == lastRank)
+		{
+			// Promotion
+			const pawnColor = this.getColor(x,y); //can be different for checkered
+			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
+			promotionPieces.forEach(p => {
+				// Normal move
+				if (this.board[x+shift][y] == V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:pawnColor,p:p}));
+				// Captures
+				if (y>0 && this.board[x+shift][y-1] != V.EMPTY
+					&& this.canTake([x,y], [x+shift,y-1]))
+				{
+					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:pawnColor,p:p}));
+				}
+				if (y<sizeY-1 && this.board[x+shift][y+1] != V.EMPTY
+					&& this.canTake([x,y], [x+shift,y+1]))
+				{
+					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:pawnColor,p:p}));
+				}
+			});
+		}
+		return moves; //no en-passant
 	}
 
 	// Complete a move with magnetic actions
@@ -154,8 +220,8 @@ class MagneticRules extends ChessRules
 		this.play(move);
 		// The only way to be "under check" is to have lost the king (thus game over)
 		let res = this.kingPos[c][0] < 0
-			? [ JSON.parse(JSON.stringify(saveKingPos)) ]
-			: [ ];
+			? [JSON.parse(JSON.stringify(saveKingPos))]
+			: [];
 		this.undo(move);
 		return res;
 	}
@@ -210,7 +276,8 @@ class MagneticRules extends ChessRules
 		return this.turn == "w" ? "0-1" : "1-0";
 	}
 
-	static get THRESHOLD_MATE() {
+	static get THRESHOLD_MATE()
+	{
 		return 500; //checkmates evals may be slightly below 1000
 	}
 }

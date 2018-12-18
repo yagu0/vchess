@@ -29,24 +29,24 @@ class AliceRules extends ChessRules
 		return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
 	}
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat(Object.keys(V.ALICE_PIECES));
 	}
 
-	initVariables(fen)
+	setOtherVariables(fen)
 	{
-		super.initVariables(fen);
-		const fenParts = fen.split(" ");
-		const position = fenParts[0].split("/");
+		super.setOtherVariables(fen);
+		const rows = V.ParseFen(fen).position.split("/");
 		if (this.kingPos["w"][0] < 0 || this.kingPos["b"][0] < 0)
 		{
-			// INIT_COL_XXX won't be used, so no need to set them for Alice kings
-			for (let i=0; i<position.length; i++)
+			// INIT_COL_XXX won't be required if Alice kings are found (means 'king moved')
+			for (let i=0; i<rows.length; i++)
 			{
 				let k = 0; //column index on board
-				for (let j=0; j<position[i].length; j++)
+				for (let j=0; j<rows[i].length; j++)
 				{
-					switch (position[i].charAt(j))
+					switch (rows[i].charAt(j))
 					{
 						case 'l':
 							this.kingPos['b'] = [i,k];
@@ -55,7 +55,7 @@ class AliceRules extends ChessRules
 							this.kingPos['w'] = [i,k];
 							break;
 						default:
-							let num = parseInt(position[i].charAt(j));
+							const num = parseInt(rows[i].charAt(j));
 							if (!isNaN(num))
 								k += (num-1);
 					}
@@ -293,7 +293,8 @@ class AliceRules extends ChessRules
 		return res;
 	}
 
-	static get VALUES() {
+	static get VALUES()
+	{
 		return Object.assign(
 			ChessRules.VALUES,
 			{
@@ -317,13 +318,13 @@ class AliceRules extends ChessRules
 				return "0-0";
 		}
 
-		const finalSquare = String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
+		const finalSquare = V.CoordsToSquare(move.end);
 		const piece = this.getPiece(move.start.x, move.start.y);
 
 		const captureMark = (move.vanish.length > move.appear.length ? "x" : "");
 		let pawnMark = "";
 		if (["p","s"].includes(piece) && captureMark.length == 1)
-			pawnMark = String.fromCharCode(97 + move.start.y); //start column
+			pawnMark = V.GetColumn(move.start.y); //start column
 
 		// Piece or pawn movement
 		let notation = piece.toUpperCase() + pawnMark + captureMark + finalSquare;

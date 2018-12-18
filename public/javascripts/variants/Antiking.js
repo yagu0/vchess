@@ -7,21 +7,22 @@ class AntikingRules extends ChessRules
 
 	static get ANTIKING() { return 'a'; }
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat([V.ANTIKING]);
 	}
 
-	initVariables(fen)
+	setOtherVariables(fen)
 	{
-		super.initVariables(fen);
+		super.setOtherVariables(fen);
 		this.antikingPos = {'w':[-1,-1], 'b':[-1,-1]};
-		const position = fen.split(" ")[0].split("/");
-		for (let i=0; i<position.length; i++)
+		const rows = V.ParseFen(fen).position.split("/");
+		for (let i=0; i<rows.length; i++)
 		{
 			let k = 0;
-			for (let j=0; j<position[i].length; j++)
+			for (let j=0; j<rows[i].length; j++)
 			{
-				switch (position[i].charAt(j))
+				switch (rows[i].charAt(j))
 				{
 					case 'a':
 						this.antikingPos['b'] = [i,k];
@@ -30,7 +31,7 @@ class AntikingRules extends ChessRules
 						this.antikingPos['w'] = [i,k];
 						break;
 					default:
-						let num = parseInt(position[i].charAt(j));
+						const num = parseInt(rows[i].charAt(j));
 						if (!isNaN(num))
 							k += (num-1);
 				}
@@ -200,6 +201,6 @@ class AntikingRules extends ChessRules
 		return pieces["b"].join("") + "/" + ranks23_black +
 			"/8/8/" +
 			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
-			" 1111 w";
+			" w 1111";
 	}
 }

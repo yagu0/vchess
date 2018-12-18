@@ -4,6 +4,7 @@ class CheckeredRules extends ChessRules
 	{
 		return b[0]=='c' ? "Checkered/"+b : b;
 	}
+
 	static board2fen(b)
 	{
 		const checkered_codes = {
@@ -17,6 +18,7 @@ class CheckeredRules extends ChessRules
 			return checkered_codes[b[1]];
 		return ChessRules.board2fen(b);
 	}
+
 	static fen2board(f)
 	{
 		// Tolerate upper-case versions of checkered pieces (why not?)
@@ -37,7 +39,8 @@ class CheckeredRules extends ChessRules
 		return ChessRules.fen2board(f);
 	}
 
-	static get PIECES() {
+	static get PIECES()
+	{
 		return ChessRules.PIECES.concat(['s','t','u','c','o']);
 	}
 
@@ -65,13 +68,12 @@ class CheckeredRules extends ChessRules
 		}
 	}
 
-	// Aggregates flags into one object
-	get flags() {
+	aggregateFlags()
+	{
 		return [this.castleFlags, this.pawnFlags];
 	}
 
-	// Reverse operation
-	parseFlags(flags)
+	disaggregateFlags(flags)
 	{
 		this.castleFlags = flags[0];
 		this.pawnFlags = flags[1];
@@ -187,13 +189,14 @@ class CheckeredRules extends ChessRules
 	{
 		this.play(move);
 		const color = this.turn;
-		this.moves.push(move); //artifically change turn, for checkered pawns (TODO)
+		// Artifically change turn, for checkered pawns
+		this.turn = this.getOppCol(color);
 		const kingAttacked = this.isAttacked(
 			this.kingPos[color], [this.getOppCol(color),'c']);
 		let res = kingAttacked
-			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ] //need to duplicate!
-			: [ ];
-		this.moves.pop();
+			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
+			: [];
+		this.turn = color;
 		this.undo(move);
 		return res;
 	}
@@ -242,7 +245,7 @@ class CheckeredRules extends ChessRules
 	{
 		const randFen = ChessRules.GenRandInitFen();
 		// Add 16 pawns flags:
-		return randFen.replace(" 1111 w", " 11111111111111111111 w");
+		return randFen.replace(" w 1111", " w 11111111111111111111");
 	}
 
 	getFlagsFen()
@@ -269,10 +272,9 @@ class CheckeredRules extends ChessRules
 		}
 
 		// Translate final square
-		let finalSquare =
-			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
+		const finalSquare = V.CoordsToSquare(move.end);
 
-		let piece = this.getPiece(move.start.x, move.start.y);
+		const piece = this.getPiece(move.start.x, move.start.y);
 		if (piece == V.PAWN)
 		{
 			// Pawn move
@@ -280,7 +282,7 @@ class CheckeredRules extends ChessRules
 			if (move.vanish.length > 1)
 			{
 				// Capture
-				let startColumn = String.fromCharCode(97 + move.start.y);
+				const startColumn = V.GetColumn(move.start.y);
 				notation = startColumn + "x" + finalSquare +
 					"=" + move.appear[0].p.toUpperCase();
 			}
