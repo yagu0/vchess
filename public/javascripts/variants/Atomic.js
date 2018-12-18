@@ -147,3 +147,5 @@ class AtomicRules extends ChessRules
 		return color == "w" ? "0-1" : "1-0"; //checkmate
 	}
 }
+
+const VariantRules = AtomicRules;

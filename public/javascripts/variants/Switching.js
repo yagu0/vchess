@@ -137,3 +137,5 @@ class SwitchingRules extends ChessRules
 		return "S" + startSquare + finalSquare;
 	}
 }
+
+const VariantRules = SwitchingRules;

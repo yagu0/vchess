@@ -1,8 +1,8 @@
 class UltimaRules extends ChessRules
 {
-	static get HasFlags { return false; }
+	static get HasFlags() { return false; }
 
-	static get HasEnpassant { return false; }
+	static get HasEnpassant() { return false; }
 
 	static getPpath(b)
 	{
@@ -626,3 +626,5 @@ class UltimaRules extends ChessRules
 		return notation;
 	}
 }
+
+const VariantRules = UltimaRules;

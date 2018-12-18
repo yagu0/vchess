@@ -336,3 +336,5 @@ class AliceRules extends ChessRules
 		return notation;
 	}
 }
+
+const VariantRules = AliceRules;

@@ -21,6 +21,7 @@ insert into Variants values
 	('Ultima', 'Exotic captures');
 
 create table Problems (
+	num integer primary key,
 	added datetime,
 	variant varchar,
 	fen varchar,

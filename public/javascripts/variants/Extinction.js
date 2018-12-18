@@ -135,3 +135,5 @@ class ExtinctionRules extends ChessRules
 		return super.evalPosition();
 	}
 }
+
+const VariantRules = ExtinctionRules;

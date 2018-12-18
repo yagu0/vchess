@@ -281,3 +281,5 @@ class MagneticRules extends ChessRules
 		return 500; //checkmates evals may be slightly below 1000
 	}
 }
+
+const VariantRules = MagneticRules;

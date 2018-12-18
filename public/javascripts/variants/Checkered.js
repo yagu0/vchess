@@ -303,3 +303,5 @@ class CheckeredRules extends ChessRules
 		}
 	}
 }
+
+const VariantRules = CheckeredRules;

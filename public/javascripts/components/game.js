@@ -22,6 +22,9 @@ Vue.component('my-game', {
 			color: getCookie("color", "lichess"), //lichess, chesscom or chesstempo
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
 			sound: parseInt(getCookie("sound", "2")),
+			// Web worker to play computer moves without freezing interface:
+			compWorker: new Worker('/javascripts/playCompMove.js'),
+			timeStart: undefined, //time when computer starts thinking
 		};
 	},
 	watch: {
@@ -146,7 +149,7 @@ Vue.component('my-game', {
 					'class': {
 						"tooltip": true,
 						"topindicator": true,
-						"indic-right": true,
+						"indic-left": true,
 						"settings-btn": !smallScreen,
 						"settings-btn-small": smallScreen,
 					},
@@ -965,6 +968,19 @@ Vue.component('my-game', {
 					this.play();
 			}
 		};
+		// Computer moves web worker logic:
+		this.compWorker.postMessage(["scripts",variant]);
+		const self = this;
+		this.compWorker.onmessage = function(e) {
+			const compMove = e.data;
+			// (first move) HACK: small delay to avoid selecting elements
+			// before they appear on page:
+			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
+			setTimeout(() => {
+				if (self.mode == "computer") //Warning: mode could have changed!
+					self.play(compMove, "animate")
+			}, delay);
+		}
 	},
 	methods: {
 		toggleShowSolution: function() {
@@ -1161,23 +1177,16 @@ Vue.component('my-game', {
 			}
 			else if (mode == "computer")
 			{
+				this.compWorker.postMessage(["init",this.vr.getFen()]);
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
-					setTimeout(this.playComputerMove, 100); //small delay for drawing board
+					this.playComputerMove();
 			}
 			//else: against a (IRL) friend or problem solving: nothing more to do
 		},
 		playComputerMove: function() {
-			const timeStart = Date.now();
-			// TODO: next call asynchronous (avoid freezing interface while computer "think").
-			// This would also allow to remove some artificial setTimeouts
-			const compMove = this.vr.getComputerMove();
-			// (first move) HACK: avoid selecting elements before they appear on page:
-			const delay = Math.max(250-(Date.now()-timeStart), 0);
-			setTimeout(() => {
-				if (this.mode == "computer") //Warning: mode could have changed!
-					this.play(compMove, "animate")
-			}, delay);
+			this.timeStart = Date.now();
+			this.compWorker.postMessage(["askmove"]);
 		},
 		// Get the identifier of a HTML table cell from its numeric coordinates o.x,o.y.
 		getSquareId: function(o) {
@@ -1339,6 +1348,11 @@ Vue.component('my-game', {
 			{
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
+				if (this.mode == "computer")
+				{
+					// Send the move to web worker
+					this.compWorker.postMessage(["newmove",move]);
+				}
 			}
 			else
 			{
@@ -1363,7 +1377,7 @@ Vue.component('my-game', {
 				}
 			}
 			if (this.mode == "computer" && this.vr.turn != this.mycolor)
-				setTimeout(this.playComputerMove, 250); //small delay for animation
+				this.playComputerMove();
 		},
 		undo: function() {
 			// Navigate after game is over

@@ -358,3 +358,5 @@ class GrandRules extends ChessRules
 			" w 1111 -";
 	}
 }
+
+const VariantRules = GrandRules;

@@ -193,3 +193,5 @@ class LoserRules extends ChessRules
 			" w -"; //no en-passant
 	}
 }
+
+const VariantRules = LoserRules;
