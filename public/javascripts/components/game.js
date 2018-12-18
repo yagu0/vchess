@@ -250,7 +250,7 @@ Vue.component('my-game', {
 					'class': { 'game': true },
 				},
 				[_.range(sizeX).map(i => {
-					let ci = this.mycolor=='w' ? i : sizeX-i-1;
+					let ci = (this.mycolor=='w' ? i : sizeX-i-1);
 					return h(
 						'div',
 						{
@@ -260,7 +260,7 @@ Vue.component('my-game', {
 							style: { 'opacity': this.choices.length>0?"0.5":"1" },
 						},
 						_.range(sizeY).map(j => {
-							let cj = this.mycolor=='w' ? j : sizeY-j-1;
+							let cj = (this.mycolor=='w' ? j : sizeY-j-1);
 							let elems = [];
 							if (this.vr.board[ci][cj] != VariantRules.EMPTY)
 							{
@@ -1318,19 +1318,20 @@ Vue.component('my-game', {
 					if (this.sound >= 1)
 						new Audio("/sounds/newgame.mp3").play().catch(err => {});
 					document.getElementById("modal-newgame").checked = false;
+					this.setStorage(); //in case of interruptions
 				}
 				this.oppid = oppId;
 				this.oppConnected = !continuation;
 				this.mycolor = color;
 				this.seek = false;
-				this.setStorage(); //in case of interruptions
 			}
 			else if (mode == "computer")
 			{
-				this.setStorage(); //store game state
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
-				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
-				if (this.mycolor == 'b')
+				this.mycolor = color || (Math.random() < 0.5 ? 'w' : 'b');
+				if (!continuation)
+					this.setStorage(); //store game state
+				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
 			//else: against a (IRL) friend or problem solving: nothing more to do
