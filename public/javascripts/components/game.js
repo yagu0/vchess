@@ -11,8 +11,12 @@ Vue.component('my-game', {
 			selectedPiece: null, //moving piece (or clicked piece)
 			conn: null, //socket connection
 			score: "*", //'*' means 'unfinished'
-			mode: "idle", //human, friend, computer or idle (when not playing)
+			mode: "idle", //human, chat, friend, problem, computer or idle (if not playing)
+			myid: "", //our ID, always set
 			oppid: "", //opponent ID in case of HH game
+			myname: getCookie("username","anonymous"),
+			oppName: "anonymous", //opponent name, revealed after a game (if provided)
+			chats: [], //chat messages after human game
 			oppConnected: false,
 			seek: false,
 			fenStart: "",
@@ -28,7 +32,7 @@ Vue.component('my-game', {
 		};
 	},
 	watch: {
-		problem: function(p, pp) {
+		problem: function(p) {
 			// 'problem' prop changed: update board state
 			this.newGame("problem", p.fen, V.ParseFen(p.fen).turn);
 		},
@@ -59,7 +63,7 @@ Vue.component('my-game', {
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
 		);
-		if (["idle","computer"].includes(this.mode))
+		if (["idle","chat","computer"].includes(this.mode))
 		{
 			actionArray.push(
 				h('button',
@@ -76,7 +80,7 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
 			);
 		}
-		if (["idle","friend"].includes(this.mode))
+		if (["idle","chat","friend"].includes(this.mode))
 		{
 			actionArray.push(
 				h('button',
@@ -122,6 +126,29 @@ Vue.component('my-game', {
 				);
 				elementArray.push(connectedIndic);
 			}
+			else if (this.mode == "chat")
+			{
+				// Also show connection indication, but also nickname
+				const nicknameOpponent = h(
+					'div',
+					{
+						"class": {
+							"clickable": true,
+							"topindicator": true,
+							"indic-left": true,
+							"name-connected": this.oppConnected,
+							"name-disconnected": !this.oppConnected,
+						},
+						domProps: {
+							innerHTML: this.oppName,
+						},
+						on: {
+							"click": () => { document.getElementById("modal-chat").checked = true; },
+						},
+					}
+				);
+				elementArray.push(nicknameOpponent);
+			}
 			const turnIndic = h(
 				'div',
 				{
@@ -149,7 +176,7 @@ Vue.component('my-game', {
 					'class': {
 						"tooltip": true,
 						"topindicator": true,
-						"indic-left": true,
+						"indic-right": true,
 						"settings-btn": !smallScreen,
 						"settings-btn-small": smallScreen,
 					},
@@ -164,7 +191,10 @@ Vue.component('my-game', {
 					h('div',
 						{
 							attrs: { id: "instructions-div" },
-							"class": { "section-content": true },
+							"class": {
+								"clearer": true,
+								"section-content": true,
+							},
 						},
 						[
 							h('p',
@@ -214,7 +244,7 @@ Vue.component('my-game', {
 			// Create board element (+ reserves if needed by variant or mode)
 			const lm = this.vr.lastMove;
 			const showLight = this.hints &&
-				(this.mode!="idle" || this.cursor==this.vr.moves.length);
+				(!["idle","chat"].includes(this.mode) || this.cursor==this.vr.moves.length);
 			const gameDiv = h('div',
 				{
 					'class': { 'game': true },
@@ -289,7 +319,7 @@ Vue.component('my-game', {
 					);
 				}), choices]
 			);
-			if (this.mode != "idle")
+			if (!["idle","chat"].includes(this.mode))
 			{
 				actionArray.push(
 					h('button',
@@ -610,6 +640,27 @@ Vue.component('my-game', {
 									//h('legend', { domProps: { innerHTML: "Legend title" } }),
 									h('label',
 										{
+											attrs: { for: "nameSetter" },
+											domProps: { innerHTML: "My name is..." },
+										},
+									),
+									h('input',
+										{
+											attrs: {
+												"id": "nameSetter",
+												type: "text",
+												value: this.myname,
+											},
+											on: { "change": this.setMyname },
+										}
+									),
+								]
+							),
+							h('fieldset',
+							  { },
+								[
+									h('label',
+										{
 											attrs: { for: "setHints" },
 											domProps: { innerHTML: "Show hints?" },
 										},
@@ -724,6 +775,75 @@ Vue.component('my-game', {
 			)
 		];
 		elementArray = elementArray.concat(modalSettings);
+		let chatEltsArray =
+		[
+			h('label',
+				{
+					attrs: { "id": "close-chat", "for": "modal-chat" },
+					"class": { "modal-close": true },
+				}
+			),
+			h('h3',
+				{
+					attrs: { "id": "titleChat" },
+					"class": { "section": true },
+					domProps: { innerHTML: "Chat with " + this.oppName },
+				}
+			)
+		];
+		for (let chat of this.chats)
+		{
+			chatEltsArray.push(
+				h('p',
+					{
+						"class": {
+							"my-chatmsg": chat.author==this.myid,
+							"opp-chatmsg": chat.author==this.oppid,
+						},
+						domProps: { innerHTML: chat.msg }
+					}
+				)
+			);
+		}
+		chatEltsArray = chatEltsArray.concat([
+			h('input',
+				{
+					attrs: {
+						"id": "input-chat",
+						type: "text",
+						placeholder: "Type here",
+					},
+					on: { keyup: this.trySendChat }, //if key is 'enter'
+				}
+			),
+			h('button',
+				{
+					on: { click: this.sendChat },
+					domProps: { innerHTML: "Send" },
+				}
+			)
+		]);
+		const modalChat = [
+			h('input',
+				{
+					attrs: { "id": "modal-chat", type: "checkbox" },
+					"class": { "modal": true },
+				}),
+			h('div',
+				{
+					attrs: { "role": "dialog", "aria-labelledby": "titleChat" },
+				},
+				[
+					h('div',
+						{
+							"class": { "card": true, "smallpad": true },
+						},
+						chatEltsArray
+					)
+				]
+			)
+		];
+		elementArray = elementArray.concat(modalChat);
 		const actions = h('div',
 			{
 				attrs: { "id": "actions" },
@@ -882,6 +1002,14 @@ Vue.component('my-game', {
 			const data = JSON.parse(msg.data);
 			switch (data.code)
 			{
+				case "oppname":
+					// Receive opponent's name
+					this.oppName = data.name;
+					break;
+				case "newchat":
+					// Receive new chat
+					this.chats.push({msg:data.msg, author:this.oppid});
+					break;
 				case "duplicate":
 					// We opened another tab on the same game
 					this.mode = "idle";
@@ -942,8 +1070,14 @@ Vue.component('my-game', {
 				// TODO: also use (dis)connect info to count online players?
 				case "connect":
 				case "disconnect":
-					if (this.mode == "human" && this.oppid == data.id)
+					if (["human","chat"].includes(this.mode) && this.oppid == data.id)
 						this.oppConnected = (data.code == "connect");
+					if (this.oppConnected)
+					{
+						// Send our name to the opponent, in case of he hasn't it
+						this.conn.send(JSON.stringify({
+							code:"myname", name:this.myname, oppid: this.oppid}));
+					}
 					break;
 			}
 		};
@@ -958,8 +1092,8 @@ Vue.component('my-game', {
 		this.conn.onclose = socketCloseListener;
 		// Listen to keyboard left/right to navigate in game
 		document.onkeydown = event => {
-			if (this.mode == "idle" && !!this.vr && this.vr.moves.length > 0
-				&& [37,39].includes(event.keyCode))
+			if (["idle","chat"].includes(this.mode) &&
+				!!this.vr && this.vr.moves.length > 0 && [37,39].includes(event.keyCode))
 			{
 				event.preventDefault();
 				if (event.keyCode == 37) //Back
@@ -983,6 +1117,22 @@ Vue.component('my-game', {
 		}
 	},
 	methods: {
+		setMyname: function(e) {
+			this.myname = e.target.value;
+			setCookie("username",this.myname);
+		},
+		trySendChat: function(e) {
+			if (e.keyCode == 13) //'enter' key
+				this.sendChat();
+		},
+		sendChat: function() {
+			let chatInput = document.getElementById("input-chat");
+			const chatTxt = chatInput.value;
+			chatInput.value = "";
+			this.chats.push({msg:chatTxt, author:this.myid});
+			this.conn.send(JSON.stringify({
+				code:"newchat", oppid: this.oppid, msg: chatTxt}));
+		},
 		toggleShowSolution: function() {
 			let problemSolution = document.getElementById("problem-solution");
 			problemSolution.style.display =
@@ -1012,9 +1162,16 @@ Vue.component('my-game', {
 			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
 			if (["human","computer"].includes(this.mode))
 				this.clearStorage();
-			this.mode = "idle";
+			if (this.mode == "human" && this.oppConnected)
+			{
+				// Send our nickname to opponent
+				this.conn.send(JSON.stringify({
+					code:"myname", name:this.myname, oppid:this.oppid}));
+			}
+			this.mode = (this.mode=="human" ? "chat" : "idle");
 			this.cursor = this.vr.moves.length; //to navigate in finished game
-			this.oppid = "";
+			if (this.mode == "idle") //keep oppid in case of chat after human game
+				this.oppid = "";
 		},
 		setStorage: function() {
 			if (this.mode=="human")
@@ -1083,8 +1240,6 @@ Vue.component('my-game', {
 		},
 		clickComputerGame: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
-			if (this.mode == "human")
-				return; //no newgame while playing
 			this.newGame("computer");
 		},
 		clickFriendGame: function(e) {
@@ -1135,11 +1290,6 @@ Vue.component('my-game', {
 					}
 				}
 			}
-			if (this.mode == "computer" && mode == "human")
-			{
-				// Save current computer game to resume it later
-				this.setStorage();
-			}
 			this.vr = new VariantRules(fen, moves || []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
@@ -1177,6 +1327,7 @@ Vue.component('my-game', {
 			}
 			else if (mode == "computer")
 			{
+				this.setStorage(); //store game state
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
 				this.mycolor = Math.random() < 0.5 ? 'w' : 'b';
 				if (this.mycolor == 'b')
@@ -1230,7 +1381,7 @@ Vue.component('my-game', {
 				this.selectedPiece.style.zIndex = 3000;
 				const startSquare = this.getSquareFromId(e.target.parentNode.id);
 				this.possibleMoves = [];
-				if (this.mode != "idle")
+				if (!["idle","chat"].includes(this.mode))
 				{
 					const color = ["friend","problem"].includes(this.mode)
 						? this.vr.turn
@@ -1344,7 +1495,7 @@ Vue.component('my-game', {
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			if (this.sound == 2)
 				new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
-			if (this.mode != "idle")
+			if (!["idle","chat"].includes(this.mode))
 			{
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
@@ -1361,7 +1512,7 @@ Vue.component('my-game', {
 			}
 			if (["human","computer"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
-			if (this.mode != "idle")
+			if (!["idle","chat"].includes(this.mode))
 			{
 				const eog = this.vr.checkGameOver();
 				if (eog != "*")

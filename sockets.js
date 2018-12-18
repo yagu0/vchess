@@ -46,6 +46,13 @@ module.exports = function(wss) {
 						let obj = JSON.parse(objtxt);
 						switch (obj.code)
 						{
+							case "newchat":
+								if (!!clients[page][obj.oppid])
+								{
+									clients[page][obj.oppid].send(
+										JSON.stringify({code:"newchat",msg:obj.msg}), noop);
+								}
+								break;
 							case "newmove":
 								if (!!clients[page][obj.oppid])
 								{
@@ -56,6 +63,14 @@ module.exports = function(wss) {
 							case "ping":
 								if (!!clients[page][obj.oppid])
 									socket.send(JSON.stringify({code:"pong"}));
+								break;
+							case "myname":
+								// Reveal my username to opponent
+								if (!!clients[page][obj.oppid])
+								{
+									clients[page][obj.oppid].send(JSON.stringify({
+										code:"oppname", name:obj.name}));
+								}
 								break;
 							case "lastate":
 								if (!!clients[page][obj.oppid])

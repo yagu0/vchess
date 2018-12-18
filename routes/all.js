@@ -74,7 +74,8 @@ router.post("/problems/:variant([a-zA-Z0-9]+)", (req,res) => {
 	const instructions = sanitizeHtml(req.body["instructions"]);
 	const solution = sanitizeHtml(req.body["solution"]);
 	db.serialize(function() {
-		let stmt = db.prepare("INSERT INTO Problems VALUES (?,?,?,?,?)");
+		let stmt = db.prepare("INSERT INTO Problems " +
+			"(added,variant,fen,instructions,solution) VALUES (?,?,?,?,?)");
 		stmt.run(timestamp, vname, fen, instructions, solution);
 		stmt.finalize();
 	});

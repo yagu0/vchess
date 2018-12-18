@@ -13,7 +13,7 @@
     "morgan": "~1.9.1",
     "node-sass-middleware": "~0.11.0",
     "pug": "~2.0.3",
-    "sanitize-html": "^1.19.3",
+    "sanitize-html": "^1.20.0",
     "serve-favicon": "~2.5.0",
     "sqlite3": "^4.0.4",
     "ws": "^6.1.2"
