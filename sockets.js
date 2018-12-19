@@ -62,7 +62,7 @@ module.exports = function(wss) {
 								break;
 							case "ping":
 								if (!!clients[page][obj.oppid])
-									socket.send(JSON.stringify({code:"pong"}));
+									socket.send(JSON.stringify({code:"pong",gameId:obj.gameId}));
 								break;
 							case "myname":
 								// Reveal my username to opponent
