@@ -27,11 +27,6 @@ class GrandRules extends ChessRules
 		);
 	}
 
-	static GenRandInitFen()
-	{
-		return ChessRules.GenRandInitFen() + " 0000000000";
-	}
-
 	getFen()
 	{
 		return super.getFen() + " " + this.getCapturedFen();
@@ -363,7 +358,7 @@ class GrandRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w 1111 -";
+			" w 1111 - 0000000000";
 	}
 }
 

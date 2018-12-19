@@ -2,14 +2,6 @@ class MagneticRules extends ChessRules
 {
 	static get HasEnpassant() { return false; }
 
-	setOtherVariables(fen)
-	{
-		// No en-passant:
-		const parsedFen = V.ParseFen(fen);
-		this.setFlags(fenParsed.flags);
-		this.scanKingsRooks(fen);
-	}
-
 	getPotentialMovesFrom([x,y])
 	{
 		let standardMoves = super.getPotentialMovesFrom([x,y]);

@@ -2,16 +2,6 @@ class LoserRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
-	setOtherVariables(fen)
-	{
-		const parsedFen = V.ParseFen(fen);
-		const epSq = parsedFen.enpassant != "-"
-			? V.SquareToCoords(parsedFen.enpassant)
-			: undefined;
-		this.epSquares = [ epSq ];
-		this.scanKingsRooks(fen);
-	}
-
 	getPotentialPawnMoves([x,y])
 	{
 		let moves = super.getPotentialPawnMoves([x,y]);
