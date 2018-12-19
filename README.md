@@ -31,4 +31,5 @@ Pieces images where found at various locations.
  1. Rename public/javascripts/utils/socket\_url.js.dist into socket\_url.js
     and adjust its content.
  2. git fat init && git fat pull
- 3. npm i && npm start
+ 3. Execute db/create.sql script (SQLite) to fill db/vchess.sqlite database
+ 4. npm i && npm start
