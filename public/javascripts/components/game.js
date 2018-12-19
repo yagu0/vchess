@@ -1316,7 +1316,8 @@ Vue.component('my-game', {
 				const storageVariant = localStorage.getItem("comp-variant");
 				if (!!storageVariant)
 				{
-					if (storageVariant !== variant)
+					const score = localStorage.getItem("comp-score");
+					if (storageVariant !== variant && score == "*")
 					{
 						if (!confirm("Unfinished " + storageVariant +
 							" computer game will be erased"))
@@ -1324,12 +1325,8 @@ Vue.component('my-game', {
 							return;
 						}
 					}
-					else
-					{
-						const score = localStorage.getItem("comp-score");
-						if (score == "*")
-							return this.continueGame("computer");
-					}
+					else if (score == "*")
+						return this.continueGame("computer");
 				}
 			}
 			this.vr = new VariantRules(fen, []);

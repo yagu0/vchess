@@ -1,7 +1,7 @@
 class ZenRules extends ChessRules
 {
 	// NOTE: enPassant, if enabled, would need to redefine carefully getEpSquare
-	static get HasEnpassant { return false; }
+	static get HasEnpassant() { return false; }
 
 	// TODO(?): some duplicated code in 2 next functions
 	getSlideNJumpMoves([x,y], steps, oneStep)

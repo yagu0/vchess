@@ -1,6 +1,6 @@
 class MagneticRules extends ChessRules
 {
-	static get HasEnpassant { return false; }
+	static get HasEnpassant() { return false; }
 
 	setOtherVariables(fen)
 	{

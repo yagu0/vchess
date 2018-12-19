@@ -201,7 +201,7 @@ class AntikingRules extends ChessRules
 		return pieces["b"].join("") + "/" + ranks23_black +
 			"/8/8/" +
 			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
-			" w 1111";
+			" w 1111 -";
 	}
 }
 

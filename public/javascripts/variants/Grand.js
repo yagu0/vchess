@@ -18,10 +18,18 @@ class GrandRules extends ChessRules
 		return true;
 	}
 
+	static ParseFen(fen)
+	{
+		const fenParts = fen.split(" ");
+		return Object.assign(
+			ChessRules.ParseFen(fen),
+			{ captured: fenParts[4] }
+		);
+	}
+
 	static GenRandInitFen()
 	{
-		const fen = ChessRules.GenRandInitFen();
-		return fen.replace(" w 1111", " w 1111 0000000000");
+		return ChessRules.GenRandInitFen() + " 0000000000";
 	}
 
 	getFen()

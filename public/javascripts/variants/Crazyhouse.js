@@ -24,10 +24,21 @@ class CrazyhouseRules extends ChessRules
 		return true;
 	}
 
+	static ParseFen(fen)
+	{
+		const fenParts = fen.split(" ");
+		return Object.assign(
+			ChessRules.ParseFen(fen),
+			{
+				reserve: fenParts[4],
+				promoted: fenParts[5],
+			}
+		);
+	}
+
 	static GenRandInitFen()
 	{
-		const fen = ChessRules.GenRandInitFen();
-		return fen.replace(" w 1111", " w 1111 0000000000 -");
+		return ChessRules.GenRandInitFen() + " 0000000000 -";
 	}
 
 	getFen()
@@ -59,6 +70,8 @@ class CrazyhouseRules extends ChessRules
 		}
 		if (res.length > 0)
 			res = res.slice(0,-1); //remove last comma
+		else
+			res = "-";
 		return res;
 	}
 
@@ -87,10 +100,13 @@ class CrazyhouseRules extends ChessRules
 			}
 		};
 		this.promoted = doubleArray(V.size.x, V.size.y, false);
-		for (let square of fenParsd.promoted.split(","))
+		if (fenParsed.promoted != "-")
 		{
-			const [x,y] = V.SquareToCoords(square);
-			promoted[x][y] = true;
+			for (let square of fenParsed.promoted.split(","))
+			{
+				const [x,y] = V.SquareToCoords(square);
+				promoted[x][y] = true;
+			}
 		}
 	}
 
