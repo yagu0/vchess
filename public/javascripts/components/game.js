@@ -127,53 +127,50 @@ Vue.component('my-game', {
 				);
 				elementArray.push(connectedIndic);
 			}
-			const menuElt = h('div', { }, [
-				h('label',
+			if (this.mode == "chat")
+			{
+				const chatButton = h(
+					'button',
 					{
-						attrs: { for: "drawer-control" },
-						"class": {
-							"drawer-toggle": true,
-							"persistent": true,
-							"button": true,
+						on: { click: this.startChat },
+						attrs: {
+							"aria-label": 'Start chat',
+							"id": "chatBtn",
 						},
-					}
-				),
-				h('input',
+						'class': {
+							"tooltip": true,
+							"topindicator": true,
+							"indic-left": true,
+							"settings-btn": !smallScreen,
+							"settings-btn-small": smallScreen,
+						},
+					},
+					[h('i', { 'class': { "material-icons": true } }, "chat")]
+				);
+				elementArray.push(chatButton);
+			}
+			else if (this.mode == "computer")
+			{
+				const clearButton = h(
+					'button',
 					{
-						attrs: { type: "checkbox", id: "drawer-control" },
-						"class": { "drawer": true, "persistent": true },
-					}
-				),
-				h('div',
-					{ },
-					[
-						h('label',
-							{
-								attrs: { for: "drawer-control" },
-								"class": { "drawer-close": true }
-							}
-						),
-						h('a',
-							{
-								attrs: { "href": "#" },
-								domProps: { innerHTML: "Home" },
-							}
-						),
-						h('a',
-							{
-								attrs: { "href": "#" },
-								domProps: { innerHTML: "....." },
-							}
-						),
-					]
-				)
-			]);
-			elementArray.push(menuElt);
-
-			// TODO: chat available only in "chat" mode...
-			//						on: {
-//							"click": () => { document.getElementById("modal-chat").checked = true; },
-
+						on: { click: this.clearComputerGame },
+						attrs: {
+							"aria-label": 'Clear computer game',
+							"id": "clearBtn",
+						},
+						'class': {
+							"tooltip": true,
+							"topindicator": true,
+							"indic-left": true,
+							"settings-btn": !smallScreen,
+							"settings-btn-small": smallScreen,
+						},
+					},
+					[h('i', { 'class': { "material-icons": true } }, "clear")]
+				);
+				elementArray.push(clearButton);
+			}
 			const turnIndic = h(
 				'div',
 				{
@@ -1232,6 +1229,15 @@ Vue.component('my-game', {
 		getRidOfTooltip: function(elt) {
 			elt.style.visibility = "hidden";
 			setTimeout(() => { elt.style.visibility="visible"; }, 100);
+		},
+		startChat: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			document.getElementById("modal-chat").checked = true;
+		},
+		clearComputerGame: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			this.clearStorage(); //this.mode=="computer" (already checked)
+			location.reload(); //to see clearing effects
 		},
 		showSettings: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
