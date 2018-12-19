@@ -1167,7 +1167,6 @@ Vue.component('my-game', {
 			setTimeout(() => { modalBox.checked = false; }, 2000);
 		},
 		endGame: function(score) {
-			console.log("call " + score + " " + this.mode);
 			this.score = score;
 			if (["human","computer"].includes(this.mode))
 			{
