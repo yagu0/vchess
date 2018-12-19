@@ -637,7 +637,6 @@ Vue.component('my-game', {
 							h('fieldset',
 							  { },
 								[
-									//h('legend', { domProps: { innerHTML: "Legend title" } }),
 									h('label',
 										{
 											attrs: { for: "nameSetter" },
@@ -1072,7 +1071,7 @@ Vue.component('my-game', {
 				case "disconnect":
 					if (["human","chat"].includes(this.mode) && this.oppid == data.id)
 						this.oppConnected = (data.code == "connect");
-					if (this.oppConnected)
+					if (this.oppConnected && this.mode == "chat")
 					{
 						// Send our name to the opponent, in case of he hasn't it
 						this.conn.send(JSON.stringify({
@@ -1106,12 +1105,13 @@ Vue.component('my-game', {
 		this.compWorker.postMessage(["scripts",variant]);
 		const self = this;
 		this.compWorker.onmessage = function(e) {
-			const compMove = e.data;
+			let compMove = e.data;
+			compMove.computer = true; //TODO: imperfect attempt to avoid ghost move
 			// (first move) HACK: small delay to avoid selecting elements
 			// before they appear on page:
 			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
 			setTimeout(() => {
-				if (self.mode == "computer") //Warning: mode could have changed!
+				if (self.mode == "computer") //warning: mode could have changed!
 					self.play(compMove, "animate")
 			}, delay);
 		}
@@ -1160,8 +1160,6 @@ Vue.component('my-game', {
 			this.showScoreMsg();
 			// Variants may have special PGN structure (so next function isn't defined here)
 			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
-			if (["human","computer"].includes(this.mode))
-				this.clearStorage();
 			if (this.mode == "human" && this.oppConnected)
 			{
 				// Send our nickname to opponent
@@ -1192,6 +1190,7 @@ Vue.component('my-game', {
 			localStorage.setItem(prefix+"moves", JSON.stringify(this.vr.moves));
 			localStorage.setItem(prefix+"fen", this.vr.getFen());
 		},
+		// Now unused (maybe later, a button "clear all")
 		clearStorage: function() {
 			if (this.mode=="human")
 			{
@@ -1259,7 +1258,7 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		newGame: function(mode, fenInit, color, oppId, moves, continuation) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
+			let fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
 			{
@@ -1278,15 +1277,26 @@ Vue.component('my-game', {
 				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
-			if (mode == "computer" && !continuation)
+			if (mode == "computer")
 			{
 				const storageVariant = localStorage.getItem("comp-variant");
-				if (!!storageVariant && storageVariant !== variant)
+				if (!!storageVariant)
 				{
-					if (!confirm("Unfinished " + storageVariant +
-						" computer game will be erased"))
+					if (storageVariant !== variant)
 					{
-						return;
+						if (!confirm("Unfinished " + storageVariant +
+							" computer game will be erased"))
+						{
+							return;
+						}
+					}
+					else
+					{
+						// This is a continuation (click on new comp game after human game)
+						fen = localStorage.getItem("comp-fen");
+						color = localStorage.getItem("comp-mycolor");
+						moves = JSON.parse(localStorage.getItem("comp-moves"));
+						continuation = true;
 					}
 				}
 			}
@@ -1313,6 +1323,10 @@ Vue.component('my-game', {
 			if (mode=="human")
 			{
 				// Opponent found!
+				this.oppid = oppId;
+				this.oppConnected = !continuation;
+				this.mycolor = color;
+				this.seek = false;
 				if (!continuation) //not playing sound on game continuation
 				{
 					if (this.sound >= 1)
@@ -1320,10 +1334,13 @@ Vue.component('my-game', {
 					document.getElementById("modal-newgame").checked = false;
 					this.setStorage(); //in case of interruptions
 				}
-				this.oppid = oppId;
-				this.oppConnected = !continuation;
-				this.mycolor = color;
-				this.seek = false;
+				else
+				{
+					// Maybe we loaded a finished game (just enter chat mode)
+					const eog = this.vr.checkGameOver();
+					if (eog != "*")
+						setTimeout(() => this.endGame(eog), 100);
+				}
 			}
 			else if (mode == "computer")
 			{
@@ -1331,6 +1348,13 @@ Vue.component('my-game', {
 				this.mycolor = color || (Math.random() < 0.5 ? 'w' : 'b');
 				if (!continuation)
 					this.setStorage(); //store game state
+				else
+				{
+					// Maybe we loaded a finished game (just show it)
+					const eog = this.vr.checkGameOver();
+					if (eog != "*")
+						setTimeout(() => this.endGame(eog), 100);
+				}
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
@@ -1498,11 +1522,15 @@ Vue.component('my-game', {
 				new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
 			if (!["idle","chat"].includes(this.mode))
 			{
+				// Emergency check, if human game started "at the same time"
+				// TODO: robustify this...
+				if (this.mode == "human" && !!move.computer)
+					return;
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
 				if (this.mode == "computer")
 				{
-					// Send the move to web worker
+					// Send the move to web worker (TODO: including his own moves?!)
 					this.compWorker.postMessage(["newmove",move]);
 				}
 			}
