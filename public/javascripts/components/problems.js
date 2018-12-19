@@ -3,7 +3,7 @@ Vue.component('my-problems', {
 		return {
 			problems: problemArray, //initial value
 			newProblem: {
-				fen: V.GenRandInitFen(),
+				fen: "",
 				instructions: "",
 				solution: "",
 				stage: "nothing", //or "preview" after new problem is filled
@@ -27,7 +27,8 @@ Vue.component('my-problems', {
 					<form @submit.prevent="previewNewProblem">
 						<fieldset>
 							<label for="newpbFen">Fen</label>
-							<input id="newpbFen" type="text" v-model="newProblem.fen"/>
+							<input id="newpbFen" type="text" v-model="newProblem.fen"
+								placeholder="Full FEN string"/>
 						</fieldset>
 						<fieldset>
 							<p class="emphasis">Safe HTML tags allowed</p>
