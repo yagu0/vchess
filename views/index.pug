@@ -12,50 +12,51 @@ block content
 					span vchess.club
 					img(src="/images/index/wildebeest.svg")
 				h2#needHelp.text-center(
-						onClick="document.getElementById('modal-help').checked=true")
+						onClick="document.getElementById('modalHelp').checked=true")
 					| Need help ?
-				input#modal-help.modal(type="checkbox")
+				input#modalHelp.modal(type="checkbox")
 				div(role="dialog")
 					#help.card
-						label.modal-close(for="modal-help")
-						h3.section.emphasis Welcome to v[ariant] chess club
-						p.section First: watch #[a(href="/demo.webm") demo video] !
-						h3.blue.section Comments
-						p.section.
-							All games start with a random assymetric position. #[br]
-							Games are untimed, and played anonymously. #[br]
-							No chat while playing, to focus on the moves :)
-						h3.red.section Bug report
-						p.section
-							| If you find a bug in a game, please follow this procedure: #[br]
-							| 1. stop playing: click on the resign button; #[br]
-							| 2. click on the PGN to download it; #[br]
-							| 3. send an email to 
-							a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
-								| contact@vchess.club 
-							| with relevant comments and the PGN attached. Thank you!
-				input#modal-b4welcome.modal(type="checkbox")
+						label.modal-close(for="modalHelp")
+						.section
+							p.emphasis First: watch #[a(href="/demo.webm") demo video] !
+							p Then click on a variant... Reminder:
+							ul
+								li All games start with a random assymetric position.
+								li Games are untimed, and played anonymously.
+								li No chat while playing, to focus on the moves.
+						.section
+							h3.red Bug report
+							p
+								| If you find a bug in a game, please follow this procedure: #[br]
+								| 1. stop playing: click on the resign button; #[br]
+								| 2. download the game as PGN; #[br]
+								| 3. send an email to 
+								a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
+									| contact@vchess.club 
+								| with comments + PGN attached.
+				input#modalB4welcome.modal(type="checkbox")
 				div(role="dialog")
 					#b4welcome.card.text-center
-						label.modal-close(for="modal-b4welcome")
-						h3.blue.section First visit?
+						label.modal-close(for="modalB4welcome")
+						h3.blue First visit?
 						p Please 
-							span.read-this(@click="showWelcomeMsg") read this
-							span &nbsp;before playing &#9786;
-				input#modal-welcome.modal(type="checkbox")
+							span#readThis(@click="showWelcomeMsg") read this
+							span &nbsp;before playing!
+				input#modalWelcome.modal(type="checkbox")
 				div(role="dialog")
 					#welcome.card.text-center
-						label.modal-close(for="modal-welcome")
-						h3.blue.section Welcome to vchess.club!
+						label.modal-close(for="modalWelcome")
+						h3.blue.section Welcome to v[ariant]chess.club!
 						.section
-							p A fun place to play chess variants in real time!
+							p A fun place to play chess variants in real time.
 							p But wait... what is a chess variant?
 							img(src="/images/Hexagonal_chess.svg")
 							p.
 								As suggested by the picture, a variant setup generally
 								looks more or less like a chessboard with regular pieces
-								(otherwise it's no longer a variant but a whole new game!).
-							p.emphasis However...
+								(otherwise it's no longer a variant but a whole new game).
+							p.emphasis.purple However...
 							p Each variant has its own new rules, which can involve
 							table.list-table
 								tbody
@@ -77,7 +78,7 @@ block content
 							p Also state a goal: make the opponent's king explode.
 							p &rarr; Congrats, you defined Atomic chess! (Playable here)
 						.section
-							p.emphasis OK, this all sounds interesting, but why would that be fun?
+							p.emphasis.purple OK, this all sounds interesting, but why would that be fun?
 							p.
 								Because all games here start with a random setup: no more boring
 								openings memorization, you have to rely on your chess skills only.
@@ -86,17 +87,15 @@ block content
 								var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
 									"List_of_chess_variants#/media/File:Hexagonal_chess.svg";
 							p.
-								For informations about hundreds (if not thousands!) of variants, you
-									can visit the excellent
-									#[a(href="https://www.chessvariants.com/") chessvariants] website.
-						p.disable-msg(@click="markAsVisited")
+								For informations about hundreds (if not thousands) of variants, you
+								can visit the excellent
+								#[a(href="https://www.chessvariants.com/") chessvariants] website.
+						p#disableMsg(@click="markAsVisited")
 							| Click here to not show this message next time
 						p.smallfont Image credit: #[a(href=wikipediaUrl) Wikipedia]
 		.row
-			my-variant-summary(
-				v-for="(v,idx) in sortedCounts"
-				v-bind:vobj="v" v-bind:index="idx"
-				v-bind:key="v.name")
+			my-variant-summary(v-for="(v,idx) in sortedCounts"
+				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
 
 block javascripts
 	script.

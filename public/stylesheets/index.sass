@@ -1,21 +1,3 @@
-.boxtitle
-  font-weight: bold
-
-.variant
-  color: black
-  //margin-top: 20px
-  border: 1px solid brown
-  box-sizing: border-box
-  background-color: lightyellow
-  a
-    color: #663300
-
-.card > h3.section.blue
-  color: #0033cc
-
-.card > h3.section.red
-  color: #cc3300
-
 #main-title
   font-style: italic
   background: linear-gradient(#e66465, #9198e5)
@@ -28,61 +10,47 @@
     padding-left: 10px
     padding-right: 15px
 
+.variant
+  box-sizing: border-box
+  border: 1px solid brown
+  background-color: lightyellow
+  a
+    color: #663300
+  .boxtitle
+    font-weight: bold
+
 #needHelp
   cursor: pointer
 
-#welcome
-  max-height: 100vh
-  max-width: 90vw
-
-#help
-  max-height: 100vh
-  max-width: 600px
-
-.conditional-jump
-  display: block
-
-@media screen and (max-width: 710px)
-  .conditional-jump
-    display: inline
-
-@media screen and (max-width: 400px)
-  #welcome, #help
-    max-width: 100vw
-
-#welcome ul
-  list-style-type: none
-
-#welcome ul > li
-  font-family: monospace
-
-.read-this
+#readThis
   color: blue
   text-decoration: underline
   cursor: pointer
 
-.emphasis
-  font-style: italic
-  color: purple
+#b4welcome
+  max-width: 320px
 
-.disable-msg
-  cursor: pointer
-  color: darkred
-
-.smallfont
-  font-size: 0.8em
-
-table.list-table
-  width: 300px
-  margin: 0 auto
-  border: 0
-  tbody
+#welcome
+  max-width: 90vw
+  @media screen and (max-width: 767px)
+    max-width: 100vw
+  ul
+    list-style-type: none
+  // TODO: bad practice, use table to align things...
+  table.list-table
+    width: 300px
+    margin: 0 auto
     border: 0
-    tr
+    tbody
       border: 0
-      margin: 0
-      padding: 0
-      td
-        padding: 0
-        text-align: left
+      tr
         border: 0
+        margin: 0
+        padding: 0
+        td
+          padding: 0
+          text-align: left
+          border: 0
+  #disableMsg
+    cursor: pointer
+    color: darkred

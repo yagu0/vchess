@@ -7,12 +7,32 @@ body
   padding: 0
   min-width: 320px
 
-//@media screen and (min-width: 767px)
-  .card
-    max-width: 600px
-
 .text-center
   text-align: center
 
 .smallpad
   padding: 5px
+
+.emphasis
+  font-style: italic
+
+.red
+  color: #cc3300
+
+.purple
+  color: purple
+
+.smallfont
+  font-size: 0.8em
+
+[type="checkbox"].modal+div .card
+  max-width: 767px
+  max-height: 100vh
+
+// TODO: unused
+// Jump lines only if screen is large enough
+.conditional-jump
+  display: block
+@media screen and (max-width: 767px)
+  .conditional-jump
+    display: inline
