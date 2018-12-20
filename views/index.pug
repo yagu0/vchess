@@ -6,17 +6,20 @@ block css
 block content
 	.container#indexPage
 		.row
-			.col-sm-12
-				h1.text-center.main-title Welcome to v[ariant] chess club !
-				h2.text-center
-					span.help(onClick="document.getElementById('modal-help').checked=true")
-						| Help ? 
-					a(href="/demo.webm") Demo !
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				h1#main-title.text-center
+					img(src="/images/index/unicorn.svg")
+					span vchess.club
+					img(src="/images/index/wildebeest.svg")
+				h2#needHelp.text-center(
+						onClick="document.getElementById('modal-help').checked=true")
+					| Need help ?
 				input#modal-help.modal(type="checkbox")
 				div(role="dialog")
 					#help.card
 						label.modal-close(for="modal-help")
-						p.section First: watch #[a(href="/demo.webm") demo video] :)
+						h3.section.emphasis Welcome to v[ariant] chess club
+						p.section First: watch #[a(href="/demo.webm") demo video] !
 						h3.blue.section Comments
 						p.section.
 							All games start with a random assymetric position. #[br]
@@ -91,9 +94,8 @@ block content
 						p.smallfont Image credit: #[a(href=wikipediaUrl) Wikipedia]
 		.row
 			my-variant-summary(
-				v-for="(v,idx) in sortedCounts",
-				v-show="v.name.startsWith(curPrefix)",
-				v-bind:vobj="v",
+				v-for="(v,idx) in sortedCounts"
+				v-bind:vobj="v" v-bind:index="idx"
 				v-bind:key="v.name")
 
 block javascripts

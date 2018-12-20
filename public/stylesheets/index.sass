@@ -3,12 +3,12 @@
 
 .variant
   color: black
-  margin-top: 20px
+  //margin-top: 20px
+  border: 1px solid brown
+  box-sizing: border-box
+  background-color: lightyellow
   a
     color: #663300
-
-.help
-  cursor: pointer
 
 .card > h3.section.blue
   color: #0033cc
@@ -16,12 +16,28 @@
 .card > h3.section.red
   color: #cc3300
 
-.main-title
+#main-title
   font-style: italic
+  background: linear-gradient(#e66465, #9198e5)
+  margin-top: 0
+  margin-left: 0
+  margin-right: 0
+  img
+    height: 30px
+  span
+    padding-left: 10px
+    padding-right: 15px
 
-#welcome, #help
+#needHelp
+  cursor: pointer
+
+#welcome
   max-height: 100vh
   max-width: 90vw
+
+#help
+  max-height: 100vh
+  max-width: 600px
 
 .conditional-jump
   display: block

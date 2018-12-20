@@ -8,7 +8,11 @@ new Vue({
 	},
 	computed: {
 		sortedCounts: function () {
-			const variantsCounts = variantArray.map( v => {
+			const variantsCounts = variantArray
+			.filter( v => {
+				return v.name.startsWith(this.curPrefix);
+			})
+			.map( v => {
 				return {
 					name: v.name,
 					desc: v.description,

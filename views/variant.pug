@@ -8,6 +8,14 @@ block content
 	.container#variantPage
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				label.drawer-toggle(for="drawer-control")
+				input#drawer-control.drawer(type="checkbox")
+				div
+					label.drawer-close(for="drawer-control")
+					a(href="#") Home
+					a(href="#") Home222
+		.row
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				h4.variantpage-title.text-center(v-on:click="toggleDisplay('rules')")
 					| #{variant} Rules
 				my-rules(v-show="display=='rules'")
