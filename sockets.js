@@ -2,6 +2,17 @@ const url = require('url');
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database('db/vchess.sqlite');
 
+// Node version in Ubuntu 16.04 does not know about URL class
+function getJsonFromUrl(url) {
+	var query = url.substr(2); //starts with "/?"
+	var result = {};
+	query.split("&").forEach(function(part) {
+		var item = part.split("=");
+		result[item[0]] = decodeURIComponent(item[1]);
+	});
+	return result;
+}
+
 module.exports = function(wss) {
 	db.serialize(function() {
 		db.all("SELECT * FROM Variants", (err,variants) => {
@@ -12,9 +23,12 @@ module.exports = function(wss) {
 			// No-op function as a callback when sending messages
 			const noop = () => { };
 			wss.on("connection", (socket, req) => {
-				const params = new URL("http://localhost" + req.url).searchParams;
-				const sid = params.get("sid");
-				const page = params.get("page");
+//				const params = new URL("http://localhost" + req.url).searchParams;
+//				const sid = params.get("sid");
+//				const page = params.get("page");
+				var query = getJsonFromUrl(req.url);
+				const sid = query["sid"];
+				const page = query["page"];
 				// Ignore duplicate connections:
 				if (!!clients[page][sid])
 				{

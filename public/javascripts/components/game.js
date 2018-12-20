@@ -257,7 +257,11 @@ Vue.component('my-game', {
 								attrs: { "src": '/images/pieces/' +
 									VariantRules.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
 								'class': { 'choice-piece': true },
-								on: { "click": e => { this.play(m); this.choices=[]; } },
+								on: {
+									"click": e => { this.play(m); this.choices=[]; },
+									// NOTE: add 'touchstart' event to fix a problem on smartphones
+									"touchstart": e => { this.play(m); this.choices=[]; },
+								},
 							})
 						]
 					);
