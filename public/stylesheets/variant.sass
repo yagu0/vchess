@@ -11,9 +11,7 @@
     margin-right: 0
     padding: 0 3px
 
-
 //TODO: taille modal au cas par cas. standard == 767. Can be larger (welcome, fen...)
-
 
 .warn
   padding: 3px
@@ -21,40 +19,45 @@
   background-color: lightgrey
   font-weight: bold
 
-.playing, button.playing:hover
+button.playing
   background-color: #ffcc99
+  :hover
+    background-color: #ffcc99
 
-.seek, button.seek:hover
+button.seek
   background-color: #cc99ff
+  :hover
+    background-color: #cc99ff
 
 figure.diagram-container
   margin: 15px 0 15px 0
   text-align: center
   width: 100%
   display: block
-
-// https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout
-figure.diagram-container > .diagram
-  display: block
-  width: 40%
-  min-width: 300px
-  max-width: 800px
-  margin-left: auto
-  margin-right: auto
-
-figure.diagram-container > .diagram2
-  display: block
-  float: left
-  width: 40%
-  min-width: 300px
-  max-width: 800px
-  margin-right: 40px
-  margin-bottom: 10px
-
-figure.diagram-container > figcaption
-  display: block
-  clear: both
-  padding-top: 5px
+  .diagram
+    display: block
+    width: 40%
+    //min-width: 300px
+    max-width: 800px
+    margin-left: auto
+    margin-right: auto
+  .diag12
+    float: left
+    margin-left: calc(10% - 20px)
+    margin-right: 40px
+    @media screen and (max-width: 500px)
+      float: none
+      margin: 0 auto 10px auto
+  .diag22
+    float: left
+    margin-right: calc(10% - 20px)
+    @media screen and (max-width: 500px)
+      float: none
+      margin: 0 auto
+  figcaption
+    display: block
+    clear: both
+    padding-top: 5px
 
 .topindicator
   position: relative
@@ -68,7 +71,7 @@ figure.diagram-container > figcaption
   float: right
   margin: 0 20px 10px 0
 
-.marginleft
+.spaceleft
   margin-left: 30px
 
 .reserve-count
@@ -118,45 +121,38 @@ div.board11
 
 .game
   clear: both
-
-.game .board
-  cursor: pointer
-
-#choices
-	margin-bottom: 10px
+  .board
+    cursor: pointer
 
 #choices
-	margin: 0 auto 0 auto
-	position: relative
-	z-index: 300
-	overflow-y: inherit
-	background-color: rgba(0,0,0,0) //transparent
+  margin: 0 auto 0 auto
+  position: relative
+  z-index: 300
+  overflow-y: inherit
+  background-color: rgba(0,0,0,0) //transparent
+  img
+    cursor: pointer
+    background-color: #e6ee9c
+    :hover
+      background-color: skyblue
+    .choice-piece
+      width: 90%
+      max-width: 100%
+      height: auto
+      display: block
 
-#choices img
-	cursor: pointer
-	background-color: #e6ee9c
-
-#choices img:hover
-	background-color: skyblue
-
-img.choice-piece
-	height: 0
-	width: 90%
-	padding: 5%
-	height: 90%
-
-img.piece, img.mark-square, img.choice-piece
-	max-width: 100%
-	height: auto
-	display: block
+img.piece, img.mark-square
+  max-width: 100%
+  height: auto
+  display: block
 
 img.mark-square
-	opacity: 0.6
+  opacity: 0.6
 
 img.ghost
-	position: absolute
-	opacity: 0.4
-	top: 0
+  position: absolute
+  opacity: 0.4
+  top: 0
 
 img.piece
   width: 100%
@@ -175,17 +171,17 @@ img.mark-square
   background-color: #cc3300 !important
 
 .light-square.lichess
-	background-color: #f0d9b5;
+  background-color: #f0d9b5;
 .dark-square.lichess
-	background-color: #b58863;
+  background-color: #b58863;
 .light-square.chesscom
-	background-color: #e5e5ca;
+  background-color: #e5e5ca;
 .dark-square.chesscom
-	background-color: #6f8f57;
+  background-color: #6f8f57;
 .light-square.chesstempo
-	background-color: #fdfdfd;
+  background-color: #fdfdfd;
 .dark-square.chesstempo
-	background-color: #88a0a8;
+  background-color: #88a0a8;
 
 .light-square-diag
   background-color: #e5e5ca

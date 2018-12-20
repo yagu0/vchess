@@ -371,7 +371,7 @@ Vue.component('my-game', {
 							attrs: { "aria-label": 'Undo' },
 							"class": {
 								"small": smallScreen,
-								"marginleft": true,
+								"spaceleft": true,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
@@ -395,7 +395,7 @@ Vue.component('my-game', {
 							attrs: { "aria-label": 'Undo' },
 							"class": {
 								"small": smallScreen,
-								"marginleft": true,
+								"spaceleft": true,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "undo")]
