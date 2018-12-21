@@ -15,7 +15,7 @@ Vue.component('my-game', {
 			myid: "", //our ID, always set
 			oppid: "", //opponent ID in case of HH game
 			gameId: "", //useful if opponent started other human games after we disconnected
-			myname: getCookie("username","anonymous"),
+			myname: localStorage["username"] || "anonymous",
 			oppName: "anonymous", //opponent name, revealed after a game (if provided)
 			chats: [], //chat messages after human game
 			oppConnected: false,
@@ -23,10 +23,10 @@ Vue.component('my-game', {
 			fenStart: "",
 			incheck: [],
 			pgnTxt: "",
-			hints: (getCookie("hints") === "1" ? true : false),
-			color: getCookie("color", "lichess"), //lichess, chesscom or chesstempo
+			hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
+			color: localStorage["color"] || "lichess", //lichess, chesscom or chesstempo
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
-			sound: parseInt(getCookie("sound", "2")),
+			sound: parseInt(localStorage["sound"] || "2"),
 			// Web worker to play computer moves without freezing interface:
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
@@ -522,48 +522,6 @@ Vue.component('my-game', {
 			];
 			elementArray = elementArray.concat(modalEog);
 		}
-		// NOTE: this modal could be in Pug view (no usage of Vue functions or variables)
-		const modalNewgame = [
-			h('input',
-				{
-					attrs: { "id": "modal-newgame", type: "checkbox" },
-					"class": { "modal": true },
-				}),
-			h('div',
-				{
-					attrs: { "role": "dialog", "aria-labelledby": "newGameTxt" },
-				},
-				[
-					h('div',
-						{
-							"class": { "card": true, "smallpad": true },
-						},
-						[
-							h('label',
-								{
-									attrs: { "id": "close-newgame", "for": "modal-newgame" },
-									"class": { "modal-close": true },
-								}
-							),
-							h('h3',
-								{
-									attrs: { "id": "newGameTxt" },
-									"class": { "section": true },
-									domProps: { innerHTML: "New game" },
-								}
-							),
-							h('p',
-								{
-									"class": { "section": true },
-									domProps: { innerHTML: "Waiting for opponent..." },
-								}
-							)
-						]
-					)
-				]
-			)
-		];
-		elementArray = elementArray.concat(modalNewgame);
 		const modalFenEdit = [
 			h('input',
 				{
@@ -1134,7 +1092,7 @@ Vue.component('my-game', {
 	methods: {
 		setMyname: function(e) {
 			this.myname = e.target.value;
-			setCookie("username",this.myname);
+			localStorage["username"] = this.myname;
 		},
 		trySendChat: function(e) {
 			if (e.keyCode == 13) //'enter' key
@@ -1248,15 +1206,15 @@ Vue.component('my-game', {
 		},
 		toggleHints: function() {
 			this.hints = !this.hints;
-			setCookie("hints", this.hints ? "1" : "0");
+			localStorage["hints"] = (this.hints ? "1" : "0");
 		},
 		setColor: function(e) {
 			this.color = e.target.options[e.target.selectedIndex].value;
-			setCookie("color", this.color);
+			localStorage["color"] = this.color;
 		},
 		setSound: function(e) {
 			this.sound = parseInt(e.target.options[e.target.selectedIndex].value);
-			setCookie("sound", this.sound);
+			localStorage["sound"] = this.sound;
 		},
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
@@ -1552,8 +1510,6 @@ Vue.component('my-game', {
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			if (this.sound == 2)
-				new Audio("/sounds/chessmove1.mp3").play().catch(err => {});
 			if (!["idle","chat"].includes(this.mode))
 			{
 				// Emergency check, if human game started "at the same time"
@@ -1562,6 +1518,8 @@ Vue.component('my-game', {
 					return;
 				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
+				if (this.sound == 2)
+					new Audio("/sounds/move.mp3").play().catch(err => {});
 				if (this.mode == "computer")
 				{
 					// Send the move to web worker (TODO: including his own moves?!)
@@ -1608,6 +1566,8 @@ Vue.component('my-game', {
 			if (!!lm)
 			{
 				this.vr.undo(lm);
+				if (this.sound == 2)
+					new Audio("/sounds/undo.mp3").play().catch(err => {});
 				const lmBefore = this.vr.lastMove;
 				if (!!lmBefore)
 				{

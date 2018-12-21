@@ -6,39 +6,41 @@ block css
 
 block content
 	.container#variantPage
-		.row //TODO: this thing + game/problems/rules iin variant page. Here just h1
+		.row
 			#menuContainer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
 				input#drawer-control.drawer(type="checkbox")
 				#menuBar
 					label.drawer-close(for="drawer-control")
 					a(href="/")
-						img(src="/images/index/unicorn.svg")
-						span vchess.club
-						img(src="/images/index/wildebeest.svg")
-					a(href="#") Home222
+						i.material-icons home
+					a(href="#rules" @click="setDisplay('rules')") Rules
+					a(href="#play" @click="setDisplay('game')") Play!
+					a(href="#problems" @click="setDisplay('problems')") Problems
+					#flagMenu(onClick="document.getElementById('modalLang').checked=true")
+						img(src="/images/flags/" + lang + ".svg")
+					#helpMenu(onClick="document.getElementById('modalHelp').checked=true")
+						.info-container
+							p Help
 		.row
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				label.drawer-toggle(for="drawer-control")
-				input#drawer-control.drawer(type="checkbox")
-				div
-					label.drawer-close(for="drawer-control")
-					a(href="#") Home
-					a(href="#") Home222
-		.row
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.variantpage-title.text-center(v-on:click="toggleDisplay('rules')")
-					| #{variant} Rules
-				my-rules(v-show="display=='rules'")
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.variantpage-title.text-center(v-on:click="toggleDisplay('game')")
-					| #{variant} Game
-				my-game(v-show="display=='game'" v-bind:problem="problem")
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h4.variantpage-title.text-center(v-on:click="toggleDisplay('problems')")
-					| #{variant} Problems
-				my-problems(v-show="display=='problems'"
-					v-on:show-problem="showProblem($event)")
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
+					v-show="display=='rules'")
+				my-rules
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
+					v-show="display=='game'")
+				my-game(v-bind:problem="problem")
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
+					v-show="display=='problems'")
+				my-problems(v-on:show-problem="showProblem($event)")
+		// (Some) Modals:
+		include modal-help.pug
+		include modal-lang.pug
+		input#modal-newgame.modal(type="checkbox")
+		div(role="dialog" aria-labelledby="newGameTxt")
+			.card.smallpad.small-modal
+				label#close-newgame.modal-close(for="modal-newgame")
+				h3#newGameTxt New game
+				p Waiting for opponent...
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")

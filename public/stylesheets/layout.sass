@@ -8,6 +8,19 @@ body
   padding: 0
   min-width: 320px
 
+.container
+  padding: 0
+
+.row
+  div
+    padding: 0
+    .section-content
+      *
+        margin-left: 0
+        margin-right: 0
+      @media screen and (max-width: 767px)
+        padding: 0 5px
+
 a
   text-decoration: underline
 
@@ -35,3 +48,7 @@ a
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100vh
+[type="checkbox"].modal+div .card.small-modal
+  max-width: 320px
+[type="checkbox"].modal+div .card.big-modal
+  max-width: 90vw

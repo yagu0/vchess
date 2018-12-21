@@ -1,0 +1,18 @@
+input#modalHelp.modal(type="checkbox")
+div(role="dialog")
+	#help.card
+		label.modal-close(for="modalHelp")
+		.section
+			p.emphasis.bigfont First: watch #[a(href="/demo.webm") demo video] !
+			p Then click on a variant... Reminder:
+			ul
+				li All games start with a random assymetric position.
+				li Games are untimed, and played anonymously.
+				li No chat while playing, to focus on the moves.
+		.section
+			h3.red Bug report
+			p
+				| Please send an email to 
+				a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
+					| contact@vchess.club
+				| .

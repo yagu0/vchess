@@ -5,12 +5,13 @@ new Vue({
 		problem: undefined, //current problem in view
 	},
 	methods: {
-		toggleDisplay: function(elt) {
-			this.display = elt; //show
-		},
 		showProblem: function(problemTxt) {
 			this.problem = JSON.parse(problemTxt);
 			this.display = "game";
+		},
+		setDisplay: function(elt) {
+			this.display = elt;
+			document.getElementById("drawer-control").checked = false;
 		},
 	},
 });

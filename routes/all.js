@@ -66,6 +66,8 @@ router.get("/:vname([a-zA-Z0-9]+)", (req,res,next) => {
 						title: vname + ' Variant',
 						variant: vname,
 						problemArray: problems,
+						lang: selectLanguage(req, res),
+						languages: supportedLang,
 					});
 				}
 			);

@@ -88,9 +88,5 @@ new Vue({
 			setCookie('visited', '1');
 			document.getElementById('modalWelcome').checked = false;
 		},
-		setLanguage: function(e) {
-			setCookie("lang", e.target.value);
-			location.reload(); //to include the right .pug file
-		},
 	},
 });

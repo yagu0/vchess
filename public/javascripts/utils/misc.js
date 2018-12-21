@@ -27,3 +27,11 @@ function getRandString()
 	return (Date.now().toString(36) + Math.random().toString(36).substr(2, 7))
 		.toUpperCase();
 }
+
+// Used both on index and variant page, to switch language
+function setLanguage(e)
+{
+	console.log(e);
+	setCookie("lang", e.target.value);
+	location.reload(); //to include the right .pug file
+}
