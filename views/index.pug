@@ -6,96 +6,77 @@ block css
 block content
 	.container#indexPage
 		.row
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				h1#main-title.text-center
+			#header.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				#mainTitle
 					img(src="/images/index/unicorn.svg")
-					span vchess.club
+					.info-container
+						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				h2#needHelp.text-center(
-						onClick="document.getElementById('modalHelp').checked=true")
-					| Need help ?
-				input#modalHelp.modal(type="checkbox")
-				div(role="dialog")
-					#help.card
-						label.modal-close(for="modalHelp")
-						.section
-							p.emphasis First: watch #[a(href="/demo.webm") demo video] !
-							p Then click on a variant... Reminder:
-							ul
-								li All games start with a random assymetric position.
-								li Games are untimed, and played anonymously.
-								li No chat while playing, to focus on the moves.
-						.section
-							h3.red Bug report
-							p
-								| If you find a bug in a game, please follow this procedure: #[br]
-								| 1. stop playing: click on the resign button; #[br]
-								| 2. download the game as PGN; #[br]
-								| 3. send an email to 
-								a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
-									| contact@vchess.club 
-								| with comments + PGN attached.
-				input#modalB4welcome.modal(type="checkbox")
-				div(role="dialog")
-					#b4welcome.card.text-center
-						label.modal-close(for="modalB4welcome")
-						h3.blue First visit?
-						p Please 
-							span#readThis(@click="showWelcomeMsg") read this
-							span &nbsp;before playing!
-				input#modalWelcome.modal(type="checkbox")
-				div(role="dialog")
-					#welcome.card.text-center
-						label.modal-close(for="modalWelcome")
-						h3.blue.section Welcome to v[ariant]chess.club!
-						.section
-							p A fun place to play chess variants in real time.
-							p But wait... what is a chess variant?
-							img(src="/images/Hexagonal_chess.svg")
-							p.
-								As suggested by the picture, a variant setup generally
-								looks more or less like a chessboard with regular pieces
-								(otherwise it's no longer a variant but a whole new game).
-							p.emphasis.purple However...
-							p Each variant has its own new rules, which can involve
-							table.list-table
-								tbody
-									tr
-										td * different pieces movements
-									tr
-										td * different chessboard(s)
-									tr
-										td * new pieces
-									tr
-										td * moves side effects
-									tr
-										td ...and so on
-						.section
-							p.
-								Example: imagine that a capture is an atomic explosion, wiping all
-								adjacent squares &ndash; except the pawns, which as cockroaches can
-								resist this kind of event.
-							p Also state a goal: make the opponent's king explode.
-							p &rarr; Congrats, you defined Atomic chess! (Playable here)
-						.section
-							p.emphasis.purple OK, this all sounds interesting, but why would that be fun?
-							p.
-								Because all games here start with a random setup: no more boring
-								openings memorization, you have to rely on your chess skills only.
-							p Moreover, I claim that the chosen variants here are fun to play :)
-							-
-								var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
-									"List_of_chess_variants#/media/File:Hexagonal_chess.svg";
-							p.
-								For informations about hundreds (if not thousands) of variants, you
-								can visit the excellent
-								#[a(href="https://www.chessvariants.com/") chessvariants] website.
-						p#disableMsg(@click="markAsVisited")
-							| Click here to not show this message next time
-						p.smallfont Image credit: #[a(href=wikipediaUrl) Wikipedia]
+				// TODO: flags, translations
+				#flagMenu(onClick="document.getElementById('modalLang').checked=true")
+					img(src="/images/flags/" + lang + ".svg")
+				#helpMenu(onClick="document.getElementById('modalHelp').checked=true")
+					.info-container
+						p Help
 		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
+		// Modals:
+		input#modalHelp.modal(type="checkbox")
+		div(role="dialog")
+			#help.card
+				label.modal-close(for="modalHelp")
+				.section
+					p.emphasis.bigfont First: watch #[a(href="/demo.webm") demo video] !
+					p Then click on a variant... Reminder:
+					ul
+						li All games start with a random assymetric position.
+						li Games are untimed, and played anonymously.
+						li No chat while playing, to focus on the moves.
+				.section
+					h3.red Bug report
+					p
+						| Please send an email to 
+						a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
+							| contact@vchess.club 
+						| .
+		input#modalLang.modal(type="checkbox")
+		div(role="dialog")
+			#language.card
+				label.modal-close(for="modalLang")
+				.section
+					fieldset
+						-
+							var langName = {
+								"fr": "French",
+								"en": "English",
+							}
+						label(for="langSelect") Preferred language?
+						select#langSelect(@change="setLanguage")
+							each langCode in languages
+								option(value=langCode selected=(lang==langCode))
+									=langName[langCode]
+				.section
+					h3.blue Contribute
+					p
+						| Browse the 
+						a(href="https://github.com/yagu0/vchess/tree/master/views")
+							| github repository
+						| : welcome/en.pug and all files rules/*/en.pug
+						| should be translated. When it's done, send me the files: 
+						a(href="mailto:contact@vchess.club?subject=[vchess.club] translation")
+							| contact@vchess.club
+						| . Thanks!
+		input#modalB4welcome.modal(type="checkbox")
+		div(role="dialog")
+			#b4welcome.card.text-center
+				h3.blue First visit?
+				p#readThis(@click="showWelcomeMsg") >>> Please read this <<<
+		case lang
+			when "en"
+				include welcome/en.pug
+			when "fr"
+				include welcome/fr.pug
 
 block javascripts
 	script.

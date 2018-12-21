@@ -5,6 +5,33 @@ const sqlite3 = require('sqlite3');//.verbose();
 const db = new sqlite3.Database('db/vchess.sqlite');
 const sanitizeHtml = require('sanitize-html');
 
+const supportedLang = ["fr","en"];
+function selectLanguage(req, res)
+{
+	// If preferred language already set:
+	if (!!req.cookies["lang"])
+		return req.cookies["lang"];
+
+	// Else: search and set it
+	const langString = req.headers["accept-language"];
+	let langArray = langString
+		.replace(/;q=[0-9.]+/g, "") //priority
+		.replace(/-[A-Z]+/g, "") //region (skipped for now...)
+		.split(",") //may have some duplicates, but removal is too costly
+	let bestLang = "en"; //default: English
+	for (let lang of langArray)
+	{
+		if (supportedLang.includes(lang))
+		{
+			bestLang = lang;
+			break;
+		}
+	}
+	// Cookie expires in 183 days (expressed in milliseconds)
+	res.cookie('lang', bestLang, { maxAge: 183*24*3600*1000 });
+	return bestLang;
+}
+
 // Home
 router.get('/', function(req, res, next) {
 	db.serialize(function() {
@@ -13,7 +40,9 @@ router.get('/', function(req, res, next) {
 				return next(err);
 			res.render('index', {
 				title: 'club',
-				variantArray: variants, //JSON.stringify(variants)
+				variantArray: variants,
+				lang: selectLanguage(req, res),
+				languages: supportedLang,
 			});
 		});
 	});
@@ -48,7 +77,8 @@ router.get("/:vname([a-zA-Z0-9]+)", (req,res,next) => {
 router.get("/rules/:variant([a-zA-Z0-9]+)", (req,res) => {
 	if (!req.xhr)
 		return res.json({errmsg: "Unauthorized access"});
-	res.render("rules/" + req.params["variant"]);
+	const lang = selectLanguage(req, res);
+	res.render("rules/" + req.params["variant"] + "/" + lang);
 });
 
 // Fetch 10 previous or next problems (AJAX)

@@ -1,21 +1,12 @@
 new Vue({
 	el: "#variantPage",
 	data: {
-		display: getCookie("display-"+variant,""), //default: do not show anything...
+		display: "game", //default: play!
 		problem: undefined, //current problem in view
 	},
 	methods: {
 		toggleDisplay: function(elt) {
-			if (this.display == elt)
-			{
-				this.display = ""; //hide
-				setCookie("display-"+variant, "");
-			}
-			else
-			{
-				this.display = elt; //show
-				setCookie("display-"+variant, elt);
-			}
+			this.display = elt; //show
 		},
 		showProblem: function(problemTxt) {
 			this.problem = JSON.parse(problemTxt);

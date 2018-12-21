@@ -1,11 +1,15 @@
 html, *
   font-family: "Open Sans", Arial, sans-serif
   --back-color: #f2f2f2
-  --a-link-color: #0039e6
+  --a-link-color: blue
+  --a-visited-color: blue
 
 body
   padding: 0
   min-width: 320px
+
+a
+  text-decoration: underline
 
 .text-center
   text-align: center
@@ -25,14 +29,9 @@ body
 .smallfont
   font-size: 0.8em
 
+.bigfont
+  font-size: 1.2em
+
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100vh
-
-// TODO: unused
-// Jump lines only if screen is large enough
-.conditional-jump
-  display: block
-@media screen and (max-width: 767px)
-  .conditional-jump
-    display: inline

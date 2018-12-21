@@ -11,6 +11,22 @@
     margin-right: 0
     padding: 0 3px
 
+#menuBar
+  font-style: italic
+  background: linear-gradient(#e66465, #9198e5)
+  margin: 0 0 10px 0
+  @media screen and (min-width: 768px)
+    width: 100%
+  img
+    height: 30px
+    padding-top: 10px
+  span
+    padding-left: 10px
+    padding-right: 15px
+
+#menuContainer
+  height: 48px
+
 //TODO: taille modal au cas par cas. standard == 767. Can be larger (welcome, fen...)
 
 .warn
@@ -21,12 +37,12 @@
 
 button.playing
   background-color: #ffcc99
-  :hover
+  &:hover
     background-color: #ffcc99
 
 button.seek
   background-color: #cc99ff
-  :hover
+  &:hover
     background-color: #cc99ff
 
 figure.diagram-container
@@ -133,7 +149,7 @@ div.board11
   img
     cursor: pointer
     background-color: #e6ee9c
-    :hover
+    &:hover
       background-color: skyblue
     .choice-piece
       width: 90%

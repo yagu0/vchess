@@ -6,6 +6,17 @@ block css
 
 block content
 	.container#variantPage
+		.row //TODO: this thing + game/problems/rules iin variant page. Here just h1
+			#menuContainer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				label.drawer-toggle(for="drawer-control")
+				input#drawer-control.drawer(type="checkbox")
+				#menuBar
+					label.drawer-close(for="drawer-control")
+					a(href="/")
+						img(src="/images/index/unicorn.svg")
+						span vchess.club
+						img(src="/images/index/wildebeest.svg")
+					a(href="#") Home222
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
