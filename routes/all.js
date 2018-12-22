@@ -2,7 +2,8 @@ let express = require('express');
 let router = express.Router();
 const createError = require('http-errors');
 const sqlite3 = require('sqlite3');//.verbose();
-const db = new sqlite3.Database('db/vchess.sqlite');
+const DbPath = __dirname.replace("/routes", "/db/vchess.sqlite");
+const db = new sqlite3.Database(DbPath);
 const sanitizeHtml = require('sanitize-html');
 const MaxNbProblems = 20;
 

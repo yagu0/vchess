@@ -1,6 +1,6 @@
 const url = require('url');
 const sqlite3 = require('sqlite3');
-const db = new sqlite3.Database('db/vchess.sqlite');
+const db = new sqlite3.Database(__dirname + "/db/vchess.sqlite");
 
 // Node version in Ubuntu 16.04 does not know about URL class
 function getJsonFromUrl(url) {

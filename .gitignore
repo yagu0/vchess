@@ -20,7 +20,7 @@ pids
 /db/vchess.sqlite
 
 # socket URL file
-/public/javascripts/utils/socket_url.js
+/public/javascripts/socket_url.js
 
 # CSS generated files
 /public/stylesheets/*.map
