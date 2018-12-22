@@ -28,6 +28,8 @@ html
 			block content
 
 		script(src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js")
-		script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
-		//script(src="https://cdn.jsdelivr.net/npm/vue") //prod
+		if development
+			script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+		else
+			script(src="https://cdn.jsdelivr.net/npm/vue")
 		block javascripts

@@ -27,6 +27,9 @@ else
 	}));
 }
 
+// Allow layout.pug to select the right vue file:
+app.locals.development = app.get('env') === 'development';
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
