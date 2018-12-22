@@ -7,19 +7,25 @@ block css
 block content
 	.container#variantPage
 		.row
-			#menuContainer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
 				input#drawer-control.drawer(type="checkbox")
 				#menuBar
 					label.drawer-close(for="drawer-control")
-					a(href="/")
+					a#homeLink.conditional-jump(href="/")
 						i.material-icons home
-					a(href="#rules" @click="setDisplay('rules')") Rules
-					a(href="#play" @click="setDisplay('game')") Play!
-					a(href="#problems" @click="setDisplay('problems')") Problems
-					#flagMenu(onClick="document.getElementById('modalLang').checked=true")
+					.info-container
+						a.conditional-jump(href="#rules" @click="setDisplay('rules')")
+							| Rules
+						a.conditional-jump(href="#play" @click="setDisplay('game')")
+							| Play!
+						a.conditional-jump(href="#problems" @click="setDisplay('problems')") 
+							| Problems
+					#flagMenu.conditional-jump(
+							onClick="document.getElementById('modalLang').checked=true")
 						img(src="/images/flags/" + lang + ".svg")
-					#helpMenu(onClick="document.getElementById('modalHelp').checked=true")
+					#helpMenu.conditional-jump(
+							onClick="document.getElementById('modalHelp').checked=true")
 						.info-container
 							p Help
 		.row

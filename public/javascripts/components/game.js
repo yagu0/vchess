@@ -908,7 +908,8 @@ Vue.component('my-game', {
 						h('p',
 							{
 								attrs: { id: "fen-string" },
-								domProps: { innerHTML: this.vr.getBaseFen() }
+								domProps: { innerHTML: this.vr.getBaseFen() },
+								"class": { "text-center": true },
 							}
 						)
 					]

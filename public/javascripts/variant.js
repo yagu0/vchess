@@ -4,6 +4,12 @@ new Vue({
 		display: "game", //default: play!
 		problem: undefined, //current problem in view
 	},
+	created: function() {
+		const url = window.location.href;
+		const hashPos = url.indexOf("#");
+		if (hashPos >= 0)
+			this.setDisplay(url.substr(hashPos+1));
+	},
 	methods: {
 		showProblem: function(problemTxt) {
 			this.problem = JSON.parse(problemTxt);

@@ -1,24 +1,105 @@
+// Menu:
+
 #menuBar
-  font-style: italic
   background: linear-gradient(#e66465, #9198e5)
-  margin: 0 0 10px 0
+  height: 77px
+  margin-bottom: 10px
+  @media screen and (max-width: 767px)
+    height: 100%
+    margin-bottom: 0
   @media screen and (min-width: 768px)
     width: 100%
+
+a#homeLink
+  margin: 27px 0 0 10px
+  display: inline-block
+  @media screen and (max-width: 767px)
+    margin: 10px 0 0 10px
+    display: block
+
+.info-container
+  display: inline-block
+  vertical-align: top
+  padding: 0
+  box-sizing: border-box
+  a
+    text-decoration: none
+    color: black
+  a, p
+    display: inline-block
+    padding: 3px
+    border: 1px solid black;
+    margin: 25px 0 0 15px
+    @media screen and (max-width: 767px)
+      margin-top: 10px
+      display: block
+
+#helpMenu
+  @media screen and (min-width: 768px)
+    float: right
+  cursor: pointer
+  @media screen and (max-width: 767px)
+    .info-container
+      p
+        margin-right: 5px
+
+#flagMenu
+  @media screen and (min-width: 768px)
+    float: right
+  cursor: pointer
+  margin: 0 15px
+  @media screen and (max-width: 767px)
+    margin-right: 5px
   img
+    display: inline-block
     height: 30px
-    padding-top: 10px
-  span
-    padding-left: 10px
-    padding-right: 15px
+    margin-top: 25px
 
-#menuContainer
-  height: 48px
+label.drawer-toggle
+  padding: 0
+  &::before
+    font-size: 2.5em;
+    max-height: 43px;
+    top: -10px;
+    left: 10px
 
-.warn
-  padding: 3px
-  color: red
-  background-color: lightgrey
-  font-weight: bold
+// Game section:
+
+.topindicator
+  position: relative
+  border: 1px solid brown
+
+.indic-left
+  float: left
+  margin: 0 0 var(--universal-margin) 20px
+
+.indic-right
+  float: right
+  margin: 0 20px var(--universal-margin) 0
+
+.my-chatmsg
+  color: black
+
+.opp-chatmsg
+  color: blue
+
+.connected
+  background-color: green
+
+.disconnected
+  background-color: red
+
+.settings-btn
+  padding: 6px 7px 0 7px
+
+.settings-btn-small
+  padding: 0 3px
+
+.white-turn
+  background-color: white
+
+.black-turn
+  background-color: black
 
 button.playing
   background-color: #ffcc99
@@ -29,6 +110,129 @@ button.seek
   background-color: #cc99ff
   &:hover
     background-color: #cc99ff
+
+.reserve-count
+  padding-left: 40%
+
+.reserve-div
+  margin-bottom: 20px
+
+.reserve-row-1
+  margin-bottom: 15px
+
+div.board
+  float: left
+  height: 0
+  display: inline-block
+  position: relative
+
+div.board8
+  width: 12.5%
+  padding-bottom: 12.5%
+
+div.board10
+  width: 10%
+  padding-bottom: 10%
+
+div.board11
+  width: 9.09%
+  padding-bottom: 9.1%
+
+.game
+  clear: both
+  .board
+    cursor: pointer
+
+#choices
+  margin: 0 auto 0 auto
+  position: relative
+  z-index: 300
+  overflow-y: inherit
+  background-color: rgba(0,0,0,0)
+  img
+    cursor: pointer
+    background-color: #e6ee9c
+    &:hover
+      background-color: skyblue
+    .choice-piece
+      width: 90%
+      max-width: 100%
+      height: auto
+      display: block
+
+img.piece
+  width: 100%
+
+img.piece, img.mark-square
+  max-width: 100%
+  height: auto
+  display: block
+
+img.mark-square
+  opacity: 0.6
+  width: 76%
+  position: absolute
+  top: 12%
+  left: 12%
+  opacity: .7
+
+img.ghost
+  position: absolute
+  opacity: 0.4
+  top: 0
+
+.highlight
+  background-color: #00cc66 !important
+
+.incheck
+  background-color: #cc3300 !important
+
+.light-square.lichess
+  background-color: #f0d9b5;
+.dark-square.lichess
+  background-color: #b58863;
+
+.light-square.chesscom
+  background-color: #e5e5ca;
+.dark-square.chesscom
+  background-color: #6f8f57;
+
+.light-square.chesstempo
+  background-color: #fdfdfd;
+.dark-square.chesstempo
+  background-color: #88a0a8;
+
+.light-square-diag
+  background-color: #e5e5ca
+.dark-square-diag
+  background-color: #6f8f57
+
+#fen-string
+  margin-top: 0
+
+#pgn-game
+  margin-top: 0
+  margin-bottom: 0
+
+#downloadBtn
+  display: block
+  margin-left: auto
+  margin-right: auto
+
+#pgn-div > a
+  display: none
+
+#fen-div > p
+  margin-left: 0
+  margin-right: 0
+
+// Rules section:
+
+.warn
+  padding: 3px
+  color: red
+  background-color: lightgrey
+  font-weight: bold
 
 figure.diagram-container
   margin: 15px 0 15px 0
@@ -60,134 +264,8 @@ figure.diagram-container
     clear: both
     padding-top: 5px
 
-.topindicator
-  position: relative
-  border: 1px solid brown
-
-.indic-left
-  float: left
-  margin: 0 0 10px 20px
-
-.indic-right
-  float: right
-  margin: 0 20px 10px 0
-
 .spaceleft
   margin-left: 30px
-
-.reserve-count
-  padding-left: 40%
-
-.reserve-div
-  margin-bottom: 20px
-
-.reserve-row-1
-  margin-bottom: 15px
-
-.connected
-  background-color: green
-
-.disconnected
-  background-color: red
-
-.settings-btn
-  padding: 6px 7px 0 7px
-
-.settings-btn-small
-  padding: 0 3px
-
-.white-turn
-  background-color: white
-
-.black-turn
-  background-color: black
-
-div.board
-  float: left
-  height: 0
-  display: inline-block
-  position: relative
-
-div.board8
-  width: 12.5%
-  padding-bottom: 12.5%
-
-div.board10
-  width: 10%
-  padding-bottom: 10%
-
-div.board11
-  width: 9.09%
-  padding-bottom: 9.1%
-
-.game
-  clear: both
-  .board
-    cursor: pointer
-
-#choices
-  margin: 0 auto 0 auto
-  position: relative
-  z-index: 300
-  overflow-y: inherit
-  background-color: rgba(0,0,0,0) //transparent
-  img
-    cursor: pointer
-    background-color: #e6ee9c
-    &:hover
-      background-color: skyblue
-    .choice-piece
-      width: 90%
-      max-width: 100%
-      height: auto
-      display: block
-
-img.piece, img.mark-square
-  max-width: 100%
-  height: auto
-  display: block
-
-img.mark-square
-  opacity: 0.6
-
-img.ghost
-  position: absolute
-  opacity: 0.4
-  top: 0
-
-img.piece
-  width: 100%
-
-img.mark-square
-  width: 76%
-  position: absolute
-  top: 12%
-  left: 12%
-  opacity: .7
-
-.highlight
-  background-color: #00cc66 !important
-
-.incheck
-  background-color: #cc3300 !important
-
-.light-square.lichess
-  background-color: #f0d9b5;
-.dark-square.lichess
-  background-color: #b58863;
-.light-square.chesscom
-  background-color: #e5e5ca;
-.dark-square.chesscom
-  background-color: #6f8f57;
-.light-square.chesstempo
-  background-color: #fdfdfd;
-.dark-square.chesstempo
-  background-color: #88a0a8;
-
-.light-square-diag
-  background-color: #e5e5ca
-.dark-square-diag
-  background-color: #6f8f57
 
 p.boxed
   background-color: #FFCC66
@@ -218,32 +296,7 @@ ul:not(.browser-default)
 ul:not(.browser-default) > li
   list-style-type: disc
 
-.variantpage-title
-  font-weight: bold
-  cursor: pointer
-  padding: 3px
-  margin-left: 0
-  margin-right: 0
-  background-color: lightgrey
-
-#fen-string
-  margin-top: 0
-
-#pgn-game
-  margin-top: 0
-  margin-bottom: 0
-
-#downloadBtn
-  display: block
-  margin-left: auto
-  margin-right: auto
-
-#pgn-div > a
-  display: none
-
-#fen-div > p
-  margin-left: 0
-  margin-right: 0
+// Problems section:
 
 .newproblem-form input, .newproblem-form textarea
   width: 100%
@@ -286,17 +339,5 @@ ul:not(.browser-default) > li
 .clickable
   cursor: pointer
 
-.name-connected
-  color: green
-
-.name-disconnected
-  color: red
-
 .clearer
   clear: both
-
-.my-chatmsg
-  color: black
-
-.opp-chatmsg
-  color: blue
