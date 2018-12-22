@@ -4,6 +4,7 @@ const createError = require('http-errors');
 const sqlite3 = require('sqlite3');//.verbose();
 const db = new sqlite3.Database('db/vchess.sqlite');
 const sanitizeHtml = require('sanitize-html');
+const MaxNbProblems = 2;
 
 const supportedLang = ["fr","en"];
 function selectLanguage(req, res)
@@ -49,28 +50,30 @@ router.get('/', function(req, res, next) {
 });
 
 // Variant
-router.get("/:vname([a-zA-Z0-9]+)", (req,res,next) => {
-	const vname = req.params["vname"];
+router.get("/:variant([a-zA-Z0-9]+)", (req,res,next) => {
+	const vname = req.params["variant"];
 	db.serialize(function() {
 		db.all("SELECT * FROM Variants WHERE name='" + vname + "'", (err,variant) => {
 			if (!!err)
 				return next(err);
 			if (!variant || variant.length==0)
 				return next(createError(404));
-			// TODO (later...) get only n=100(?) most recent problems
-			db.all("SELECT * FROM Problems WHERE variant='" + vname + "'",
-				(err2,problems) => {
-					if (!!err2)
-						return next(err2);
-					res.render('variant', {
-						title: vname + ' Variant',
-						variant: vname,
-						problemArray: problems,
-						lang: selectLanguage(req, res),
-						languages: supportedLang,
-					});
-				}
-			);
+			// Get only N most recent problems
+			const query2 = "SELECT * FROM Problems " +
+				"WHERE variant='" + vname + "' " +
+				"ORDER BY added DESC " +
+				"LIMIT " + MaxNbProblems;
+			db.all(query2, (err2,problems) => {
+				if (!!err2)
+					return next(err2);
+				res.render('variant', {
+					title: vname + ' Variant',
+					variant: vname,
+					problemArray: problems,
+					lang: selectLanguage(req, res),
+					languages: supportedLang,
+				});
+			});
 		});
 	});
 });
@@ -83,13 +86,26 @@ router.get("/rules/:variant([a-zA-Z0-9]+)", (req,res) => {
 	res.render("rules/" + req.params["variant"] + "/" + lang);
 });
 
-// Fetch 10 previous or next problems (AJAX)
+// Fetch N previous or next problems (AJAX)
 router.get("/problems/:variant([a-zA-Z0-9]+)", (req,res) => {
 	if (!req.xhr)
 		return res.json({errmsg: "Unauthorized access"});
-	// TODO: next or previous: in params + timedate (of current oldest or newest)
+	const vname = req.params["variant"];
+	const directionStr = (req.query.direction == "forward" ? ">" : "<");
+	const lastDt = req.query.last_dt;
+	if (!lastDt.match(/[0-9]+/))
+		return res.json({errmsg: "Bad timestamp"});
 	db.serialize(function() {
-		//TODO
+		const query = "SELECT * FROM Problems " +
+			"WHERE variant='" + vname + "' " +
+			"  AND added " + directionStr + " " + lastDt + " " +
+			"ORDER BY added " + (directionStr=="<" ? "DESC " : "") +
+			"LIMIT " + MaxNbProblems;
+		db.all(query, (err,problems) => {
+			if (!!err)
+				return res.json(err);
+			return res.json({problems: problems});
+		});
 	});
 });
 
@@ -103,8 +119,12 @@ router.post("/problems/:variant([a-zA-Z0-9]+)", (req,res) => {
 	const fen = req.body["fen"];
 	if (!fen.match(/^[a-zA-Z0-9, /-]*$/))
 		return res.json({errmsg: "Bad characters in FEN string"});
-	const instructions = sanitizeHtml(req.body["instructions"]);
-	const solution = sanitizeHtml(req.body["solution"]);
+	const instructions = sanitizeHtml(req.body["instructions"]).trim();
+	const solution = sanitizeHtml(req.body["solution"]).trim();
+	if (instructions.length == 0)
+		return res.json({errmsg: "Empty instructions"});
+	if (solution.length == 0)
+		return res.json({errmsg: "Empty solution"});
 	db.serialize(function() {
 		let stmt = db.prepare("INSERT INTO Problems " +
 			"(added,variant,fen,instructions,solution) VALUES (?,?,?,?,?)");

@@ -3,7 +3,11 @@ Vue.component('my-rules', {
 	data: function() {
 		return { content: "" };
 	},
-	template: `<div v-html="content" class="section-content"></div>`,
+	template: `
+		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+			<div v-html="content" class="section-content"></div>
+		</div>
+	`,
 	mounted: function() {
 		// AJAX request to get rules content (plain text, HTML)
 		ajax("/rules/" + variant, "GET", response => {

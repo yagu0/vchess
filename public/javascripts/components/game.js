@@ -40,7 +40,6 @@ Vue.component('my-game', {
 	},
 	render(h) {
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
-		const smallScreen = (window.innerWidth <= 420);
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
@@ -56,10 +55,11 @@ Vue.component('my-game', {
 				attrs: { "aria-label": 'New online game' },
 				'class': {
 					"tooltip": true,
+					"play": true,
 					"bottom": true, //display below
 					"seek": this.seek,
 					"playing": this.mode == "human",
-					"small": smallScreen,
+					"spaceright": true,
 				},
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
@@ -73,9 +73,10 @@ Vue.component('my-game', {
 					attrs: { "aria-label": 'New game VS computer' },
 					'class': {
 						"tooltip":true,
+						"play": true,
 						"bottom": true,
 						"playing": this.mode == "computer",
-						"small": smallScreen,
+						"spaceright": true,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
@@ -90,9 +91,10 @@ Vue.component('my-game', {
 					attrs: { "aria-label": 'New IRL game' },
 					'class': {
 						"tooltip":true,
+						"play": true,
 						"bottom": true,
 						"playing": this.mode == "friend",
-						"small": smallScreen,
+						"spaceright": true,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "people")])
@@ -105,27 +107,33 @@ Vue.component('my-game', {
 				? parseFloat(window.getComputedStyle(square00).width.slice(0,-2))
 				: 0;
 			const settingsBtnElt = document.getElementById("settingsBtn");
-			const indicWidth = !!settingsBtnElt //-2 for border:
-				? parseFloat(window.getComputedStyle(settingsBtnElt).height.slice(0,-2)) - 2
-				: (smallScreen ? 31 : 37);
+			const settingsStyle = !!settingsBtnElt
+				? window.getComputedStyle(settingsBtnElt)
+				: {width:"46px", height:"26px"};
+			const [indicWidth,indicHeight] = //[44,24];
+			[
+				// NOTE: -2 for border
+				parseFloat(settingsStyle.width.slice(0,-2)) - 2,
+				parseFloat(settingsStyle.height.slice(0,-2)) - 2
+			];
+			let aboveBoardElts = [];
 			if (["chat","human"].includes(this.mode))
 			{
 				const connectedIndic = h(
 					'div',
 					{
 						"class": {
-							"topindicator": true,
 							"indic-left": true,
 							"connected": this.oppConnected,
 							"disconnected": !this.oppConnected,
 						},
 						style: {
 							"width": indicWidth + "px",
-							"height": indicWidth + "px",
+							"height": indicHeight + "px",
 						},
 					}
 				);
-				elementArray.push(connectedIndic);
+				aboveBoardElts.push(connectedIndic);
 			}
 			if (this.mode == "chat")
 			{
@@ -139,15 +147,14 @@ Vue.component('my-game', {
 						},
 						'class': {
 							"tooltip": true,
-							"topindicator": true,
+							"play": true,
+							"above-board": true,
 							"indic-left": true,
-							"settings-btn": !smallScreen,
-							"settings-btn-small": smallScreen,
 						},
 					},
 					[h('i', { 'class': { "material-icons": true } }, "chat")]
 				);
-				elementArray.push(chatButton);
+				aboveBoardElts.push(chatButton);
 			}
 			else if (this.mode == "computer")
 			{
@@ -161,32 +168,30 @@ Vue.component('my-game', {
 						},
 						'class': {
 							"tooltip": true,
-							"topindicator": true,
+							"play": true,
+							"above-board": true,
 							"indic-left": true,
-							"settings-btn": !smallScreen,
-							"settings-btn-small": smallScreen,
 						},
 					},
 					[h('i', { 'class': { "material-icons": true } }, "clear")]
 				);
-				elementArray.push(clearButton);
+				aboveBoardElts.push(clearButton);
 			}
 			const turnIndic = h(
 				'div',
 				{
 					"class": {
-						"topindicator": true,
 						"indic-right": true,
 						"white-turn": this.vr.turn=="w",
 						"black-turn": this.vr.turn=="b",
 					},
 					style: {
 						"width": indicWidth + "px",
-						"height": indicWidth + "px",
+						"height": indicHeight + "px",
 					},
 				}
 			);
-			elementArray.push(turnIndic);
+			aboveBoardElts.push(turnIndic);
 			const settingsBtn = h(
 				'button',
 				{
@@ -197,15 +202,20 @@ Vue.component('my-game', {
 					},
 					'class': {
 						"tooltip": true,
-						"topindicator": true,
+						"play": true,
+						"above-board": true,
 						"indic-right": true,
-						"settings-btn": !smallScreen,
-						"settings-btn-small": smallScreen,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "settings")]
 			);
-			elementArray.push(settingsBtn);
+			aboveBoardElts.push(settingsBtn);
+			elementArray.push(
+				h('div',
+					{ "class": { "aboveboard-wrapper": true } },
+					aboveBoardElts
+				)
+			);
 			if (this.mode == "problem")
 			{
 				// Show problem instructions
@@ -273,7 +283,10 @@ Vue.component('my-game', {
 				(!["idle","chat"].includes(this.mode) || this.cursor==this.vr.moves.length);
 			const gameDiv = h('div',
 				{
-					'class': { 'game': true },
+					'class': {
+						'game': true,
+						'clearer': true,
+					},
 				},
 				[_.range(sizeX).map(i => {
 					let ci = (this.mycolor=='w' ? i : sizeX-i-1);
@@ -354,8 +367,8 @@ Vue.component('my-game', {
 							attrs: { "aria-label": 'Resign' },
 							'class': {
 								"tooltip":true,
+								"play": true,
 								"bottom": true,
-								"small": smallScreen,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "flag")])
@@ -370,7 +383,7 @@ Vue.component('my-game', {
 							on: { click: e => this.undo() },
 							attrs: { "aria-label": 'Undo' },
 							"class": {
-								"small": smallScreen,
+								"play": true,
 								"spaceleft": true,
 							},
 						},
@@ -379,7 +392,10 @@ Vue.component('my-game', {
 						{
 							on: { click: e => this.play() },
 							attrs: { "aria-label": 'Play' },
-							"class": { "small": smallScreen },
+							"class": {
+								"play": true,
+								"spaceleft": true,
+							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
 					]
@@ -394,7 +410,7 @@ Vue.component('my-game', {
 							on: { click: this.undoInGame },
 							attrs: { "aria-label": 'Undo' },
 							"class": {
-								"small": smallScreen,
+								"play": true,
 								"spaceleft": true,
 							},
 						},
@@ -404,7 +420,10 @@ Vue.component('my-game', {
 						{
 							on: { click: () => { this.mycolor = this.vr.getOppCol(this.mycolor) } },
 							attrs: { "aria-label": 'Flip' },
-							"class": { "small": smallScreen },
+							"class": {
+								"play": true,
+								"spaceleft": true,
+							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "cached")]
 					),
@@ -419,13 +438,13 @@ Vue.component('my-game', {
 				{
 					myReservePiecesArray.push(h('div',
 					{
-						'class': {'board':true, ['board'+sizeY]:true},
+						'class': {'board':true, ['board'+sizeY+'-reserve']:true},
 						attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
 					},
 					[
 						h('img',
 						{
-							'class': {"piece":true},
+							'class': {"piece":true, "reserve":true},
 							attrs: {
 								"src": "/images/pieces/" +
 									this.vr.getReservePpath(this.mycolor,i) + ".svg",
@@ -443,13 +462,13 @@ Vue.component('my-game', {
 				{
 					oppReservePiecesArray.push(h('div',
 					{
-						'class': {'board':true, ['board'+sizeY]:true},
+						'class': {'board':true, ['board'+sizeY+'-reserve']:true},
 						attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
 					},
 					[
 						h('img',
 						{
-							'class': {"piece":true},
+							'class': {"piece":true, "reserve":true},
 							attrs: {
 								"src": "/images/pieces/" +
 									this.vr.getReservePpath(oppCol,i) + ".svg",
@@ -801,6 +820,7 @@ Vue.component('my-game', {
 			),
 			h('button',
 				{
+					attrs: { id: "sendChatBtn"},
 					on: { click: this.sendChat },
 					domProps: { innerHTML: "Send" },
 				}
@@ -883,6 +903,7 @@ Vue.component('my-game', {
 						[
 							h('h3',
 								{
+									"class": { clickable: true },
 									domProps: { innerHTML: "Show solution" },
 									on: { click: this.toggleShowSolution },
 								}
@@ -921,10 +942,10 @@ Vue.component('my-game', {
 			{
 				'class': {
 					"col-sm-12":true,
-					"col-md-8":true,
-					"col-md-offset-2":true,
-					"col-lg-6":true,
-					"col-lg-offset-3":true,
+					"col-md-10":true,
+					"col-md-offset-1":true,
+					"col-lg-8":true,
+					"col-lg-offset-2":true,
 				},
 				// NOTE: click = mousedown + mouseup
 				on: {

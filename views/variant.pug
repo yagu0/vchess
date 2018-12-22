@@ -12,32 +12,26 @@ block content
 				input#drawer-control.drawer(type="checkbox")
 				#menuBar
 					label.drawer-close(for="drawer-control")
-					a#homeLink.conditional-jump(href="/")
+					a#homeLink(href="/")
 						i.material-icons home
 					.info-container
-						a.conditional-jump(href="#rules" @click="setDisplay('rules')")
+						a(href="#rules" @click="setDisplay('rules')")
 							| Rules
-						a.conditional-jump(href="#play" @click="setDisplay('game')")
+						a(href="#play" @click="setDisplay('play')")
 							| Play!
-						a.conditional-jump(href="#problems" @click="setDisplay('problems')") 
+						a(href="#problems" @click="setDisplay('problems')") 
 							| Problems
-					#flagMenu.conditional-jump(
+					#flagMenu.clickable(
 							onClick="document.getElementById('modalLang').checked=true")
 						img(src="/images/flags/" + lang + ".svg")
-					#helpMenu.conditional-jump(
+					#helpMenu.clickable(
 							onClick="document.getElementById('modalHelp').checked=true")
 						.info-container
 							p Help
 		.row
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
-					v-show="display=='rules'")
-				my-rules
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
-					v-show="display=='game'")
-				my-game(v-bind:problem="problem")
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2(
-					v-show="display=='problems'")
-				my-problems(v-on:show-problem="showProblem($event)")
+			my-rules(v-show="display=='rules'")
+			my-game(v-show="display=='play'" v-bind:problem="problem")
+			my-problems(v-show="display=='problems'" v-on:show-problem="showProblem($event)")
 		// (Some) Modals:
 		include modal-help.pug
 		include modal-lang.pug

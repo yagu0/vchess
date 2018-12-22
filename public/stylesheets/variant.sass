@@ -2,20 +2,23 @@
 
 #menuBar
   background: linear-gradient(#e66465, #9198e5)
-  height: 77px
+  height: 29px
   margin-bottom: 10px
   @media screen and (max-width: 767px)
     height: 100%
     margin-bottom: 0
   @media screen and (min-width: 768px)
     width: 100%
+    overflow: hidden
 
 a#homeLink
-  margin: 27px 0 0 10px
+  margin-left: 10px
+  margin-top: 2px
+  color: black
   display: inline-block
   @media screen and (max-width: 767px)
-    margin: 10px 0 0 10px
     display: block
+    margin: 5px 0 0 12px
 
 .info-container
   display: inline-block
@@ -27,9 +30,9 @@ a#homeLink
     color: black
   a, p
     display: inline-block
-    padding: 3px
+    padding: 0
     border: 1px solid black;
-    margin: 25px 0 0 15px
+    margin: 1px 0 0 15px
     @media screen and (max-width: 767px)
       margin-top: 10px
       display: block
@@ -37,45 +40,70 @@ a#homeLink
 #helpMenu
   @media screen and (min-width: 768px)
     float: right
-  cursor: pointer
-  @media screen and (max-width: 767px)
-    .info-container
-      p
-        margin-right: 5px
+  .info-container
+    p
+      margin: 1px 0 0 15px
 
 #flagMenu
   @media screen and (min-width: 768px)
+    margin-top: 1px
     float: right
-  cursor: pointer
   margin: 0 15px
   @media screen and (max-width: 767px)
-    margin-right: 5px
+    margin: 25px 5px 0 15px
   img
     display: inline-block
-    height: 30px
-    margin-top: 25px
+    margin: 0
+    height: 25px
 
 label.drawer-toggle
   padding: 0
   &::before
-    font-size: 2.5em;
-    max-height: 43px;
-    top: -10px;
-    left: 10px
+    font-size: 2em;
+    max-height: 32px;
+    top: -7px;
+    left: 5px
 
 // Game section:
 
-.topindicator
-  position: relative
+button.play
+  height: 24px
+  margin: 0
+  padding: 0 10px 24px 10px
+  box-sizing: border-box
   border: 1px solid brown
+button.play.spaceleft
+  margin-left: 15px
+button.play.spaceright
+  margin-right: 15px
+
+.aboveboard-wrapper
+  width: 80vh
+  margin: 0 auto
+  @media screen and (max-width: 767px)
+    width: 100%
+    margin: 0
+
+button.above-board
+  margin-left: 15px
+  margin-right: 15px
+
+i.material-icons
+  font-size: 24px
 
 .indic-left
+  border: 1px solid brown
   float: left
-  margin: 0 0 var(--universal-margin) 20px
+  margin: 0 0 var(--universal-margin) 10vh
+  @media screen and (max-width: 767px)
+    margin-left: 20px
 
 .indic-right
+  border: 1px solid brown
   float: right
-  margin: 0 20px var(--universal-margin) 0
+  margin: 0 10vh var(--universal-margin) 0
+  @media screen and (max-width: 767px)
+    margin-right: 20px
 
 .my-chatmsg
   color: black
@@ -83,17 +111,15 @@ label.drawer-toggle
 .opp-chatmsg
   color: blue
 
+// TODO: this fix is not good (button height 0 if chat overflow window height)
+#sendChatBtn
+  min-height: 42px
+
 .connected
   background-color: green
 
 .disconnected
   background-color: red
-
-.settings-btn
-  padding: 6px 7px 0 7px
-
-.settings-btn-small
-  padding: 0 3px
 
 .white-turn
   background-color: white
@@ -111,11 +137,11 @@ button.seek
   &:hover
     background-color: #cc99ff
 
+.game.reserve-div
+  margin-bottom: 18px
+
 .reserve-count
   padding-left: 40%
-
-.reserve-div
-  margin-bottom: 20px
 
 .reserve-row-1
   margin-bottom: 15px
@@ -130,6 +156,10 @@ div.board8
   width: 12.5%
   padding-bottom: 12.5%
 
+div.board8-reserve
+  width: 10%
+  padding-bottom: 10%
+
 div.board10
   width: 10%
   padding-bottom: 10%
@@ -138,10 +168,16 @@ div.board11
   width: 9.09%
   padding-bottom: 9.1%
 
+// NOTE: no variants with reserve of size != 8
+
 .game
-  clear: both
+  width: 80vh
+  margin: 0 auto
   .board
     cursor: pointer
+  @media screen and (max-width: 767px)
+    width: 100%
+    margin: 0
 
 #choices
   margin: 0 auto 0 auto
@@ -226,6 +262,12 @@ img.ghost
   margin-left: 0
   margin-right: 0
 
+#modal-eog+div .card
+  overflow: hidden
+
+#actions
+  margin: 10px 0
+
 // Rules section:
 
 .warn
@@ -263,9 +305,6 @@ figure.diagram-container
     display: block
     clear: both
     padding-top: 5px
-
-.spaceleft
-  margin-left: 30px
 
 p.boxed
   background-color: #FFCC66
@@ -323,21 +362,19 @@ ul:not(.browser-default) > li
 #problem-solution
   display: none
 
-.topspace
-  margin-top: 15px
-
-.problem
-  cursor: pointer
-  margin-bottom: 15px
-
 #solution-div h3
-  cursor: pointer
+  background-color: lightgrey
+  padding: 3px 5px
 
 .newproblem-form, .newproblem-preview
   max-width: 90%
 
-.clickable
-  cursor: pointer
+#problemControls
+  width: 75%
+  margin: 0 auto
+  @media screen and (max-width: 767px)
+    width: 100%
+    margin: 0
 
-.clearer
-  clear: both
+.problem
+  margin: 10px 0

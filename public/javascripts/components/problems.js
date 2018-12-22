@@ -11,10 +11,21 @@ Vue.component('my-problems', {
 		};
 	},
 	template: `
-		<div>
-			<button @click="fetchProblems('backward')">Previous</button>
-			<button @click="fetchProblems('forward')">Next</button>
-			<button @click="showNewproblemModal">New</button>
+		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+			<div id="problemControls" class="button-group">
+				<button aria-label="Load previous problems" class="tooltip"
+						@click="fetchProblems('backward')">
+					<i class="material-icons">skip_previous</i>
+				</button>
+				<button aria-label="Add a problem" class="tooltip"
+						@click="showNewproblemModal">
+					New
+				</button>
+				<button aria-label="Load next problems" class="tooltip"
+						@click="fetchProblems('forward')">
+					<i class="material-icons">skip_next</i>
+				</button>
+			</div>
 			<my-problem-summary v-on:show-problem="bubbleUp(p)"
 				v-for="(p,idx) in sortedProblems"
 				v-bind:prob="p" v-bind:preview="false" v-bind:key="idx">
@@ -46,9 +57,9 @@ Vue.component('my-problems', {
 					<label for="modal-newproblem" class="modal-close"></label>
 					<my-problem-summary v-bind:prob="newProblem" v-bind:preview="true">
 					</my-problem-summary>
-					<div class="col-sm-12 col-md-6 col-lg-3 col-lg-offset-3 topspace">
-						<button @click="sendNewProblem()">Send</button>
+					<div class="button-group">
 						<button @click="newProblem.stage='nothing'">Cancel</button>
+						<button @click="sendNewProblem()">Send</button>
 					</div>
 				</div>
 			</div>
@@ -59,9 +70,6 @@ Vue.component('my-problems', {
 			// Newest problem first
 			return this.problems.sort((p1,p2) => { return p2.added - p1.added; });
 		},
-		mailErrProblem: function() {
-			return "mailto:contact@vchess.club?subject=[" + variant + " problems] error";
-		},
 	},
 	methods: {
 		// Propagate "show problem" event to parent component (my-variant)
@@ -69,7 +77,6 @@ Vue.component('my-problems', {
 			this.$emit('show-problem', JSON.stringify(problem));
 		},
 		fetchProblems: function(direction) {
-			return; //TODO: re-activate after server side is implemented (see routes/all.js)
 			if (this.problems.length == 0)
 				return; //what could we do?!
 			// Search for newest date (or oldest)
@@ -96,6 +103,10 @@ Vue.component('my-problems', {
 		previewNewProblem: function() {
 			if (!V.IsGoodFen(this.newProblem.fen))
 				return alert("Bad FEN string");
+			if (this.newProblem.instructions.length == 0)
+				return alert("Empty instructions");
+			if (this.newProblem.solution.length == 0)
+				return alert("Empty solution");
 			this.newProblem.stage = "preview";
 		},
 		sendNewProblem: function() {

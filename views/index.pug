@@ -12,9 +12,11 @@ block content
 					.info-container
 						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				#flagMenu(onClick="document.getElementById('modalLang').checked=true")
+				#flagMenu.clickable(
+						onClick="document.getElementById('modalLang').checked=true")
 					img(src="/images/flags/" + lang + ".svg")
-				#helpMenu(onClick="document.getElementById('modalHelp').checked=true")
+				#helpMenu.clickable(
+						onClick="document.getElementById('modalHelp').checked=true")
 					.info-container
 						p Help
 		.row
@@ -27,7 +29,7 @@ block content
 		div(role="dialog")
 			#b4welcome.card.text-center.small-modal
 				h3.blue First visit?
-				p#readThis(@click="showWelcomeMsg") >>> Please read this <<<
+				p#readThis.clickable(@click="showWelcomeMsg") >>> Please read this <<<
 		case lang
 			when "en"
 				include welcome/en.pug

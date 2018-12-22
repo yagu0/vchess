@@ -11,10 +11,9 @@ class CrazyhouseRules extends ChessRules
 		// 6) Check promoted array
 		if (!fenParsed.promoted)
 			return false;
-		fenpromoted = fenParsed.promoted;
-		if (fenpromoted == "-")
+		if (fenParsed.promoted == "-")
 			return true; //no promoted piece on board
-		const squares = fenpromoted.split(",");
+		const squares = fenParsed.promoted.split(",");
 		for (let square of squares)
 		{
 			const c = V.SquareToCoords(square);
@@ -48,8 +47,8 @@ class CrazyhouseRules extends ChessRules
 
 	getReserveFen()
 	{
-		let counts = _.map(_.range(10), 0);
-		for (let i=0; i<V.PIECES.length; i++)
+		let counts = new Array(10);
+		for (let i=0; i<V.PIECES.length-1; i++) //-1: no king reserve
 		{
 			counts[i] = this.reserve["w"][V.PIECES[i]];
 			counts[5+i] = this.reserve["b"][V.PIECES[i]];
