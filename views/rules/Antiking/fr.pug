@@ -1,0 +1,52 @@
+p.boxed
+	| Vous disposez d'un roi et d'un "anti-roi". Le roi ne peut pas se retrouver
+	| en échec à la fin d'un tour, mais l'anti-roi doit lui toujours être en échec.
+	| Ce dernier capture les pièces de sa couleur.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : un anti-roi additionnel.
+	li Coups non capturants : standards.
+	li Coups spéciaux : standards.
+	li Captures : cas particulier de l'anti-roi (voir ci-dessous).
+	li Fin de partie : mat ou "anti-mat".
+
+h3 Bases
+
+p.
+	La nouvelle pièce est royale, et donc ne peut être capturée.
+	Elle capture les pièces de sa couleur (cela aide à mater l'anti-roi adverse,
+	mais complique le mat orthodoxe...).
+	L'anti-roi doit toujours rester en échec (s'il ne peut pas, vous avez perdu).
+
+figure.diagram-container
+	.diagram
+		| fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
+	figcaption Les cases indiquées ne sont pas des coups d'anti-roi légaux.
+
+h3 Fin de partie
+
+p Il y a deux façons de gagner :
+ol
+	li Mater le roi adverse
+	li "Anti-mater" l'anti-roi adverse
+p ...Ou peut-être faire les deux en même temps ?
+
+p.
+	Note 1 : bien que l'anti-roi capture les pièces de son camp, il ne met pas
+	en échec son roi - ni d'ailleurs le roi adverse.
+
+p.
+	Note 2 : les rois n'attaquent pas les anti-rois (de couleur opposée).
+	En effet ceci permettrait d'appliquer une méthode simple pour ne jamais
+	être en "anti-échec" : rester collé au roi adverse.
+
+h3 Liens
+
+p
+	| La 
+	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+		| variante Antiking
+	| &nbsp;sur chessvariants.com.

@@ -1,61 +1,62 @@
 p.boxed
-	| Chaque move played ends up on another board (the "other side of the mirror").
-	| So there are two boards. All pieces start on board 1.
+	| Chaque pièce déplacée arrive sur un autre échiquier ("de l'autre côté du miroir").
+	| Il y a deux échiquiers. Toutes les pièces démarrent sur l'échiquier 1.
 
-h3 Specifications
+h3 Caractéristiques
 
 ul
-	li Chessboard: standard.
-	li Material: standard + Alice pieces.
-	li Non-capturing moves: standard.
-	li Special moves: standard.
-	li Captures: standard (if on same board).
-	li End of game: standard.
+	li Échiquier : standard.
+	li Matériel : standard + pièces Alice.
+	li Coups non capturants : standards.
+	li Coups spéciaux : standards.
+	li Captures : standards (sur le même échiquier).
+	li Fin de partie : standard.
 
-h3 Basics
+h3 Bases
 
 p
-	| Two boards are used in this variant. Pieces from board 2 are represented on
-	| the main board, upside down.
-	| Any move played must be valid on the board it is played on.
-	| In addition, the final square should not be occupied by a piece from the other board
-	| (thus allowing to represent all on one board).
+	| Deux échiquiers sont utilisés dans cette variante.
+	| Les pièces de l'échiquier 2 sont représentées à l'envers.
+	| Tout coup joué doit être valide sur son échiquier (au sens habituel).
+	| De plus, la case d'arrivée ne doit pas être occupée par une pièce sur
+	| l'autre échiquier. (C'est ce qui permet de tout représenter sur 64 cases).
 
-p Notation for Alice pieces was chosen as follow:
+p La notation des "pièces Alice" est la suivante :
 ul
-	li Pawn : S
-	li Rook : U
-	li Knight : O
-	li Bishop : C
-	li Queen : T
-	li King : L
+	li Pion : S
+	li Tour : U
+	li Cavalier : O
+	li Fou : C
+	li Dame : T
+	li Roi : L
 
 figure.diagram-container
 	.diagram
 		| fen:rnbqkbnr/ppp1pppp/8/8/2p5/5O2/PP1PPPPP/RNBQKB1R:
-	figcaption After the moves 1.Nf3 Pd5 2.Pc4 Sxc4
+	figcaption Après les coups 1.Nf3 Pd5 2.Pc4 Sxc4
 
-h3 End of the game
+h3 Fin de partie
 
 p
-	| As in the orthodox game, win by checkmating the king. It shouldn't be able to
-	| escape the check, not even by moving to the other board.
+	| Comme aux échecs orthodoxes, on gagne en matant le roi adverse.
+	| Celui-ci ne doit pas pouvoir parer l'échec, pas même en s'échappant sur
+	| l'autre échiquier.
 
 p.
-	Note: en-passant and castle occur as they do in the standard game.
-	More specifically, en-passant is possible regardless of the worlds pawns are in.
-	This is justified because pawns "go through the mirror" while moving, and can
-	thus be captured either right after or just before they pass the mirror.
-	Castling should be legal according to orthodox rules on the board 1 (it cannot
-	occur on board 2, because it would mean king and rook moved). Moreover, the
-	king cannot be in check on board 2 after castling.
+	Note : la prise en passant et le roque s'effectuent comme dans le jeu orthodoxe.
+	Plus précisément, on peut prendre en passant quels que soient les mondes de
+	départ et d'arrivée des pions. Cela se justifie par le passage des pions
+	"à travers le miroir" : ils peuvent ainsi être capturés soient juste avant,
+	ou juste après le miroir. Le roque doit être légal sur l'échiquier de départ
+	(forcément le 1, sinon le roi a bougé et le roque n'est plus légal),
+	et le roi ne doit pas être en échec sur l'échiquier d'arrivée.
 
-h3 Credits
+h3 Liens
 
 p
-	| Alice chess pages on 
-	a(href="https://www.chessvariants.com/other.dir/alice.html") chessvariants.com 
-	| and on 
+	| Les pages dédiées à cette variante sur 
+	a(href="https://www.chessvariants.com/other.dir/alice.html") chessvariants.com
+	| &nbsp;et 
 	a(href="https://www.schemingmind.com/journalarticle.aspx?article_id=9")
 		| schemingmind.com
 	| .

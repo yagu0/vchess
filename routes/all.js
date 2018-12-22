@@ -4,7 +4,7 @@ const createError = require('http-errors');
 const sqlite3 = require('sqlite3');//.verbose();
 const db = new sqlite3.Database('db/vchess.sqlite');
 const sanitizeHtml = require('sanitize-html');
-const MaxNbProblems = 2;
+const MaxNbProblems = 20;
 
 const supportedLang = ["fr","en"];
 function selectLanguage(req, res)

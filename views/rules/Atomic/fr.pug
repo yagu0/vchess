@@ -1,0 +1,46 @@
+p.boxed
+	| Chaque capture engendre une "explosion" faisant disparaître toutes les
+	| pièces avoisinantes - sauf les pions.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : standard.
+	li Coups non capturants : standards.
+	li Coups spéciaux : standards.
+	li Captures : explosions ; voir ci-dessous.
+	li Fin de partie : faire exploser ou mater le roi ; voir ci-dessous.
+
+h3 Bases
+
+p.
+	Quand une pièce capture un ennemi sur la case C, toutes les pièces situées
+	sur des cases atteignables en un coup de roi depuis C disparaissent.
+	Les pions subsistent toutefois : ils doivent être capturés directement.
+
+figure.diagram-container
+	.diagram
+		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
+	figcaption Après les coups 1.Nc3 d6?? 2.Nd5 e5 3.Nxc7
+
+h3 Fin de partie
+
+p Il y a deux façons de gagner, par ordre décroissant de priorité :
+ol
+	li Faire exploser le roi adverse
+	li Mater le roi adverse
+
+p Les explosions ont la priorité : un mat suivi d'une explosion perd.
+
+p.
+	Note : le suicide est interdit. Ainsi, le roi peut toucher le roi adverse
+	et devenir invulnérable aux échecs.
+
+h3 Liens
+
+p.
+	Beaucoup d'informations sont disponibles sur cette variante
+	(elle est jouée sur lichess et sur FICS, entre autres).
+	Celle-ci est née en 1995 sur le German Internet Chess Server (GICS)
+	à en croire Wikipedia.

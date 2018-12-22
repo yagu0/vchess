@@ -21,6 +21,13 @@ body
       @media screen and (max-width: 767px)
         padding: 0 5px
 
+@media screen and (max-width: 767px)
+  .button-group
+    flex-direction: row
+    button:not(:first-child)
+      border-left: 1px solid var(--button-group-border-color)
+      border-top: 0
+
 a
   text-decoration: underline
 
