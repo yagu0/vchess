@@ -1,0 +1,45 @@
+p.boxed
+	| Une pièce capturée peut être réutilisée par le joueur capturant,
+	| en la posant n'importe où au lieu d'effectuer un déplacement.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : standard.
+	li Coups non capturants : standards.
+	li Coups spéciaux : standards + renaissance.
+	li Captures : standards.
+	li Fin de partie : standard.
+
+h3 Bases
+
+p.
+	Les règles orthodoxes s'appliquent, avec un seul changement :
+	chaque fois qu'une pièce est capturée, la "réserve" de pièces du capturant
+	est augmentée avec cette unité.
+	À chaque coup vous pouvez choisir de poser une de ces pièces en réserve
+	(n'importe où, sauf rangées 1 et 8 pour les pions) au lieu de jouer un
+	coup habituel.
+
+p.
+	Notation : une arobase '@' indique l'arrivée d'une pièce de réserve.
+	Par exemple, B@d4 signifie un parachutage de fou en d4, et @f3 une
+	renaissance de pion en f3.
+
+figure.diagram-container
+	.diagram
+		| fen:qnbrkbnr/ppNppp1p/2p2p2/8/8/5N2/P1PPPPPP/BRNQKBNR:
+	figcaption Après 1.b3 Nf6 2.Bxf6 gxf6 3.Nf3 c6?? 4.N@c7#
+
+p.
+	Note : quand un pion promu est capturé, cela ajoute un pion aux réserves du
+	joueur capturant, et non pas la pièce capturée. Cela permet de promouvoir
+	ses pions sans craindre de donner une dame à l'adversaire.
+
+h3 Liens
+
+p
+	| Cette variante est très populaire ; vous pouvez par exemple commencer par 
+	a(href="https://www.chessvariants.com/other.dir/crazyhouse.html") lichess.org
+	| .

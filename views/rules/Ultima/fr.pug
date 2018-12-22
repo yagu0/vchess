@@ -1,0 +1,168 @@
+p.boxed
+	| La plupart des pièces sont connues mais se déplacent différemment ;
+	| en général comme une dame orthodoxe, mais les captures sont complexes.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : "standard".
+	li Coups non capturants : souvent comme une dame.
+	li Coups spéciaux : aucun.
+	li Captures : très particulières.
+	li Fin de partie : standard ; voir ci-dessous.
+
+h4 Noms des pièces
+
+p Les noms des pièces se rapportent à leur mode de capture, qui est décrit plus loin
+ul
+	li Pion : pion ou pinceur
+	li Tour : coordinateur
+	li Cavalier : "sauteur long"
+	li Fou : caméléon
+	li Dame : "supprimeur"
+	li King : roi (même comportement qu'aux échecs orthodoxes)
+p.
+	En outre, une nouvelle pièce est ajoutée : l'immobiliseur, dénoté par la
+	lettre 'm' dans les diagrammes FEN et parties PGN. Il est représenté par
+	une tour renversée :
+
+figure.diagram-container
+	.diagram
+		| fen:8/8/4m3/8/8/8/3M4/8:
+	figcaption Immobiliseurs en d2 et e6.
+
+h3 Coups non capturants
+
+p.
+	Les pions se déplacent comme des tours orthodoxes, et les déplacements du roi
+	sont standards. Toutes les autres pièces se déplacent comme une dame orthodoxe.
+
+p.
+	Quand une pièce est à côté d'un immobiliseur ennemi, elle ne peut plus bouger
+	à moins que cet immobiliseur ne côtoie lui-même un immobiliseur ou caméléon ami
+	(annulant les pouvoirs de l'immobiliseur adverse).
+
+p
+	| Note : cela correspond aux "règles pures" telles que décrites sur 
+	a(href="http://www.inference.org.uk/mackay/ultima/ultima.html") cette page
+	| , qui diffèrent légèrement des règles originelles.
+	| Le but est de s'affranchir de la bizarre règle de suicide, en affaiblissant
+	| un peu le verrou des immobiliseurs.
+	| En particulier, selon les règles de base deux immobiliseurs adjacents ne
+	| pourront jamais bouger sauf si l'un des deux est capturé.
+	| Attention c'est toujours le cas si tous les caméléons disparaissent.
+
+h3 Coups capturants
+
+p.
+	Le cas facile d'abord : le roi capture comme d'habitude, en se déplaçant sur
+	une case adjacente occupée par l'ennemi. C'est le seul cas de pièce suivant les
+	règles orthodoxes, et aussi la seule à capturer en allant sur une case occupée.
+	Toutes les autres pièces capturent passivement : elles arrivent sur une case
+	libre, et capturent une ou plusieurs pièces selon des caractéristiques
+	géométriques du déplacement.
+
+p Note 1 : l'immobiliseur ne capture pas.
+
+p.
+	Note 2 : concernant les captures passives, un 'X' est ajouté en fin de coup
+	pour indiquer que quelque chose a été pris (il faut rejouer la partie pour
+	savoir quoi et où).
+
+h4 Pions/Pinceurs
+
+p.
+	Si en fin de déplacement un pion se retrouve horizontalement ou verticalement
+	adjacent à une pièce ennemie, qui elle-même est voisine d'une pièce amie (dans
+	la même direction), alors la pièce "pincée" est capturée.
+
+figure.diagram-container
+	.diagram
+		| fen:7k/5ppp/2N5/2n5/3rB3/8/PPP5/K7:
+	figcaption 1.Pc2c4 capture à la fois le coordinateur et le "sauteur long".
+
+h4 Coordinateurs (tours)
+
+p.
+	Imaginez que la tour et le roi de même couleur sont deux coins d'un rectangle
+	(ça fonctionne si les deux pièces ne sont pas alignées).
+	Si à la fin d'un déplacement d'une tour une pièce adverse se trouve dans l'un
+	des deux coins restants, elle est capturée.
+
+figure.diagram-container
+	.diagram
+		| fen:8/2b4K/2q5/3p1N1p/8/8/2R5/k7:
+	figcaption 1.Rc5 capture en c7 et h5.
+
+h4 "Sauteurs longs" (cavaliers)
+
+p.
+	Un cavalier capture exactement comme une dame au jeu de dames internationales :
+	en sautant par dessus les pièces ennemies, autant de fois qu'il le souhaite
+	mais toujours dans la même direction. Dans ce sens, il a moins de pouvoir
+	qu'une dame au jeu précité : sur le diagramme suivant c8 et f6 ne peuvent être
+	pris. En revanche, le cavalier n'est pas obligé de maximiser le nombre de
+	pièces adverses capturés (come c'est le cas au jeu de dames).
+
+figure.diagram-container
+	.diagram
+		| fen:2n4k/3r4/5b2/3p4/1m6/3b4/3N4/K7 d4,d6,d8,a5:
+	figcaption Toutes les cases marquées sont jouables depuis d2.
+
+h4 "Supprimeur" (dame)
+
+p.
+	La dame capture en s'éloignant d'une pièce adverse adjacente, dans la direction
+	opposée (sans effectuer de sauts, la voie doit être libre).
+
+figure.diagram-container
+	.diagram
+		| fen:7k/8/8/3Qr3/8/8/8/K7 a5,b5,c5:
+	figcaption 1.Qa5, 1.Qb5 ou 1.Qc5 capturent la tour noire.
+
+h4 Caméléon (fou)
+
+p.
+	Le caméléon capture les pièces ennemies de la façon dont elles capturent.
+	Ainsi, il
+ul
+	li pince les pions,
+	li supprime les supprimeurs,
+	li saute par dessus les sauteurs longs,
+	li coordonne les coordinateurs.
+p ...et ces captures peuvent se cumuler.
+
+figure.diagram-container
+	.diagram
+		| fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4,e5:
+	figcaption 1.Bd5 capture toutes les pièces marquées.
+
+p.
+	En outre, le caméléon immobilise les immobiliseurs (mais ne peut les capturer
+	puisqu'eux-même ne capturent pas).
+
+p.
+	Un caméléon capture le roi de la même façon que le roi capture, ce qui signifie
+	qu'un caméléon à côté d'un roi ennemi donne échec.
+
+h3 Fin de partie
+
+p.
+	Il faut mater le roi adverse comme aux échecs orthodoxes (et le pat fait nulle).
+	Cependant, les échecs peuvent être difficiles à voir à cause des définitions
+	exotiques des captures. Par exemple sur le diagramme suivant, le roi blanc ne
+	peut aller en e5 car il serait capturé par le pion noir (venant en d5).
+
+figure.diagram-container
+	.diagram
+		| fen:7k/8/8/p4r/4K3/8/8/8 e5:
+	figcaption 1.Ke5 est impossible
+
+h3 Liens
+
+p
+	| La 
+	a(href="https://en.wikipedia.org/wiki/Baroque_chess") page Wikipedia
+	| &nbsp; est un bon point de départ, donnant des liens sur plusieurs autres
+	| pages intéressantes (incluant chessvariants.com, comme d'habitude).

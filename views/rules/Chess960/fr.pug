@@ -75,74 +75,85 @@ p
 h4 Tours
 
 p.
-	They move either horizontally or vertically, as far as they want while the path
-	is free of pieces. If this path ends with an enemy piece, it can a priori be captured
-	(a priori because if the move ends up with the king in check, then it's illegal).
+	Elles se déplacent horizontalement ou verticalement, d'autant de cases qu'elles
+	le souhaitent du moment que la voie est libre.
+	Si leur chemin s'arrête sur une pièce adverses, celle-ci peut être capturée
+	a priori. (A priori car le roi ne doit pas être en échec à la suite de ce coup).
 
-h4 Knights
+h4 Cavaliers
 
 p.
-	They are the only units able to jump over other pieces (without capturing them).
-	They do "L" moves: two squares in one direction (horizontally or vertically),
-	and then one square in an orthogonal direction.
+	C'est la seule pièce capable de sauter par dessus les autres (sans les capturer).
+	Ils effectuent des déplacements en "L" : deux cases dans une direction
+	(horizontale ou verticale), puis une dans une direction orthogonale.
 
 figure.diagram-container
 	.diagram
 		| fen:k7/2p5/5q2/2b5/4N3/2R3r1/3P4/7K f6,d6,c5,f2,g3,g5:
-	figcaption Possible knight moves from e4.
+	figcaption Possibles coups de cavalier depuis e4.
 
-h4 Bishops
-
-p.
-	They move diagonally, as far as they want while the path is free of pieces.
-	If this path ends with an enemy piece, it can a priori be captured.
-
-h4 Queen
-
-p This piece combines the movement of a rook and a bishop, with the same conditions.
-
-h4 King
+h4 Fous
 
 p.
-	This piece moves like a queen, but only by one square at a time. The final square
-	must be either vacant or occupied by an enemy piece (therefore captured).
+	Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la voie
+	est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
+	a priori être capturée.
+
+h4 Dame
 
 p.
-	The king cannot be captured, but a move may ends up attacking enemy's king.
-	It is said to be "under check" (or "in check") and the opponent must either:
+	Cette pièce combine les modes de déplacement du fou et de la tour,
+	avec les même conditions.
+
+h4 Roi
+
+p.
+	Le roi se déplace comme une dame, mais d'une seule case à la fois.
+	La case d'arrivée doit être vacante ou bien occupée par une pièce adverse
+	(qui se retrouve capturée).
+
+p.
+	Le roi ne peut être capturé, mais un coup peut s'achever en menaçant le roi
+	adverse. Ce dernier est alors "en échec", et l'adversaire doit :
 ul
-	li move the king to a safe square, or
-	li capture the attacker, or
-	li intercept the attacking line.
-p Depending on the situation one or more of these counter-measures could be impossible.
+	li déplacer son roi en lieu sûr, ou
+	li capturer l'attaquant, ou
+	li intercepter la ligne d'attaque.
+p Selon la situation une ou plus de ces contre-mesures peuvent être inapplicables.
 
-p Leaving our king in check after a move is forbidden.
+p Il est interdit de laisser son roi en échec à la fin d'un coup.
 
-TODO: diagram let king in check capturing queen, bishop pinned
 figure.diagram-container
 	.diagram
 		| fen:r6k/4q3/8/8/8/B7/8/K7:
-	figcaption Bxe7 is illegal (it allows Rxa1).
+	figcaption Bxe7 est illégal (cela permet Rxa1).
 
-h3 Special moves
+h3 Coups spéciaux
 
-p Apart from pawn promotion which has already been introduced, two special moves exist:
+p.
+	En plus de la promotion des pions précédemment introduite, deux coups spéciaux
+	sont à signaler :
 ul
 	li.
-		castle: if both the king and the right-most (from white player perspective) rook
-		haven't moved yet, and if nothing stand in the path from king to rook, and if the
-		squares f1 and g1 are either free or occupied by the king or rook implied, then
-		the king can go to g1 while the rook moves to f1. Note that since positions are
-		shuffled one of these two pieces may apparently not move.
-		The same can be done on the other side (left-most rook), and end squares are c1
-		for king and d1 for rook. The former is small castle, and the latter large castle.
-		Notation: small castle writes "0-0" while large castle is "0-0-0".
+		le roque : si le roi et la tour la plus à droite du point de vue des blancs
+		n'ont pas encore bougé, et si rien ne se trouve sur le chemin du roi à la
+		tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou éventuellement
+		par les pièces impliquées dans le roque), alors le roi peut aller en g1 et la
+		tour en f1.
+		Note : puisque les pièces sont disposées aléatoirement, le roi ou la tour
+		peut sembler rester immobile pendant ce coup.
+		La même chose peut être effectué côté noir, et du "côté gauche" de
+		l'échiquier avec l'autre tour ; on arrive alors sur les cases c1 (roi) et d1
+		(tour). Ce dernier coup est appelé "grand roque", et l'autre "petit roque".
+		Notation : le petit roque (resp. grand roque) se note 0-0 (resp. 0-0-0).
 	li.
-		en-passant: after a pawn has jumped two squares, if an enemy pawn stands just next
-		to it then it can capture the jumping pawn "en passant", exactly as if it had
-		advanced only one square. The move is noted as usual, but with "e.p." in the end
-		to indicate the special move.
-		The capture is possible only right after the pawn jump: not later in the game.
+		en passant : après qu'un pion a avancé de deux cases, si un pion adverse se
+		trouve juste à côté (horizontalement), il peut alors être capturé
+		"en passant", comme s'il n'avait avancé que d'une case.
+		Ce coup est noté comme les autres captures, mais avec "e.p." à la fin pour
+		indiquer ce coup spécial.
+		La capture n'est possible qu'immédiatement après le saut de deux cases :
+		elle ne pourra plus s'effectuer plus tard dans la partie.
 
 figure.diagram-container
 	.diagram.diag12
@@ -150,32 +161,35 @@ figure.diagram-container
 	.diagram.diag22
 		| fen:nr1kb1r1/ppp3pp/3P4/8/8/7P/PP3PP1/2KR2BR:
 	figcaption.
-		Left: black just played d5 (jump from d7).
-		Right: after cxd6 e.p. and 0-0-0.
+		Gauche : les noirs viennent de jouer d5 (saut depuis d7).
+		Droite : après cxd6 e.p. et 0-0-0.
 
-h3 End of the game
+h3 Fin de partie
 
 p.
-	The best-known way to end a game is by "checkmating" the enemy king.
-	This means that you end a move in a situation where the king can be captured,
-	and your opponent has no way to avoid the capture.
-	The checkmating player has one point and the other zero, so the score writes 1-0
-	or 0-1 depending if white pieces or black pieces mated.
+	La plus célèbre façon de mettre fin à la partie est l'"échec et mat" (ou
+	simplement "le mat"). Cela signifie terminer son coup en attaquant le roi
+	adverse, qui n'a aucun moyen d'éviter sa capture au coup suivant.
+	Le joueur donnant mat a un point et l'autre zéro, ainsi le score s'écrit
+	"1-0" (resp. "0-1") en cas de victoire blanche (resp. victoire noire).
 
 figure.diagram-container
 	.diagram
 		| fen:rnbqkbnr/ppp2Qpp/2np4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR:
-	figcaption Famous mating pattern: 1-0
+	figcaption Célèbre motif de mat : 1-0
 
-p All other ways to end the game lead to a draw (1/2-1/2): nobody wins:
-ul
-	li when a player has no legal move but is not under check,
-	li.
-		when a position is repeated three times with the same castling right and
-		same player in turn,
-	li when 50 moves are played without pawn movement or capture.
 p.
-	Note: this last way to end a game is not implemented, because it quite seldom occurs,
-	does not generalize so well to variants (it depends), and more important because
-	games played on this website are not official tournament games. If you feel like
-	manoeuvring for 200 moves and your opponent isn't bored, then why would I stop you? :)
+	Toutes les autres façons d'achever une partie mènent à une nulle (1/2-1/2) ;
+	personne ne gagne :
+ul
+	li quant un joueur n'a pas de coup légal à disposition sans être en échec (pat),
+	li.
+		quand une position est répétée trois fois avec les mêmes droits au roque,
+		et le même joueur au trait,
+	li quand 50 coup s'effectuent sans mouvement de pion ni capture.
+p.
+	Note : cette dernière manière de terminer une partie n'est pas implémentée,
+	car elle ne se généralise pas facilement aux variantes (pas à toutes),
+	mais surtout car les parties jouées ici le sont avant tout pour s'amuser.
+	Si vous vous lancez dans des manoeuvres de 200 coups et que votre adversaire
+	n'en a pas marre, pourquoi vous arrêterais-je ? :)

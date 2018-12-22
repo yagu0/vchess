@@ -7,19 +7,19 @@ h3 Specifications
 ul
 	li Chessboard: standard.
 	li Material: standard.
-	li Non-capturing moves: standard + magnetic.
-	li Special moves: no en-passant + magnetic.
-	li Captures: standard + magnetic.
+	li Non-capturing moves: standard + magnetic effect.
+	li Special moves: no en-passant + magnetic effect.
+	li Captures: standard + magnetic effect.
 	li End of game: capture the king.
 
 h3 Basics
 
-p
-	| Every piece has a charge generating a magnetic field, except the two kings
-	| which have a neutral charge.
-	| Pieces of the same color have let's say a positive charge,
-	| while the others have a negative charge.
-	| So, after each move some pieces are attracted while others are repelled.
+p.
+	Every piece has a charge generating a magnetic field, except the two kings
+	which have a neutral charge.
+	Pieces of the same color have let's say a positive charge,
+	while the others have a negative charge.
+	After each move positive charges attract negative ones, and repel positive ones.
 
 figure.diagram-container
 	.diagram.diag12
@@ -39,7 +39,7 @@ h3 End of the game
 
 p Win by capturing opponent's king. There is no notion of check or stalemate here.
 
-p Note: In castling, the changes are made by the rook movement.
+p Note: while castling, the changes are made by the rook movement.
 
 h3 Credits
 

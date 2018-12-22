@@ -1,0 +1,44 @@
+p.boxed
+	| En plus des coups habituels, une pièce peut être échangée avec une voisine.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : standard.
+	li Coups non capturants : standards + échanges.
+	li Coups spéciaux : standards.
+	li Captures : standards.
+	li Fin de partie : standard.
+
+h3 Bases
+
+p.
+	Au lieu d'effectuer un coup normal, une pièce peut être échangée avec une
+	pièce amie adjacente.
+	L'échange peut déplacer des pions sur la première ou dernière rangée :
+	dans le premier cas un saut de deux cases est alors possible, et dans le
+	second une promotion s'effectue.
+	L'échange doit impliquer deux pièces de différentes natures.
+	L'échange est interdit quand le roi est en échec.
+
+p.
+	Notation : un coup d'échange est indiqué par la lettre majuscule 'S'
+	suivie des cases échangées. Par exemple sur le diagramme : Sb8c8
+
+figure.diagram-container
+	.diagram
+		| fen:1RB3k1/5ppp/8/8/8/8/8/K7:
+	figcaption Les blancs peuvent mater en 1 par l'échange b8-c8
+
+p.
+	Note : si le roi et la tour sont sur deux cases adjacentes, le roque et
+	l'échange peuvent parfois être déclenchés de la même façon. Le roque étant
+	prioritaire, l'échange s'effectue en sélectionnant d'abord la tour.
+
+h3 Liens
+
+p
+	La
+	a(href="https://www.chessvariants.com/diffmove.dir/switching.html") variante Switching chess
+	| &nbsp; sur chessvariants.com.

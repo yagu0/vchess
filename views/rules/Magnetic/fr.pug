@@ -1,0 +1,50 @@
+p.boxed
+	| Chaque pièce comporte une charge générant un champ magnétique,
+	| qui attire les pièces de couleur opposée tout en repoussant les pièces amies.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : standard.
+	li Matériel : standard.
+	li Coups non capturants : standards + effet magnétique.
+	li Coups spéciaux : pas de prise en passant + effet magnétique.
+	li Captures : standards + effet magnétique.
+	li Fin de partie : capture du roi.
+
+h3 Bases
+
+p.
+	Chaque pièce contient une charge générant un champ magnétique, excepté les
+	rois qui sont neutres.
+	Disons que les pièces d'une même couleur sont chargées positivement,
+	tandis que les autres sont chargées négativement.
+	Après chaque coup les charges positives attirent les charges négatives, et
+	repoussent les autres charges positives.
+
+figure.diagram-container
+	.diagram.diag12
+		| fen:3b4/8/3K4/q1R2rP1/3Q4/8/3b4/8:
+	.diagram.diag22
+		| fen:3b4/8/3K4/qR1Qr1P1/3b4/8/8/8:
+	figcaption Gauche : avant le coup blanc Qd5. Droite : après ce coup.
+
+p.
+	Note : les rois étant neutres, leurs déplacements ne changent rien à la
+	situation sur l'échiquier. Ils bloquent aussi les actions magnétiques
+	émises dans leur direction.
+
+p Le roque est possible, mais pas la prise en passant.
+
+h3 Fin de partie
+
+p Gagnez en capturant le roi adverse. Il n'y a pas de notion d'échec ou de pat.
+
+p Note : lors du roque, les effets magnétiques sont appliqués par la tour en mouvement.
+
+h3 Liens
+
+p
+	| La 
+	a(href="https://www.chessvariants.com/other.dir/magnetic.html") variante Magnetic
+	| &nbsp;sur chessvariants.com.

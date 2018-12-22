@@ -1,0 +1,59 @@
+p.boxed
+	| Deux nouvelles pièces : le marshall et le cardinal.
+	| Plus grand échiquier. Règles usuelles avec quelques adaptations.
+
+h3 Caractéristiques
+
+ul
+	li Échiquier : 10x10.
+	li Matériel : standard + maréchal + cardinal.
+	li Coups non capturants : standards (+ nouvelles pièces).
+	li Coups spéciaux : standards (voir ci-dessous).
+	li Captures : standards.
+	li Fin de partie : standard.
+
+h3 Bases
+
+p.
+	Les notations respectives du maréchal et du cardinal sont M et C.
+	Un maréchal cumule les déplacements du cavalier et de la tour, tandis que
+	le cardinal se déplace comme un cavalier + un fou.
+
+figure.diagram-container
+	.diagram
+		| fen:10/10/10/10/10/2R2Q4/10/4c5/10/10:
+	figcaption Le cardinal noir peut prendre en c5 et f5.
+
+h3 Coups spéciaux
+
+p.
+	Le roque est possible comme dans une partie sur un échiquier 8x8.
+	Le roi blanc va en c1 ou i1 (une case à gauche du coin inférieur droit)
+	pour un grand (resp. petit) roque. Pareil pour les noirs de l'autre côté.
+
+p.
+	La promotion est obligatoire pour les pions arrivant sur la dernière rangée,
+	mais elle ne peut se faire qu'en une pièce ami capturée (revenant sur
+	l'échiquier). Si aucune n'est disponible, la promotion est impossible
+	(mais le pion donne quand-même échec).
+
+p.
+	La promotion est possible (mais non obligatoire) sur les huitième et neuvième
+	rangées, toujours en une pièce amie déjà capturée.
+
+h3 Fin de partie
+
+p Comme aux échecs orthodoxes, gagnez en matant le roi adverse.
+
+p.
+	Note : j'ai changé la position de départ prévue par l'auteur, pour
+	augmenter l'alea de la situation initiale (et uniformiser avec les autres
+	variantes). Du coup la règle du roque a été ajoutée comparée aux règles
+	décrites initialement.
+
+h3 Liens
+
+p
+	| La page dédiée à la variante Grand sur 
+	a(href="https://www.chessvariants.com/large.dir/freeling.html") chessvariants.com
+	| .

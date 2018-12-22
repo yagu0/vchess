@@ -24,7 +24,7 @@ ul
 	li Queen : withdrawer
 	li King : king (same behavior as in standard chess)
 p.
-	Besides, a new piece is introduced: the immobilizer, represented by the letter 'm'
+	Besides, a new piece is introduced: the immobilizer, written by the letter 'm'
 	in FEN diagrams and PGN games. It is represented by an upside-down rook:
 
 figure.diagram-container
@@ -34,10 +34,10 @@ figure.diagram-container
 
 h3 Non-capturing moves
 
-p
-	| Pawns move as orthodox rooks, and the king moves as usual,
-	| one square in any direction.
-	| All other pieces move like an orthodox queen.
+p.
+	Pawns move as orthodox rooks, and the king moves as usual,
+	one square in any direction.
+	All other pieces move like an orthodox queen.
 
 p.
 	When a piece is adjacent to an enemy immobilizer, it cannot move unless
@@ -53,12 +53,12 @@ p
 
 h3 Capturing moves
 
-p
-	| Easy case first: the king captures as usual, by moving onto an adjacent square
-	| occupied by an enemy piece. But this is the only piece following orthodox rules,
-	| and also the only one which captures by moving onto an occupied square.
-	| All other pieces capture passively: they land on a free square and captured
-	| units are determined by some characteristics of the movement.
+p.
+	Easy case first: the king captures as usual, by moving onto an adjacent square
+	occupied by an enemy piece. But this is the only piece following orthodox rules,
+	and also the only one which captures by moving onto an occupied square.
+	All other pieces capture passively: they land on a free square and captured
+	units are determined by some characteristics of the movement.
 
 p Note 1: the immobilizer does not capture.
 
@@ -81,8 +81,8 @@ figure.diagram-container
 h4 Coordinators (rooks)
 
 p.
-	Imagine that rook and king are two corners of a rectangle (this works if these
-	two pieces are unaligned).
+	Imagine that rook and king of the same color are two corners of a rectangle
+	(this works if these two pieces are unaligned).
 	If at the end of a rook move an enemy piece stands in any of the two remaining
 	corners, it is captured.
 
@@ -110,7 +110,7 @@ h4 Withdrawer (queen)
 
 p.
 	The queen captures by moving away from an adjacent enemy piece, in the opposite
-	direction (only the long leaper can jump).
+	direction (without jumping, the path must be free).
 
 figure.diagram-container
 	.diagram
@@ -145,7 +145,7 @@ h3 End of the game
 p.
 	Checkmate or stalemate as in standard chess. Note however that checks are more
 	difficult to see, because of the exotic capturing rules. For example, on the
-	following diagram the white king cannot move to the marked squares because then
+	following diagram the white king cannot move to e5 because then
 	the black pawn could capture by moving next to it.
 
 figure.diagram-container
@@ -156,7 +156,7 @@ figure.diagram-container
 h3 Credits
 
 p.
-	A good starting point is the 
-	#[a(href="https://en.wikipedia.org/wiki/Baroque_chess") Wikipedia page], 
-	which also gives pointers to other interesting pages (including chessvariants.com,
-	as usual).
+	| A good starting point is the 
+	a(href="https://en.wikipedia.org/wiki/Baroque_chess") Wikipedia page
+	| , which also gives pointers to other interesting pages (including
+	| chessvariants.com, as usual).
