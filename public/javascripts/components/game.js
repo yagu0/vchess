@@ -56,7 +56,6 @@ Vue.component('my-game', {
 				'class': {
 					"tooltip": true,
 					"play": true,
-					"bottom": true, //display below
 					"seek": this.seek,
 					"playing": this.mode == "human",
 					"spaceright": true,
@@ -74,7 +73,6 @@ Vue.component('my-game', {
 					'class': {
 						"tooltip":true,
 						"play": true,
-						"bottom": true,
 						"playing": this.mode == "computer",
 						"spaceright": true,
 					},
@@ -92,7 +90,6 @@ Vue.component('my-game', {
 					'class': {
 						"tooltip":true,
 						"play": true,
-						"bottom": true,
 						"playing": this.mode == "friend",
 						"spaceright": true,
 					},
@@ -368,7 +365,6 @@ Vue.component('my-game', {
 							'class': {
 								"tooltip":true,
 								"play": true,
-								"bottom": true,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "flag")])
