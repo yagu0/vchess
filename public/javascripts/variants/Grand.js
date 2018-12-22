@@ -35,7 +35,7 @@ class GrandRules extends ChessRules
 	getCapturedFen()
 	{
 		let counts = _.map(_.range(10), 0);
-		for (let i=0; i<V.PIECES.length; i++)
+		for (let i=0; i<V.PIECES.length-1; i++) //-1: no king captured
 		{
 			counts[i] = this.captured["w"][V.PIECES[i]];
 			counts[5+i] = this.captured["b"][V.PIECES[i]];
