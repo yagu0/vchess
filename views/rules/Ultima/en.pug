@@ -121,16 +121,20 @@ h4 Chameleon (bishop)
 
 p The chameleon captures pieces in the way they would capture. So, it
 ul
-	li pinces pawns,
+	li pinces pawns (if moving like a pawn),
 	li withdraws from withdrawers,
 	li leaps over long leapers,
 	li coordinates coordinators.
 p ...and these captures can be combined.
 
+p.
+	Remark: the move indicated on the diagram doesn't capture the black pincer
+	on e5, since it is a diagonal move (not like a pawn).
+
 figure.diagram-container
 	.diagram
-		| fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4,e5:
-	figcaption 1.Bd5 captures all marked pieces.
+		| fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4:
+	figcaption 1.Bd5 captures the two marked pieces.
 
 p.
 	Besides, chameleon immobilizes immobilizers (but cannot capture them since they
