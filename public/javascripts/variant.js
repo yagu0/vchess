@@ -7,7 +7,6 @@ new Vue({
 	created: function() {
 		const url = window.location.href;
 		const hashPos = url.indexOf("#");
-		console.log(hashPos + " " + url);
 		if (hashPos >= 0)
 			this.setDisplay(url.substr(hashPos+1));
 	},

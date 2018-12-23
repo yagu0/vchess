@@ -52,7 +52,7 @@ Vue.component('my-game', {
 			h('button',
 			{
 				on: { click: this.clickGameSeek },
-				attrs: { "aria-label": translations['New online game'] },
+				attrs: { "aria-label": translations['New live game'] },
 				'class': {
 					"tooltip": true,
 					"play": true,
@@ -1211,6 +1211,7 @@ Vue.component('my-game', {
 			delete localStorage[prefix+"score"];
 		},
 		// HACK because mini-css tooltips are persistent after click...
+		// NOTE: seems to work only in chrome/chromium. TODO...
 		getRidOfTooltip: function(elt) {
 			elt.style.visibility = "hidden";
 			setTimeout(() => { elt.style.visibility="visible"; }, 100);
