@@ -1,0 +1,54 @@
+input#modalWelcome.modal(type="checkbox")
+div(role="dialog")
+	#welcome.card.text-center
+		label.modal-close(for="modalWelcome")
+		h3.blue.section ¡ Bienvenido a v[ariant]chess.club !
+		.section
+			p Un sitio donde jugar variantes del juego de ajedrez en vivo.
+			p Pero espera... ¿ qué es una "variante" ?
+			img(src="/images/Hexagonal_chess.svg")
+			p.
+				Como lo sugiere la imagen, el punto de inicio de una variante generalmente
+				se ve como un tablero de ajedrez con las piezas habituales.
+				(sino ya no es una variante, pero un nuevo juego).
+			p.emphasis.purple Sin embargo...
+			p Cada variante tiene sus propias reglas, que pueden definir
+			table.list-table
+				tbody
+					tr
+						td * diferentes desplazamientos de piezas
+					tr
+						td * differentes(s) tablero(s)
+					tr
+						td * nuevas piezas
+					tr
+						td * efectos de borde en los movimientos
+					tr
+						td ...etc
+		.section
+			p.
+				Ejemplo : Imagina que una captura es una explosión atómica que destruye
+				todo en los 8 hexes cercanos, excepto los peones, que como las cucarachas
+				se resisten a este tipo de cosas.
+			p Define también un objetivo : hacer explotar al rey del adversario.
+			p.
+				&rarr; ¡ Bien hecho, acabas de describir el ajedrez atómico !
+				(Se puede jugar aquí)
+		.section
+			p.emphasis.purple
+				| OK, parece interesante, pero ¿ por qué sería divertido ?!
+			p.
+				Como todas las partidas comienzan con una posición aleatoria :
+				¡ terminadas las laboriosas memorizaciones de aperturas, puedes expresar
+				tus habilidades de ajedrez desde el primer movimiento ! Ninguna partida
+				es como otra.
+			-
+				var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
+					"List_of_chess_variants#/media/File:Hexagonal_chess.svg";
+			p.
+				Pour s'informer sur des centaines de variantes (au moins), je vous invite à
+				visiter l'excellent site
+				#[a(href="https://www.chessvariants.com/") chessvariants].
+		p#disableMsg.clickable(@click="markAsVisited")
+			| Haga clic aquí para no mostrar este mensaje la próxima vez.
+		p.smallfont Credito de imagen : #[a(href=wikipediaUrl) Wikipedia]

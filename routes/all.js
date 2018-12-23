@@ -7,7 +7,7 @@ const db = new sqlite3.Database(DbPath);
 const sanitizeHtml = require('sanitize-html');
 const MaxNbProblems = 20;
 
-const supportedLang = ["fr","en"];
+const supportedLang = ["en","es","fr"];
 function selectLanguage(req, res)
 {
 	// If preferred language already set:

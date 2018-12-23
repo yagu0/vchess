@@ -1,0 +1,25 @@
+input#modalLang.modal(type="checkbox")
+div(role="dialog")
+	#language.card
+		label.modal-close(for="modalLang")
+		.section
+			fieldset
+				label(for="langSelect") ¿ Idioma preferido ?
+				select#langSelect(onChange="setLanguage(event)")
+					each langCode in languages
+						option(value=langCode selected=(lang==langCode))
+							=langName[langCode]
+		.section
+			h3.blue Contribuir
+			p
+				| ¿ Tu idioma favorito no está disponible ? Entonces...
+				| Navegar por el 
+				a(href="https://github.com/yagu0/vchess/tree/master/views")
+					| repositorio github
+				| &nbsp;: tiene que traducir todos los ficheros en los archivos langNames/,
+				| modal-help/, modal-lang/, translations/ y welcome/.
+				| Además, y esa es la parte principal del trabajo, tiene que traducir todas
+				| las reglas en rules/. Una vez hecho esto, envíame los archivos : 
+				a(href="mailto:contact@vchess.club?subject=[vchess.club] translation")
+					| contact@vchess.club
+				| . ¡ Gracias !

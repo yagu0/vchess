@@ -39,7 +39,7 @@ Vue.component('my-problems', {
 						<fieldset>
 							<label for="newpbFen">FEN</label>
 							<input id="newpbFen" type="text" v-model="newProblem.fen"
-								:placeholder='translate("Full FEN string")'/>
+								:placeholder='translate("Full FEN description")'/>
 						</fieldset>
 						<fieldset>
 							<p class="emphasis">{{ translate("Safe HTML tags allowed") }}</p>
@@ -105,7 +105,7 @@ Vue.component('my-problems', {
 		},
 		previewNewProblem: function() {
 			if (!V.IsGoodFen(this.newProblem.fen))
-				return alert(translations["Bad FEN string"]);
+				return alert(translations["Bad FEN description"]);
 			if (this.newProblem.instructions.trim().length == 0)
 				return alert(translations["Empty instructions"]);
 			if (this.newProblem.solution.trim().length == 0)

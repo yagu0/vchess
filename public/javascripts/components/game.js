@@ -415,7 +415,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: () => { this.mycolor = this.vr.getOppCol(this.mycolor) } },
-							attrs: { "aria-label": translations['Flip'] },
+							attrs: { "aria-label": translations['Flip board'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,
@@ -568,7 +568,7 @@ Vue.component('my-game', {
 								{
 									attrs: { "id": "titleFenedit" },
 									"class": { "section": true },
-									domProps: { innerHTML: translations["Position + flags (FEN):"] },
+									domProps: { innerHTML: translations["Game state (FEN):"] },
 								}
 							),
 							h('input',

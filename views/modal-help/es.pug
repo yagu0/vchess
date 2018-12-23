@@ -1,0 +1,23 @@
+input#modalHelp.modal(type="checkbox")
+div(role="dialog")
+	#help.card
+		label.modal-close(for="modalHelp")
+		.section
+			ol
+				li Haga clic en una variante,
+				li Lee las reglas (arriba a la izquierda),
+				li Volver al modo de juego (haga clic en "Jugar"),
+				li Haga clic en "nuevo juego en vivo", luego, mientras tanto,
+				li Haga clic en "nuevo juego contra la computadora" (siguiente).
+			p Recordatorio :
+			ul
+				li Todas las partes comienzan con una posición aleatoria asimétrica.
+				li Los juegos no están cronometrados, y se juegan anónimamente.
+				li No charla durante el juego, para concentrarse en los movimientos.
+		.section
+			h3.red Informe de bug
+			p
+				| Por favor envíe un correo electrónico (en inglés o francés) a 
+				a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
+					| contact@vchess.club
+				| .

@@ -6,16 +6,18 @@ block css
 
 block content
 	.container#variantPage
-		// Modals
+		include langNames.pug
 		case lang
 			when "en"
 				include translations/en.pug
-				include langNames/en.pug
 				include modal-lang/en.pug
 				include modal-help/en.pug
+			when "es"
+				include translations/es.pug
+				include modal-lang/es.pug
+				include modal-help/es.pug
 			when "fr"
 				include translations/fr.pug
-				include langNames/fr.pug
 				include modal-lang/fr.pug
 				include modal-help/fr.pug
 		input#modal-newgame.modal(type="checkbox")
@@ -36,7 +38,7 @@ block content
 						a(href="#rules" @click="setDisplay('rules')")
 							=translations["Rules"]
 						a(href="#play" @click="setDisplay('play')")
-							=translations["Play!"]
+							=translations["Play"]
 						a(href="#problems" @click="setDisplay('problems')") 
 							=translations["Problems"]
 					#flagMenu.clickable(
