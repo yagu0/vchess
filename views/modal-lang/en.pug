@@ -4,11 +4,6 @@ div(role="dialog")
 		label.modal-close(for="modalLang")
 		.section
 			fieldset
-				-
-					var langName = {
-						"fr": "French",
-						"en": "English",
-					}
 				label(for="langSelect") Preferred language?
 				select#langSelect(onChange="setLanguage(event)")
 					each langCode in languages
@@ -20,8 +15,10 @@ div(role="dialog")
 				| Browse the 
 				a(href="https://github.com/yagu0/vchess/tree/master/views")
 					| github repository
-				| : welcome/en.pug and all files rules/*/en.pug
-				| should be translated. When it's done, send me the files: 
+				| : all files in the folders langNames/, modal-help/, modal-lang/,
+				| translations/ and welcome/ should be translated. Moreover, and
+				| it's the longest part, you would have to translate all the rules under 
+				| rules/. When it's done, send me the files: 
 				a(href="mailto:contact@vchess.club?subject=[vchess.club] translation")
 					| contact@vchess.club
 				| . Thanks!

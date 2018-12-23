@@ -13,15 +13,15 @@ Vue.component('my-problems', {
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<div id="problemControls" class="button-group">
-				<button aria-label="Load previous problems" class="tooltip"
+				<button :aria-label='translate("Load previous problems")' class="tooltip"
 						@click="fetchProblems('backward')">
 					<i class="material-icons">skip_previous</i>
 				</button>
-				<button aria-label="Add a problem" class="tooltip"
+				<button :aria-label='translate("Add a problem")' class="tooltip"
 						@click="showNewproblemModal">
-					New
+					{{ translate("New") }}
 				</button>
-				<button aria-label="Load next problems" class="tooltip"
+				<button :aria-label='translate("Load next problems")' class="tooltip"
 						@click="fetchProblems('forward')">
 					<i class="material-icons">skip_next</i>
 				</button>
@@ -34,22 +34,22 @@ Vue.component('my-problems', {
 			<div role="dialog" aria-labelledby="newProblemTxt">
 				<div v-show="newProblem.stage=='nothing'" class="card newproblem-form">
 					<label for="modal-newproblem" class="modal-close"></label>
-					<h3 id="newProblemTxt">Add problem</h3>
+					<h3 id="newProblemTxt">{{ translate("Add a problem") }}</h3>
 					<form @submit.prevent="previewNewProblem">
 						<fieldset>
-							<label for="newpbFen">Fen</label>
+							<label for="newpbFen">FEN</label>
 							<input id="newpbFen" type="text" v-model="newProblem.fen"
-								placeholder="Full FEN string"/>
+								:placeholder='translate("Full FEN string")'/>
 						</fieldset>
 						<fieldset>
-							<p class="emphasis">Safe HTML tags allowed</p>
-							<label for="newpbInstructions">Instructions</label>
+							<p class="emphasis">{{ translate("Safe HTML tags allowed") }}</p>
+							<label for="newpbInstructions">{{ translate("Instructions") }}</label>
 							<textarea id="newpbInstructions" v-model="newProblem.instructions"
 								placeholder="Explain the problem here"></textarea>
-							<label for="newpbSolution">Solution</label>
+							<label for="newpbSolution">{{ translate("Solution") }}</label>
 							<textarea id="newpbSolution" v-model="newProblem.solution"
 								placeholder="How to solve the problem?"></textarea>
-							<button class="center-btn">Preview</button>
+							<button class="center-btn">{{ translate("Preview") }}</button>
 						</fieldset>
 					</form>
 				</div>
@@ -58,8 +58,8 @@ Vue.component('my-problems', {
 					<my-problem-summary v-bind:prob="newProblem" v-bind:preview="true">
 					</my-problem-summary>
 					<div class="button-group">
-						<button @click="newProblem.stage='nothing'">Cancel</button>
-						<button @click="sendNewProblem()">Send</button>
+						<button @click="newProblem.stage='nothing'">{{ translate("Cancel") }}</button>
+						<button @click="sendNewProblem()">{{ translate("Send") }}</button>
 					</div>
 				</div>
 			</div>
@@ -72,6 +72,9 @@ Vue.component('my-problems', {
 		},
 	},
 	methods: {
+		translate: function(text) {
+			return translations[text];
+		},
 		// Propagate "show problem" event to parent component (my-variant)
 		bubbleUp: function(problem) {
 			this.$emit('show-problem', JSON.stringify(problem));

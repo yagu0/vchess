@@ -1,0 +1,18 @@
+input#modalHelp.modal(type="checkbox")
+div(role="dialog")
+	#help.card
+		label.modal-close(for="modalHelp")
+		.section
+			p.emphasis.bigfont D'abord: regardez la #[a(href="/demo.webm") vidéo démo] !
+			p Ensuite cliquez sur une variante... Rappel :
+			ul
+				li Toutes les parties démarrent avec une position aléatoire assymétrique.
+				li Les parties ne sont pas chronométrées, et jouée anonymemement..
+				li Pas de chat pendant la partie, pour se concentrer sur les coups.
+		.section
+			h3.red Rapport de bug
+			p
+				| SVP envoyez un email (en français ou anglais) à 
+				a(href="mailto:contact@vchess.club?subject=[vchess.club] bug report")
+					| contact@vchess.club
+				| .

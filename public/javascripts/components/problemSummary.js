@@ -10,11 +10,14 @@ Vue.component('my-problem-summary', {
 				<p v-html="prob.instructions"></p>
 				<p v-if="preview" v-html="prob.solution"></p>
 				<p v-else class="problem-time">{{ timestamp2date(prob.added) }}</p>
-				<button v-if="!preview" @click="showProblem()">Show</button>
+				<button v-if="!preview" @click="showProblem()">{{ translate("Solve") }}</button>
 			</div>
 		</div>
 	`,
 	methods: {
+		translate: function(text) {
+			return translations[text];
+		},
 		getDiagram: function(fen) {
 			const fenParsed = V.ParseFen(fen);
 			return getDiagram({

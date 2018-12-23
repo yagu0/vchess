@@ -12,7 +12,7 @@ Vue.component('my-variant-summary', {
 					</span>
 				</h4>
 				<p class="description text-center">
-					{{ vobj.desc }}
+					{{ translate(vobj.desc) }}
 				</p>
 			</a>
 		</div>
@@ -20,6 +20,11 @@ Vue.component('my-variant-summary', {
 	computed: {
 		url: function() {
 			return "/" + this.vobj.name;
+		},
+	},
+	methods: {
+		translate: function(text) {
+			return translations[text];
 		},
 	},
 })

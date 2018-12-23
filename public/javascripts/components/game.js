@@ -52,7 +52,7 @@ Vue.component('my-game', {
 			h('button',
 			{
 				on: { click: this.clickGameSeek },
-				attrs: { "aria-label": 'New online game' },
+				attrs: { "aria-label": translations['New online game'] },
 				'class': {
 					"tooltip": true,
 					"play": true,
@@ -69,7 +69,7 @@ Vue.component('my-game', {
 				h('button',
 				{
 					on: { click: this.clickComputerGame },
-					attrs: { "aria-label": 'New game VS computer' },
+					attrs: { "aria-label": translations['New game versus computer'] },
 					'class': {
 						"tooltip":true,
 						"play": true,
@@ -86,7 +86,7 @@ Vue.component('my-game', {
 				h('button',
 				{
 					on: { click: this.clickFriendGame },
-					attrs: { "aria-label": 'New IRL game' },
+					attrs: { "aria-label": translations['Analysis mode'] },
 					'class': {
 						"tooltip":true,
 						"play": true,
@@ -139,7 +139,7 @@ Vue.component('my-game', {
 					{
 						on: { click: this.startChat },
 						attrs: {
-							"aria-label": 'Start chat',
+							"aria-label": translations['Start chat'],
 							"id": "chatBtn",
 						},
 						'class': {
@@ -160,7 +160,7 @@ Vue.component('my-game', {
 					{
 						on: { click: this.clearComputerGame },
 						attrs: {
-							"aria-label": 'Clear computer game',
+							"aria-label": translations['Clear game versus computer'],
 							"id": "clearBtn",
 						},
 						'class': {
@@ -194,7 +194,7 @@ Vue.component('my-game', {
 				{
 					on: { click: this.showSettings },
 					attrs: {
-						"aria-label": 'Settings',
+						"aria-label": translations['Settings'],
 						"id": "settingsBtn",
 					},
 					'class': {
@@ -361,7 +361,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: this.resign },
-							attrs: { "aria-label": 'Resign' },
+							attrs: { "aria-label": translations['Resign'] },
 							'class': {
 								"tooltip":true,
 								"play": true,
@@ -377,7 +377,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: e => this.undo() },
-							attrs: { "aria-label": 'Undo' },
+							attrs: { "aria-label": translations['Undo'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,
@@ -387,7 +387,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: e => this.play() },
-							attrs: { "aria-label": 'Play' },
+							attrs: { "aria-label": translations['Play'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,
@@ -404,7 +404,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: this.undoInGame },
-							attrs: { "aria-label": 'Undo' },
+							attrs: { "aria-label": trnaslations['Undo'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,
@@ -415,7 +415,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: () => { this.mycolor = this.vr.getOppCol(this.mycolor) } },
-							attrs: { "aria-label": 'Flip' },
+							attrs: { "aria-label": translations['Flip'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,
@@ -514,7 +514,12 @@ Vue.component('my-game', {
 					[
 						h('div',
 							{
-								"class": { "card": true, "smallpad": true },
+								"class": {
+									"card": true,
+									"smallpad": true,
+									"small-modal": true,
+									"text-center": true,
+								},
 							},
 							[
 								h('label',
@@ -563,7 +568,7 @@ Vue.component('my-game', {
 								{
 									attrs: { "id": "titleFenedit" },
 									"class": { "section": true },
-									domProps: { innerHTML: "Position + flags (FEN):" },
+									domProps: { innerHTML: translations["Position + flags (FEN):"] },
 								}
 							),
 							h('input',
@@ -584,7 +589,7 @@ Vue.component('my-game', {
 											this.newGame("friend", fen);
 										}
 									},
-									domProps: { innerHTML: "Ok" },
+									domProps: { innerHTML: translations["Ok"] },
 								}
 							),
 							h('button',
@@ -595,7 +600,7 @@ Vue.component('my-game', {
 												VariantRules.GenRandInitFen();
 										}
 									},
-									domProps: { innerHTML: "Random" },
+									domProps: { innerHTML: translations["Random"] },
 								}
 							),
 						]
@@ -630,7 +635,7 @@ Vue.component('my-game', {
 								{
 									attrs: { "id": "settingsTitle" },
 									"class": { "section": true },
-									domProps: { innerHTML: "Preferences" },
+									domProps: { innerHTML: translations["Preferences"] },
 								}
 							),
 							h('fieldset',
@@ -639,7 +644,7 @@ Vue.component('my-game', {
 									h('label',
 										{
 											attrs: { for: "nameSetter" },
-											domProps: { innerHTML: "My name is..." },
+											domProps: { innerHTML: translations["My name is..."] },
 										},
 									),
 									h('input',
@@ -660,7 +665,7 @@ Vue.component('my-game', {
 									h('label',
 										{
 											attrs: { for: "setHints" },
-											domProps: { innerHTML: "Show hints?" },
+											domProps: { innerHTML: translations["Show hints?"] },
 										},
 									),
 									h('input',
@@ -681,7 +686,7 @@ Vue.component('my-game', {
 									h('label',
 										{
 											attrs: { for: "selectColor" },
-											domProps: { innerHTML: "Board colors" },
+											domProps: { innerHTML: translations["Board colors"] },
 										},
 									),
 									h("select",
@@ -694,7 +699,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "lichess",
-														innerHTML: "brown"
+														innerHTML: translations["brown"]
 													},
 													attrs: { "selected": this.color=="lichess" },
 												}
@@ -703,7 +708,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "chesscom",
-														innerHTML: "green"
+														innerHTML: translations["green"]
 													},
 													attrs: { "selected": this.color=="chesscom" },
 												}
@@ -712,7 +717,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "chesstempo",
-														innerHTML: "blue"
+														innerHTML: translations["blue"]
 													},
 													attrs: { "selected": this.color=="chesstempo" },
 												}
@@ -727,7 +732,7 @@ Vue.component('my-game', {
 									h('label',
 										{
 											attrs: { for: "selectSound" },
-											domProps: { innerHTML: "Play sounds?" },
+											domProps: { innerHTML: translations["Play sounds?"] },
 										},
 									),
 									h("select",
@@ -740,7 +745,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "0",
-														innerHTML: "None"
+														innerHTML: translations["None"]
 													},
 													attrs: { "selected": this.sound==0 },
 												}
@@ -749,7 +754,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "1",
-														innerHTML: "Newgame"
+														innerHTML: translations["New game"]
 													},
 													attrs: { "selected": this.sound==1 },
 												}
@@ -758,7 +763,7 @@ Vue.component('my-game', {
 												{
 													domProps: {
 														"value": "2",
-														innerHTML: "All"
+														innerHTML: translations["All"]
 													},
 													attrs: { "selected": this.sound==2 },
 												}
@@ -785,7 +790,7 @@ Vue.component('my-game', {
 				{
 					attrs: { "id": "titleChat" },
 					"class": { "section": true },
-					domProps: { innerHTML: "Chat with " + this.oppName },
+					domProps: { innerHTML: translations["Chat with "] + this.oppName },
 				}
 			)
 		];
@@ -809,7 +814,7 @@ Vue.component('my-game', {
 					attrs: {
 						"id": "input-chat",
 						type: "text",
-						placeholder: "Type here",
+						placeholder: translations["Type here"],
 					},
 					on: { keyup: this.trySendChat }, //if key is 'enter'
 				}
@@ -818,7 +823,7 @@ Vue.component('my-game', {
 				{
 					attrs: { id: "sendChatBtn"},
 					on: { click: this.sendChat },
-					domProps: { innerHTML: "Send" },
+					domProps: { innerHTML: translations["Send"] },
 				}
 			)
 		]);
@@ -878,7 +883,7 @@ Vue.component('my-game', {
 							{
 								attrs: { "id": "downloadBtn" },
 								on: { click: this.download },
-								domProps: { innerHTML: "Download game" },
+								domProps: { innerHTML: translations["Download game"] },
 							}
 						),
 					]
@@ -900,7 +905,7 @@ Vue.component('my-game', {
 							h('h3',
 								{
 									"class": { clickable: true },
-									domProps: { innerHTML: "Show solution" },
+									domProps: { innerHTML: translations["Show solution"] },
 									on: { click: this.toggleShowSolution },
 								}
 							),
@@ -962,13 +967,13 @@ Vue.component('my-game', {
 			switch (this.score)
 			{
 				case "1-0":
-					eogMessage = "White win";
+					eogMessage = translations["White win"];
 					break;
 				case "0-1":
-					eogMessage = "Black win";
+					eogMessage = translations["Black win"];
 					break;
 				case "1/2":
-					eogMessage = "Draw";
+					eogMessage = translations["Draw"];
 					break;
 			}
 			return eogMessage;

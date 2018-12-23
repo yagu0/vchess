@@ -6,6 +6,24 @@ block css
 
 block content
 	.container#variantPage
+		// Modals
+		case lang
+			when "en"
+				include translations/en.pug
+				include langNames/en.pug
+				include modal-lang/en.pug
+				include modal-help/en.pug
+			when "fr"
+				include translations/fr.pug
+				include langNames/fr.pug
+				include modal-lang/fr.pug
+				include modal-help/fr.pug
+		input#modal-newgame.modal(type="checkbox")
+		div(role="dialog" aria-labelledby="newGameTxt")
+			.card.smallpad.small-modal
+				label#close-newgame.modal-close(for="modal-newgame")
+				h3#newGameTxt= translations["New game"]
+				p= translations["Waiting for opponent..."]
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
@@ -16,31 +34,22 @@ block content
 						i.material-icons home
 					.info-container
 						a(href="#rules" @click="setDisplay('rules')")
-							| Rules
+							=translations["Rules"]
 						a(href="#play" @click="setDisplay('play')")
-							| Play!
+							=translations["Play!"]
 						a(href="#problems" @click="setDisplay('problems')") 
-							| Problems
+							=translations["Problems"]
 					#flagMenu.clickable(
 							onClick="document.getElementById('modalLang').checked=true")
 						img(src="/images/flags/" + lang + ".svg")
 					#helpMenu.clickable(
 							onClick="document.getElementById('modalHelp').checked=true")
 						.info-container
-							p Help
+							p= translations["Help"]
 		.row
 			my-rules(v-show="display=='rules'")
 			my-game(v-show="display=='play'" v-bind:problem="problem")
 			my-problems(v-show="display=='problems'" v-on:show-problem="showProblem($event)")
-		// (Some) Modals:
-		include modal-help.pug
-		include modal-lang.pug
-		input#modal-newgame.modal(type="checkbox")
-		div(role="dialog" aria-labelledby="newGameTxt")
-			.card.smallpad.small-modal
-				label#close-newgame.modal-close(for="modal-newgame")
-				h3#newGameTxt New game
-				p Waiting for opponent...
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")
@@ -56,6 +65,7 @@ block javascripts
 		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
 		const problemArray = !{JSON.stringify(problemArray)};
+		const translations = !{JSON.stringify(translations)};
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/components/problemSummary.js")

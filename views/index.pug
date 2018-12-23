@@ -5,6 +5,20 @@ block css
 
 block content
 	.container#indexPage
+		// Modals
+		case lang
+			when "en"
+				include translations/en.pug
+				include langNames/en.pug
+				include welcome/en.pug
+				include modal-lang/en.pug
+				include modal-help/en.pug
+			when "fr"
+				include translations/fr.pug
+				include langNames/fr.pug
+				include welcome/fr.pug
+				include modal-lang/fr.pug
+				include modal-help/fr.pug
 		.row
 			#header.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				#mainTitle
@@ -18,26 +32,21 @@ block content
 				#helpMenu.clickable(
 						onClick="document.getElementById('modalHelp').checked=true")
 					.info-container
-						p Help
+						p= translations["Help"]
 		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
-		// Modals:
-		include modal-lang.pug
-		include modal-help.pug
+		// Other modals:
 		input#modalB4welcome.modal(type="checkbox")
 		div(role="dialog")
 			#b4welcome.card.text-center.small-modal
-				h3.blue First visit?
-				p#readThis.clickable(@click="showWelcomeMsg") >>> Please read this <<<
-		case lang
-			when "en"
-				include welcome/en.pug
-			when "fr"
-				include welcome/fr.pug
+				h3.blue= translations["First visit?"]
+				p#readThis.clickable(@click="showWelcomeMsg")
+					=translations[">>> Please read this <<<"]
 
 block javascripts
 	script.
+		const translations = !{JSON.stringify(translations)};
 		const variantArray = !{JSON.stringify(variantArray)};
 	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/socket_url.js")
