@@ -1356,6 +1356,7 @@ Vue.component('my-game', {
 			const fen = localStorage.getItem(prefix+"fen");
 			const score = localStorage.getItem(prefix+"score"); //set in "endGame()"
 			this.fenStart = localStorage.getItem(prefix+"fenStart");
+			this.vr = new VariantRules(fen, moves);
 			if (mode == "human")
 			{
 				this.gameId = localStorage.getItem("gameId");
@@ -1364,8 +1365,11 @@ Vue.component('my-game', {
 					code:"ping",oppid:this.oppid,gameId:this.gameId}));
 			}
 			else
+			{
 				this.compWorker.postMessage(["init",fen]);
-			this.vr = new VariantRules(fen, moves);
+				if (this.mycolor != this.vr.turn)
+					this.playComputerMove();
+			}
 			if (moves.length > 0)
 			{
 				const lastMove = moves[moves.length-1];
