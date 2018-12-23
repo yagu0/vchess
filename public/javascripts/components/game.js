@@ -404,7 +404,7 @@ Vue.component('my-game', {
 					h('button',
 						{
 							on: { click: this.undoInGame },
-							attrs: { "aria-label": trnaslations['Undo'] },
+							attrs: { "aria-label": translations['Undo'] },
 							"class": {
 								"play": true,
 								"spaceleft": true,

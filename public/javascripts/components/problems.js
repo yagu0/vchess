@@ -45,10 +45,10 @@ Vue.component('my-problems', {
 							<p class="emphasis">{{ translate("Safe HTML tags allowed") }}</p>
 							<label for="newpbInstructions">{{ translate("Instructions") }}</label>
 							<textarea id="newpbInstructions" v-model="newProblem.instructions"
-								placeholder="Explain the problem here"></textarea>
+								:placeholder='translate("Describe the problem goal")'></textarea>
 							<label for="newpbSolution">{{ translate("Solution") }}</label>
 							<textarea id="newpbSolution" v-model="newProblem.solution"
-								placeholder="How to solve the problem?"></textarea>
+								:placeholder='translate("How to solve the problem?")'></textarea>
 							<button class="center-btn">{{ translate("Preview") }}</button>
 						</fieldset>
 					</form>
