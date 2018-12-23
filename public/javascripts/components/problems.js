@@ -105,11 +105,11 @@ Vue.component('my-problems', {
 		},
 		previewNewProblem: function() {
 			if (!V.IsGoodFen(this.newProblem.fen))
-				return alert("Bad FEN string");
-			if (this.newProblem.instructions.length == 0)
-				return alert("Empty instructions");
-			if (this.newProblem.solution.length == 0)
-				return alert("Empty solution");
+				return alert(translations["Bad FEN string"]);
+			if (this.newProblem.instructions.trim().length == 0)
+				return alert(translations["Empty instructions"]);
+			if (this.newProblem.solution.trim().length == 0)
+				return alert(translations["Empty solution"]);
 			this.newProblem.stage = "preview";
 		},
 		sendNewProblem: function() {

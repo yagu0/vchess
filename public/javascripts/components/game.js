@@ -1008,7 +1008,8 @@ Vue.component('my-game', {
 					// We opened another tab on the same game
 					this.mode = "idle";
 					this.vr = null;
-					alert("Already playing a game in this variant on another tab!");
+					alert(translations[
+						"Already playing a game in this variant on another tab!"]);
 					break;
 				case "newgame": //opponent found
 					// oppid: opponent socket ID
@@ -1278,7 +1279,10 @@ Vue.component('my-game', {
 			{
 				const storageVariant = localStorage.getItem("variant");
 				if (!!storageVariant && storageVariant !== variant)
-					return alert("Finish your " + storageVariant + " game first!");
+				{
+					return alert(translations["Finish your "] +
+							storageVariant + translations[" game first!"]);
+				}
 				// Send game request and wait..
 				try {
 					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
@@ -1304,8 +1308,8 @@ Vue.component('my-game', {
 					const score = localStorage.getItem("comp-score");
 					if (storageVariant !== variant && score == "*")
 					{
-						if (!confirm("Unfinished " + storageVariant +
-							" computer game will be erased"))
+						if (!confirm(storageVariant +
+							translations[": unfinished computer game will be erased"]))
 						{
 							return;
 						}
