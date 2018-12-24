@@ -39,7 +39,7 @@ block content
 							=translations["Rules"]
 						a(href="#play" @click="setDisplay('play')")
 							=translations["Play"]
-						a(href="#problems" @click="setDisplay('problems')") 
+						a(href="#problems" v-if="notDark()" @click="setDisplay('problems')") 
 							=translations["Problems"]
 					#flagMenu.clickable(
 							onClick="document.getElementById('modalLang').checked=true")
@@ -51,7 +51,8 @@ block content
 		.row
 			my-rules(v-show="display=='rules'")
 			my-game(v-show="display=='play'" v-bind:problem="problem")
-			my-problems(v-show="display=='problems'" v-on:show-problem="showProblem($event)")
+			my-problems(v-if="notDark()" v-show="display=='problems'"
+				v-on:show-problem="showProblem($event)")
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")

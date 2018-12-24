@@ -599,74 +599,65 @@ class ChessRules
 		const color = this.turn;
 		let moves = [];
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
-		const shift = (color == "w" ? -1 : 1);
+		const shiftX = (color == "w" ? -1 : 1);
 		const firstRank = (color == 'w' ? sizeX-1 : 0);
 		const startRank = (color == "w" ? sizeX-2 : 1);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
+		const pawnColor = this.getColor(x,y); //can be different for checkered
 
-		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
+		if (x+shiftX >= 0 && x+shiftX < sizeX) //TODO: always true
 		{
-			// Normal moves
-			if (this.board[x+shift][y] == V.EMPTY)
+			const finalPieces = x + shiftX == lastRank
+				? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
+				: [V.PAWN]
+			// One square forward
+			if (this.board[x+shiftX][y] == V.EMPTY)
 			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				// Next condition because variants with pawns on 1st rank allow them to jump
-				if ([startRank,firstRank].includes(x) && this.board[x+2*shift][y] == V.EMPTY)
+				for (let piece of finalPieces)
+				{
+					moves.push(this.getBasicMove([x,y], [x+shiftX,y],
+						{c:pawnColor,p:piece}));
+				}
+				// Next condition because pawns on 1st rank can generally jump
+				if ([startRank,firstRank].includes(x)
+					&& this.board[x+2*shiftX][y] == V.EMPTY)
 				{
 					// Two squares jump
-					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
+					moves.push(this.getBasicMove([x,y], [x+2*shiftX,y]));
 				}
 			}
 			// Captures
-			if (y>0 && this.board[x+shift][y-1] != V.EMPTY
-				&& this.canTake([x,y], [x+shift,y-1]))
+			for (let shiftY of [-1,1])
 			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			}
-			if (y<sizeY-1 && this.board[x+shift][y+1] != V.EMPTY
-				&& this.canTake([x,y], [x+shift,y+1]))
-			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
+				if (y + shiftY >= 0 && y + shiftY < sizeY
+					&& this.board[x+shiftX][y+shiftY] != V.EMPTY
+					&& this.canTake([x,y], [x+shiftX,y+shiftY]))
+				{
+					for (let piece of finalPieces)
+					{
+						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
+							{c:pawnColor,p:piece}));
+					}
+				}
 			}
 		}
 
-		if (x+shift == lastRank)
+		if (V.HasEnpassant)
 		{
-			// Promotion
-			const pawnColor = this.getColor(x,y); //can be different for checkered
-			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
-			promotionPieces.forEach(p => {
-				// Normal move
-				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:pawnColor,p:p}));
-				// Captures
-				if (y>0 && this.board[x+shift][y-1] != V.EMPTY
-					&& this.canTake([x,y], [x+shift,y-1]))
-				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:pawnColor,p:p}));
-				}
-				if (y<sizeY-1 && this.board[x+shift][y+1] != V.EMPTY
-					&& this.canTake([x,y], [x+shift,y+1]))
-				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:pawnColor,p:p}));
-				}
-			});
-		}
-
-		// En passant
-		const Lep = this.epSquares.length;
-		const epSquare = this.epSquares[Lep-1]; //always at least one element
-		if (!!epSquare && epSquare.x == x+shift && Math.abs(epSquare.y - y) == 1)
-		{
-			const epStep = epSquare.y - y;
-			let enpassantMove = this.getBasicMove([x,y], [x+shift,y+epStep]);
-			enpassantMove.vanish.push({
-				x: x,
-				y: y+epStep,
-				p: 'p',
-				c: this.getColor(x,y+epStep)
-			});
-			moves.push(enpassantMove);
+			// En passant
+			const Lep = this.epSquares.length;
+			const epSquare = this.epSquares[Lep-1]; //always at least one element
+			if (!!epSquare && epSquare.x == x+shiftX && Math.abs(epSquare.y - y) == 1)
+			{
+				let enpassantMove = this.getBasicMove([x,y], [epSquare.x,epSquare.y]);
+				enpassantMove.vanish.push({
+					x: x,
+					y: epSquare.y,
+					p: 'p',
+					c: this.getColor(x,epSquare.y)
+				});
+				moves.push(enpassantMove);
+			}
 		}
 
 		return moves;

@@ -63,7 +63,7 @@ Vue.component('my-game', {
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
 		);
-		if (["idle","chat","computer"].includes(this.mode))
+		if (variant!="Dark" && ["idle","chat","computer"].includes(this.mode))
 		{
 			actionArray.push(
 				h('button',
@@ -80,7 +80,7 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
 			);
 		}
-		if (["idle","chat","friend"].includes(this.mode))
+		if (variant!="Dark" && ["idle","chat","friend"].includes(this.mode))
 		{
 			actionArray.push(
 				h('button',
@@ -298,7 +298,8 @@ Vue.component('my-game', {
 						_.range(sizeY).map(j => {
 							let cj = (this.mycolor=='w' ? j : sizeY-j-1);
 							let elems = [];
-							if (this.vr.board[ci][cj] != VariantRules.EMPTY)
+							if (this.vr.board[ci][cj] != VariantRules.EMPTY && (variant!="Dark"
+								|| this.score!="*" || this.vr.isEnlightened(ci,cj,this.mycolor)))
 							{
 								elems.push(
 									h(
@@ -342,6 +343,8 @@ Vue.component('my-game', {
 										'light-square': (i+j)%2==0,
 										'dark-square': (i+j)%2==1,
 										[this.color]: true,
+										'in-shadow': variant=="Dark" && this.score=="*"
+											&& !this.vr.isEnlightened(ci,cj,this.mycolor),
 										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
 										'incheck': showLight && incheckSq[ci][cj],
 									},
@@ -919,24 +922,27 @@ Vue.component('my-game', {
 					)
 				);
 			}
-			// Show current FEN
-			elementArray.push(
-				h('div',
-					{
-						attrs: { id: "fen-div" },
-						"class": { "section-content": true },
-					},
-					[
-						h('p',
-							{
-								attrs: { id: "fen-string" },
-								domProps: { innerHTML: this.vr.getBaseFen() },
-								"class": { "text-center": true },
-							}
-						)
-					]
-				)
-			);
+			if (variant != "Dark" || this.score!="*")
+			{
+				// Show current FEN
+				elementArray.push(
+					h('div',
+						{
+							attrs: { id: "fen-div" },
+							"class": { "section-content": true },
+						},
+						[
+							h('p',
+								{
+									attrs: { id: "fen-string" },
+									domProps: { innerHTML: this.vr.getBaseFen() },
+									"class": { "text-center": true },
+								}
+							)
+						]
+					)
+				);
+			}
 		}
 		return h(
 			'div',

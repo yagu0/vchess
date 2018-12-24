@@ -21,5 +21,8 @@ new Vue({
 			if (!!menuToggle)
 				menuToggle.checked = false;
 		},
+		notDark: function() {
+			return variant != "Dark";
+		},
 	},
 });

@@ -218,13 +218,12 @@ class GrandRules extends ChessRules
 				// TODO: some redundant checks
 				if (epsq.x == x+shift && Math.abs(epsq.y - y) == 1)
 				{
-					let epStep = epsq.y - y;
-					var enpassantMove = this.getBasicMove([x,y], [x+shift,y+epStep]);
+					var enpassantMove = this.getBasicMove([x,y], [x+shift,epsq.y]);
 					enpassantMove.vanish.push({
 						x: x,
-						y: y+epStep,
+						y: epsq.y,
 						p: 'p',
-						c: this.getColor(x,y+epStep)
+						c: this.getColor(x,epsq.y)
 					});
 					moves.push(enpassantMove);
 				}
