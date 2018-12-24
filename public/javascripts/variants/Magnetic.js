@@ -160,10 +160,8 @@ class MagneticRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-		const c = this.getColor(move.start.x,move.start.y);
-		if (this.board[move.end.x][move.end.y] != V.EMPTY
-			&& c != this.getColor(move.end.x,move.end.y)
-			&& this.getPiece(move.end.x,move.end.y) == V.KING)
+		const c = move.vanish[0].c;
+		if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
 		{
 			// We took opponent king !
 			const oppCol = this.getOppCol(c);
@@ -185,7 +183,7 @@ class MagneticRules extends ChessRules
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
-		const c = this.getColor(move.start.x,move.start.y);
+		const c = move.vanish[0].c;
 		const oppCol = this.getOppCol(c);
 		if (this.kingPos[oppCol][0] < 0)
 		{

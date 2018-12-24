@@ -58,7 +58,7 @@ class AtomicRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-		const color = this.getColor(move.start.x,move.start.y);
+		const color = move.vanish[0].c;
 		if (move.appear.length == 0) //capture
 		{
 			const firstRank = {"w": 7, "b": 0};
@@ -89,7 +89,7 @@ class AtomicRules extends ChessRules
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
-		const c = this.getColor(move.start.x,move.start.y);
+		const c = move.vanish[0].c;
 		const oppCol = this.getOppCol(c);
 		if ([this.kingPos[c][0],this.kingPos[oppCol][0]].some(e => { return e < 0; }))
 		{

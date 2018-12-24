@@ -276,7 +276,7 @@ Vue.component('my-game', {
 			);
 			// Create board element (+ reserves if needed by variant or mode)
 			const lm = this.vr.lastMove;
-			const showLight = this.hints &&
+			const showLight = this.hints && variant!="Dark" &&
 				(!["idle","chat"].includes(this.mode) || this.cursor==this.vr.moves.length);
 			const gameDiv = h('div',
 				{
@@ -299,7 +299,7 @@ Vue.component('my-game', {
 							let cj = (this.mycolor=='w' ? j : sizeY-j-1);
 							let elems = [];
 							if (this.vr.board[ci][cj] != VariantRules.EMPTY && (variant!="Dark"
-								|| this.score!="*" || this.vr.isEnlightened(ci,cj,this.mycolor)))
+								|| this.score!="*" || this.vr.enlightened[this.mycolor][ci][cj]))
 							{
 								elems.push(
 									h(
@@ -344,7 +344,7 @@ Vue.component('my-game', {
 										'dark-square': (i+j)%2==1,
 										[this.color]: true,
 										'in-shadow': variant=="Dark" && this.score=="*"
-											&& !this.vr.isEnlightened(ci,cj,this.mycolor),
+											&& !this.vr.enlightened[this.mycolor][ci][cj],
 										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
 										'incheck': showLight && incheckSq[ci][cj],
 									},
@@ -1022,7 +1022,7 @@ Vue.component('my-game', {
 					this.newGame("human", data.fen, data.color, data.oppid);
 					break;
 				case "newmove": //..he played!
-					this.play(data.move, "animate");
+					this.play(data.move, (variant!="Dark" ? "animate" : null));
 					break;
 				case "pong": //received if we sent a ping (game still alive on our side)
 					if (this.gameId != data.gameId)

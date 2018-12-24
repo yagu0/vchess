@@ -256,8 +256,8 @@ class AliceRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move); //standard king
-		const piece = this.getPiece(move.start.x,move.start.y);
-		const c = this.getColor(move.start.x,move.start.y);
+		const piece = move.vanish[0].p;
+		const c = move.vanish[0].c;
 		// "l" = Alice king
 		if (piece == "l")
 		{
@@ -270,8 +270,8 @@ class AliceRules extends ChessRules
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
-		const c = this.getColor(move.start.x,move.start.y);
-		if (this.getPiece(move.start.x,move.start.y) == "l")
+		const c = move.vanish[0].c;
+		if (move.vanish[0].p == "l")
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 

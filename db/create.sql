@@ -18,6 +18,10 @@ insert into Variants values
 	('Crazyhouse', 'Captures reborn'),
 	('Switching', 'Exchange pieces positions'),
 	('Extinction', 'Capture all of a kind'),
+	('Marseille', 'Move twice'),
+	('Upsidedown', 'Walking on the hands'),
+	('Dark', 'In the shadow'),
+	('Berolina', 'Pawns move diagonally'),
 	('Ultima', 'Exotic captures');
 
 create table Problems (

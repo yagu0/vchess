@@ -1,25 +1,42 @@
-class Chess960Rules extends ChessRules
+class DarkRules extends ChessRules
 {
 	// Standard rules, in the shadow
 	setOtherVariables(fen)
 	{
 		super.setOtherVariables(fen);
-		const [sizeX,sizeY] = {V.size.x,V.size.y};
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		this.enlightened = {
-			"w": doubleArray(sizeX,sizeY,false),
-			"b": doubleArray(sizeX,sizeY,false)
+			"w": doubleArray(sizeX,sizeY),
+			"b": doubleArray(sizeX,sizeY)
 		};
-		setup enlightened: squares reachable by each side (TODO: one side would be enough)
+		// Setup enlightened: squares reachable by each side
+		// (TODO: one side would be enough ?)
+		this.updateEnlightened();
 	}
 
-	isEnlightened(x, y, color)
+	updateEnlightened()
 	{
-		//TODO: artificlaly change turn
-	}
-
-	getAllPotentialMoves()
-	{
-		let moves = []; //TODO
+		// Initialize with pieces positions (which are seen)
+		for (let i=0; i<V.size.x; i++)
+		{
+			for (let j=0; j<V.size.y; j++)
+			{
+				this.enlightened["w"][i][j] = false;
+				this.enlightened["b"][i][j] = false;
+				if (this.board[i][j] != V.EMPTY)
+					this.enlightened[this.getColor(i,j)][i][j] = true;
+			}
+		}
+		const currentTurn = this.turn;
+		this.turn = "w";
+		const movesWhite = this.getAllValidMoves();
+		this.turn = "b";
+		const movesBlack = this.getAllValidMoves();
+		this.turn = currentTurn;
+		for (let move of movesWhite)
+			this.enlightened["w"][move.end.x][move.end.y] = true;
+		for (let move of movesBlack)
+			this.enlightened["b"][move.end.x][move.end.y] = true;
 	}
 
 	atLeastOneMove()
@@ -47,10 +64,48 @@ class Chess960Rules extends ChessRules
 		return res;
 	}
 
-	// NOTE: no (un)updateVariables() because no computer mode
-	// --> but isEnlightened() should have its variable updated
-	// --> in fact an array is enough (no need for a function)
-	// recomputed after every play/undo (although there are no undo here for now)
+	updateVariables(move)
+	{
+		// Update kings positions
+		const piece = move.vanish[0].p;
+		const c = move.vanish[0].c;
+		if (piece == V.KING && move.appear.length > 0)
+		{
+			this.kingPos[c][0] = move.appear[0].x;
+			this.kingPos[c][1] = move.appear[0].y;
+		}
+		if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
+		{
+			// We took opponent king !
+			const oppCol = this.getOppCol(c);
+			this.kingPos[oppCol] = [-1,-1];
+		}
+
+		// Update moves for both colors:
+		this.updateEnlightened();
+	}
+
+	unupdateVariables(move)
+	{
+		super.unupdateVariables(move);
+		const c = move.vanish[0].c;
+		const oppCol = this.getOppCol(c);
+		if (this.kingPos[oppCol][0] < 0)
+		{
+			// Last move took opponent's king
+			for (let psq of move.vanish)
+			{
+				if (psq.p == 'k')
+				{
+					this.kingPos[oppCol] = [psq.x, psq.y];
+					break;
+				}
+			}
+		}
+
+		// Update moves for both colors:
+		this.updateEnlightened();
+	}
 
 	checkGameEnd()
 	{

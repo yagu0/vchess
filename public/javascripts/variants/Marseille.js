@@ -1,0 +1,3 @@
+//TODO: turn en fonction de la parité des coups...
+//adapter alphabeta (dans baserules ? --> basé sur turn OK)
+// le reste == standard

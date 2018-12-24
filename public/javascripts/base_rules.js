@@ -994,12 +994,12 @@ class ChessRules
 
 		if (V.HasFlags)
 			move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
-		this.updateVariables(move);
-		this.moves.push(move);
 		if (V.HasEnpassant)
 			this.epSquares.push( this.getEpSquare(move) );
-		this.turn = this.getOppCol(this.turn);
 		V.PlayOnBoard(this.board, move);
+		this.turn = this.getOppCol(this.turn);
+		this.moves.push(move);
+		this.updateVariables(move);
 
 		if (!!ingame)
 		{
@@ -1010,14 +1010,14 @@ class ChessRules
 
 	undo(move)
 	{
-		V.UndoOnBoard(this.board, move);
-		this.turn = this.getOppCol(this.turn);
 		if (V.HasEnpassant)
 			this.epSquares.pop();
-		this.moves.pop();
-		this.unupdateVariables(move);
 		if (V.HasFlags)
 			this.disaggregateFlags(JSON.parse(move.flags));
+		V.UndoOnBoard(this.board, move);
+		this.turn = this.getOppCol(this.turn);
+		this.moves.pop();
+		this.unupdateVariables(move);
 
 		// DEBUG:
 //		if (this.getFen() != this.states[this.states.length-1])

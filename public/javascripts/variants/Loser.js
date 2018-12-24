@@ -97,7 +97,7 @@ class LoserRules extends ChessRules
 		return [];
 	}
 
-	// No variables update because no castling
+	// No variables update because no royal king + no castling
 	updateVariables(move) { }
 	unupdateVariables(move) { }
 

@@ -529,8 +529,8 @@ class UltimaRules extends ChessRules
 	updateVariables(move)
 	{
 		// Just update king(s) position(s)
-		const piece = this.getPiece(move.start.x,move.start.y);
-		const c = this.getColor(move.start.x,move.start.y);
+		const piece = move.vanish[0].p;
+		const c = move.vanish[0].c;
 		if (piece == V.KING && move.appear.length > 0)
 		{
 			this.kingPos[c][0] = move.appear[0].x;

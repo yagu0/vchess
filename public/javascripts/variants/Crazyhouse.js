@@ -212,7 +212,7 @@ class CrazyhouseRules extends ChessRules
 		super.updateVariables(move);
 		if (move.vanish.length == 2 && move.appear.length == 2)
 			return; //skip castle
-		const color = this.turn;
+		const color = move.appear[0].c;
 		if (move.vanish.length == 0)
 		{
 			this.reserve[color][move.appear[0].p]--;

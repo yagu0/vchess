@@ -113,8 +113,8 @@ class AntikingRules extends ChessRules
 	updateVariables(move)
 	{
 		super.updateVariables(move);
-		const piece = this.getPiece(move.start.x,move.start.y);
-		const c = this.getColor(move.start.x,move.start.y);
+		const piece = move.vanish[0].p;
+		const c = move.vanish[0].c;
 		// Update antiking position
 		if (piece == V.ANTIKING)
 		{
@@ -126,8 +126,8 @@ class AntikingRules extends ChessRules
 	unupdateVariables(move)
 	{
 		super.unupdateVariables(move);
-		const c = this.getColor(move.start.x,move.start.y);
-		if (this.getPiece(move.start.x,move.start.y) == V.ANTIKING)
+		const c = move.vanish[0].c;
+		if (move.vanish[0].p == V.ANTIKING)
 			this.antikingPos[c] = [move.start.x, move.start.y];
 	}
 

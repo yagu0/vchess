@@ -104,7 +104,7 @@ class SwitchingRules extends ChessRules
 			&& move.appear[1].p == V.KING)
 		{
 			// Switch with the king; not castle, and not handled by main class
-			const color = this.getColor(move.start.x, move.start.y);
+			const color = move.vanish[0].c;
 			this.kingPos[color] = [move.appear[1].x, move.appear[1].y];
 		}
 	}
@@ -115,7 +115,7 @@ class SwitchingRules extends ChessRules
 		if (move.appear.length == 2 && move.vanish.length == 2
 			&& move.appear[1].p == V.KING)
 		{
-			const color = this.getColor(move.start.x, move.start.y);
+			const color = move.vanish[0].c;
 			this.kingPos[color] = [move.appear[0].x, move.appear[0].y];
 		}
 	}
