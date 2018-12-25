@@ -88,25 +88,19 @@ class AntikingRules extends ChessRules
 			V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
-		const c = this.turn;
-		const oppCol = this.getOppCol(c);
-		this.play(move)
-		let res = this.isAttacked(this.kingPos[c], [oppCol])
-			|| !this.isAttacked(this.antikingPos[c], [oppCol]);
-		this.undo(move);
+		const oppCol = this.getOppCol(color);
+		let res = this.isAttacked(this.kingPos[color], [oppCol])
+			|| !this.isAttacked(this.antikingPos[color], [oppCol]);
 		return res;
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
-		let res = super.getCheckSquares(move);
-		this.play(move);
-		const c = this.turn;
-		if (!this.isAttacked(this.antikingPos[c], [this.getOppCol(c)]))
-			res.push(JSON.parse(JSON.stringify(this.antikingPos[c])));
-		this.undo(move);
+		let res = super.getCheckSquares(color);
+		if (!this.isAttacked(this.antikingPos[color], [this.getOppCol(color)]))
+			res.push(JSON.parse(JSON.stringify(this.antikingPos[color])));
 		return res;
 	}
 

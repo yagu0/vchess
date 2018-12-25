@@ -24,7 +24,7 @@ Vue.component('my-game', {
 			incheck: [],
 			pgnTxt: "",
 			hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
-			color: localStorage["color"] || "lichess", //lichess, chesscom or chesstempo
+			bcolor: localStorage["bcolor"] || "lichess", //lichess, chesscom or chesstempo
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
 			sound: parseInt(localStorage["sound"] || "2"),
 			// Web worker to play computer moves without freezing interface:
@@ -342,7 +342,7 @@ Vue.component('my-game', {
 										['board'+sizeY]: true,
 										'light-square': (i+j)%2==0,
 										'dark-square': (i+j)%2==1,
-										[this.color]: true,
+										[this.bcolor]: true,
 										'in-shadow': variant=="Dark" && this.score=="*"
 											&& !this.vr.enlightened[this.mycolor][ci][cj],
 										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
@@ -695,7 +695,7 @@ Vue.component('my-game', {
 									h("select",
 										{
 											attrs: { "id": "selectColor" },
-											on: { "change": this.setColor },
+											on: { "change": this.setBoardColor },
 										},
 										[
 											h("option",
@@ -1239,9 +1239,9 @@ Vue.component('my-game', {
 			this.hints = !this.hints;
 			localStorage["hints"] = (this.hints ? "1" : "0");
 		},
-		setColor: function(e) {
-			this.color = e.target.options[e.target.selectedIndex].value;
-			localStorage["color"] = this.color;
+		setBoardColor: function(e) {
+			this.bcolor = e.target.options[e.target.selectedIndex].value;
+			localStorage["bcolor"] = this.bcolor;
 		},
 		setSound: function(e) {
 			this.sound = parseInt(e.target.options[e.target.selectedIndex].value);
@@ -1280,7 +1280,7 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		newGame: function(mode, fenInit, color, oppId) {
-			let fen = fenInit || VariantRules.GenRandInitFen();
+			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
 			{
@@ -1352,7 +1352,9 @@ Vue.component('my-game', {
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
-			//else: against a (IRL) friend or problem solving: nothing more to do
+			else if (mode == "friend")
+				this.mycolor = "w"; //convention...
+			//else: problem solving: nothing more to do
 		},
 		continueGame: function(mode) {
 			this.mode = mode;
@@ -1364,6 +1366,7 @@ Vue.component('my-game', {
 			const score = localStorage.getItem(prefix+"score"); //set in "endGame()"
 			this.fenStart = localStorage.getItem(prefix+"fenStart");
 			this.vr = new VariantRules(fen, moves);
+			this.incheck = this.vr.getCheckSquares(this.vr.turn);
 			if (mode == "human")
 			{
 				this.gameId = localStorage.getItem("gameId");
@@ -1376,13 +1379,6 @@ Vue.component('my-game', {
 				this.compWorker.postMessage(["init",fen]);
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
-			}
-			if (moves.length > 0)
-			{
-				const lastMove = moves[moves.length-1];
-				this.vr.undo(lastMove);
-				this.incheck = this.vr.getCheckSquares(lastMove);
-				this.vr.play(lastMove, "ingame");
 			}
 			if (score != "*")
 			{
@@ -1444,6 +1440,7 @@ Vue.component('my-game', {
 					if (this.vr.canIplay(color,startSquare))
 						this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
 				}
+				console.log(this.possibleMoves);
 				// Next line add moving piece just after current image
 				// (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
@@ -1554,8 +1551,9 @@ Vue.component('my-game', {
 				// TODO: robustify this...
 				if (this.mode == "human" && !!move.computer)
 					return;
-				this.incheck = this.vr.getCheckSquares(move); //is opponent in check?
 				this.vr.play(move, "ingame");
+				// Is opponent in check?
+				this.incheck = this.vr.getCheckSquares(this.vr.turn);
 				if (this.sound == 2)
 					new Audio("/sounds/move.mp3").play().catch(err => {});
 				if (this.mode == "computer")
@@ -1606,15 +1604,7 @@ Vue.component('my-game', {
 				this.vr.undo(lm);
 				if (this.sound == 2)
 					new Audio("/sounds/undo.mp3").play().catch(err => {});
-				const lmBefore = this.vr.lastMove;
-				if (!!lmBefore)
-				{
-					this.vr.undo(lmBefore);
-					this.incheck = this.vr.getCheckSquares(lmBefore);
-					this.vr.play(lmBefore, "ingame");
-				}
-				else
-					this.incheck = [];
+				this.incheck = this.vr.getCheckSquares(this.vr.turn);
 			}
 		},
 	},

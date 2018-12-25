@@ -1,6 +1,14 @@
-class UpsidedownRules extends ChessRUles
+class UpsidedownRules extends ChessRules
 {
 	static HasFlags() { return false; }
+
+	// Forbid two knights moves in a row at moves 1 and 2
+	getPotentialKnightMoves(sq)
+	{
+		// But this will also affect FEN for problems, and...
+		// does it really solve the problem ?
+		//if (this.moves. ...)
+	}
 
 	getPotentialKingMoves(sq)
 	{
@@ -47,9 +55,9 @@ class UpsidedownRules extends ChessRUles
 			pieces[c][knight2Pos] = 'n';
 			pieces[c][rook2Pos] = 'r';
 		}
-		return pieces["w"].join("") +
+		return pieces["w"].join("").toUpperCase() +
 			"/PPPPPPPP/8/8/8/8/pppppppp/" +
-			pieces["b"].join("").toUpperCase() +
+			pieces["b"].join("") +
 			" w 1111 -"; //add turn + flags + enpassant
 	}
 }

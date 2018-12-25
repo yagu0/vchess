@@ -39,6 +39,23 @@ class DarkRules extends ChessRules
 			this.enlightened["b"][move.end.x][move.end.y] = true;
 	}
 
+	// Has to be redefined to avoid an infinite loop
+	getAllValidMoves()
+	{
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		let potentialMoves = [];
+		for (let i=0; i<V.size.x; i++)
+		{
+			for (let j=0; j<V.size.y; j++)
+			{
+				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) == color)
+					Array.prototype.push.apply(potentialMoves, this.getPotentialMovesFrom([i,j]));
+			}
+		}
+		return potentialMoves; //because there are no checks
+	}
+
 	atLeastOneMove()
 	{
 		if (this.kingPos[this.turn][0] < 0)
@@ -46,22 +63,14 @@ class DarkRules extends ChessRules
 		return true; //TODO: is it right?
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
 		return false; //there is no check
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
-		const c = this.getOppCol(this.turn); //opponent
-		const saveKingPos = this.kingPos[c]; //king might be taken
-		this.play(move);
-		// The only way to be "under check" is to have lost the king (thus game over)
-		let res = this.kingPos[c][0] < 0
-			? [JSON.parse(JSON.stringify(saveKingPos))]
-			: [];
-		this.undo(move);
-		return res;
+		return [];
 	}
 
 	updateVariables(move)

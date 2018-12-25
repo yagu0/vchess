@@ -64,12 +64,12 @@ class ExtinctionRules extends ChessRules
 		return true; //always at least one possible move
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
 		return false; //there is no check
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
 		return [];
 	}

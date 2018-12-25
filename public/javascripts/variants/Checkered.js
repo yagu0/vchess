@@ -151,7 +151,10 @@ class CheckeredRules extends ChessRules
 			const L = this.moves.length;
 			if (L > 0 && this.oppositeMoves(this.moves[L-1], m))
 				return false;
-			return !this.underCheck(m);
+			this.play(m);
+			const res = !this.underCheck(color);
+			this.undo(m);
+			return res;
 		});
 	}
 
@@ -176,19 +179,13 @@ class CheckeredRules extends ChessRules
 		return false;
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
-		const color = this.turn;
-		this.play(move);
-		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
-		this.undo(move);
-		return res;
+		return this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
-		this.play(move);
-		const color = this.turn;
 		// Artifically change turn, for checkered pawns
 		this.turn = this.getOppCol(color);
 		const kingAttacked = this.isAttacked(
@@ -197,7 +194,6 @@ class CheckeredRules extends ChessRules
 			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
 			: [];
 		this.turn = color;
-		this.undo(move);
 		return res;
 	}
 

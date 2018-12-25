@@ -102,37 +102,30 @@ class AtomicRules extends ChessRules
 		}
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
-		const c = this.turn;
-		const oppCol = this.getOppCol(c);
-		this.play(move);
+		const oppCol = this.getOppCol(color);
 		let res = undefined;
 		// If our king disappeared, move is not valid
-		if (this.kingPos[c][0] < 0)
+		if (this.kingPos[color][0] < 0)
 			res = true;
 		// If opponent king disappeared, move is valid
 		else if (this.kingPos[oppCol][0] < 0)
 			res = false;
 		// Otherwise, if we remain under check, move is not valid
 		else
-			res = this.isAttacked(this.kingPos[c], [oppCol]);
-		this.undo(move);
+			res = this.isAttacked(this.kingPos[color], [oppCol]);
 		return res;
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
-		const c = this.getOppCol(this.turn);
-		// King might explode:
-		const saveKingPos = JSON.parse(JSON.stringify(this.kingPos[c]));
-		this.play(move);
 		let res = [ ];
-		if (this.kingPos[c][0] < 0)
-			res = [saveKingPos];
-		else if (this.isAttacked(this.kingPos[c], [this.getOppCol(c)]))
-			res = [ JSON.parse(JSON.stringify(this.kingPos[c])) ]
-		this.undo(move);
+		if (this.kingPos[color][0] >= 0 //king might have exploded
+			&& this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
+		{
+			res = [ JSON.parse(JSON.stringify(this.kingPos[color])) ]
+		}
 		return res;
 	}
 

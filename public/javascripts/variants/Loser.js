@@ -87,7 +87,7 @@ class LoserRules extends ChessRules
 		return moves;
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
 		return false; //No notion of check
 	}

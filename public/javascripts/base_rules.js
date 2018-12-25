@@ -195,16 +195,12 @@ class ChessRules
 		return (this.turn == side && this.getColor(x,y) == side);
 	}
 
-	// On which squares is opponent under check after our move ? (for interface)
-	getCheckSquares(move)
+	// On which squares is color under check ? (for interface)
+	getCheckSquares(color)
 	{
-		this.play(move);
-		const color = this.turn; //opponent
-		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
+		return this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
 			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
 			: [];
-		this.undo(move);
-		return res;
 	}
 
 	/////////////
@@ -766,9 +762,9 @@ class ChessRules
 	////////////////////
 	// MOVES VALIDATION
 
+	// For the interface: possible moves for the current turn from square sq
 	getPossibleMovesFrom(sq)
 	{
-		// Assuming color is right (already checked)
 		return this.filterValid( this.getPotentialMovesFrom(sq) );
 	}
 
@@ -777,7 +773,13 @@ class ChessRules
 	{
 		if (moves.length == 0)
 			return [];
-		return moves.filter(m => { return !this.underCheck(m); });
+		const color = this.turn;
+		return moves.filter(m => {
+			this.play(m);
+			const res = !this.underCheck(color);
+			this.undo(m);
+			return res;
+		});
 	}
 
 	// Search for all valid moves considering current turn (for engine and game end)
@@ -912,14 +914,10 @@ class ChessRules
 		return false;
 	}
 
-	// Is current player under check after his move ?
-	underCheck(move)
+	// Is color under check after his move ?
+	underCheck(color)
 	{
-		const color = this.turn;
-		this.play(move);
-		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)]);
-		this.undo(move);
-		return res;
+		return this.isAttacked(this.kingPos[color], [this.getOppCol(color)]);
 	}
 
 	/////////////////
@@ -945,8 +943,8 @@ class ChessRules
 	// Before move is played, update variables + flags
 	updateVariables(move)
 	{
-		const piece = this.getPiece(move.start.x,move.start.y);
-		const c = this.turn;
+		const piece = move.vanish[0].p;
+		const c = move.vanish[0].c;
 		const firstRank = (c == "w" ? V.size.x-1 : 0);
 
 		// Update king position + flags
@@ -986,6 +984,7 @@ class ChessRules
 	play(move, ingame)
 	{
 		// DEBUG:
+//		console.log("DO");
 //		if (!this.states) this.states = [];
 //		if (!ingame) this.states.push(this.getFen());
 
@@ -1020,6 +1019,7 @@ class ChessRules
 		this.unupdateVariables(move);
 
 		// DEBUG:
+//		console.log("UNDO "+this.getNotation(move));
 //		if (this.getFen() != this.states[this.states.length-1])
 //			debugger;
 //		this.states.pop();

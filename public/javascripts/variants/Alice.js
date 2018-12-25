@@ -160,7 +160,13 @@ class AliceRules extends ChessRules
 		if (moves.length == 0)
 			return [];
 		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
-		return moves.filter(m => { return !this.underCheck(m, sideBoard); });
+		const color = this.turn;
+		return moves.filter(m => {
+			this.playSide(m, sideBoard); //no need to track flags
+			const res = !this.underCheck(color, sideBoard);
+			this.undoSide(m, sideBoard);
+			return res;
+		});
 	}
 
 	getAllValidMoves()
@@ -221,24 +227,19 @@ class AliceRules extends ChessRules
 		});
 	}
 
-	underCheck(move, sideBoard) //sideBoard arg always provided
+	underCheck(color, sideBoard) //sideBoard arg always provided
 	{
-		const color = this.turn;
-		this.playSide(move, sideBoard); //no need to track flags
 		const kp = this.kingPos[color];
 		const mirrorSide = (sideBoard[0][kp[0]][kp[1]] != V.EMPTY ? 1 : 2);
 		let saveBoard = this.board;
 		this.board = sideBoard[mirrorSide-1];
 		let res = this.isAttacked(kp, [this.getOppCol(color)]);
 		this.board = saveBoard;
-		this.undoSide(move, sideBoard);
 		return res;
 	}
 
-	getCheckSquares(move)
+	getCheckSquares(color)
 	{
-		this.play(move);
-		const color = this.turn; //opponent
 		const pieces = Object.keys(V.ALICE_CODES);
 		const kp = this.kingPos[color];
 		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);
@@ -249,7 +250,6 @@ class AliceRules extends ChessRules
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ]
 			: [ ];
 		this.board = saveBoard;
-		this.undo(move);
 		return res;
 	}
 

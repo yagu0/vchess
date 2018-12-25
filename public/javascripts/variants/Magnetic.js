@@ -139,22 +139,14 @@ class MagneticRules extends ChessRules
 		return true; //TODO: is it right?
 	}
 
-	underCheck(move)
+	underCheck(color)
 	{
 		return false; //there is no check
 	}
 
 	getCheckSquares(move)
 	{
-		const c = this.getOppCol(this.turn); //opponent
-		const saveKingPos = this.kingPos[c]; //king might be taken
-		this.play(move);
-		// The only way to be "under check" is to have lost the king (thus game over)
-		let res = this.kingPos[c][0] < 0
-			? [JSON.parse(JSON.stringify(saveKingPos))]
-			: [];
-		this.undo(move);
-		return res;
+		return [];
 	}
 
 	updateVariables(move)

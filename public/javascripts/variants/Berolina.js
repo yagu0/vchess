@@ -18,15 +18,14 @@ class BerolinaRules extends ChessRules
 		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) == 2)
 		{
 			return {
-				x: ex,
+				x: (ex + sx)/2,
 				y: (move.end.y + sy)/2
 			};
 		}
 		return undefined; //default
 	}
 
-	// Special pawn rules: promotions to captured friendly pieces,
-	// optional on ranks 8-9 and mandatory on rank 10.
+	// Special pawns movements
 	getPotentialPawnMoves([x,y])
 	{
 		const color = this.turn;
@@ -48,14 +47,12 @@ class BerolinaRules extends ChessRules
 				if (this.board[x+shiftX][y+shiftY] == V.EMPTY)
 				{
 					for (let piece of finalPieces)
-					{
-						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
-							{c:pawnColor,p:piece}));
-					}
-					if (x == startRank && this.board[x+2*shiftX][y] == V.EMPTY)
+						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY], {c:color,p:piece}));
+					if (x == startRank && y+2*shiftY>=0 && y+2*shiftY<sizeY
+						&& this.board[x+2*shiftX][y+2*shiftY] == V.EMPTY)
 					{
 						// Two squares jump
-						moves.push(this.getBasicMove([x,y], [x+2*shiftX,y+2*shiftY]);
+						moves.push(this.getBasicMove([x,y], [x+2*shiftX,y+2*shiftY]));
 					}
 				}
 			}
@@ -64,10 +61,7 @@ class BerolinaRules extends ChessRules
 				&& this.canTake([x,y], [x+shiftX,y]))
 			{
 				for (let piece of finalPieces)
-				{
-					moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
-						{c:pawnColor,p:piece}));
-				}
+					moves.push(this.getBasicMove([x,y], [x+shiftX,y], {c:color,p:piece}));
 			}
 		}
 
@@ -76,17 +70,31 @@ class BerolinaRules extends ChessRules
 		const epSquare = this.epSquares[Lep-1]; //always at least one element
 		if (!!epSquare && epSquare.x == x+shiftX && epSquare.y == y)
 		{
-			let enpassantMove = this.getBasicMove([x,y], [x+shift,y]);
+			let enpassantMove = this.getBasicMove([x,y], [x+shiftX,y]);
 			enpassantMove.vanish.push({
 				x: epSquare.x,
-				y: y,
+				y: epSquare.y,
 				p: 'p',
-				c: this.getColor(epSquare.x,y)
+				c: this.getColor(epSquare.x,epSquare.y)
 			});
 			moves.push(enpassantMove);
 		}
 
 		return moves;
+	}
+
+	isAttackedByPawn([x,y], colors)
+	{
+		for (let c of colors)
+		{
+			let pawnShift = (c=="w" ? 1 : -1);
+			if (x+pawnShift>=0 && x+pawnShift<V.size.x)
+			{
+				if (this.getPiece(x+pawnShift,y)==V.PAWN && this.getColor(x+pawnShift,y)==c)
+					return true;
+			}
+		}
+		return false;
 	}
 }
 
