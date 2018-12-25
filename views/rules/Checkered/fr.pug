@@ -11,6 +11,11 @@ figure.showPieces.center-align
 	img(src="/images/tmp_checkered/no_ck.png")
 	figcaption Pièces échiquetées, nées suite aux captures.
 
+p.
+	Note : le (vrai) nom initial de cette variante est "l'Échiqueté".
+	"Checkered" en est la traduction anglaise, et ce dernier terme me paraît
+	plus lisible pour des non francophones.
+
 h3 Caractéristiques
 
 ul
@@ -67,6 +72,28 @@ ul
 		Les pions échiquetés ne peuvent capturer en passant, puisque pendant que
 		le pion adverse "passait" ils étaient dans le même camp.
 
+p.bold.bigfont Pour jouer, vous pouvez arrêter de lire ici.
+
+h3 Mat ou pat ?
+
+p.
+	La situation du diagramme suivant ressemble à un mat, mais le roi est
+	"attaqué" par un pion échiqueté : celui-ci appartient pour l'instant aux blancs.
+	On peut donc considérer qu'ils ne sont pas vraiment en échec
+	puisqu'incapables de "rendre le trait".
+	Sans le fou noir en a7 ce serait mat (indiscutable), car le roi pourrait
+	virtuellement aller en g1 avant de se faire capturer par le pion caméléon.
+
+figure.diagram-container
+	.diagram
+		| fen:7k/b5pp/8/8/8/8/6ss/7K:
+	figcaption Après 1...g2+(#?)
+
+p.
+	L'interface considère que c'est mat dans les deux cas, partant
+	du principe que "c'est mat si on ne peut pas bouger et que l'adversaire
+	au trait peut capturer le roi" (éventuellement après un coup interdit).
+
 h2.stageDelimiter Phase 2
 
 p.warn Cette étape n'est pas (et ne sera probablement jamais) implémentée ici.
@@ -102,5 +129,5 @@ ul
 		Les règles de l'Échiqueté ont été déterminées par Patrick Bernier, puis
 		développées avec l'aide de Benjamin Auder.
 	li.
-		Merci également à Olive Martin, Christian Poisson, Bevis Martin, Laurent Nouhaud
-		et Frédéric Fradet.
+		Merci également à Olive Martin, Christian Poisson, Bevis Martin,
+		Laurent Nouhaud et Frédéric Fradet.

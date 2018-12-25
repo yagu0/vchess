@@ -15,9 +15,8 @@ function getDiagram(args)
 		for (let i=0; i<squares.length; i++)
 		{
 			const res = /^([a-z]+)([0-9]+)$/i.exec(squares[i]);
-			const x = sizeX - parseInt(res[2]); //white at bottom, so counting is reversed
-			const y = res[1].charCodeAt(0)-97; //always one char: max 26, big enough
-			markArray[x][y] = true;
+			const coords = V.SquareToCoords(res);
+			markArray[coords.x][coords.y] = true;
 		}
 	}
 	let boardDiv = "";

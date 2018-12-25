@@ -324,7 +324,7 @@ class AliceRules extends ChessRules
 		const captureMark = (move.vanish.length > move.appear.length ? "x" : "");
 		let pawnMark = "";
 		if (["p","s"].includes(piece) && captureMark.length == 1)
-			pawnMark = V.GetColumn(move.start.y); //start column
+			pawnMark = V.CoordToColumn(move.start.y); //start column
 
 		// Piece or pawn movement
 		let notation = piece.toUpperCase() + pawnMark + captureMark + finalSquare;

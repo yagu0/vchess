@@ -10,17 +10,26 @@ class BerolinaRules extends ChessRules
 			const square = moveOrSquare;
 			if (square == "-")
 				return undefined;
-			return V.SquareToCoords(square);
+			// Enemy pawn initial column must be given too:
+			let res = [];
+			const epParts = square.split(",");
+			res.push(V.SquareToCoords(epParts[0]));
+			res.push(V.ColumnToCoord(epParts[1]));
+			return res;
 		}
 		// Argument is a move:
 		const move = moveOrSquare;
 		const [sx,ex,sy] = [move.start.x,move.end.x,move.start.y];
 		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) == 2)
 		{
-			return {
-				x: (ex + sx)/2,
-				y: (move.end.y + sy)/2
-			};
+			return
+			[
+				{
+					x: (ex + sx)/2,
+					y: (move.end.y + sy)/2
+				},
+				move.end.y
+			];
 		}
 		return undefined; //default
 	}
@@ -47,7 +56,10 @@ class BerolinaRules extends ChessRules
 				if (this.board[x+shiftX][y+shiftY] == V.EMPTY)
 				{
 					for (let piece of finalPieces)
-						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY], {c:color,p:piece}));
+					{
+						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
+							{c:color,p:piece}));
+					}
 					if (x == startRank && y+2*shiftY>=0 && y+2*shiftY<sizeY
 						&& this.board[x+2*shiftX][y+2*shiftY] == V.EMPTY)
 					{
@@ -68,14 +80,15 @@ class BerolinaRules extends ChessRules
 		// En passant
 		const Lep = this.epSquares.length;
 		const epSquare = this.epSquares[Lep-1]; //always at least one element
-		if (!!epSquare && epSquare.x == x+shiftX && epSquare.y == y)
+		if (!!epSquare && epSquare[0].x == x+shiftX && epSquare[0].y == y
+			&& Math.abs(epSquare[1] - y) == 1)
 		{
 			let enpassantMove = this.getBasicMove([x,y], [x+shiftX,y]);
 			enpassantMove.vanish.push({
-				x: epSquare.x,
-				y: epSquare.y,
+				x: x,
+				y: epSquare[1],
 				p: 'p',
-				c: this.getColor(epSquare.x,epSquare.y)
+				c: this.getColor(x,epSquare[1])
 			});
 			moves.push(enpassantMove);
 		}
@@ -90,11 +103,36 @@ class BerolinaRules extends ChessRules
 			let pawnShift = (c=="w" ? 1 : -1);
 			if (x+pawnShift>=0 && x+pawnShift<V.size.x)
 			{
-				if (this.getPiece(x+pawnShift,y)==V.PAWN && this.getColor(x+pawnShift,y)==c)
+				if (this.getPiece(x+pawnShift,y)==V.PAWN
+					&& this.getColor(x+pawnShift,y)==c)
+				{
 					return true;
+				}
 			}
 		}
 		return false;
+	}
+
+	getNotation(move)
+	{
+		const piece = this.getPiece(move.start.x, move.start.y);
+		if (piece == V.PAWN)
+		{
+			// Pawn move
+			let notation = "";
+			if (move.vanish.length == 2) //capture
+				notation = finalSquare;
+			else
+			{
+				// No capture
+				const startColumn = V.CoordToColumn(move.start.y);
+				notation = startColumn + "x" + finalSquare;
+			}
+			if (move.appear[0].p != V.PAWN) //promotion
+				notation += "=" + move.appear[0].p.toUpperCase();
+			return notation;
+		}
+		return super.getNotation(move); //all other pieces are orthodox
 	}
 }
 

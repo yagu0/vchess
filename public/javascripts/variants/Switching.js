@@ -130,11 +130,7 @@ class SwitchingRules extends ChessRules
 		if (move.appear[0].p == V.KING && move.appear[1].p == V.ROOK)
 			return (move.end.y < move.start.y ? "0-0-0" : "0-0");
 		// Switch:
-		const startSquare =
-			String.fromCharCode(97 + move.start.y) + (V.size.x-move.start.x);
-		const finalSquare =
-			String.fromCharCode(97 + move.end.y) + (V.size.x-move.end.x);
-		return "S" + startSquare + finalSquare;
+		return "S" + V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
 	}
 }
 

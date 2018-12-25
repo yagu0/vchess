@@ -278,7 +278,7 @@ class CheckeredRules extends ChessRules
 			if (move.vanish.length > 1)
 			{
 				// Capture
-				const startColumn = V.GetColumn(move.start.y);
+				const startColumn = V.CoordToColumn(move.start.y);
 				notation = startColumn + "x" + finalSquare +
 					"=" + move.appear[0].p.toUpperCase();
 			}

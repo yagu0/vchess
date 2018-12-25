@@ -11,6 +11,8 @@ figure.showPieces.center-align
 	img(src="/images/tmp_checkered/no_ck.png")
 	figcaption Checkered pieces, born after captures.
 
+p Note: the initial French name for this variant is "l'Échiqueté".
+
 h3 Specifications
 
 ul
@@ -64,6 +66,28 @@ ul
 	li.
 		Checkered pawns cannot capture en passant, because while the pawn was "passing"
 		they were of the same color.
+
+p.bold.bigfont If you wanna play, you can stop reading here.
+
+h3 Stalemate or checkmate?
+
+p.
+	The following diagram seems to show a mating pattern, but the king if
+	"attacked" by a checkered pawn &ndash; which still belongs to white.
+	Therefore, it can be considered that it's not really a check because
+	white is unable to "give back the turn".
+	Without the black bishop on a7 it would be mate (without debate), because
+	the king could virtually go to g1 before being captured by the pawn-chamaleon.
+
+figure.diagram-container
+	.diagram
+		| fen:7k/b5pp/8/8/8/8/6ss/7K:
+	figcaption After 1...g2+(#?)
+
+p.
+	The interface considers that it's mate in both cases, following the idea
+	"it's checkmate if we cannot move, and the opponent on its turn could
+	take the king" (maybe after an impossible move).
 
 h2.stageDelimiter Stage 2
 

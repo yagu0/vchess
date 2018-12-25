@@ -77,7 +77,7 @@ class ChessRules
 			if (fenParsed.enpassant != "-")
 			{
 				const ep = V.SquareToCoords(fenParsed.enpassant);
-				if (ep.y < 0 || ep.y > V.size.y || isNaN(ep.x) || ep.x < 0 || ep.x > V.size.x)
+				if (isNaN(ep.x) || !V.OnBoard(ep))
 					return false;
 			}
 		}
@@ -119,8 +119,14 @@ class ChessRules
 		return !!flags.match(/^[01]{4,4}$/);
 	}
 
-	// 3 --> d (column letter from number)
-	static GetColumn(colnum)
+	// 3 --> d (column number to letter)
+	static CoordToColumn(colnum)
+	{
+		return String.fromCharCode(97 + colnum);
+	}
+
+	// d --> 3 (column letter to number)
+	static ColumnToCoord(colnum)
 	{
 		return String.fromCharCode(97 + colnum);
 	}
@@ -129,6 +135,8 @@ class ChessRules
 	static SquareToCoords(sq)
 	{
 		return {
+			// NOTE: column is always one char => max 26 columns
+			// row is counted from black side => subtraction
 			x: V.size.x - parseInt(sq.substr(1)),
 			y: sq[0].charCodeAt() - 97
 		};
@@ -137,7 +145,7 @@ class ChessRules
 	// {x:0,y:4} --> e8
 	static CoordsToSquare(coords)
 	{
-		return V.GetColumn(coords.y) + (V.size.x - coords.x);
+		return V.CoordToColumn(coords.y) + (V.size.x - coords.x);
 	}
 
 	// Aggregates flags into one object
@@ -217,31 +225,32 @@ class ChessRules
 
 			// Get random squares for bishops
 			let randIndex = 2 * _.random(3);
-			let bishop1Pos = positions[randIndex];
+			const bishop1Pos = positions[randIndex];
 			// The second bishop must be on a square of different color
 			let randIndex_tmp = 2 * _.random(3) + 1;
-			let bishop2Pos = positions[randIndex_tmp];
+			const bishop2Pos = positions[randIndex_tmp];
 			// Remove chosen squares
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
 			// Get random squares for knights
 			randIndex = _.random(5);
-			let knight1Pos = positions[randIndex];
+			const knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 			randIndex = _.random(4);
-			let knight2Pos = positions[randIndex];
+			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Get random square for queen
 			randIndex = _.random(3);
-			let queenPos = positions[randIndex];
+			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			// Rooks and king positions are now fixed, because of the ordering rook-king-rook
-			let rook1Pos = positions[0];
-			let kingPos = positions[1];
-			let rook2Pos = positions[2];
+			// Rooks and king positions are now fixed,
+			// because of the ordering rook-king-rook
+			const rook1Pos = positions[0];
+			const kingPos = positions[1];
+			const rook2Pos = positions[2];
 
 			// Finally put the shuffled pieces in the board array
 			pieces[c][rook1Pos] = 'r';
@@ -528,7 +537,8 @@ class ChessRules
 		}
 	}
 
-	// Build a regular move from its initial and destination squares; tr: transformation
+	// Build a regular move from its initial and destination squares.
+	// tr: transformation
 	getBasicMove([sx,sy], [ex,ey], tr)
 	{
 		let mv = new Move({
@@ -565,7 +575,8 @@ class ChessRules
 		return mv;
 	}
 
-	// Generic method to find possible moves of non-pawn pieces ("sliding or jumping")
+	// Generic method to find possible moves of non-pawn pieces:
+	// "sliding or jumping"
 	getSlideNJumpMoves([x,y], steps, oneStep)
 	{
 		const color = this.getColor(x,y);
@@ -680,7 +691,8 @@ class ChessRules
 	// What are the queen moves from square x,y ?
 	getPotentialQueenMoves(sq)
 	{
-		return this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
+		return this.getSlideNJumpMoves(sq,
+			V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
 	}
 
 	// What are the king moves from square x,y ?
@@ -710,13 +722,15 @@ class ChessRules
 				continue;
 			// If this code is reached, rooks and king are on initial position
 
-			// Nothing on the path of the king (and no checks; OK also if y==finalSquare)?
+			// Nothing on the path of the king ?
+			// (And no checks; OK also if y==finalSquare)
 			let step = finalSquares[castleSide][0] < y ? -1 : 1;
 			for (i=y; i!=finalSquares[castleSide][0]; i+=step)
 			{
 				if (this.isAttacked([x,i], [oppCol]) || (this.board[x][i] != V.EMPTY &&
 					// NOTE: next check is enough, because of chessboard constraints
-					(this.getColor(x,i) != c || ![V.KING,V.ROOK].includes(this.getPiece(x,i)))))
+					(this.getColor(x,i) != c
+						|| ![V.KING,V.ROOK].includes(this.getPiece(x,i)))))
 				{
 					continue castlingCheck;
 				}
@@ -782,7 +796,8 @@ class ChessRules
 		});
 	}
 
-	// Search for all valid moves considering current turn (for engine and game end)
+	// Search for all valid moves considering current turn
+	// (for engine and game end)
 	getAllValidMoves()
 	{
 		const color = this.turn;
@@ -792,13 +807,14 @@ class ChessRules
 		{
 			for (let j=0; j<V.size.y; j++)
 			{
-				// Next condition "!= oppCol" = harmless hack to work with checkered variant
+				// Next condition "!= oppCol" to work with checkered variant
 				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) != oppCol)
-					Array.prototype.push.apply(potentialMoves, this.getPotentialMovesFrom([i,j]));
+				{
+					Array.prototype.push.apply(potentialMoves,
+						this.getPotentialMovesFrom([i,j]));
+				}
 			}
 		}
-		// NOTE: prefer lazy undercheck tests, letting the king being taken?
-		// No: if happen on last 1/2 move, could lead to forbidden moves, wrong evals
 		return this.filterValid(potentialMoves);
 	}
 
@@ -828,7 +844,7 @@ class ChessRules
 		return false;
 	}
 
-	// Check if pieces of color in array 'colors' are attacking (king) on square x,y
+	// Check if pieces of color in 'colors' are attacking (king) on square x,y
 	isAttacked(sq, colors)
 	{
 		return (this.isAttackedByPawn(sq, colors)
@@ -984,7 +1000,6 @@ class ChessRules
 	play(move, ingame)
 	{
 		// DEBUG:
-//		console.log("DO");
 //		if (!this.states) this.states = [];
 //		if (!ingame) this.states.push(this.getFen());
 
@@ -1019,7 +1034,6 @@ class ChessRules
 		this.unupdateVariables(move);
 
 		// DEBUG:
-//		console.log("UNDO "+this.getNotation(move));
 //		if (this.getFen() != this.states[this.states.length-1])
 //			debugger;
 //		this.states.pop();
@@ -1127,12 +1141,14 @@ class ChessRules
 		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves1.length; i++)
 		{
-			moves1[i].eval = (color=="w" ? -1 : 1) * maxeval; //very low, I'm checkmated
+			// Initial self evaluation is very low: "I'm checkmated"
+			moves1[i].eval = (color=="w" ? -1 : 1) * maxeval;
 			this.play(moves1[i]);
 			let eval2 = undefined;
 			if (this.atLeastOneMove())
 			{
-				eval2 = (color=="w" ? 1 : -1) * maxeval; //initialized with checkmate value
+				// Initial enemy evaluation is very low too, for him
+				eval2 = (color=="w" ? 1 : -1) * maxeval;
 				// Second half-move:
 				let moves2 = this.getAllValidMoves("computer");
 				for (let j=0; j<moves2.length; j++)
@@ -1147,8 +1163,11 @@ class ChessRules
 						const score = this.checkGameEnd();
 						evalPos = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 					}
-					if ((color == "w" && evalPos < eval2) || (color=="b" && evalPos > eval2))
+					if ((color == "w" && evalPos < eval2)
+						|| (color=="b" && evalPos > eval2))
+					{
 						eval2 = evalPos;
+					}
 					this.undo(moves2[j]);
 				}
 			}
@@ -1187,7 +1206,8 @@ class ChessRules
 					this.alphabeta(V.SEARCH_DEPTH-1, -maxeval, maxeval);
 				this.undo(moves1[i]);
 			}
-			moves1.sort( (a,b) => { return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
+			moves1.sort( (a,b) => {
+				return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
 		}
 		else
 			return currentBest;
@@ -1284,12 +1304,12 @@ class ChessRules
 			if (move.vanish.length > move.appear.length)
 			{
 				// Capture
-				const startColumn = String.fromCharCode(97 + move.start.y);
+				const startColumn = V.CoordToColumn(move.start.y);
 				notation = startColumn + "x" + finalSquare;
 			}
 			else //no capture
 				notation = finalSquare;
-			if (move.appear.length > 0 && piece != move.appear[0].p) //promotion
+			if (move.appear.length > 0 && move.appear[0].p != V.PAWN) //promotion
 				notation += "=" + move.appear[0].p.toUpperCase();
 			return notation;
 		}

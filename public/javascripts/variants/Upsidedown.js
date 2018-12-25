@@ -2,13 +2,7 @@ class UpsidedownRules extends ChessRules
 {
 	static HasFlags() { return false; }
 
-	// Forbid two knights moves in a row at moves 1 and 2
-	getPotentialKnightMoves(sq)
-	{
-		// But this will also affect FEN for problems, and...
-		// does it really solve the problem ?
-		//if (this.moves. ...)
-	}
+	static HasEnpassant() { return false; }
 
 	getPotentialKingMoves(sq)
 	{
@@ -24,27 +18,40 @@ class UpsidedownRules extends ChessRules
 		{
 			let positions = _.range(8);
 
-			let randIndex = 2 * _.random(3);
-			let bishop1Pos = positions[randIndex];
-			let randIndex_tmp = 2 * _.random(3) + 1;
-			let bishop2Pos = positions[randIndex_tmp];
+			let randIndex = _.random(7);
+			const kingPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			// At least a knight must be next to the king:
+			let knight1Pos = undefined;
+			if (kingPos == 0)
+				knight1Pos = 1;
+			else if (kingPos == V.size.y-1)
+				knight1Pos = V.size.y-2;
+			else
+				knight1Pos = kingPos + (Math.random() < 0.5 ? 1 : -1);
+			// Search for knight1Pos index in positions and remove it
+			const knight1Index = positions.indexOf(knight1Pos);
+			positions.splice(knight1Index, 1);
+
+			// King+knight1 are on two consecutive squares: one light, one dark
+			randIndex = 2 * _.random(2);
+			const bishop1Pos = positions[randIndex];
+			let randIndex_tmp = 2 * _.random(2) + 1;
+			const bishop2Pos = positions[randIndex_tmp];
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
-			randIndex = _.random(5);
-			let knight1Pos = positions[randIndex];
-			positions.splice(randIndex, 1);
-			randIndex = _.random(4);
-			let knight2Pos = positions[randIndex];
-			positions.splice(randIndex, 1);
-
 			randIndex = _.random(3);
-			let queenPos = positions[randIndex];
+			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			let rook1Pos = positions[0];
-			let kingPos = positions[1];
-			let rook2Pos = positions[2];
+			randIndex = _.random(2);
+			const queenPos = positions[randIndex];
+			positions.splice(randIndex, 1);
+
+			const rook1Pos = positions[0];
+			const rook2Pos = positions[1];
 
 			pieces[c][rook1Pos] = 'r';
 			pieces[c][knight1Pos] = 'n';

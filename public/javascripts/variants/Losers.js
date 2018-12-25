@@ -1,4 +1,4 @@
-class LoserRules extends ChessRules
+class LosersRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
@@ -184,4 +184,4 @@ class LoserRules extends ChessRules
 	}
 }
 
-const VariantRules = LoserRules;
+const VariantRules = LosersRules;
