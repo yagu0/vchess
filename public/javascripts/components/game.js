@@ -11,7 +11,7 @@ Vue.component('my-game', {
 			selectedPiece: null, //moving piece (or clicked piece)
 			conn: null, //socket connection
 			score: "*", //'*' means 'unfinished'
-			mode: "idle", //human, chat, friend, problem, computer or idle (if not playing)
+			mode: "idle", //human, friend, problem, computer or idle (if not playing)
 			myid: "", //our ID, always set
 			oppid: "", //opponent ID in case of HH game
 			gameId: "", //useful if opponent started other human games after we disconnected
@@ -58,12 +58,13 @@ Vue.component('my-game', {
 					"play": true,
 					"seek": this.seek,
 					"playing": this.mode == "human",
-					"spaceright": true,
 				},
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
 		);
-		if (variant!="Dark" && ["idle","chat","computer"].includes(this.mode))
+		if (variant != "Dark" &&
+			(["idle","computer","friend"].includes(this.mode)
+				|| ["friend","human"].includes(this.mode) && this.score != "*"))
 		{
 			actionArray.push(
 				h('button',
@@ -74,13 +75,15 @@ Vue.component('my-game', {
 						"tooltip":true,
 						"play": true,
 						"playing": this.mode == "computer",
-						"spaceright": true,
+						"spaceleft": true,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
 			);
 		}
-		if (variant!="Dark" && ["idle","chat","friend"].includes(this.mode))
+		if (variant != "Dark" &&
+			(["idle","friend"].includes(this.mode)
+				|| ["computer","human"].includes(this.mode) && this.score != "*"))
 		{
 			actionArray.push(
 				h('button',
@@ -91,7 +94,7 @@ Vue.component('my-game', {
 						"tooltip":true,
 						"play": true,
 						"playing": this.mode == "friend",
-						"spaceright": true,
+						"spaceleft": true,
 					},
 				},
 				[h('i', { 'class': { "material-icons": true } }, "people")])
@@ -114,7 +117,7 @@ Vue.component('my-game', {
 				parseFloat(settingsStyle.height.slice(0,-2)) - 2
 			];
 			let aboveBoardElts = [];
-			if (["chat","human"].includes(this.mode))
+			if (this.mode == "human")
 			{
 				const connectedIndic = h(
 					'div',
@@ -132,7 +135,7 @@ Vue.component('my-game', {
 				);
 				aboveBoardElts.push(connectedIndic);
 			}
-			if (this.mode == "chat")
+			if (this.mode == "human" && this.score != "*")
 			{
 				const chatButton = h(
 					'button',
@@ -153,14 +156,14 @@ Vue.component('my-game', {
 				);
 				aboveBoardElts.push(chatButton);
 			}
-			else if (this.mode == "computer")
+			if (["human","computer","friend"].includes(this.mode))
 			{
 				const clearButton = h(
 					'button',
 					{
-						on: { click: this.clearComputerGame },
+						on: { click: this.clearCurrentGame },
 						attrs: {
-							"aria-label": translations['Clear game versus computer'],
+							"aria-label": translations['Clear current game'],
 							"id": "clearBtn",
 						},
 						'class': {
@@ -277,7 +280,8 @@ Vue.component('my-game', {
 			// Create board element (+ reserves if needed by variant or mode)
 			const lm = this.vr.lastMove;
 			const showLight = this.hints && variant!="Dark" &&
-				(!["idle","chat"].includes(this.mode) || this.cursor==this.vr.moves.length);
+				(this.mode != "idle" ||
+					(this.vr.moves.length > 0 && this.cursor==this.vr.moves.length));
 			const gameDiv = h('div',
 				{
 					'class': {
@@ -358,47 +362,51 @@ Vue.component('my-game', {
 					);
 				}), choices]
 			);
-			if (!["idle","chat"].includes(this.mode))
+			if (["human","computer"].includes(this.mode))
 			{
-				actionArray.push(
-					h('button',
-						{
-							on: { click: this.resign },
-							attrs: { "aria-label": translations['Resign'] },
-							'class': {
-								"tooltip":true,
-								"play": true,
+				if (this.score == "*")
+				{
+					actionArray.push(
+						h('button',
+							{
+								on: { click: this.resign },
+								attrs: { "aria-label": translations['Resign'] },
+								'class': {
+									"tooltip":true,
+									"play": true,
+									"spaceleft": true,
+								},
 							},
-						},
-						[h('i', { 'class': { "material-icons": true } }, "flag")])
-				);
-			}
-			else if (this.vr.moves.length > 0)
-			{
-				// A game finished, and another is not started yet: allow navigation
-				actionArray = actionArray.concat([
-					h('button',
-						{
-							on: { click: e => this.undo() },
-							attrs: { "aria-label": translations['Undo'] },
-							"class": {
-								"play": true,
-								"spaceleft": true,
+							[h('i', { 'class': { "material-icons": true } }, "flag")])
+					);
+				}
+				else
+				{
+					// A game finished, and another is not started yet: allow navigation
+					actionArray = actionArray.concat([
+						h('button',
+							{
+								on: { click: e => this.undo() },
+								attrs: { "aria-label": translations['Undo'] },
+								"class": {
+									"play": true,
+									"big-spaceleft": true,
+								},
 							},
-						},
-						[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
-					h('button',
-						{
-							on: { click: e => this.play() },
-							attrs: { "aria-label": translations['Play'] },
-							"class": {
-								"play": true,
-								"spaceleft": true,
+							[h('i', { 'class': { "material-icons": true } }, "fast_rewind")]),
+						h('button',
+							{
+								on: { click: e => this.play() },
+								attrs: { "aria-label": translations['Play'] },
+								"class": {
+									"play": true,
+									"spaceleft": true,
+								},
 							},
-						},
-						[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
-					]
-				);
+							[h('i', { 'class': { "material-icons": true } }, "fast_forward")]),
+						]
+					);
+				}
 			}
 			if (["friend","problem"].includes(this.mode))
 			{
@@ -410,7 +418,7 @@ Vue.component('my-game', {
 							attrs: { "aria-label": translations['Undo'] },
 							"class": {
 								"play": true,
-								"spaceleft": true,
+								"big-spaceleft": true,
 							},
 						},
 						[h('i', { 'class': { "material-icons": true } }, "undo")]
@@ -989,6 +997,7 @@ Vue.component('my-game', {
 		const url = socketUrl;
 		const humanContinuation = (localStorage.getItem("variant") === variant);
 		const computerContinuation = (localStorage.getItem("comp-variant") === variant);
+		const friendContinuation = (localStorage.getItem("anlz-variant") === variant);
 		this.myid = (humanContinuation ? localStorage.getItem("myid") : getRandString());
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 		const socketOpenListener = () => {
@@ -996,6 +1005,8 @@ Vue.component('my-game', {
 				this.continueGame("human");
 			else if (computerContinuation)
 				this.continueGame("computer");
+			else if (friendContinuation)
+				this.continueGame("friend");
 		};
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
@@ -1072,9 +1083,9 @@ Vue.component('my-game', {
 				// TODO: also use (dis)connect info to count online players?
 				case "connect":
 				case "disconnect":
-					if (["human","chat"].includes(this.mode) && this.oppid == data.id)
+					if (this.mode=="human" && this.oppid == data.id)
 						this.oppConnected = (data.code == "connect");
-					if (this.oppConnected && this.mode == "chat")
+					if (this.oppConnected && this.score != "*")
 					{
 						// Send our name to the opponent, in case of he hasn't it
 						this.conn.send(JSON.stringify({
@@ -1174,8 +1185,15 @@ Vue.component('my-game', {
 				this.conn.send(JSON.stringify({
 					code:"myname", name:this.myname, oppid:this.oppid}));
 			}
-			this.mode = (this.mode=="human" ? "chat" : "idle");
 			this.cursor = this.vr.moves.length; //to navigate in finished game
+		},
+		getStoragePrefix: function(mode) {
+			let prefix = "";
+			if (mode == "computer")
+				prefix = "comp-";
+			else if (mode == "friend")
+				prefix = "anlz-";
+			return prefix;
 		},
 		setStorage: function() {
 			if (this.mode=="human")
@@ -1184,8 +1202,7 @@ Vue.component('my-game', {
 				localStorage.setItem("oppid", this.oppid);
 				localStorage.setItem("gameId", this.gameId);
 			}
-			// 'prefix' = "comp-" to resume games vs. computer
-			const prefix = (this.mode=="computer" ? "comp-" : "");
+			const prefix = this.getStoragePrefix(this.mode);
 			localStorage.setItem(prefix+"variant", variant);
 			localStorage.setItem(prefix+"mycolor", this.mycolor);
 			localStorage.setItem(prefix+"fenStart", this.fenStart);
@@ -1194,7 +1211,7 @@ Vue.component('my-game', {
 			localStorage.setItem(prefix+"score", "*");
 		},
 		updateStorage: function() {
-			const prefix = (this.mode=="computer" ? "comp-" : "");
+			const prefix = this.getStoragePrefix(this.mode);
 			localStorage.setItem(prefix+"moves", JSON.stringify(this.vr.moves));
 			localStorage.setItem(prefix+"fen", this.vr.getFen());
 			if (this.score != "*")
@@ -1202,13 +1219,13 @@ Vue.component('my-game', {
 		},
 		// "computer mode" clearing is done through the menu
 		clearStorage: function() {
-			if (["human","chat"].includes(this.mode))
+			if (this.mode == "human")
 			{
 				delete localStorage["myid"];
 				delete localStorage["oppid"];
 				delete localStorage["gameId"];
 			}
-			const prefix = (this.mode=="computer" ? "comp-" : "");
+			const prefix = this.getStoragePrefix(this.mode);
 			delete localStorage[prefix+"variant"];
 			delete localStorage[prefix+"mycolor"];
 			delete localStorage[prefix+"fenStart"];
@@ -1226,9 +1243,9 @@ Vue.component('my-game', {
 			this.getRidOfTooltip(e.currentTarget);
 			document.getElementById("modal-chat").checked = true;
 		},
-		clearComputerGame: function(e) {
+		clearCurrentGame: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
-			this.clearStorage(); //this.mode=="computer" (already checked)
+			this.clearStorage();
 			location.reload(); //to see clearing effects
 		},
 		showSettings: function(e) {
@@ -1285,10 +1302,11 @@ Vue.component('my-game', {
 			if (mode=="human" && !oppId)
 			{
 				const storageVariant = localStorage.getItem("variant");
-				if (!!storageVariant && storageVariant !== variant)
+				if (!!storageVariant && storageVariant !== variant
+					&& localStorage["score"] == "*")
 				{
 					return alert(translations["Finish your "] +
-							storageVariant + translations[" game first!"]);
+						storageVariant + translations[" game first!"]);
 				}
 				// Send game request and wait..
 				try {
@@ -1302,17 +1320,13 @@ Vue.component('my-game', {
 				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
-			if (["human","chat"].includes(this.mode))
-			{
-				// Start a new game vs. another human (or...) => forget about current one
-				this.clearStorage();
-			}
+			const prefix = this.getStoragePrefix(mode);
 			if (mode == "computer")
 			{
-				const storageVariant = localStorage.getItem("comp-variant");
+				const storageVariant = localStorage.getItem(prefix+"variant");
 				if (!!storageVariant)
 				{
-					const score = localStorage.getItem("comp-score");
+					const score = localStorage.getItem(prefix+"score");
 					if (storageVariant !== variant && score == "*")
 					{
 						if (!confirm(storageVariant +
@@ -1325,12 +1339,30 @@ Vue.component('my-game', {
 						return this.continueGame("computer");
 				}
 			}
+			else if (mode == "friend")
+			{
+				const storageVariant = localStorage.getItem(prefix+"variant");
+				if (!!storageVariant)
+				{
+					const score = localStorage.getItem(prefix+"score");
+					if (storageVariant !== variant && score == "*")
+					{
+						if (!confirm(storageVariant +
+							translations[": current analysis will be erased"]))
+						{
+							return;
+						}
+					}
+				}
+			}
 			this.vr = new VariantRules(fen, []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
 			this.mode = mode;
 			this.incheck = [];
 			this.fenStart = V.ParseFen(fen).position; //this is enough
+			if (mode != "problem")
+				this.setStorage(); //store game state in case of interruptions
 			if (mode=="human")
 			{
 				// Opponent found!
@@ -1342,13 +1374,11 @@ Vue.component('my-game', {
 				if (this.sound >= 1)
 					new Audio("/sounds/newgame.mp3").play().catch(err => {});
 				document.getElementById("modal-newgame").checked = false;
-				this.setStorage(); //in case of interruptions
 			}
 			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
 				this.mycolor = (Math.random() < 0.5 ? 'w' : 'b');
-				this.setStorage(); //store game state
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
@@ -1359,7 +1389,7 @@ Vue.component('my-game', {
 		continueGame: function(mode) {
 			this.mode = mode;
 			this.oppid = (mode=="human" ? localStorage.getItem("oppid") : undefined);
-			const prefix = (mode=="computer" ? "comp-" : "");
+			const prefix = this.getStoragePrefix(mode);
 			this.mycolor = localStorage.getItem(prefix+"mycolor");
 			const moves = JSON.parse(localStorage.getItem(prefix+"moves"));
 			const fen = localStorage.getItem(prefix+"fen");
@@ -1374,12 +1404,13 @@ Vue.component('my-game', {
 				this.conn.send(JSON.stringify({
 					code:"ping",oppid:this.oppid,gameId:this.gameId}));
 			}
-			else
+			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",fen]);
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
+			//else: nothing special to do in friend mode
 			if (score != "*")
 			{
 				// Small delay required when continuation run faster than drawing page
@@ -1432,7 +1463,7 @@ Vue.component('my-game', {
 				this.selectedPiece.style.zIndex = 3000;
 				const startSquare = this.getSquareFromId(e.target.parentNode.id);
 				this.possibleMoves = [];
-				if (!["idle","chat"].includes(this.mode))
+				if (this.score == "*")
 				{
 					const color = ["friend","problem"].includes(this.mode)
 						? this.vr.turn
@@ -1440,7 +1471,6 @@ Vue.component('my-game', {
 					if (this.vr.canIplay(color,startSquare))
 						this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
 				}
-				console.log(this.possibleMoves);
 				// Next line add moving piece just after current image
 				// (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
@@ -1538,14 +1568,11 @@ Vue.component('my-game', {
 				move = this.vr.moves[this.cursor++];
 			}
 			if (!!programmatic) //computer or human opponent
-			{
-				this.animateMove(move);
-				return;
-			}
+				return this.animateMove(move);
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			if (!["idle","chat"].includes(this.mode))
+			if (this.score == "*")
 			{
 				// Emergency check, if human game started "at the same time"
 				// TODO: robustify this...
@@ -1567,22 +1594,19 @@ Vue.component('my-game', {
 				VariantRules.PlayOnBoard(this.vr.board, move);
 				this.$forceUpdate(); //TODO: ?!
 			}
-			if (!["idle","chat"].includes(this.mode))
+			const eog = this.vr.checkGameOver();
+			if (eog != "*")
 			{
-				const eog = this.vr.checkGameOver();
-				if (eog != "*")
+				if (["human","computer"].includes(this.mode))
+					this.endGame(eog);
+				else
 				{
-					if (["human","computer"].includes(this.mode))
-						this.endGame(eog);
-					else
-					{
-						// Just show score on screen (allow undo)
-						this.score = eog;
-						this.showScoreMsg();
-					}
+					// Just show score on screen (allow undo)
+					this.score = eog;
+					this.showScoreMsg();
 				}
 			}
-			if (["human","computer"].includes(this.mode))
+			if (["human","computer","friend"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
 			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
 				this.playComputerMove();

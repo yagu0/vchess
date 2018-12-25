@@ -956,11 +956,11 @@ class ChessRules
 			board[psq.x][psq.y] = psq.c + psq.p;
 	}
 
-	// Before move is played, update variables + flags
+	// After move is played, update variables + flags
 	updateVariables(move)
 	{
 		const piece = move.vanish[0].p;
-		const c = move.vanish[0].c;
+		const c = this.getOppCol(this.turn); //'move.vanish[0].c' doesn't work for Checkered
 		const firstRank = (c == "w" ? V.size.x-1 : 0);
 
 		// Update king position + flags
