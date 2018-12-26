@@ -230,6 +230,9 @@ class MarseilleRules extends ChessRules
 	// No alpha-beta here, just adapted min-max at depth 2(+1)
 	getComputerMove()
 	{
+		if (this.subTurn == 2)
+			return null; //TODO: imperfect interface setup
+
 		const maxeval = V.INFINITY;
 		const color = this.turn;
 		const oppCol = this.getOppCol(this.turn);
@@ -306,6 +309,7 @@ class MarseilleRules extends ChessRules
 		{
 			candidates.push(i);
 		}
+
 		const selected = doubleMoves[_.sample(candidates, 1)].moves;
 		if (selected.length == 1)
 			return selected[0];

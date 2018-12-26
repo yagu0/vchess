@@ -1120,6 +1120,8 @@ Vue.component('my-game', {
 		const self = this;
 		this.compWorker.onmessage = function(e) {
 			let compMove = e.data;
+			if (!compMove)
+				return; //may happen if MarseilleRules and subTurn==2 (TODO: a bit ugly...)
 			if (!Array.isArray(compMove))
 				compMove = [compMove]; //to deal with MarseilleRules
 			// TODO: imperfect attempt to avoid ghost move:
@@ -1133,8 +1135,8 @@ Vue.component('my-game', {
 				if (compMove.length == 2)
 					setTimeout( () => {
 						if (self.mode == "computer")
-							self.play(compMove[1]);
-					}, 2000);
+							self.play(compMove[1], "animate");
+					}, 750);
 			}, delay);
 		}
 	},
