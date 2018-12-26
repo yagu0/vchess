@@ -25,6 +25,7 @@ Vue.component('my-rules', {
 				position: fenParts[0],
 				marks: fenParts[1],
 				orientation: fenParts[2],
+				shadow: fenParts[3],
 			};
 		},
 	},

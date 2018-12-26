@@ -62,9 +62,8 @@ Vue.component('my-game', {
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
 		);
-		if (variant != "Dark" &&
-			(["idle","computer","friend"].includes(this.mode)
-				|| ["friend","human"].includes(this.mode) && this.score != "*"))
+		if (["idle","computer","friend"].includes(this.mode)
+			|| (this.mode == "human" && this.score != "*"))
 		{
 			actionArray.push(
 				h('button',
@@ -81,9 +80,8 @@ Vue.component('my-game', {
 				[h('i', { 'class': { "material-icons": true } }, "computer")])
 			);
 		}
-		if (variant != "Dark" &&
-			(["idle","friend"].includes(this.mode)
-				|| ["computer","human"].includes(this.mode) && this.score != "*"))
+		if (variant != "Dark" && (["idle","friend"].includes(this.mode)
+			|| (["computer","human"].includes(this.mode) && this.score != "*")))
 		{
 			actionArray.push(
 				h('button',
@@ -1130,12 +1128,13 @@ Vue.component('my-game', {
 			// before they appear on page:
 			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
 			setTimeout(() => {
+				const animate = (variant!="Dark" ? "animate" : null);
 				if (self.mode == "computer") //warning: mode could have changed!
-					self.play(compMove[0], "animate");
+					self.play(compMove[0], animate);
 				if (compMove.length == 2)
 					setTimeout( () => {
 						if (self.mode == "computer")
-							self.play(compMove[1], "animate");
+							self.play(compMove[1], animate);
 					}, 750);
 			}, delay);
 		}

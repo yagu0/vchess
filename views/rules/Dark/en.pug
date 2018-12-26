@@ -16,12 +16,26 @@ p Incomplete information version of the orthodox game (also shuffled).
 h3 Basics
 
 p.
-	TODO
+	Before every move, players see only what their pieces can reach.
+	That is to say: empty squares where your pieces can go,
+	but also occupied squares where captures can be made.
+	For example on the illustration next, after 1.e4 d5 white sees a black
+	pawn on d5, the squares e5, h5, b5, a6 and all four first ranks.
 
 figure.diagram-container
 	.diagram
-		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
-	figcaption After the moves 1.Nc3 d6?? 2.Nd5 e5 3.Nxc7
+		| fen:8/8/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR - w 8,7,b6,c6,d6,e6,f6,g6,h6,a5,c5,f5,g5:
+	figcaption Standard initial position after 1.e4 d5
+
+p.
+	Choose your move carefully, based on what you can infer from the
+	opponent's past moves. Counting material, in particular, is crucial.
+	Good luck!
+
+p.
+	Note: the bot is not cheating - it really uses only the information described earlier.
+	Moreover, it is very basic and clearly less challenging that a human.
+	But it may be a fun start :)
 
 h3 End of the game
 
@@ -29,5 +43,9 @@ p Win by capturing the king (no checks, no stalemate).
 
 h3 More information
 
-p.
-	TODO: quote buho21, ...
+p
+	| I discovered this variant on 
+	a(href="https://www.buho21.com/") Buho21
+	| , which is a nice website but its spirit is very different than here
+	| (ranking system, VIP membership or ads, etc.).
+	| It seemed to be the only place to play DarkChess in live.

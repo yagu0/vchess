@@ -1,13 +1,6 @@
 p.boxed
 	| Pawns start on the 7th rank. Move a knight to promote them.
 
-Diagram: ... threatens Nc5-Nd3# and allow 2.b8=Q
-
-figure.diagram-container
-	.diagram
-		| fen::
-	figcaption Standard initial position after 1.Na6
-
 h3 Specifications
 
 ul
@@ -29,14 +22,16 @@ p.
 	Since truly random start can allow un-defendable mate in 3 with a knight,
 	the kings touch at least one knight in the initial position.
 	This allows to move free out of potential check from the very beginning.
-	Here is an example:
 
-// TODO: diagram
+p.
+	To illustrate this phenomenon, although it's defendable the standard initial
+	position allows the attack as 1.Na6 (threatening Nc5-Nd3#),
+	forcing the defense Nf3-Ne5. With a knight next to the king you have more options.
+
 figure.diagram-container
 	.diagram
-		| fen:r7/2n5/1q6/5k2/8/8/K7/8:
-	figcaption.
-		The king cannot take on a8 because it's guarded by the knight: it's checkmate
+		| fen:R1BQKBNR/PPPPPPP/N7/8/8/8/pppppppp/rnbqkbnr:
+	figcaption Standard initial position after 1.Na6
 
 h3 Source
 

@@ -126,6 +126,150 @@ class DarkRules extends ChessRules
 	{
 		return 500; //checkmates evals may be slightly below 1000
 	}
+
+	// In this special situation, we just look 1 half move ahead
+	getComputerMove()
+	{
+		const maxeval = V.INFINITY;
+		const color = this.turn;
+		const oppCol = this.getOppCol(color);
+		const pawnShift = (color == "w" ? -1 : 1);
+		const kp = this.kingPos[color];
+
+		// Do not cheat: the current enlightment is all we can see
+		const myLight = JSON.parse(JSON.stringify(this.enlightened[color]));
+
+		// Can a slider on (i,j) apparently take my king?
+		// NOTE: inaccurate because assume yes if some squares are shadowed
+		const sliderTake = ([i,j], piece) => {
+			let step = undefined;
+			if (piece == V.BISHOP)
+			{
+				if (Math.abs(kp[0] - i) == Math.abs(kp[1] - j))
+				{
+					step =
+					[
+						(i-kp[0]) / Math.abs(i-kp[0]),
+						(j-kp[1]) / Math.abs(j-kp[1])
+					];
+				}
+			}
+			else if (piece == V.ROOK)
+			{
+				if (kp[0] == i)
+					step = [0, (j-kp[1]) / Math.abs(j-kp[1])];
+				else if (kp[1] == j)
+					step = [(i-kp[0]) / Math.abs(i-kp[0]), 0];
+			}
+			if (!step)
+				return false;
+			// Check for obstacles
+			let obstacle = false;
+			for (
+				let x=kp[0]+step[0], y=kp[1]+step[1];
+				x != i && y != j;
+				x += step[0], y+= step[1])
+			{
+				if (myLight[x][y] && this.board[x][y] != V.EMPTY)
+				{
+					obstacle = true;
+					break;
+				}
+			}
+			if (!obstacle)
+				return true;
+			return false;
+		};
+
+		// Do I see something which can take my king ?
+		const kingThreats = () => {
+			for (let i=0; i<V.size.x; i++)
+			{
+				for (let j=0; j<V.size.y; j++)
+				{
+					if (myLight[i][j] && this.board[i][j] != V.EMPTY
+						&& this.getColor(i,j) != color)
+					{
+						switch (this.getPiece(i,j))
+						{
+							case V.PAWN:
+								if (kp[0] + pawnShift == i && Math.abs(kp[1]-j) == 1)
+									return true;
+								break;
+							case V.KNIGHT:
+								if ((Math.abs(kp[0] - i) == 2 && Math.abs(kp[1] - j) == 1) ||
+									(Math.abs(kp[0] - i) == 1 && Math.abs(kp[1] - j) == 2))
+								{
+									return true;
+								}
+								break;
+							case V.KING:
+								if (Math.abs(kp[0] - i) == 1 && Math.abs(kp[1] - j) == 1)
+									return true;
+								break;
+							case V.BISHOP:
+								if (sliderTake([i,j], V.BISHOP))
+									return true;
+								break;
+							case V.ROOK:
+								if (sliderTake([i,j], V.ROOK))
+									return true;
+								break;
+							case V.QUEEN:
+								if (sliderTake([i,j], V.BISHOP) || sliderTake([i,j], V.ROOK))
+									return true;
+								break;
+						}
+					}
+				}
+			}
+			return false;
+		};
+
+		let moves = this.getAllValidMoves();
+		for (let move of moves)
+		{
+			this.play(move);
+			if (this.kingPos[oppCol][0] >= 0 && kingThreats())
+			{
+				// We didn't take opponent king, and our king will be captured: bad
+				move.eval = -maxeval;
+			}
+			this.undo(move);
+			if (!!move.eval)
+				continue;
+
+			move.eval = 0; //a priori...
+
+			// Can I take something ? If yes, do it if it seems good...
+			if (move.vanish.length == 2 && move.vanish[1].c != color) //avoid castle
+			{
+				const myPieceVal = V.VALUES[move.appear[0].p];
+				const hisPieceVal = V.VALUES[move.vanish[1].p];
+				if (myPieceVal <= hisPieceVal)
+					move.eval = hisPieceVal - myPieceVal + 2; //favor captures
+				else
+				{
+					// Taking a pawn with minor piece,
+					// or minor piece or pawn with a rook,
+					// or anything but a queen with a queen,
+					// or anything with a king.
+					// ==> Do it at random, although
+					//     this is clearly inferior to what a human can deduce...
+					move.eval = (Math.random() < 0.5 ? 1 : -1);
+				}
+			}
+		}
+
+		// TODO: also need to implement the case when an opponent piece (in light)
+		// is threatening something - maybe not the king, but e.g. pawn takes rook.
+
+		moves.sort((a,b) => b.eval - a.eval);
+		let candidates = [0];
+		for (let j=1; j<moves.length && moves[j].eval == moves[0].eval; j++)
+			candidates.push(j);
+		return moves[_.sample(candidates, 1)];
+	}
 }
 
 const VariantRules = DarkRules;

@@ -7,16 +7,44 @@ function getDiagram(args)
 	const board = VariantRules.GetBoard(args.position);
 	const orientation = args.orientation || "w";
 	let markArray = [];
-	if (!!args.marks)
+	if (!!args.marks && args.marks != "-")
 	{
 		// Turn (human) marks into coordinates
 		markArray = doubleArray(sizeX, sizeY, false);
 		let squares = args.marks.split(",");
 		for (let i=0; i<squares.length; i++)
 		{
-			const res = /^([a-z]+)([0-9]+)$/i.exec(squares[i]);
-			const coords = V.SquareToCoords(res);
+			const coords = V.SquareToCoords(squares[i]);
 			markArray[coords.x][coords.y] = true;
+		}
+	}
+	let shadowArray = [];
+	if (!!args.shadow && args.shadow != "-")
+	{
+		// Turn (human) shadow indications into coordinates
+		shadowArray = doubleArray(sizeX, sizeY, false);
+		let squares = args.shadow.split(",");
+		for (let i=0; i<squares.length; i++)
+		{
+			const rownum = V.size.x - parseInt(squares[i]);
+			if (!isNaN(rownum))
+			{
+				// Shadow a full row
+				for (let i=0; i<V.size.y; i++)
+					shadowArray[rownum][i] = true;
+				continue;
+			}
+			if (squares[i].length == 1)
+			{
+				// Shadow a full column
+				const colnum = V.ColumnToCoord(squares[i]);
+				for (let i=0; i<V.size.x; i++)
+					shadowArray[i][colnum] = true;
+				continue;
+			}
+			// Shadow just one square:
+			const coords = V.SquareToCoords(squares[i]);
+			shadowArray[coords.x][coords.y] = true;
 		}
 	}
 	let boardDiv = "";
@@ -29,13 +57,15 @@ function getDiagram(args)
 		for (let j=startY; j>=0 && j<sizeY; j+=inc)
 		{
 			boardDiv += "<div class='board board" + sizeY + " " +
-				((i+j)%2==0 ? "light-square-diag" : "dark-square-diag") + "'>";
+				((i+j)%2==0 ? "light-square-diag" : "dark-square-diag") +
+				(shadowArray.length > 0 && shadowArray[i][j] ? " in-shadow" : "") +
+				"'>";
 			if (board[i][j] != V.EMPTY)
 			{
 				boardDiv += "<img src='/images/pieces/" +
 					V.getPpath(board[i][j]) + ".svg' class='piece'/>";
 			}
-			if (!!args.marks && markArray[i][j])
+			if (markArray.length > 0 && markArray[i][j])
 				boardDiv += "<img src='/images/mark.svg' class='mark-square'/>";
 			boardDiv += "</div>";
 		}

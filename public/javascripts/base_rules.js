@@ -137,9 +137,9 @@ class ChessRules
 	}
 
 	// d --> 3 (column letter to number)
-	static ColumnToCoord(colnum)
+	static ColumnToCoord(column)
 	{
-		return String.fromCharCode(97 + colnum);
+		return column.charCodeAt(0) - 97;
 	}
 
 	// a4 --> {x:3,y:0}
