@@ -64,22 +64,16 @@ class ChessRules
 		if (!V.IsGoodPosition(fenParsed.position))
 			return false;
 		// 2) Check turn
-		if (!fenParsed.turn || !["w","b"].includes(fenParsed.turn))
+		if (!fenParsed.turn || !V.IsGoodTurn(fenParsed.turn))
 			return false;
 		// 3) Check flags
 		if (V.HasFlags && (!fenParsed.flags || !V.IsGoodFlags(fenParsed.flags)))
 			return false;
 		// 4) Check enpassant
-		if (V.HasEnpassant)
+		if (V.HasEnpassant &&
+			(!fenParsed.enpassant || !V.IsGoodEnpassant(fenParsed.enpassant)))
 		{
-			if (!fenParsed.enpassant)
-				return false;
-			if (fenParsed.enpassant != "-")
-			{
-				const ep = V.SquareToCoords(fenParsed.enpassant);
-				if (isNaN(ep.x) || !V.OnBoard(ep))
-					return false;
-			}
+			return false;
 		}
 		return true;
 	}
@@ -114,9 +108,26 @@ class ChessRules
 	}
 
 	// For FEN checking
+	static IsGoodTurn(turn)
+	{
+		return ["w","b"].includes(turn);
+	}
+
+	// For FEN checking
 	static IsGoodFlags(flags)
 	{
 		return !!flags.match(/^[01]{4,4}$/);
+	}
+
+	static IsGoodEnpassant(enpassant)
+	{
+		if (enpassant != "-")
+		{
+			const ep = V.SquareToCoords(fenParsed.enpassant);
+			if (isNaN(ep.x) || !V.OnBoard(ep))
+				return false;
+		}
+		return true;
 	}
 
 	// 3 --> d (column number to letter)
@@ -288,7 +299,7 @@ class ChessRules
 	// Return current fen (game state)
 	getFen()
 	{
-		return this.getBaseFen() + " " + this.turn +
+		return this.getBaseFen() + " " + this.getTurnFen() +
 			(V.HasFlags ? (" " + this.getFlagsFen()) : "") +
 			(V.HasEnpassant ? (" " + this.getEnpassantFen()) : "");
 	}
@@ -324,6 +335,11 @@ class ChessRules
 				position += "/"; //separate rows
 		}
 		return position;
+	}
+
+	getTurnFen()
+	{
+		return this.turn;
 	}
 
 	// Flags part of the FEN string
@@ -389,7 +405,7 @@ class ChessRules
 		this.moves = moves;
 		const fenParsed = V.ParseFen(fen);
 		this.board = V.GetBoard(fenParsed.position);
-		this.turn = (fenParsed.turn || "w");
+		this.turn = fenParsed.turn[0]; //[0] to work with MarseilleRules
 		this.setOtherVariables(fen);
 	}
 
@@ -960,7 +976,12 @@ class ChessRules
 	updateVariables(move)
 	{
 		const piece = move.vanish[0].p;
-		const c = this.getOppCol(this.turn); //'move.vanish[0].c' doesn't work for Checkered
+		let c = move.vanish[0].c;
+		if (c == "c") //if (!["w","b"].includes(c))
+		{
+			// 'c = move.vanish[0].c' doesn't work for Checkered
+			c = this.getOppCol(this.turn);
+		}
 		const firstRank = (c == "w" ? V.size.x-1 : 0);
 
 		// Update king position + flags
@@ -1083,7 +1104,7 @@ class ChessRules
 		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
 			return "1/2";
 		// OK, checkmate
-		return color == "w" ? "0-1" : "1-0";
+		return (color == "w" ? "0-1" : "1-0");
 	}
 
 	///////////////

@@ -18,6 +18,23 @@ class GrandRules extends ChessRules
 		return true;
 	}
 
+	static IsGoodEnpassant(enpassant)
+	{
+		if (enpassant != "-")
+		{
+			const squares = enpassant.split(",");
+			if (squares.length > 2)
+				return false;
+			for (let sq of squares)
+			{
+				const ep = V.SquareToCoords(sq);
+				if (isNaN(ep.x) || !V.OnBoard(ep))
+					return false;
+			}
+		}
+		return true;
+	}
+
 	static ParseFen(fen)
 	{
 		const fenParts = fen.split(" ");

@@ -1120,13 +1120,21 @@ Vue.component('my-game', {
 		const self = this;
 		this.compWorker.onmessage = function(e) {
 			let compMove = e.data;
-			compMove.computer = true; //TODO: imperfect attempt to avoid ghost move
+			if (!Array.isArray(compMove))
+				compMove = [compMove]; //to deal with MarseilleRules
+			// TODO: imperfect attempt to avoid ghost move:
+			compMove.forEach(m => { m.computer = true; });
 			// (first move) HACK: small delay to avoid selecting elements
 			// before they appear on page:
 			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
 			setTimeout(() => {
 				if (self.mode == "computer") //warning: mode could have changed!
-					self.play(compMove, "animate")
+					self.play(compMove[0], "animate");
+				if (compMove.length == 2)
+					setTimeout( () => {
+						if (self.mode == "computer")
+							self.play(compMove[1]);
+					}, 2000);
 			}, delay);
 		}
 	},
@@ -1297,7 +1305,7 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		newGame: function(mode, fenInit, color, oppId) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
+			const fen = "rnbbqkrn/1ppppp1p/p5p1/8/8/3P4/PPP1PPPP/BNQBRKRN w1 1111 -"; //fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
 			{
@@ -1378,7 +1386,7 @@ Vue.component('my-game', {
 			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
-				this.mycolor = (Math.random() < 0.5 ? 'w' : 'b');
+				this.mycolor = "w";//(Math.random() < 0.5 ? 'w' : 'b');
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}

@@ -23,6 +23,23 @@ class WildebeestRules extends ChessRules
 		);
 	}
 
+	static IsGoodEnpassant(enpassant)
+	{
+		if (enpassant != "-")
+		{
+			const squares = enpassant.split(",");
+			if (squares.length > 2)
+				return false;
+			for (let sq of squares)
+			{
+				const ep = V.SquareToCoords(sq);
+				if (isNaN(ep.x) || !V.OnBoard(ep))
+					return false;
+			}
+		}
+		return true;
+	}
+
 	// There may be 2 enPassant squares (if pawn jump 3 squares)
 	getEnpassantFen()
 	{
