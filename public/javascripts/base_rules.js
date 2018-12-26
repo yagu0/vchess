@@ -975,8 +975,20 @@ class ChessRules
 	// After move is played, update variables + flags
 	updateVariables(move)
 	{
-		const piece = move.vanish[0].p;
-		let c = move.vanish[0].c;
+		let piece = undefined;
+		let c = undefined;
+		if (move.vanish.length >= 1)
+		{
+			// Usual case, something is moved
+			piece = move.vanish[0].p;
+			c = move.vanish[0].c;
+		}
+		else
+		{
+			// Crazyhouse-like variants
+			piece = move.appear[0].p;
+			c = move.appear[0].c;
+		}
 		if (c == "c") //if (!["w","b"].includes(c))
 		{
 			// 'c = move.vanish[0].c' doesn't work for Checkered

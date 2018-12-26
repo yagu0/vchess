@@ -1105,7 +1105,7 @@ Vue.component('my-game', {
 		this.conn.onclose = socketCloseListener;
 		// Listen to keyboard left/right to navigate in game
 		document.onkeydown = event => {
-			if (["idle","chat"].includes(this.mode) &&
+			if (["human","computer"].includes(this.mode) &&
 				!!this.vr && this.vr.moves.length > 0 && [37,39].includes(event.keyCode))
 			{
 				event.preventDefault();
@@ -1307,7 +1307,7 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		newGame: function(mode, fenInit, color, oppId) {
-			const fen = "rnbbqkrn/1ppppp1p/p5p1/8/8/3P4/PPP1PPPP/BNQBRKRN w1 1111 -"; //fenInit || VariantRules.GenRandInitFen();
+			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
 			{
@@ -1388,7 +1388,7 @@ Vue.component('my-game', {
 			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
-				this.mycolor = "w";//(Math.random() < 0.5 ? 'w' : 'b');
+				this.mycolor = (Math.random() < 0.5 ? 'w' : 'b');
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
@@ -1598,23 +1598,23 @@ Vue.component('my-game', {
 					// Send the move to web worker (TODO: including his own moves?!)
 					this.compWorker.postMessage(["newmove",move]);
 				}
+				const eog = this.vr.checkGameOver();
+				if (eog != "*")
+				{
+					if (["human","computer"].includes(this.mode))
+						this.endGame(eog);
+					else
+					{
+						// Just show score on screen (allow undo)
+						this.score = eog;
+						this.showScoreMsg();
+					}
+				}
 			}
 			else
 			{
 				VariantRules.PlayOnBoard(this.vr.board, move);
 				this.$forceUpdate(); //TODO: ?!
-			}
-			const eog = this.vr.checkGameOver();
-			if (eog != "*")
-			{
-				if (["human","computer"].includes(this.mode))
-					this.endGame(eog);
-				else
-				{
-					// Just show score on screen (allow undo)
-					this.score = eog;
-					this.showScoreMsg();
-				}
 			}
 			if (["human","computer","friend"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
