@@ -16,6 +16,7 @@ class DarkRules extends ChessRules
 
 	updateEnlightened()
 	{
+		const pawnShift = {"w":-1, "b":1};
 		// Initialize with pieces positions (which are seen)
 		for (let i=0; i<V.size.x; i++)
 		{
@@ -24,7 +25,22 @@ class DarkRules extends ChessRules
 				this.enlightened["w"][i][j] = false;
 				this.enlightened["b"][i][j] = false;
 				if (this.board[i][j] != V.EMPTY)
-					this.enlightened[this.getColor(i,j)][i][j] = true;
+				{
+					const color = this.getColor(i,j);
+					this.enlightened[color][i][j] = true;
+					// Add potential squares visible by "impossible pawn capture"
+					if (this.getPiece(i,j) == V.PAWN)
+					{
+						for (let shiftY of [-1,1])
+						{
+							if (V.OnBoard(i+pawnShift[color],j+shiftY)
+								&& this.board[i+pawnShift[color]][j+shiftY] == V.EMPTY)
+							{
+								this.enlightened[color][i+pawnShift[color]][j+shiftY] = true;
+							}
+						}
+					}
+				}
 			}
 		}
 		const currentTurn = this.turn;
@@ -75,19 +91,11 @@ class DarkRules extends ChessRules
 
 	updateVariables(move)
 	{
-		// Update kings positions
-		const piece = move.vanish[0].p;
-		const c = move.vanish[0].c;
-		if (piece == V.KING && move.appear.length > 0)
-		{
-			this.kingPos[c][0] = move.appear[0].x;
-			this.kingPos[c][1] = move.appear[0].y;
-		}
+		super.updateVariables(move);
 		if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
 		{
 			// We took opponent king !
-			const oppCol = this.getOppCol(c);
-			this.kingPos[oppCol] = [-1,-1];
+			this.kingPos[this.turn] = [-1,-1];
 		}
 
 		// Update moves for both colors:

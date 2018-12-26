@@ -42,6 +42,32 @@ function getDiagram(args)
 					shadowArray[i][colnum] = true;
 				continue;
 			}
+			if (squares[i].indexOf("-") >= 0)
+			{
+				// Shadow a range of squares, horizontally or vertically
+				const firstLastSq = squares[i].split("-");
+				const range =
+				[
+					V.SquareToCoords(firstLastSq[0]),
+					V.SquareToCoords(firstLastSq[1])
+				];
+				const step =
+				[
+					range[1].x == range[0].x
+						? 0
+						: (range[1].x - range[0].x) / Math.abs(range[1].x - range[0].x),
+					range[1].y == range[0].y
+						? 0
+						: (range[1].y - range[0].y) / Math.abs(range[1].y - range[0].y)
+				];
+				// Convention: range always from smaller to larger number
+				for (let x=range[0].x, y=range[0].y; x <= range[1].x && y <= range[1].y;
+					x += step[0], y += step[1])
+				{
+					shadowArray[x][y] = true;
+				}
+				continue;
+			}
 			// Shadow just one square:
 			const coords = V.SquareToCoords(squares[i]);
 			shadowArray[coords.x][coords.y] = true;

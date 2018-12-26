@@ -97,7 +97,7 @@ class ZenRules extends ChessRules
 		const firstRank = (color == 'w' ? sizeY-1 : 0);
 		const lastRank = (color == "w" ? 0 : sizeY-1);
 
-		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
+		if (x+shift != lastRank)
 		{
 			// Normal moves
 			if (this.board[x+shift][y] == V.EMPTY)
@@ -111,9 +111,8 @@ class ZenRules extends ChessRules
 			}
 		}
 
-		if (x+shift == lastRank)
+		else //promotion
 		{
-			// Promotion
 			let promotionPieces = [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN];
 			promotionPieces.forEach(p => {
 				// Normal move

@@ -1,8 +1,8 @@
 class UpsidedownRules extends ChessRules
 {
-	static HasFlags() { return false; }
+	static get HasFlags() { return false; }
 
-	static HasEnpassant() { return false; }
+	static get HasEnpassant() { return false; }
 
 	getPotentialKingMoves(sq)
 	{
@@ -65,7 +65,7 @@ class UpsidedownRules extends ChessRules
 		return pieces["w"].join("").toUpperCase() +
 			"/PPPPPPPP/8/8/8/8/pppppppp/" +
 			pieces["b"].join("") +
-			" w 1111 -"; //add turn + flags + enpassant
+			" w"; //no castle, no en-passant
 	}
 }
 

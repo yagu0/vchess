@@ -1,4 +1,4 @@
-class UltimaRules extends ChessRules
+class BaroqueRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
@@ -7,7 +7,7 @@ class UltimaRules extends ChessRules
 	static getPpath(b)
 	{
 		if (b[1] == "m") //'m' for Immobilizer (I is too similar to 1)
-			return "Ultima/" + b;
+			return "Baroque/" + b;
 		return b; //usual piece
 	}
 
@@ -169,7 +169,7 @@ class UltimaRules extends ChessRules
 		});
 	}
 
-	// "Pincher"
+	// "Pincer"
 	getPotentialPawnMoves([x,y])
 	{
 		let moves = super.getPotentialRookMoves([x,y]);
@@ -526,18 +526,6 @@ class UltimaRules extends ChessRules
 		return false;
 	}
 
-	updateVariables(move)
-	{
-		// Just update king(s) position(s)
-		const piece = move.vanish[0].p;
-		const c = move.vanish[0].c;
-		if (piece == V.KING && move.appear.length > 0)
-		{
-			this.kingPos[c][0] = move.appear[0].x;
-			this.kingPos[c][1] = move.appear[0].y;
-		}
-	}
-
 	static get VALUES()
 	{
 		// TODO: totally experimental!
@@ -627,4 +615,4 @@ class UltimaRules extends ChessRules
 	}
 }
 
-const VariantRules = UltimaRules;
+const VariantRules = BaroqueRules;

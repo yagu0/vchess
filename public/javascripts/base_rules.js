@@ -628,7 +628,8 @@ class ChessRules
 		const lastRank = (color == "w" ? 0 : sizeX-1);
 		const pawnColor = this.getColor(x,y); //can be different for checkered
 
-		if (x+shiftX >= 0 && x+shiftX < sizeX) //TODO: always true
+		// NOTE: next condition is generally true (no pawn on last rank)
+		if (x+shiftX >= 0 && x+shiftX < sizeX)
 		{
 			const finalPieces = x + shiftX == lastRank
 				? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
@@ -1001,22 +1002,27 @@ class ChessRules
 		{
 			this.kingPos[c][0] = move.appear[0].x;
 			this.kingPos[c][1] = move.appear[0].y;
-			this.castleFlags[c] = [false,false];
+			if (V.HasFlags)
+				this.castleFlags[c] = [false,false];
 			return;
 		}
-		const oppCol = this.getOppCol(c);
-		const oppFirstRank = (V.size.x-1) - firstRank;
-		if (move.start.x == firstRank //our rook moves?
-			&& this.INIT_COL_ROOK[c].includes(move.start.y))
+		if (V.HasFlags)
 		{
-			const flagIdx = (move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1);
-			this.castleFlags[c][flagIdx] = false;
-		}
-		else if (move.end.x == oppFirstRank //we took opponent rook?
-			&& this.INIT_COL_ROOK[oppCol].includes(move.end.y))
-		{
-			const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
-			this.castleFlags[oppCol][flagIdx] = false;
+			// Update castling flags if rooks are moved
+			const oppCol = this.getOppCol(c);
+			const oppFirstRank = (V.size.x-1) - firstRank;
+			if (move.start.x == firstRank //our rook moves?
+				&& this.INIT_COL_ROOK[c].includes(move.start.y))
+			{
+				const flagIdx = (move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1);
+				this.castleFlags[c][flagIdx] = false;
+			}
+			else if (move.end.x == oppFirstRank //we took opponent rook?
+				&& this.INIT_COL_ROOK[oppCol].includes(move.end.y))
+			{
+				const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
+				this.castleFlags[oppCol][flagIdx] = false;
+			}
 		}
 	}
 
@@ -1244,7 +1250,7 @@ class ChessRules
 		}
 		else
 			return currentBest;
-		//console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
+//		console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
 		candidates = [0];
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)

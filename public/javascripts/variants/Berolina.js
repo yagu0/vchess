@@ -44,37 +44,34 @@ class BerolinaRules extends ChessRules
 		const firstRank = (color == 'w' ? sizeX-1 : 0);
 		const startRank = (color == "w" ? sizeX-2 : 1);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
+		const finalPieces = x + shiftX == lastRank
+			? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
+			: [V.PAWN];
 
-		if (x+shiftX >= 0 && x+shiftX < sizeX) //TODO: always true
+		// One square diagonally
+		for (let shiftY of [-1,1])
 		{
-			const finalPieces = x + shiftX == lastRank
-				? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
-				: [V.PAWN]
-			// One square diagonally
-			for (let shiftY of [-1,1])
-			{
-				if (this.board[x+shiftX][y+shiftY] == V.EMPTY)
-				{
-					for (let piece of finalPieces)
-					{
-						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
-							{c:color,p:piece}));
-					}
-					if (x == startRank && y+2*shiftY>=0 && y+2*shiftY<sizeY
-						&& this.board[x+2*shiftX][y+2*shiftY] == V.EMPTY)
-					{
-						// Two squares jump
-						moves.push(this.getBasicMove([x,y], [x+2*shiftX,y+2*shiftY]));
-					}
-				}
-			}
-			// Capture
-			if (this.board[x+shiftX][y] != V.EMPTY
-				&& this.canTake([x,y], [x+shiftX,y]))
+			if (this.board[x+shiftX][y+shiftY] == V.EMPTY)
 			{
 				for (let piece of finalPieces)
-					moves.push(this.getBasicMove([x,y], [x+shiftX,y], {c:color,p:piece}));
+				{
+					moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
+						{c:color,p:piece}));
+				}
+				if (x == startRank && y+2*shiftY>=0 && y+2*shiftY<sizeY
+					&& this.board[x+2*shiftX][y+2*shiftY] == V.EMPTY)
+				{
+					// Two squares jump
+					moves.push(this.getBasicMove([x,y], [x+2*shiftX,y+2*shiftY]));
+				}
 			}
+		}
+		// Capture
+		if (this.board[x+shiftX][y] != V.EMPTY
+			&& this.canTake([x,y], [x+shiftX,y]))
+		{
+			for (let piece of finalPieces)
+				moves.push(this.getBasicMove([x,y], [x+shiftX,y], {c:color,p:piece}));
 		}
 
 		// En passant

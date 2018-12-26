@@ -110,78 +110,66 @@ class WildebeestRules extends ChessRules
 		const color = this.turn;
 		let moves = [];
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
-		const shift = (color == "w" ? -1 : 1);
+		const shiftX = (color == "w" ? -1 : 1);
 		const startRanks = (color == "w" ? [sizeX-2,sizeX-3] : [1,2]);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
+		const finalPieces = x + shiftX == lastRank
+			? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
+			: [V.PAWN];
 
-		if (x+shift >= 0 && x+shift < sizeX && x+shift != lastRank)
+		if (this.board[x+shiftX][y] == V.EMPTY)
 		{
-			// Normal moves
-			if (this.board[x+shift][y] == V.EMPTY)
+			// One square forward
+			for (let piece of finalPieces)
+				moves.push(this.getBasicMove([x,y], [x+shiftX,y], {c:color,p:piece}));
+			if (startRanks.includes(x))
 			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y]));
-				if (startRanks.includes(x) && this.board[x+2*shift][y] == V.EMPTY)
+				if (this.board[x+2*shiftX][y] == V.EMPTY)
 				{
 					// Two squares jump
-					moves.push(this.getBasicMove([x,y], [x+2*shift,y]));
-					if (x == startRanks[0] && this.board[x+3*shift][y] == V.EMPTY)
+					moves.push(this.getBasicMove([x,y], [x+2*shiftX,y]));
+					if (x==startRanks[0] && this.board[x+3*shiftX][y] == V.EMPTY)
 					{
-						// 3-squares jump
-						moves.push(this.getBasicMove([x,y], [x+3*shift,y]));
+						// Three squares jump
+						moves.push(this.getBasicMove([x,y], [x+3*shiftX,y]));
 					}
 				}
 			}
-			// Captures
-			if (y>0 && this.canTake([x,y], [x+shift,y-1])
-				&& this.board[x+shift][y-1] != V.EMPTY)
-			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y-1]));
-			}
-			if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
-				&& this.board[x+shift][y+1] != V.EMPTY)
-			{
-				moves.push(this.getBasicMove([x,y], [x+shift,y+1]));
-			}
 		}
-
-		if (x+shift == lastRank)
+		// Captures
+		for (let shiftY of [-1,1])
 		{
-			// Promotion
-			let promotionPieces = [V.QUEEN,V.WILDEBEEST];
-			promotionPieces.forEach(p => {
-				// Normal move
-				if (this.board[x+shift][y] == V.EMPTY)
-					moves.push(this.getBasicMove([x,y], [x+shift,y], {c:color,p:p}));
-				// Captures
-				if (y>0 && this.canTake([x,y], [x+shift,y-1])
-					&& this.board[x+shift][y-1] != V.EMPTY)
+			if (y + shiftY >= 0 && y + shiftY < sizeY
+				&& this.board[x+shiftX][y+shiftY] != V.EMPTY
+				&& this.canTake([x,y], [x+shiftX,y+shiftY]))
+			{
+				for (let piece of finalPieces)
 				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y-1], {c:color,p:p}));
+					moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
+						{c:color,p:piece}));
 				}
-				if (y<sizeY-1 && this.canTake([x,y], [x+shift,y+1])
-					&& this.board[x+shift][y+1] != V.EMPTY)
-				{
-					moves.push(this.getBasicMove([x,y], [x+shift,y+1], {c:color,p:p}));
-				}
-			});
+			}
 		}
 
 		// En passant
 		const Lep = this.epSquares.length;
-		const epSquare = Lep>0 ? this.epSquares[Lep-1] : undefined;
+		const epSquare = this.epSquares[Lep-1];
 		if (!!epSquare)
 		{
 			for (let epsq of epSquare)
 			{
 				// TODO: some redundant checks
-				if (epsq.x == x+shift && Math.abs(epsq.y - y) == 1)
+				if (epsq.x == x+shiftX && Math.abs(epsq.y - y) == 1)
 				{
-					var enpassantMove = this.getBasicMove([x,y], [x+shift,epsq.y]);
+					var enpassantMove = this.getBasicMove([x,y], [epsq.x,epsq.y]);
+					// WARNING: the captured pawn may be diagonally behind us,
+					// if it's a 3-squares jump and we take on 1st passing square
+					const px = (this.board[x][epsq.y] != V.EMPTY ? x : x - shiftX);
 					enpassantMove.vanish.push({
-						x: x,
+						x: px,
 						y: epsq.y,
 						p: 'p',
-						c: this.getColor(x,epsq.y)
+						c: this.getColor(px,epsq.y)
 					});
 					moves.push(enpassantMove);
 				}

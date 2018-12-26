@@ -1,0 +1,38 @@
+p.boxed
+	| Pawns start on the 7th rank. Move a knight to promote them.
+
+h3 Specifications
+
+p Pas de roque ni prise en passant.
+
+p.
+	...Seule la position de départ change, mais c'est une énorme différence.
+	En particulier, le roque serait sans intérêt et est donc désactivé ici.
+	Les captures en passant sont également impossible car tous les pions
+	sont déjà sur la 7eme rangée.
+
+h3 Au sujet de la position initiale
+
+p.
+	Un placement complètement aléatoire des pièces peut permettre un mat en 3
+	à l'aide d'un cavalier : c'est pourquoi le roi est toujours à côté d'au moins
+	un cavalier en début de partie. Cela permet de se dégager des échecs dès le
+	premier coup.
+
+p.
+	Pour illustrer ce phénomène, les blancs peuvent mater en 3 dans la position
+	du diagramme suivant : 1.Na6 suivi de Nc5 puis Nd3#.
+	Si le cavalier noir était en g1 une défense serait possible par Nf3-Ne5 ;
+	mais avec un cavalier voisin du roi plus d'options sont offertes.
+
+figure.diagram-container
+	.diagram
+		| fen:R1BQKBNR/PPPPPPP/N7/8/8/8/pppppppp/rnbqkbrn c5,d3:
+	figcaption Standard initial position after 1.Na6
+
+h3 Source
+
+p
+	| Voir par exemple la page 
+	a(href="https://www.chessvariants.com/diffsetup.dir/upside.html") Échecs Upside down
+	| &nbsp;sur chessvariants.com.

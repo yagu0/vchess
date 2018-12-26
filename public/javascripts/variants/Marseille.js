@@ -73,40 +73,37 @@ class MarseilleRules extends ChessRules
 		const startRank = (color == "w" ? sizeX-2 : 1);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
 		const pawnColor = this.getColor(x,y); //can be different for checkered
+		const finalPieces = x + shiftX == lastRank
+			? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
+			: [V.PAWN];
 
-		if (x+shiftX >= 0 && x+shiftX < sizeX) //TODO: always true
+		// One square forward
+		if (this.board[x+shiftX][y] == V.EMPTY)
 		{
-			const finalPieces = x + shiftX == lastRank
-				? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
-				: [V.PAWN]
-			// One square forward
-			if (this.board[x+shiftX][y] == V.EMPTY)
+			for (let piece of finalPieces)
+			{
+				moves.push(this.getBasicMove([x,y], [x+shiftX,y],
+					{c:pawnColor,p:piece}));
+			}
+			// Next condition because pawns on 1st rank can generally jump
+			if ([startRank,firstRank].includes(x)
+				&& this.board[x+2*shiftX][y] == V.EMPTY)
+			{
+				// Two squares jump
+				moves.push(this.getBasicMove([x,y], [x+2*shiftX,y]));
+			}
+		}
+		// Captures
+		for (let shiftY of [-1,1])
+		{
+			if (y + shiftY >= 0 && y + shiftY < sizeY
+				&& this.board[x+shiftX][y+shiftY] != V.EMPTY
+				&& this.canTake([x,y], [x+shiftX,y+shiftY]))
 			{
 				for (let piece of finalPieces)
 				{
-					moves.push(this.getBasicMove([x,y], [x+shiftX,y],
+					moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
 						{c:pawnColor,p:piece}));
-				}
-				// Next condition because pawns on 1st rank can generally jump
-				if ([startRank,firstRank].includes(x)
-					&& this.board[x+2*shiftX][y] == V.EMPTY)
-				{
-					// Two squares jump
-					moves.push(this.getBasicMove([x,y], [x+2*shiftX,y]));
-				}
-			}
-			// Captures
-			for (let shiftY of [-1,1])
-			{
-				if (y + shiftY >= 0 && y + shiftY < sizeY
-					&& this.board[x+shiftX][y+shiftY] != V.EMPTY
-					&& this.canTake([x,y], [x+shiftX,y+shiftY]))
-				{
-					for (let piece of finalPieces)
-					{
-						moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
-							{c:pawnColor,p:piece}));
-					}
 				}
 			}
 		}
@@ -127,6 +124,7 @@ class MarseilleRules extends ChessRules
 		{
 			if (this.subTurn == 1 || (epSqs.length == 2 &&
 				// Was this en-passant capture already played at subturn 1 ?
+				// (Or maybe the opponent filled the en-passant square with a piece)
 				this.board[epSqs[0].x][epSqs[0].y] != V.EMPTY))
 			{
 				if (sq.x == x+shiftX && Math.abs(sq.y - y) == 1)
@@ -362,7 +360,6 @@ class MarseilleRules extends ChessRules
 
 		return pgn;
 	}
-
 }
 
 const VariantRules = MarseilleRules;

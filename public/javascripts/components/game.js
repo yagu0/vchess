@@ -1287,6 +1287,12 @@ Vue.component('my-game', {
 		},
 		clickComputerGame: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
+			if (this.mode == "computer" && this.score == "*"
+				&& this.vr.turn != this.mycolor)
+			{
+				// Wait for computer reply first (avoid potential "ghost move" bug)
+				return;
+			}
 			this.newGame("computer");
 		},
 		clickFriendGame: function(e) {
@@ -1344,8 +1350,6 @@ Vue.component('my-game', {
 							return;
 						}
 					}
-					else if (score == "*")
-						return this.continueGame("computer");
 				}
 			}
 			else if (mode == "friend")
@@ -1416,7 +1420,7 @@ Vue.component('my-game', {
 			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",fen]);
-				if (this.mycolor != this.vr.turn)
+				if (score == "*" && this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
 			//else: nothing special to do in friend mode
