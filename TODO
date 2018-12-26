@@ -1,7 +1,7 @@
 Finish rules translation in Spanish
 
 Design: final touch (gain extra space on top, using space on the right)
-Crazyhouse: my reserve vertically on the right, opponent just below board
+Crazyhouse: center reserves, grey if zero available, numbers superimposed
 
 Bug MarseilleRules turn issue in computer game (last move is wrong)
 

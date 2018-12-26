@@ -443,7 +443,7 @@ Vue.component('my-game', {
 				{
 					myReservePiecesArray.push(h('div',
 					{
-						'class': {'board':true, ['board'+sizeY+'-reserve']:true},
+						'class': {'board':true, ['board'+sizeY]:true},
 						attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
 					},
 					[
@@ -467,7 +467,7 @@ Vue.component('my-game', {
 				{
 					oppReservePiecesArray.push(h('div',
 					{
-						'class': {'board':true, ['board'+sizeY+'-reserve']:true},
+						'class': {'board':true, ['board'+sizeY]:true},
 						attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
 					},
 					[
