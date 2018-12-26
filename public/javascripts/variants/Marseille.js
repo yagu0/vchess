@@ -148,10 +148,12 @@ class MarseilleRules extends ChessRules
 
 	play(move, ingame)
 	{
-//		console.log("play " + this.getNotation(move));
-//		console.log(this.turn + " "+ this.subTurn);
 		if (!!ingame)
+		{
 			move.notation = [this.getNotation(move), this.getLongNotation(move)];
+			// In this special case, we also need the "move color":
+			move.color = this.turn;
+		}
 		move.flags = JSON.stringify(this.aggregateFlags());
 		let lastEpsq = this.epSquares[this.epSquares.length-1];
 		const epSq = this.getEpSquare(move);
@@ -185,7 +187,6 @@ class MarseilleRules extends ChessRules
 		this.updateVariables(move);
 		if (!!ingame)
 			move.hash = hex_md5(this.getFen());
-		//console.log(move.checkOnSubturn1 + " " +this.turn + " "+ this.subTurn);
 	}
 
 	undo(move)
@@ -220,8 +221,6 @@ class MarseilleRules extends ChessRules
 		}
 		this.moves.pop();
 		this.unupdateVariables(move);
-//		console.log("UNDO " + this.getNotation(move));
-//		console.log(this.turn + " "+ this.subTurn);
 	}
 
 	// NOTE:  GenRandInitFen() is OK,
@@ -315,6 +314,55 @@ class MarseilleRules extends ChessRules
 			return selected[0];
 		return selected;
 	}
+
+	getPGN(mycolor, score, fenStart, mode)
+	{
+		let pgn = "";
+		pgn += '[Site "vchess.club"]<br>';
+		const opponent = mode=="human" ? "Anonymous" : "Computer";
+		pgn += '[Variant "' + variant + '"]<br>';
+		pgn += '[Date "' + getDate(new Date()) + '"]<br>';
+		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
+		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
+		pgn += '[FenStart "' + fenStart + '"]<br>';
+		pgn += '[Fen "' + this.getFen() + '"]<br>';
+		pgn += '[Result "' + score + '"]<br><br>';
+
+		let counter = 1;
+		let i = 0;
+		while (i < this.moves.length)
+		{
+			pgn += (counter++) + ".";
+			for (let color of ["w","b"])
+			{
+				let move = "";
+				while (i < this.moves.length && this.moves[i].color == color)
+					move += this.moves[i++].notation[0] + ",";
+				move = move.slice(0,-1); //remove last comma
+				pgn += move + (i < this.moves.length-1 ? " " : "");
+			}
+		}
+		pgn += "<br><br>";
+
+		// "Complete moves" PGN (helping in ambiguous cases)
+		counter = 1;
+		i = 0;
+		while (i < this.moves.length)
+		{
+			pgn += (counter++) + ".";
+			for (let color of ["w","b"])
+			{
+				let move = "";
+				while (i < this.moves.length && this.moves[i].color == color)
+					move += this.moves[i++].notation[1] + ",";
+				move = move.slice(0,-1); //remove last comma
+				pgn += move + (i < this.moves.length-1 ? " " : "");
+			}
+		}
+
+		return pgn;
+	}
+
 }
 
 const VariantRules = MarseilleRules;

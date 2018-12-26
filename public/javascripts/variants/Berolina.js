@@ -119,14 +119,15 @@ class BerolinaRules extends ChessRules
 		if (piece == V.PAWN)
 		{
 			// Pawn move
+			const finalSquare = V.CoordsToSquare(move.end);
 			let notation = "";
 			if (move.vanish.length == 2) //capture
-				notation = finalSquare;
+				notation = "Px" + finalSquare;
 			else
 			{
-				// No capture
-				const startColumn = V.CoordToColumn(move.start.y);
-				notation = startColumn + "x" + finalSquare;
+				// No capture: indicate the initial square for potential ambiguity
+				const startSquare = V.CoordsToSquare(move.start);
+				notation = startSquare + finalSquare;
 			}
 			if (move.appear[0].p != V.PAWN) //promotion
 				notation += "=" + move.appear[0].p.toUpperCase();
