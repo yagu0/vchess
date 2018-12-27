@@ -1,3 +1,5 @@
-Finish rules translation in Spanish
+Finish rules translation in Spanish + improve existing ones
 Design: final touch (gain extra space on top, using space on the right)
 Crazyhouse: center reserves, grey if zero available, numbers superimposed
+Promotions: increase pieces sizes, better background.
+Code: use two spaces instead of tabs, everywhere.
