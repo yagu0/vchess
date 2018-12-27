@@ -30,7 +30,6 @@ Sounds and pieces images where found at various locations.
 
  0. Install git-fat https://github.com/jedbrown/git-fat
  1. git fat init && git fat pull
- 2. Execute db/create.sql script (SQLite) to fill db/vchess.sqlite database
- 3. Rename public/javascripts/socket\_url.js.dist into socket\_url.js
-    and adjust its content.
+ 2. Execute db/\*.sql scripts to create and fill db/vchess.sqlite
+ 3. Rename and edit public/javascripts/socket\_url.js.dist into socket\_url.js
  4. npm i && npm start
