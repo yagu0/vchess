@@ -100,20 +100,21 @@ module.exports = function(wss) {
 									// Start a new game
 									const oppId = games[page]["id"];
 									const fen = games[page]["fen"];
+									const gameId = games[page]["gameid"];
 									delete games[page];
-									const mycolor = Math.random() < 0.5 ? 'w' : 'b';
+									const mycolor = (Math.random() < 0.5 ? 'w' : 'b');
 									socket.send(JSON.stringify(
-										{code:"newgame",fen:fen,oppid:oppId,color:mycolor}));
+										{code:"newgame",fen:fen,oppid:oppId,color:mycolor,gameid:gameId}));
 									if (!!clients[page][oppId])
 									{
 										clients[page][oppId].send(
 											JSON.stringify(
-												{code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w"}),
+												{code:"newgame",fen:fen,oppid:sid,color:mycolor=="w"?"b":"w",gameid:gameId}),
 											noop);
 									}
 								}
 								else
-									games[page] = {id:sid, fen:obj.fen}; //wait for opponent
+									games[page] = {id:sid, fen:obj.fen, gameid:obj.gameid}; //wait for opponent
 								break;
 							case "cancelnewgame": //if a user cancel his seek
 								delete games[page];

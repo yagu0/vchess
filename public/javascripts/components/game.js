@@ -57,7 +57,7 @@ Vue.component('my-game', {
 					"tooltip": true,
 					"play": true,
 					"seek": this.seek,
-					"playing": this.mode == "human",
+					"playing": this.mode == "human" && this.score == "*",
 				},
 			},
 			[h('i', { 'class': { "material-icons": true } }, "accessibility")])
@@ -73,7 +73,7 @@ Vue.component('my-game', {
 					'class': {
 						"tooltip":true,
 						"play": true,
-						"playing": this.mode == "computer",
+						"playing": this.mode == "computer" && this.score == "*",
 						"spaceleft": true,
 					},
 				},
@@ -865,41 +865,7 @@ Vue.component('my-game', {
 			actionArray
 		);
 		elementArray.push(actions);
-		if (this.score != "*" && this.pgnTxt.length > 0)
-		{
-			elementArray.push(
-				h('div',
-					{
-						attrs: { id: "pgn-div" },
-						"class": { "section-content": true },
-					},
-					[
-						h('a',
-							{
-								attrs: {
-									id: "download",
-									href: "#",
-								}
-							}
-						),
-						h('p',
-							{
-								attrs: { id: "pgn-game" },
-								domProps: { innerHTML: this.pgnTxt }
-							}
-						),
-						h('button',
-							{
-								attrs: { "id": "downloadBtn" },
-								on: { click: this.download },
-								domProps: { innerHTML: translations["Download game"] },
-							}
-						),
-					]
-				)
-			);
-		}
-		else if (this.mode != "idle")
+		if (!!this.vr)
 		{
 			if (this.mode == "problem")
 			{
@@ -949,6 +915,31 @@ Vue.component('my-game', {
 					)
 				);
 			}
+			elementArray.push(
+				h('div',
+					{
+						attrs: { id: "pgn-div" },
+						"class": { "section-content": true },
+					},
+					[
+						h('a',
+							{
+								attrs: {
+									id: "download",
+									href: "#",
+								}
+							}
+						),
+						h('button',
+							{
+								attrs: { "id": "downloadBtn" },
+								on: { click: this.download },
+								domProps: { innerHTML: translations["Download PGN"] },
+							}
+						),
+					]
+				)
+			);
 		}
 		return h(
 			'div',
@@ -1008,7 +999,7 @@ Vue.component('my-game', {
 		};
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
-			const L = (!!this.vr ? this.vr.moves.length : 0);
+			let L = undefined;
 			switch (data.code)
 			{
 				case "oppname":
@@ -1028,7 +1019,7 @@ Vue.component('my-game', {
 					break;
 				case "newgame": //opponent found
 					// oppid: opponent socket ID
-					this.newGame("human", data.fen, data.color, data.oppid);
+					this.newGame("human", data.fen, data.color, data.oppid, data.gameid);
 					break;
 				case "newmove": //..he played!
 					this.play(data.move, (variant!="Dark" ? "animate" : null));
@@ -1038,6 +1029,7 @@ Vue.component('my-game', {
 						break; //games IDs don't match: definitely over...
 					this.oppConnected = true;
 					// Send our "last state" informations to opponent
+					L = this.vr.moves.length;
 					this.conn.send(JSON.stringify({
 						code: "lastate",
 						oppid: this.oppid,
@@ -1047,10 +1039,11 @@ Vue.component('my-game', {
 					}));
 					break;
 				case "lastate": //got opponent infos about last move
+					L = this.vr.moves.length;
 					if (this.gameId != data.gameId)
 						break; //games IDs don't match: nothing we can do...
 					// OK, opponent still in game (which might be over)
-					if (this.mode != "human")
+					if (this.score != "*")
 					{
 						// We finished the game (any result possible)
 						this.conn.send(JSON.stringify({
@@ -1068,6 +1061,7 @@ Vue.component('my-game', {
 						this.conn.send(JSON.stringify({
 							code: "lastate",
 							oppid: this.oppid,
+							gameId: this.gameId,
 							lastMove: this.vr.moves[L-1],
 							movesCount: L,
 						}));
@@ -1164,13 +1158,12 @@ Vue.component('my-game', {
 					: "none";
 		},
 		download: function() {
-			let content = document.getElementById("pgn-game").innerHTML;
-			content = content.replace(/<br>/g, "\n");
+			// Variants may have special PGN structure (so next function isn't defined here)
+			const content = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
 			// Prepare and trigger download link
 			let downloadAnchor = document.getElementById("download");
 			downloadAnchor.setAttribute("download", "game.pgn");
-			downloadAnchor.href = "data:text/plain;charset=utf-8," +
-				encodeURIComponent(content);
+			downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
 			downloadAnchor.click();
 		},
 		showScoreMsg: function() {
@@ -1186,8 +1179,6 @@ Vue.component('my-game', {
 				localStorage.setItem(prefix+"score", score);
 			}
 			this.showScoreMsg();
-			// Variants may have special PGN structure (so next function isn't defined here)
-			this.pgnTxt = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
 			if (this.mode == "human" && this.oppConnected)
 			{
 				// Send our nickname to opponent
@@ -1311,7 +1302,7 @@ Vue.component('my-game', {
 			}
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
-		newGame: function(mode, fenInit, color, oppId) {
+		newGame: function(mode, fenInit, color, oppId, gameId) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
@@ -1325,7 +1316,7 @@ Vue.component('my-game', {
 				}
 				// Send game request and wait..
 				try {
-					this.conn.send(JSON.stringify({code:"newgame", fen:fen}));
+					this.conn.send(JSON.stringify({code:"newgame", fen:fen, gameid: getRandString() }));
 				} catch (INVALID_STATE_ERR) {
 					return; //nothing achieved
 				}
@@ -1374,12 +1365,10 @@ Vue.component('my-game', {
 			this.mode = mode;
 			this.incheck = [];
 			this.fenStart = V.ParseFen(fen).position; //this is enough
-			if (mode != "problem")
-				this.setStorage(); //store game state in case of interruptions
 			if (mode=="human")
 			{
 				// Opponent found!
-				this.gameId = getRandString();
+				this.gameId = gameId;
 				this.oppid = oppId;
 				this.oppConnected = true;
 				this.mycolor = color;
@@ -1398,6 +1387,8 @@ Vue.component('my-game', {
 			else if (mode == "friend")
 				this.mycolor = "w"; //convention...
 			//else: problem solving: nothing more to do
+			if (mode != "problem")
+				this.setStorage(); //store game state in case of interruptions
 		},
 		continueGame: function(mode) {
 			this.mode = mode;

@@ -186,7 +186,8 @@ class ChessRules
 		// Argument is a move:
 		const move = moveOrSquare;
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
-		if (move.appear[0].p == V.PAWN && Math.abs(sx - ex) == 2)
+		// TODO: next conditions are first for Atomic, and third for Checkered
+		if (move.appear.length > 0 && move.appear[0].p == V.PAWN && ["w","b"].includes(move.appear[0].c) && Math.abs(sx - ex) == 2)
 		{
 			return {
 				x: (sx + ex)/2,
@@ -1372,15 +1373,22 @@ class ChessRules
 	getPGN(mycolor, score, fenStart, mode)
 	{
 		let pgn = "";
-		pgn += '[Site "vchess.club"]<br>';
+		pgn += '[Site "vchess.club"]\n';
 		const opponent = mode=="human" ? "Anonymous" : "Computer";
-		pgn += '[Variant "' + variant + '"]<br>';
-		pgn += '[Date "' + getDate(new Date()) + '"]<br>';
-		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
-		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
-		pgn += '[FenStart "' + fenStart + '"]<br>';
-		pgn += '[Fen "' + this.getFen() + '"]<br>';
-		pgn += '[Result "' + score + '"]<br><br>';
+		pgn += '[Variant "' + variant + '"]\n';
+		pgn += '[Date "' + getDate(new Date()) + '"]\n';
+		// TODO: later when users are a bit less anonymous, use better names
+		const whiteName = ["human","computer"].includes(mode)
+			? (mycolor=='w'?'Myself':opponent)
+			: "analyze";
+		const blackName = ["human","computer"].includes(mode)
+			? (mycolor=='b'?'Myself':opponent)
+			: "analyze";
+		pgn += '[White "' + whiteName + '"]\n';
+		pgn += '[Black "' + blackName + '"]\n';
+		pgn += '[FenStart "' + fenStart + '"]\n';
+		pgn += '[Fen "' + this.getFen() + '"]\n';
+		pgn += '[Result "' + score + '"]\n\n';
 
 		// Standard PGN
 		for (let i=0; i<this.moves.length; i++)
@@ -1389,7 +1397,7 @@ class ChessRules
 				pgn += ((i/2)+1) + ".";
 			pgn += this.moves[i].notation[0] + " ";
 		}
-		pgn += "<br><br>";
+		pgn += "\n\n";
 
 		// "Complete moves" PGN (helping in ambiguous cases)
 		for (let i=0; i<this.moves.length; i++)
@@ -1399,6 +1407,6 @@ class ChessRules
 			pgn += this.moves[i].notation[1] + " ";
 		}
 
-		return pgn;
+		return pgn + "\n";
 	}
 }

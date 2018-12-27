@@ -70,7 +70,6 @@ class MarseilleRules extends ChessRules
 		const firstRank = (color == 'w' ? sizeX-1 : 0);
 		const startRank = (color == "w" ? sizeX-2 : 1);
 		const lastRank = (color == "w" ? 0 : sizeX-1);
-		const pawnColor = this.getColor(x,y); //can be different for checkered
 		const finalPieces = x + shiftX == lastRank
 			? [V.ROOK,V.KNIGHT,V.BISHOP,V.QUEEN]
 			: [V.PAWN];
@@ -81,7 +80,7 @@ class MarseilleRules extends ChessRules
 			for (let piece of finalPieces)
 			{
 				moves.push(this.getBasicMove([x,y], [x+shiftX,y],
-					{c:pawnColor,p:piece}));
+					{c:color,p:piece}));
 			}
 			// Next condition because pawns on 1st rank can generally jump
 			if ([startRank,firstRank].includes(x)
@@ -101,7 +100,7 @@ class MarseilleRules extends ChessRules
 				for (let piece of finalPieces)
 				{
 					moves.push(this.getBasicMove([x,y], [x+shiftX,y+shiftY],
-						{c:pawnColor,p:piece}));
+						{c:color,p:piece}));
 				}
 			}
 		}
@@ -118,6 +117,7 @@ class MarseilleRules extends ChessRules
 		});
 		if (epSqs.length == 0)
 			return moves;
+		const oppCol = this.getOppCol(color);
 		for (let sq of epSqs)
 		{
 			if (this.subTurn == 1 || (epSqs.length == 2 &&
@@ -125,14 +125,16 @@ class MarseilleRules extends ChessRules
 				// (Or maybe the opponent filled the en-passant square with a piece)
 				this.board[epSqs[0].x][epSqs[0].y] != V.EMPTY))
 			{
-				if (sq.x == x+shiftX && Math.abs(sq.y - y) == 1)
+				if (sq.x == x+shiftX && Math.abs(sq.y - y) == 1
+					// Add condition "enemy pawn must be present"
+					&& this.getPiece(x,sq.y) == V.PAWN && this.getColor(x,sq.y) == oppCol)
 				{
 					let epMove = this.getBasicMove([x,y], [sq.x,sq.y]);
 					epMove.vanish.push({
 						x: x,
 						y: sq.y,
 						p: 'p',
-						c: this.getColor(x,sq.y)
+						c: oppCol
 					});
 					moves.push(epMove);
 				}
@@ -320,15 +322,21 @@ class MarseilleRules extends ChessRules
 	getPGN(mycolor, score, fenStart, mode)
 	{
 		let pgn = "";
-		pgn += '[Site "vchess.club"]<br>';
+		pgn += '[Site "vchess.club"]\n';
 		const opponent = mode=="human" ? "Anonymous" : "Computer";
-		pgn += '[Variant "' + variant + '"]<br>';
-		pgn += '[Date "' + getDate(new Date()) + '"]<br>';
-		pgn += '[White "' + (mycolor=='w'?'Myself':opponent) + '"]<br>';
-		pgn += '[Black "' + (mycolor=='b'?'Myself':opponent) + '"]<br>';
-		pgn += '[FenStart "' + fenStart + '"]<br>';
-		pgn += '[Fen "' + this.getFen() + '"]<br>';
-		pgn += '[Result "' + score + '"]<br><br>';
+		pgn += '[Variant "' + variant + '"]\n';
+		pgn += '[Date "' + getDate(new Date()) + '"]\n';
+		const whiteName = ["human","computer"].includes(mode)
+			? (mycolor=='w'?'Myself':opponent)
+			: "analyze";
+		const blackName = ["human","computer"].includes(mode)
+			? (mycolor=='b'?'Myself':opponent)
+			: "analyze";
+		pgn += '[White "' + whiteName + '"]\n';
+		pgn += '[Black "' + blackName + '"]\n';
+		pgn += '[FenStart "' + fenStart + '"]\n';
+		pgn += '[Fen "' + this.getFen() + '"]\n';
+		pgn += '[Result "' + score + '"]\n\n';
 
 		let counter = 1;
 		let i = 0;
@@ -344,7 +352,7 @@ class MarseilleRules extends ChessRules
 				pgn += move + (i < this.moves.length-1 ? " " : "");
 			}
 		}
-		pgn += "<br><br>";
+		pgn += "\n\n";
 
 		// "Complete moves" PGN (helping in ambiguous cases)
 		counter = 1;
@@ -362,7 +370,7 @@ class MarseilleRules extends ChessRules
 			}
 		}
 
-		return pgn;
+		return pgn + "\n";
 	}
 }
 

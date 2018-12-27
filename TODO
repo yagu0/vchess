@@ -5,3 +5,20 @@ Promotions: increase pieces sizes, better background.
 Code: use two spaces instead of tabs, everywhere.
 Increase code line length to 100 or more?
 (http://katafrakt.me/2017/09/16/80-characters-line-length-limit/)
+Chat button should be more apparent after game ends (color ?)
+Reinforce security for problems upload (how ?)
+The mode switch between human/computer/friend (+ problem) is a mess
+(example: finished computer game, ongoing friend game, reload, friend game is unreachable)
+
+Later:
+Let choice of time control, allow correspondance play, several games at the same time
+==> need to use indexedDB instead of localStorage. Maybe with Dexie https://dexie.org/
+Each user would have a unique identifier stored in the client DB.
+Allow to cancel games (if opponent doesn't connect again)
+Identity would be browser-based: different games on smartphone, home computer, work computer... (why not ?)
+Index might still look the same, and variant page would have another tab "Games"
+==> running, and finished (which can be deleted from local memory)
+(A true analysis mode could be implemented also, to navigate in completed games --> use a button)
+Allow challenging a specific player (by his chosen name)
+But keep the random pairings as main playing way + always playing in ZEN mode,
+except when accepting an individual challenge.
