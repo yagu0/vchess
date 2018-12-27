@@ -43,15 +43,13 @@ class MarseilleRules extends ChessRules
 		const parsedFen = V.ParseFen(fen);
 		this.setFlags(parsedFen.flags);
 		if (parsedFen.enpassant == "-")
-			this.epSquares = [ [undefined,undefined] ];
+			this.epSquares = [ [undefined] ];
 		else
 		{
 			let res = [];
 			const squares = parsedFen.enpassant.split(",");
 			for (let sq of squares)
 				res.push(V.SquareToCoords(sq));
-			if (res.length == 1)
-				res.push(undefined); //always 2 slots in epSquares[i]
 			this.epSquares = [ res ];
 		}
 		this.scanKingsRooks(fen);
@@ -153,32 +151,30 @@ class MarseilleRules extends ChessRules
 			move.color = this.turn;
 		}
 		move.flags = JSON.stringify(this.aggregateFlags());
-		let lastEpsq = this.epSquares[this.epSquares.length-1];
-		const epSq = this.getEpSquare(move);
-		if (lastEpsq.length == 1)
-			lastEpsq.push(epSq);
-		else
-		{
-			// New turn
-			let newEpsqs = [epSq];
-			if (this.startAtFirstMove && this.moves.length == 0)
-				newEpsqs.push(undefined); //at first move, to force length==2 (TODO)
-			this.epSquares.push(newEpsqs);
-		}
 		V.PlayOnBoard(this.board, move);
+		const epSq = this.getEpSquare(move);
 		if (this.startAtFirstMove && this.moves.length == 0)
+		{
 			this.turn = "b";
+			this.epSquares.push([epSq]);
+		}
 		// Does this move give check on subturn 1? If yes, skip subturn 2
 		else if (this.subTurn==1 && this.underCheck(this.getOppCol(this.turn)))
 		{
-			this.epSquares[this.epSquares.length-1].push(undefined);
 			this.turn = this.getOppCol(this.turn);
+			this.epSquares.push([epSq]);
 			move.checkOnSubturn1 = true;
 		}
 		else
 		{
 			if (this.subTurn == 2)
+			{
 				this.turn = this.getOppCol(this.turn);
+				let lastEpsq = this.epSquares[this.epSquares.length-1];
+				lastEpsq.push(epSq);
+			}
+			else
+				this.epSquares.push([epSq]);
 			this.subTurn = 3 - this.subTurn;
 		}
 		this.moves.push(move);
@@ -190,31 +186,28 @@ class MarseilleRules extends ChessRules
 	undo(move)
 	{
 		this.disaggregateFlags(JSON.parse(move.flags));
-		let lastEpsq = this.epSquares[this.epSquares.length-1];
-		if (lastEpsq.length == 2)
-		{
-			if (!!move.checkOnSubturn1 ||
-				(this.startAtFirstMove && this.moves.length == 1))
-			{
-				this.epSquares.pop(); //remove real + artificial e.p. squares
-			}
-			else
-				lastEpsq.pop();
-		}
-		else
-			this.epSquares.pop();
 		V.UndoOnBoard(this.board, move);
 		if (this.startAtFirstMove && this.moves.length == 1)
+		{
 			this.turn = "w";
+			this.epSquares.pop();
+		}
 		else if (move.checkOnSubturn1)
 		{
 			this.turn = this.getOppCol(this.turn);
 			this.subTurn = 1;
+			this.epSquares.pop();
 		}
 		else
 		{
 			if (this.subTurn == 1)
+			{
 				this.turn = this.getOppCol(this.turn);
+				let lastEpsq = this.epSquares[this.epSquares.length-1];
+				lastEpsq.pop();
+			}
+			else
+				this.epSquares.pop();
 			this.subTurn = 3 - this.subTurn;
 		}
 		this.moves.pop();
@@ -233,11 +226,10 @@ class MarseilleRules extends ChessRules
 		const maxeval = V.INFINITY;
 		const color = this.turn;
 		const oppCol = this.getOppCol(this.turn);
-//if (this.moves.length == 25)
-//	debugger;
-console.log("turn before " + this.turn + " " + this.subTurn);
+
 		// Search best (half) move for opponent turn
 		const getBestMoveEval = () => {
+			const turnBefore = this.turn + this.subTurn;
 			let moves = this.getAllValidMoves();
 			if (moves.length == 0)
 			{
@@ -250,7 +242,8 @@ console.log("turn before " + this.turn + " " + this.subTurn);
 			for (let m of moves)
 			{
 				this.play(m);
-				this.turn = color; //very artificial...
+				// Now turn is oppCol,2 if m doesn't give check
+				// Otherwise it's color,1. In both cases the next test makes sense
 				if (!this.atLeastOneMove())
 				{
 					const score = this.checkGameEnd();
@@ -259,26 +252,18 @@ console.log("turn before " + this.turn + " " + this.subTurn);
 					else
 					{
 						// Found a mate
-						this.turn = oppCol;
 						this.undo(m);
 						return maxeval * (score == "1-0" ? 1 : -1);
 					}
 				}
 				const evalPos = this.evalPosition();
 				res = (oppCol == "w" ? Math.max(res, evalPos) : Math.min(res, evalPos));
-				this.turn = oppCol;
 				this.undo(m);
 			}
 			return res;
 		};
 
 		let moves11 = this.getAllValidMoves();
-console.log("turn after " + this.turn + " " + this.subTurn);
-
-if (this.moves.length == 25)
-	debugger;
-
-
 		let doubleMoves = [];
 		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves11.length; i++)
@@ -299,66 +284,10 @@ if (this.moves.length == 25)
 						moves:[moves11[i],moves12[j]],
 						eval:getBestMoveEval()});
 					this.undo(moves12[j]);
-			console.log("------ after undo of " + this.getNotation(moves12[j]) + " " + this.turn + " " + this.subTurn);
 				}
 			}
 			this.undo(moves11[i]);
-
-			console.log("after undo of " + this.getNotation(moves11[i]) + " " + this.turn + " " + this.subTurn);
-
 		}
-console.log("turn interm " + this.turn + " " + this.subTurn);
-
-		for (let i=0; i<doubleMoves.length; i++)
-		{
-			if (doubleMoves[i].moves.length == 2)
-			{
-				if (this.moves.length == 1
-					&& this.getNotation(doubleMoves[i].moves[0])=="a5"
-					&& this.getNotation(doubleMoves[i].moves[1])=="h6")
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 5
-					&& this.getNotation(doubleMoves[i].moves[0])=="c6"
-					&& this.getNotation(doubleMoves[i].moves[1])=="Kc7")
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 9
-					&& this.getNotation(doubleMoves[i].moves[0])=="d6"
-					&& this.getNotation(doubleMoves[i].moves[1])=="dxe5")
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 13
-					&& this.getNotation(doubleMoves[i].moves[0])=="fxe6"
-					&& this.getNotation(doubleMoves[i].moves[1])=="Rxf1")
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 17
-					&& this.getNotation(doubleMoves[i].moves[0])=="Nb6"
-					&& this.getNotation(doubleMoves[i].moves[1])=="Bg6")
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 21
-					&& this.getNotation(doubleMoves[i].moves[0])=="Bxe4"
-					&& this.getNotation(doubleMoves[i].moves[1])=="Nxd3") //Bxd3
-				{
-					return doubleMoves[i].moves;
-				}
-				if (this.moves.length == 25
-					&& this.getNotation(doubleMoves[i].moves[0])=="Na4"
-					&& this.getNotation(doubleMoves[i].moves[1])=="xb6") //Nxb6
-				{
-					debugger;
-					return doubleMoves[i].moves;
-				}
-			}
-		}
-console.log("turn intermBIS " + this.turn + " " + this.subTurn);
 
 		doubleMoves.sort( (a,b) => {
 			return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
@@ -369,7 +298,6 @@ console.log("turn intermBIS " + this.turn + " " + this.subTurn);
 		{
 			candidates.push(i);
 		}
-console.log("turn END " + this.turn + " " + this.subTurn);
 
 		const selected = doubleMoves[_.sample(candidates, 1)].moves;
 		if (selected.length == 1)

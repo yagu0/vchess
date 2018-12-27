@@ -186,7 +186,7 @@ class ChessRules
 		// Argument is a move:
 		const move = moveOrSquare;
 		const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
-		if (this.getPiece(sx,sy) == V.PAWN && Math.abs(sx - ex) == 2)
+		if (move.appear[0].p == V.PAWN && Math.abs(sx - ex) == 2)
 		{
 			return {
 				x: (sx + ex)/2,
