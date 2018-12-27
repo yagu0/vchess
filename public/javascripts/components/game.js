@@ -1312,7 +1312,7 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		newGame: function(mode, fenInit, color, oppId) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
+			const fen = "nrqkbrnb/pppppppp/8/8/8/8/PPPPPPPP/RKQBNRBN w 1111 -";//fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
 			if (mode=="human" && !oppId)
 			{
@@ -1391,7 +1391,7 @@ Vue.component('my-game', {
 			else if (mode == "computer")
 			{
 				this.compWorker.postMessage(["init",this.vr.getFen()]);
-				this.mycolor = (Math.random() < 0.5 ? 'w' : 'b');
+				this.mycolor = "w";//(Math.random() < 0.5 ? 'w' : 'b');
 				if (this.mycolor != this.vr.turn)
 					this.playComputerMove();
 			}
@@ -1622,7 +1622,10 @@ Vue.component('my-game', {
 			if (["human","computer","friend"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
 			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
+			{
+				console.log(this.vr.moves.length + " " + this.vr.turn + " " + this.mycolor);
 				this.playComputerMove();
+			}
 		},
 		undo: function() {
 			// Navigate after game is over

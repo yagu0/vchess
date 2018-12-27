@@ -233,7 +233,9 @@ class MarseilleRules extends ChessRules
 		const maxeval = V.INFINITY;
 		const color = this.turn;
 		const oppCol = this.getOppCol(this.turn);
-
+//if (this.moves.length == 25)
+//	debugger;
+console.log("turn before " + this.turn + " " + this.subTurn);
 		// Search best (half) move for opponent turn
 		const getBestMoveEval = () => {
 			let moves = this.getAllValidMoves();
@@ -271,11 +273,16 @@ class MarseilleRules extends ChessRules
 		};
 
 		let moves11 = this.getAllValidMoves();
+console.log("turn after " + this.turn + " " + this.subTurn);
+
+if (this.moves.length == 25)
+	debugger;
+
+
 		let doubleMoves = [];
 		// Rank moves using a min-max at depth 2
 		for (let i=0; i<moves11.length; i++)
 		{
-			moves11[i].eval = (color=="w" ? -1 : 1) * maxeval;
 			this.play(moves11[i]);
 			if (this.turn != color)
 			{
@@ -292,10 +299,66 @@ class MarseilleRules extends ChessRules
 						moves:[moves11[i],moves12[j]],
 						eval:getBestMoveEval()});
 					this.undo(moves12[j]);
+			console.log("------ after undo of " + this.getNotation(moves12[j]) + " " + this.turn + " " + this.subTurn);
 				}
 			}
 			this.undo(moves11[i]);
+
+			console.log("after undo of " + this.getNotation(moves11[i]) + " " + this.turn + " " + this.subTurn);
+
 		}
+console.log("turn interm " + this.turn + " " + this.subTurn);
+
+		for (let i=0; i<doubleMoves.length; i++)
+		{
+			if (doubleMoves[i].moves.length == 2)
+			{
+				if (this.moves.length == 1
+					&& this.getNotation(doubleMoves[i].moves[0])=="a5"
+					&& this.getNotation(doubleMoves[i].moves[1])=="h6")
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 5
+					&& this.getNotation(doubleMoves[i].moves[0])=="c6"
+					&& this.getNotation(doubleMoves[i].moves[1])=="Kc7")
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 9
+					&& this.getNotation(doubleMoves[i].moves[0])=="d6"
+					&& this.getNotation(doubleMoves[i].moves[1])=="dxe5")
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 13
+					&& this.getNotation(doubleMoves[i].moves[0])=="fxe6"
+					&& this.getNotation(doubleMoves[i].moves[1])=="Rxf1")
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 17
+					&& this.getNotation(doubleMoves[i].moves[0])=="Nb6"
+					&& this.getNotation(doubleMoves[i].moves[1])=="Bg6")
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 21
+					&& this.getNotation(doubleMoves[i].moves[0])=="Bxe4"
+					&& this.getNotation(doubleMoves[i].moves[1])=="Nxd3") //Bxd3
+				{
+					return doubleMoves[i].moves;
+				}
+				if (this.moves.length == 25
+					&& this.getNotation(doubleMoves[i].moves[0])=="Na4"
+					&& this.getNotation(doubleMoves[i].moves[1])=="xb6") //Nxb6
+				{
+					debugger;
+					return doubleMoves[i].moves;
+				}
+			}
+		}
+console.log("turn intermBIS " + this.turn + " " + this.subTurn);
 
 		doubleMoves.sort( (a,b) => {
 			return (color=="w" ? 1 : -1) * (b.eval - a.eval); });
@@ -306,6 +369,7 @@ class MarseilleRules extends ChessRules
 		{
 			candidates.push(i);
 		}
+console.log("turn END " + this.turn + " " + this.subTurn);
 
 		const selected = doubleMoves[_.sample(candidates, 1)].moves;
 		if (selected.length == 1)

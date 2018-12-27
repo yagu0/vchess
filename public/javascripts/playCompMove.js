@@ -19,6 +19,9 @@ onmessage = function(e)
 			self.vr.play(e.data[1]);
 			break;
 		case "askmove":
+
+console.log("IN playCompMove " + self.vr.moves.length + " " + self.vr.turn);
+
 			const compMove = self.vr.getComputerMove();
 			postMessage(compMove);
 			break;
