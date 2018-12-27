@@ -1266,7 +1266,7 @@ Vue.component('my-game', {
 		},
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
-			if (this.mode == "human")
+			if (this.mode == "human" && this.score == "*")
 				return; //no newgame while playing
 			if (this.seek)
 			{
