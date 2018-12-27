@@ -3,3 +3,5 @@ Design: final touch (gain extra space on top, using space on the right)
 Crazyhouse: center reserves, grey if zero available, numbers superimposed
 Promotions: increase pieces sizes, better background.
 Code: use two spaces instead of tabs, everywhere.
+Increase code line length to 100 or more?
+(http://katafrakt.me/2017/09/16/80-characters-line-length-limit/)
