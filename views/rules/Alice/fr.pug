@@ -1,27 +1,18 @@
-p.boxed
-	| Chaque pièce déplacée arrive sur un autre échiquier ("de l'autre côté du miroir").
-	| Il y a deux échiquiers. Toutes les pièces démarrent sur l'échiquier 1.
+p.boxed.
+	Chaque pièce déplacée arrive sur un autre échiquier ("de l'autre côté du
+	miroir").
+	Il y a deux échiquiers. Toutes les pièces démarrent sur l'échiquier 1.
 
-h3 Caractéristiques
+p.
+	Deux échiquiers sont utilisés dans cette variante.
+	Des pièces à l'envers apparaissent à chaque coup de pièce "normale" :
+	ces dernières vivent sur un autre échiquier. Quand elles se déplacent à
+	nouveau, elles reviennent sur l'échiquier initial.
+	Les règles usuelles s'appliquent sur chaque échiquier.
+	De plus, la case d'arrivée ne doit pas être occupée par une pièce sur
+	l'autre échiquier (c'est ce qui permet de tout représenter sur 64 cases).
 
-ul
-	li Échiquier : standard.
-	li Matériel : standard + pièces Alice.
-	li Coups non capturants : standards.
-	li Coups spéciaux : standards.
-	li Captures : standards (sur le même échiquier).
-	li Fin de partie : standard.
-
-h3 Bases
-
-p
-	| Deux échiquiers sont utilisés dans cette variante.
-	| Les pièces de l'échiquier 2 sont représentées à l'envers.
-	| Tout coup joué doit être valide sur son échiquier (au sens habituel).
-	| De plus, la case d'arrivée ne doit pas être occupée par une pièce sur
-	| l'autre échiquier (c'est ce qui permet de tout représenter sur 64 cases).
-
-p La notation des "pièces Alice" est la suivante :
+p Les "pièces Alice" se notent comme suit :
 ul
 	li Pion : S
 	li Tour : U
@@ -35,6 +26,16 @@ figure.diagram-container
 		| fen:rnbqkbnr/ppp1pppp/8/8/2p5/5O2/PP1PPPPP/RNBQKB1R:
 	figcaption Après les coups 1.Nf3 Pd5 2.Pc4 Sxc4
 
+p.
+	La prise en passant et le roque s'effectuent comme dans le jeu orthodoxe.
+	Plus précisément, on peut prendre en passant quels que soient les mondes de
+	départ et d'arrivée des pions. Cela se justifie par le passage des pions "à
+	travers le miroir" : ils peuvent ainsi être capturés juste avant ou juste
+	après le miroir.
+	Le roque doit être légal sur l'échiquier de départ (forcément le 1, sinon le
+	roi a bougé et le roque n'est plus légal), et le roi ne doit pas être en
+	échec sur l'échiquier d'arrivée.
+
 h3 Fin de partie
 
 p
@@ -42,20 +43,12 @@ p
 	| Celui-ci ne doit pas pouvoir parer l'échec, pas même en s'échappant sur
 	| l'autre échiquier.
 
-p.
-	Note : la prise en passant et le roque s'effectuent comme dans le jeu orthodoxe.
-	Plus précisément, on peut prendre en passant quels que soient les mondes de
-	départ et d'arrivée des pions. Cela se justifie par le passage des pions
-	"à travers le miroir" : ils peuvent ainsi être capturés soient juste avant,
-	ou juste après le miroir. Le roque doit être légal sur l'échiquier de départ
-	(forcément le 1, sinon le roi a bougé et le roque n'est plus légal),
-	et le roi ne doit pas être en échec sur l'échiquier d'arrivée.
-
 h3 Plus d'information
 
 p
 	| Voir les pages dédiées à cette variante sur 
-	a(href="https://www.chessvariants.com/other.dir/alice.html") chessvariants.com
+	a(href="https://www.chessvariants.com/other.dir/alice.html")
+		| chessvariants.com
 	| &nbsp;et 
 	a(href="https://www.schemingmind.com/journalarticle.aspx?article_id=9")
 		| schemingmind.com

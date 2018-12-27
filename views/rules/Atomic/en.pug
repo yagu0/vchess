@@ -1,28 +1,23 @@
-p.boxed
-	| All captures result in an "explosion" through which all surrounding
-	| pieces other than pawns are removed from the board.
-
-h3 Specifications
-
-ul
-	li Chessboard: standard.
-	li Material: standard.
-	li Non-capturing moves: standard.
-	li Special moves: standard.
-	li Captures: explosions; see below.
-	li End of game: king explodes, or standard; see below.
-
-h3 Basics
+p.boxed.
+	Each capture results in an "explosion" through which all surrounding
+	pieces other than pawns are removed from the board.
 
 p.
-	When a piece captures an opponent figure on some square S, all pieces sitting
-	on a square reachable by a king move from S are removed.
+	When a piece P captures an opponent figure on some square S, all pieces
+	sitting on a square reachable by a king move from S are removed, including P
+	itself.
 	The pawns, however, remain: they have to be taken directly to disappear.
 
+p.
+	Suicide is forbidden. Thus a king can touch the opponent king and become
+	immune to checks, like on the following diagrams: 1.Rxf5 is impossible.
+
 figure.diagram-container
-	.diagram
-		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
-	figcaption After the moves 1.Nc3 d6?? 2.Nd5 e5 3.Nxc7
+	.diagram.diag12
+		| fen:rnb5/pp4pp/2p5/N4pK1/3P2k1/8/PP4PP/5R2 a5,b7:
+	.diagram.diag22
+		| fen:8/p5pp/2p5/5pK1/3P2k1/8/PP4PP/5R2:
+	figcaption Left: before 1.Nxb7. Right: after capture.
 
 h3 End of the game
 
@@ -33,14 +28,17 @@ ol
 
 p Explosions have priority: a checkmate followed by a king explosion loses.
 
-p.
-	Note: suicide is forbidden. Thus a king can touch the opponent king -
-	and become immune to checks.
+figure.diagram-container
+	.diagram
+		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
+	figcaption.
+		After the moves 1.Nc3 d6?? 2.Nd5 e5 (forced to avoid king explosion)
+		3.Nxc7
 
 h3 More information
 
 p.
-	Many resources can be found on the web ("Google it"; this variation is played on
-	lichess and FICS, among others).
+	Many resources can be found on the web (this variation is played on lichess
+	and FICS, among others).
 	This game was played first in 1995 at the German Internet Chess Server (GICS)
 	according to Wikipedia.

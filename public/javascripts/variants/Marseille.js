@@ -217,6 +217,18 @@ class MarseilleRules extends ChessRules
 	// NOTE:  GenRandInitFen() is OK,
 	// since at first move turn indicator is just "w"
 
+	static get VALUES()
+	{
+		return {
+			'p': 1,
+			'r': 5,
+			'n': 3,
+			'b': 3,
+			'q': 7, //slightly less than in orthodox game
+			'k': 1000
+		};
+	}
+
 	// No alpha-beta here, just adapted min-max at depth 2(+1)
 	getComputerMove()
 	{

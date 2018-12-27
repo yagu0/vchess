@@ -1,30 +1,33 @@
-p.boxed
-	| Vous disposez d'un roi et d'un "anti-roi". Le roi ne peut pas se retrouver
-	| en échec à la fin d'un tour, mais l'anti-roi doit lui toujours être en échec.
-	| Ce dernier capture les pièces de sa couleur.
-
-h3 Caractéristiques
-
-ul
-	li Échiquier : standard.
-	li Matériel : un anti-roi additionnel.
-	li Coups non capturants : standards.
-	li Coups spéciaux : standards.
-	li Captures : cas particulier de l'anti-roi (voir ci-dessous).
-	li Fin de partie : mat ou "anti-mat".
-
-h3 Bases
+p.boxed.
+	Vous disposez d'un roi et d'un "antiroi". Le roi ne peut pas se retrouver
+	en échec à la fin d'un tour, mais l'antiroi doit lui toujours être en échec.
+	Ce dernier capture les pièces de sa couleur.
 
 p.
-	La nouvelle pièce est royale, et donc ne peut être capturée.
-	Elle capture les pièces de sa couleur (cela aide à mater l'anti-roi adverse,
-	mais complique le mat orthodoxe...).
-	L'anti-roi doit toujours rester en échec (s'il ne peut pas, vous avez perdu).
+	Une nouvelle pièce fait son apparition : l'antiroi, noté par la lettre 'A'
+	sur les diagrammes et PGNs. Cette pièce doit toujour rester en échec
+	(orthodoxe) : elle est considérée en (anti-)échec lorsqu'elle n'est attaquée
+	par aucune pièce ennemie. Dans ce cas, l'antiroi doit immédiatement
+	rejoindre une case attaquée.
+
+p.
+	L'antiroi est une pièce royale, elle ne peut donc pas être capturée.
+	Elle capture seulement les pièces de sa couleur (cela aide à mater
+	l'anti-roi adverse, mais complique le mat orthodoxe).
 
 figure.diagram-container
 	.diagram
 		| fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
 	figcaption Les cases indiquées ne sont pas des coups d'anti-roi légaux.
+
+ul
+	li.
+		Bien que l'antiroi capture les pièces de son camp, il ne met pas
+		en échec son roi - ni d'ailleurs le roi adverse.
+	li.
+		Les rois n'attaquent pas les antirois (de couleur opposée).
+		En effet ceci permettrait d'appliquer une méthode simple pour ne jamais
+		être en "anti-échec" : rester collé au roi adverse.
 
 h3 Fin de partie
 
@@ -32,18 +35,16 @@ p Il y a deux façons de gagner :
 ol
 	li Mater le roi adverse
 	li "Anti-mater" l'anti-roi adverse
-p ...Ou peut-être faire les deux en même temps ?
-
 p.
-	Note 1 : bien que l'anti-roi capture les pièces de son camp, il ne met pas
-	en échec son roi - ni d'ailleurs le roi adverse.
+	...Ou faire les deux en même temps, comme sur le diagramme suivant après
+	3.Qxf7# (l'antiroi noir était en g3).
 
-p.
-	Note 2 : les rois n'attaquent pas les anti-rois (de couleur opposée).
-	En effet ceci permettrait d'appliquer une méthode simple pour ne jamais
-	être en "anti-échec" : rester collé au roi adverse.
+figure.diagram-container
+	.diagram
+		| fen:rnbqkbnr/pppp1Qpp/1A6/4p3/4P2a/8/PPPP1PPP/RNB1KBNR h4,e8:
+	figcaption Après 1.e4 e5 2.Qh5 Ah4?? 3.Qxf7#
 
-h3 Source
+h3 Plus d'information
 
 p
 	| La 

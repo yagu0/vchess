@@ -1,0 +1,43 @@
+p.boxed
+	Cada captura crea una "explosión" que elimina todas las piezas cercanas,
+	excepto los peones.
+
+p.
+	Cuando una pieza P captura a un enemigo en la casilla C, todas las
+	piezas en las casillas alcanzable por un rey desde C desaparecen, P incluida.
+	Los peones permanecen sin embargo: deben ser capturadas directamente.
+
+p.
+	El suicidio está prohibido. Por lo tanto, el rey puede tocar al rey
+	contrario y volverse invulnerable a los jaques, como en el siguiente
+	diagrama : 1.Rxf5 es imposible.
+
+figure.diagram-container
+	.diagram.diag12
+		| fen:rnb5/pp4pp/2p5/N4pK1/3P2k1/8/PP4PP/5R2 a5,b7:
+	.diagram.diag22
+		| fen:8/p5pp/2p5/5pK1/3P2k1/8/PP4PP/5R2:
+	figcaption Izquierda : antes 1.Nxb7. Derecha : después de la captura.
+
+h3 Final de partida
+
+p Hay dos maneras de ganar, en orden descendente de prioridad :
+ol
+	li Haz explotar al rey contrario
+	li Mater el rey contrario
+
+p Las explosiones tienen prioridad : un mate seguida de una explosión pierde.
+
+figure.diagram-container
+	.diagram
+		| fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
+	figcaption.
+		Después de las jugadas 1.Nc3 d6?? 2.Nd5 e5 (forzado, para evitar la
+		explosión del rey) 3.Nxc7
+
+h3 Más información
+
+p.
+	Hay muchas páginas de internet sobre esta variante (se puede jugar en
+	lichess y en FICS, entre otros).
+	Nació en 1995 en el German Internet Chess Server (GICS) segun Wikipedia.

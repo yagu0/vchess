@@ -1,27 +1,17 @@
-p.boxed
-	| Cada pieza movida llega a otra tabla ("en el otro lado del espejo").
-	| Hay dos tableros. Todas las piezas comienzan en el tablero 1.
-
-h3 Especificaciones
-
-ul
-	li Tablero : estándar.
-	li Matériel : estándar + piezas Alice.
-	li Movimientos simples : estándar.
-	li Movimientos especiales : estándar.
-	li Capturas : estándar (en el mismo tablero).
-	li Final de partida : estándar.
-
-h3 Lo esencial
+p.boxed.
+	Cada pieza movida llega en otro tablero ("en el otro lado del espejo").
+	Hay dos tableros. Todas las piezas comienzan en el tablero 1.
 
 p.
-	En esta variante se utilizan dos tableros.
-	Las piezas del tablero 2 están representadas al revés.
-	Cada movimiento jugado debe ser válido en su tablero (en el sentido habitual)
+	En esta variante se utilizan dos tableros (representados en un unico
+	tablero).
+	Piezas devueltas aparecen en cada jugada de pieza "normal" : ellas viven
+	en un otro tablero. Vuelven al tablero inicial cuando se mueven.
+	Las reglas ortodoxas se aplican en cada tablero.
 	Además, la casilla de llegada no debe estar ocupado por una pieza en el otro
 	tablero (es lo que hace posible representar todo en 64 cajas).
 
-p La notación de las "piezas Alice" es la siguiente :
+p Las "piezas Alice" se indican como sigue :
 ul
 	li Peon : S
 	li Torre : U
@@ -33,23 +23,24 @@ ul
 figure.diagram-container
 	.diagram
 		| fen:rnbqkbnr/ppp1pppp/8/8/2p5/5O2/PP1PPPPP/RNBQKB1R:
-	figcaption Despues de los movimientos 1.Nf3 Pd5 2.Pc4 Sxc4
+	figcaption Despues de las jugadas 1.Nf3 Pd5 2.Pc4 Sxc4
+
+p.
+	La captura en-passant y el enroque se hacen como en el juego ortodoxo.
+	Más precisamente, uno puede tomar en-passant cualquiera que sea el mundo de
+	salida y de llegada de los peones.
+	Esto se justifica por el paso de los peones "a través del espejo": se pueden
+	capturar justo antes o justo después del espejo.
+	El enroque debe ser legal en el tablero de partida (necesariamente 1, de lo
+	contrario el rey se ha movido y el enroque ya no es legal), y el rey no debe
+	estar en jaque en el tablero de llegada.
 
 h3 Final de partida
 
 p.
 	Al igual que con el ajedrez ortodoxo, jaque mate es una victoria.
-	El rey contrario no debe ser capaz de contrarrestar el jaque, ni siquiera mientras
-	se escapa en el otro tablero de ajedrez.
-
-p.
-	Nota : la captura en-passant y el enroque se hacen como en el juego ortodoxo.
-	Más precisamente, uno puede tomar en-passant cualquiera que sea el mundo de
-	salida y llegada de los peones.
-	Esto se justifica por el paso de los peones "a través del espejo": se pueden
-	capturar justo antes o después del espejo. El enroque debe ser legal en el
-	tablero de partida (necesariamente 1, de lo contrario el rey se ha movido y el
-	enroque ya no es legal), y el rey no debe estar bajo control en el tablero de llegada.
+	El rey contrario no debe ser capaz de parar el jaque, ni siquiera mientras
+	se escapa en el otro tablero.
 
 h3 Más información
 
