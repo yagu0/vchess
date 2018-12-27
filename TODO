@@ -22,3 +22,25 @@ Index might still look the same, and variant page would have another tab "Games"
 Allow challenging a specific player (by his chosen name)
 But keep the random pairings as main playing way + always playing in ZEN mode,
 except when accepting an individual challenge.
+
+style menu : surligner onglet courant
+
+Interface :
+ - un menu "jouer" avec sous menus humain, computer, (ou mieux : une modalBox à paramètres, timeControl, type d'adversaire ==> "new Game")
+	                                              --> cette "modal" doit être affichée par défaut en arrivant sur la page (si pas de chemin renseigné)
+																								--> ou alors non, affichage plutôt des parties en cours (liste avec diags : en 2nd sous-menu "games")
+	   [ friend-->renommé en 'analyse' et devenant un vrai mode analyse (on garde ces trois modes ?) ]
+ - un menu "joueurs" avec liste "P2P" des connectés (sous-menu de "Jouer" ?)
+	  --> plutôt dans une sorte de "hall" avec liste des connectés ?
+ - un menu "étudier" avec sous-menus règles, [analyse (également accessible depuis import partie)], problèmes
+
+problèmes : récupérer 20 ou 50 depuis le serveur, puis les afficher un par un en les analysant directement,
+comme sur le site de ProgramFOX ==> présentation unifiée échiquier avec instructions dessus et soluce cachée dessous
+
+==> il faut pouvoir faire "new Interface(variables)" pour lancer une analyse de problème sans repasser par le mode jeu...
+
+Importer des parties : nécessite de parser le PGN produit (possible, un peu pénible)
+mais permettrait mode analyse (avec bouton "analyse", comme sur ancien site).
+
+espagnol : jugada ou movimiento ?
+fin de la partida au lieu de final de partida ?
