@@ -16,14 +16,20 @@ class DarkRules extends ChessRules
 
 	updateEnlightened()
 	{
-		const pawnShift = {"w":-1, "b":1};
-		// Initialize with pieces positions (which are seen)
 		for (let i=0; i<V.size.x; i++)
 		{
 			for (let j=0; j<V.size.y; j++)
 			{
 				this.enlightened["w"][i][j] = false;
 				this.enlightened["b"][i][j] = false;
+			}
+		}
+		const pawnShift = {"w":-1, "b":1};
+		// Initialize with pieces positions (which are seen)
+		for (let i=0; i<V.size.x; i++)
+		{
+			for (let j=0; j<V.size.y; j++)
+			{
 				if (this.board[i][j] != V.EMPTY)
 				{
 					const color = this.getColor(i,j);
