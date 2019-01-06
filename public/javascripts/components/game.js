@@ -190,24 +190,6 @@ Vue.component('my-game', {
 				}
 			);
 			aboveBoardElts.push(turnIndic);
-			const settingsBtn = h(
-				'button',
-				{
-					on: { click: this.showSettings },
-					attrs: {
-						"aria-label": translations['Settings'],
-						"id": "settingsBtn",
-					},
-					'class': {
-						"tooltip": true,
-						"play": true,
-						"above-board": true,
-						"indic-right": true,
-					},
-				},
-				[h('i', { 'class': { "material-icons": true } }, "settings")]
-			);
-			aboveBoardElts.push(settingsBtn);
 			elementArray.push(
 				h('div',
 					{ "class": { "aboveboard-wrapper": true } },
@@ -618,175 +600,6 @@ Vue.component('my-game', {
 			)
 		];
 		elementArray = elementArray.concat(modalFenEdit);
-		const modalSettings = [
-			h('input',
-				{
-					attrs: { "id": "modal-settings", type: "checkbox" },
-					"class": { "modal": true },
-				}),
-			h('div',
-				{
-					attrs: { "role": "dialog", "aria-labelledby": "settingsTitle" },
-				},
-				[
-					h('div',
-						{
-							"class": { "card": true, "smallpad": true },
-						},
-						[
-							h('label',
-								{
-									attrs: { "id": "close-settings", "for": "modal-settings" },
-									"class": { "modal-close": true },
-								}
-							),
-							h('h3',
-								{
-									attrs: { "id": "settingsTitle" },
-									"class": { "section": true },
-									domProps: { innerHTML: translations["Preferences"] },
-								}
-							),
-							h('fieldset',
-							  { },
-								[
-									h('label',
-										{
-											attrs: { for: "nameSetter" },
-											domProps: { innerHTML: translations["My name is..."] },
-										},
-									),
-									h('input',
-										{
-											attrs: {
-												"id": "nameSetter",
-												type: "text",
-												value: this.myname,
-											},
-											on: { "change": this.setMyname },
-										}
-									),
-								]
-							),
-							h('fieldset',
-							  { },
-								[
-									h('label',
-										{
-											attrs: { for: "setHints" },
-											domProps: { innerHTML: translations["Show hints?"] },
-										},
-									),
-									h('input',
-										{
-											attrs: {
-												"id": "setHints",
-												type: "checkbox",
-												checked: this.hints,
-											},
-											on: { "change": this.toggleHints },
-										}
-									),
-								]
-							),
-							h('fieldset',
-								{ },
-								[
-									h('label',
-										{
-											attrs: { for: "selectColor" },
-											domProps: { innerHTML: translations["Board colors"] },
-										},
-									),
-									h("select",
-										{
-											attrs: { "id": "selectColor" },
-											on: { "change": this.setBoardColor },
-										},
-										[
-											h("option",
-												{
-													domProps: {
-														"value": "lichess",
-														innerHTML: translations["brown"]
-													},
-													attrs: { "selected": this.color=="lichess" },
-												}
-											),
-											h("option",
-												{
-													domProps: {
-														"value": "chesscom",
-														innerHTML: translations["green"]
-													},
-													attrs: { "selected": this.color=="chesscom" },
-												}
-											),
-											h("option",
-												{
-													domProps: {
-														"value": "chesstempo",
-														innerHTML: translations["blue"]
-													},
-													attrs: { "selected": this.color=="chesstempo" },
-												}
-											),
-										],
-									),
-								]
-							),
-							h('fieldset',
-								{ },
-								[
-									h('label',
-										{
-											attrs: { for: "selectSound" },
-											domProps: { innerHTML: translations["Play sounds?"] },
-										},
-									),
-									h("select",
-										{
-											attrs: { "id": "selectSound" },
-											on: { "change": this.setSound },
-										},
-										[
-											h("option",
-												{
-													domProps: {
-														"value": "0",
-														innerHTML: translations["None"]
-													},
-													attrs: { "selected": this.sound==0 },
-												}
-											),
-											h("option",
-												{
-													domProps: {
-														"value": "1",
-														innerHTML: translations["New game"]
-													},
-													attrs: { "selected": this.sound==1 },
-												}
-											),
-											h("option",
-												{
-													domProps: {
-														"value": "2",
-														innerHTML: translations["All"]
-													},
-													attrs: { "selected": this.sound==2 },
-												}
-											),
-										],
-									),
-								]
-							),
-						]
-					)
-				]
-			)
-		];
-		elementArray = elementArray.concat(modalSettings);
 		let chatEltsArray =
 		[
 			h('label',
@@ -1637,3 +1450,10 @@ Vue.component('my-game', {
 		},
 	},
 })
+
+// TODO: keep moves list here
+get lastMove()
+	{
+		const L = this.moves.length;
+		return (L>0 ? this.moves[L-1] : null);
+	}

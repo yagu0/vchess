@@ -95,11 +95,25 @@ class AliceRules extends ChessRules
 		const pieces = Object.keys(V.ALICE_CODES);
 		const codes = Object.keys(V.ALICE_PIECES);
 		const mirrorSide = (pieces.includes(this.getPiece(x,y)) ? 1 : 2);
+		const color = this.getColor(x,y);
 
 		// Search valid moves on sideBoard
 		let saveBoard = this.board;
 		this.board = sideBoard || this.getSideBoard(mirrorSide);
-		let moves = super.getPotentialMovesFrom([x,y]);
+		let moves = super.getPotentialMovesFrom([x,y])
+			.filter(m => {
+				// Filter out king moves which result in under-check position on
+				// current board (before mirror traversing)
+				let aprioriValid = true;
+				if (m.appear[0].p == V.KING)
+				{
+					this.play(m);
+					if (this.underCheck(color))
+						aprioriValid = false;
+					this.undo(m);
+				}
+				return aprioriValid;
+			});
 		this.board = saveBoard;
 
 		// Finally filter impossible moves

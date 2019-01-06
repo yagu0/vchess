@@ -5,51 +5,32 @@ block css
 
 block content
 	.container#indexPage
-		include langNames.pug
 		case lang
 			when "en"
-				include translations/en.pug
-				include welcome/en.pug
-				include modal-lang/en.pug
-				include modal-help/en.pug
+				include welcome/en
 			when "es"
-				include translations/es.pug
-				include welcome/es.pug
-				include modal-lang/es.pug
-				include modal-help/es.pug
+				include welcome/es
 			when "fr"
-				include translations/fr.pug
-				include welcome/fr.pug
-				include modal-lang/fr.pug
-				include modal-help/fr.pug
+				include welcome/fr
 		.row
 			#header.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				#mainTitle
+				#mainTitle.clickable(
+						onClick="document.getElementById('modalWelcome').checked=true")
 					img(src="/images/index/unicorn.svg")
 					.info-container
 						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				#flagMenu.clickable(
-						onClick="document.getElementById('modalLang').checked=true")
-					img(src="/images/flags/" + lang + ".svg")
-				#helpMenu.clickable(
-						onClick="document.getElementById('modalHelp').checked=true")
-					.info-container
-						p= translations["Help"]
+				#settings.clickable(
+						onClick="document.getElementById('modalSettings').checked=true")
+					i.material-icons settings
 		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
-		// Other modals:
-		input#modalB4welcome.modal(type="checkbox")
-		div(role="dialog")
-			#b4welcome.card.text-center.small-modal
-				h3.blue= translations["First visit?"]
-				p#readThis.clickable(@click="showWelcomeMsg")
-					=translations[">>> Please read this <<<"]
+
+					redesign index page :: lien github, lien contact mail, settings
 
 block javascripts
 	script.
-		const translations = !{JSON.stringify(translations)};
 		const variantArray = !{JSON.stringify(variantArray)};
 	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/socket_url.js")

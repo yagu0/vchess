@@ -1,0 +1,36 @@
+input#modal-settings.modal(type="checkbox")
+div(role="dialog" aria-labelledby="settingsTitle")
+	.card.smallpad(onChange="blabla(event)")
+		label#close-settings.modal-close(for="modal-settings")
+		h3#settingsTitle.section= translations["Preferences"]
+		fieldset
+			label(for="langSelect")= translations["Language"]
+			// image avec drapeau + select language ici
+			select#langSelect
+				each langCode in languages
+					option(value=langCode selected=(lang==langCode))
+						=langName[langCode]
+		fieldset
+			label(for="nameSetter")
+				=translations["My name is..."]
+			input#nameSetter(type="text" value=this.myname)
+		// theme sombre / clair
+		// taille echiquier : TODO
+		fieldset
+			label(for="setHints")= translations["Show hints?"]
+			input#setHints(type: "checkbox" checked=this.hints)
+		fieldset
+			label(for="selectColor")= translations["Board colors"]
+			select#selectColor
+				option(value="lichess" selected="this.color=='lichess'")
+					= translations["brown"]
+				option(value="chesscom" selected="this.color=='chesscom'")
+					= translations["green"]
+				option(value="chesstempo" selected="this.color=='chesstempo'")
+					= translations["blue"]
+		fieldset
+			label(for="selectSound")= translations["Play sounds?"]
+			select#selectSound
+				option(value="0" selected="this.sound==0")= translations["None"]
+				option(value="1" selected="this.sound==1")= translations["New game"]
+				option(value="2" selected="this.sound==2")= translations["All"]

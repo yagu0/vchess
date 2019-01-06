@@ -127,3 +127,8 @@ Vue.component('my-problems', {
 		},
 	},
 })
+
+// TODO:
+// possibilité de supprimer / éditer si peer ID reconnu comme celui du probleme (champ "uploader")
+// --> côté serveur on vérifie un certain "secret"
+// --> filtre possible "mes problèmes"

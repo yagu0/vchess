@@ -66,10 +66,13 @@ class ChessRules
 		// 2) Check turn
 		if (!fenParsed.turn || !V.IsGoodTurn(fenParsed.turn))
 			return false;
-		// 3) Check flags
+		// 3) Check moves count
+		if (!fenParsed.movesCount || !(parseInt(fenParsed.movesCount) >= 0))
+			return false;
+		// 4) Check flags
 		if (V.HasFlags && (!fenParsed.flags || !V.IsGoodFlags(fenParsed.flags)))
 			return false;
-		// 4) Check enpassant
+		// 5) Check enpassant
 		if (V.HasEnpassant &&
 			(!fenParsed.enpassant || !V.IsGoodEnpassant(fenParsed.enpassant)))
 		{
@@ -288,8 +291,9 @@ class ChessRules
 		{
 			position: fenParts[0],
 			turn: fenParts[1],
+			movesCount: fenParts[2],
 		};
-		let nextIdx = 2;
+		let nextIdx = 3;
 		if (V.HasFlags)
 			Object.assign(res, {flags: fenParts[nextIdx++]});
 		if (V.HasEnpassant)
@@ -300,7 +304,8 @@ class ChessRules
 	// Return current fen (game state)
 	getFen()
 	{
-		return this.getBaseFen() + " " + this.getTurnFen() +
+		return this.getBaseFen() + " " +
+			this.getTurnFen() + " " + this.movesCount +
 			(V.HasFlags ? (" " + this.getFlagsFen()) : "") +
 			(V.HasEnpassant ? (" " + this.getEnpassantFen()) : "");
 	}
@@ -401,12 +406,12 @@ class ChessRules
 	// INITIALIZATION
 
 	// Fen string fully describes the game state
-	constructor(fen, moves)
+	constructor(fen)
 	{
-		this.moves = moves;
 		const fenParsed = V.ParseFen(fen);
 		this.board = V.GetBoard(fenParsed.position);
 		this.turn = fenParsed.turn[0]; //[0] to work with MarseilleRules
+		this.movesCount = parseInt(fenParsed.movesCount);
 		this.setOtherVariables(fen);
 	}
 
@@ -496,12 +501,6 @@ class ChessRules
 	getOppCol(color)
 	{
 		return (color=="w" ? "b" : "w");
-	}
-
-	get lastMove()
-	{
-		const L = this.moves.length;
-		return (L>0 ? this.moves[L-1] : null);
 	}
 
 	// Pieces codes (for a clearer code)
@@ -1044,7 +1043,7 @@ class ChessRules
 //		if (!ingame) this.states.push(this.getFen());
 
 		if (!!ingame)
-			move.notation = [this.getNotation(move), this.getLongNotation(move)];
+			move.notation = this.getNotation(move);
 
 		if (V.HasFlags)
 			move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
@@ -1052,7 +1051,7 @@ class ChessRules
 			this.epSquares.push( this.getEpSquare(move) );
 		V.PlayOnBoard(this.board, move);
 		this.turn = this.getOppCol(this.turn);
-		this.moves.push(move);
+		this.movesCount++;
 		this.updateVariables(move);
 
 		if (!!ingame)
@@ -1070,7 +1069,7 @@ class ChessRules
 			this.disaggregateFlags(JSON.parse(move.flags));
 		V.UndoOnBoard(this.board, move);
 		this.turn = this.getOppCol(this.turn);
-		this.moves.pop();
+		this.movesCount--;
 		this.unupdateVariables(move);
 
 		// DEBUG:
@@ -1082,32 +1081,9 @@ class ChessRules
 	///////////////
 	// END OF GAME
 
-	// Check for 3 repetitions (position + flags + turn)
-	checkRepetition()
-	{
-		if (!this.hashStates)
-			this.hashStates = {};
-		const startIndex =
-			Object.values(this.hashStates).reduce((a,b) => { return a+b; }, 0)
-		// Update this.hashStates with last move (or all moves if continuation)
-		// NOTE: redundant storage, but faster and moderate size
-		for (let i=startIndex; i<this.moves.length; i++)
-		{
-			const move = this.moves[i];
-			if (!this.hashStates[move.hash])
-				this.hashStates[move.hash] = 1;
-			else
-				this.hashStates[move.hash]++;
-		}
-		return Object.values(this.hashStates).some(elt => { return (elt >= 3); });
-	}
-
 	// Is game over ? And if yes, what is the score ?
 	checkGameOver()
 	{
-		if (this.checkRepetition())
-			return "1/2";
-
 		if (this.atLeastOneMove()) // game not over
 			return "*";
 
@@ -1328,6 +1304,7 @@ class ChessRules
 	/////////////////////////
 
 	// Context: just before move is played, turn hasn't changed
+	// TODO: un-ambiguous notation (switch on piece type, check directions...)
 	getNotation(move)
 	{
 		if (move.appear.length == 2 && move.appear[0].p == V.KING) //castle
@@ -1370,7 +1347,7 @@ class ChessRules
 	}
 
 	// The score is already computed when calling this function
-	getPGN(mycolor, score, fenStart, mode)
+	getPGN(moves, mycolor, score, fenStart, mode)
 	{
 		let pgn = "";
 		pgn += '[Site "vchess.club"]\n';
@@ -1386,25 +1363,15 @@ class ChessRules
 			: "analyze";
 		pgn += '[White "' + whiteName + '"]\n';
 		pgn += '[Black "' + blackName + '"]\n';
-		pgn += '[FenStart "' + fenStart + '"]\n';
-		pgn += '[Fen "' + this.getFen() + '"]\n';
+		pgn += '[Fen "' + fenStart + '"]\n';
 		pgn += '[Result "' + score + '"]\n\n';
 
-		// Standard PGN
-		for (let i=0; i<this.moves.length; i++)
+		// Print moves
+		for (let i=0; i<moves.length; i++)
 		{
 			if (i % 2 == 0)
 				pgn += ((i/2)+1) + ".";
-			pgn += this.moves[i].notation[0] + " ";
-		}
-		pgn += "\n\n";
-
-		// "Complete moves" PGN (helping in ambiguous cases)
-		for (let i=0; i<this.moves.length; i++)
-		{
-			if (i % 2 == 0)
-				pgn += ((i/2)+1) + ".";
-			pgn += this.moves[i].notation[1] + " ";
+			pgn += moves[i].notation + " ";
 		}
 
 		return pgn + "\n";

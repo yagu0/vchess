@@ -9,9 +9,8 @@ in english.
 I hope it's intuitive enough :)
 
 But, a few important points:
- - All games start with a random assymetric position!
- - Games are untimed: you decide to play fast or not...
- - Your identity (if filled) is revealed only after the game
+ - Games start with a random assymetric position!
+ - Your identity is revealed only after a game
 
 ## Resources
 

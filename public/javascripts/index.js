@@ -8,6 +8,7 @@ new Vue({
 	},
 	computed: {
 		sortedCounts: function () {
+			// TODO: priorité aux parties corr où c'est à nous de jouer !
 			const variantsCounts = variantArray
 			.filter( v => {
 				return v.name.startsWith(this.curPrefix);
@@ -74,19 +75,10 @@ new Vue({
 			}
 			// ...ignore everything else
 		};
-		// Show welcome dialog box if "first visit"
-		const visited = getCookie("visited");
-		if (!visited || visited !== "1")
-			document.getElementById("modalB4welcome").checked = true;
-	},
-	methods: {
-		showWelcomeMsg: function() {
-			document.getElementById("modalB4welcome").checked = false;
-			document.getElementById("modalWelcome").checked = true;
-		},
-		markAsVisited: function() {
-			setCookie('visited', '1');
-			document.getElementById('modalWelcome').checked = false;
-		},
 	},
 });
+
+// TODO:
+// si dernier lastMove sur serveur n'est pas le mien et nextColor == moi, alors background orange
+// ==> background orange si à moi de jouer par corr (sur main index)
+// (fonction "getNextCol()" dans base_rules.js ?)

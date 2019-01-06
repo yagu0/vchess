@@ -40,7 +40,7 @@ class GrandRules extends ChessRules
 		const fenParts = fen.split(" ");
 		return Object.assign(
 			ChessRules.ParseFen(fen),
-			{ captured: fenParts[4] }
+			{ captured: fenParts[5] }
 		);
 	}
 

@@ -29,8 +29,8 @@ class CrazyhouseRules extends ChessRules
 		return Object.assign(
 			ChessRules.ParseFen(fen),
 			{
-				reserve: fenParts[4],
-				promoted: fenParts[5],
+				reserve: fenParts[5],
+				promoted: fenParts[6],
 			}
 		);
 	}

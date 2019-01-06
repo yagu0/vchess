@@ -1,58 +1,36 @@
 extends layout
 
 block css
-	link(rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons")
 	link(rel="stylesheet" href="/stylesheets/variant.css")
 
 block content
 	.container#variantPage
-		include langNames.pug
-		case lang
-			when "en"
-				include translations/en.pug
-				include modal-lang/en.pug
-				include modal-help/en.pug
-			when "es"
-				include translations/es.pug
-				include modal-lang/es.pug
-				include modal-help/es.pug
-			when "fr"
-				include translations/fr.pug
-				include modal-lang/fr.pug
-				include modal-help/fr.pug
-		input#modal-newgame.modal(type="checkbox")
-		div(role="dialog" aria-labelledby="newGameTxt")
-			.card.smallpad.small-modal
-				label#close-newgame.modal-close(for="modal-newgame")
-				h3#newGameTxt= translations["New game"]
-				p= translations["Waiting for opponent..."]
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
 				input#drawer-control.drawer(type="checkbox")
 				#menuBar
 					label.drawer-close(for="drawer-control")
-					a#homeLink(href="/")
+					a.icon-link(href="/")
 						i.material-icons home
-					.info-container
-						a(href="#rules" @click="setDisplay('rules')")
-							=translations["Rules"]
-						a(href="#play" @click="setDisplay('play')")
-							=translations["Play"]
-						a(href="#problems" v-if="notDark()" @click="setDisplay('problems')") 
-							=translations["Problems"]
-					#flagMenu.clickable(
-							onClick="document.getElementById('modalLang').checked=true")
-						img(src="/images/flags/" + lang + ".svg")
-					#helpMenu.clickable(
-							onClick="document.getElementById('modalHelp').checked=true")
-						.info-container
-							p= translations["Help"]
+					a(href="#room" @click="setDisplay('room')")
+						=translations["Hall"]
+					a(href="#gameList" @click="setDisplay('gameList')")
+						=translations["Play"]
+					a(href="#rules" @click="setDisplay('rules')")
+						=translations["Rules"]
+					a(href="#problems" @click="setDisplay('problems')")
+						=translations["Problems"]
+					#settings.clickable(
+							onClick="document.getElementById('modalSettings').checked=true")
+						i.material-icons settings
 		.row
+			my-room(v-show="display=='room'")
+			my-games-list(v-show="display=='gameList'")
 			my-rules(v-show="display=='rules'")
-			my-game(v-show="display=='play'" v-bind:problem="problem")
-			my-problems(v-if="notDark()" v-show="display=='problems'"
-				v-on:show-problem="showProblem($event)")
+			my-problems(v-show="display=='problems'")
+			// my-game: for room and games-list components
+			my-game(v-show="display=='game'" :gameId="")
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")
@@ -68,7 +46,6 @@ block javascripts
 		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
 		const problemArray = !{JSON.stringify(problemArray)};
-		const translations = !{JSON.stringify(translations)};
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/components/problemSummary.js")
