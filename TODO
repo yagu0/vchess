@@ -1,3 +1,7 @@
+Email form instead of clear email:
+https://nodemailer.com/smtp/
+https://www.w3schools.com/nodejs/nodejs_email.asp
+
 Finish rules translation in Spanish + improve existing ones
 Design: final touch (gain extra space on top, using space on the right)
 Crazyhouse: center reserves, grey if zero available, numbers superimposed
