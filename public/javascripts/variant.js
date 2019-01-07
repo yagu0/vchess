@@ -2,6 +2,7 @@ new Vue({
 	el: "#variantPage",
 	data: {
 		display: "room", //default: main hall
+		gameid: "undefined", //...yet
 	},
 	created: function() {
 		// TODO: navigation becomes a little more complex

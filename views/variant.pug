@@ -16,7 +16,7 @@ block content
 					a(href="#room" @click="setDisplay('room')")
 						=translations["Hall"]
 					a(href="#gameList" @click="setDisplay('gameList')")
-						=translations["Play"]
+						=translations["My games"]
 					a(href="#rules" @click="setDisplay('rules')")
 						=translations["Rules"]
 					a(href="#problems" @click="setDisplay('problems')")
@@ -30,14 +30,12 @@ block content
 			my-rules(v-show="display=='rules'")
 			my-problems(v-show="display=='problems'")
 			// my-game: for room and games-list components
-			my-game(v-show="display=='game'" :gameId="")
+			my-game(v-show="display=='game'" :gameId="gameid")
 
 block javascripts
 	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/utils/array.js")
-	script(src="/javascripts/utils/md5.js")
 	script(src="/javascripts/utils/printDiagram.js")
-	script(src="/javascripts/utils/ajax.js")
 	script(src="/javascripts/utils/datetime.js")
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/base_rules.js")
@@ -45,7 +43,6 @@ block javascripts
 	script.
 		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
-		const problemArray = !{JSON.stringify(problemArray)};
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/components/problemSummary.js")

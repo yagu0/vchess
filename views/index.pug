@@ -14,20 +14,22 @@ block content
 				include welcome/fr
 		.row
 			#header.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				#mainTitle.clickable(
-						onClick="document.getElementById('modalWelcome').checked=true")
+				#mainTitle
 					img(src="/images/index/unicorn.svg")
 					.info-container
 						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				#settings.clickable(
+				#settingsMenu.clickable(
 						onClick="document.getElementById('modalSettings').checked=true")
-					i.material-icons settings
+					.info-container
+						p Settings
+				#introductionMenu.clickable(
+						onClick="document.getElementById('modalWelcome').checked=true")
+					.info-container
+						p Introduction
 		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
-
-					redesign index page :: lien github, lien contact mail, settings
 
 block javascripts
 	script.

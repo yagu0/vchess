@@ -1,7 +1,7 @@
 Vue.component('my-problems', {
 	data: function () {
 		return {
-			problems: problemArray, //initial value
+			problems: [],
 			newProblem: {
 				fen: "",
 				instructions: "",
@@ -71,14 +71,18 @@ Vue.component('my-problems', {
 			return this.problems.sort((p1,p2) => { return p2.added - p1.added; });
 		},
 	},
+	created: function() {
+		// TODO: fetch most recent problems from server
+	},
 	methods: {
 		translate: function(text) {
 			return translations[text];
 		},
-		// Propagate "show problem" event to parent component (my-variant)
-		bubbleUp: function(problem) {
-			this.$emit('show-problem', JSON.stringify(problem));
-		},
+		// TODO: obsolete:
+//		// Propagate "show problem" event to parent component (my-variant)
+//		bubbleUp: function(problem) {
+//			this.$emit('show-problem', JSON.stringify(problem));
+//		},
 		fetchProblems: function(direction) {
 			if (this.problems.length == 0)
 				return; //what could we do?!

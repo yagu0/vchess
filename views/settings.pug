@@ -1,15 +1,15 @@
-input#modal-settings.modal(type="checkbox")
+input#modalSettings.modal(type="checkbox")
 div(role="dialog" aria-labelledby="settingsTitle")
 	.card.smallpad(onChange="blabla(event)")
-		label#close-settings.modal-close(for="modal-settings")
+		label.modal-close(for="modalSettings")
 		h3#settingsTitle.section= translations["Preferences"]
 		fieldset
 			label(for="langSelect")= translations["Language"]
 			// image avec drapeau + select language ici
 			select#langSelect
-				each langCode in languages
+				each language,langCode in langName
 					option(value=langCode selected=(lang==langCode))
-						=langName[langCode]
+						=language
 		fieldset
 			label(for="nameSetter")
 				=translations["My name is..."]

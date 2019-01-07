@@ -15,11 +15,9 @@ pids
 *.swp
 *~
 
-# Demo video, database
-*.webm
+# Various files
 /db/vchess.sqlite
-
-# socket URL file
+/utils/sendEmail.js
 /public/javascripts/socket_url.js
 
 # CSS generated files

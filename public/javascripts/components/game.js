@@ -1480,17 +1480,15 @@ Vue.component('my-game', {
 	},
 })
 
-// TODO: keep moves list here
-get lastMove()
-	{
-		const L = this.moves.length;
-		return (L>0 ? this.moves[L-1] : null);
-	}
-
-// here too:
-			move.notation = this.getNotation(move);
-			// Hash of current game state *after move*, to detect repetitions
-			move.hash = hex_md5(this.getBaseFen() + this.getTurnFen() + this.getFlagsFen());
+//// TODO: keep moves list here
+//get lastMove()
+//	{
+//		const L = this.moves.length;
+//		return (L>0 ? this.moves[L-1] : null);
+//	}
+//
+//// here too:
+//			move.notation = this.getNotation(move);
 //TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
 //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
 //comme sur lichess
