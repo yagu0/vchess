@@ -38,6 +38,8 @@ Vue.component('my-game', {
 			this.newGame("problem", p.fen, V.ParseFen(p.fen).turn);
 		},
 	},
+	// TODO: split the rendering in other components ?
+	// At least divide in parts, it's too big now.
 	render(h) {
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		// Precompute hints squares to facilitate rendering
@@ -810,6 +812,8 @@ Vue.component('my-game', {
 			else if (friendContinuation)
 				this.continueGame("friend");
 		};
+
+		// TODO: this events listener is central. Refactor ? How ?
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
 			let L = undefined;
@@ -899,6 +903,7 @@ Vue.component('my-game', {
 					break;
 			}
 		};
+
 		const socketCloseListener = () => {
 			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
 			this.conn.addEventListener('open', socketOpenListener);
@@ -920,7 +925,7 @@ Vue.component('my-game', {
 					this.play();
 			}
 		};
-		// Computer moves web worker logic:
+		// Computer moves web worker logic: (TODO: also for observers in HH games)
 		this.compWorker.postMessage(["scripts",variant]);
 		const self = this;
 		this.compWorker.onmessage = function(e) {
@@ -947,10 +952,29 @@ Vue.component('my-game', {
 		}
 	},
 	methods: {
+		// TODO: in settings.js
 		setMyname: function(e) {
 			this.myname = e.target.value;
 			localStorage["username"] = this.myname;
 		},
+		showSettings: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			document.getElementById("modal-settings").checked = true;
+		},
+		toggleHints: function() {
+			this.hints = !this.hints;
+			localStorage["hints"] = (this.hints ? "1" : "0");
+		},
+		setBoardColor: function(e) {
+			this.bcolor = e.target.options[e.target.selectedIndex].value;
+			localStorage["bcolor"] = this.bcolor;
+		},
+		setSound: function(e) {
+			this.sound = parseInt(e.target.options[e.target.selectedIndex].value);
+			localStorage["sound"] = this.sound;
+		},
+
+		// TODO: in another component
 		trySendChat: function(e) {
 			if (e.keyCode == 13) //'enter' key
 				this.sendChat();
@@ -963,6 +987,12 @@ Vue.component('my-game', {
 			this.conn.send(JSON.stringify({
 				code:"newchat", oppid: this.oppid, msg: chatTxt}));
 		},
+		startChat: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			document.getElementById("modal-chat").checked = true;
+		},
+
+		// TODO: in  problems component
 		toggleShowSolution: function() {
 			let problemSolution = document.getElementById("problem-solution");
 			problemSolution.style.display =
@@ -970,6 +1000,7 @@ Vue.component('my-game', {
 					? "block"
 					: "none";
 		},
+
 		download: function() {
 			// Variants may have special PGN structure (so next function isn't defined here)
 			const content = this.vr.getPGN(this.mycolor, this.score, this.fenStart, this.mode);
@@ -1000,6 +1031,10 @@ Vue.component('my-game', {
 			}
 			this.cursor = this.vr.moves.length; //to navigate in finished game
 		},
+
+		// TODO: elsewhere (general methods to access/retrieve from storage, to be generalized)
+		// https://developer.mozilla.org/fr/docs/Web/API/API_IndexedDB
+		// https://dexie.org/
 		getStoragePrefix: function(mode) {
 			let prefix = "";
 			if (mode == "computer")
@@ -1046,37 +1081,20 @@ Vue.component('my-game', {
 			delete localStorage[prefix+"fen"];
 			delete localStorage[prefix+"score"];
 		},
+		clearCurrentGame: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			this.clearStorage();
+			location.reload(); //to see clearing effects
+		},
+
 		// HACK because mini-css tooltips are persistent after click...
 		// NOTE: seems to work only in chrome/chromium. TODO...
 		getRidOfTooltip: function(elt) {
 			elt.style.visibility = "hidden";
 			setTimeout(() => { elt.style.visibility="visible"; }, 100);
 		},
-		startChat: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			document.getElementById("modal-chat").checked = true;
-		},
-		clearCurrentGame: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			this.clearStorage();
-			location.reload(); //to see clearing effects
-		},
-		showSettings: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			document.getElementById("modal-settings").checked = true;
-		},
-		toggleHints: function() {
-			this.hints = !this.hints;
-			localStorage["hints"] = (this.hints ? "1" : "0");
-		},
-		setBoardColor: function(e) {
-			this.bcolor = e.target.options[e.target.selectedIndex].value;
-			localStorage["bcolor"] = this.bcolor;
-		},
-		setSound: function(e) {
-			this.sound = parseInt(e.target.options[e.target.selectedIndex].value);
-			localStorage["sound"] = this.sound;
-		},
+
+		// TODO: elsewhere, probably (new game button)
 		clickGameSeek: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human" && this.score == "*")
@@ -1103,18 +1121,7 @@ Vue.component('my-game', {
 			this.getRidOfTooltip(e.currentTarget);
 			document.getElementById("modal-fenedit").checked = true;
 		},
-		resign: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			if (this.mode == "human" && this.oppConnected)
-			{
-				try {
-					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
-				} catch (INVALID_STATE_ERR) {
-					return; //socket is not ready (and not yet reconnected)
-				}
-			}
-			this.endGame(this.mycolor=="w"?"0-1":"1-0");
-		},
+		// In main hall :
 		newGame: function(mode, fenInit, color, oppId, gameId) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
@@ -1234,10 +1241,25 @@ Vue.component('my-game', {
 				setTimeout(() => this.endGame(score), 100);
 			}
 		},
+
+		resign: function(e) {
+			this.getRidOfTooltip(e.currentTarget);
+			if (this.mode == "human" && this.oppConnected)
+			{
+				try {
+					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+				} catch (INVALID_STATE_ERR) {
+					return; //socket is not ready (and not yet reconnected)
+				}
+			}
+			this.endGame(this.mycolor=="w"?"0-1":"1-0");
+		},
 		playComputerMove: function() {
 			this.timeStart = Date.now();
 			this.compWorker.postMessage(["askmove"]);
 		},
+
+		// TODO: purely graphical, move in a "chessground-like" component
 		// Get the identifier of a HTML table cell from its numeric coordinates o.x,o.y.
 		getSquareId: function(o) {
 			// NOTE: a separator is required to allow any size of board
@@ -1376,20 +1398,26 @@ Vue.component('my-game', {
 				this.play(move);
 			}, 250);
 		},
+
+		// OK, these last functions can stay here (?!)
 		play: function(move, programmatic) {
 			if (!move)
 			{
 				// Navigate after game is over
-				if (this.cursor >= this.vr.moves.length)
+				if (this.cursor >= this.moves.length)
 					return; //already at the end
-				move = this.vr.moves[this.cursor++];
+				move = this.moves[this.cursor++];
 			}
 			if (!!programmatic) //computer or human opponent
 				return this.animateMove(move);
 			// Not programmatic, or animation is over
 			if (this.mode == "human" && this.vr.turn == this.mycolor)
 				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			if (this.score == "*")
+			
+			
+			// TODO: play move, and stack it on this.moves (if a move was provided; otherwise just navigate)
+			
+			if (this.score == "*") //TODO: I don't like this if()
 			{
 				// Emergency check, if human game started "at the same time"
 				// TODO: robustify this...
@@ -1405,7 +1433,7 @@ Vue.component('my-game', {
 					// Send the move to web worker (TODO: including his own moves?!)
 					this.compWorker.postMessage(["newmove",move]);
 				}
-				const eog = this.vr.checkGameOver();
+				const eog = this.vr.getCurrentScore();
 				if (eog != "*")
 				{
 					if (["human","computer"].includes(this.mode))
@@ -1418,16 +1446,17 @@ Vue.component('my-game', {
 					}
 				}
 			}
-			else
-			{
-				VariantRules.PlayOnBoard(this.vr.board, move);
-				this.$forceUpdate(); //TODO: ?!
-			}
+//			else
+//			{
+//				VariantRules.PlayOnBoard(this.vr.board, move);
+//				this.$forceUpdate(); //TODO: ?!
+//			}
 			if (["human","computer","friend"].includes(this.mode))
 				this.updateStorage(); //after our moves and opponent moves
 			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
 				this.playComputerMove();
 		},
+		// TODO: merge two next functions
 		undo: function() {
 			// Navigate after game is over
 			if (this.cursor == 0)
@@ -1457,3 +1486,11 @@ get lastMove()
 		const L = this.moves.length;
 		return (L>0 ? this.moves[L-1] : null);
 	}
+
+// here too:
+			move.notation = this.getNotation(move);
+			// Hash of current game state *after move*, to detect repetitions
+			move.hash = hex_md5(this.getBaseFen() + this.getTurnFen() + this.getFlagsFen());
+//TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
+//+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
+//comme sur lichess

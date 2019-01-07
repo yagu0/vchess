@@ -503,6 +503,12 @@ class ChessRules
 		return (color=="w" ? "b" : "w");
 	}
 
+	// Get next color (for compatibility with 3 and 4 players games)
+	getNextCol(color)
+	{
+		return this.getOppCol(color);
+	}
+
 	// Pieces codes (for a clearer code)
 	static get PAWN() { return 'p'; }
 	static get ROOK() { return 'r'; }
@@ -1036,14 +1042,12 @@ class ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
-	play(move, ingame)
+	play(move)
 	{
 		// DEBUG:
 //		if (!this.states) this.states = [];
-//		if (!ingame) this.states.push(this.getFen());
-
-		if (!!ingame)
-			move.notation = this.getNotation(move);
+//		const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//		this.states.push(stateFen);
 
 		if (V.HasFlags)
 			move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
@@ -1053,12 +1057,6 @@ class ChessRules
 		this.turn = this.getOppCol(this.turn);
 		this.movesCount++;
 		this.updateVariables(move);
-
-		if (!!ingame)
-		{
-			// Hash of current game state *after move*, to detect repetitions
-			move.hash = hex_md5(this.getFen());
-		}
 	}
 
 	undo(move)
@@ -1073,27 +1071,21 @@ class ChessRules
 		this.unupdateVariables(move);
 
 		// DEBUG:
-//		if (this.getFen() != this.states[this.states.length-1])
-//			debugger;
+//		const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//		if (stateFen != this.states[this.states.length-1]) debugger;
 //		this.states.pop();
 	}
 
 	///////////////
 	// END OF GAME
 
-	// Is game over ? And if yes, what is the score ?
-	checkGameOver()
+	// What is the score ? (Interesting if game is over)
+	getCurrentScore()
 	{
 		if (this.atLeastOneMove()) // game not over
 			return "*";
 
 		// Game over
-		return this.checkGameEnd();
-	}
-
-	// No moves are possible: compute score
-	checkGameEnd()
-	{
 		const color = this.turn;
 		// No valid move: stalemate or checkmate?
 		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
@@ -1142,11 +1134,10 @@ class ChessRules
 		{
 			this.play(moves1[i]);
 			let finish = (Math.abs(this.evalPosition()) >= V.THRESHOLD_MATE);
-			if (!finish && !this.atLeastOneMove())
+			if (!finish)
 			{
-				// Test mate (for other variants)
-				const score = this.checkGameEnd();
-				if (score != "1/2")
+				const score = this.getCurrentScore();
+				if (["1-0","0-1"].includes(score))
 					finish = true;
 			}
 			this.undo(moves1[i]);
@@ -1160,8 +1151,9 @@ class ChessRules
 			// Initial self evaluation is very low: "I'm checkmated"
 			moves1[i].eval = (color=="w" ? -1 : 1) * maxeval;
 			this.play(moves1[i]);
+			const score1 = this.getCurrentScore();
 			let eval2 = undefined;
-			if (this.atLeastOneMove())
+			if (score1 == "*")
 			{
 				// Initial enemy evaluation is very low too, for him
 				eval2 = (color=="w" ? 1 : -1) * maxeval;
@@ -1170,15 +1162,10 @@ class ChessRules
 				for (let j=0; j<moves2.length; j++)
 				{
 					this.play(moves2[j]);
-					let evalPos = undefined;
-					if (this.atLeastOneMove())
-						evalPos = this.evalPosition()
-					else
-					{
-						// Working with scores is more accurate (necessary for Loser variant)
-						const score = this.checkGameEnd();
-						evalPos = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
-					}
+					const score2 = this.getCurrentScore();
+					const evalPos = score2 == "*"
+						? this.evalPosition()
+						: (score2=="1/2" ? 0 : (score2=="1-0" ? 1 : -1) * maxeval);
 					if ((color == "w" && evalPos < eval2)
 						|| (color=="b" && evalPos > eval2))
 					{
@@ -1188,10 +1175,7 @@ class ChessRules
 				}
 			}
 			else
-			{
-				const score = this.checkGameEnd();
-				eval2 = (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
-			}
+				eval2 = (score1=="1/2" ? 0 : (score1=="1-0" ? 1 : -1) * maxeval);
 			if ((color=="w" && eval2 > moves1[i].eval)
 				|| (color=="b" && eval2 < moves1[i].eval))
 			{
@@ -1239,17 +1223,9 @@ class ChessRules
   {
 		const maxeval = V.INFINITY;
 		const color = this.turn;
-		if (!this.atLeastOneMove())
-		{
-			switch (this.checkGameEnd())
-			{
-				case "1/2":
-					return 0;
-				default:
-					const score = this.checkGameEnd();
-					return (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
-			}
-		}
+		const score = this.getCurrentScore();
+		if (score != "*")
+			return (score=="1/2" ? 0 : (score=="1-0" ? 1 : -1) * maxeval);
 		if (depth == 0)
       return this.evalPosition();
 		const moves = this.getAllValidMoves("computer");
