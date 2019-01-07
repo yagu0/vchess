@@ -1,7 +1,3 @@
-Email form instead of clear email:
-https://nodemailer.com/smtp/
-https://www.w3schools.com/nodejs/nodejs_email.asp
-
 Finish rules translation in Spanish + improve existing ones
 Design: final touch (gain extra space on top, using space on the right)
 Crazyhouse: center reserves, grey if zero available, numbers superimposed
@@ -11,6 +7,7 @@ Increase code line length to 100 or more?
 (http://katafrakt.me/2017/09/16/80-characters-line-length-limit/)
 Chat button should be more apparent after game ends (color ?)
 Reinforce security for problems upload (how ?)
+
 The mode switch between human/computer/friend (+ problem) is a mess
 (example: finished computer game, ongoing friend game, reload, friend game is unreachable)
 
@@ -30,13 +27,8 @@ except when accepting an individual challenge.
 style menu : surligner onglet courant
 
 Interface :
- - un menu "jouer" avec sous menus humain, computer, (ou mieux : une modalBox à paramètres, timeControl, type d'adversaire ==> "new Game")
-	                                              --> cette "modal" doit être affichée par défaut en arrivant sur la page (si pas de chemin renseigné)
-																								--> ou alors non, affichage plutôt des parties en cours (liste avec diags : en 2nd sous-menu "games")
-	   [ friend-->renommé en 'analyse' et devenant un vrai mode analyse (on garde ces trois modes ?) ]
- - un menu "joueurs" avec liste "P2P" des connectés (sous-menu de "Jouer" ?)
-	  --> plutôt dans une sorte de "hall" avec liste des connectés ?
- - un menu "étudier" avec sous-menus règles, [analyse (également accessible depuis import partie)], problèmes
+ - newGame: une modalBox à paramètres, timeControl, type d'adversaire ==> "new Game")
+ - friend-->renommé en 'analyse' et devenant un vrai mode analyse (on garde ces trois modes ?)
 
 problèmes : récupérer 20 ou 50 depuis le serveur, puis les afficher un par un en les analysant directement,
 comme sur le site de ProgramFOX ==> présentation unifiée échiquier avec instructions dessus et soluce cachée dessous
