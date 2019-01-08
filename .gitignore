@@ -17,7 +17,7 @@ pids
 
 # Various files
 /db/vchess.sqlite
-/utils/sendEmail.js
+/utils/mailer.js
 /public/javascripts/socket_url.js
 
 # CSS generated files

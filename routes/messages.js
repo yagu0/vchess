@@ -1,15 +1,15 @@
 let router = require("express").Router();
-const sendEmail = require(__dirname.replace("/routes", "/utils/sendEmail"));
+const mailer = require(__dirname.replace("/routes", "/utils/mailer"));
 
 // Send a message through contact form
 router.post("/messages", (req,res,next) => {
 	if (!req.xhr)
 		return res.json({errmsg: "Unauthorized access"});
-	const email = req.body["email"];
+	const from = req.body["email"];
 	const subject = req.body["subject"];
-	const content = req.body["content"];
+	const body = req.body["body"];
 	// TODO: sanitize ?
-	sendEmail(email, subject, content, err => {
+	mailer.send(from, mailer.contact, subject, body, err => {
 		if (!!err)
 			return res.json({errmsg:err});
 		// OK, everything fine

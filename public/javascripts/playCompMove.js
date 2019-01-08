@@ -13,7 +13,7 @@ onmessage = function(e)
 			break;
 		case "init":
 			const fen = e.data[1];
-			self.vr = new VariantRules(fen, []);
+			self.vr = new VariantRules(fen);
 			break;
 		case "newmove":
 			self.vr.play(e.data[1]);

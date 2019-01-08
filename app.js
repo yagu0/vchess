@@ -26,7 +26,7 @@ else
 }
 
 // Allow layout.pug to select the right vue file:
-app.locals.development = app.get('env') === 'development';
+app.locals.development = (app.get('env') === 'development');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,6 +43,27 @@ app.use(sassMiddleware({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Before showing any page, check + save credentials
+app.use(function(req, res, next) {
+	req.loggedIn = false;
+	if (!req.cookies.token)
+		return next();
+	UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {
+		if (!!user)
+		{
+			req.loggedIn = true;
+			res.locals.user = {
+				_id: user._id,
+				name: user.name,
+				email: user.email,
+				notify: user.notify,
+			};
+		}
+		next();
+	});
+});
+
+// Routing
 const routes = require(path.join(__dirname, "routes", "all"));
 app.use('/', routes);
 

@@ -22,9 +22,9 @@ new Vue({
 	},
 });
 		
-const continuation = (localStorage.getItem("variant") === variant);
-			if (continuation) //game VS human has priority
-				this.continueGame("human");
+//const continuation = (localStorage.getItem("variant") === variant.name);
+//			if (continuation) //game VS human has priority
+//				this.continueGame("human");
 
 // TODO:
 // si quand on arrive il y a une continuation "humaine" : display="game" et retour à la partie !

@@ -175,7 +175,7 @@ Vue.component('my-problems', {
 					last_dt = this.problems[i].added;
 				}
 			}
-			ajax("/problems/" + variant, "GET", {
+			ajax("/problems/" + variant.name, "GET", { //TODO: use variant._id ?
 				direction: direction,
 				last_dt: last_dt,
 			}, response => {
@@ -201,7 +201,7 @@ Vue.component('my-problems', {
 		},
 		sendNewProblem: function() {
 			// Send it to the server and close modal
-			ajax("/problems/" + variant, "POST", {
+			ajax("/problems/" + variant.name, "POST", { //TODO: with variant._id ?
 				fen: this.newProblem.fen,
 				instructions: this.newProblem.instructions,
 				solution: this.newProblem.solution,

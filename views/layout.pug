@@ -33,6 +33,10 @@ html
 				include translations/es
 			when "fr"
 				include translations/fr
+		if !user
+			include login_register
+		else
+			include logout_update
 		include contactForm
 		include settings
 		main
@@ -54,4 +58,5 @@ html
 			script(src="https://cdn.jsdelivr.net/npm/vue")
 		script.
 			const translations = !{JSON.stringify(translations)};
+			const user = !{JSON.stringify(user)};
 		block javascripts

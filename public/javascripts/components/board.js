@@ -57,7 +57,7 @@
 			);
 			// Create board element (+ reserves if needed by variant or mode)
 			const lm = this.vr.lastMove;
-			const showLight = this.hints && variant!="Dark" &&
+			const showLight = this.hints && variant.name!="Dark" &&
 				(this.mode != "idle" ||
 					(this.vr.moves.length > 0 && this.cursor==this.vr.moves.length));
 			const gameDiv = h('div',
@@ -80,7 +80,7 @@
 						_.range(sizeY).map(j => {
 							let cj = (this.mycolor=='w' ? j : sizeY-j-1);
 							let elems = [];
-							if (this.vr.board[ci][cj] != VariantRules.EMPTY && (variant!="Dark"
+							if (this.vr.board[ci][cj] != VariantRules.EMPTY && (variant.name!="Dark"
 								|| this.score!="*" || this.vr.enlightened[this.mycolor][ci][cj]))
 							{
 								elems.push(
@@ -125,7 +125,7 @@
 										'light-square': (i+j)%2==0,
 										'dark-square': (i+j)%2==1,
 										[this.bcolor]: true,
-										'in-shadow': variant=="Dark" && this.score=="*"
+										'in-shadow': variant.name=="Dark" && this.score=="*"
 											&& !this.vr.enlightened[this.mycolor][ci][cj],
 										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
 										'incheck': showLight && incheckSq[ci][cj],

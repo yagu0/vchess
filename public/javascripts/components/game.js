@@ -82,7 +82,7 @@ Vue.component('my-game', {
 	},
 	created: function() {
 		const url = socketUrl;
-		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
+		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
 //		const socketOpenListener = () => {
 //		};
 
@@ -95,7 +95,7 @@ Vue.component('my-game', {
 			switch (data.code)
 			{
 				case "newmove": //..he played!
-					this.play(data.move, (variant!="Dark" ? "animate" : null));
+					this.play(data.move, (variant.name!="Dark" ? "animate" : null));
 					break;
 				case "pong": //received if we sent a ping (game still alive on our side)
 					if (this.gameId != data.gameId)
@@ -161,7 +161,7 @@ Vue.component('my-game', {
 		};
 
 		const socketCloseListener = () => {
-			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant);
+			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
 			//this.conn.addEventListener('open', socketOpenListener);
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);
@@ -187,7 +187,7 @@ Vue.component('my-game', {
 
 
 		// Computer moves web worker logic: (TODO: also for observers in HH games)
-		this.compWorker.postMessage(["scripts",variant]);
+		this.compWorker.postMessage(["scripts",variant.name]);
 		const self = this;
 		this.compWorker.onmessage = function(e) {
 			let compMove = e.data;
@@ -201,7 +201,7 @@ Vue.component('my-game', {
 			// before they appear on page:
 			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
 			setTimeout(() => {
-				const animate = (variant!="Dark" ? "animate" : null);
+				const animate = (variant.name!="Dark" ? "animate" : null);
 				if (self.mode == "computer") //warning: mode could have changed!
 					self.play(compMove[0], animate);
 				if (compMove.length == 2)

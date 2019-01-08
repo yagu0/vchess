@@ -1,18 +1,78 @@
 -- Database should be in this folder, and named 'vchess.sqlite'
 
 create table Variants (
-	name varchar primary key,
+	id integer primary key,
+	name varchar unique,
 	description text
 );
 
+create table Users (
+	id integer primary key,
+	name varchar unique,
+	email varchar unique,
+	loginToken varchar,
+	loginTime datetime,
+	sessionToken varchar,
+	notify boolean
+);
+
 create table Problems (
-	num integer primary key,
+	id integer primary key,
 	added datetime,
-	variant varchar,
+	uid integer,
+	vid integer,
 	fen varchar,
 	instructions text,
 	solution text,
-	foreign key (variant) references Variants(name)
+	foreign key (uid) references Users(id),
+	foreign key (vid) references Variants(id)
 );
 
-PRAGMA foreign_keys = ON;
+-- All the following tables are for correspondance play only
+-- (Live games are stored only in browsers)
+
+create table Challenges (
+	id integer primary key,
+	added datetime,
+	uid integer,
+	vid integer,
+	foreign key (uid) references Users(id),
+	foreign key (vid) references Variants(id)
+);
+
+-- Store informations about players who accept a challenge
+create table WillPlay (
+	cid integer,
+	uid integer,
+	yes boolean,
+	foreign key (cid) references Challenges(id),
+	foreign key (uid) references Users(id)
+);
+
+create table Games (
+	id integer primary key,
+	vid integer,
+	fen varchar, --initial position
+	score varchar,
+	foreign key (vid) references Variants(id)
+);
+
+-- Store informations about players in a corr game
+create table Players (
+	uid integer,
+	color character,
+	gid integer,
+	foreign key (uid) references Users(id),
+	foreign key (gid) references Games(id)
+);
+
+create table Moves (
+	gid integer,
+	move varchar,
+	played datetime, --when was this move played?
+	idx integer, --index of the move in the game
+	color character, --required for e.g. Marseillais Chess
+	foreign key (gid) references Games(id)
+);
+
+pragma foreign_keys = on;

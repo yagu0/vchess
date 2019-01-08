@@ -1,0 +1,50 @@
+const nodemailer = require('nodemailer');
+
+const contact = "your_contact_email";
+
+const send = function(from, to, subject, body, cb)
+{
+  // Create reusable transporter object using the default SMTP transport
+	const transporter = nodemailer.createTransport({
+		host: "smtp_host_address",
+		port: 465, //if secure; otherwise use 587
+		secure: true,
+		auth: {
+			user: "user_name",
+			pass: "user_password"
+		}
+	});
+
+	// Setup email data with unicode symbols
+	const mailOptions = {
+		from: from, //note: some SMTP serves might forbid this
+		to: to,
+		subject: subject,
+		text: body,
+  };
+
+	// Avoid the actual sending in development mode
+	const env = process.env.NODE_ENV || 'development';
+	if ('development' === env)
+	{
+		console.log("New mail: from " + from + " / to " + to);
+		console.log("Subject: " + subject);
+		let msgText = body.split('\\n');
+		msgText.forEach(msg => { console.log(msg); });
+		return cb();
+	}
+
+	// Send mail with the defined transport object
+	transporter.sendMail(mailOptions, (error, info) => {
+		if (!!error)
+			return cb(error);
+    // Ignore info. Option:
+		//console.log('Message sent: %s', info.messageId);
+		return cb();
+  });
+};
+
+module.exports = {
+	contact: contact,
+	send: send
+};

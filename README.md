@@ -4,19 +4,16 @@ Website to play to many chess variants, including rare ones - some almost
 never seen elsewhere, like "l'Échiqueté" [french], renamed "checkered chess"
 in english.
 
-## Usage
-
-I hope it's intuitive enough :)
-
-But, a few important points:
+Notes:
  - Games start with a random assymetric position!
- - Your identity is revealed only after a game
+ - No ratings, no tournaments: no "competition spirit"
 
 ## Resources
 
 Server side:
  - node,
- - npm packages (see package.json),
+ - Express,
+ - Other npm packages (see package.json),
 
 Client side:
  - Vue.js,
@@ -32,7 +29,8 @@ Sounds and pieces images where found at various locations.
  1. git fat init && git fat pull
  2. Execute db/\*.sql scripts to create and fill db/vchess.sqlite
  3. Rename and edit public/javascripts/socket\_url.js.dist into socket\_url.js
- 4. npm i && npm start
+ 4. Rename and edit utils/mailer.js.dist into mailer.js
+ 5. npm i && npm start
 
 ## Get involved
 
@@ -42,6 +40,6 @@ All contributions are welcome! For example,
  - Vue front-end,
  - Express back-end.
 
-If you wanna help, you can send me an email (address indicated in the "Help"
-menu on the website) so that we can discuss what to do and how :)
+If you wanna help, you can contact me with the form on the website,
+so that we can discuss what to do and how :)
 If you feel comfortable with the code a pull request is a good start too.

@@ -1,0 +1,31 @@
+extends layout
+
+block css
+	link(rel="stylesheet", href="/stylesheets/login.css")
+
+block content
+	.mui-container
+		.row
+			.mui-col.xs-12.mui-col-sm-8.mui-col-sm-offset-2.mui-col-md-6.mui-col-md-offset-3.mui-col-lg-4.mui-col-lg-offset-4.mui--z1.white.pad-updown.pad-sides
+				form#loginForm(@submit.prevent="submit")
+					.mui-textfield.mui-textfield--float-label
+						input#email(type="email" ref="userEmail" v-model="user.email")
+						label#labEmail(for="email") Email
+					.mui-textfield.mui-textfield--float-label(v-show="stage == 'Register'")
+						input#name(type="text" v-model="user.name")
+						label#labName(for="name") Name
+					.mui--pull-left.space-bottom.space-top
+						button#submit.mui-btn.mui-btn--primary(@click.prevent="submit")
+							span {{ stage=="Login" ? "Go" : "Send" }}
+							i.material-icons.right send
+					.mui--pull-right.space-bottom.space-top
+						p
+							button.mui-btn.mui-btn--accent(@click.prevent="toggleStage()")
+								span {{ stage=="Login" ? "Register" : "Login" }}
+					#dialog.mui--hide.space-top
+
+block javascripts
+	script(src="//cdnjs.cloudflare.com/ajax/libs/vue/2.5.2/vue.min.js")
+	script(src="/javascripts/utils/dialog.js")
+	script(src="/javascripts/utils/validation.js")
+	script(src="/javascripts/login.js")

@@ -10,7 +10,7 @@ Vue.component('my-rules', {
 	`,
 	mounted: function() {
 		// AJAX request to get rules content (plain text, HTML)
-		ajax("/rules/" + variant, "GET", response => {
+		ajax("/rules/" + variant.name, "GET", response => {
 			let replaceByDiag = (match, p1, p2) => {
 				const args = this.parseFen(p2);
 				return getDiagram(args);

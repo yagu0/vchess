@@ -38,10 +38,10 @@ block javascripts
 	script(src="/javascripts/utils/datetime.js")
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/base_rules.js")
-	script(src="/javascripts/variants/" + variant + ".js")
+	script(src="/javascripts/variants/" + variant.name + ".js")
 	script.
 		const V = VariantRules; //because this variable is often used
-		const variant = "#{variant}";
+		const variant = !{JSON.stringify(variant)};
 	script(src="/javascripts/components/room.js")
 	script(src="/javascripts/components/gameList.js")
 	script(src="/javascripts/components/rules.js")

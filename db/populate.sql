@@ -1,6 +1,6 @@
 -- Re-run this script after variants are added
 
-insert or ignore into Variants values
+insert or ignore into Variants (name,description) values
 	('Alice', 'Both sides of the mirror'),
 	('Antiking', 'Keep antiking in check'),
 	('Atomic', 'Explosive captures'),

@@ -57,7 +57,7 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 			if (mode=="human" && !oppId)
 			{
 				const storageVariant = localStorage.getItem("variant");
-				if (!!storageVariant && storageVariant !== variant
+				if (!!storageVariant && storageVariant !== variant.name
 					&& localStorage["score"] == "*")
 				{
 					return alert(translations["Finish your "] +
@@ -82,7 +82,7 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 				if (!!storageVariant)
 				{
 					const score = localStorage.getItem(prefix+"score");
-					if (storageVariant !== variant && score == "*")
+					if (storageVariant !== variant.name && score == "*")
 					{
 						if (!confirm(storageVariant +
 							translations[": unfinished computer game will be erased"]))
@@ -98,7 +98,7 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 				if (!!storageVariant)
 				{
 					const score = localStorage.getItem(prefix+"score");
-					if (storageVariant !== variant && score == "*")
+					if (storageVariant !== variant.name && score == "*")
 					{
 						if (!confirm(storageVariant +
 							translations[": current analysis will be erased"]))
