@@ -26,10 +26,9 @@ block content
 						i.material-icons settings
 		.row
 			my-room(v-show="display=='room'")
-			my-games-list(v-show="display=='gameList'")
+			my-game-list(v-show="display=='gameList'")
 			my-rules(v-show="display=='rules'")
 			my-problems(v-show="display=='problems'")
-			// my-game: for room and games-list components
 			my-game(v-show="display=='game'" :gameId="gameid")
 
 block javascripts
@@ -43,8 +42,10 @@ block javascripts
 	script.
 		const V = VariantRules; //because this variable is often used
 		const variant = "#{variant}";
+	script(src="/javascripts/components/room.js")
+	script(src="/javascripts/components/gameList.js")
 	script(src="/javascripts/components/rules.js")
-	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/components/problemSummary.js")
 	script(src="/javascripts/components/problems.js")
+	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/variant.js")
