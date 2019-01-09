@@ -57,7 +57,7 @@ class SwitchingRules extends ChessRules
 		const piece = this.getPiece(x,y);
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		const kp = this.kingPos[color];
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		for (let step of steps)
 		{
 			let [i,j] = [x+step[0],y+step[1]];
@@ -81,7 +81,7 @@ class SwitchingRules extends ChessRules
 	getAllValidMoves(computer)
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let potentialMoves = [];
 		for (let i=0; i<V.size.x; i++)
 		{

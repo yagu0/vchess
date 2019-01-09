@@ -498,15 +498,15 @@ class ChessRules
 	}
 
 	// Get opponent color
-	getOppCol(color)
+	static GetOppCol(color)
 	{
 		return (color=="w" ? "b" : "w");
 	}
 
 	// Get next color (for compatibility with 3 and 4 players games)
-	getNextCol(color)
+	static GetNextCol(color)
 	{
-		return this.getOppCol(color);
+		return V.GetOppCol(color);
 	}
 
 	// Pieces codes (for a clearer code)

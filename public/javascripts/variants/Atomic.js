@@ -90,7 +90,7 @@ class AtomicRules extends ChessRules
 	{
 		super.unupdateVariables(move);
 		const c = move.vanish[0].c;
-		const oppCol = this.getOppCol(c);
+		const oppCol = V.GetOppCol(c);
 		if ([this.kingPos[c][0],this.kingPos[oppCol][0]].some(e => { return e < 0; }))
 		{
 			// There is a chance that last move blowed some king away..
@@ -104,7 +104,7 @@ class AtomicRules extends ChessRules
 
 	underCheck(color)
 	{
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let res = undefined;
 		// If our king disappeared, move is not valid
 		if (this.kingPos[color][0] < 0)
@@ -122,7 +122,7 @@ class AtomicRules extends ChessRules
 	{
 		let res = [ ];
 		if (this.kingPos[color][0] >= 0 //king might have exploded
-			&& this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
+			&& this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]))
 		{
 			res = [ JSON.parse(JSON.stringify(this.kingPos[color])) ]
 		}
@@ -135,7 +135,7 @@ class AtomicRules extends ChessRules
 		const kp = this.kingPos[color];
 		if (kp[0] < 0) //king disappeared
 			return color == "w" ? "0-1" : "1-0";
-		if (!this.isAttacked(kp, [this.getOppCol(color)]))
+		if (!this.isAttacked(kp, [V.GetOppCol(color)]))
 			return "1/2";
 		return color == "w" ? "0-1" : "1-0"; //checkmate
 	}

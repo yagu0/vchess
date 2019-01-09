@@ -65,7 +65,7 @@ class DarkRules extends ChessRules
 	getAllValidMoves()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let potentialMoves = [];
 		for (let i=0; i<V.size.x; i++)
 		{
@@ -112,7 +112,7 @@ class DarkRules extends ChessRules
 	{
 		super.unupdateVariables(move);
 		const c = move.vanish[0].c;
-		const oppCol = this.getOppCol(c);
+		const oppCol = V.GetOppCol(c);
 		if (this.kingPos[oppCol][0] < 0)
 		{
 			// Last move took opponent's king
@@ -146,7 +146,7 @@ class DarkRules extends ChessRules
 	{
 		const maxeval = V.INFINITY;
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		const pawnShift = (color == "w" ? -1 : 1);
 		const kp = this.kingPos[color];
 

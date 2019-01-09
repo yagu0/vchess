@@ -42,7 +42,7 @@ class LosersRules extends ChessRules
 	atLeastOneCapture()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		for (let i=0; i<V.size.x; i++)
 		{
 			for (let j=0; j<V.size.y; j++)

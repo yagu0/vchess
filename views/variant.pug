@@ -22,26 +22,17 @@ block content
 						=translations["Rules"]
 					a(href="#problems" @click="setDisplay('problems')")
 						=translations["Problems"]
-					#settings.clickable(
-							onClick="document.getElementById('modalSettings').checked=true")
+					#settings.clickable(onClick="doClick('modalSettings')")
 						i.material-icons settings
-					#userMenu.clickable(
-							onClick="document.getElementById('modalUser').checked=true")
-						.info-container
-							i.material-icons person
-							if !user.email
-								p Login
-							else
-								p Update
+					include userMenu
 		.row
-			my-room(v-show="display=='room'")
-			my-game-list(v-show="display=='gameList'")
+			//my-room(v-show="display=='room'")
+			//my-game-list(v-show="display=='gameList'")
 			my-rules(v-show="display=='rules'")
 			my-problems(v-show="display=='problems'")
-			my-game(v-show="display=='game'" :gameId="gameid")
+			//my-game(v-show="display=='game'" :gameId="gameid")
 
 block javascripts
-	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/utils/array.js")
 	script(src="/javascripts/utils/printDiagram.js")
 	script(src="/javascripts/utils/datetime.js")
@@ -51,10 +42,10 @@ block javascripts
 	script.
 		const V = VariantRules; //because this variable is often used
 		const variant = !{JSON.stringify(variant)};
-	script(src="/javascripts/components/room.js")
-	script(src="/javascripts/components/gameList.js")
+	//script(src="/javascripts/components/room.js")
+	//script(src="/javascripts/components/gameList.js")
 	script(src="/javascripts/components/rules.js")
-	script(src="/javascripts/components/problemSummary.js")
+	script(src="/javascripts/components/problemPreview.js")
 	script(src="/javascripts/components/problems.js")
-	script(src="/javascripts/components/game.js")
+	//script(src="/javascripts/components/game.js")
 	script(src="/javascripts/variant.js")

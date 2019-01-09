@@ -154,7 +154,7 @@ class AliceRules extends ChessRules
 			if (m.vanish[0].p == V.PAWN && m.vanish.length == 2
 				&& this.board[m.end.x][m.end.y] == V.EMPTY)
 			{
-				m.vanish[1].c = this.getOppCol(this.getColor(x,y));
+				m.vanish[1].c = V.GetOppCol(this.getColor(x,y));
 				// In the special case of en-passant, if
 				//  - board1 takes board2 : vanish[1] --> Alice
 				//  - board2 takes board1 : vanish[1] --> normal
@@ -186,7 +186,7 @@ class AliceRules extends ChessRules
 	getAllValidMoves()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		var potentialMoves = [];
 		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
 		for (var i=0; i<V.size.x; i++)
@@ -247,7 +247,7 @@ class AliceRules extends ChessRules
 		const mirrorSide = (sideBoard[0][kp[0]][kp[1]] != V.EMPTY ? 1 : 2);
 		let saveBoard = this.board;
 		this.board = sideBoard[mirrorSide-1];
-		let res = this.isAttacked(kp, [this.getOppCol(color)]);
+		let res = this.isAttacked(kp, [V.GetOppCol(color)]);
 		this.board = saveBoard;
 		return res;
 	}
@@ -260,7 +260,7 @@ class AliceRules extends ChessRules
 		let sideBoard = this.getSideBoard(mirrorSide);
 		let saveBoard = this.board;
 		this.board = sideBoard;
-		let res = this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
+		let res = this.isAttacked(this.kingPos[color], [V.GetOppCol(color)])
 			? [ JSON.parse(JSON.stringify(this.kingPos[color])) ]
 			: [ ];
 		this.board = saveBoard;
@@ -299,7 +299,7 @@ class AliceRules extends ChessRules
 		let saveBoard = this.board;
 		this.board = sideBoard;
 		let res = "*";
-		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
+		if (!this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]))
 			res = "1/2";
 		else
 			res = (color == "w" ? "0-1" : "1-0");

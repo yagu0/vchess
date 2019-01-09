@@ -90,7 +90,7 @@ class AntikingRules extends ChessRules
 
 	underCheck(color)
 	{
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let res = this.isAttacked(this.kingPos[color], [oppCol])
 			|| !this.isAttacked(this.antikingPos[color], [oppCol]);
 		return res;
@@ -99,7 +99,7 @@ class AntikingRules extends ChessRules
 	getCheckSquares(color)
 	{
 		let res = super.getCheckSquares(color);
-		if (!this.isAttacked(this.antikingPos[color], [this.getOppCol(color)]))
+		if (!this.isAttacked(this.antikingPos[color], [V.GetOppCol(color)]))
 			res.push(JSON.parse(JSON.stringify(this.antikingPos[color])));
 		return res;
 	}
@@ -128,7 +128,7 @@ class AntikingRules extends ChessRules
 	checkGameEnd()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		if (!this.isAttacked(this.kingPos[color], [oppCol])
 			&& this.isAttacked(this.antikingPos[color], [oppCol]))
 		{

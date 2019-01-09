@@ -55,6 +55,7 @@ app.use(function(req, res, next) {
 		{
 			req.userId = user.id;
 			res.locals.user = {
+				id: user.id,
 				name: user.name,
 				email: user.email,
 				notify: user.notify,

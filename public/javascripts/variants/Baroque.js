@@ -58,7 +58,7 @@ class BaroqueRules extends ChessRules
 	{
 		const piece = this.getPiece(x,y);
 		const color = this.getColor(x,y);
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		outerLoop:
 		for (let step of adjacentSteps)
@@ -137,7 +137,7 @@ class BaroqueRules extends ChessRules
 	{
 		const steps = V.steps[V.ROOK];
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		moves.forEach(m => {
 			if (!!byChameleon && m.start.x!=m.end.x && m.start.y!=m.end.y)
 				return; //chameleon not moving as pawn
@@ -180,7 +180,7 @@ class BaroqueRules extends ChessRules
 	addRookCaptures(moves, byChameleon)
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		const kp = this.kingPos[color];
 		moves.forEach(m => {
 			// Check piece-king rectangle (if any) corners for enemy pieces
@@ -221,7 +221,7 @@ class BaroqueRules extends ChessRules
 		// Look in every direction for captures
 		const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let moves = [];
 		const [x,y] = [startSquare[0],startSquare[1]];
 		const piece = this.getPiece(x,y); //might be a chameleon!
@@ -321,7 +321,7 @@ class BaroqueRules extends ChessRules
 		const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
 		let capturingDirections = [];
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		adjacentSteps.forEach(step => {
 			const [i,j] = [x+step[0],y+step[1]];
 			if (V.OnBoard(i,j) && this.board[i][j] != V.EMPTY && this.getColor(i,j) == oppCol

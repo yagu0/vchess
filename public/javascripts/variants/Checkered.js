@@ -181,15 +181,15 @@ class CheckeredRules extends ChessRules
 
 	underCheck(color)
 	{
-		return this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c']);
+		return this.isAttacked(this.kingPos[color], [V.GetOppCol(color),'c']);
 	}
 
 	getCheckSquares(color)
 	{
 		// Artifically change turn, for checkered pawns
-		this.turn = this.getOppCol(color);
+		this.turn = V.GetOppCol(color);
 		const kingAttacked = this.isAttacked(
-			this.kingPos[color], [this.getOppCol(color),'c']);
+			this.kingPos[color], [V.GetOppCol(color),'c']);
 		let res = kingAttacked
 			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
 			: [];
@@ -210,11 +210,11 @@ class CheckeredRules extends ChessRules
 	{
 		const color = this.turn;
 		// Artifically change turn, for checkered pawns
-		this.turn = this.getOppCol(this.turn);
-		const res = this.isAttacked(this.kingPos[color], [this.getOppCol(color),'c'])
+		this.turn = V.GetOppCol(this.turn);
+		const res = this.isAttacked(this.kingPos[color], [V.GetOppCol(color),'c'])
 			? (color == "w" ? "0-1" : "1-0")
 			: "1/2";
-		this.turn = this.getOppCol(this.turn);
+		this.turn = V.GetOppCol(this.turn);
 		return res;
 	}
 

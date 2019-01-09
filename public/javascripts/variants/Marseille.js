@@ -117,7 +117,7 @@ class MarseilleRules extends ChessRules
 		});
 		if (epSqs.length == 0)
 			return moves;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		for (let sq of epSqs)
 		{
 			if (this.subTurn == 1 || (epSqs.length == 2 &&
@@ -161,9 +161,9 @@ class MarseilleRules extends ChessRules
 			this.epSquares.push([epSq]);
 		}
 		// Does this move give check on subturn 1? If yes, skip subturn 2
-		else if (this.subTurn==1 && this.underCheck(this.getOppCol(this.turn)))
+		else if (this.subTurn==1 && this.underCheck(V.GetOppCol(this.turn)))
 		{
-			this.turn = this.getOppCol(this.turn);
+			this.turn = V.GetOppCol(this.turn);
 			this.epSquares.push([epSq]);
 			move.checkOnSubturn1 = true;
 		}
@@ -171,7 +171,7 @@ class MarseilleRules extends ChessRules
 		{
 			if (this.subTurn == 2)
 			{
-				this.turn = this.getOppCol(this.turn);
+				this.turn = V.GetOppCol(this.turn);
 				let lastEpsq = this.epSquares[this.epSquares.length-1];
 				lastEpsq.push(epSq);
 			}
@@ -196,7 +196,7 @@ class MarseilleRules extends ChessRules
 		}
 		else if (move.checkOnSubturn1)
 		{
-			this.turn = this.getOppCol(this.turn);
+			this.turn = V.GetOppCol(this.turn);
 			this.subTurn = 1;
 			this.epSquares.pop();
 		}
@@ -204,7 +204,7 @@ class MarseilleRules extends ChessRules
 		{
 			if (this.subTurn == 1)
 			{
-				this.turn = this.getOppCol(this.turn);
+				this.turn = V.GetOppCol(this.turn);
 				let lastEpsq = this.epSquares[this.epSquares.length-1];
 				lastEpsq.pop();
 			}
@@ -239,7 +239,7 @@ class MarseilleRules extends ChessRules
 
 		const maxeval = V.INFINITY;
 		const color = this.turn;
-		const oppCol = this.getOppCol(this.turn);
+		const oppCol = V.GetOppCol(this.turn);
 
 		// Search best (half) move for opponent turn
 		const getBestMoveEval = () => {

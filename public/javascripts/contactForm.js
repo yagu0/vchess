@@ -4,8 +4,9 @@ function trySendMessage()
 	let email = document.getElementById("userEmail");
 	let subject = document.getElementById("mailSubject");
 	let content = document.getElementById("mailContent");
-	if (!email.value.match(/^[^@]+@[^@]+\.[^@]+$/))
-		return alert("Bad email");
+	const error = checkNameEmail({email: email});
+	if (!!error)
+		return alert(error);
 	if (content.value.trim().length == 0)
 		return alert("Empty message");
 	if (subject.value.trim().length == 0 && !confirm("No subject. Send anyway?"))

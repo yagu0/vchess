@@ -52,7 +52,7 @@ class ZenRules extends ChessRules
 				i += step[0];
 				j += step[1];
 			}
-			if (V.OnBoard(i,j) && this.getColor(i,j) == this.getOppCol(color)
+			if (V.OnBoard(i,j) && this.getColor(i,j) == V.GetOppCol(color)
 				&& this.getPiece(i,j) == asA)
 			{
 				// eat!

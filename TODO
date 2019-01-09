@@ -1,10 +1,12 @@
+mat en 2 échiqueté : brnkr3/pppp1p1p/4ps2/8/2P2P2/P1qP4/2c1s1PP/R1K5
+(Bb3+ Kb1 Ba2#)
+
 // TODO: decodeURIComponent() for GET/DELETE parameters
 
 1) Finish problems tab
 2) Integrate computer play into rules tab
-3) Retrieve users system from old code
-4) Allow correspondance play (no need for P2P: online moves through the server (which also store them))
-5) Write my-games tab (included current/finished/imported)
+3) Allow correspondance play (no need for P2P: online moves through the server (which also store them))
+4) Write my-games tab (included current/finished/imported)
    Use Dexie.js, or anything to store games locally
 5) Write room tab
    Use this: https://github.com/feross/simple-peer for online games+challenges+chat

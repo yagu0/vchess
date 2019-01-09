@@ -2,6 +2,7 @@ Vue.component('my-problems', {
 	data: function () {
 		return {
 			problems: [], //oldest first
+			myProblems: [], //same
 			curIdx: 0, //index in problems array
 			stage: "nothing", //or "preview" after new problem is filled
 			newProblem: {
@@ -30,7 +31,15 @@ Vue.component('my-problems', {
 		
 
 
-			if (this.mode == "problem")
+board qui bouge et activé que si #hash donnant numéro du problème
+deux listes : tous les problèmes sauf les miens
+              + les miens
+
+
+//TODO: filter "my problems" ==> liste séparée (lors de la requête serveur)
+--> bouton plutôt sous l'échiquier après soluce (sauf si anonymous)
+--> puis dans la vue "my problems (listing échiquier gauche / instrus + soluce cachée à droite
+if (this.mode == "problem")
 			{
 				// Show problem instructions
 				elementArray.push(
@@ -132,6 +141,7 @@ Vue.component('my-problems', {
 	created: function() {
 		// Analyse URL: if a single problem required, show it. Otherwise,
 		// TODO: fetch most recent problems from server
+		// If the requested problem is in the list, just show it
 	},
 	methods: {
 		translate: function(text) {
@@ -217,5 +227,3 @@ Vue.component('my-problems', {
 
 // TODO:
 // possibilité de supprimer / éditer si peer ID reconnu comme celui du probleme (champ "uploader")
-// --> côté serveur on vérifie un certain "secret"
-// --> filtre possible "mes problèmes"

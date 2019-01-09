@@ -21,19 +21,14 @@ block content
 					img(src="/images/index/wildebeest.svg")
 				#flagMenu.clickable(onClick="doClick('modalLang')")
 					img(src="/images/flags/" + lang + ".svg")
-				#userMenu.clickable(onClick="doClick('modalUser')")
-					.info-container
-						if !user.email
-							p
-								span Login
-								i.material-icons person
-						else
-							p
-								span Update
-								i.material-icons person
+				include userMenu
 				#introductionMenu.clickable(onClick="doClick('modalWelcome')")
 					.info-container
 						p Introduction
+		.row
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				label(for="prefixFilter") Type first letters...
+				input#prefixFilter(v-model="curPrefix")
 		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
@@ -41,7 +36,6 @@ block content
 block javascripts
 	script.
 		const variantArray = !{JSON.stringify(variantArray)};
-	script(src="/javascripts/utils/misc.js")
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/components/variantSummary.js")
 	script(src="/javascripts/index.js")
