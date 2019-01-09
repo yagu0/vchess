@@ -6,21 +6,21 @@ var access = require("../utils/access");
 var params = require("../config/parameters");
 var checkNameEmail = require("../public/javascripts/shared/userCheck")
 
-// to: object user
+// to: object user (to who we send an email)
 function setAndSendLoginToken(subject, to, res)
 {
 	// Set login token and send welcome(back) email with auth link
-	let token = TokenGen.generate(params.token.length);
-	UserModel.setLoginToken(token, to._id, (err,ret) => {
-		access.checkRequest(res, err, ret, "Cannot set login token", () => {
-			const body =
-				"Hello " + to.name + "!\n" +
-				"Access your account here: " +
-				params.siteURL + "/authenticate?token=" + token + "\\n" +
-				"Token will expire in " + params.token.expire/(1000*60) + " minutes."
-			sendEmail(params.mail.from, to.email, subject, body, err => {
-				res.json(err || {});
-			});
+	const token = TokenGen.generate(params.token.length);
+	UserModel.setLoginToken(token, to.id, err => {
+		if (!!err)
+			return res.json({errmsg: err.toString()});
+		const body =
+			"Hello " + to.name + "!\n" +
+			"Access your account here: " +
+			params.siteURL + "/authenticate?token=" + token + "\\n" +
+			"Token will expire in " + params.token.expire/(1000*60) + " minutes."
+		sendEmail(params.mail.noreply, to.email, subject, body, err => {
+			res.json(err || {});
 		});
 	});
 }
@@ -34,10 +34,15 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
 	const error = checkNameEmail({name: name, email: email});
 	if (!!error)
 		return res.json({errmsg: error});
-	UserModel.create(name, email, notify, (err,user) => {
-		access.checkRequest(res, err, user, "Registration failed", () => {
-			setAndSendLoginToken("Welcome to " + params.siteURL, user, res);
-		});
+	UserModel.create(name, email, notify, (err,uid) => {
+		if (!!err)
+			return res.json({errmsg: err.toString()});
+		const user = {
+			id: uid["rowid"],
+			name: name,
+			email: email,
+		};
+		setAndSendLoginToken("Welcome to " + params.siteURL, user, res);
 	});
 });
 
@@ -55,20 +60,20 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 });
 
 router.get('/authenticate', access.unlogged, (req,res) => {
-	UserModel.getByLoginToken(req.query.token, (err,user) => {
+	UserModel.getOne("loginToken", req.query.token, (err,user) => {
 		access.checkRequest(res, err, user, "Invalid token", () => {
 			// If token older than params.tokenExpire, do nothing
 			if (Date.now() > user.loginTime + params.token.expire)
 				return res.json({errmsg: "Token expired"});
 			// Generate session token (if not exists) + destroy login token
-			UserModel.trySetSessionToken(user._id, (err,token) => {
+			UserModel.trySetSessionToken(user.id, (err,token) => {
 				if (!!err)
-					return res.json(err);
+					return res.json({errmsg: err.toString()});
 				// Set cookie
 				res.cookie("token", token, {
 					httpOnly: true,
-					secure: true,
-					maxAge: params.cookieExpire
+					secure: !!params.siteURL.match(/^https/),
+					maxAge: params.cookieExpire,
 				});
 				res.redirect("/");
 			});
@@ -76,21 +81,24 @@ router.get('/authenticate', access.unlogged, (req,res) => {
 	});
 });
 
-router.put('/settings', access.logged, access.ajax, (req,res) => {
-	let user = JSON.parse(req.body.user);
-	const error = checkNameEmail({name: user.name, email: user.email});
+router.put('/update', access.logged, access.ajax, (req,res) => {
+	const name = req.body.name;
+	const email = req.body.email;
+	const error = checkNameEmail({name: name, email: email});
 	if (!!error)
 		return res.json({errmsg: error});
-	user.notify = !!user.notify; //in case of...
-	user._id = res.locals.user._id; //in case of...
-	UserModel.updateSettings(user, (err,ret) => {
-		access.checkRequest(res, err, ret, "Settings update failed", () => {
-			res.json({});
-		});
+	const user = {
+		id: req.userId,
+		name: name,
+		email: email,
+		notify: !!req.body.notify,
+	};
+	UserModel.updateSettings(user, err => {
+		res.json(err ? {errmsg: err.toString()} : {});
 	});
 });
 
-// Logout on server because the token cookie is secured + http-only
+// Logout on server because the token cookie is httpOnly
 router.get('/logout', access.logged, (req,res) => {
 	res.clearCookie("token");
 	res.redirect('/');

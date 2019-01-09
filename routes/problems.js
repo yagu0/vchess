@@ -53,14 +53,14 @@ router.put("/problems/:id([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const s = sanitizeUserInput(req.body["fen"], req.body["instructions"], req.body["solution"]);
 	if (typeof s === "string")
 		return res.json({errmsg: s});
-	ProblemModel.update(pid, req.user._id, fen, instructions, solution);
+	ProblemModel.update(pid, req.userId, fen, instructions, solution);
 	res.json({});
 });
 
 // Delete a problem
 router.delete("/problems/:id([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const pid = req.params["id"]; //problem ID
-  ProblemModel.delete(pid, req.user._id);
+  ProblemModel.delete(pid, req.userId);
 	res.json({});
 });
 

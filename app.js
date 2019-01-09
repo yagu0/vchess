@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var sassMiddleware = require('node-sass-middleware');
 var favicon = require('serve-favicon');
+var UserModel = require(path.join(__dirname, "models", "User"));
 
 var app = express();
 
@@ -45,20 +46,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Before showing any page, check + save credentials
 app.use(function(req, res, next) {
-	req.loggedIn = false;
-	res.locals.user = { name: "" };
+	req.userId = 0; //means "anonymous"
+	res.locals.user = { name: "" }; //"anonymous"
 	if (!req.cookies.token)
 		return next();
 	UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {
 		if (!!user)
 		{
-			req.loggedIn = true;
+			req.userId = user.id;
 			res.locals.user = {
-				_id: user._id,
 				name: user.name,
 				email: user.email,
 				notify: user.notify,
 			};
+		}
+		else
+		{
+			// Token in cookies presumably wrong: erase it
+			res.clearCookie("token");
 		}
 		next();
 	});

@@ -2,7 +2,7 @@ var db = require("../utils/database");
 
 /*
  * Structure:
- *   _id: problem number (int)
+ *   id: problem number (int)
  *   uid: user id (int)
  *   vid: variant id (int)
  *   added: timestamp
@@ -18,7 +18,7 @@ exports.create = function(vname, fen, instructions, solution)
 				"INSERT INTO Problems (added, vid, fen, instructions, solution) VALUES " +
 				"(" +
 					Date.now() + "," +
-					variant._id + "," +
+					variant.id + "," +
 					fen + "," +
 					instructions + "," +
 					solution +

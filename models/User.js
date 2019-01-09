@@ -1,6 +1,7 @@
 var db = require("../utils/database");
 var maild = require("../utils/mailer.js");
 var TokenGen = require("../utils/tokenGenerator");
+var params = require("../config/parameters");
 
 /*
  * Structure:
@@ -17,11 +18,15 @@ var TokenGen = require("../utils/tokenGenerator");
 exports.create = function(name, email, notify, callback)
 {
 	db.serialize(function() {
-		const query =
+		const insertQuery =
 			"INSERT INTO Users " +
 			"(name, email, notify) VALUES " +
 			"('" + name + "', '" + email + "', " + notify + ")";
-		db.run(query, callback); //TODO: need to get the inserted user (how ?)
+		db.run(insertQuery, err => {
+			if (!!err)
+				return callback(err);
+			db.get("SELECT last_insert_rowid() AS rowid", callback);
+		});
 	});
 }
 
@@ -31,7 +36,8 @@ exports.getOne = function(by, value, cb)
 	const delimiter = (typeof value === "string" ? "'" : "");
 	db.serialize(function() {
 		const query =
-			"SELECT * FROM Users " +
+			"SELECT * " +
+			"FROM Users " +
 			"WHERE " + by + " = " + delimiter + value + delimiter;
 		db.get(query, cb);
 	});
@@ -45,7 +51,7 @@ exports.setLoginToken = function(token, uid, cb)
 	db.serialize(function() {
 		const query =
 			"UPDATE Users " +
-			"SET loginToken = " + token + " AND loginTime = " + Date.now() + " " +
+			"SET loginToken = '" + token + "', loginTime = " + Date.now() + " " +
 			"WHERE id = " + uid;
 		db.run(query, cb);
 	});
@@ -57,21 +63,21 @@ exports.trySetSessionToken = function(uid, cb)
 {
 	// Also empty the login token to invalidate future attempts
 	db.serialize(function() {
-		const querySessionTOken =
+		const querySessionToken =
 			"SELECT sessionToken " +
 			"FROM Users " +
 			"WHERE id = " + uid;
-		db.get(querySessionToken, (err,token) => {
+		db.get(querySessionToken, (err,ret) => {
 			if (!!err)
 				return cb(err);
-			const newToken = token || TokenGen.generate(params.token.length);
+			const token = ret.sessionToken || TokenGen.generate(params.token.length);
 			const queryUpdate =
 				"UPDATE Users " +
-				"SET loginToken = NULL " +
-				(!token ? "AND sessionToken = " + newToken + " " : "") +
+				"SET loginToken = NULL" +
+				(!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
 				"WHERE id = " + uid;
 			db.run(queryUpdate);
-				cb(null, newToken);
+			cb(null, token);
 		});
 	});
 }
@@ -81,10 +87,10 @@ exports.updateSettings = function(user, cb)
 	db.serialize(function() {
 		const query =
 			"UPDATE Users " +
-			"SET name = " + user.name +
-			" AND email = " + user.email +
-			" AND notify = " + user.notify + " " +
-			"WHERE id = " + user._id;
+			"SET name = '" + user.name + "'" +
+			", email = '" + user.email + "'" +
+			", notify = " + user.notify + " " +
+			"WHERE id = " + user.id;
 		db.run(query, cb);
 	});
 }

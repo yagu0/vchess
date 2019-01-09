@@ -1,25 +1,30 @@
-var Parameters = { };
+const Parameters =
+{
+	// For mail sending. NOTE: *no trailing slash*
+	siteURL: "http://localhost:3000",
 
-// For mail sending. NOTE: *no trailing slash*
-Parameters.siteURL = "http://localhost:3000";
+	// To know in which environment the code run
+	env: process.env.NODE_ENV || 'development',
 
-// Lifespan of a (login) cookie
-Parameters.cookieExpire = 183*24*3600*1000; //6 months in milliseconds
+	// Lifespan of a (login) cookie
+	cookieExpire: 183*24*3600*1000, //6 months in milliseconds
 
-// Characters in a login token, and period of validity (in milliseconds)
-Parameters.token = {
-	length: 16,
-	expire: 1000*60*30, //30 minutes in milliseconds
-};
+	// Characters in a login token, and period of validity (in milliseconds)
+	token: {
+		length: 16,
+		expire: 1000*60*30, //30 minutes in milliseconds
+	},
 
-// Email settings
-Parameters.mail = {
-	host: "mail_host_address",
-	port: 465, //if secure; otherwise use 587
-	secure: true, //...or false
-	user: "mail_user_name",
-	pass: "mail_password",
-	contact: "some_contact_email",
+	// Email settings
+	mail: {
+		host: "mail_host_address",
+		port: 465, //if secure; otherwise use 587
+		secure: true, //...or false
+		user: "mail_user_name",
+		pass: "mail_password",
+		noreply: "some_noreply_email",
+		contact: "some_contact_email",
+	},
 };
 
 module.exports = Parameters;

@@ -1,13 +1,13 @@
 function checkNameEmail(o)
 {
-	if (!!o.name)
+	if (typeof o.name === "string")
 	{
 		if (o.name.length == 0)
 			return "Empty name";
 		if (!o.name.match(/^[\w]+$/))
 			return "Bad characters in name";
 	}
-	if (!!o.email)
+	if (typeof o.email === "string")
 	{
 		if (o.email.length == 0)
 			return "Empty email";

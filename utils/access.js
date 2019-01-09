@@ -3,7 +3,7 @@ var Access = {};
 // Prevent access to "users pages"
 Access.logged = function(req, res, next)
 {
-	if (!req.loggedIn)
+	if (req.userId == 0)
 		return res.redirect("/");
 	next();
 };
@@ -11,7 +11,7 @@ Access.logged = function(req, res, next)
 // Prevent access to "anonymous pages"
 Access.unlogged = function(req, res, next)
 {
-	if (!!req.loggedIn)
+	if (req.userId > 0)
 		return res.redirect("/");
 	next();
 };
@@ -28,7 +28,7 @@ Access.ajax = function(req, res, next)
 Access.checkRequest = function(res, err, out, msg, cb)
 {
 	if (!!err)
-		return res.json(err);
+		return res.json({errmsg: err.errmsg || err.toString()});
 	if (!out
 		|| (Array.isArray(out) && out.length == 0)
 		|| (typeof out === "object" && Object.keys(out).length == 0))

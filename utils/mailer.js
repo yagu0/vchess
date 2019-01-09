@@ -3,6 +3,16 @@ const params = require("../config/parameters");
 
 module.exports = function(from, to, subject, body, cb)
 {
+	// Avoid the actual sending in development mode
+	if (params.env === 'development')
+	{
+		console.log("New mail: from " + from + " / to " + to);
+		console.log("Subject: " + subject);
+		let msgText = body.split('\\n');
+		msgText.forEach(msg => { console.log(msg); });
+		return cb();
+	}
+
   // Create reusable transporter object using the default SMTP transport
 	const transporter = nodemailer.createTransport({
 		host: params.mail.host,
@@ -21,17 +31,6 @@ module.exports = function(from, to, subject, body, cb)
 		subject: subject,
 		text: body,
   };
-
-	// Avoid the actual sending in development mode
-	const env = process.env.NODE_ENV || 'development';
-	if ('development' === env)
-	{
-		console.log("New mail: from " + from + " / to " + to);
-		console.log("Subject: " + subject);
-		let msgText = body.split('\\n');
-		msgText.forEach(msg => { console.log(msg); });
-		return cb();
-	}
 
 	// Send mail with the defined transport object
 	transporter.sendMail(mailOptions, (error, info) => {

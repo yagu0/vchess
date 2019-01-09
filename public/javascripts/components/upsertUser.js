@@ -1,5 +1,5 @@
 // Logic to login, or create / update a user (and also logout)
-Vue.component('my-upsert-user', {
+vv = Vue.component('my-upsert-user', {
 	data: function() {
 		return {
 			user: user, //initialized with global user object
@@ -17,7 +17,7 @@ Vue.component('my-upsert-user', {
 				<div class="card">
 					<label class="modal-close" for="modalUser"></label>
 					<h3>{{ stage }}</h3>
-					<form id="userForm" @submit.prevent="submit">
+					<form id="userForm" @submit.prevent="onSubmit()">
 						<div v-show="stage!='Login'">
 							<fieldset>
 								<label for="username">Name</label>
@@ -38,17 +38,19 @@ Vue.component('my-upsert-user', {
 								<input id="nameOrEmail" type="text" v-model="nameOrEmail"/>
 							</fieldset>
 						</div>
-						<fieldset>
-							<button id="submit" @click.prevent="submit">
-								<span>{{ submitMessage }}</span>
-								<i class="material-icons">send</i>
-							</button>
-						</fieldset>
 					</form>
-					<button v-if="stage!='Update'" @click.prevent="toggleStage()">
-						<span>{{ stage=="Login" ? "Register" : "Login" }}</span>
-					</button>
-					<button v-if="stage=='Update'">Logout</button>
+					<div class="button-group">
+						<button id="submit" @click="onSubmit()">
+							<span>{{ submitMessage }}</span>
+							<i class="material-icons">send</i>
+						</button>
+						<button v-if="stage!='Update'" @click="toggleStage()">
+							<span>{{ stage=="Login" ? "Register" : "Login" }}</span>
+						</button>
+						<button v-if="stage=='Update'" onClick="location.replace('/logout')">
+							<span>Logout</span>
+						</button>
+					</div>
 					<div id="dialog" :style="{display: displayInfo}">{{ infoMsg }}</div>
 				</div>
 			</div>
@@ -112,7 +114,7 @@ Vue.component('my-upsert-user', {
 					return "Modifications applied!";
 			}
 		},
-		submit: function() {
+		onSubmit: function() {
 			// Basic anti-bot strategy:
 			const exitTime = Date.now();
 			if (this.stage == "Register" && exitTime - this.enterTime < 5000)
@@ -140,6 +142,8 @@ Vue.component('my-upsert-user', {
 					}
 					setTimeout(() => {
 						this.infoMsg = "";
+						if (this.stage == "Register")
+							this.stage = "Login";
 						document.getElementById("modalUser").checked = false;
 					}, 2000);
 				},
