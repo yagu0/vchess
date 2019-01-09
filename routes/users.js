@@ -4,6 +4,7 @@ var sendEmail = require('../utils/mailer');
 var TokenGen = require("../utils/tokenGenerator");
 var access = require("../utils/access");
 var params = require("../config/parameters");
+var checkNameEmail = require("../public/javascripts/shared/userCheck")
 
 // to: object user
 function setAndSendLoginToken(subject, to, res)
@@ -13,7 +14,7 @@ function setAndSendLoginToken(subject, to, res)
 	UserModel.setLoginToken(token, to._id, (err,ret) => {
 		access.checkRequest(res, err, ret, "Cannot set login token", () => {
 			const body =
-				"Hello " + to.initials + "!\n" +
+				"Hello " + to.name + "!\n" +
 				"Access your account here: " +
 				params.siteURL + "/authenticate?token=" + token + "\\n" +
 				"Token will expire in " + params.token.expire/(1000*60) + " minutes."
@@ -27,24 +28,26 @@ function setAndSendLoginToken(subject, to, res)
 // AJAX user life cycle...
 
 router.post('/register', access.unlogged, access.ajax, (req,res) => {
-	let name = decodeURIComponent(req.body.name);
-	let email = decodeURIComponent(req.body.email);
-	let error = checkObject({name:name, email:email}, "User");
-	if (error.length > 0)
+	const name = req.body.name;
+	const email = req.body.email;
+	const notify = !!req.body.notify;
+	const error = checkNameEmail({name: name, email: email});
+	if (!!error)
 		return res.json({errmsg: error});
-	UserModel.create(name, email, (err,user) => {
+	UserModel.create(name, email, notify, (err,user) => {
 		access.checkRequest(res, err, user, "Registration failed", () => {
 			setAndSendLoginToken("Welcome to " + params.siteURL, user, res);
 		});
 	});
 });
 
-router.put('/sendtoken', access.unlogged, access.ajax, (req,res) => {
-	let email = decodeURIComponent(req.body.email);
-	let error = checkObject({email:email}, "User");
-	if (error.length > 0)
+router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
+	const nameOrEmail = decodeURIComponent(req.query.nameOrEmail);
+	const type = (nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
+	const error = checkNameEmail({[type]: nameOrEmail});
+	if (!!error)
 		return res.json({errmsg: error});
-	UserModel.getOne("email", email, (err,user) => {
+	UserModel.getOne(type, nameOrEmail, (err,user) => {
 		access.checkRequest(res, err, user, "Unknown user", () => {
 			setAndSendLoginToken("Token for " + params.siteURL, user, res);
 		});
@@ -54,7 +57,6 @@ router.put('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 router.get('/authenticate', access.unlogged, (req,res) => {
 	UserModel.getByLoginToken(req.query.token, (err,user) => {
 		access.checkRequest(res, err, user, "Invalid token", () => {
-			let tsNow = Date.now();
 			// If token older than params.tokenExpire, do nothing
 			if (Date.now() > user.loginTime + params.token.expire)
 				return res.json({errmsg: "Token expired"});
@@ -75,12 +77,12 @@ router.get('/authenticate', access.unlogged, (req,res) => {
 });
 
 router.put('/settings', access.logged, access.ajax, (req,res) => {
-	const user = JSON.parse(req.body.user);
-	// TODO: either verify email + name, or re-apply the following logic:
-	//let error = checkObject(user, "User");
-	//if (error.length > 0)
-	//	return res.json({errmsg: error});
-	user._id = req.user._id; //TODO:
+	let user = JSON.parse(req.body.user);
+	const error = checkNameEmail({name: user.name, email: user.email});
+	if (!!error)
+		return res.json({errmsg: error});
+	user.notify = !!user.notify; //in case of...
+	user._id = res.locals.user._id; //in case of...
 	UserModel.updateSettings(user, (err,ret) => {
 		access.checkRequest(res, err, ret, "Settings update failed", () => {
 			res.json({});

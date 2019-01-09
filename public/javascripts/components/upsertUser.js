@@ -1,41 +1,56 @@
 // Logic to login, or create / update a user (and also logout)
 Vue.component('my-upsert-user', {
-	props: ["initUser"], //to find the game in storage (assumption: it exists)
 	data: function() {
 		return {
-			user: initUser, //initialized with prop value
-			stage: (!initUser.email ? "Login" : "Update"),
+			user: user, //initialized with global user object
+			nameOrEmail: "", //for login
+			stage: (!user.email ? "Login" : "Update"),
 			infoMsg: "",
+			enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
 		};
 	},
 	template: `
 		<div>
-			<input id="modalUser" class="modal" type="checkbox"/>
+			<input id="modalUser" class="modal" type="checkbox"
+					@change="trySetEnterTime"/>
 			<div role="dialog">
 				<div class="card">
-					<label class="modal-close" for="modalUser">
+					<label class="modal-close" for="modalUser"></label>
 					<h3>{{ stage }}</h3>
 					<form id="userForm" @submit.prevent="submit">
+						<div v-show="stage!='Login'">
+							<fieldset>
+								<label for="username">Name</label>
+								<input id="username" type="text" v-model="user.name"/>
+							</fieldset>
+							<fieldset>
+								<label for="useremail">Email</label>
+								<input id="useremail" type="email" v-model="user.email"/>
+							</fieldset>
+							<fieldset>
+								<label for="notifyNew">Notify new moves &amp; games</label>
+								<input id="notifyNew" type="checkbox" v-model="user.notify"/>
+							</fieldset>
+						</div>
+						<div v-show="stage=='Login'">
+							<fieldset>
+								<label for="nameOrEmail">Name or Email</label>
+								<input id="nameOrEmail" type="text" v-model="nameOrEmail"/>
+							</fieldset>
+						</div>
 						<fieldset>
-							<label for="useremail">Email</label>
-							<input id="useremail" type="email" v-model="user.email"/>
-						<fieldset>
-							<label for="username">Name</label>
-							<input id="username" type="text" v-model="user.name"/>
+							<button id="submit" @click.prevent="submit">
+								<span>{{ submitMessage }}</span>
+								<i class="material-icons">send</i>
+							</button>
 						</fieldset>
-						<fieldset>
-							<label for="notifyNew">Notify new moves &amp; games</label>
-							<input id="notifyNew" type="checkbox" v-model="user.notify"/>
-						<button id="submit" @click.prevent="submit">
-							<span>{{ submitMessage }}</span>
-							<i class="material-icons">send</i>
-				<p v-if="stage!='Update'">
-					<button @click.prevent="toggleStage()">
+					</form>
+					<button v-if="stage!='Update'" @click.prevent="toggleStage()">
 						<span>{{ stage=="Login" ? "Register" : "Login" }}</span>
 					</button>
-					<button>Logout</button>
-				</p>
-				<div id="dialog" :style="{display: displayInfo}">{{ infoMsg }}</div>
+					<button v-if="stage=='Update'">Logout</button>
+					<div id="dialog" :style="{display: displayInfo}">{{ infoMsg }}</div>
+				</div>
 			</div>
 		</div>
 	`,
@@ -56,7 +71,12 @@ Vue.component('my-upsert-user', {
 		},
 	},
 	methods: {
+		trySetEnterTime: function(event) {
+			if (!!event.target.checked)
+				this.enterTime = Date.now();
+		},
 		toggleStage: function() {
+			// Loop login <--> register (update is for logged-in users)
 			this.stage = (this.stage == "Login" ? "Register" : "Login");
 		},
 		ajaxUrl: function() {
@@ -93,19 +113,28 @@ Vue.component('my-upsert-user', {
 			}
 		},
 		submit: function() {
-			// TODO: re-activate simple measures like this: (using time of click on modal)
-//			const exitTime = new Date();
-//			if (this.stage=="Register" && exitTime.getTime() - enterTime.getTime() < 5000)
-//				return;
-			if (!this.user.name.match(/[a-z0-9_]+/i))
-				return alert("User name: only alphanumerics and underscore");
+			// Basic anti-bot strategy:
+			const exitTime = Date.now();
+			if (this.stage == "Register" && exitTime - this.enterTime < 5000)
+				return; //silently return, in (curious) case of it was legitimate
+			let error = undefined;
+			if (this.stage == 'Login')
+			{
+				const type = (this.nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
+				error = checkNameEmail({[type]: this.nameOrEmail});
+			}
+			else
+				error = checkNameEmail(this.user);
+			if (!!error)
+				return alert(error);
 			this.infoMsg = "Processing... Please wait";
 			ajax(this.ajaxUrl(), this.ajaxMethod(),
-				this.stage == "Login" ? "PUT" : "POST", this.user,
+				this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.user,
 				res => {
 					this.infoMsg = this.infoMessage();
 					if (this.stage != "Update")
 					{
+						this.nameOrEmail = "";
 						this.user["email"] = "";
 						this.user["name"] = "";
 					}
@@ -113,6 +142,10 @@ Vue.component('my-upsert-user', {
 						this.infoMsg = "";
 						document.getElementById("modalUser").checked = false;
 					}, 2000);
+				},
+				err => {
+					this.infoMsg = "";
+					alert(err);
 				}
 			);
 		},

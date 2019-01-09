@@ -19,11 +19,9 @@ block content
 					.info-container
 						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				#flagMenu.clickable(
-						onClick="document.getElementById('modalLang').checked=true")
+				#flagMenu.clickable(onClick="doClick('modalLang')")
 					img(src="/images/flags/" + lang + ".svg")
-				#userMenu.clickable(
-						onClick="document.getElementById('modalUser').checked=true")
+				#userMenu.clickable(onClick="doClick('modalUser')")
 					.info-container
 						if !user.email
 							p
@@ -33,8 +31,7 @@ block content
 							p
 								span Update
 								i.material-icons person
-				#introductionMenu.clickable(
-						onClick="document.getElementById('modalWelcome').checked=true")
+				#introductionMenu.clickable(onClick="doClick('modalWelcome')")
 					.info-container
 						p Introduction
 		.row

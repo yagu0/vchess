@@ -24,7 +24,6 @@ html
 		block css
 
 	body
-
 		include langNames
 		case lang
 			when "en"
@@ -33,10 +32,10 @@ html
 				include translations/es
 			when "fr"
 				include translations/fr
-		include contactForm
 		include modalLang
+		include contactForm
 		main#VueElement
-			my-upsert-user(:user="user" :stage="stage")
+			my-upsert-user()
 			block content
 		footer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
 			div
@@ -53,6 +52,7 @@ html
 			script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
 		else
 			script(src="https://cdn.jsdelivr.net/npm/vue")
+		script(src="/javascripts/shared/userCheck.js")
 		script(src="/javascripts/components/upsertUser.js")
 		script.
 			const translations = !{JSON.stringify(translations)};

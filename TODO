@@ -1,3 +1,5 @@
+// TODO: decodeURIComponent() for GET/DELETE parameters
+
 1) Finish problems tab
 2) Integrate computer play into rules tab
 3) Retrieve users system from old code

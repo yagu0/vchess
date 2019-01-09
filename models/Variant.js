@@ -10,17 +10,18 @@ var db = require("../utils/database");
 exports.getByName = function(name, callback)
 {
 	db.serialize(function() {
-		db.get(
+		const query =
 			"SELECT * FROM Variants " +
-			"WHERE name='" + name + "'",
-			callback);
+			"WHERE name='" + name + "'";
+		db.get(query, callback);
 	});
 }
 
 exports.getAll = function(callback)
 {
 	db.serialize(function() {
-		db.all("SELECT * FROM Variants", callback);
+		const query = "SELECT * FROM Variants";
+		db.all(query, callback);
 	});
 }
 

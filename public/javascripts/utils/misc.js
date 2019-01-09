@@ -35,3 +35,9 @@ function setLanguage(e)
 	setCookie("lang", e.target.value);
 	location.reload(); //to include the right .pug file
 }
+
+// Shortcut for an often used click (on a modal)
+function doClick(elemId)
+{
+	document.getElementById(elemId).click(); //or ".checked = true"
+}

@@ -42,7 +42,6 @@ function ajax(url, method, data, success, error)
 		// Append query params to URL
 		url += "/?" + toQueryString(data);
 	}
-
 	xhr.open(method, url, true);
 	xhr.setRequestHeader('X-Requested-With', "XMLHttpRequest");
 	if (["POST","PUT"].includes(method))
