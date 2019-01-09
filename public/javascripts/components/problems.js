@@ -3,12 +3,13 @@ Vue.component('my-problems', {
 		return {
 			problems: [], //oldest first
 			myProblems: [], //same
-			curIdx: 0, //index in problems array
-			stage: "nothing", //or "preview" after new problem is filled
+			curProblems: [], //assigned to either of the ones above
+			curIdx: 0, //index in (current) problems array
 			newProblem: {
 				fen: "",
 				instructions: "",
 				solution: "",
+				preview: false,
 			},
 		};
 	},
@@ -28,7 +29,8 @@ Vue.component('my-problems', {
 					<i class="material-icons">skip_next</i>
 				</button>
 			</div>
-		
+		--> OK, mais ces flèches n'ont pas la même action selon les vues
+		--> fetchN si liste, problème suivant/précédent sinon
 
 
 board qui bouge et activé que si #hash donnant numéro du problème
@@ -142,6 +144,7 @@ if (this.mode == "problem")
 		// Analyse URL: if a single problem required, show it. Otherwise,
 		// TODO: fetch most recent problems from server
 		// If the requested problem is in the list, just show it
+		this.tryNavigate();
 	},
 	methods: {
 		translate: function(text) {
