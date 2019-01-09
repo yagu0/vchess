@@ -1,11 +1,15 @@
 Vue.component('my-problems', {
 	data: function () {
 		return {
+			userId: user.id,
 			problems: [], //oldest first
-			myProblems: [], //same
-			curProblems: [], //assigned to either of the ones above
-			curIdx: 0, //index in (current) problems array
-			newProblem: {
+			myProblems: [], //same, but only mine
+			display: "list", //or "myList"
+			curIdx: -1, //index in (current) problems array
+			showSolution: false,
+			// New problem (to upload), or existing problem to edit:
+			modalProb: {
+				id: 0, //defined if it's an edit
 				fen: "",
 				instructions: "",
 				solution: "",
@@ -13,122 +17,70 @@ Vue.component('my-problems', {
 			},
 		};
 	},
+	// TODO: problem edit, just fill modalProb + adjust AJAX call
+	// problem delete: just AJAX call + confirm
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<div id="problemControls" class="button-group">
-				<button :aria-label='translate("Load previous problem")' class="tooltip"
-						@click="showPreviousProblem()">
+				<button :aria-label='translate("Previous problem(s)")' class="tooltip" @click="showNext('backward')">
 					<i class="material-icons">skip_previous</i>
 				</button>
-				<button :aria-label='translate("Add a problem")' class="tooltip"
-						@click="showNewproblemModal">
+				<button :aria-label='translate("Add a problem")' class="tooltip" onClick="doClick('modal-newproblem')">
 					{{ translate("New") }}
 				</button>
-				<button :aria-label='translate("Load next problem")' class="tooltip"
-						@click="showNextProblem()">
+				<button :aria-label='translate("Next problem(s)")' class="tooltip" @click="showNext('forward')">
 					<i class="material-icons">skip_next</i>
 				</button>
 			</div>
-		--> OK, mais ces flèches n'ont pas la même action selon les vues
-		--> fetchN si liste, problème suivant/précédent sinon
-
-
-board qui bouge et activé que si #hash donnant numéro du problème
-deux listes : tous les problèmes sauf les miens
-              + les miens
-
-
-//TODO: filter "my problems" ==> liste séparée (lors de la requête serveur)
---> bouton plutôt sous l'échiquier après soluce (sauf si anonymous)
---> puis dans la vue "my problems (listing échiquier gauche / instrus + soluce cachée à droite
-if (this.mode == "problem")
-			{
-				// Show problem instructions
-				elementArray.push(
-					h('div',
-						{
-							attrs: { id: "instructions-div" },
-							"class": {
-								"clearer": true,
-								"section-content": true,
-							},
-						},
-						[
-							h('p',
-								{
-									attrs: { id: "problem-instructions" },
-									domProps: { innerHTML: this.problem.instructions }
-								}
-							)
-						]
-					)
-				);
-			}
-
-
-			// TODO ici :: instrus + diag interactif + solution
-			my-board + pilotage via movesList + VariantRules !
-			
-			<my-problem-preview v-show="stage=='preview'"
-				v-for="(p,idx) in problems"
-				v-bind:prob="p" v-bind:preview="false" v-bind:key="idx">
+			<div id="mainBoard" v-show="curIdx>=0">
+				<div id="instructions-div" class="section-content">
+					<p id="problem-instructions">{{ curProb.instructions }}</p>
+				</div>
+				<my-board :fen="curProb.fen"></my-board>
+				<div id="solution-div" class="section-content">
+					<h3 class="clickable" @click="showSolution = !showSolution">
+						{{ translations["Show solution"] }}
+					</h3>
+					<p id="problem-solution" v-show="showSolution">{{ curProb.solution }}</p>
+					<div class="button-group" v-show="curProb.uid==userId">
+						<button>Edit</button>
+						<button>Delete</button>
+					</div>
+				</div>
+			</div>
+			<button v-if="!!userId" @click="toggleListDisplay()">My problems (only)</button>
+			<my-problem-summary v-show="curIdx<0"
+				v-for="(p,idx) in sortedProblems" @click="setCurIdx(idx)"
+				v-bind:prob="p" v-bind:preview="false" v-bind:key="p.id">
 			</my-problem-summary>
-			if (this.mode == "problem")
-			{
-				// Show problem solution (on click)
-				elementArray.push(
-					h('div',
-						{
-							attrs: { id: "solution-div" },
-							"class": { "section-content": true },
-						},
-						[
-							h('h3',
-								{
-									"class": { clickable: true },
-									domProps: { innerHTML: translations["Show solution"] },
-									on: { click: this.toggleShowSolution },
-								}
-							),
-							h('p',
-								{
-									attrs: { id: "problem-solution" },
-									domProps: { innerHTML: this.problem.solution }
-								}
-							)
-						]
-					)
-				);
-			}
-			
 			<input type="checkbox" id="modal-newproblem" class="modal">
-			<div role="dialog" aria-labelledby="newProblemTxt">
-				<div v-show="stage=='nothing'" class="card newproblem-form">
+			<div role="dialog" aria-labelledby="modalProblemTxt">
+				<div v-show="!modalProb.preview" class="card newproblem-form">
 					<label for="modal-newproblem" class="modal-close"></label>
-					<h3 id="newProblemTxt">{{ translate("Add a problem") }}</h3>
-					<form @submit.prevent="previewNewProblem">
+					<h3 id="modalProblemTxt">{{ translate("Add a problem") }}</h3>
+					<form @submit.prevent="previewNewProblem()">
 						<fieldset>
 							<label for="newpbFen">FEN</label>
-							<input id="newpbFen" type="text" v-model="newProblem.fen"
+							<input id="newpbFen" type="text" v-model="modalProb.fen"
 								:placeholder='translate("Full FEN description")'/>
 						</fieldset>
 						<fieldset>
 							<p class="emphasis">{{ translate("Safe HTML tags allowed") }}</p>
 							<label for="newpbInstructions">{{ translate("Instructions") }}</label>
-							<textarea id="newpbInstructions" v-model="newProblem.instructions"
+							<textarea id="newpbInstructions" v-model="modalProb.instructions"
 								:placeholder='translate("Describe the problem goal")'></textarea>
 							<label for="newpbSolution">{{ translate("Solution") }}</label>
-							<textarea id="newpbSolution" v-model="newProblem.solution"
+							<textarea id="newpbSolution" v-model="modalProb.solution"
 								:placeholder='translate("How to solve the problem?")'></textarea>
 							<button class="center-btn">{{ translate("Preview") }}</button>
 						</fieldset>
 					</form>
 				</div>
-				<div v-show="stage=='preview'" class="card newproblem-preview">
+				<div v-show="modalProb.preview" class="card newproblem-preview">
 					<label for="modal-newproblem" class="modal-close"></label>
-					<my-problem-preview v-bind:prob="newProblem"></my-problem-summary>
+					<my-problem-summary v-bind:prob="modalProb" v-bind:preview="true"></my-problem-summary>
 					<div class="button-group">
-						<button @click="newProblem.stage='nothing'">{{ translate("Cancel") }}</button>
+						<button @click="modalProb.preview=false">{{ translate("Cancel") }}</button>
 						<button @click="sendNewProblem()">{{ translate("Send") }}</button>
 					</div>
 				</div>
@@ -138,46 +90,82 @@ if (this.mode == "problem")
 	computed: {
 		sortedProblems: function() {
 			// Newest problem first
+			return this.curProblems.sort((a,b) => a.added - b.added);
+		},
+		curProb: function() {
+			switch (this.display)
+			{
+				case "list":
+					return this.problems[this.curIdx];
+				case "myList":
+					return this.myProblems[this.curIdx];
+			}
 		},
 	},
 	created: function() {
-		// Analyse URL: if a single problem required, show it. Otherwise,
-		// TODO: fetch most recent problems from server
-		// If the requested problem is in the list, just show it
-		this.tryNavigate();
+		if (location.hash.length > 0)
+		{
+			this.getOneProblem(location.hash.slice(1));
+			this.curIdx = 0; //TODO: a bit more subtle, depending if it's my problem or not (set display)
+		}
+		else
+		{
+			// Fetch most recent problems from server
+			this.fetchProblems("backward"); //TODO: backward in time from the future. Second argument?
+		}
 	},
 	methods: {
+		setCurIndex: function(idx) {
+			this.curIdx = idx;
+			location.hash = "#" + idx;
+		},
 		translate: function(text) {
 			return translations[text];
 		},
-		// TODO: obsolete:
-//		// Propagate "show problem" event to parent component (my-variant)
-//		bubbleUp: function(problem) {
-//			this.$emit('show-problem', JSON.stringify(problem));
-//		},
-		toggleShowSolution: function() {
-			let problemSolution = document.getElementById("problem-solution");
-			problemSolution.style.display =
-				!problemSolution.style.display || problemSolution.style.display == "none"
-					? "block"
-					: "none";
+		curProblems: function() {
+			switch (this.display)
+			{
+				case "list":
+					return this.problems;
+				case "myList":
+					return this.myProblems;
+			}
 		},
-		showPreviousProblem: function() {
-			if (this.curIdx == 0)
-				this.fetchProblems("backward");
+		// TODO: dans tous les cas si on n'affiche qu'un seul problème,
+		// le curseur ne doit se déplacer que d'une unité.
+		showNext: function(direction) {
+			if (this.curIdx < 0)
+				this.fetchProblems(direction);
+			let curProbs = this.curProblems();
+			if ((this.curIdx > 0 && direction=="backward")
+				|| (this.curIdx < curProbs.length-1 && direction=="forward"))
+			{
+				this.setCurIdx(this.curIdx + (direction=="forward" ? 1 : -1));
+			}
+			else //at boundary
+			{
+				const curSize = curProbs.length;
+				this.fetchProblems(direction);
+				if (curProbs.length
+			}
 			else
-				this.curIdx--;
-		},
-		showNextProblem: function() {
+				this.setCurIndex(--this.curIdx);
+			
+			
 			if (this.curIdx == this.problems.length - 1)
 				this.fetchProblems("forward");
 			else
 				this.curIdx++;
+			location.hash = this.curIdx;
 		},
-		// TODO: modal "no more problems"
+		toggleListDisplay: function() {
+			this.display = (this.display == "list" ? "myList" : "list");
+		},
+		// TODO: modal "there are no more problems"
 		fetchProblems: function(direction) {
+			const problems = if ... this.problems ... ou this.myProblems;
 			if (this.problems.length == 0)
-				return; //what could we do?!
+				return; //what could we do?! -------> ask problems older than MAX_NUMBER + backward
 			// Search for newest date (or oldest)
 			let last_dt = this.problems[0].added;
 			for (let i=0; i<this.problems.length; i++)
@@ -196,12 +184,9 @@ if (this.mode == "problem")
 				{
 					this.problems = response.problems
 						.sort((p1,p2) => { return p1.added - p2.added; });
-					this.curIdx = response.problems.length - 1;
+					this.setCurIndex(response.problems.length - 1);
 				}
 			});
-		},
-		showNewproblemModal: function() {
-			document.getElementById("modal-newproblem").checked = true;
 		},
 		previewNewProblem: function() {
 			if (!V.IsGoodFen(this.newProblem.fen))
@@ -210,8 +195,9 @@ if (this.mode == "problem")
 				return alert(translations["Empty instructions"]);
 			if (this.newProblem.solution.trim().length == 0)
 				return alert(translations["Empty solution"]);
-			this.newProblem.stage = "preview";
+			this.modalProb.preview = true;
 		},
+		// TODO: adjust for update too
 		sendNewProblem: function() {
 			// Send it to the server and close modal
 			ajax("/problems/" + variant.name, "POST", { //TODO: with variant._id ?
@@ -219,14 +205,12 @@ if (this.mode == "problem")
 				instructions: this.newProblem.instructions,
 				solution: this.newProblem.solution,
 			}, response => {
-				this.newProblem.added = Date.now();
-				this.problems.push(JSON.parse(JSON.stringify(this.newProblem)));
+				this.modalProb.added = Date.now();
+				this.curProblems().push(JSON.parse(JSON.stringify(this.modalProb)));
 				document.getElementById("modal-newproblem").checked = false;
-				this.newProblem.stage = "nothing";
+				this.modalProb.preview = false;
 			});
 		},
+		// TODO: AJAX for problem deletion
 	},
 })
-
-// TODO:
-// possibilité de supprimer / éditer si peer ID reconnu comme celui du probleme (champ "uploader")
