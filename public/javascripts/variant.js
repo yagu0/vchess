@@ -1,5 +1,5 @@
 new Vue({
-	el: "#variantPage",
+	el: "#VueElement",
 	data: {
 		display: "room", //default: main hall
 		gameid: "undefined", //...yet

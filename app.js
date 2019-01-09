@@ -46,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Before showing any page, check + save credentials
 app.use(function(req, res, next) {
 	req.loggedIn = false;
+	res.locals.user = { name: "" };
 	if (!req.cookies.token)
 		return next();
 	UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {

@@ -4,7 +4,8 @@ block css
 	link(rel="stylesheet" href="/stylesheets/variant.css")
 
 block content
-	.container#variantPage
+	include settings
+	.container
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label.drawer-toggle(for="drawer-control")
@@ -24,6 +25,14 @@ block content
 					#settings.clickable(
 							onClick="document.getElementById('modalSettings').checked=true")
 						i.material-icons settings
+					#userMenu.clickable(
+							onClick="document.getElementById('modalUser').checked=true")
+						.info-container
+							i.material-icons person
+							if !user.email
+								p Login
+							else
+								p Update
 		.row
 			my-room(v-show="display=='room'")
 			my-game-list(v-show="display=='gameList'")

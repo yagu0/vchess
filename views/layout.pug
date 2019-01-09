@@ -33,13 +33,10 @@ html
 				include translations/es
 			when "fr"
 				include translations/fr
-		if !user
-			include login_register
-		else
-			include logout_update
 		include contactForm
-		include settings
-		main
+		include modalLang
+		main#VueElement
+			my-upsert-user(:user="user" :stage="stage")
 			block content
 		footer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
 			div
@@ -56,6 +53,7 @@ html
 			script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
 		else
 			script(src="https://cdn.jsdelivr.net/npm/vue")
+		script(src="/javascripts/components/upsertUser.js")
 		script.
 			const translations = !{JSON.stringify(translations)};
 			const user = !{JSON.stringify(user)};

@@ -3,7 +3,7 @@ function toQueryString(data)
 {
 	let data_str = "";
 	Object.keys(data).forEach(k => {
-		data_str += k + "=" + data[k] + "&";
+		data_str += k + "=" + encodeURIComponent(data[k]) + "&";
 	});
 	return data_str.slice(0, -1); //remove last "&"
 }

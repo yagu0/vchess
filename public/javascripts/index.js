@@ -1,6 +1,6 @@
 // Javascript for index page: mostly counters updating
 new Vue({
-	el: "#indexPage",
+	el: "#VueElement",
 	data: {
 		counts: {},
 		curPrefix: "",

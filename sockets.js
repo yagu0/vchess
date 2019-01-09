@@ -13,6 +13,9 @@ function getJsonFromUrl(url) {
 	return result;
 }
 
+// TODO: empêcher multi-log du même user (envoyer le user ID + secret en même temps que name et...)
+// --> si secret ne matche pas celui trouvé en DB, stop
+
 module.exports = function(wss) {
 	db.serialize(function() {
 		db.all("SELECT * FROM Variants", (err,variants) => {

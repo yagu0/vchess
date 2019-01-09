@@ -4,7 +4,7 @@ block css
 	link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
-	.container#indexPage
+	.container
 		case lang
 			when "en"
 				include welcome/en
@@ -19,10 +19,20 @@ block content
 					.info-container
 						p vchess.club
 					img(src="/images/index/wildebeest.svg")
-				#settingsMenu.clickable(
-						onClick="document.getElementById('modalSettings').checked=true")
+				#flagMenu.clickable(
+						onClick="document.getElementById('modalLang').checked=true")
+					img(src="/images/flags/" + lang + ".svg")
+				#userMenu.clickable(
+						onClick="document.getElementById('modalUser').checked=true")
 					.info-container
-						p Settings
+						if !user.email
+							p
+								span Login
+								i.material-icons person
+						else
+							p
+								span Update
+								i.material-icons person
 				#introductionMenu.clickable(
 						onClick="document.getElementById('modalWelcome').checked=true")
 					.info-container

@@ -11,7 +11,7 @@
   padding: 0
   box-sizing: border-box
   p
-    display: inline-block
+    display: flex
     padding: 3px
     border: 1px solid black;
     margin: 25px 15px 5px 7px
@@ -40,12 +40,24 @@
       margin-top: 10px
       font-size: 1em
 
-#settingsMenu, #introductionMenu
+#introductionMenu, #userMenu
   float: right
   @media screen and (max-width: 767px)
     .info-container
       p
         margin-right: 5px
+
+#flagMenu
+  float: right
+  margin-right: 10px
+  @media screen and (max-width: 767px)
+    margin-right: 5px
+  img
+    display: inline-block
+    height: 30px
+    padding-top: 27px
+    @media screen and (max-width: 767px)
+      padding-top: 8px
 
 // TODO: box-shadow or box-sizing ? https://stackoverflow.com/a/13517809
 .variant
