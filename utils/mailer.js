@@ -1,17 +1,16 @@
 const nodemailer = require('nodemailer');
+const params = require("../config/parameters");
 
-const contact = "your_contact_email";
-
-const send = function(from, to, subject, body, cb)
+module.exports = function(from, to, subject, body, cb)
 {
   // Create reusable transporter object using the default SMTP transport
 	const transporter = nodemailer.createTransport({
-		host: "smtp_host_address",
-		port: 465, //if secure; otherwise use 587
-		secure: true,
+		host: params.mail.host,
+		port: params.mail.port,
+		secure: params.mail.secure,
 		auth: {
-			user: "user_name",
-			pass: "user_password"
+			user: params.mail.user,
+			pass: params.mail.pass
 		}
 	});
 
@@ -42,9 +41,4 @@ const send = function(from, to, subject, body, cb)
 		//console.log('Message sent: %s', info.messageId);
 		return cb();
   });
-};
-
-module.exports = {
-	contact: contact,
-	send: send
-};
+}

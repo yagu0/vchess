@@ -1,5 +1,6 @@
 var db = require("../utils/database");
 var maild = require("../utils/mailer.js");
+var TokenGen = require("../utils/tokenGenerator");
 
 /*
  * Structure:
@@ -32,7 +33,7 @@ exports.getOne = function(by, value, cb)
 	db.serialize(function() {
 		db.get(
 			"SELECT * FROM Users " +
-			"WHERE " + by " = " + delimiter + value + delimiter,
+			"WHERE " + by + " = " + delimiter + value + delimiter,
 			callback);
 	});
 }
@@ -50,25 +51,37 @@ exports.setLoginToken = function(token, uid, cb)
 	});
 }
 
-exports.setSessionToken = function(token, uid, cb)
+// Set session token only if empty (first login)
+// TODO: weaker security (but avoid to re-login everywhere after each logout)
+exports.trySetSessionToken = function(uid, cb)
 {
 	// Also empty the login token to invalidate future attempts
 	db.serialize(function() {
-		db.run(
-			"UPDATE Users " +
-			"SET loginToken = NULL AND sessionToken = " + token + " " +
-			"WHERE id = " + uid);
+		db.get(
+			"SELECT sessionToken " +
+			"FROM Users " +
+			"WHERE id = " + uid, (err,token) => {
+				if (!!err)
+					return cb(err);
+				const newToken = token || TokenGen.generate(params.token.length);
+				db.run(
+					"UPDATE Users " +
+					"SET loginToken = NULL " +
+					(!token ? "AND sessionToken = " + newToken + " " : "") +
+					"WHERE id = " + uid);
+				cb(null, newToken);
+		});
 	});
 }
 
-exports.updateSettings = function(name, email, notify, cb)
+exports.updateSettings = function(user, cb)
 {
 	db.serialize(function() {
 		db.run(
 			"UPDATE Users " +
-			"SET name = " + name +
-			" AND email = " + email +
-			" AND notify = " + notify + " " +
-			"WHERE id = " + uid);
+			"SET name = " + user.name +
+			" AND email = " + user.email +
+			" AND notify = " + user.notify + " " +
+			"WHERE id = " + user._id);
 	});
 }
