@@ -1,6 +1,6 @@
 // Preview a problem on variant page
 Vue.component('my-problem-preview', {
-	props: ['prob'],
+	props: ['prob','userid'],
 	template: `
 		<div class="row problem">
 			<div class="col-sm-12 col-md-6 diagram"
@@ -8,7 +8,12 @@ Vue.component('my-problem-preview', {
 			</div>
 			<div class="col-sm-12 col-md-6">
 				<p v-html="prob.instructions"></p>
-				<p v-html="prob.solution"></p>
+				<p v-if="!!prob.preview" v-html="prob.solution"></p>
+				<p v-else class="problem-time">{{ timestamp2date(prob.added) }}</p>
+				<div v-show="prob.uid==userid" class="button-group">
+					<button @click="sendSignal('edit')'">Edit</button>
+					<button @click="sendSignal('delete')">Delete</button>
+				</div>
 			</div>
 		</div>
 	`,
@@ -20,6 +25,12 @@ Vue.component('my-problem-preview', {
 				turn: fenParsed.turn,
 				// No need for flags here
 			});
+		},
+		timestamp2date(ts) {
+			return getDate(new Date(ts));
+		},
+		sendSignal: function(action) {
+			this.$emit(action + "-problem");
 		},
 	},
 })

@@ -14,6 +14,9 @@ var params = require("../config/parameters");
  *   notify: boolean (send email notifications for corr games)
  */
 
+// TODO: consider sanitizing http://www.unixwiz.net/techtips/sql-injection.html
+// But parameters are supposed to already be cleaned (in controller).
+
 // User creation
 exports.create = function(name, email, notify, callback)
 {

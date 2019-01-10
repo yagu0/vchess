@@ -8,7 +8,9 @@
 			vr: null, //object to check moves, store them, FEN..
 	orientation: "w", //useful if click on "flip board"	
 	
-	
+
+// TODO: watch for property change "fen"
+// send event after each move, to notify what was played
 	
 	const [sizeX,sizeY] = [V.size.x,V.size.y];
 		// Precompute hints squares to facilitate rendering
@@ -289,6 +291,10 @@
 				this.possibleMoves = [];
 				if (this.score == "*")
 				{
+
+// TODO: essentially adapt this (all other things do not change much)
+// if inside a real game, mycolor should be provided ? (simplest way)
+
 					const color = ["friend","problem"].includes(this.mode)
 						? this.vr.turn
 						: this.mycolor;
