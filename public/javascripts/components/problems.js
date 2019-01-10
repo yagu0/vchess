@@ -38,7 +38,8 @@ Vue.component('my-problems', {
 						{{ curProb.instructions }}
 					</p>
 				</div>
-				<my-board :fen="curProb.fen"></my-board>
+				<my-board :fen="curProb.fen" :analyze:"true" .................> //TODO: use my-game in analyze mode ?
+				</my-board>
 				<div id="solution-div" class="section-content">
 					<h3 class="clickable" @click="showSolution = !showSolution">
 						{{ translations["Show solution"] }}

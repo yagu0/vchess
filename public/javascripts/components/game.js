@@ -54,6 +54,25 @@ Vue.component('my-game', {
 			// TODO: controls: abort, clear, resign, draw (avec confirm box)
 			// et si partie terminée : (mode analyse) just clear, back / play
 			// + flip button toujours disponible
+				// Show current FEN (just below board, lower right corner)
+// (if mode != Dark ...)
+				elementArray.push(
+					h('div',
+						{
+							attrs: { id: "fen-div" },
+							"class": { "section-content": true },
+						},
+						[
+							h('p',
+								{
+									attrs: { id: "fen-string" },
+									domProps: { innerHTML: this.vr.getBaseFen() },
+									"class": { "text-center": true },
+								}
+							)
+						]
+					)
+				);
 			
 			<div id="pgn-div" class="section-content">
 				<a id="download" href: "#"></a>
@@ -264,83 +283,6 @@ Vue.component('my-game', {
 			this.compWorker.postMessage(["askmove"]);
 		},
 		// OK, these last functions can stay here (?!)
-		play: function(move, programmatic) {
-			if (!move)
-			{
-				// Navigate after game is over
-				if (this.cursor >= this.moves.length)
-					return; //already at the end
-				move = this.moves[this.cursor++];
-			}
-			if (!!programmatic) //computer or human opponent
-				return this.animateMove(move);
-			// Not programmatic, or animation is over
-			if (this.mode == "human" && this.vr.turn == this.mycolor)
-				this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			
-			
-			// TODO: play move, and stack it on this.moves (if a move was provided; otherwise just navigate)
-			
-			if (this.score == "*") //TODO: I don't like this if()
-			{
-				// Emergency check, if human game started "at the same time"
-				// TODO: robustify this...
-				if (this.mode == "human" && !!move.computer)
-					return;
-				this.vr.play(move, "ingame");
-				// Is opponent in check?
-				this.incheck = this.vr.getCheckSquares(this.vr.turn);
-				if (this.sound == 2)
-					new Audio("/sounds/move.mp3").play().catch(err => {});
-				if (this.mode == "computer")
-				{
-					// Send the move to web worker (TODO: including his own moves?!)
-					this.compWorker.postMessage(["newmove",move]);
-				}
-				const eog = this.vr.getCurrentScore();
-				if (eog != "*")
-				{
-					if (["human","computer"].includes(this.mode))
-						this.endGame(eog);
-					else
-					{
-						// Just show score on screen (allow undo)
-						this.score = eog;
-						this.showScoreMsg();
-					}
-				}
-			}
-//			else
-//			{
-//				VariantRules.PlayOnBoard(this.vr.board, move);
-//				this.$forceUpdate(); //TODO: ?!
-//			}
-			if (["human","computer","friend"].includes(this.mode))
-				this.updateStorage(); //after our moves and opponent moves
-			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
-				this.playComputerMove();
-		},
-		// TODO: merge two next functions
-		undo: function() {
-			// Navigate after game is over
-			if (this.cursor == 0)
-				return; //already at the beginning
-			if (this.cursor == this.vr.moves.length)
-				this.incheck = []; //in case of...
-			const move = this.vr.moves[--this.cursor];
-			VariantRules.UndoOnBoard(this.vr.board, move);
-			this.$forceUpdate(); //TODO: ?!
-		},
-		undoInGame: function() {
-			const lm = this.vr.lastMove;
-			if (!!lm)
-			{
-				this.vr.undo(lm);
-				if (this.sound == 2)
-					new Audio("/sounds/undo.mp3").play().catch(err => {});
-				this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			}
-		},
 	},
 })
 
@@ -356,3 +298,26 @@ Vue.component('my-game', {
 //TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
 //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
 //comme sur lichess
+			
+// send move from here:
+//if (this.mode == "human" && this.vr.turn == this.mycolor)
+			//this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
+			// TODO: play move, and stack it on this.moves (if a move was provided; otherwise just navigate)
+			
+//			if (["human","computer","friend"].includes(this.mode))
+//				this.updateStorage(); //after our moves and opponent moves
+//			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
+//				this.playComputerMove();
+//			if (this.mode == "computer")
+//			{
+//				// Send the move to web worker (TODO: including his own moves?!)
+//				this.compWorker.postMessage(["newmove",move]);
+//			}
+//				if (["human","computer"].includes(this.mode))
+//					this.endGame(eog);
+//				else
+//				{
+//					// Just show score on screen (allow undo)
+//					this.score = eog;
+//					this.showScoreMsg();
+//				}

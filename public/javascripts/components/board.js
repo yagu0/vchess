@@ -1,3 +1,12 @@
+Vue.component('my-board', {
+	// Last move cannot be guessed from here, and is required to highlight squares
+	// gotoMove : juste set FEN depuis FEN stocké dans le coup (TODO)
+	// send event after each move (or undo), to notify what was played
+	// also notify end of game (which returns here later through prop...)
+	props: ["fen","moveToPlay","moveToUndo",
+		"analyze","lastMove","orientation","userColor","gameOver"],
+	data: function () {
+		return {
 			hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
 			bcolor: localStorage["bcolor"] || "lichess", //lichess, chesscom or chesstempo
 			possibleMoves: [], //filled after each valid click/dragstart
@@ -6,236 +15,241 @@
 			incheck: [],
 			start: {}, //pixels coordinates + id of starting square (click or drag)
 			vr: null, //object to check moves, store them, FEN..
-	orientation: "w", //useful if click on "flip board"	
-	
-
-// TODO: watch for property change "fen"
-// send event after each move, to notify what was played
-	
-	const [sizeX,sizeY] = [V.size.x,V.size.y];
+		};
+	},
+	watch: {
+		// NOTE: maybe next 3 should be encapsulated in object to be watched (?)
+		fen: function(newFen) {
+			this.vr = new VariantRules(newFen);
+		},
+		moveToPlay: function(move) {
+			this.play(move, "animate");
+		},
+		moveToUndo: function(move) {
+			this.undo(move);
+		},
+	},
+	created: function() {
+		this.vr = new VariantRules(this.fen);
+	},
+	render(h) {
+		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
 		this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
 		// Also precompute in-check squares
 		let incheckSq = doubleArray(sizeX, sizeY, false);
 		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
-			const choices = h('div',
-				{
-					attrs: { "id": "choices" },
-					'class': { 'row': true },
-					style: {
-						"display": this.choices.length>0?"block":"none",
-						"top": "-" + ((sizeY/2)*squareWidth+squareWidth/2) + "px",
-						"width": (this.choices.length * squareWidth) + "px",
-						"height": squareWidth + "px",
-					},
+		const choices = h(
+			'div',
+			{
+				attrs: { "id": "choices" },
+				'class': { 'row': true },
+				style: {
+					"display": this.choices.length>0?"block":"none",
+					"top": "-" + ((sizeY/2)*squareWidth+squareWidth/2) + "px",
+					"width": (this.choices.length * squareWidth) + "px",
+					"height": squareWidth + "px",
 				},
-				this.choices.map( m => { //a "choice" is a move
-					return h('div',
-						{
-							'class': {
-								'board': true,
-								['board'+sizeY]: true,
-							},
-							style: {
-								'width': (100/this.choices.length) + "%",
-								'padding-bottom': (100/this.choices.length) + "%",
-							},
+			},
+			this.choices.map(m => { //a "choice" is a move
+				return h('div',
+					{
+						'class': {
+							'board': true,
+							['board'+sizeY]: true,
 						},
-						[h('img',
+						style: {
+							'width': (100/this.choices.length) + "%",
+							'padding-bottom': (100/this.choices.length) + "%",
+						},
+					},
+					[h('img',
+						{
+							attrs: { "src": '/images/pieces/' +
+								V.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
+							'class': { 'choice-piece': true },
+							on: {
+								"click": e => { this.play(m); this.choices=[]; },
+								// NOTE: add 'touchstart' event to fix a problem on smartphones
+								"touchstart": e => { this.play(m); this.choices=[]; },
+							},
+						})
+					]
+				);
+			})
+		);
+		// Create board element (+ reserves if needed by variant or mode)
+		const lm = this.lastMove;
+		const showLight = this.hints && variant.name != "Dark";
+		const gameDiv = h(
+			'div',
+			{
+				'class': {
+					'game': true,
+					'clearer': true,
+				},
+			},
+			[_.range(sizeX).map(i => {
+				let ci = (this.orientation=='w' ? i : sizeX-i-1);
+				return h(
+					'div',
+					{
+						'class': {
+							'row': true,
+						},
+						style: { 'opacity': this.choices.length>0?"0.5":"1" },
+					},
+					_.range(sizeY).map(j => {
+						let cj = (this.orientation=='w' ? j : sizeY-j-1);
+						let elems = [];
+						if (this.vr.board[ci][cj] != V.EMPTY && (variant.name!="Dark"
+							|| this.gameOver || this.vr.enlightened[this.userColor][ci][cj]))
+						{
+							elems.push(
+								h(
+									'img',
+									{
+										'class': {
+											'piece': true,
+											'ghost': !!this.selectedPiece
+												&& this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
+										},
+										attrs: {
+											src: "/images/pieces/" +
+												V.getPpath(this.vr.board[ci][cj]) + ".svg",
+										},
+									}
+								)
+							);
+						}
+						if (this.hints && hintSquares[ci][cj])
+						{
+							elems.push(
+								h(
+									'img',
+									{
+										'class': {
+											'mark-square': true,
+										},
+										attrs: {
+											src: "/images/mark.svg",
+										},
+									}
+								)
+							);
+						}
+						return h(
+							'div',
 							{
-								attrs: { "src": '/images/pieces/' +
-									VariantRules.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
-								'class': { 'choice-piece': true },
-								on: {
-									"click": e => { this.play(m); this.choices=[]; },
-									// NOTE: add 'touchstart' event to fix a problem on smartphones
-									"touchstart": e => { this.play(m); this.choices=[]; },
+								'class': {
+									'board': true,
+									['board'+sizeY]: true,
+									'light-square': (i+j)%2==0,
+									'dark-square': (i+j)%2==1,
+									[this.bcolor]: true,
+									'in-shadow': variant.name=="Dark" && !this.gameOver
+										&& !this.vr.enlightened[this.userColor][ci][cj],
+									'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
+									'incheck': showLight && incheckSq[ci][cj],
 								},
-							})
-						]
-					);
-				})
-			);
-			// Create board element (+ reserves if needed by variant or mode)
-			const lm = this.vr.lastMove;
-			const showLight = this.hints && variant.name!="Dark" &&
-				(this.mode != "idle" ||
-					(this.vr.moves.length > 0 && this.cursor==this.vr.moves.length));
-			const gameDiv = h('div',
+								attrs: {
+									id: this.getSquareId({x:ci,y:cj}),
+								},
+							},
+							elems
+						);
+					})
+				);
+			}), choices]
+		);
+		let elementArray = [choices, gameDiv];
+		if (!!this.vr.reserve)
+		{
+			const shiftIdx = (this.userColor=="w" ? 0 : 1);
+			let myReservePiecesArray = [];
+			for (let i=0; i<V.RESERVE_PIECES.length; i++)
+			{
+				myReservePiecesArray.push(h('div',
 				{
-					'class': {
+					'class': {'board':true, ['board'+sizeY]:true},
+					attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
+				},
+				[
+					h('img',
+					{
+						'class': {"piece":true, "reserve":true},
+						attrs: {
+							"src": "/images/pieces/" +
+								this.vr.getReservePpath(this.userColor,i) + ".svg",
+						}
+					}),
+					h('sup',
+						{"class": { "reserve-count": true } },
+						[ this.vr.reserve[this.userColor][V.RESERVE_PIECES[i]] ]
+					)
+				]));
+			}
+			let oppReservePiecesArray = [];
+			const oppCol = this.vr.getOppCol(this.userColor);
+			for (let i=0; i<V.RESERVE_PIECES.length; i++)
+			{
+				oppReservePiecesArray.push(h('div',
+				{
+					'class': {'board':true, ['board'+sizeY]:true},
+					attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
+				},
+				[
+					h('img',
+					{
+						'class': {"piece":true, "reserve":true},
+						attrs: {
+							"src": "/images/pieces/" +
+								this.vr.getReservePpath(oppCol,i) + ".svg",
+						}
+					}),
+					h('sup',
+						{"class": { "reserve-count": true } },
+						[ this.vr.reserve[oppCol][V.RESERVE_PIECES[i]] ]
+					)
+				]));
+			}
+			let reserves = h('div',
+				{
+					'class':{
 						'game': true,
-						'clearer': true,
+						"reserve-div": true,
 					},
 				},
-				[_.range(sizeX).map(i => {
-					let ci = (this.mycolor=='w' ? i : sizeX-i-1);
-					return h(
-						'div',
+				[
+					h('div',
 						{
 							'class': {
 								'row': true,
+								"reserve-row-1": true,
 							},
-							style: { 'opacity': this.choices.length>0?"0.5":"1" },
 						},
-						_.range(sizeY).map(j => {
-							let cj = (this.mycolor=='w' ? j : sizeY-j-1);
-							let elems = [];
-							if (this.vr.board[ci][cj] != VariantRules.EMPTY && (variant.name!="Dark"
-								|| this.score!="*" || this.vr.enlightened[this.mycolor][ci][cj]))
-							{
-								elems.push(
-									h(
-										'img',
-										{
-											'class': {
-												'piece': true,
-												'ghost': !!this.selectedPiece
-													&& this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
-											},
-											attrs: {
-												src: "/images/pieces/" +
-													VariantRules.getPpath(this.vr.board[ci][cj]) + ".svg",
-											},
-										}
-									)
-								);
-							}
-							if (this.hints && hintSquares[ci][cj])
-							{
-								elems.push(
-									h(
-										'img',
-										{
-											'class': {
-												'mark-square': true,
-											},
-											attrs: {
-												src: "/images/mark.svg",
-											},
-										}
-									)
-								);
-							}
-							return h(
-								'div',
-								{
-									'class': {
-										'board': true,
-										['board'+sizeY]: true,
-										'light-square': (i+j)%2==0,
-										'dark-square': (i+j)%2==1,
-										[this.bcolor]: true,
-										'in-shadow': variant.name=="Dark" && this.score=="*"
-											&& !this.vr.enlightened[this.mycolor][ci][cj],
-										'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
-										'incheck': showLight && incheckSq[ci][cj],
-									},
-									attrs: {
-										id: this.getSquareId({x:ci,y:cj}),
-									},
-								},
-								elems
-							);
-						})
-					);
-				}), choices]
-			);
-			if (!!this.vr.reserve)
-			{
-				const shiftIdx = (this.mycolor=="w" ? 0 : 1);
-				let myReservePiecesArray = [];
-				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
-				{
-					myReservePiecesArray.push(h('div',
-					{
-						'class': {'board':true, ['board'+sizeY]:true},
-						attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
-					},
-					[
-						h('img',
-						{
-							'class': {"piece":true, "reserve":true},
-							attrs: {
-								"src": "/images/pieces/" +
-									this.vr.getReservePpath(this.mycolor,i) + ".svg",
-							}
-						}),
-						h('sup',
-							{"class": { "reserve-count": true } },
-							[ this.vr.reserve[this.mycolor][VariantRules.RESERVE_PIECES[i]] ]
-						)
-					]));
-				}
-				let oppReservePiecesArray = [];
-				const oppCol = this.vr.getOppCol(this.mycolor);
-				for (let i=0; i<VariantRules.RESERVE_PIECES.length; i++)
-				{
-					oppReservePiecesArray.push(h('div',
-					{
-						'class': {'board':true, ['board'+sizeY]:true},
-						attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
-					},
-					[
-						h('img',
-						{
-							'class': {"piece":true, "reserve":true},
-							attrs: {
-								"src": "/images/pieces/" +
-									this.vr.getReservePpath(oppCol,i) + ".svg",
-							}
-						}),
-						h('sup',
-							{"class": { "reserve-count": true } },
-							[ this.vr.reserve[oppCol][VariantRules.RESERVE_PIECES[i]] ]
-						)
-					]));
-				}
-				let reserves = h('div',
-					{
-						'class':{
-							'game': true,
-							"reserve-div": true,
-						},
-					},
-					[
-						h('div',
-							{
-								'class': {
-									'row': true,
-									"reserve-row-1": true,
-								},
-							},
-							myReservePiecesArray
-						),
-						h('div',
-							{ 'class': { 'row': true }},
-							oppReservePiecesArray
-						)
-					]
-				);
-				elementArray.push(reserves);
-			}
-				// Show current FEN (just below board, lower right corner)
-// (if mode != Dark ...)
-				elementArray.push(
+						myReservePiecesArray
+					),
 					h('div',
-						{
-							attrs: { id: "fen-div" },
-							"class": { "section-content": true },
-						},
-						[
-							h('p',
-								{
-									attrs: { id: "fen-string" },
-									domProps: { innerHTML: this.vr.getBaseFen() },
-									"class": { "text-center": true },
-								}
-							)
-						]
+						{ 'class': { 'row': true }},
+						oppReservePiecesArray
 					)
-				);
+				]
+			);
+			elementArray.push(reserves);
+		}
+		return h(
+			'div',
+			{
+				'class': {
+					"col-sm-12":true,
+					"col-md-10":true,
+					"col-md-offset-1":true,
+					"col-lg-8":true,
+					"col-lg-offset-2":true,
+				},
+				// NOTE: click = mousedown + mouseup
 				on: {
 					mousedown: this.mousedown,
 					mousemove: this.mousemove,
@@ -244,10 +258,12 @@
 					touchmove: this.mousemove,
 					touchend: this.mouseup,
 				},
-
-
-		// TODO: "chessground-like" component
-		// Get the identifier of a HTML table cell from its numeric coordinates o.x,o.y.
+			},
+			elementArray
+		);
+	},
+	methods: {
+		// Get the identifier of a HTML square from its numeric coordinates o.x,o.y.
 		getSquareId: function(o) {
 			// NOTE: a separator is required to allow any size of board
 			return  "sq-" + o.x + "-" + o.y;
@@ -289,18 +305,11 @@
 				this.selectedPiece.style.zIndex = 3000;
 				const startSquare = this.getSquareFromId(e.target.parentNode.id);
 				this.possibleMoves = [];
-				if (this.score == "*")
-				{
-
-// TODO: essentially adapt this (all other things do not change much)
-// if inside a real game, mycolor should be provided ? (simplest way)
-
-					const color = ["friend","problem"].includes(this.mode)
-						? this.vr.turn
-						: this.mycolor;
-					if (this.vr.canIplay(color,startSquare))
-						this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-				}
+				const color = this.analyze || this.gameOver
+					? this.vr.turn
+					: this.userColor;
+				if (this.vr.canIplay(color,startSquare))
+					this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
 				// Next line add moving piece just after current image
 				// (required for Crazyhouse reserve)
 				e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
@@ -389,3 +398,26 @@
 				this.play(move);
 			}, 250);
 		},
+		play: function(move, programmatic) {
+			if (!!programmatic) //computer or human opponent
+				return this.animateMove(move);
+			// Not programmatic, or animation is over
+			this.vr.play(move);
+			if (this.sound == 2)
+				new Audio("/sounds/move.mp3").play().catch(err => {});
+			// Is opponent in check?
+			this.incheck = this.vr.getCheckSquares(this.vr.turn);
+			const eog = this.vr.getCurrentScore();
+			if (eog != "*")
+			{
+				// TODO: notify end of game (give score)
+			}
+		},
+		undo: function(move) {
+			this.vr.undo(move);
+			if (this.sound == 2)
+				new Audio("/sounds/undo.mp3").play().catch(err => {});
+			this.incheck = this.vr.getCheckSquares(this.vr.turn);
+		},
+	},
+})
