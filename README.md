@@ -11,13 +11,13 @@ Notes:
 ## Resources
 
 Server side:
- - node,
+ - Node.js,
  - Express,
  - Other npm packages (see package.json),
 
 Client side:
  - Vue.js,
- - underscore.js,
+ - Underscore.js,
  - mini.css,
  - Google font 'Open Sans' + a few icons,
 
@@ -29,7 +29,7 @@ Sounds and pieces images where found at various locations.
  1. git fat init && git fat pull
  2. Execute db/\*.sql scripts to create and fill db/vchess.sqlite
  3. Rename and edit public/javascripts/socket\_url.js.dist into socket\_url.js
- 4. Rename and edit utils/mailer.js.dist into mailer.js
+ 4. Rename and edit config/parameters.js.dist into parameters.js
  5. npm i && npm start
 
 ## Get involved
