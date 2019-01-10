@@ -11,8 +11,8 @@ Vue.component('my-problem-preview', {
 				<p v-if="!!prob.preview" v-html="prob.solution"></p>
 				<p v-else class="problem-time">{{ timestamp2date(prob.added) }}</p>
 				<div v-show="prob.uid==userid" class="button-group">
-					<button @click="sendSignal('edit')'">Edit</button>
-					<button @click="sendSignal('delete')">Delete</button>
+					<button @click="$emit('edit-problem')">Edit</button>
+					<button @click="$emit('delete-problem')">Delete</button>
 				</div>
 			</div>
 		</div>
@@ -28,9 +28,6 @@ Vue.component('my-problem-preview', {
 		},
 		timestamp2date(ts) {
 			return getDate(new Date(ts));
-		},
-		sendSignal: function(action) {
-			this.$emit(action + "-problem");
 		},
 	},
 })

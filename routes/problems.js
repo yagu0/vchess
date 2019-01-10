@@ -6,18 +6,34 @@ const ProblemModel = require("../models/Problem");
 const sanitizeHtml = require('sanitize-html');
 const MaxNbProblems = 20;
 
+// Get one problem
+router.get("/problems/:vname([a-zA-Z0-9]+)/:pnum([0-9]+)", access.ajax, (req,res) => {
+	const vname = req.params["vname"];
+	const pnum = req.params["pnum"];
+	ProblemModel.getOne(vname, pnum, (err,problem) => {
+		if (!!err)
+			return res.json(err);
+		return res.json({problem: problem});
+	});
+});
+
 // Fetch N previous or next problems
 router.get("/problems/:vname([a-zA-Z0-9]+)", access.ajax, (req,res) => {
 	const vname = req.params["vname"];
 	const directionStr = (req.query.direction == "forward" ? ">" : "<");
 	const lastDt = req.query.last_dt;
+	const type = req.query.type;
 	if (!lastDt.match(/[0-9]+/))
 		return res.json({errmsg: "Bad timestamp"});
-	ProblemModel.fetchN(vname, directionStr, lastDt, MaxNbProblems, (err,problems) => {
-		if (!!err)
-			return res.json(err);
-		return res.json({problems: problems});
-	});
+	if (!["others","mine"].includes(type))
+		return res.json({errmsg: "Bad type"});
+	ProblemModel.fetchN(vname, req.userId, type, directionStr, lastDt, MaxNbProblems,
+		(err,problems) => {
+			if (!!err)
+				return res.json(err);
+			return res.json({problems: problems});
+		}
+	);
 });
 
 function sanitizeUserInput(fen, instructions, solution)

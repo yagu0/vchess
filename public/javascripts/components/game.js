@@ -45,6 +45,8 @@ Vue.component('my-game', {
 				<div class="card smallpad small-modal text-center">
 					<label for="modal-eog" class="modal-close"></label>
 					<h3 id="eogMessage" class="section">{{ endgameMessage }}</h3>
+				</div>
+			</div>
 
 			<my-chat v-if="showChat"></my-chat>
 			//TODO: connection + turn indicators en haut à droite (superposé au menu)

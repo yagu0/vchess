@@ -4,9 +4,11 @@ Vue.component('my-problems', {
 			userId: user.id,
 			problems: [], //oldest first
 			myProblems: [], //same, but only mine
-			display: "list", //or "myList"
-			curIdx: -1, //index in (current) problems array
+			singletons: [], //requested problems (using #num)
+			display: "others", //or "mine"
+			curProb: null, //(reference to) current displayed problem (if any)
 			showSolution: false,
+			pbNum: 0, //to navigate directly to some problem
 			// New problem (to upload), or existing problem to edit:
 			modalProb: {
 				id: 0, //defined if it's an edit
@@ -30,7 +32,7 @@ Vue.component('my-problems', {
 					<i class="material-icons">skip_next</i>
 				</button>
 			</div>
-			<div id="mainBoard" v-show="curIdx>=0">
+			<div id="mainBoard" v-show="!!curProb">
 				<div id="instructions-div" class="section-content">
 					<p id="problem-instructions">
 						{{ curProb.instructions }}
@@ -45,12 +47,22 @@ Vue.component('my-problems', {
 						{{ curProb.solution }}
 					</p>
 				</div>
+				<button @click="displayList()">
+					<span>Back to list display</span>
+				</button>
+			</div>
+			<div>
+				<input type="text" placeholder="Type problem number" v-model="pbNum"/>
+				<button @click="showProblem()">
+					<span>Show problem</span>
+				</button>
 			</div>
 			<button v-if="!!userId" @click="toggleListDisplay()">
 				<span>My problems (only)</span>
 			</button>
-			<my-problem-summary v-show="curIdx<0"
-				v-for="(p,idx) in sortedProblems" @click="setCurIdx(idx)"
+			<my-problem-summary v-show="!curProb"
+				v-on:edit-problem="editProblem(p)" v-on:delete-problem="deleteProblem(p.id)"
+				v-for="p in curProblems" @click="curProb=p"
 				v-bind:prob="p" v-bind:userid="userId" v-bind:key="p.id">
 			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal"/>
@@ -104,39 +116,53 @@ Vue.component('my-problems', {
 					</div>
 				</div>
 			</div>
+			<input id="modalNomore" type="checkbox" class="modal"/>
+			<div role="dialog" aria-labelledby="nomoreMessage">
+				<div class="card smallpad small-modal text-center">
+					<label for="modalNomore" class="modal-close"></label>
+					<h3 id="nomoreMessage" class="section">
+						{{ nomoreMessage }}
+					</h3>
+				</div>
+			</div>
 		</div>
 	`,
-	computed: {
-		sortedProblems: function() {
-			// Newest problem first
-			return this.curProblems.sort((a,b) => a.added - b.added);
-		},
-		curProb: function() {
-			switch (this.display)
-			{
-				case "list":
-					return this.problems[this.curIdx];
-				case "myList":
-					return this.myProblems[this.curIdx];
-			}
-		},
-	},
 	created: function() {
 		if (location.hash.length > 0)
-		{
-			this.getOneProblem(location.hash.slice(1)); //callback?
-			this.curIdx = 0; //TODO: a bit more subtle, depending if it's my problem or not (set display)
-		}
+			this.showProblem(location.hash.slice(1));
 		else
-		{
-			// Fetch most recent problems from server
-			this.fetchProblems("backward"); //TODO: backward in time from the future. Second argument?
-		}
+			this.firstFetch();
 	},
 	methods: {
-		setCurIndex: function(idx) {
-			this.curIdx = idx;
-			location.hash = "#" + idx;
+		firstFetch: function() {
+			// Fetch most recent problems from server, for both lists
+			this.fetchProblems("others", "bacwkard");
+			this.fetchProblems("mine", "bacwkard");
+			this.listsInitialized = true;
+		},
+		showProblem: function(num) {
+			const pid = num || this.pbNum;
+			location.hash = "#" + pid;
+			const pIdx = this.singletons.findIndex(p => p.id == pid);
+			if (pIdx >= 0)
+				curProb = this.singletons[pIdx];
+			else
+			{
+				// Cannot find problem in current set; get from server, and add to singletons.
+				ajax(
+					"/problems/" + variant.name + "/" + pid, //TODO: use variant._id ?
+					"GET",
+					response => {
+						if (!!response.problem)
+						{
+							this.singletons.push(response.problem);
+							this.curProb = response.problem;
+						}
+						else
+							this.noMoreProblems("Sorry, problem " + pid + " does not exist");
+					}
+				);
+			}
 		},
 		translate: function(text) {
 			return translations[text];
@@ -144,70 +170,102 @@ Vue.component('my-problems', {
 		curProblems: function() {
 			switch (this.display)
 			{
-				case "list":
+				case "others":
 					return this.problems;
-				case "myList":
+				case "mine":
 					return this.myProblems;
 			}
 		},
 		// TODO?: get 50 from server but only show 10 at a time (for example)
 		showNext: function(direction) {
-			if (this.curIdx < 0)
-				return this.fetchProblems(direction);
+			if (!this.curProb)
+				return this.fetchProblems(this.display, direction);
 			// Show next problem (older or newer):
 			let curProbs = this.curProblems();
-			if ((this.curIdx > 0 && direction=="backward")
-				|| (this.curIdx < curProbs.length-1 && direction=="forward"))
+			// Try to find a neighbour problem in the direction, among current set
+			const neighbor = this.findClosestNeighbor(this.curProb, curProbs, direction);
+			if (!!neighbor)
 			{
-				this.setCurIdx(this.curIdx + (direction=="forward" ? 1 : -1));
+				this.curProb = neighbor;
+				return;
 			}
-			else //at boundary
+			// Boundary case: nothing in current set, need to fetch from server
+			const curSize = curProbs.length;
+			this.fetchProblems(this.display, direction);
+			const newSize = curProbs.length;
+			if (curSize == newSize) //no problems found
+				return this.noMoreProblems("No more problems in this direction");
+			// Ok, found something:
+			this.curProb = this.findClosestNeighbor(this.curProb, curProbs, direction);
+		},
+		findClosestNeighbor: function(problem, probList, direction) {
+			let neighbor = undefined;
+			let smallestDistance = Number.MAX_SAFE_INTEGER;
+			for (let prob of probList)
 			{
-				const curSize = curProbs.length;
-				this.fetchProblems(direction);
-				const newSize = curProbs.length;
-				if (curSize == newSize) //no problems found
-					return;
-				switch (direction)
+				const delta = Math.abs(prob.id - problem.id);
+				if (delta < smallestDistance &&
+					((direction == "backward" && prob.id < problem.id)
+					|| (direction == "forward" && prob.id > problem.id)))
 				{
-					case "forward":
-						this.setCurIdx(this.curIdx+1);
-						break;
-					case "backward":
-						this.setCurIdx(newSize - curSize + this.curIdx-1);
-						break;
+					neighbor = prob;
+					smallestDistance = delta;
 				}
 			}
+			return neighbor;
+		},
+		noMoreProblems: function(message) {
+			this.nomoreMessage = message;
+			let modalNomore = document.getElementById("modalNomore");
+			modalNomore.checked = true;
+			setTimeout(() => modalNomore.checked = false, 2000);
+		},
+		displayList: function() {
+			this.curProb = null;
+			location.hash = "";
+			// Fetch problems if first call (if #num, and then lists)
+			if (!this.listsInitialized)
+				this.firstFetch();
 		},
 		toggleListDisplay: function() {
-			this.display = (this.display == "list" ? "myList" : "list");
+			this.display = (this.display == "others" ? "mine" : "others");
 		},
-		// TODO: modal "there are no more problems"
-		fetchProblems: function(direction) {
-			const problems = if ... this.problems ... ou this.myProblems;
-			if (this.problems.length == 0)
-				return; //what could we do?! -------> ask problems older than MAX_NUMBER + backward
-			// Search for newest date (or oldest)
-			let last_dt = this.problems[0].added;
-			for (let i=0; i<this.problems.length; i++)
+		fetchProblems: function(type, direction) {
+			let problems = (type == "others" ? this.problems : this.myProblems);
+			let last_dt = (direction=="forward" ? 0 : Number.MAX_SAFE_INTEGER);
+			if (this.problems.length > 0)
 			{
-				if ((direction == "forward" && this.problems[i].added > last_dt) ||
-					(direction == "backward" && this.problems[i].added < last_dt))
+				// Search for newest date (or oldest)
+				last_dt = problems[0].added;
+				for (let i=1; i<problems.length; i++)
 				{
-					last_dt = this.problems[i].added;
+					if ((direction == "forward" && this.problems[i].added > last_dt) ||
+						(direction == "backward" && this.problems[i].added < last_dt))
+					{
+						last_dt = this.problems[i].added;
+					}
 				}
 			}
-			ajax("/problems/" + variant.name, "GET", { //TODO: use variant._id ?
-				direction: direction,
-				last_dt: last_dt,
-			}, response => {
-				if (response.problems.length > 0)
+			ajax(
+				"/problems/" + variant.name, //TODO: use variant._id ?
+				"GET",
 				{
-					this.problems = response.problems
-						.sort((p1,p2) => { return p1.added - p2.added; });
-					this.setCurIndex(response.problems.length - 1);
+					type: type,
+					direction: direction,
+					last_dt: last_dt,
+				},
+				response => {
+					if (response.problems.length > 0)
+					{
+						Array.prototype.push.apply(problems,
+							response.problems.sort((p1,p2) => { return p1.added - p2.added; }));
+						// If one list is empty but not the other, show the non-empty
+						const otherArray = (type == "mine" ? this.problems : this.myProblems);
+						if (problems.length > 0 && otherArray.length == 0)
+							this.display = type;
+					}
 				}
-			});
+			);
 		},
 		previewProblem: function() {
 			if (!V.IsGoodFen(this.newProblem.fen))
@@ -217,6 +275,22 @@ Vue.component('my-problems', {
 			if (this.newProblem.solution.trim().length == 0)
 				return alert(translations["Empty solution"]);
 			this.modalProb.preview = true;
+		},
+		editProblem: function(prob) {
+			this.modalProb = prob;
+			document.getElementById("modal-newproblem").checked = true;
+		},
+		deleteProblem: function(pid) {
+			ajax(
+				"/problems/" + variant.name + "/" + pid, //TODO: with variant.id ?
+				"DELETE",
+				response => {
+					// Delete problem from the list on client side
+					let problems = this.curProblems();
+					const pIdx = problems.findIndex(p => p.id == pid);
+					problems.splice(pIdx, 1);
+				}
+			);
 		},
 		sendProblem: function() {
 			// Send it to the server and close modal
@@ -230,17 +304,12 @@ Vue.component('my-problems', {
 					{
 						this.modalProb.added = Date.now();
 						this.modalProb.preview = false;
-						this.curProblems().push(JSON.parse(JSON.stringify(this.modalProb)));
+						this.myProblems.push(JSON.parse(JSON.stringify(this.modalProb)));
 					}
 					else
 						this.modalProb.id = 0;
 				}
 			);
-		},
-		// TODO: catch signal edit or delete ; on edit: modify modalProb and show modal
-		deleteProblem: function(pid) {
-			// TODO: AJAX call
-			// TODO: delete problem in curProblems() list
 		},
 	},
 })
