@@ -1,114 +1,83 @@
-// Game logic on a variant page
+// TODO: envoyer juste "light move", sans FEN ni notation ...etc
+
+// Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {
-	props: ["gameId"], //to find the game in storage (assumption: it exists)
+	// gameId: to find the game in storage (assumption: it exists)
+	props: ["gameId","mode","allowChat","allowMovelist"],
 	data: function() {
 		return {
-			
-			// TODO: merge next variables into "game"
 			// if oppid == "computer" then mode = "computer" (otherwise human)
 			myid: "", //our ID, always set
-		//this.myid = localStorage.getItem("myid")
+			//this.myid = localStorage.getItem("myid")
 			oppid: "", //opponent ID in case of HH game
 			score: "*", //'*' means 'unfinished'
 			mycolor: "w",
-			fromChallenge: false, //if true, show chat during game
-			
-			conn: null, //socket connection
-			oppConnected: false,
-			seek: false,
-			fenStart: "",
+			conn: null, //socket connection (et WebRTC connection ?!)
+			oppConnected: false, //TODO?
 			pgnTxt: "",
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
 			sound: parseInt(localStorage["sound"] || "2"),
 			// Web worker to play computer moves without freezing interface:
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
+			vr: null, //VariantRules object, describing the game state + rules
 		};
 	},
 	computed: {
-		mode: function() {
-			return (this.game.oppid == "computer" ? "computer" ? "human");
-		},
 		showChat: function() {
-			return this.mode=='human' &&
-				(this.game.score != '*' || this.game.fromChallenge);
+			return this.allowChat && this.mode=='human' && this.score != '*';
 		},
 		showMoves: function() {
-			return window.innerWidth >= 768;
+			return this.allowMovelist && window.innerWidth >= 768;
+		},
+		showFen: function() {
+			return variant.name != "Dark" || this.score != "*";
 		},
 	},
 	// Modal end of game, and then sub-components
+	// TODO: provide chat parameters (connection, players ID...)
+	// and alwo moveList parameters (just moves ?)
+	// TODO: connection + turn indicators en haut à droite (superposé au menu)
+	// TODO: controls: abort, clear, resign, draw (avec confirm box)
+	// et si partie terminée : (mode analyse) just clear, back / play
+	// + flip button toujours disponible
+	// gotoMove : vr = new VariantRules(fen stocké dans le coup [TODO])
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<input id="modal-eog" type="checkbox" class="modal"/>
 			<div role="dialog" aria-labelledby="eogMessage">
 				<div class="card smallpad small-modal text-center">
-					<label for="modal-eog" class="modal-close"></label>
-					<h3 id="eogMessage" class="section">{{ endgameMessage }}</h3>
+					<label for="modal-eog" class="modal-close">
+					</label>
+					<h3 id="eogMessage" class="section">
+						{{ endgameMessage }}
+					</h3>
 				</div>
 			</div>
-
-			<my-chat v-if="showChat"></my-chat>
-			//TODO: connection + turn indicators en haut à droite (superposé au menu)
-			<my-board></my-board>
-			// TODO: controls: abort, clear, resign, draw (avec confirm box)
-			// et si partie terminée : (mode analyse) just clear, back / play
-			// + flip button toujours disponible
-				// Show current FEN (just below board, lower right corner)
-// (if mode != Dark ...)
-				elementArray.push(
-					h('div',
-						{
-							attrs: { id: "fen-div" },
-							"class": { "section-content": true },
-						},
-						[
-							h('p',
-								{
-									attrs: { id: "fen-string" },
-									domProps: { innerHTML: this.vr.getBaseFen() },
-									"class": { "text-center": true },
-								}
-							)
-						]
-					)
-				);
-			
+			<my-chat v-if="showChat">
+			</my-chat>
+			<my-board v-bind:vr="vr">
+			</my-board>
+			<div v-show="showFen" id="fen-div" class="section-content">
+				<p id="fen-string" class="text-center">
+					{{ vr.getFen() }}
+				</p>
+			</div>
 			<div id="pgn-div" class="section-content">
-				<a id="download" href: "#"></a>
+				<a id="download" href: "#">
+				</a>
 				<button id="downloadBtn" @click="download">
 					{{ translations["Download PGN"] }}
 				</button>
-			
-			<my-move-list v-if="showMoves"></my-move-list>
+			</div>
+			<my-move-list v-if="showMoves">
+			</my-move-list>
 		</div>
 	`,
-	computed: {
-		endgameMessage: function() {
-			let eogMessage = "Unfinished";
-			switch (this.game.score)
-			{
-				case "1-0":
-					eogMessage = translations["White win"];
-					break;
-				case "0-1":
-					eogMessage = translations["Black win"];
-					break;
-				case "1/2":
-					eogMessage = translations["Draw"];
-					break;
-			}
-			return eogMessage;
-		},
-	},
 	created: function() {
 		const url = socketUrl;
 		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
-//		const socketOpenListener = () => {
-//		};
-
-// TODO: after game, archive in indexedDB
-
+		// TODO: after game, archive in indexedDB
 		// TODO: this events listener is central. Refactor ? How ?
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
@@ -183,29 +152,11 @@ Vue.component('my-game', {
 
 		const socketCloseListener = () => {
 			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
-			//this.conn.addEventListener('open', socketOpenListener);
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);
 		};
-		//this.conn.onopen = socketOpenListener;
 		this.conn.onmessage = socketMessageListener;
 		this.conn.onclose = socketCloseListener;
-		
-		
-		// Listen to keyboard left/right to navigate in game
-		// TODO: also mouse wheel !
-		document.onkeydown = event => {
-			if (["human","computer"].includes(this.mode) &&
-				!!this.vr && this.vr.moves.length > 0 && [37,39].includes(event.keyCode))
-			{
-				event.preventDefault();
-				if (event.keyCode == 37) //Back
-					this.undo();
-				else //Forward (39)
-					this.play();
-			}
-		};
-
 
 		// Computer moves web worker logic: (TODO: also for observers in HH games)
 		this.compWorker.postMessage(["scripts",variant.name]);
@@ -233,19 +184,41 @@ Vue.component('my-game', {
 			}, delay);
 		}
 	},
-
-
+	//TODO: conn pourrait être une prop, donnée depuis variant.js
+	//dans variant.js (plutôt room.js) conn gère aussi les challenges
+	// Puis en webRTC, repenser tout ça.
 	methods: {
+		setEndgameMessage: function(score) {
+			let eogMessage = "Undefined";
+			switch (score)
+			{
+				case "1-0":
+					eogMessage = translations["White win"];
+					break;
+				case "0-1":
+					eogMessage = translations["Black win"];
+					break;
+				case "1/2":
+					eogMessage = translations["Draw"];
+					break;
+				case "?":
+					eogMessage = "Unfinished";
+					break;
+			}
+			this.endgameMessage = eogMessage;
+		},
 		download: function() {
 			// Variants may have special PGN structure (so next function isn't defined here)
-			const content = V.GetPGN(this.moves, this.mycolor, this.score, this.fenStart, this.mode);
+			// TODO: get fenStart from local game (using gameid)
+			const content = V.GetPGN(this.moves, this.mycolor, this.score, fenStart, this.mode);
 			// Prepare and trigger download link
 			let downloadAnchor = document.getElementById("download");
 			downloadAnchor.setAttribute("download", "game.pgn");
 			downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
 			downloadAnchor.click();
 		},
-		showScoreMsg: function() {
+		showScoreMsg: function(score) {
+			this.setEndgameMessage(score);
 			let modalBox = document.getElementById("modal-eog");
 			modalBox.checked = true;
 			setTimeout(() => { modalBox.checked = false; }, 2000);
@@ -257,14 +230,15 @@ Vue.component('my-game', {
 				const prefix = (this.mode=="computer" ? "comp-" : "");
 				localStorage.setItem(prefix+"score", score);
 			}
-			this.showScoreMsg();
+			this.showScoreMsg(score);
 			if (this.mode == "human" && this.oppConnected)
 			{
 				// Send our nickname to opponent
 				this.conn.send(JSON.stringify({
 					code:"myname", name:this.myname, oppid:this.oppid}));
 			}
-			this.cursor = this.vr.moves.length; //to navigate in finished game
+			// TODO: what about cursor ?
+			//this.cursor = this.vr.moves.length; //to navigate in finished game
 		},
 		resign: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
@@ -282,42 +256,88 @@ Vue.component('my-game', {
 			this.timeStart = Date.now();
 			this.compWorker.postMessage(["askmove"]);
 		},
-		// OK, these last functions can stay here (?!)
+		animateMove: function(move) {
+			let startSquare = document.getElementById(this.getSquareId(move.start));
+			let endSquare = document.getElementById(this.getSquareId(move.end));
+			let rectStart = startSquare.getBoundingClientRect();
+			let rectEnd = endSquare.getBoundingClientRect();
+			let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
+			let movingPiece =
+				document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
+			// HACK for animation (with positive translate, image slides "under background")
+			// Possible improvement: just alter squares on the piece's way...
+			squares = document.getElementsByClassName("board");
+			for (let i=0; i<squares.length; i++)
+			{
+				let square = squares.item(i);
+				if (square.id != this.getSquareId(move.start))
+					square.style.zIndex = "-1";
+			}
+			movingPiece.style.transform = "translate(" + translation.x + "px," +
+				translation.y + "px)";
+			movingPiece.style.transitionDuration = "0.2s";
+			movingPiece.style.zIndex = "3000";
+			setTimeout( () => {
+				for (let i=0; i<squares.length; i++)
+					squares.item(i).style.zIndex = "auto";
+				movingPiece.style = {}; //required e.g. for 0-0 with KR swap
+				this.play(move); //TODO: plutôt envoyer message "please play"
+			}, 250);
+		},
+		play: function(move, programmatic) {
+			if (!!programmatic) //computer or human opponent
+				return this.animateMove(move);
+			// Not programmatic, or animation is over
+			if (!move.notation)
+				move.notation = this.vr.getNotation(move);
+			this.vr.play(move);
+			if (!move.fen)
+				move.fen = this.vr.getFen();
+			if (this.sound == 2)
+				new Audio("/sounds/move.mp3").play().catch(err => {});
+			if (this.mode == "human")
+			{
+				updateStorage(move); //after our moves and opponent moves
+				if (this.vr.turn == this.userColor)
+					this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
+			}
+			else if (this.mode == "computer")
+			{
+				// Send the move to web worker (including his own moves)
+				this.compWorker.postMessage(["newmove",move]);
+			}
+			if (this.score == "*" || this.mode == "analyze")
+			{
+				// Stack move on movesList
+				this.moves.push(move);
+			}
+			// Is opponent in check?
+			this.incheck = this.vr.getCheckSquares(this.vr.turn);
+			const score = this.vr.getCurrentScore();
+			if (score != "*")
+			{
+				if (["human","computer"].includes(this.mode))
+					this.endGame(score);
+				else //just show score on screen (allow undo)
+					this.showScoreMsg(score);
+				// TODO: notify end of game (give score)
+			}
+			else if (this.mode == "computer" && this.vr.turn != this.userColor)
+				this.playComputerMove();
+		},
+		undo: function(move) {
+			this.vr.undo(move);
+			if (this.sound == 2)
+				new Audio("/sounds/undo.mp3").play().catch(err => {});
+			this.incheck = this.vr.getCheckSquares(this.vr.turn);
+			if (this.mode == "analyze")
+				this.moves.pop();
+		},
 	},
 })
-
-//// TODO: keep moves list here
-//get lastMove()
-//	{
-//		const L = this.moves.length;
-//		return (L>0 ? this.moves[L-1] : null);
-//	}
-//
-//// here too:
-//			move.notation = this.getNotation(move);
+// cursor + ........
 //TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
 //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
 //comme sur lichess
-			
-// send move from here:
-//if (this.mode == "human" && this.vr.turn == this.mycolor)
-			//this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
-			// TODO: play move, and stack it on this.moves (if a move was provided; otherwise just navigate)
-			
-//			if (["human","computer","friend"].includes(this.mode))
-//				this.updateStorage(); //after our moves and opponent moves
-//			if (this.mode == "computer" && this.vr.turn != this.mycolor && this.score == "*")
-//				this.playComputerMove();
-//			if (this.mode == "computer")
-//			{
-//				// Send the move to web worker (TODO: including his own moves?!)
-//				this.compWorker.postMessage(["newmove",move]);
-//			}
-//				if (["human","computer"].includes(this.mode))
-//					this.endGame(eog);
-//				else
-//				{
-//					// Just show score on screen (allow undo)
-//					this.score = eog;
-//					this.showScoreMsg();
-//				}
+//
+//TODO: quand partie terminée (ci-dessus) passer partie dans indexedDB

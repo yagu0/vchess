@@ -1,10 +1,7 @@
 Vue.component('my-board', {
 	// Last move cannot be guessed from here, and is required to highlight squares
-	// gotoMove : juste set FEN depuis FEN stocké dans le coup (TODO)
-	// send event after each move (or undo), to notify what was played
-	// also notify end of game (which returns here later through prop...)
-	props: ["fen","moveToPlay","moveToUndo",
-		"analyze","lastMove","orientation","userColor","gameOver"],
+	// vr: object to check moves, print board...
+	props: ["vr","lastMove","mode","orientation","userColor","gameOver"],
 	data: function () {
 		return {
 			hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
@@ -14,23 +11,7 @@ Vue.component('my-board', {
 			selectedPiece: null, //moving piece (or clicked piece)
 			incheck: [],
 			start: {}, //pixels coordinates + id of starting square (click or drag)
-			vr: null, //object to check moves, store them, FEN..
 		};
-	},
-	watch: {
-		// NOTE: maybe next 3 should be encapsulated in object to be watched (?)
-		fen: function(newFen) {
-			this.vr = new VariantRules(newFen);
-		},
-		moveToPlay: function(move) {
-			this.play(move, "animate");
-		},
-		moveToUndo: function(move) {
-			this.undo(move);
-		},
-	},
-	created: function() {
-		this.vr = new VariantRules(this.fen);
 	},
 	render(h) {
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
@@ -191,7 +172,7 @@ Vue.component('my-board', {
 				]));
 			}
 			let oppReservePiecesArray = [];
-			const oppCol = this.vr.getOppCol(this.userColor);
+			const oppCol = V.GetOppCol(this.userColor);
 			for (let i=0; i<V.RESERVE_PIECES.length; i++)
 			{
 				oppReservePiecesArray.push(h('div',
@@ -305,7 +286,7 @@ Vue.component('my-board', {
 				this.selectedPiece.style.zIndex = 3000;
 				const startSquare = this.getSquareFromId(e.target.parentNode.id);
 				this.possibleMoves = [];
-				const color = this.analyze || this.gameOver
+				const color = this.mode=="analyze" || this.gameOver
 					? this.vr.turn
 					: this.userColor;
 				if (this.vr.canIplay(color,startSquare))
@@ -370,54 +351,8 @@ Vue.component('my-board', {
 			});
 			return moves;
 		},
-		animateMove: function(move) {
-			let startSquare = document.getElementById(this.getSquareId(move.start));
-			let endSquare = document.getElementById(this.getSquareId(move.end));
-			let rectStart = startSquare.getBoundingClientRect();
-			let rectEnd = endSquare.getBoundingClientRect();
-			let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
-			let movingPiece =
-				document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
-			// HACK for animation (with positive translate, image slides "under background")
-			// Possible improvement: just alter squares on the piece's way...
-			squares = document.getElementsByClassName("board");
-			for (let i=0; i<squares.length; i++)
-			{
-				let square = squares.item(i);
-				if (square.id != this.getSquareId(move.start))
-					square.style.zIndex = "-1";
-			}
-			movingPiece.style.transform = "translate(" + translation.x + "px," +
-				translation.y + "px)";
-			movingPiece.style.transitionDuration = "0.2s";
-			movingPiece.style.zIndex = "3000";
-			setTimeout( () => {
-				for (let i=0; i<squares.length; i++)
-					squares.item(i).style.zIndex = "auto";
-				movingPiece.style = {}; //required e.g. for 0-0 with KR swap
-				this.play(move);
-			}, 250);
-		},
-		play: function(move, programmatic) {
-			if (!!programmatic) //computer or human opponent
-				return this.animateMove(move);
-			// Not programmatic, or animation is over
-			this.vr.play(move);
-			if (this.sound == 2)
-				new Audio("/sounds/move.mp3").play().catch(err => {});
-			// Is opponent in check?
-			this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			const eog = this.vr.getCurrentScore();
-			if (eog != "*")
-			{
-				// TODO: notify end of game (give score)
-			}
-		},
-		undo: function(move) {
-			this.vr.undo(move);
-			if (this.sound == 2)
-				new Audio("/sounds/undo.mp3").play().catch(err => {});
-			this.incheck = this.vr.getCheckSquares(this.vr.turn);
+		play: function(move) {
+			this.$emit('play-move', move);
 		},
 	},
 })
