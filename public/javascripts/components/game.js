@@ -1,4 +1,5 @@
 // TODO: envoyer juste "light move", sans FEN ni notation ...etc
+// TODO: also "observers" prop, we should send moves to them too (in a web worker ? webRTC ?)
 
 // Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {

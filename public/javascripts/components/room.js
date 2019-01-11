@@ -8,6 +8,8 @@ div(role="dialog" aria-labelledby="newGameTxt")
 		p= translations["Waiting for opponent..."]
 */
 
+// TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
+
 /*
 Players + challenges : == "room" home of variant (surligner si nouveau défi perso et pas affichage courant)
 joueurs en ligne (dte),
