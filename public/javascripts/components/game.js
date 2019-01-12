@@ -4,7 +4,7 @@
 // Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
-	props: ["gameId","mode","allowChat","allowMovelist"],
+	props: ["gameId","fen","mode","allowChat","allowMovelist"],
 	data: function() {
 		return {
 			// if oppid == "computer" then mode = "computer" (otherwise human)
@@ -23,6 +23,11 @@ Vue.component('my-game', {
 			timeStart: undefined, //time when computer starts thinking
 			vr: null, //VariantRules object, describing the game state + rules
 		};
+	},
+	watch: {
+		fen: function(newFen) {
+			this.vr = new VariantRules(newFen);
+		},
 	},
 	computed: {
 		showChat: function() {

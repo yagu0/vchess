@@ -1,4 +1,4 @@
-const Parameters =
+module.exports =
 {
 	// For mail sending. NOTE: *no trailing slash*
 	siteURL: "http://localhost:3000",
@@ -7,12 +7,12 @@ const Parameters =
 	env: process.env.NODE_ENV || 'development',
 
 	// Lifespan of a (login) cookie
-	cookieExpire: 183*24*3600*1000, //6 months in milliseconds
+	cookieExpire: 183*24*60*60*1000, //6 months in milliseconds
 
 	// Characters in a login token, and period of validity (in milliseconds)
 	token: {
 		length: 16,
-		expire: 1000*60*30, //30 minutes in milliseconds
+		expire: 30*60*1000, //30 minutes in milliseconds
 	},
 
 	// Email settings
@@ -26,5 +26,3 @@ const Parameters =
 		contact: "some_contact_email",
 	},
 };
-
-module.exports = Parameters;

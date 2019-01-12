@@ -14,7 +14,7 @@ block content
 				include welcome/fr
 		.row
 			#header.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				#mainTitle
+				#mainTitle.clickable(onClick="doClick('modalWelcome')")
 					img(src="/images/index/unicorn.svg")
 					.info-container
 						p vchess.club
@@ -22,16 +22,21 @@ block content
 				#flagMenu.clickable(onClick="doClick('modalLang')")
 					img(src="/images/flags/" + lang + ".svg")
 				include userMenu
-				#introductionMenu.clickable(onClick="doClick('modalWelcome')")
+				#mygamesMenu.clickable.right-menu(v-show="display=='variants'" @click="display='games'")
 					.info-container
-						p Introduction
-		.row
+						p My games
+				#variantsMenu.clickable.right-menu(v-show="display=='games'" @click="display='variants'")
+					.info-container
+						p Variants
+		.row(v-show="display=='variants'")
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 				label(for="prefixFilter") Type first letters...
 				input#prefixFilter(v-model="curPrefix")
-		.row
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
+		.row(v-show="display=='games'")
+			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				p TODO: load from server, show timeControl + players + link "play"
 
 block javascripts
 	script.

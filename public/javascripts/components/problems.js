@@ -38,7 +38,7 @@ Vue.component('my-problems', {
 						{{ curProb.instructions }}
 					</p>
 				</div>
-				<my-board :fen="curProb.fen" :analyze:"true" .................> //TODO: use my-game in analyze mode ?
+				<my-game :fen="curProb.fen" :mode="analyze" :allowMovelist="true">
 				</my-board>
 				<div id="solution-div" class="section-content">
 					<h3 class="clickable" @click="showSolution = !showSolution">

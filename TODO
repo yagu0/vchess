@@ -1,3 +1,8 @@
+Sur index, introduction menu remplacé par "mes parties", montrant parties (corr) en cours toutes variantes confondues
+Dans variant page, "mes parties" peut toujours contenir corr + importées (deux onglets)
+En fin de partie (observée ou non), bouton "import game" en + de "download game" ==> directement dans indexedDB
+--> sursis de 7 jours pour les parties par correspondance, qui sont encore chargées depuis le serveur
+
 mat en 2 échiqueté : brnkr3/pppp1p1p/4ps2/8/2P2P2/P1qP4/2c1s1PP/R1K5
 (Bb3+ Kb1 Ba2#)
 

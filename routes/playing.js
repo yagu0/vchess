@@ -90,12 +90,8 @@ router.get("/gamesbyplayer", access.logged, access.ajax, (req,res) => {
 	});
 });
 
-// Load a rules page
-router.get("/rules/:variant([a-zA-Z0-9]+)", access.ajax, (req,res) => {
-	res.render("rules/" + req.params["variant"]);
-});
-
 // TODO: if newmove fail, takeback in GUI // TODO: check move structure
+// TODO: for corr games, move should contain an optional "message" field ("corr chat" !)
 router.post("/moves", access.logged, access.ajax, (req,res) => {
 	let gid = ObjectId(req.body.gid);
 	let fen = req.body.fen;
@@ -106,18 +102,6 @@ router.post("/moves", access.logged, access.ajax, (req,res) => {
 		access.checkRequest(res, err, game, "Cannot find game", () => {
 			if (!!req.body.offlineOpp)
 				UserModel.tryNotify(ObjectId(req.body.offlineOpp), gid, vname, "New move");
-			res.json({});
-		});
-	});
-});
-
-//TODO: if new chat fails, do not show chat message locally
-router.post("/chats", access.logged, access.ajax, (req,res) => {
-	let gid = ObjectId(req.body.gid);
-	let uid = ObjectId(req.body.uid);
-	let msg = req.body.msg; //TODO: sanitize HTML (strip all tags...)
-	GameModel.addChat(gid, uid, msg, (err,game) => {
-		access.checkRequest(res, err, game, "Cannot find game", () => {
 			res.json({});
 		});
 	});

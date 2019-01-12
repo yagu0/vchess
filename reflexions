@@ -1,0 +1,5 @@
+tell opponent that I got the move, for him to start timer (and lose...)
+board2, board3, board4
+VariantRules2, 3 et 4 aussi
+fetch challenges and corr games from server at startup (room)
+but forbid anonymous to start corr games or accept challenges

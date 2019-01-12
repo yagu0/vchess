@@ -5,10 +5,10 @@ new Vue({
 		counts: {},
 		curPrefix: "",
 		conn: null,
+		display: "variants",
 	},
 	computed: {
 		sortedCounts: function () {
-			// TODO: priorité aux parties corr où c'est à nous de jouer !
 			const capitalizedPrefix = this.curPrefix.replace(/^\w/, c => c.toUpperCase());
 			const variantsCounts = variantArray
 			.filter( v => {
@@ -50,7 +50,7 @@ new Vue({
 		this.conn.onmessage = socketMessageListener;
 		this.conn.onclose = socketCloseListener;
 
-		// TODO:
+		// TODO: AJAX call get corr games (all variants)
 		// si dernier lastMove sur serveur n'est pas le mien et nextColor == moi, alors background orange
 		// ==> background orange si à moi de jouer par corr (sur main index)
 		// (helper: static fonction "GetNextCol()" dans base_rules.js)

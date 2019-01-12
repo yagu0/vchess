@@ -59,11 +59,11 @@ create table Games (
 
 -- Store informations about players in a corr game
 create table Players (
+	gid integer,
 	uid integer,
 	color character,
-	gid integer,
-	foreign key (uid) references Users(id),
-	foreign key (gid) references Games(id)
+	foreign key (gid) references Games(id),
+	foreign key (uid) references Users(id)
 );
 
 create table Moves (

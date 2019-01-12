@@ -65,7 +65,7 @@ exports.fetchN = function(vname, uid, type, directionStr, lastDt, MaxNbProblems,
 			"WHERE vid = (SELECT id FROM Variants WHERE name = '" + vname + "') " +
 			"  AND added " + directionStr + " " + lastDt + " " + typeLine + " " +
 			"ORDER BY added " + (directionStr=="<" ? "DESC " : "") +
-			"LIMIT " + MaxNbProblems,
+			"LIMIT " + MaxNbProblems;
 		db.all(query, callback);
 	});
 }
