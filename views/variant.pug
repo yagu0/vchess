@@ -28,9 +28,12 @@ block content
 		.row
 			//my-room(v-show="display=='room'")
 			//my-game-list(v-show="display=='gameList'")
-			my-rules(v-show="display=='rules'")
-			my-problems(v-show="display=='problems'")
+			//my-rules(v-show="display=='rules'")
+			//my-problems(v-show="display=='problems'")
 			//my-game(v-show="display=='game'" :gameId="gameid")
+			my-board(:vr="vr" :mode="mode" :orientation="orientation"
+				:user-color="userColor" :game-over="gameOver"
+				v-on:play-move="play")
 
 block javascripts
 	script(src="/javascripts/utils/array.js")
@@ -44,8 +47,9 @@ block javascripts
 		const variant = !{JSON.stringify(variant)};
 	//script(src="/javascripts/components/room.js")
 	//script(src="/javascripts/components/gameList.js")
-	script(src="/javascripts/components/rules.js")
-	script(src="/javascripts/components/problemPreview.js")
-	script(src="/javascripts/components/problems.js")
+	//script(src="/javascripts/components/rules.js")
+	script(src="/javascripts/components/board.js")
+	//script(src="/javascripts/components/problemPreview.js")
+	//script(src="/javascripts/components/problems.js")
 	//script(src="/javascripts/components/game.js")
 	script(src="/javascripts/variant.js")

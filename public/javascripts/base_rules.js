@@ -221,7 +221,7 @@ class ChessRules
 	// On which squares is color under check ? (for interface)
 	getCheckSquares(color)
 	{
-		return this.isAttacked(this.kingPos[color], [this.getOppCol(color)])
+		return this.isAttacked(this.kingPos[color], [V.GetOppCol(color)])
 			? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
 			: [];
 	}
@@ -280,7 +280,7 @@ class ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w 1111 -"; //add turn + flags + enpassant
+			" w 0 1111 -"; //add turn + flags + enpassant
 	}
 
 	// "Parse" FEN: just return untransformed string data
@@ -734,7 +734,7 @@ class ChessRules
 			return []; //x isn't first rank, or king has moved (shortcut)
 
 		// Castling ?
-		const oppCol = this.getOppCol(c);
+		const oppCol = V.GetOppCol(c);
 		let moves = [];
 		let i = 0;
 		const finalSquares = [ [2,3], [V.size.y-2,V.size.y-3] ]; //king, then rook
@@ -824,7 +824,7 @@ class ChessRules
 	getAllValidMoves()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		let potentialMoves = [];
 		for (let i=0; i<V.size.x; i++)
 		{
@@ -845,7 +845,7 @@ class ChessRules
 	atLeastOneMove()
 	{
 		const color = this.turn;
-		const oppCol = this.getOppCol(color);
+		const oppCol = V.GetOppCol(color);
 		for (let i=0; i<V.size.x; i++)
 		{
 			for (let j=0; j<V.size.y; j++)
@@ -956,7 +956,7 @@ class ChessRules
 	// Is color under check after his move ?
 	underCheck(color)
 	{
-		return this.isAttacked(this.kingPos[color], [this.getOppCol(color)]);
+		return this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]);
 	}
 
 	/////////////////
@@ -999,7 +999,7 @@ class ChessRules
 		if (c == "c") //if (!["w","b"].includes(c))
 		{
 			// 'c = move.vanish[0].c' doesn't work for Checkered
-			c = this.getOppCol(this.turn);
+			c = V.GetOppCol(this.turn);
 		}
 		const firstRank = (c == "w" ? V.size.x-1 : 0);
 
@@ -1015,7 +1015,7 @@ class ChessRules
 		if (V.HasFlags)
 		{
 			// Update castling flags if rooks are moved
-			const oppCol = this.getOppCol(c);
+			const oppCol = V.GetOppCol(c);
 			const oppFirstRank = (V.size.x-1) - firstRank;
 			if (move.start.x == firstRank //our rook moves?
 				&& this.INIT_COL_ROOK[c].includes(move.start.y))
@@ -1054,7 +1054,7 @@ class ChessRules
 		if (V.HasEnpassant)
 			this.epSquares.push( this.getEpSquare(move) );
 		V.PlayOnBoard(this.board, move);
-		this.turn = this.getOppCol(this.turn);
+		this.turn = V.GetOppCol(this.turn);
 		this.movesCount++;
 		this.updateVariables(move);
 	}
@@ -1066,7 +1066,7 @@ class ChessRules
 		if (V.HasFlags)
 			this.disaggregateFlags(JSON.parse(move.flags));
 		V.UndoOnBoard(this.board, move);
-		this.turn = this.getOppCol(this.turn);
+		this.turn = V.GetOppCol(this.turn);
 		this.movesCount--;
 		this.unupdateVariables(move);
 
@@ -1088,7 +1088,7 @@ class ChessRules
 		// Game over
 		const color = this.turn;
 		// No valid move: stalemate or checkmate?
-		if (!this.isAttacked(this.kingPos[color], [this.getOppCol(color)]))
+		if (!this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]))
 			return "1/2";
 		// OK, checkmate
 		return (color == "w" ? "0-1" : "1-0");

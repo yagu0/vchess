@@ -14,6 +14,8 @@ Vue.component('my-board', {
 		};
 	},
 	render(h) {
+		if (!this.vr)
+			return;
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		// Precompute hints squares to facilitate rendering
 		let hintSquares = doubleArray(sizeX, sizeY, false);
@@ -21,6 +23,7 @@ Vue.component('my-board', {
 		// Also precompute in-check squares
 		let incheckSq = doubleArray(sizeX, sizeY, false);
 		this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
+		const squareWidth = 40; //TODO: compute this
 		const choices = h(
 			'div',
 			{
@@ -85,7 +88,8 @@ Vue.component('my-board', {
 						let cj = (this.orientation=='w' ? j : sizeY-j-1);
 						let elems = [];
 						if (this.vr.board[ci][cj] != V.EMPTY && (variant.name!="Dark"
-							|| this.gameOver || this.vr.enlightened[this.userColor][ci][cj]))
+							|| this.gameOver || this.mode == "analyze"
+							|| this.vr.enlightened[this.userColor][ci][cj]))
 						{
 							elems.push(
 								h(
@@ -130,6 +134,7 @@ Vue.component('my-board', {
 									'dark-square': (i+j)%2==1,
 									[this.bcolor]: true,
 									'in-shadow': variant.name=="Dark" && !this.gameOver
+										&& this.mode != "analyze"
 										&& !this.vr.enlightened[this.userColor][ci][cj],
 									'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
 									'incheck': showLight && incheckSq[ci][cj],
