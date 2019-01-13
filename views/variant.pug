@@ -32,8 +32,7 @@ block content
 			//my-problems(v-show="display=='problems'")
 			//my-game(v-show="display=='game'" :gameId="gameid")
 			my-board(:vr="vr" :mode="mode" :orientation="orientation"
-				:user-color="userColor" :game-over="gameOver"
-				v-on:play-move="play")
+				:user-color="userColor" v-on:play-move="play")
 
 block javascripts
 	script(src="/javascripts/utils/array.js")

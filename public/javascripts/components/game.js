@@ -4,6 +4,7 @@
 // Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
+	// fen: to start from a FEN without identifiers (analyze mode)
 	props: ["gameId","fen","mode","allowChat","allowMovelist"],
 	data: function() {
 		return {
@@ -22,6 +23,13 @@ Vue.component('my-game', {
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
 			vr: null, //VariantRules object, describing the game state + rules
+		
+			// orientation :: button flip
+			// userColor: given by gameId, or fen (if no game Id)
+			// gameOver: known if gameId; otherwise assue false
+			// lastMove: update after every play, initialize with last move from list (if continuation)
+			//orientation ? userColor ? gameOver ? lastMove ?
+		
 		};
 	},
 	watch: {
@@ -82,7 +90,9 @@ Vue.component('my-game', {
 	`,
 	created: function() {
 		const url = socketUrl;
-		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
+
+// TODO: connexion initialized in variant.js and passed as a prop
+
 		// TODO: after game, archive in indexedDB
 		// TODO: this events listener is central. Refactor ? How ?
 		const socketMessageListener = msg => {
@@ -157,7 +167,6 @@ Vue.component('my-game', {
 		};
 
 		const socketCloseListener = () => {
-			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);
 		};

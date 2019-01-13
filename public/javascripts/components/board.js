@@ -1,7 +1,9 @@
 Vue.component('my-board', {
 	// Last move cannot be guessed from here, and is required to highlight squares
 	// vr: object to check moves, print board...
-	props: ["vr","lastMove","mode","orientation","userColor","gameOver"],
+	// mode: HH, HC or analyze
+	// userColor: for mode HH or HC
+	props: ["vr","lastMove","mode","orientation","userColor"],
 	data: function () {
 		return {
 			hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),

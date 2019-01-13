@@ -3,13 +3,13 @@ new Vue({
 	data: {
 		display: "undefined", //default to main hall; see "created()" function
 		gameid: "undefined", //...yet
-		
+	
+		conn: null,
+
 		// TEMPORARY: DEBUG
-		vr: null,
 		mode: "analyze",
 		orientation: "w",
 		userColor: "w",
-		gameOver: false,
 	},
 	created: function() {
 		// TODO: navigation becomes a little more complex
@@ -17,6 +17,12 @@ new Vue({
 		const hashPos = url.indexOf("#");
 		const page = (hashPos >= 0 ? url.substr(hashPos+1) : "room");
 		this.setDisplay(page);
+
+		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
+		const socketCloseListener = () => {
+			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
+		}
+		this.conn.onclose = socketCloseListener;
 
 		this.vr = new VariantRules( V.GenRandInitFen() );
 	},
