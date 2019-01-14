@@ -1,4 +1,6 @@
 tell opponent that I got the move, for him to start timer (and lose...)
+  --> no, not needed and impossible if everybody is offline
+	==> just store this time locally (cheating possible but...)
 board2, board3, board4
 VariantRules2, 3 et 4 aussi
 fetch challenges and corr games from server at startup (room)

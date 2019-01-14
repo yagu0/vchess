@@ -22,10 +22,10 @@ block content
 				#flagMenu.clickable(onClick="doClick('modalLang')")
 					img(src="/images/flags/" + lang + ".svg")
 				include userMenu
-				#mygamesMenu.clickable.right-menu(v-show="display=='variants'" @click="display='games'")
+				a.right-menu(v-show="display=='variants'" href="#games")
 					.info-container
 						p My games
-				#variantsMenu.clickable.right-menu(v-show="display=='games'" @click="display='variants'")
+				a.right-menu(v-show="display=='games'" href="#variants")
 					.info-container
 						p Variants
 		.row(v-show="display=='variants'")

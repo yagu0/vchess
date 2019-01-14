@@ -30,6 +30,9 @@ new Vue({
 		},
 	},
 	created: function() {
+		this.setDisplay();
+		window.onhashchange = this.setDisplay;
+		
 		const url = socketUrl;
 		const sid = getRandString();
 		this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");
@@ -54,5 +57,14 @@ new Vue({
 		// si dernier lastMove sur serveur n'est pas le mien et nextColor == moi, alors background orange
 		// ==> background orange si à moi de jouer par corr (sur main index)
 		// (helper: static fonction "GetNextCol()" dans base_rules.js)
+
+	},
+	methods: {
+		setDisplay: function() {
+			if (!location.hash)
+				location.hash = "#variants"; //default
+			this.display = location.hash.substr(1);
+		},
+
 	},
 });

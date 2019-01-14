@@ -18,7 +18,7 @@ new Vue({
 	created: function() {
 		// TODO: navigation becomes a little more complex
 		this.setDisplay();
-
+		window.onhashchange = this.setDisplay;
 
 		this.myid = "abcdefghij";
 //console.log(this.myid + " " + variant);
@@ -29,7 +29,6 @@ new Vue({
 		}
 		this.conn.onclose = socketCloseListener;
 
-		window.onhashchange = this.setDisplay;
 		//this.vr = new VariantRules( V.GenRandInitFen() );
 	},
 	methods: {
@@ -37,8 +36,9 @@ new Vue({
 
 //TODO: prevent set display if there is a running game
 
-			const page = (location.hash || "#room").substr(1);
-			this.display = page;
+			if (!location.hash)
+				location.hash = "#room"; //default
+			this.display = location.hash.substr(1);
 			// Close menu on small screens:
 			let menuToggle = document.getElementById("drawer-control");
 			if (!!menuToggle)

@@ -55,12 +55,16 @@ Vue.component('my-game', {
 	},
 	// Modal end of game, and then sub-components
 	// TODO: provide chat parameters (connection, players ID...)
-	// and alwo moveList parameters (just moves ?)
+	// and also moveList parameters (just moves ?)
 	// TODO: connection + turn indicators en haut à droite (superposé au menu)
 	// TODO: controls: abort, clear, resign, draw (avec confirm box)
 	// et si partie terminée : (mode analyse) just clear, back / play
 	// + flip button toujours disponible
 	// gotoMove : vr = new VariantRules(fen stocké dans le coup [TODO])
+	
+	// NOTE: move.color must be fulfilled after each move played, because of Marseille (or Avalanche) chess
+	// --> useful in moveList component (universal comma separator ?)
+	
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<input id="modal-eog" type="checkbox" class="modal"/>
@@ -83,7 +87,7 @@ Vue.component('my-game', {
 				</p>
 			</div>
 			<div id="pgn-div" class="section-content">
-				<a id="download" href: "#">
+				<a id="download" href="#">
 				</a>
 				<button id="downloadBtn" @click="download">
 					{{ translate("Download PGN") }}

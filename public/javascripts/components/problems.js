@@ -129,6 +129,7 @@ Vue.component('my-problems', {
 		</div>
 	`,
 	created: function() {
+		// TODO: adapt this, #problems:28 ? (for example)
 		if (location.hash.length > 0)
 			this.showProblem(location.hash.slice(1));
 		else
