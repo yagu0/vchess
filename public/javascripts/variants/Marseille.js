@@ -292,61 +292,6 @@ class MarseilleRules extends ChessRules
 			return selected[0];
 		return selected;
 	}
-
-	// TODO: put this generic version elsewhere
-	getPGN(mycolor, score, fenStart, mode)
-	{
-		let pgn = "";
-		pgn += '[Site "vchess.club"]\n';
-		const opponent = mode=="human" ? "Anonymous" : "Computer";
-		pgn += '[Variant "' + variant + '"]\n';
-		pgn += '[Date "' + getDate(new Date()) + '"]\n';
-		const whiteName = ["human","computer"].includes(mode)
-			? (mycolor=='w'?'Myself':opponent)
-			: "analyze";
-		const blackName = ["human","computer"].includes(mode)
-			? (mycolor=='b'?'Myself':opponent)
-			: "analyze";
-		pgn += '[White "' + whiteName + '"]\n';
-		pgn += '[Black "' + blackName + '"]\n';
-		pgn += '[FenStart "' + fenStart + '"]\n';
-		pgn += '[Fen "' + this.getFen() + '"]\n';
-		pgn += '[Result "' + score + '"]\n\n';
-
-		let counter = 1;
-		let i = 0;
-		while (i < this.moves.length)
-		{
-			pgn += (counter++) + ".";
-			for (let color of ["w","b"])
-			{
-				let move = "";
-				while (i < this.moves.length && this.moves[i].color == color)
-					move += this.moves[i++].notation[0] + ",";
-				move = move.slice(0,-1); //remove last comma
-				pgn += move + (i < this.moves.length-1 ? " " : "");
-			}
-		}
-		pgn += "\n\n";
-
-		// "Complete moves" PGN (helping in ambiguous cases)
-		counter = 1;
-		i = 0;
-		while (i < this.moves.length)
-		{
-			pgn += (counter++) + ".";
-			for (let color of ["w","b"])
-			{
-				let move = "";
-				while (i < this.moves.length && this.moves[i].color == color)
-					move += this.moves[i++].notation[1] + ",";
-				move = move.slice(0,-1); //remove last comma
-				pgn += move + (i < this.moves.length-1 ? " " : "");
-			}
-		}
-
-		return pgn + "\n";
-	}
 }
 
 const VariantRules = MarseilleRules;

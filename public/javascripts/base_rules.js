@@ -1316,42 +1316,4 @@ class ChessRules
 				(move.vanish.length > move.appear.length ? "x" : "") + finalSquare;
 		}
 	}
-
-	// Complete the usual notation, may be required for de-ambiguification
-	getLongNotation(move)
-	{
-		// Not encoding move. But short+long is enough
-		return V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
-	}
-
-	// The score is already computed when calling this function
-	getPGN(moves, mycolor, score, fenStart, mode)
-	{
-		let pgn = "";
-		pgn += '[Site "vchess.club"]\n';
-		const opponent = mode=="human" ? "Anonymous" : "Computer";
-		pgn += '[Variant "' + variant + '"]\n';
-		pgn += '[Date "' + getDate(new Date()) + '"]\n';
-		// TODO: later when users are a bit less anonymous, use better names
-		const whiteName = ["human","computer"].includes(mode)
-			? (mycolor=='w'?'Myself':opponent)
-			: "analyze";
-		const blackName = ["human","computer"].includes(mode)
-			? (mycolor=='b'?'Myself':opponent)
-			: "analyze";
-		pgn += '[White "' + whiteName + '"]\n';
-		pgn += '[Black "' + blackName + '"]\n';
-		pgn += '[Fen "' + fenStart + '"]\n';
-		pgn += '[Result "' + score + '"]\n\n';
-
-		// Print moves
-		for (let i=0; i<moves.length; i++)
-		{
-			if (i % 2 == 0)
-				pgn += ((i/2)+1) + ".";
-			pgn += moves[i].notation + " ";
-		}
-
-		return pgn + "\n";
-	}
 }

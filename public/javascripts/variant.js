@@ -22,6 +22,7 @@ new Vue({
 
 		this.myid = "abcdefghij";
 //console.log(this.myid + " " + variant);
+			//myid: localStorage.getItem("myid"), //our ID, always set
 
 		this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
 		const socketCloseListener = () => {

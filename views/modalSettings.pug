@@ -6,7 +6,9 @@ div(role="dialog" aria-labelledby="settingsTitle")
 		// taille echiquier : TODO
 		fieldset
 			label(for="setHints")= translations["Show hints?"]
-			input#setHints(type: "checkbox" checked=this.hints)
+			// TODO: this.hints will not work. Idea: query storage in a generic way ?
+			// --> getValue("hints") par exemple
+			input#setHints(type="checkbox" checked=this.hints)
 		fieldset
 			label(for="selectColor")= translations["Board colors"]
 			select#selectColor

@@ -5,7 +5,7 @@ function zeroPad(x)
 
 function getDate(d)
 {
-	return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + zeroPad(d.getDate());
+	return d.getFullYear() + '-' + zeroPad(d.getMonth()+1) + '-' + zeroPad(d.getDate());
 }
 
 function getTime(d)

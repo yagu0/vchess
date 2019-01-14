@@ -1,6 +1,5 @@
 // TODO: envoyer juste "light move", sans FEN ni notation ...etc
 // TODO: also "observers" prop, we should send moves to them too (in a web worker ? webRTC ?)
-
 // Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
@@ -8,14 +7,7 @@ Vue.component('my-game', {
 	props: ["conn","gameId","fen","mode","allowChat","allowMovelist"],
 	data: function() {
 		return {
-			// if oppid == "computer" then mode = "computer" (otherwise human)
-			myid: "", //our ID, always set
-			//this.myid = localStorage.getItem("myid")
-			oppid: "", //opponent ID in case of HH game
-			score: "*", //'*' means 'unfinished'
-			mycolor: "w",
 			oppConnected: false, //TODO?
-			pgnTxt: "",
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
 			sound: parseInt(localStorage["sound"] || "2"),
 			// Web worker to play computer moves without freezing interface:
@@ -24,16 +16,16 @@ Vue.component('my-game', {
 			vr: null, //VariantRules object, describing the game state + rules
 			endgameMessage: "",
 			orientation: "w",
+
+			// if oppid == "computer" then mode = "computer" (otherwise human)
+			oppid: "", //opponent ID in case of HH game
+			score: "*", //'*' means 'unfinished'
+			// userColor: given by gameId, or fen (if no game Id)
+			mycolor: "w",
 			fenStart: "",
-			
 			moves: [], //TODO: initialize if gameId is defined...
 			cursor: 0,
-			// orientation :: button flip
-			// userColor: given by gameId, or fen (if no game Id)
-			// gameOver: known if gameId; otherwise assue false
-			// lastMove: update after every play, initialize with last move from list (if continuation)
-			//orientation ? userColor ? gameOver ? lastMove ?
-		
+			lastMove: null,
 		};
 	},
 	watch: {
@@ -58,16 +50,7 @@ Vue.component('my-game', {
 	},
 	// Modal end of game, and then sub-components
 	// TODO: provide chat parameters (connection, players ID...)
-	// and also moveList parameters (just moves ?)
-	// TODO: connection + turn indicators en haut à droite (superposé au menu)
 	// TODO: controls: abort, clear, resign, draw (avec confirm box)
-	// et si partie terminée : (mode analyse) just clear, back / play
-	// + flip button toujours disponible
-	// gotoMove : vr = new VariantRules(fen stocké dans le coup [TODO])
-	
-	// NOTE: move.color must be fulfilled after each move played, because of Marseille (or Avalanche) chess
-	// --> useful in moveList component (universal comma separator ?)
-	
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<input id="modal-eog" type="checkbox" class="modal"/>
@@ -82,7 +65,7 @@ Vue.component('my-game', {
 			</div>
 			<my-chat v-if="showChat">
 			</my-chat>
-			<my-board v-bind:vr="vr" :mode="mode" :orientation="orientation" :user-color="mycolor" @play-move="play">
+			<my-board v-bind:vr="vr" :last-move="lastMove" :mode="mode" :orientation="orientation" :user-color="mycolor" @play-move="play">
 			</my-board>
 			<div class="button-group">
 				<button @click="() => play()">Play</button>
@@ -227,7 +210,14 @@ Vue.component('my-game', {
 	methods: {
 		translate: translate,
 		loadGame: function() {
-			// TODO: load this.gameId ...
+			const game = getGameFromStorage(this.gameId);
+			this.oppid = game.oppid; //opponent ID in case of running HH game
+			this.score = game.score;
+			this.mycolor = game.mycolor || "w";
+			this.fenStart = game.fenStart;
+			this.moves = game.moves;
+			this.cursor = game.moves.length;
+			this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor-1] : null);
 		},
 		setEndgameMessage: function(score) {
 			let eogMessage = "Undefined";
@@ -249,14 +239,44 @@ Vue.component('my-game', {
 			this.endgameMessage = eogMessage;
 		},
 		download: function() {
-			// Variants may have special PGN structure (so next function isn't defined here)
-			// TODO: get fenStart from local game (using gameid)
-			const content = V.GetPGN(this.moves, this.mycolor, this.score, fenStart, this.mode);
+			const content = this.getPgn();
 			// Prepare and trigger download link
 			let downloadAnchor = document.getElementById("download");
 			downloadAnchor.setAttribute("download", "game.pgn");
 			downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
 			downloadAnchor.click();
+		},
+		getPgn: function() {
+			let pgn = "";
+			pgn += '[Site "vchess.club"]\n';
+			const opponent = (this.mode=="human" ? "Anonymous" : "Computer");
+			pgn += '[Variant "' + variant.name + '"]\n';
+			pgn += '[Date "' + getDate(new Date()) + '"]\n';
+			const whiteName = ["human","computer"].includes(this.mode)
+				? (this.mycolor=='w'?'Myself':opponent)
+				: "analyze";
+			const blackName = ["human","computer"].includes(this.mode)
+				? (this.mycolor=='b'?'Myself':opponent)
+				: "analyze";
+			pgn += '[White "' + whiteName + '"]\n';
+			pgn += '[Black "' + blackName + '"]\n';
+			pgn += '[Fen "' + this.fenStart + '"]\n';
+			pgn += '[Result "' + this.score + '"]\n\n';
+			let counter = 1;
+			let i = 0;
+			while (i < this.moves.length)
+			{
+				pgn += (counter++) + ".";
+				for (let color of ["w","b"])
+				{
+					let move = "";
+					while (i < this.moves.length && this.moves[i].color == color)
+						move += this.moves[i++].notation[0] + ",";
+					move = move.slice(0,-1); //remove last comma
+					pgn += move + (i < this.moves.length-1 ? " " : "");
+				}
+			}
+			return pgn + "\n";
 		},
 		showScoreMsg: function(score) {
 			this.setEndgameMessage(score);
@@ -345,6 +365,7 @@ Vue.component('my-game', {
 				move.color = this.vr.turn;
 			this.vr.play(move);
 			this.cursor++;
+			this.lastMove = move;
 			if (!move.fen)
 				move.fen = this.vr.getFen();
 			if (this.sound == 2)
@@ -381,6 +402,7 @@ Vue.component('my-game', {
 			}
 			else if (this.mode == "computer" && this.vr.turn != this.userColor)
 				this.playComputerMove();
+			// https://vuejs.org/v2/guide/list.html#Caveats (also for undo)
 			if (navigate)
 				this.$children[0].$forceUpdate(); //TODO!?
 		},
@@ -394,6 +416,7 @@ Vue.component('my-game', {
 			}
 			this.vr.undo(move);
 			this.cursor--;
+			this.lastMove = (this.cursor > 0 ? this.moves[this.cursor-1] : undefined);
 			if (navigate)
 				this.$children[0].$forceUpdate(); //TODO!?
 			if (this.sound == 2)
@@ -407,13 +430,16 @@ Vue.component('my-game', {
 		gotoMove: function(index) {
 			this.vr = new VariantRules(this.moves[index].fen);
 			this.cursor = index+1;
+			this.lastMove = this.moves[index];
 		},
 		gotoBegin: function() {
 			this.vr = new VariantRules(this.fenStart);
 			this.cursor = 0;
+			this.lastMove = null;
 		},
 		gotoEnd: function() {
 			this.gotoMove(this.moves.length-1);
+			this.lastMove = this.moves[this.moves.length-1];
 		},
 		flip: function() {
 			this.orientation = V.GetNextCol(this.orientation);
@@ -423,5 +449,4 @@ Vue.component('my-game', {
 //TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
 //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
 //comme sur lichess
-//
 //TODO: quand partie terminée (ci-dessus) passer partie dans indexedDB

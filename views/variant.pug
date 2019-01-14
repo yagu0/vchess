@@ -4,7 +4,7 @@ block css
 	link(rel="stylesheet" href="/stylesheets/variant.css")
 
 block content
-	include settings
+	include modalSettings
 	.container
 		.row
 			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -44,6 +44,7 @@ block javascripts
 	script(src="/javascripts/utils/datetime.js")
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/base_rules.js")
+	script(src="/javascripts/settings.js")
 	script(src="/javascripts/variants/" + variant.name + ".js")
 	script.
 		const V = VariantRules; //because this variable is often used
