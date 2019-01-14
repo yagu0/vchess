@@ -38,9 +38,9 @@ new Vue({
 			if (data.code == "counts")
 				this.counts = data.counts;
 			else if (data.code == "increase")
-				this.counts[data.vname]++;
+				this.counts[data.vid]++;
 			else if (data.code == "decrease")
-				this.counts[data.vname]--;
+				this.counts[data.vid]--;
 		};
 		const socketCloseListener = () => {
 			this.conn = new WebSocket(url + "/?sid=" + sid + "&page=index");

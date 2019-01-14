@@ -5,7 +5,7 @@
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
 	// fen: to start from a FEN without identifiers (analyze mode)
-	props: ["gameId","fen","mode","allowChat","allowMovelist"],
+	props: ["conn","gameId","fen","mode","allowChat","allowMovelist"],
 	data: function() {
 		return {
 			// if oppid == "computer" then mode = "computer" (otherwise human)
@@ -14,7 +14,6 @@ Vue.component('my-game', {
 			oppid: "", //opponent ID in case of HH game
 			score: "*", //'*' means 'unfinished'
 			mycolor: "w",
-			conn: null, //socket connection (et WebRTC connection ?!)
 			oppConnected: false, //TODO?
 			pgnTxt: "",
 			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
@@ -23,7 +22,10 @@ Vue.component('my-game', {
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
 			vr: null, //VariantRules object, describing the game state + rules
-		
+			endgameMessage: "",
+			orientation: "w",
+			
+			moves: [], //TODO: initialize if gameId is defined...
 			// orientation :: button flip
 			// userColor: given by gameId, or fen (if no game Id)
 			// gameOver: known if gameId; otherwise assue false
@@ -35,6 +37,9 @@ Vue.component('my-game', {
 	watch: {
 		fen: function(newFen) {
 			this.vr = new VariantRules(newFen);
+		},
+		gameId: function() {
+			this.loadGame();
 		},
 	},
 	computed: {
@@ -70,9 +75,9 @@ Vue.component('my-game', {
 			</div>
 			<my-chat v-if="showChat">
 			</my-chat>
-			<my-board v-bind:vr="vr">
+			<my-board v-bind:vr="vr" :mode="mode" :orientation="orientation" :user-color="mycolor" @play-move="play">
 			</my-board>
-			<div v-show="showFen" id="fen-div" class="section-content">
+			<div v-if="showFen && !!vr" id="fen-div" class="section-content">
 				<p id="fen-string" class="text-center">
 					{{ vr.getFen() }}
 				</p>
@@ -81,7 +86,7 @@ Vue.component('my-game', {
 				<a id="download" href: "#">
 				</a>
 				<button id="downloadBtn" @click="download">
-					{{ translations["Download PGN"] }}
+					{{ translate("Download PGN") }}
 				</button>
 			</div>
 			<my-move-list v-if="showMoves">
@@ -89,10 +94,13 @@ Vue.component('my-game', {
 		</div>
 	`,
 	created: function() {
-		const url = socketUrl;
 
-// TODO: connexion initialized in variant.js and passed as a prop
-
+//		console.log(this.fen);
+//		console.log(this.gameId);
+		if (!!this.gameId)
+			this.loadGame();
+		else if (!!this.fen)
+			this.vr = new VariantRules(this.fen);
 		// TODO: after game, archive in indexedDB
 		// TODO: this events listener is central. Refactor ? How ?
 		const socketMessageListener = msg => {
@@ -199,10 +207,14 @@ Vue.component('my-game', {
 			}, delay);
 		}
 	},
-	//TODO: conn pourrait être une prop, donnée depuis variant.js
+	// this.conn est une prop, donnée depuis variant.js
 	//dans variant.js (plutôt room.js) conn gère aussi les challenges
 	// Puis en webRTC, repenser tout ça.
 	methods: {
+		translate: translate,
+		loadGame: function() {
+			// TODO: load this.gameId ...
+		},
 		setEndgameMessage: function(score) {
 			let eogMessage = "Undefined";
 			switch (score)

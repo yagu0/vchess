@@ -2,7 +2,7 @@ new Vue({
 	el: "#VueElement",
 	data: {
 		display: "undefined", //default to main hall; see "created()" function
-		gameid: "undefined", //...yet
+		gameid: undefined, //...yet
 	
 		conn: null,
 
@@ -10,25 +10,35 @@ new Vue({
 		mode: "analyze",
 		orientation: "w",
 		userColor: "w",
+
+		allowChat: false,
+		allowMovelist: false,
+		fen: V.GenRandInitFen(),
 	},
 	created: function() {
 		// TODO: navigation becomes a little more complex
-		const url = window.location.href;
-		const hashPos = url.indexOf("#");
-		const page = (hashPos >= 0 ? url.substr(hashPos+1) : "room");
-		this.setDisplay(page);
+		this.setDisplay();
 
-		this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
+
+		this.myid = "abcdefghij";
+//console.log(this.myid + " " + variant);
+
+		this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
 		const socketCloseListener = () => {
-			this.conn = new WebSocket(url + "/?sid=" + this.myid + "&page=" + variant._id);
+			this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
 		}
 		this.conn.onclose = socketCloseListener;
 
-		this.vr = new VariantRules( V.GenRandInitFen() );
+		window.onhashchange = this.setDisplay;
+		//this.vr = new VariantRules( V.GenRandInitFen() );
 	},
 	methods: {
-		setDisplay: function(elt) {
-			this.display = elt;
+		setDisplay: function() {
+
+//TODO: prevent set display if there is a running game
+
+			const page = (location.hash || "#room").substr(1);
+			this.display = page;
 			// Close menu on small screens:
 			let menuToggle = document.getElementById("drawer-control");
 			if (!!menuToggle)

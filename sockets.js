@@ -22,7 +22,7 @@ module.exports = function(wss) {
 			let clients = { "index": {} };
 			let games = {}; //pending games (player sid)
 			for (const v of variants)
-				clients[v.name] = {};
+				clients[v.id] = {};
 			// No-op function as a callback when sending messages
 			const noop = () => { };
 			wss.on("connection", (socket, req) => {
@@ -44,7 +44,7 @@ module.exports = function(wss) {
 					// Send counting info
 					const countings = {};
 					for (const v of variants)
-						countings[v.name] = Object.keys(clients[v.name]).length;
+						countings[v.id] = Object.keys(clients[v.id]).length;
 					socket.send(JSON.stringify({code:"counts",counts:countings}));
 				}
 				else
@@ -52,7 +52,7 @@ module.exports = function(wss) {
 					// Send to every client connected on index an update message for counts
 					Object.keys(clients["index"]).forEach( k => {
 						clients["index"][k].send(
-							JSON.stringify({code:"increase",vname:page}), noop);
+							JSON.stringify({code:"increase",vid:page}), noop);
 					});
 					// Also notify potential opponents:
 					// hit all clients which check if sid corresponds
@@ -139,7 +139,7 @@ module.exports = function(wss) {
 						// Send to every client connected on index an update message for counts
 						Object.keys(clients["index"]).forEach( k => {
 							clients["index"][k].send(
-								JSON.stringify({code:"decrease",vname:page}), noop);
+								JSON.stringify({code:"decrease",vid:page}), noop);
 						});
 					}
 					// Also notify potential opponents:

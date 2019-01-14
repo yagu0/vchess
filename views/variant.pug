@@ -30,8 +30,10 @@ block content
 			//my-game-list(v-show="display=='gameList'")
 			//my-rules(v-show="display=='rules'")
 			//my-problems(v-show="display=='problems'")
-			//my-game(v-show="display=='game'" :gameId="gameid")
-			my-board(:vr="vr" :mode="mode" :orientation="orientation"
+			my-game(v-show="display=='game'" :game-id="gameid" :conn="conn"
+				:allow-chat="allowChat" :allow-movelist="allowMovelist"
+				:mode="mode" :fen="fen")
+			//my-board(:vr="vr" :mode="mode" :orientation="orientation"
 				:user-color="userColor" v-on:play-move="play")
 
 block javascripts
@@ -50,5 +52,5 @@ block javascripts
 	script(src="/javascripts/components/board.js")
 	//script(src="/javascripts/components/problemPreview.js")
 	//script(src="/javascripts/components/problems.js")
-	//script(src="/javascripts/components/game.js")
+	script(src="/javascripts/components/game.js")
 	script(src="/javascripts/variant.js")

@@ -41,3 +41,7 @@ function doClick(elemId)
 {
 	document.getElementById(elemId).click(); //or ".checked = true"
 }
+
+function translate(msg) {
+	return translations[msg];
+}
