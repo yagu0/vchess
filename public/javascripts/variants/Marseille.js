@@ -19,8 +19,6 @@ class MarseilleRules extends ChessRules
 
 	getTurnFen()
 	{
-		if (this.startAtFirstMove && this.moves.length==0)
-			return "w";
 		return this.turn + this.subTurn;
 	}
 
@@ -56,9 +54,8 @@ class MarseilleRules extends ChessRules
 		// Extract subTurn from turn indicator: "w" (first move), or
 		// "w1" or "w2" white subturn 1 or 2, and same for black
 		const fullTurn = V.ParseFen(fen).turn;
-		this.startAtFirstMove = (fullTurn == "w");
 		this.turn = fullTurn[0];
-		this.subTurn = (fullTurn[1] || 1);
+		this.subTurn = (fullTurn[1] || 0); //"w0" = special code for first move in game
 	}
 
 	getPotentialPawnMoves([x,y])
@@ -144,18 +141,13 @@ class MarseilleRules extends ChessRules
 		return moves;
 	}
 
-	play(move, ingame)
+	play(move)
 	{
-		if (!!ingame)
-		{
-			move.notation = [this.getNotation(move), this.getLongNotation(move)];
-			// In this special case, we also need the "move color":
-			move.color = this.turn;
-		}
 		move.flags = JSON.stringify(this.aggregateFlags());
+		move.turn = this.turn + this.subturn;
 		V.PlayOnBoard(this.board, move);
 		const epSq = this.getEpSquare(move);
-		if (this.startAtFirstMove && this.moves.length == 0)
+		if (this.subTurn == 0) //first move in game
 		{
 			this.turn = "b";
 			this.epSquares.push([epSq]);
@@ -179,40 +171,22 @@ class MarseilleRules extends ChessRules
 				this.epSquares.push([epSq]);
 			this.subTurn = 3 - this.subTurn;
 		}
-		this.moves.push(move);
 		this.updateVariables(move);
-		if (!!ingame)
-			move.hash = hex_md5(this.getFen());
 	}
 
 	undo(move)
 	{
 		this.disaggregateFlags(JSON.parse(move.flags));
 		V.UndoOnBoard(this.board, move);
-		if (this.startAtFirstMove && this.moves.length == 1)
-		{
-			this.turn = "w";
+		if (move.turn[1] == '0' || move.checkOnSubturn1 || this.subTurn == 2)
 			this.epSquares.pop();
-		}
-		else if (move.checkOnSubturn1)
+		else //this.subTurn == 1
 		{
-			this.turn = V.GetOppCol(this.turn);
-			this.subTurn = 1;
-			this.epSquares.pop();
+			let lastEpsq = this.epSquares[this.epSquares.length-1];
+			lastEpsq.pop();
 		}
-		else
-		{
-			if (this.subTurn == 1)
-			{
-				this.turn = V.GetOppCol(this.turn);
-				let lastEpsq = this.epSquares[this.epSquares.length-1];
-				lastEpsq.pop();
-			}
-			else
-				this.epSquares.pop();
-			this.subTurn = 3 - this.subTurn;
-		}
-		this.moves.pop();
+		this.turn = move.turn[0];
+		this.subTurn = parseInt(move.turn[1]);
 		this.unupdateVariables(move);
 	}
 
@@ -319,6 +293,7 @@ class MarseilleRules extends ChessRules
 		return selected;
 	}
 
+	// TODO: put this generic version elsewhere
 	getPGN(mycolor, score, fenStart, mode)
 	{
 		let pgn = "";

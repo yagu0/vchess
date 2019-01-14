@@ -12,7 +12,7 @@ new Vue({
 		userColor: "w",
 
 		allowChat: false,
-		allowMovelist: false,
+		allowMovelist: true,
 		fen: V.GenRandInitFen(),
 	},
 	created: function() {

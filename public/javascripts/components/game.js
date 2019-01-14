@@ -24,8 +24,10 @@ Vue.component('my-game', {
 			vr: null, //VariantRules object, describing the game state + rules
 			endgameMessage: "",
 			orientation: "w",
+			fenStart: "",
 			
 			moves: [], //TODO: initialize if gameId is defined...
+			cursor: 0,
 			// orientation :: button flip
 			// userColor: given by gameId, or fen (if no game Id)
 			// gameOver: known if gameId; otherwise assue false
@@ -47,6 +49,7 @@ Vue.component('my-game', {
 			return this.allowChat && this.mode=='human' && this.score != '*';
 		},
 		showMoves: function() {
+			return true;
 			return this.allowMovelist && window.innerWidth >= 768;
 		},
 		showFen: function() {
@@ -81,6 +84,13 @@ Vue.component('my-game', {
 			</my-chat>
 			<my-board v-bind:vr="vr" :mode="mode" :orientation="orientation" :user-color="mycolor" @play-move="play">
 			</my-board>
+			<div class="button-group">
+				<button @click="() => play()">Play</button>
+				<button @click="() => undo()">Undo</button>
+				<button @click="flip">Flip</button>
+				<button @click="gotoBegin">GotoBegin</button>
+				<button @click="gotoEnd">GotoEnd</button>
+			</div>
 			<div v-if="showFen && !!vr" id="fen-div" class="section-content">
 				<p id="fen-string" class="text-center">
 					{{ vr.getFen() }}
@@ -93,18 +103,18 @@ Vue.component('my-game', {
 					{{ translate("Download PGN") }}
 				</button>
 			</div>
-			<my-move-list v-if="showMoves" :moves="moves">
+			<my-move-list v-if="showMoves" :moves="moves" :cursor="cursor" @goto-move="gotoMove">
 			</my-move-list>
 		</div>
 	`,
 	created: function() {
-
-//		console.log(this.fen);
-//		console.log(this.gameId);
 		if (!!this.gameId)
 			this.loadGame();
 		else if (!!this.fen)
+		{
 			this.vr = new VariantRules(this.fen);
+			this.fenStart = this.fen;
+		}
 		// TODO: after game, archive in indexedDB
 		// TODO: this events listener is central. Refactor ? How ?
 		const socketMessageListener = msg => {
@@ -316,12 +326,25 @@ Vue.component('my-game', {
 			}, 250);
 		},
 		play: function(move, programmatic) {
+			// Forbid playing outside analyze mode when cursor isn't at moves.length-1
+			if (this.mode != "analyze" && this.cursor < this.moves.length-1)
+				return;
+			let navigate = !move;
+			if (navigate)
+			{
+				if (this.cursor == this.moves.length)
+					return; //no more moves
+				move = this.moves[this.cursor];
+			}
 			if (!!programmatic) //computer or human opponent
 				return this.animateMove(move);
 			// Not programmatic, or animation is over
 			if (!move.notation)
 				move.notation = this.vr.getNotation(move);
+			if (!move.color)
+				move.color = this.vr.turn;
 			this.vr.play(move);
+			this.cursor++;
 			if (!move.fen)
 				move.fen = this.vr.getFen();
 			if (this.sound == 2)
@@ -337,10 +360,13 @@ Vue.component('my-game', {
 				// Send the move to web worker (including his own moves)
 				this.compWorker.postMessage(["newmove",move]);
 			}
-			if (this.score == "*" || this.mode == "analyze")
+			if (!navigate && (this.score == "*" || this.mode == "analyze"))
 			{
-				// Stack move on movesList
-				this.moves.push(move);
+				// Stack move on movesList at current cursor
+				if (this.cursor == this.moves.length)
+					this.moves.push(move);
+				else
+					this.moves = this.moves.slice(0,this.cursor-1).concat([move]);
 			}
 			// Is opponent in check?
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);
@@ -355,18 +381,45 @@ Vue.component('my-game', {
 			}
 			else if (this.mode == "computer" && this.vr.turn != this.userColor)
 				this.playComputerMove();
+			if (navigate)
+				this.$children[0].$forceUpdate(); //TODO!?
 		},
 		undo: function(move) {
+			let navigate = !move;
+			if (navigate)
+			{
+				if (this.cursor == 0)
+					return; //no more moves
+				move = this.moves[this.cursor-1];
+			}
 			this.vr.undo(move);
+			this.cursor--;
+			if (navigate)
+				this.$children[0].$forceUpdate(); //TODO!?
 			if (this.sound == 2)
 				new Audio("/sounds/undo.mp3").play().catch(err => {});
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			if (this.mode == "analyze")
+			if (!navigate && this.mode == "analyze")
 				this.moves.pop();
+			if (navigate)
+				this.$forceUpdate(); //TODO!?
+		},
+		gotoMove: function(index) {
+			this.vr = new VariantRules(this.moves[index].fen);
+			this.cursor = index+1;
+		},
+		gotoBegin: function() {
+			this.vr = new VariantRules(this.fenStart);
+			this.cursor = 0;
+		},
+		gotoEnd: function() {
+			this.gotoMove(this.moves.length-1);
+		},
+		flip: function() {
+			this.orientation = V.GetNextCol(this.orientation);
 		},
 	},
 })
-// cursor + ........
 //TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
 //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
 //comme sur lichess
