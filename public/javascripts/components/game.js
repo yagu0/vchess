@@ -93,7 +93,7 @@ Vue.component('my-game', {
 					{{ translate("Download PGN") }}
 				</button>
 			</div>
-			<my-move-list v-if="showMoves">
+			<my-move-list v-if="showMoves" :moves="moves">
 			</my-move-list>
 		</div>
 	`,

@@ -8,6 +8,15 @@ div(role="dialog" aria-labelledby="newGameTxt")
 		p= translations["Waiting for opponent..."]
 */
 
+
+
+
+// TODO: my-challenge-list, gérant clicks sur challenges, affichage, réception/émission des infos sur challenges
+// de même, my-player-list
+
+
+
+
 // TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
 
 /*
