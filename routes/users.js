@@ -1,3 +1,5 @@
+// AJAX methods to get, create, update or delete a user
+
 var router = require("express").Router();
 var UserModel = require('../models/User');
 var sendEmail = require('../utils/mailer');
@@ -24,8 +26,6 @@ function setAndSendLoginToken(subject, to, res)
 		});
 	});
 }
-
-// AJAX user life cycle...
 
 router.post('/register', access.unlogged, access.ajax, (req,res) => {
 	const name = req.body.name;

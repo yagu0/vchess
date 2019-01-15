@@ -1,4 +1,5 @@
 Vue.component('my-problems', {
+	props: ["queryHash","settings"],
 	data: function () {
 		return {
 			userId: user.id,
@@ -38,7 +39,7 @@ Vue.component('my-problems', {
 						{{ curProb.instructions }}
 					</p>
 				</div>
-				<my-game :fen="curProb.fen" :mode="analyze" :allowMovelist="true">
+				<my-game :fen="curProb.fen" :mode="analyze" :allowMovelist="true" :settings="settings">
 				</my-board>
 				<div id="solution-div" class="section-content">
 					<h3 class="clickable" @click="showSolution = !showSolution">
@@ -128,10 +129,24 @@ Vue.component('my-problems', {
 			</div>
 		</div>
 	`,
+	watch: {
+		queryHash: function(newQhash) {
+			if (!!newQhash)
+			{
+				// New query hash = "id=42"; get 42 as problem ID
+				const pid = parseInt(newQhash.substr(2));
+				this.showProblem(pid);
+			}
+			else
+				this.curProb = null; //(back to) list display
+		},
+	},
 	created: function() {
-		// TODO: adapt this, #problems:28 ? (for example)
-		if (location.hash.length > 0)
-			this.showProblem(location.hash.slice(1));
+		if (!!this.queryHash)
+		{
+			const pid = parseInt(this.queryHash.substr(2));
+			this.showProblem(pid);
+		}
 		else
 			this.firstFetch();
 	},
@@ -249,7 +264,7 @@ Vue.component('my-problems', {
 				}
 			}
 			ajax(
-				"/problems/" + variant.name, //TODO: use variant._id ?
+				"/problems/" + variant.id,
 				"GET",
 				{
 					type: type,
@@ -284,7 +299,7 @@ Vue.component('my-problems', {
 		},
 		deleteProblem: function(pid) {
 			ajax(
-				"/problems/" + variant.name + "/" + pid, //TODO: with variant.id ?
+				"/problems/" + variant.id + "/" + pid,
 				"DELETE",
 				response => {
 					// Delete problem from the list on client side
@@ -297,7 +312,7 @@ Vue.component('my-problems', {
 		sendProblem: function() {
 			// Send it to the server and close modal
 			ajax(
-				"/problems/" + variant.name, //TODO: with variant.id ?
+				"/problems/" + variant.id,
 				(this.modalProb.id > 0 ? "PUT" : "POST"),
 				this.modalProb,
 				response => {

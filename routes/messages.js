@@ -1,3 +1,5 @@
+// Router for contact form sending
+
 let router = require("express").Router();
 const mailer = require(__dirname.replace("/routes", "/utils/mailer"));
 

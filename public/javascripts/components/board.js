@@ -142,7 +142,7 @@ Vue.component('my-board', {
 									'incheck': showLight && incheckSq[ci][cj],
 								},
 								attrs: {
-									id: this.getSquareId({x:ci,y:cj}),
+									id: getSquareId({x:ci,y:cj}),
 								},
 							},
 							elems
@@ -161,7 +161,7 @@ Vue.component('my-board', {
 				myReservePiecesArray.push(h('div',
 				{
 					'class': {'board':true, ['board'+sizeY]:true},
-					attrs: { id: this.getSquareId({x:sizeX+shiftIdx,y:i}) }
+					attrs: { id: getSquareId({x:sizeX+shiftIdx,y:i}) }
 				},
 				[
 					h('img',
@@ -185,7 +185,7 @@ Vue.component('my-board', {
 				oppReservePiecesArray.push(h('div',
 				{
 					'class': {'board':true, ['board'+sizeY]:true},
-					attrs: { id: this.getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
+					attrs: { id: getSquareId({x:sizeX+(1-shiftIdx),y:i}) }
 				},
 				[
 					h('img',
@@ -251,16 +251,6 @@ Vue.component('my-board', {
 		);
 	},
 	methods: {
-		// Get the identifier of a HTML square from its numeric coordinates o.x,o.y.
-		getSquareId: function(o) {
-			// NOTE: a separator is required to allow any size of board
-			return  "sq-" + o.x + "-" + o.y;
-		},
-		// Inverse function
-		getSquareFromId: function(id) {
-			let idParts = id.split('-');
-			return [parseInt(idParts[1]), parseInt(idParts[2])];
-		},
 		mousedown: function(e) {
 			e = e || window.event;
 			let ingame = false;
@@ -291,7 +281,7 @@ Vue.component('my-board', {
 				this.selectedPiece.style.top = 0;
 				this.selectedPiece.style.display = "inline-block";
 				this.selectedPiece.style.zIndex = 3000;
-				const startSquare = this.getSquareFromId(e.target.parentNode.id);
+				const startSquare = getSquareFromId(e.target.parentNode.id);
 				this.possibleMoves = [];
 				const color = this.mode=="analyze" || this.gameOver
 					? this.vr.turn
@@ -337,7 +327,7 @@ Vue.component('my-board', {
 				return;
 			}
 			// OK: process move attempt
-			let endSquare = this.getSquareFromId(landing.id);
+			let endSquare = getSquareFromId(landing.id);
 			let moves = this.findMatchingMoves(endSquare);
 			this.possibleMoves = [];
 			if (moves.length > 1)

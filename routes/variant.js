@@ -1,11 +1,13 @@
+// (any) variant page (with room, games, problems ...)
+
 let router = require("express").Router();
 const createError = require('http-errors');
 const VariantModel = require("../models/Variant");
 const selectLanguage = require("../utils/language.js");
 const access = require("../utils/access");
 
-router.get("/:variant([a-zA-Z0-9]+)", (req,res,next) => {
-	const vname = req.params["variant"];
+router.get("/:vname([a-zA-Z0-9]+)", (req,res,next) => {
+	const vname = req.params["vname"];
 	VariantModel.getByName(vname, (err,variant) => {
 		if (!!err)
 			return next(err);

@@ -30,11 +30,11 @@ block content
 		.row
 			//my-room(v-show="display=='room'")
 			//my-game-list(v-show="display=='gameList'")
-			my-rules(v-show="display=='rules'")
-			//my-problems(v-show="display=='problems'")
+			my-rules(v-show="display=='rules'" :settings="settings")
+			//my-problems(v-show="display=='problems'" :query-hash="queryHash")
 			my-game(v-show="display=='game'" :game-id="gameid" :conn="conn"
 				:allow-chat="allowChat" :allow-movelist="allowMovelist"
-				:mode="mode" :fen="fen")
+				:mode="mode" :fen="fen" :query-hash="queryHash")
 			//my-board(:vr="vr" :mode="mode" :orientation="orientation"
 				:user-color="userColor" v-on:play-move="play")
 
@@ -42,6 +42,7 @@ block javascripts
 	script(src="/javascripts/utils/array.js")
 	script(src="/javascripts/utils/printDiagram.js")
 	script(src="/javascripts/utils/datetime.js")
+	script(src="/javascripts/utils/squareId.js")
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/base_rules.js")
 	script(src="/javascripts/settings.js")

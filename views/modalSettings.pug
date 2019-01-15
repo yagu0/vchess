@@ -1,26 +1,35 @@
 input#modalSettings.modal(type="checkbox")
 div(role="dialog" aria-labelledby="settingsTitle")
-	.card.smallpad(onChange="blabla(event)")
+	.card.smallpad(@change="updateSettings")
 		label.modal-close(for="modalSettings")
 		h3#settingsTitle.section= translations["Preferences"]
-		// taille echiquier : TODO
 		fieldset
-			label(for="setHints")= translations["Show hints?"]
-			// TODO: this.hints will not work. Idea: query storage in a generic way ?
-			// --> getValue("hints") par exemple
-			input#setHints(type="checkbox" checked=this.hints)
+			label(for="setSqSize")= translations["Square size (in pixels). 0 for 'adaptative'"]
+			input#setSqSize(type="number" v-model="settings.sqSize")
+		fieldset
+			label(for="selectHints")= translations["Show move hints?"]
+			select#setHints(v-model="settings.hints")
+				option(value="0")= translations["None"]
+				option(value="1")= translations["Moves from a square"]
+				option(value="2")= translations["Pieces which can move"]
+		fieldset
+			label(for="setHighlight")= translations["Highlight squares? (Last move & checks)"]
+			input#setHighlight(type="checkbox" v-model="settings.highlight")
+		fieldset
+			label(for="setCoords")= translations["Show board coordinates?"]
+			input#setCoords(type="checkbox" v-model="settings.coords")
 		fieldset
 			label(for="selectColor")= translations["Board colors"]
-			select#selectColor
-				option(value="lichess" selected="this.color=='lichess'")
+			select#setBcolor(v-model="settings.bcolor")
+				option(value="lichess")
 					= translations["brown"]
-				option(value="chesscom" selected="this.color=='chesscom'")
+				option(value="chesscom")
 					= translations["green"]
-				option(value="chesstempo" selected="this.color=='chesstempo'")
+				option(value="chesstempo")
 					= translations["blue"]
 		fieldset
 			label(for="selectSound")= translations["Play sounds?"]
-			select#selectSound
-				option(value="0" selected="this.sound==0")= translations["None"]
-				option(value="1" selected="this.sound==1")= translations["New game"]
-				option(value="2" selected="this.sound==2")= translations["All"]
+			select#setSound(v-model="settings.sound")
+				option(value="0")= translations["None"]
+				option(value="1")= translations["New game"]
+				option(value="2")= translations["All"]

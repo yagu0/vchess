@@ -1,3 +1,5 @@
+// Main index page
+
 let router = require("express").Router();
 const VariantModel = require("../models/Variant");
 const selectLanguage = require("../utils/language.js");

@@ -1,4 +1,11 @@
-Sur index, introduction menu remplacé par "mes parties", montrant parties (corr) en cours toutes variantes confondues
+tell opponent that I got the move, for him to start timer (and lose...)
+  --> no, not needed and impossible if everybody is offline
+	==> just store this time locally (cheating possible but...)
+board2, board3, board4
+VariantRules2, 3 et 4 aussi
+fetch challenges and corr games from server at startup (room)
+but forbid anonymous to start corr games or accept challenges
+
 Dans variant page, "mes parties" peut toujours contenir corr + importées (deux onglets)
 En fin de partie (observée ou non), bouton "import game" en + de "download game" ==> directement dans indexedDB
 --> sursis de 7 jours pour les parties par correspondance, qui sont encore chargées depuis le serveur
@@ -8,7 +15,6 @@ mat en 2 échiqueté : brnkr3/pppp1p1p/4ps2/8/2P2P2/P1qP4/2c1s1PP/R1K5
 
 // TODO: decodeURIComponent() for GET/DELETE parameters
 
-1) Finish problems tab
 2) Integrate computer play into rules tab
 3) Allow correspondance play (no need for P2P: online moves through the server (which also store them))
 4) Write my-games tab (included current/finished/imported)
@@ -27,32 +33,20 @@ Increase code line length to 100 or more?
 Chat button should be more apparent after game ends (color ?)
 Reinforce security for problems upload (how ?)
 
-The mode switch between human/computer/friend (+ problem) is a mess
-(example: finished computer game, ongoing friend game, reload, friend game is unreachable)
-
 Later:
-Let choice of time control, allow correspondance play, several games at the same time
+Let choice of time control, allow correspondance play, several corr games at the same time
 ==> need to use indexedDB instead of localStorage. Maybe with Dexie https://dexie.org/
 Each user would have a unique identifier stored in the client DB.
 Allow to cancel games (if opponent doesn't connect again)
-Identity would be browser-based: different games on smartphone, home computer, work computer... (why not ?)
-Index might still look the same, and variant page would have another tab "Games"
-==> running, and finished (which can be deleted from local memory)
-(A true analysis mode could be implemented also, to navigate in completed games --> use a button)
+Live games storage would be browser-based: different games on smartphone, home computer, work computer... (why not ?)
+==> (at most 1) running, and finished (which can be deleted from local memory)
 Allow challenging a specific player (by his chosen name)
-But keep the random pairings as main playing way + always playing in ZEN mode,
-except when accepting an individual challenge.
+But keep the random pairings as main playing way + always playing in ZEN mode
 
 style menu : surligner onglet courant
 
 Interface :
  - newGame: une modalBox à paramètres, timeControl, type d'adversaire ==> "new Game")
- - friend-->renommé en 'analyse' et devenant un vrai mode analyse (on garde ces trois modes ?)
-
-problèmes : récupérer 20 ou 50 depuis le serveur, puis les afficher un par un en les analysant directement,
-comme sur le site de ProgramFOX ==> présentation unifiée échiquier avec instructions dessus et soluce cachée dessous
-
-==> il faut pouvoir faire "new Interface(variables)" pour lancer une analyse de problème sans repasser par le mode jeu...
 
 Importer des parties : nécessite de parser le PGN produit (possible, un peu pénible)
 mais permettrait mode analyse (avec bouton "analyse", comme sur ancien site).
@@ -61,13 +55,13 @@ espagnol : jugada ou movimiento ?
 fin de la partida au lieu de final de partida ?
 
 Bouton new game ==> human only. Indiquer adversaire (éventuellement), cadence (ou "infini")
-Mode analyse : accessible à tout moment d'une partie (HH, ou computer) terminée.
+Mode analyse : accessible à tout moment d'une partie (HH, ou computer) terminée + bouton "analyze from here" (sur parties observées)
 
 Coordonnées sur échiquier: sur cases, à gauche (verticale) ou en bas (horizontale)
 
 Import game : en local dans indexedDb, affichage dans "Games --> Imported"
 
-Checkered : si intervention d'un 3eme joueur, initialiser son temps à la moyenne des temps restants des deux autres...
+Checkered : si intervention d'un 3eme joueur, initialiser son temps à la moyenne des temps restants des deux autres... ?
 
 Mode contre ordinateur : seulement accessible depuis onglet "Rules" (son principal intérêt)
 

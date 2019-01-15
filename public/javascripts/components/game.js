@@ -4,12 +4,10 @@
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
 	// fen: to start from a FEN without identifiers (analyze mode)
-	props: ["conn","gameId","fen","mode","allowChat","allowMovelist"],
+	props: ["conn","gameId","fen","mode","allowChat","allowMovelist","queryHash","settings"],
 	data: function() {
 		return {
 			oppConnected: false, //TODO?
-			// sound level: 0 = no sound, 1 = sound only on newgame, 2 = always
-			sound: parseInt(localStorage["sound"] || "2"),
 			// Web worker to play computer moves without freezing interface:
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
@@ -17,10 +15,9 @@ Vue.component('my-game', {
 			endgameMessage: "",
 			orientation: "w",
 
-			// if oppid == "computer" then mode = "computer" (otherwise human)
 			oppid: "", //opponent ID in case of HH game
 			score: "*", //'*' means 'unfinished'
-			// userColor: given by gameId, or fen (if no game Id)
+			// userColor: given by gameId, or fen in problems mode (if no game Id)...
 			mycolor: "w",
 			fenStart: "",
 			moves: [], //TODO: initialize if gameId is defined...
@@ -31,8 +28,28 @@ Vue.component('my-game', {
 	watch: {
 		fen: function(newFen) {
 			this.vr = new VariantRules(newFen);
+			this.moves = [];
+			this.cursor = 0;
+			this.fenStart = newFen;
+			this.score = "*";
+			if (this.mode == "analyze")
+			{
+				this.mycolor = V.ParseFen(newFen).turn;
+				this.orientation = "w"; //convention (TODO?!)
+			}
+			else if (this.mode == "computer") //only other alternative (HH with gameId)
+			{
+				this.mycolor = (Math.random() < 0.5 ? "w" : "b");
+				this.orientation = this.mycolor;
+				this.compWorker.postMessage(["init",newFen]);
+			}
 		},
 		gameId: function() {
+			this.loadGame();
+		},
+		queryHash: function(newQhash) {
+			// New query hash = "id=42"; get 42 as gameId
+			this.gameId = parseInt(newQhash.substr(2));
 			this.loadGame();
 		},
 	},
@@ -65,7 +82,9 @@ Vue.component('my-game', {
 			</div>
 			<my-chat v-if="showChat">
 			</my-chat>
-			<my-board v-bind:vr="vr" :last-move="lastMove" :mode="mode" :orientation="orientation" :user-color="mycolor" @play-move="play">
+			<my-board v-bind:vr="vr" :last-move="lastMove" :mode="mode"
+				:orientation="orientation" :user-color="mycolor" :settings="settings"
+				@play-move="play">
 			</my-board>
 			<div class="button-group">
 				<button @click="() => play()">Play</button>
@@ -175,8 +194,11 @@ Vue.component('my-game', {
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);
 		};
-		this.conn.onmessage = socketMessageListener;
-		this.conn.onclose = socketCloseListener;
+		if (!!this.conn)
+		{
+			this.conn.onmessage = socketMessageListener;
+			this.conn.onclose = socketCloseListener;
+		}
 
 		// Computer moves web worker logic: (TODO: also for observers in HH games)
 		this.compWorker.postMessage(["scripts",variant.name]);
@@ -318,20 +340,20 @@ Vue.component('my-game', {
 			this.compWorker.postMessage(["askmove"]);
 		},
 		animateMove: function(move) {
-			let startSquare = document.getElementById(this.getSquareId(move.start));
-			let endSquare = document.getElementById(this.getSquareId(move.end));
+			let startSquare = document.getElementById(getSquareId(move.start));
+			let endSquare = document.getElementById(getSquareId(move.end));
 			let rectStart = startSquare.getBoundingClientRect();
 			let rectEnd = endSquare.getBoundingClientRect();
 			let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
 			let movingPiece =
-				document.querySelector("#" + this.getSquareId(move.start) + " > img.piece");
+				document.querySelector("#" + getSquareId(move.start) + " > img.piece");
 			// HACK for animation (with positive translate, image slides "under background")
 			// Possible improvement: just alter squares on the piece's way...
 			squares = document.getElementsByClassName("board");
 			for (let i=0; i<squares.length; i++)
 			{
 				let square = squares.item(i);
-				if (square.id != this.getSquareId(move.start))
+				if (square.id != getSquareId(move.start))
 					square.style.zIndex = "-1";
 			}
 			movingPiece.style.transform = "translate(" + translation.x + "px," +
@@ -368,12 +390,12 @@ Vue.component('my-game', {
 			this.lastMove = move;
 			if (!move.fen)
 				move.fen = this.vr.getFen();
-			if (this.sound == 2)
+			if (this.settings.sound == 2)
 				new Audio("/sounds/move.mp3").play().catch(err => {});
 			if (this.mode == "human")
 			{
 				updateStorage(move); //after our moves and opponent moves
-				if (this.vr.turn == this.userColor)
+				if (this.vr.turn == this.mycolor)
 					this.conn.send(JSON.stringify({code:"newmove", move:move, oppid:this.oppid}));
 			}
 			else if (this.mode == "computer")
@@ -400,7 +422,7 @@ Vue.component('my-game', {
 					this.showScoreMsg(score);
 				// TODO: notify end of game (give score)
 			}
-			else if (this.mode == "computer" && this.vr.turn != this.userColor)
+			else if (this.mode == "computer" && this.vr.turn != this.mycolor)
 				this.playComputerMove();
 			// https://vuejs.org/v2/guide/list.html#Caveats (also for undo)
 			if (navigate)
@@ -419,7 +441,7 @@ Vue.component('my-game', {
 			this.lastMove = (this.cursor > 0 ? this.moves[this.cursor-1] : undefined);
 			if (navigate)
 				this.$children[0].$forceUpdate(); //TODO!?
-			if (this.sound == 2)
+			if (this.settings.sound == 2)
 				new Audio("/sounds/undo.mp3").play().catch(err => {});
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);
 			if (!navigate && this.mode == "analyze")

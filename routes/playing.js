@@ -1,3 +1,5 @@
+// TODO: adapt for correspondance play
+
 var router = require("express").Router();
 var UserModel = require("../models/User");
 var GameModel = require('../models/Game');

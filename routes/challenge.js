@@ -1,11 +1,11 @@
+// TODO: adapt this (from Mongo to SQLite, and challenge format changed) for corr play
+
 var router = require("express").Router();
 var ObjectID = require("bson-objectid");
 var ChallengeModel = require('../models/Challenge');
 var UserModel = require('../models/User');
 var ObjectID = require("bson-objectid");
 var access = require("../utils/access");
-
-// Only AJAX requests here (from variant page and index)
 
 // variant page
 router.get("/challengesbyvariant", access.logged, access.ajax, (req,res) => {

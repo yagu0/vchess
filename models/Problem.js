@@ -11,50 +11,34 @@ var db = require("../utils/database");
  */
 
 // TODO: callback ?
-exports.create = function(vname, fen, instructions, solution)
-{
-	db.serialize(function() {
-		const vidQuery =
-			"SELECT id " +
-			"FROM Variants " +
-			"WHERE name = '" + vname + "'";
-		db.get(vidQuery, (err,variant) => {
-			const insertQuery =
-				"INSERT INTO Problems (added, vid, fen, instructions, solution) VALUES " +
-				"(" +
-					Date.now() + "," +
-					variant.id + "," +
-					fen + "," +
-					instructions + "," +
-					solution +
-				")";
-			db.run(insertQuery);
-		});
-	});
-}
-
-exports.getById = function(id, callback)
+exports.create = function(vid, fen, instructions, solution)
 {
 	db.serialize(function() {
 		const query =
-			"SELECT * FROM Problems " +
-			"WHERE id ='" + id + "'";
-		db.get(query, callback);
+			"INSERT INTO Problems (added, vid, fen, instructions, solution) VALUES " +
+			"(" +
+				Date.now() + "," +
+				vid + "," +
+				fen + "," +
+				instructions + "," +
+				solution +
+			")";
+		db.run(query);
 	});
 }
 
-exports.getOne = function(vname, pid, callback)
+exports.getOne = function(id, callback)
 {
 	db.serialize(function() {
 		const query =
 			"SELECT * " +
 			"FROM Problems " +
-			"WHERE id = " + pid;
+			"WHERE id = " + id;
 		db.get(query, callback);
 	});
 }
 
-exports.fetchN = function(vname, uid, type, directionStr, lastDt, MaxNbProblems, callback)
+exports.fetchN = function(vid, uid, type, directionStr, lastDt, MaxNbProblems, callback)
 {
 	db.serialize(function() {
 		let typeLine = "";
@@ -62,7 +46,7 @@ exports.fetchN = function(vname, uid, type, directionStr, lastDt, MaxNbProblems,
 			typeLine = "AND id " + (type=="others" ? "!=" : "=") + " " + uid;
 		const query =
 			"SELECT * FROM Problems " +
-			"WHERE vid = (SELECT id FROM Variants WHERE name = '" + vname + "') " +
+			"WHERE vid = " + vid +
 			"  AND added " + directionStr + " " + lastDt + " " + typeLine + " " +
 			"ORDER BY added " + (directionStr=="<" ? "DESC " : "") +
 			"LIMIT " + MaxNbProblems;

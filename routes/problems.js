@@ -6,36 +6,6 @@ const ProblemModel = require("../models/Problem");
 const sanitizeHtml = require('sanitize-html');
 const MaxNbProblems = 20;
 
-// Get one problem
-router.get("/problems/:vname([a-zA-Z0-9]+)/:pnum([0-9]+)", access.ajax, (req,res) => {
-	const vname = req.params["vname"];
-	const pnum = req.params["pnum"];
-	ProblemModel.getOne(vname, pnum, (err,problem) => {
-		if (!!err)
-			return res.json(err);
-		return res.json({problem: problem});
-	});
-});
-
-// Fetch N previous or next problems
-router.get("/problems/:vname([a-zA-Z0-9]+)", access.ajax, (req,res) => {
-	const vname = req.params["vname"];
-	const directionStr = (req.query.direction == "forward" ? ">" : "<");
-	const lastDt = req.query.last_dt;
-	const type = req.query.type;
-	if (!lastDt.match(/[0-9]+/))
-		return res.json({errmsg: "Bad timestamp"});
-	if (!["others","mine"].includes(type))
-		return res.json({errmsg: "Bad type"});
-	ProblemModel.fetchN(vname, req.userId, type, directionStr, lastDt, MaxNbProblems,
-		(err,problems) => {
-			if (!!err)
-				return res.json(err);
-			return res.json({problems: problems});
-		}
-	);
-});
-
 function sanitizeUserInput(fen, instructions, solution)
 {
 	if (!fen.match(/^[a-zA-Z0-9, /-]*$/))
@@ -53,13 +23,42 @@ function sanitizeUserInput(fen, instructions, solution)
 	};
 }
 
+// Get one problem (TODO: vid unused, here for URL de-ambiguification)
+router.get("/problems/:vid([0-9]+)/:id([0-9]+)", access.ajax, (req,res) => {
+	const pid = req.params["id"];
+	ProblemModel.getOne(pid, (err,problem) => {
+		if (!!err)
+			return res.json(err);
+		return res.json({problem: problem});
+	});
+});
+
+// Fetch N previous or next problems
+router.get("/problems/:vid([0-9]+)", access.ajax, (req,res) => {
+	const vid = req.params["vid"];
+	const directionStr = (req.query.direction == "forward" ? ">" : "<");
+	const lastDt = req.query.last_dt;
+	const type = req.query.type;
+	if (!lastDt.match(/[0-9]+/))
+		return res.json({errmsg: "Bad timestamp"});
+	if (!["others","mine"].includes(type))
+		return res.json({errmsg: "Bad type"});
+	ProblemModel.fetchN(vid, req.userId, type, directionStr, lastDt, MaxNbProblems,
+		(err,problems) => {
+			if (!!err)
+				return res.json(err);
+			return res.json({problems: problems});
+		}
+	);
+});
+
 // Upload a problem (sanitize inputs)
-router.post("/problems/:vname([a-zA-Z0-9]+)", access.logged, access.ajax, (req,res) => {
-	const vname = req.params["vname"];
+router.post("/problems/:vid([0-9]+)", access.logged, access.ajax, (req,res) => {
+	const vid = req.params["vid"];
 	const s = sanitizeUserInput(req.body["fen"], req.body["instructions"], req.body["solution"]);
 	if (typeof s === "string")
 		return res.json({errmsg: s});
-  ProblemModel.create(vname, s.fen, s.instructions, s.solution);
+  ProblemModel.create(vid, s.fen, s.instructions, s.solution);
 	res.json({});
 });
 
