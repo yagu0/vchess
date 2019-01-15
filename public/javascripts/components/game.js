@@ -1,14 +1,15 @@
-// TODO: envoyer juste "light move", sans FEN ni notation ...etc
-// TODO: also "observers" prop (human mode only), we should send moves to them too (in a web worker ? webRTC ?)
 // Game logic on a variant page: 3 modes, analyze, computer or human
+// TODO: envoyer juste "light move", sans FEN ni notation ...etc
+// TODO: if I'm an observer and player(s) disconnect/reconnect, how to find me ?
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
 	// fen: to start from a FEN without identifiers (analyze mode)
-	// subMode: "auto" (game comp vs comp) or "corr" (correspondance game)
-	props: ["conn","gameId","fen","mode","subMode","allowChat","allowMovelist","queryHash","settings"],
+	// subMode: "auto" (game comp vs comp) or "corr" (correspondance game),
+	// or "examine" (after human game: TODO)
+	props: ["conn","gameId","fen","mode","subMode","allowChat","allowMovelist",
+		"queryHash","settings"],
 	data: function() {
 		return {
-			oppConnected: false, //TODO?
 			// Web worker to play computer moves without freezing interface:
 			compWorker: new Worker('/javascripts/playCompMove.js'),
 			timeStart: undefined, //time when computer starts thinking
@@ -16,8 +17,10 @@ Vue.component('my-game', {
 			endgameMessage: "",
 			orientation: "w",
 			lockCompThink: false, //used to avoid some ghost moves
-
-			oppid: "", //opponent ID in case of HH game
+			myname: user.name, //may be anonymous (thus no name)
+			opponents: {}, //filled later (potentially 2 or 3 opponents)
+			drawOfferSent: false, //did I just ask for draw?
+			people: {}, //observers
 			score: "*", //'*' means 'unfinished'
 			// userColor: given by gameId, or fen in problems mode (if no game Id)...
 			mycolor: "w",
@@ -32,24 +35,7 @@ Vue.component('my-game', {
 			// (Security) No effect if a computer move is in progress:
 			if (this.mode == "computer" && this.lockCompThink)
 				return this.$emit("computer-think");
-			this.vr = new VariantRules(newFen);
-			this.moves = [];
-			this.cursor = -1;
-			this.fenStart = newFen;
-			this.score = "*";
-			if (this.mode == "analyze")
-			{
-				this.mycolor = V.ParseFen(newFen).turn;
-				this.orientation = "w"; //convention (TODO?!)
-			}
-			else if (this.mode == "computer") //only other alternative (HH with gameId)
-			{
-				this.mycolor = (Math.random() < 0.5 ? "w" : "b");
-				this.orientation = this.mycolor;
-				this.compWorker.postMessage(["init",newFen]);
-				if (this.mycolor != "w" || this.subMode == "auto")
-					this.playComputerMove();
-			}
+			this.newGameFromFen(newFen);
 		},
 		gameId: function() {
 			this.loadGame();
@@ -73,9 +59,6 @@ Vue.component('my-game', {
 		},
 	},
 	// Modal end of game, and then sub-components
-	// TODO: provide chat parameters (connection, players ID...)
-	// TODO: controls: abort, clear, resign, draw (avec confirm box)
-	// TODO: add corrMsg to sent move in case of corr game
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<input id="modal-eog" type="checkbox" class="modal"/>
@@ -88,7 +71,8 @@ Vue.component('my-game', {
 					</h3>
 				</div>
 			</div>
-			<my-chat v-if="showChat">
+			<my-chat v-if="showChat" :conn="conn" :myname="myname"
+				:opponents="opponents" :people="people">
 			</my-chat>
 			<my-board v-bind:vr="vr" :last-move="lastMove" :mode="mode"
 				:orientation="orientation" :user-color="mycolor" :settings="settings"
@@ -100,6 +84,11 @@ Vue.component('my-game', {
 				<button @click="flip">Flip</button>
 				<button @click="gotoBegin">GotoBegin</button>
 				<button @click="gotoEnd">GotoEnd</button>
+			</div>
+			<div v-if="mode=='human'" class="button-group">
+				<button @click="offerDraw">Draw</button>
+				<button @click="abortGame">Abort</button>
+				<button @click="resign">Resign</button>
 			</div>
 			<div v-if="mode=='human' && subMode=='corr'">
 				<textarea v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg">
@@ -132,30 +121,34 @@ Vue.component('my-game', {
 			this.vr = new VariantRules(this.fen);
 			this.fenStart = this.fen;
 		}
-		// TODO: after game, archive in indexedDB
-		// TODO: this events listener is central. Refactor ? How ?
+		// TODO: also handle "draw accepted" (use opponents array?)
+		// --> must give this info also when sending lastState...
+		// and, if all players agree then OK draw (end game ...etc)
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
 			let L = undefined;
 			switch (data.code)
 			{
 				case "newmove": //..he played!
-					this.play(data.move, (variant.name!="Dark" ? "animate" : null));
+					this.play(data.move, variant.name!="Dark" ? "animate" : null);
 					break;
 				case "pong": //received if we sent a ping (game still alive on our side)
 					if (this.gameId != data.gameId)
 						break; //games IDs don't match: definitely over...
 					this.oppConnected = true;
-					// Send our "last state" informations to opponent
+					// Send our "last state" informations to opponent(s)
 					L = this.vr.moves.length;
-					this.conn.send(JSON.stringify({
-						code: "lastate",
-						oppid: this.oppid,
-						gameId: this.gameId,
-						lastMove: (L>0?this.vr.moves[L-1]:undefined),
-						movesCount: L,
-					}));
+					Object.keys(this.opponents).forEach(oid => {
+						this.conn.send(JSON.stringify({
+							code: "lastate",
+							oppid: oid,
+							gameId: this.gameId,
+							lastMove: (L>0?this.vr.moves[L-1]:undefined),
+							movesCount: L,
+						}));
+					});
 					break;
+				// TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves (not just one)
 				case "lastate": //got opponent infos about last move
 					L = this.vr.moves.length;
 					if (this.gameId != data.gameId)
@@ -178,7 +171,7 @@ Vue.component('my-game', {
 						// We must tell last move to opponent
 						this.conn.send(JSON.stringify({
 							code: "lastate",
-							oppid: this.oppid,
+							oppid: this.opponent.id,
 							gameId: this.gameId,
 							lastMove: this.vr.moves[L-1],
 							movesCount: L,
@@ -193,18 +186,24 @@ Vue.component('my-game', {
 				// TODO: also use (dis)connect info to count online players?
 				case "connect":
 				case "disconnect":
-					if (this.mode=="human" && this.oppid == data.id)
-						this.oppConnected = (data.code == "connect");
-					if (this.oppConnected && this.score != "*")
+					if (this.mode=="human")
 					{
-						// Send our name to the opponent, in case of he hasn't it
-						this.conn.send(JSON.stringify({
-							code:"myname", name:this.myname, oppid: this.oppid}));
+						const online = (data.code == "connect");
+						// If this is an opponent ?
+						if (!!this.opponents[data.id])
+							this.opponents[data.id].online = online;
+						else
+						{
+							// Or an observer ?
+							if (!online)
+								delete this.people[data.id];
+							else
+								this.people[data.id] = data.name;
+						}
 					}
 					break;
 			}
 		};
-
 		const socketCloseListener = () => {
 			this.conn.addEventListener('message', socketMessageListener);
 			this.conn.addEventListener('close', socketCloseListener);
@@ -214,8 +213,7 @@ Vue.component('my-game', {
 			this.conn.onmessage = socketMessageListener;
 			this.conn.onclose = socketCloseListener;
 		}
-
-		// Computer moves web worker logic: (TODO: also for observers in HH games)
+		// Computer moves web worker logic: (TODO: also for observers in HH games ?)
 		this.compWorker.postMessage(["scripts",variant.name]);
 		this.compWorker.onmessage = e => {
 			this.lockCompThink = true; //to avoid some ghost moves
@@ -234,16 +232,84 @@ Vue.component('my-game', {
 			}, delay);
 		}
 	},
-	// this.conn est une prop, donnée depuis variant.js
-	//dans variant.js (plutôt room.js) conn gère aussi les challenges
-	// Puis en webRTC, repenser tout ça.
+	// dans variant.js (plutôt room.js) conn gère aussi les challenges
+	// et les chats dans chat.js. Puis en webRTC, repenser tout ça.
 	methods: {
+		offerDraw: function() {
+			if (!confirm("Offer draw?"))
+				return;
+			// Stay in "draw offer sent" state until next move is played
+			this.drawOfferSent = true;
+			if (this.subMode == "corr")
+			{
+				// TODO: set drawOffer on in game (how ?)
+			}
+			else //live game
+			{
+				this.opponents.forEach(o => {
+					if (!!o.online)
+					{
+						try {
+							this.conn.send(JSON.stringify({code: "draw", oppid: o.id}));
+						} catch (INVALID_STATE_ERR) {
+							return;
+						}
+					}
+				});
+			}
+		},
+		// + conn handling: "draw" message ==> agree for draw (if we have "drawOffered" at true)
+		receiveDrawOffer: function() {
+			//if (...)
+			// TODO: ignore if preventDrawOffer is set; otherwise show modal box with option "prevent future offers"
+			// if accept: send message "draw"
+		},
+		abortGame: function() {
+			if (!confirm("Abort the game?"))
+				return;
+			//+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
+			//send message: "gameOver" avec score "?"
+		},
+		resign: function(e) {
+			if (!confirm("Resign the game?"))
+				return;
+			if (this.mode == "human" && this.oppConnected(this.oppid))
+			{
+				try {
+					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+				} catch (INVALID_STATE_ERR) {
+					return;
+				}
+			}
+			this.endGame(this.mycolor=="w"?"0-1":"1-0");
+		},
 		translate: translate,
+		newGameFromFen: function(fen) {
+			this.vr = new VariantRules(fen);
+			this.moves = [];
+			this.cursor = -1;
+			this.fenStart = newFen;
+			this.score = "*";
+			if (this.mode == "analyze")
+			{
+				this.mycolor = V.ParseFen(newFen).turn;
+				this.orientation = this.mycolor;
+			}
+			else if (this.mode == "computer") //only other alternative (HH with gameId)
+			{
+				this.mycolor = (Math.random() < 0.5 ? "w" : "b");
+				this.orientation = this.mycolor;
+				this.compWorker.postMessage(["init",newFen]);
+				if (this.mycolor != "w" || this.subMode == "auto")
+					this.playComputerMove();
+			}
+		},
 		loadGame: function() {
 			const game = getGameFromStorage(this.gameId);
-			this.oppid = game.oppid; //opponent ID in case of running HH game
+			this.opponent.id = game.oppid; //opponent ID in case of running HH game
+			this.opponent.name = game.oppname; //maye be blank (if anonymous)
 			this.score = game.score;
-			this.mycolor = game.mycolor || "w";
+			this.mycolor = game.mycolor;
 			this.fenStart = game.fenStart;
 			this.moves = game.moves;
 			this.cursor = game.moves.length-1;
@@ -317,29 +383,12 @@ Vue.component('my-game', {
 		endGame: function(score) {
 			this.score = score;
 			this.showScoreMsg(score);
-			this.$emit("game-over", score);
 			if (this.mode == "human")
-			{
 				localStorage["score"] = score;
-				if (this.oppConnected)
-				{
-					// Send our nickname to opponent
-					this.conn.send(JSON.stringify({
-						code:"myname", name:this.myname, oppid:this.oppid}));
-				}
-			}
+			this.$emit("game-over");
 		},
-		resign: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			if (this.mode == "human" && this.oppConnected)
-			{
-				try {
-					this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
-				} catch (INVALID_STATE_ERR) {
-					return; //socket is not ready (and not yet reconnected)
-				}
-			}
-			this.endGame(this.mycolor=="w"?"0-1":"1-0");
+		oppConnected: function(uid) {
+			return this.opponents.any(o => o.id == uidi && o.online);
 		},
 		playComputerMove: function() {
 			this.timeStart = Date.now();
@@ -370,7 +419,7 @@ Vue.component('my-game', {
 				for (let i=0; i<squares.length; i++)
 					squares.item(i).style.zIndex = "auto";
 				movingPiece.style = {}; //required e.g. for 0-0 with KR swap
-				this.play(move); //TODO: plutôt envoyer message "please play"
+				this.play(move);
 			}, 250);
 		},
 		play: function(move, programmatic) {
@@ -395,6 +444,10 @@ Vue.component('my-game', {
 				return this.animateMove(move);
 			}
 			// Not programmatic, or animation is over
+			if (this.mode == "human" && this.subMode == "corr" && this.mycolor == this.vr.turn)
+			{
+				// TODO: show confirm box "validate move ?"
+			}
 			if (!move.notation)
 				move.notation = this.vr.getNotation(move);
 			if (!move.color)
@@ -434,7 +487,6 @@ Vue.component('my-game', {
 					this.endGame(score);
 				else //just show score on screen (allow undo)
 					this.showScoreMsg(score);
-				// TODO: notify end of game (give score)
 			}
 			// subTurn condition for Marseille (and Avalanche) rules
 			else if ((this.mode == "computer" && (!this.vr.subTurn || this.vr.subTurn <= 1))
@@ -457,15 +509,13 @@ Vue.component('my-game', {
 			this.vr.undo(move);
 			this.cursor--;
 			this.lastMove = (this.cursor >= 0 ? this.moves[this.cursor] : undefined);
-			if (navigate)
-				this.$children[0].$forceUpdate(); //TODO!?
 			if (this.settings.sound == 2)
 				new Audio("/sounds/undo.mp3").play().catch(err => {});
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			if (!navigate && this.mode == "analyze")
-				this.moves.pop();
 			if (navigate)
-				this.$forceUpdate(); //TODO!?
+				this.$children[0].$forceUpdate(); //TODO!?
+			else if (this.mode == "analyze") //TODO: can this happen?
+				this.moves.pop();
 		},
 		gotoMove: function(index) {
 			this.vr = new VariantRules(this.moves[index].fen);
@@ -485,7 +535,3 @@ Vue.component('my-game', {
 		},
 	},
 })
-//TODO: confirm dialog with "opponent offers draw", avec possible bouton "prevent future offers" + bouton "proposer nulle"
-//+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
-//comme sur lichess
-//TODO: quand partie terminée (ci-dessus) passer partie dans indexedDB

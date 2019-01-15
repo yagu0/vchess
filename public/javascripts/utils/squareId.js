@@ -6,7 +6,8 @@ function getSquareId(o)
 }
 
 // Inverse function
-function getSquareFromId(id) {
-	let idParts = id.split('-');
+function getSquareFromId(id)
+{
+	const idParts = id.split('-');
 	return [parseInt(idParts[1]), parseInt(idParts[2])];
 }

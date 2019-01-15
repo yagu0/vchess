@@ -7,18 +7,8 @@ div(role="dialog" aria-labelledby="newGameTxt")
 		h3#newGameTxt= translations["New game"]
 		p= translations["Waiting for opponent..."]
 */
-
-
-
-
-// TODO: my-challenge-list, gérant clicks sur challenges, affichage, réception/émission des infos sur challenges
-// de même, my-player-list
-
-
-
-
+// TODO: my-challenge-list, gérant clicks sur challenges, affichage, réception/émission des infos sur challenges ; de même, my-player-list
 // TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
-
 /*
 Players + challenges : == "room" home of variant (surligner si nouveau défi perso et pas affichage courant)
 joueurs en ligne (dte),
@@ -29,14 +19,20 @@ chat général (gauche, activé ou non (bool global storage)).
 quand je poste un lastMove corr, supprimer mon ancien lastMove le cas échéant (tlm l'a eu)
 fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours (arbitraire)
 */
-				case "newgame": //opponent found
-					// oppid: opponent socket ID
+Vue.component('my-room', {
+	props: ["conn","settings"],
+	data: {
+		something: "", //TODO
+	},
+
+});
+
+				case "newgame": //challenge accepted
+					// oppid: opponent socket ID (or DB id if registered)
 					this.newGame("human", data.fen, data.color, data.oppid, data.gameid);
 					break;
 
-		// TODO: elsewhere, probably (new game button)
 		clickGameSeek: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "human" && this.score == "*")
 				return; //no newgame while playing
 			if (this.seek)
@@ -48,7 +44,6 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 				this.newGame("human");
 		},
 		clickComputerGame: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
 			if (this.mode == "computer" && this.score == "*"
 				&& this.vr.turn != this.mycolor)
 			{
@@ -57,11 +52,6 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 			}
 			this.newGame("computer");
 		},
-		clickFriendGame: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			document.getElementById("modal-fenedit").checked = true;
-		},
-		// In main hall :
 		newGame: function(mode, fenInit, color, oppId, gameId) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
 			console.log(fen); //DEBUG
@@ -183,7 +173,7 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 		},
 		
 	
-	// TODO: option du bouton "new game"
+	// TODO: option du bouton "new game" :: seulement pour challenge indiv
 	const modalFenEdit = [
 			h('input',
 				{

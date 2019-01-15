@@ -28,15 +28,14 @@ block content
 						i.material-icons settings
 					include userMenu
 		.row
-			//my-room(v-show="display=='room'")
+			my-room(v-show="display=='room'")
 			//my-game-list(v-show="display=='gameList'")
 			my-rules(v-show="display=='rules'" :settings="settings")
 			//my-problems(v-show="display=='problems'" :query-hash="queryHash")
 			my-game(v-show="display=='game'" :game-id="gameid" :conn="conn"
 				:allow-chat="allowChat" :allow-movelist="allowMovelist"
-				:mode="mode" :fen="fen" :query-hash="queryHash")
-			//my-board(:vr="vr" :mode="mode" :orientation="orientation"
-				:user-color="userColor" v-on:play-move="play")
+				:mode="mode" :query-hash="queryHash"
+				@game-over="archiveGame")
 
 block javascripts
 	script(src="/javascripts/utils/array.js")
@@ -50,7 +49,7 @@ block javascripts
 	script.
 		const V = VariantRules; //because this variable is often used
 		const variant = !{JSON.stringify(variant)};
-	//script(src="/javascripts/components/room.js")
+	script(src="/javascripts/components/room.js")
 	//script(src="/javascripts/components/gameList.js")
 	script(src="/javascripts/components/rules.js")
 	script(src="/javascripts/components/board.js")

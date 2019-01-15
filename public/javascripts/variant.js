@@ -1,11 +1,13 @@
 new Vue({
 	el: "#VueElement",
 	data: {
-		display: "undefined", //default to main hall; see "created()" function
+		display: "", //default to main hall; see "created()" function
 		gameid: undefined, //...yet
 		queryHash: "",
 		conn: null,
-
+		mode: "analyze",
+		allowChat: false,
+		allowMovelist: true,
 		// Settings initialized with values from localStorage
 		settings:	{
 			bcolor: localStorage["bcolor"] || "lichess",
@@ -15,14 +17,6 @@ new Vue({
 			highlight: !!eval(localStorage["highlight"]),
 			sqSize: parseInt(localStorage["sqSize"]),
 		},
-
-		// TEMPORARY: DEBUG
-		mode: "analyze",
-		orientation: "w",
-		userColor: "w",
-		allowChat: false,
-		allowMovelist: true,
-		fen: V.GenRandInitFen(),
 	},
 	created: function() {
 		if (!!localStorage["variant"])
@@ -33,17 +27,13 @@ new Vue({
 		else
 			this.setDisplay();
 		window.onhashchange = this.setDisplay;
-		this.myid = "abcdefghij";
-//console.log(this.myid + " " + variant);
-			//myid: localStorage.getItem("myid"), //our ID, always set
-
+		// Our ID, always set (DB id if registered, collision-free random string otherwise)
+		this.myid = user.id || localStorage["myid"] || "anon-" + getRandString();
 		this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
 		const socketCloseListener = () => {
 			this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
 		}
 		this.conn.onclose = socketCloseListener;
-
-		//this.vr = new VariantRules( V.GenRandInitFen() );
 	},
 	methods: {
 		updateSettings: function(event) {
@@ -52,6 +42,11 @@ new Vue({
 			localStorage[propName] = ["highlight","coords"].includes(propName)
 				? event.target.checked
 				: event.target.value;
+		},
+		// Game is over, clear storage and put it in indexedDB
+		archiveGame: function() {
+			// TODO: ...
+			//clearStorage();
 		},
 		setDisplay: function() {
 			// Prevent set display if there is a running game
@@ -69,7 +64,3 @@ new Vue({
 		},
 	},
 });
-		
-//const continuation = (localStorage.getItem("variant") === variant.name);
-//			if (continuation) //game VS human has priority
-//				this.continueGame("human");

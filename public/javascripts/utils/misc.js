@@ -31,7 +31,6 @@ function getRandString()
 // Used both on index and variant page, to switch language
 function setLanguage(e)
 {
-	console.log(e);
 	setCookie("lang", e.target.value);
 	location.reload(); //to include the right .pug file
 }
@@ -42,6 +41,7 @@ function doClick(elemId)
 	document.getElementById(elemId).click(); //or ".checked = true"
 }
 
-function translate(msg) {
+function translate(msg)
+{
 	return translations[msg];
 }

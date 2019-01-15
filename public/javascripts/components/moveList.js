@@ -1,15 +1,14 @@
-//TODO: component for moves list on the right
-// TODO: generic "getPGN" in the same way (following move.color)
+// Component for moves list on the right
 Vue.component('my-move-list', {
 	props: ["moves","cursor"], //TODO: other props for e.g. players names + connected indicator
 	// --> we could also add turn indicator here
-	// + missing "cursor" prop
 	data: function() {
 		return {
-			something: "", //TODO
+			something: "", //TODO?
 		};
 	},
 	// TODO: extend rendering for more than 2 colors: would be a parameter
+	// in that case some moves for some colors could be just skipped (if a player lost)
 	render(h) {
 		if (this.moves.length == 0)
 			return;

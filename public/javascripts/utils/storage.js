@@ -40,6 +40,7 @@ function getGameFromStorage(gameId)
 		// Retrieve running game from localStorage
 		game.score = localStorage.getItem("score");
 		game.oppid = localStorage.getItem("oppid");
+		game.oppname = localStorage.getItem("oppname");
 		game.mycolor = localStorage.getItem("mycolor");
 		game.fenStart = localStorage.getItem("fenStart");
 		game.moves = localStorage.getItem("moves");

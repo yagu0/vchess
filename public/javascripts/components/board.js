@@ -1,3 +1,5 @@
+// This can work for squared boards (2 or 4 players), with some adaptations (TODO)
+// TODO: for 3 players, write a "board3.js"
 Vue.component('my-board', {
 	// Last move cannot be guessed from here, and is required to highlight squares
 	// vr: object to check moves, print board...
