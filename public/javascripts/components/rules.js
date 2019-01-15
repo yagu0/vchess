@@ -6,27 +6,33 @@ Vue.component('my-rules', {
 			content: "",
 			display: "rules",
 			mode: "computer",
+			subMode: "", //'auto' for game CPU vs CPU
+			gameInProgress: false,
 			mycolor: "w",
 			allowMovelist: true,
 			fen: "",
 		};
 	},
-	
-	// TODO: third button "see a sample game" (comp VS comp)
-	
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<div class="button-group">
 				<button @click="display='rules'">
 					Read the rules
 				</button>
-				<button @click="startComputerGame()">
+				<button v-show="!gameInProgress" @click="watchComputerGame">
+					Observe a sample game
+				</button>
+				<button v-show="!gameInProgress" @click="playAgainstComputer">
 					Beat the computer!
+				</button>
+				<button v-show="gameInProgress" @click="stopGame">
+					Stop game
 				</button>
 			</div>
 			<div v-show="display=='rules'" v-html="content" class="section-content"></div>
 			<my-game v-show="display=='computer'" :mycolor="mycolor" :settings="settings"
-				:allow-movelist="allowMovelist" :mode="mode" :fen="fen">
+				:allow-movelist="allowMovelist" :mode="mode" :sub-mode="subMode" :fen="fen"
+				@computer-think="gameInProgress=false" @game-over="stopGame">
 			</my-game>
 		</div>
 	`,
@@ -50,9 +56,25 @@ Vue.component('my-rules', {
 				shadow: fenParts[3],
 			};
 		},
-		startComputerGame: function() {
-			this.fen = V.GenRandInitFen();
+		startGame: function() {
+			if (this.gameInProgress)
+				return;
+			this.gameInProgress = true;
+			this.mode = "computer";
 			this.display = "computer";
+			this.fen = V.GenRandInitFen();
+		},
+		stopGame: function() {
+			this.gameInProgress = false;
+			this.mode = "analyze";
+		},
+		playAgainstComputer: function() {
+			this.subMode = "";
+			this.startGame();
+		},
+		watchComputerGame: function() {
+			this.subMode = "auto";
+			this.startGame();
 		},
 	},
 })

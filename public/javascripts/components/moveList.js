@@ -57,7 +57,7 @@ Vue.component('my-move-list', {
 						{
 							domProps: { innerHTML: curCellContent },
 							on: { click: () => this.gotoMove(i) },
-							"class": { "highlight-lm": this.cursor-1 == i },
+							"class": { "highlight-lm": this.cursor == i },
 						}
 					)
 				);

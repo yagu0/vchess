@@ -1,10 +1,11 @@
 // TODO: envoyer juste "light move", sans FEN ni notation ...etc
-// TODO: also "observers" prop, we should send moves to them too (in a web worker ? webRTC ?)
+// TODO: also "observers" prop (human mode only), we should send moves to them too (in a web worker ? webRTC ?)
 // Game logic on a variant page: 3 modes, analyze, computer or human
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
 	// fen: to start from a FEN without identifiers (analyze mode)
-	props: ["conn","gameId","fen","mode","allowChat","allowMovelist","queryHash","settings"],
+	// subMode: "auto" (game comp vs comp) or "corr" (correspondance game)
+	props: ["conn","gameId","fen","mode","subMode","allowChat","allowMovelist","queryHash","settings"],
 	data: function() {
 		return {
 			oppConnected: false, //TODO?
@@ -14,6 +15,7 @@ Vue.component('my-game', {
 			vr: null, //VariantRules object, describing the game state + rules
 			endgameMessage: "",
 			orientation: "w",
+			lockCompThink: false, //used to avoid some ghost moves
 
 			oppid: "", //opponent ID in case of HH game
 			score: "*", //'*' means 'unfinished'
@@ -21,15 +23,18 @@ Vue.component('my-game', {
 			mycolor: "w",
 			fenStart: "",
 			moves: [], //TODO: initialize if gameId is defined...
-			cursor: 0,
+			cursor: -1, //index of the move just played
 			lastMove: null,
 		};
 	},
 	watch: {
 		fen: function(newFen) {
+			// (Security) No effect if a computer move is in progress:
+			if (this.mode == "computer" && this.lockCompThink)
+				return this.$emit("computer-think");
 			this.vr = new VariantRules(newFen);
 			this.moves = [];
-			this.cursor = 0;
+			this.cursor = -1;
 			this.fenStart = newFen;
 			this.score = "*";
 			if (this.mode == "analyze")
@@ -42,6 +47,8 @@ Vue.component('my-game', {
 				this.mycolor = (Math.random() < 0.5 ? "w" : "b");
 				this.orientation = this.mycolor;
 				this.compWorker.postMessage(["init",newFen]);
+				if (this.mycolor != "w" || this.subMode == "auto")
+					this.playComputerMove();
 			}
 		},
 		gameId: function() {
@@ -68,6 +75,7 @@ Vue.component('my-game', {
 	// Modal end of game, and then sub-components
 	// TODO: provide chat parameters (connection, players ID...)
 	// TODO: controls: abort, clear, resign, draw (avec confirm box)
+	// TODO: add corrMsg to sent move in case of corr game
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 			<input id="modal-eog" type="checkbox" class="modal"/>
@@ -92,6 +100,13 @@ Vue.component('my-game', {
 				<button @click="flip">Flip</button>
 				<button @click="gotoBegin">GotoBegin</button>
 				<button @click="gotoEnd">GotoEnd</button>
+			</div>
+			<div v-if="mode=='human' && subMode=='corr'">
+				<textarea v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg">
+				</textarea>
+				<div v-show="cursor>=0">
+					{{ moves[cursor].message }}
+				</div>
 			</div>
 			<div v-if="showFen && !!vr" id="fen-div" class="section-content">
 				<p id="fen-string" class="text-center">
@@ -202,27 +217,20 @@ Vue.component('my-game', {
 
 		// Computer moves web worker logic: (TODO: also for observers in HH games)
 		this.compWorker.postMessage(["scripts",variant.name]);
-		const self = this;
-		this.compWorker.onmessage = function(e) {
+		this.compWorker.onmessage = e => {
+			this.lockCompThink = true; //to avoid some ghost moves
 			let compMove = e.data;
-			if (!compMove)
-				return; //may happen if MarseilleRules and subTurn==2 (TODO: a bit ugly...)
 			if (!Array.isArray(compMove))
 				compMove = [compMove]; //to deal with MarseilleRules
-			// TODO: imperfect attempt to avoid ghost move:
-			compMove.forEach(m => { m.computer = true; });
-			// (first move) HACK: small delay to avoid selecting elements
-			// before they appear on page:
-			const delay = Math.max(500-(Date.now()-self.timeStart), 0);
+			// Small delay for the bot to appear "more human"
+			const delay = Math.max(500-(Date.now()-this.timeStart), 0);
 			setTimeout(() => {
-				const animate = (variant.name!="Dark" ? "animate" : null);
-				if (self.mode == "computer") //warning: mode could have changed!
-					self.play(compMove[0], animate);
+				const animate = variant.name != "Dark";
+				this.play(compMove[0], animate);
 				if (compMove.length == 2)
-					setTimeout( () => {
-						if (self.mode == "computer")
-							self.play(compMove[1], animate);
-					}, 750);
+					setTimeout( () => { this.play(compMove[1], animate); }, 750);
+				else //250 == length of animation (TODO: should be a constant somewhere)
+					setTimeout( () => this.lockCompThink = false, 250);
 			}, delay);
 		}
 	},
@@ -238,8 +246,8 @@ Vue.component('my-game', {
 			this.mycolor = game.mycolor || "w";
 			this.fenStart = game.fenStart;
 			this.moves = game.moves;
-			this.cursor = game.moves.length;
-			this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor-1] : null);
+			this.cursor = game.moves.length-1;
+			this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
 		},
 		setEndgameMessage: function(score) {
 			let eogMessage = "Undefined";
@@ -308,20 +316,18 @@ Vue.component('my-game', {
 		},
 		endGame: function(score) {
 			this.score = score;
-			if (["human","computer"].includes(this.mode))
-			{
-				const prefix = (this.mode=="computer" ? "comp-" : "");
-				localStorage.setItem(prefix+"score", score);
-			}
 			this.showScoreMsg(score);
-			if (this.mode == "human" && this.oppConnected)
+			this.$emit("game-over", score);
+			if (this.mode == "human")
 			{
-				// Send our nickname to opponent
-				this.conn.send(JSON.stringify({
-					code:"myname", name:this.myname, oppid:this.oppid}));
+				localStorage["score"] = score;
+				if (this.oppConnected)
+				{
+					// Send our nickname to opponent
+					this.conn.send(JSON.stringify({
+						code:"myname", name:this.myname, oppid:this.oppid}));
+				}
 			}
-			// TODO: what about cursor ?
-			//this.cursor = this.vr.moves.length; //to navigate in finished game
 		},
 		resign: function(e) {
 			this.getRidOfTooltip(e.currentTarget);
@@ -368,18 +374,26 @@ Vue.component('my-game', {
 			}, 250);
 		},
 		play: function(move, programmatic) {
-			// Forbid playing outside analyze mode when cursor isn't at moves.length-1
-			if (this.mode != "analyze" && this.cursor < this.moves.length-1)
-				return;
 			let navigate = !move;
+			// Forbid playing outside analyze mode when cursor isn't at moves.length-1
+			// (except if we receive opponent's move, human or computer)
+			if (!navigate && this.mode != "analyze" && !programmatic
+				&& this.cursor < this.moves.length-1)
+			{
+				return;
+			}
 			if (navigate)
 			{
-				if (this.cursor == this.moves.length)
+				if (this.cursor == this.moves.length-1)
 					return; //no more moves
-				move = this.moves[this.cursor];
+				move = this.moves[this.cursor+1];
 			}
-			if (!!programmatic) //computer or human opponent
+			if (!!programmatic) //computer or (remote) human opponent
+			{
+				if (this.cursor < this.moves.length-1)
+					this.gotoEnd(); //required to play the move
 				return this.animateMove(move);
+			}
 			// Not programmatic, or animation is over
 			if (!move.notation)
 				move.notation = this.vr.getNotation(move);
@@ -422,8 +436,12 @@ Vue.component('my-game', {
 					this.showScoreMsg(score);
 				// TODO: notify end of game (give score)
 			}
-			else if (this.mode == "computer" && this.vr.turn != this.mycolor)
+			// subTurn condition for Marseille (and Avalanche) rules
+			else if ((this.mode == "computer" && (!this.vr.subTurn || this.vr.subTurn <= 1))
+				&& (this.subMode == "auto" || this.vr.turn != this.mycolor))
+			{
 				this.playComputerMove();
+			}
 			// https://vuejs.org/v2/guide/list.html#Caveats (also for undo)
 			if (navigate)
 				this.$children[0].$forceUpdate(); //TODO!?
@@ -432,13 +450,13 @@ Vue.component('my-game', {
 			let navigate = !move;
 			if (navigate)
 			{
-				if (this.cursor == 0)
+				if (this.cursor < 0)
 					return; //no more moves
-				move = this.moves[this.cursor-1];
+				move = this.moves[this.cursor];
 			}
 			this.vr.undo(move);
 			this.cursor--;
-			this.lastMove = (this.cursor > 0 ? this.moves[this.cursor-1] : undefined);
+			this.lastMove = (this.cursor >= 0 ? this.moves[this.cursor] : undefined);
 			if (navigate)
 				this.$children[0].$forceUpdate(); //TODO!?
 			if (this.settings.sound == 2)
@@ -451,17 +469,16 @@ Vue.component('my-game', {
 		},
 		gotoMove: function(index) {
 			this.vr = new VariantRules(this.moves[index].fen);
-			this.cursor = index+1;
+			this.cursor = index;
 			this.lastMove = this.moves[index];
 		},
 		gotoBegin: function() {
 			this.vr = new VariantRules(this.fenStart);
-			this.cursor = 0;
+			this.cursor = -1;
 			this.lastMove = null;
 		},
 		gotoEnd: function() {
 			this.gotoMove(this.moves.length-1);
-			this.lastMove = this.moves[this.moves.length-1];
 		},
 		flip: function() {
 			this.orientation = V.GetNextCol(this.orientation);
