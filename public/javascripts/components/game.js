@@ -1,6 +1,10 @@
 // Game logic on a variant page: 3 modes, analyze, computer or human
 // TODO: envoyer juste "light move", sans FEN ni notation ...etc
 // TODO: if I'm an observer and player(s) disconnect/reconnect, how to find me ?
+//			onClick :: ask full game to remote player, and register as an observer in game
+//			(use gameId to communicate)
+//			on landing on game :: if gameId not found locally, check remotely
+//			==> il manque un param dans game : "remoteId"
 Vue.component('my-game', {
 	// gameId: to find the game in storage (assumption: it exists)
 	// fen: to start from a FEN without identifiers (analyze mode)
@@ -308,6 +312,9 @@ Vue.component('my-game', {
 			}
 		},
 		loadGame: function() {
+			// TODO: ask game to remote peer if this.remoteId is set
+			// (or just if game not found locally)
+			// NOTE: if it's a corr game, ask it from server
 			const game = getGameFromStorage(this.gameId);
 			this.opponent.id = game.oppid; //opponent ID in case of running HH game
 			this.opponent.name = game.oppname; //maye be blank (if anonymous)

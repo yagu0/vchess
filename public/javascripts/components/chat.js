@@ -1,4 +1,8 @@
-			myname: localStorage["username"] || "anonymous",
+// TODO: myname, opppnents (optional, different style), people
+// --> also show messages like "X offers draw ?" (probably not)
+
+
+myname: localStorage["username"] || "anonymous",
 			oppName: "anonymous", //opponent name, revealed after a game (if provided)
 			chats: [], //chat messages after human game
 		

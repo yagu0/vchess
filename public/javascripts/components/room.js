@@ -23,7 +23,8 @@ fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours 
 Vue.component('my-room', {
 	props: ["conn","settings"],
 	data: {
-		something: "", //TODO
+		remoteGames: [],
+		corrGames: [],
 	},
 	// Modal new game, and then sub-components
 	template: `
@@ -42,21 +43,29 @@ Vue.component('my-room', {
 					<button @click="newGame">Launch game</button>
 				</div>
 			</div>
-			<my-chat :conn="conn" :myname="myname" :people="people"></my-chat>
-			<my-challenge-list :conn="conn"></my-challenge-list>
-			<my-player-list :conn="conn"></my-player-list>
-			<my-game-list :conn="conn" ........... my-local-game-list opposed to my-remote-ame-list ?! ...bof></my-game-list>
-			onClick :: ask full game to remote player, and register as an observer in game
-			(use gameId to communicate)
-			on landing on game :: if gameId not found locally, check remotely
-			==> il manque un param dans game : "remoteId"
+			<div>
+				<my-chat :conn="conn" :myname="myname" :people="people"></my-chat>
+				<my-challenge-list :conn="conn"></my-challenge-list>
+			</div>
+			<div>
+				<my-player-list :conn="conn"></my-player-list>
+				// TODO: also corr games (of pther players)
+				// presentation ? table ?!
+				<my-game-summary v-for="g in remoteGames"
+					v-bind:vobj="g" v-bind:game="g" v-bind:key="g.id"
+					@click="() => showGame(g.id,g.uid)">
+				</my-game-summary>
+			</div>
 		</div>
 	`,
 	created: function() {
+		// TODO: ask server for current corr games (all but mines)
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
 			switch (data.code)
 			{
+				// TODO: also receive remote games summaries (update)
+				// (just players names, time control, and ID + player ID)
 				case "newgame": //challenge accepted
 					// oppid: opponent socket ID (or DB id if registered)
 					this.newGame("human", data.fen, data.color, data.oppid, data.gameid);
