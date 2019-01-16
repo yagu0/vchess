@@ -105,9 +105,12 @@ Vue.component('my-game', {
 			<div id="pgn-div" class="section-content">
 				<a id="download" href="#">
 				</a>
-				<button id="downloadBtn" @click="download">
-					{{ translate("Download PGN") }}
-				</button>
+				<div class="button-group">
+					<button id="downloadBtn" @click="download">
+						{{ translate("Download PGN") }}
+					</button>
+					<button>Import game</button>
+				</div>
 			</div>
 			<my-move-list v-if="showMoves" :moves="moves" :cursor="cursor" @goto-move="gotoMove">
 			</my-move-list>

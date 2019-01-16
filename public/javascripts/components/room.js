@@ -19,19 +19,58 @@ chat général (gauche, activé ou non (bool global storage)).
 quand je poste un lastMove corr, supprimer mon ancien lastMove le cas échéant (tlm l'a eu)
 fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours (arbitraire)
 */
+// TODO: au moins l'échange des coups en P2P ?
 Vue.component('my-room', {
 	props: ["conn","settings"],
 	data: {
 		something: "", //TODO
 	},
-
-});
-
+	// Modal new game, and then sub-components
+	template: `
+		<div>
+			<input id="modalNewgame" type="checkbox" class"="modal"/>
+			<div role="dialog" aria-labelledby="titleFenedit">
+				<div class="card smallpad">
+					<label id="closeNewgame" for="modalNewgame" class="modal-close">
+					</label>
+					<h3 id="titleFenedit" class="section">
+						{{ translate("Game state (FEN):") }}
+					</h3>
+					<input id="input-fen" type="text"/>
+					<p>TODO: cadence, adversaire (pre-filled if click on name)</p>
+					<p>Note: leave FEN blank for random</p>
+					<button @click="newGame">Launch game</button>
+				</div>
+			</div>
+			<my-chat :conn="conn" :myname="myname" :people="people"></my-chat>
+			<my-challenge-list :conn="conn"></my-challenge-list>
+			<my-player-list :conn="conn"></my-player-list>
+			<my-game-list :conn="conn" ........... my-local-game-list opposed to my-remote-ame-list ?! ...bof></my-game-list>
+			onClick :: ask full game to remote player, and register as an observer in game
+			(use gameId to communicate)
+			on landing on game :: if gameId not found locally, check remotely
+			==> il manque un param dans game : "remoteId"
+		</div>
+	`,
+	created: function() {
+		const socketMessageListener = msg => {
+			const data = JSON.parse(msg.data);
+			switch (data.code)
+			{
 				case "newgame": //challenge accepted
 					// oppid: opponent socket ID (or DB id if registered)
 					this.newGame("human", data.fen, data.color, data.oppid, data.gameid);
 					break;
-
+			}
+		};
+		const socketCloseListener = () => {
+			this.conn.addEventListener('message', socketMessageListener);
+			this.conn.addEventListener('close', socketCloseListener);
+		};
+		this.conn.onmessage = socketMessageListener;
+		this.conn.onclose = socketCloseListener;
+	},
+	methods: {
 		clickGameSeek: function(e) {
 			if (this.mode == "human" && this.score == "*")
 				return; //no newgame while playing
@@ -42,15 +81,6 @@ Vue.component('my-room', {
 			}
 			else
 				this.newGame("human");
-		},
-		clickComputerGame: function(e) {
-			if (this.mode == "computer" && this.score == "*"
-				&& this.vr.turn != this.mycolor)
-			{
-				// Wait for computer reply first (avoid potential "ghost move" bug)
-				return;
-			}
-			this.newGame("computer");
 		},
 		newGame: function(mode, fenInit, color, oppId, gameId) {
 			const fen = fenInit || VariantRules.GenRandInitFen();
@@ -76,39 +106,6 @@ Vue.component('my-room', {
 				setTimeout(() => { modalBox.checked = false; }, 2000);
 				return;
 			}
-			const prefix = this.getStoragePrefix(mode);
-			if (mode == "computer")
-			{
-				const storageVariant = localStorage.getItem(prefix+"variant");
-				if (!!storageVariant)
-				{
-					const score = localStorage.getItem(prefix+"score");
-					if (storageVariant !== variant.name && score == "*")
-					{
-						if (!confirm(storageVariant +
-							translations[": unfinished computer game will be erased"]))
-						{
-							return;
-						}
-					}
-				}
-			}
-			else if (mode == "friend")
-			{
-				const storageVariant = localStorage.getItem(prefix+"variant");
-				if (!!storageVariant)
-				{
-					const score = localStorage.getItem(prefix+"score");
-					if (storageVariant !== variant.name && score == "*")
-					{
-						if (!confirm(storageVariant +
-							translations[": current analysis will be erased"]))
-						{
-							return;
-						}
-					}
-				}
-			}
 			this.vr = new VariantRules(fen, []);
 			this.score = "*";
 			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
@@ -127,117 +124,21 @@ Vue.component('my-room', {
 					new Audio("/sounds/newgame.mp3").play().catch(err => {});
 				document.getElementById("modal-newgame").checked = false;
 			}
-			else if (mode == "computer")
-			{
-				this.compWorker.postMessage(["init",this.vr.getFen()]);
-				this.mycolor = (Math.random() < 0.5 ? 'w' : 'b');
-				if (this.mycolor != this.vr.turn)
-					this.playComputerMove();
-			}
-			else if (mode == "friend")
-				this.mycolor = "w"; //convention...
-			//else: problem solving: nothing more to do
-			if (mode != "problem")
-				this.setStorage(); //store game state in case of interruptions
+			this.setStorage(); //store game state in case of interruptions
 		},
-		continueGame: function(mode) {
-			this.mode = mode;
-			this.oppid = (mode=="human" ? localStorage.getItem("oppid") : undefined);
-			const prefix = this.getStoragePrefix(mode);
-			this.mycolor = localStorage.getItem(prefix+"mycolor");
-			const moves = JSON.parse(localStorage.getItem(prefix+"moves"));
-			const fen = localStorage.getItem(prefix+"fen");
-			const score = localStorage.getItem(prefix+"score"); //set in "endGame()"
-			this.fenStart = localStorage.getItem(prefix+"fenStart");
-			this.vr = new VariantRules(fen, moves);
+		continueGame: function() {
+			this.oppid = localStorage.getItem("oppid");
+			this.mycolor = localStorage.getItem("mycolor");
+			const moves = JSON.parse(localStorage.getItem("moves"));
+			const fen = localStorage.getItem("fen");
+			const score = localStorage.getItem("score"); //always "*" ?!
+			this.fenStart = localStorage.getItem("fenStart");
+			this.vr = new VariantRules(fen);
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			if (mode == "human")
-			{
-				this.gameId = localStorage.getItem("gameId");
-				// Send ping to server (answer pong if opponent is connected)
-				this.conn.send(JSON.stringify({
-					code:"ping",oppid:this.oppid,gameId:this.gameId}));
-			}
-			else if (mode == "computer")
-			{
-				this.compWorker.postMessage(["init",fen]);
-				if (score == "*" && this.mycolor != this.vr.turn)
-					this.playComputerMove();
-			}
-			//else: nothing special to do in friend mode
-			if (score != "*")
-			{
-				// Small delay required when continuation run faster than drawing page
-				setTimeout(() => this.endGame(score), 100);
-			}
+			this.gameId = localStorage.getItem("gameId");
+			// Send ping to server (answer pong if opponent is connected)
+			this.conn.send(JSON.stringify({
+				code:"ping",oppid:this.oppid,gameId:this.gameId}));
 		},
-		
-	
-	// TODO: option du bouton "new game" :: seulement pour challenge indiv
-	const modalFenEdit = [
-			h('input',
-				{
-					attrs: { "id": "modal-fenedit", type: "checkbox" },
-					"class": { "modal": true },
-				}),
-			h('div',
-				{
-					attrs: { "role": "dialog", "aria-labelledby": "titleFenedit" },
-				},
-				[
-					h('div',
-						{
-							"class": { "card": true, "smallpad": true },
-						},
-						[
-							h('label',
-								{
-									attrs: { "id": "close-fenedit", "for": "modal-fenedit" },
-									"class": { "modal-close": true },
-								}
-							),
-							h('h3',
-								{
-									attrs: { "id": "titleFenedit" },
-									"class": { "section": true },
-									domProps: { innerHTML: translations["Game state (FEN):"] },
-								}
-							),
-							h('input',
-								{
-									attrs: {
-										"id": "input-fen",
-										type: "text",
-										value: VariantRules.GenRandInitFen(),
-									},
-								}
-							),
-							h('button',
-								{
-									on: { click:
-										() => {
-											const fen = document.getElementById("input-fen").value;
-											document.getElementById("modal-fenedit").checked = false;
-											this.newGame("friend", fen);
-										}
-									},
-									domProps: { innerHTML: translations["Ok"] },
-								}
-							),
-							h('button',
-								{
-									on: { click:
-										() => {
-											document.getElementById("input-fen").value =
-												VariantRules.GenRandInitFen();
-										}
-									},
-									domProps: { innerHTML: translations["Random"] },
-								}
-							),
-						]
-					)
-				]
-			)
-		];
-		elementArray = elementArray.concat(modalFenEdit);
+	},
+});
