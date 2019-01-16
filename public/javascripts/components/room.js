@@ -1,30 +1,23 @@
-// TODO: main playing hall, chat + online players + current challenges + button "new game"
-/*
-input#modal-newgame.modal(type="checkbox")
-div(role="dialog" aria-labelledby="newGameTxt")
-	.card.smallpad.small-modal
-		label#close-newgame.modal-close(for="modal-newgame")
-		h3#newGameTxt= translations["New game"]
-		p= translations["Waiting for opponent..."]
-*/
+// main playing hall: chat + online players + current challenges + button "new game"
 // TODO: my-challenge-list, gérant clicks sur challenges, affichage, réception/émission des infos sur challenges ; de même, my-player-list
 // TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
 /*
-Players + challenges : == "room" home of variant (surligner si nouveau défi perso et pas affichage courant)
-joueurs en ligne (dte),
-Nouvelle partie + défis en temps réel + parties en cours (milieu, tabs),
-chat général (gauche, activé ou non (bool global storage)).
+TODO: surligner si nouveau défi perso et pas affichage courant
 (cadences base + incrément, corr == incr >= 1jour ou base >= 7j)
---> correspondance: stocker sur serveur lastMove + peerId + color + movesCount + gameId + variant + timeleft
-quand je poste un lastMove corr, supprimer mon ancien lastMove le cas échéant (tlm l'a eu)
-fin de partie corr: garder maxi nbPlayers lastMove sur serveur, pendant 7 jours (arbitraire)
+--> correspondance: stocker sur serveur lastMove + uid + color + movesCount + gameId + variant + timeleft
+fin de partie corr: supprimer partie du serveur au bout de 7 jours (arbitraire)
+main time should be positive (no 0+2 & cie...)
 */
 // TODO: au moins l'échange des coups en P2P ?
+// TODO: objet game, objet challenge ? et player ?
 Vue.component('my-room', {
 	props: ["conn","settings"],
 	data: {
-		remoteGames: [],
+		gdisplay: "live",
+		liveGames: [],
 		corrGames: [],
+		players: [], //online players
+		challenges: [], //live challenges
 	},
 	// Modal new game, and then sub-components
 	template: `
@@ -39,36 +32,64 @@ Vue.component('my-room', {
 					</h3>
 					<input id="input-fen" type="text"/>
 					<p>TODO: cadence, adversaire (pre-filled if click on name)</p>
-					<p>Note: leave FEN blank for random</p>
+					<p>cadence 2m+12s ou 7d+1d (m,s ou d,d) --> main, increment</p>
+					<p>Note: leave FEN blank for random; FEN only for targeted challenge</p>
 					<button @click="newGame">Launch game</button>
 				</div>
 			</div>
 			<div>
 				<my-chat :conn="conn" :myname="myname" :people="people"></my-chat>
-				<my-challenge-list :conn="conn"></my-challenge-list>
+				<my-challenge-list :challenges="challenges" @click-challenge="clickChallenge">
+				</my-challenge-list>
 			</div>
+			<button onClick="doClick('modalNewgame')">New game</button>
 			<div>
-				<my-player-list :conn="conn"></my-player-list>
-				// TODO: also corr games (of pther players)
-				// presentation ? table ?!
-				<my-game-summary v-for="g in remoteGames"
-					v-bind:vobj="g" v-bind:game="g" v-bind:key="g.id"
-					@click="() => showGame(g.id,g.uid)">
-				</my-game-summary>
+				<div>
+					<div v-for="p in players" @click="challenge(p)">
+						{{ p.name }}
+					</div>
+				</div>
+				<div class="button-group">
+					<button @click="gdisplay='live'>Live games</button>
+					<button @click="gdisplay='corr'>Correspondance games</button>
+				</div>
+				<my-game-list v-show="display=='live'" :games="liveGames" @show-game="showGame">
+				</my-game-list>
+				<my-game-list v-show="display=='corr'" :games="corrGames" @show-game="showGame">
+				</my-game-list>
 			</div>
 		</div>
 	`,
 	created: function() {
-		// TODO: ask server for current corr games (all but mines)
+		// TODO: ask server for current corr games (all but mines: names, ID, time control)
 		const socketMessageListener = msg => {
 			const data = JSON.parse(msg.data);
 			switch (data.code)
 			{
-				// TODO: also receive remote games summaries (update)
+				case "newgame":
+					// TODO: new game just started: data contain all informations
+					// (id, players, time control, fenStart ...)
+					break;
+				// TODO: also receive live games summaries (update)
 				// (just players names, time control, and ID + player ID)
-				case "newgame": //challenge accepted
+				case "acceptchallenge":
 					// oppid: opponent socket ID (or DB id if registered)
-					this.newGame("human", data.fen, data.color, data.oppid, data.gameid);
+					if (true) //TODO: if challenge is full
+						this.newGame(data.challenge, data.user); //user.id et user.name
+					break;
+				case "withdrawchallenge":
+					// TODO
+					break;
+				case "cancelchallenge":
+					// TODO
+					break;
+				// TODO: distinguish these (dis)connect events from their analogs in game.js
+				case "connect":
+					this.players.push({name:data.name, id:data.uid});
+					break;
+				case "disconnect":
+					const pIdx = this.players.findIndex(p => p.id == data.uid);
+					this.players.splice(pIdx);
 					break;
 			}
 		};
@@ -80,74 +101,49 @@ Vue.component('my-room', {
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
-		clickGameSeek: function(e) {
-			if (this.mode == "human" && this.score == "*")
-				return; //no newgame while playing
-			if (this.seek)
-			{
-				this.conn.send(JSON.stringify({code:"cancelnewgame"}));
-				this.seek = false;
-			}
-			else
-				this.newGame("human");
+		showGame: function(game) {
+			let hash = "#game?id=" + game.id;
+			if (!!game.uid)
+				hash += "&uid=" + game.uid;
+			location.hash = hash;
 		},
-		newGame: function(mode, fenInit, color, oppId, gameId) {
-			const fen = fenInit || VariantRules.GenRandInitFen();
-			console.log(fen); //DEBUG
-			if (mode=="human" && !oppId)
-			{
-				const storageVariant = localStorage.getItem("variant");
-				if (!!storageVariant && storageVariant !== variant.name
-					&& localStorage["score"] == "*")
-				{
-					return alert(translations["Finish your "] +
-						storageVariant + translations[" game first!"]);
-				}
-				// Send game request and wait..
-				try {
-					this.conn.send(JSON.stringify({code:"newgame", fen:fen, gameid: getRandString() }));
-				} catch (INVALID_STATE_ERR) {
-					return; //nothing achieved
-				}
-				this.seek = true;
-				let modalBox = document.getElementById("modal-newgame");
-				modalBox.checked = true;
-				setTimeout(() => { modalBox.checked = false; }, 2000);
-				return;
-			}
-			this.vr = new VariantRules(fen, []);
-			this.score = "*";
-			this.pgnTxt = ""; //redundant with this.score = "*", but cleaner
-			this.mode = mode;
-			this.incheck = [];
-			this.fenStart = V.ParseFen(fen).position; //this is enough
-			if (mode=="human")
-			{
-				// Opponent found!
-				this.gameId = gameId;
-				this.oppid = oppId;
-				this.oppConnected = true;
-				this.mycolor = color;
-				this.seek = false;
-				if (this.sound >= 1)
-					new Audio("/sounds/newgame.mp3").play().catch(err => {});
-				document.getElementById("modal-newgame").checked = false;
-			}
-			this.setStorage(); //store game state in case of interruptions
+		challenge: function(player) {
+			this.conn.send(JSON.stringify({code:"sendchallenge", oppid:p.id,
+				user:{name:user.name,id:user.id}));
 		},
-		continueGame: function() {
-			this.oppid = localStorage.getItem("oppid");
-			this.mycolor = localStorage.getItem("mycolor");
-			const moves = JSON.parse(localStorage.getItem("moves"));
-			const fen = localStorage.getItem("fen");
-			const score = localStorage.getItem("score"); //always "*" ?!
-			this.fenStart = localStorage.getItem("fenStart");
-			this.vr = new VariantRules(fen);
-			this.incheck = this.vr.getCheckSquares(this.vr.turn);
-			this.gameId = localStorage.getItem("gameId");
-			// Send ping to server (answer pong if opponent is connected)
-			this.conn.send(JSON.stringify({
-				code:"ping",oppid:this.oppid,gameId:this.gameId}));
+		clickChallenge: function(challenge) {
+			const index = this.challenges.findIndex(c => c.id == challenge.id);
+			const toIdx = challenge.to.findIndex(p => p.id == user.id);
+			const me = {name:user.name,id:user.id};
+			if (toIdx >= 0)
+			{
+				// It's a multiplayer challenge I accepted: withdraw
+				this.conn.send(JSON.stringify({code:"withdrawchallenge",
+					cid:challenge.id, user:me}));
+				this.challenges.to.splice(toIdx, 1);
+			}
+			else if (challenge.from.id == user.id) //it's my challenge: cancel it
+			{
+				this.conn.send(JSON.stringify({code:"cancelchallenge", cid:challenge.id}));
+				this.challenges.splice(index, 1);
+			}
+			else //accept a challenge
+			{
+				this.conn.send(JSON.stringify({code:"acceptchallenge",
+					cid:challenge.id, user:me}));
+				this.challenges[index].to.push(me);
+			}
+		},
+		// user: last person to accept the challenge
+		newGame: function(chall, user) {
+			const fen = chall.fen || VariantRules.GenRandInitFen();
+			const game = {}; //TODO: fen, players, time ...
+			//setStorage(game); //TODO
+			game.players.forEach(p => {
+				this.conn.send(JSON.stringify({code:"newgame", oppid:p.id, game:game});
+			});
+			if (this.settings.sound >= 1)
+				new Audio("/sounds/newgame.mp3").play().catch(err => {});
 		},
 	},
 });

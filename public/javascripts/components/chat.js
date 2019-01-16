@@ -1,100 +1,67 @@
 // TODO: myname, opppnents (optional, different style), people
 // --> also show messages like "X offers draw ?" (probably not)
-
-
-myname: localStorage["username"] || "anonymous",
-			oppName: "anonymous", //opponent name, revealed after a game (if provided)
+// myname: localStorage["username"] || "anonymous",
+Vue.component("my-chat", {
+	props: ["conn","myname","opponents","people"],
+	data: function() {
+		return {
 			chats: [], //chat messages after human game
-		
-	
-	
-		let chatEltsArray =
-		[
-			h('label',
-				{
-					attrs: { "id": "close-chat", "for": "modal-chat" },
-					"class": { "modal-close": true },
-				}
-			),
-			h('h3',
-				{
-					attrs: { "id": "titleChat" },
-					"class": { "section": true },
-					domProps: { innerHTML: translations["Chat with "] + this.oppName },
-				}
-			)
-		];
-		for (let chat of this.chats)
-		{
-			chatEltsArray.push(
-				h('p',
-					{
-						"class": {
-							"my-chatmsg": chat.author==this.myid,
-							"opp-chatmsg": chat.author==this.oppid,
-						},
-						domProps: { innerHTML: chat.msg }
-					}
-				)
-			);
-		}
-		chatEltsArray = chatEltsArray.concat([
-			h('input',
-				{
-					attrs: {
-						"id": "input-chat",
-						type: "text",
-						placeholder: translations["Type here"],
-					},
-					on: { keyup: this.trySendChat }, //if key is 'enter'
-				}
-			),
-			h('button',
-				{
-					attrs: { id: "sendChatBtn"},
-					on: { click: this.sendChat },
-					domProps: { innerHTML: translations["Send"] },
-				}
-			)
-		]);
-		const modalChat = [
-			h('input',
-				{
-					attrs: { "id": "modal-chat", type: "checkbox" },
-					"class": { "modal": true },
-				}),
-			h('div',
-				{
-					attrs: { "role": "dialog", "aria-labelledby": "titleChat" },
-				},
-				[
-					h('div',
-						{
-							"class": { "card": true, "smallpad": true },
-						},
-						chatEltsArray
-					)
-				]
-			)
-		];
-		elementArray = elementArray.concat(modalChat);
-	
-	
+		};
+	},
+	// TODO: Chat modal sur petit écran, dans la page pour grand écran
+	template: `
+		<div>
+			<input id="modal-chat" type="checkbox" class="modal">
+			<div role="dialog" aria-labelledby="titleChat">
+				<div class="card smallpad">
+					<label id="close-chat" for="modal-chat" class="modal-close"></label>
+					<h3 v-if="!!opponents" id="titleChat" class="section">
+						<span>{{ translate("Chat with ") }}</span>
+						<span v-for="o in opponents">{{ o.name }}</span>
+					</h3>
+					<p v-for="chat in chats" :class={
+						"my-chatmsg": "chat.uid==user.id",
+						"opp-chatmsg": "opponents.any(o => o.id == chat.uid)"}
+					>
+						{{ chat.msg }}
+					</p>
+					<input id="input-chat" type="text" placeholder="translate('Type here')"
+						@keyup.enter="sendChat"/>
+					<button id="sendChatBtn" @click="sendChat">{{ translate("Send") }}</button>
+				</div>
+			</div>
+		</div>
+	`,
+	created: function() {
+		const socketMessageListener = msg => {
+			const data = JSON.parse(msg.data);
+			switch (data.code)
+			{
 				case "newchat":
-					// Receive new chat
+					// TODO: new chat just arrived: data contain all informations
+					// (uid, name, message; no need for timestamp, we can use local time here)
 					this.chats.push({msg:data.msg, author:this.oppid});
 					break;
-				case "oppname":
-					// Receive opponent's name
-					this.oppName = data.name;
+				// TODO: distinguish these (dis)connect events from their analogs in game.js
+				// TODO: implement and harmonize: opponents and people are arrays, not objects ?!
+				case "connect":
+					this.players.push({name:data.name, id:data.uid});
 					break;
-	
-	
-	// TODO: complete this component
-		trySendChat: function(e) {
-			if (e.keyCode == 13) //'enter' key
-				this.sendChat();
-		},
+				case "disconnect":
+					const pIdx = this.players.findIndex(p => p.id == data.uid);
+					this.players.splice(pIdx);
+					break;
+			}
+		};
+		const socketCloseListener = () => {
+			this.conn.addEventListener('message', socketMessageListener);
+			this.conn.addEventListener('close', socketCloseListener);
+		};
+		this.conn.onmessage = socketMessageListener;
+		this.conn.onclose = socketCloseListener;
+	},
+	methods: {
+		// TODO: complete this component
 		sendChat: function() {
 			let chatInput = document.getElementById("input-chat");
 			const chatTxt = chatInput.value;
@@ -103,8 +70,8 @@ myname: localStorage["username"] || "anonymous",
 			this.conn.send(JSON.stringify({
 				code:"newchat", oppid: this.oppid, msg: chatTxt}));
 		},
-		startChat: function(e) {
-			this.getRidOfTooltip(e.currentTarget);
-			document.getElementById("modal-chat").checked = true;
-		},
-
+//		startChat: function(e) {
+//			document.getElementById("modal-chat").checked = true;
+//		},
+	},
+});

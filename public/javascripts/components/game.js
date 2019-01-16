@@ -128,6 +128,13 @@ Vue.component('my-game', {
 			this.vr = new VariantRules(this.fen);
 			this.fenStart = this.fen;
 		}
+		// TODO: if I'm one of the players in game, then:
+		// Send ping to server (answer pong if opponent is connected)
+		if (true && !!this.conn)
+		{
+			this.conn.send(JSON.stringify({
+				code:"ping",oppid:this.oppid,gameId:this.gameId}));
+		}
 		// TODO: also handle "draw accepted" (use opponents array?)
 		// --> must give this info also when sending lastState...
 		// and, if all players agree then OK draw (end game ...etc)
