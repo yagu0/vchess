@@ -23,55 +23,9 @@ Vue.component('my-problems', {
 			},
 		};
 	},
+	// NOTE: always modals first, because otherwise "scroll to the end" undesirable effect
 	template: `
 		<div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-			<div id="problemControls" class="button-group">
-				<button :aria-label='translate("Previous problem(s)")' class="tooltip"
-					@click="showNext('backward')"
-				>
-					<i class="material-icons">skip_previous</i>
-				</button>
-				<button v-if="!!userId" :aria-label='translate("Add a problem")'
-					class="tooltip" onClick="doClick('modal-newproblem')"
-				>
-					{{ translate("New") }}
-				</button>
-				<button :aria-label='translate("Next problem(s)")' class="tooltip"
-					@click="showNext('forward')"
-				>
-					<i class="material-icons">skip_next</i>
-				</button>
-			</div>
-			<div id="mainBoard" v-if="!!curProb">
-				<div id="instructions-div" class="section-content">
-					<p id="problem-instructions">{{ curProb.instructions }}</p>
-				</div>
-				<my-game :fen="curProb.fen" :mode="mode" :allowMovelist="true"
-					:settings="settings">
-				</my-game>
-				<div id="solution-div" class="section-content">
-					<h3 class="clickable" @click="showSolution = !showSolution">
-						{{ translate("Show solution") }}
-					</h3>
-					<p id="problem-solution" v-show="showSolution">{{ curProb.solution }}</p>
-				</div>
-				<button @click="displayList">Back to list display</button>
-			</div>
-			<div>
-				<input type="text" placeholder="Type problem number" v-model="pbNum"/>
-				<button @click="showProblem">Show problem</button>
-			</div>
-			<button v-if="!!userId" @click="toggleListDisplay"
-				:class="{'only-mine':display=='mine'}"
-			>
-				My problems (only)
-			</button>
-			<my-problem-summary v-show="!curProb"
-				v-on:edit-problem="editProblem(p)" v-on:delete-problem="deleteProblem(p.id)"
-				v-on:show-problem="() => showProblem(p.id)"
-				v-for="p in curProblems()" @click="curProb=p"
-				v-bind:prob="p" v-bind:userid="userId" v-bind:key="p.id">
-			</my-problem-summary>
 			<input type="checkbox" id="modal-newproblem" class="modal"/>
 			<div role="dialog" aria-labelledby="modalProblemTxt">
 				<div v-show="!modalProb.preview" class="card newproblem-form">
@@ -117,6 +71,53 @@ Vue.component('my-problems', {
 					<h3 id="nomoreMessage" class="section">{{ nomoreMessage }}</h3>
 				</div>
 			</div>
+			<div id="problemControls" class="button-group">
+				<button :aria-label='translate("Previous problem(s)")' class="tooltip"
+					@click="showNext('backward')"
+				>
+					<i class="material-icons">skip_previous</i>
+				</button>
+				<button v-if="!!userId" :aria-label='translate("Add a problem")'
+					class="tooltip" onClick="doClick('modal-newproblem')"
+				>
+					{{ translate("New") }}
+				</button>
+				<button :aria-label='translate("Next problem(s)")' class="tooltip"
+					@click="showNext('forward')"
+				>
+					<i class="material-icons">skip_next</i>
+				</button>
+			</div>
+			<div id="mainBoard" v-if="!!curProb">
+				<div id="instructions-div" class="section-content">
+					<p id="problem-instructions">{{ curProb.instructions }}</p>
+				</div>
+				<my-game :fen="curProb.fen" :mode="mode" :allowMovelist="true"
+					:settings="settings">
+				</my-game>
+				<div id="solution-div" class="section-content">
+					<h3 class="clickable" @click="showSolution = !showSolution">
+						{{ translate("Show solution") }}
+					</h3>
+					<p id="problem-solution" v-show="showSolution">{{ curProb.solution }}</p>
+				</div>
+				<button @click="displayList">Back to list display</button>
+			</div>
+			<div>
+				<input type="text" placeholder="Type problem number" v-model="pbNum"/>
+				<button @click="() => showProblem(pbNum)">Show problem</button>
+			</div>
+			<button v-if="!!userId" @click="toggleListDisplay"
+				:class="{'only-mine':display=='mine'}"
+			>
+				My problems (only)
+			</button>
+			<my-problem-summary v-show="!curProb"
+				v-on:edit-problem="editProblem(p)" v-on:delete-problem="deleteProblem(p.id)"
+				v-on:show-problem="() => showProblem(p.id)"
+				v-for="p in curProblems()" @click="curProb=p"
+				v-bind:prob="p" v-bind:userid="userId" v-bind:key="p.id">
+			</my-problem-summary>
 		</div>
 	`,
 	watch: {
@@ -138,8 +139,7 @@ Vue.component('my-problems', {
 			this.fetchProblems("mine", "bacwkard");
 			this.listsInitialized = true;
 		},
-		showProblem: function(num) {
-			const pid = num || this.pbNum;
+		showProblem: function(pid) {
 			location.hash = "#problems?id=" + pid;
 			for (let parray of [this.singletons,this.problems,this.myProblems])
 			{
