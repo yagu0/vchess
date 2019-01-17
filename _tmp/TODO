@@ -1,3 +1,6 @@
+Après ajout d'un problème, passer display à "mine"
+Résoudre le pb "no more problems" when navigating after loading one pb
+
 tell opponent that I got the move, for him to start timer (and lose...)
   --> no, not needed and impossible if everybody is offline
 	==> just store this time locally (cheating possible but...)
