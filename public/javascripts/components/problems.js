@@ -9,6 +9,7 @@ Vue.component('my-problems', {
 			display: "others", //or "mine"
 			curProb: null, //(reference to) current displayed problem (if any)
 			showSolution: false,
+			nomoreMessage: "",
 			pbNum: 0, //to navigate directly to some problem
 			// New problem (to upload), or existing problem to edit:
 			modalProb: {
@@ -33,14 +34,14 @@ Vue.component('my-problems', {
 					<i class="material-icons">skip_next</i>
 				</button>
 			</div>
-			<div id="mainBoard" v-show="!!curProb">
+			<div id="mainBoard" v-if="!!curProb">
 				<div id="instructions-div" class="section-content">
 					<p id="problem-instructions">
 						{{ curProb.instructions }}
 					</p>
 				</div>
 				<my-game :fen="curProb.fen" :mode="analyze" :allowMovelist="true" :settings="settings">
-				</my-board>
+				</my-game>
 				<div id="solution-div" class="section-content">
 					<h3 class="clickable" @click="showSolution = !showSolution">
 						{{ translations["Show solution"] }}

@@ -24,7 +24,7 @@ block content
 				include userMenu
 				a.right-menu(v-show="display=='variants'" href="#games")
 					.info-container
-						p My games
+						p Correspondance
 				a.right-menu(v-show="display=='games'" href="#variants")
 					.info-container
 						p Variants
@@ -34,14 +34,14 @@ block content
 				input#prefixFilter(v-model="curPrefix")
 			my-variant-summary(v-for="(v,idx) in sortedCounts"
 				v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
-		.row(v-show="display=='games'")
-			.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-				p TODO: load from server, show timeControl + players + link "play"
-				p Also tab for current challenges + button "new game"
+		.row(v-show="display=='correspondance'")
+			my-correspondance
 
 block javascripts
 	script.
 		const variantArray = !{JSON.stringify(variantArray)};
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/components/variantSummary.js")
+	script(src="/javascripts/components/gameList.js")
+	script(src="/javascripts/components/correspondance.js")
 	script(src="/javascripts/index.js")

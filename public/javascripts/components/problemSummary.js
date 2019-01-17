@@ -1,5 +1,5 @@
 // Preview a problem on variant page
-Vue.component('my-problem-preview', {
+Vue.component('my-problem-summary', {
 	props: ['prob','userid'],
 	template: `
 		<div class="row problem">

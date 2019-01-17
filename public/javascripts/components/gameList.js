@@ -10,7 +10,7 @@ Vue.component("my-game-list", {
 			<tr>
 				<th>Players names</th>
 				<th>Cadence</th>
-				<th v-if="showResult">
+				<th v-if="showResult">Result</th>
 			</tr>
 			<tr v-for="g in games" @click="$emit('show-game',g)">
 				<td>

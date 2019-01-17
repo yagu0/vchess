@@ -22,8 +22,9 @@ Vue.component("my-chat", {
 					<p v-for="chat in chats" :class={
 						"my-chatmsg": "chat.uid==user.id",
 						"opp-chatmsg": "opponents.any(o => o.id == chat.uid)"}
+						v-html="chat.msg"
 					>
-						{{ chat.msg }}
+						TODO: why chat.msg fails here?
 					</p>
 					<input id="input-chat" type="text" placeholder="translate('Type here')"
 						@keyup.enter="sendChat"/>
@@ -61,6 +62,7 @@ Vue.component("my-chat", {
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
+		translate: translate,
 		// TODO: complete this component
 		sendChat: function() {
 			let chatInput = document.getElementById("input-chat");

@@ -35,11 +35,11 @@ Vue.component('my-game', {
 		};
 	},
 	watch: {
-		fen: function(newFen) {
+		fen: function() {
 			// (Security) No effect if a computer move is in progress:
 			if (this.mode == "computer" && this.lockCompThink)
 				return this.$emit("computer-think");
-			this.newGameFromFen(newFen);
+			this.newGameFromFen();
 		},
 		gameId: function() {
 			this.loadGame();
@@ -132,8 +132,10 @@ Vue.component('my-game', {
 		// Send ping to server (answer pong if opponent is connected)
 		if (true && !!this.conn)
 		{
-			this.conn.send(JSON.stringify({
-				code:"ping",oppid:this.oppid,gameId:this.gameId}));
+			this.conn.onopen = () => {
+				this.conn.send(JSON.stringify({
+					code:"ping",oppid:this.oppid,gameId:this.gameId}));
+			};
 		}
 		// TODO: also handle "draw accepted" (use opponents array?)
 		// --> must give this info also when sending lastState...
@@ -298,22 +300,22 @@ Vue.component('my-game', {
 			this.endGame(this.mycolor=="w"?"0-1":"1-0");
 		},
 		translate: translate,
-		newGameFromFen: function(fen) {
-			this.vr = new VariantRules(fen);
+		newGameFromFen: function() {
+			this.vr = new VariantRules(this.fen);
 			this.moves = [];
 			this.cursor = -1;
-			this.fenStart = newFen;
+			this.fenStart = this.fen;
 			this.score = "*";
 			if (this.mode == "analyze")
 			{
-				this.mycolor = V.ParseFen(newFen).turn;
+				this.mycolor = V.ParseFen(this.fen).turn;
 				this.orientation = this.mycolor;
 			}
 			else if (this.mode == "computer") //only other alternative (HH with gameId)
 			{
 				this.mycolor = (Math.random() < 0.5 ? "w" : "b");
 				this.orientation = this.mycolor;
-				this.compWorker.postMessage(["init",newFen]);
+				this.compWorker.postMessage(["init",this.fen]);
 				if (this.mycolor != "w" || this.subMode == "auto")
 					this.playComputerMove();
 			}

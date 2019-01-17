@@ -12,17 +12,21 @@ main time should be positive (no 0+2 & cie...)
 // TODO: objet game, objet challenge ? et player ?
 Vue.component('my-room', {
 	props: ["conn","settings"],
-	data: {
-		gdisplay: "live",
-		liveGames: [],
-		corrGames: [],
-		players: [], //online players
-		challenges: [], //live challenges
+	data: function () {
+		return {
+			gdisplay: "live",
+			user: user,
+			liveGames: [],
+			corrGames: [],
+			players: [], //online players
+			challenges: [], //live challenges
+			people: [], //people who connect to this room (or disconnect)
+		};
 	},
 	// Modal new game, and then sub-components
 	template: `
 		<div>
-			<input id="modalNewgame" type="checkbox" class"="modal"/>
+			<input id="modalNewgame" type="checkbox" class="modal"/>
 			<div role="dialog" aria-labelledby="titleFenedit">
 				<div class="card smallpad">
 					<label id="closeNewgame" for="modalNewgame" class="modal-close">
@@ -38,24 +42,27 @@ Vue.component('my-room', {
 				</div>
 			</div>
 			<div>
-				<my-chat :conn="conn" :myname="myname" :people="people"></my-chat>
+				<my-chat :conn="conn" :myname="user.name" :people="people"></my-chat>
 				<my-challenge-list :challenges="challenges" @click-challenge="clickChallenge">
 				</my-challenge-list>
 			</div>
 			<button onClick="doClick('modalNewgame')">New game</button>
 			<div>
-				<div>
+				<div style="border:1px solid black">
+					<h3>Online players</h3>
 					<div v-for="p in players" @click="challenge(p)">
 						{{ p.name }}
 					</div>
 				</div>
 				<div class="button-group">
-					<button @click="gdisplay='live'>Live games</button>
-					<button @click="gdisplay='corr'>Correspondance games</button>
+					<button @click="gdisplay='live'">Live games</button>
+					<button @click="gdisplay='corr'">Correspondance games</button>
 				</div>
-				<my-game-list v-show="display=='live'" :games="liveGames" @show-game="showGame">
+				<my-game-list v-show="gdisplay=='live'" :games="liveGames"
+					@show-game="showGame">
 				</my-game-list>
-				<my-game-list v-show="display=='corr'" :games="corrGames" @show-game="showGame">
+				<my-game-list v-show="gdisplay=='corr'" :games="corrGames"
+					@show-game="showGame">
 				</my-game-list>
 			</div>
 		</div>
@@ -101,6 +108,7 @@ Vue.component('my-room', {
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
+		translate: translate,
 		showGame: function(game) {
 			let hash = "#game?id=" + game.id;
 			if (!!game.uid)
@@ -109,7 +117,7 @@ Vue.component('my-room', {
 		},
 		challenge: function(player) {
 			this.conn.send(JSON.stringify({code:"sendchallenge", oppid:p.id,
-				user:{name:user.name,id:user.id}));
+				user:{name:user.name,id:user.id}}));
 		},
 		clickChallenge: function(challenge) {
 			const index = this.challenges.findIndex(c => c.id == challenge.id);
@@ -140,7 +148,8 @@ Vue.component('my-room', {
 			const game = {}; //TODO: fen, players, time ...
 			//setStorage(game); //TODO
 			game.players.forEach(p => {
-				this.conn.send(JSON.stringify({code:"newgame", oppid:p.id, game:game});
+				this.conn.send(
+					JSON.stringify({code:"newgame", oppid:p.id, game:game}));
 			});
 			if (this.settings.sound >= 1)
 				new Audio("/sounds/newgame.mp3").play().catch(err => {});
