@@ -161,12 +161,15 @@ Vue.component('my-problems', {
 						{
 							this.singletons.push(response.problem);
 							this.curProb = response.problem;
+							this.display = (response.problem.uid == this.userId ? "mine" : "others");
 						}
 						else
 							this.noMoreProblems("Sorry, problem " + pid + " does not exist");
 					}
 				);
 			}
+			else
+				this.display = (this.curProb.uid == this.userId ? "mine" : "others");
 		},
 		curProblems: function() {
 			switch (this.display)
@@ -192,12 +195,10 @@ Vue.component('my-problems', {
 			}
 			// Boundary case: nothing in current set, need to fetch from server
 			const curSize = curProbs.length;
-			this.fetchProblems(this.display, direction);
-			const newSize = curProbs.length;
-			if (curSize == newSize) //no problems found
-				return this.noMoreProblems("No more problems in this direction");
-			// Ok, found something:
-			this.curProb = this.findClosestNeighbor(this.curProb, curProbs, direction);
+			this.fetchProblems(this.display, direction, () => {
+				// Ok, found something:
+				this.curProb = this.findClosestNeighbor(this.curProb, curProbs, direction);
+			});
 		},
 		findClosestNeighbor: function(problem, probList, direction) {
 			let neighbor = undefined;
@@ -233,7 +234,7 @@ Vue.component('my-problems', {
 			const curIndex = displays.findIndex(item => item == this.display);
 			this.display = displays[1-curIndex];
 		},
-		fetchProblems: function(type, direction) {
+		fetchProblems: function(type, direction, cb) {
 			let problems = (type == "others" ? this.problems : this.myProblems);
 			// "last datetime" set at a value OK for an empty initial array
 			let last_dt = (direction=="forward" ? 0 : Number.MAX_SAFE_INTEGER);
@@ -259,15 +260,18 @@ Vue.component('my-problems', {
 					last_dt: last_dt,
 				},
 				response => {
-					if (response.problems.length > 0)
-					{
-						Array.prototype.push.apply(problems,
-							response.problems.sort((p1,p2) => { return p2.added - p1.added; }));
-						// If one list is empty but not the other, show the non-empty
-						const otherArray = (type == "mine" ? this.problems : this.myProblems);
-						if (problems.length > 0 && otherArray.length == 0)
-							this.display = type;
-					}
+					if (response.problems.length == 0)
+						return this.noMoreProblems("No more problems in this direction");
+					Array.prototype.push.apply(problems,
+						response.problems.sort((p1,p2) => { return p2.added - p1.added; }));
+					// If one list is empty but not the other, show the non-empty
+					const otherArray = (type == "mine" ? this.problems : this.myProblems);
+					if (problems.length > 0 && otherArray.length == 0)
+						this.display = type;
+					if (!!cb)
+						cb();
+					else
+						this.$forceUpdate(); //TODO...
 				}
 			);
 		},
