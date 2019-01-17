@@ -3,7 +3,7 @@
 var router = require("express").Router();
 var UserModel = require('../models/User');
 var sendEmail = require('../utils/mailer');
-var TokenGen = require("../utils/tokenGenerator");
+var genToken = require("../utils/tokenGenerator");
 var access = require("../utils/access");
 var params = require("../config/parameters");
 var checkNameEmail = require("../public/javascripts/shared/userCheck")
@@ -12,7 +12,7 @@ var checkNameEmail = require("../public/javascripts/shared/userCheck")
 function setAndSendLoginToken(subject, to, res)
 {
 	// Set login token and send welcome(back) email with auth link
-	const token = TokenGen.generate(params.token.length);
+	const token = genToken(params.token.length);
 	UserModel.setLoginToken(token, to.id, err => {
 		if (!!err)
 			return res.json({errmsg: err.toString()});

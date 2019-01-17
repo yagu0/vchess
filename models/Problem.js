@@ -10,20 +10,20 @@ var db = require("../utils/database");
  *   solution: text
  */
 
-// TODO: callback ?
-exports.create = function(vid, fen, instructions, solution)
+exports.create = function(uid, vid, fen, instructions, solution, cb)
 {
 	db.serialize(function() {
-		const query =
-			"INSERT INTO Problems (added, vid, fen, instructions, solution) VALUES " +
-			"(" +
-				Date.now() + "," +
-				vid + "," +
-				fen + "," +
-				instructions + "," +
-				solution +
-			")";
-		db.run(query);
+		const insertQuery =
+			"INSERT INTO Problems (added, uid, vid, fen, instructions, solution) " +
+			"VALUES (" + Date.now() + "," + uid + "," + vid + ",'" + fen + "',?,?)";
+		db.run(insertQuery, [instructions, solution], err => {
+			if (!!err)
+				return cb(err);
+			db.get("SELECT last_insert_rowid() AS rowid", cb);
+		});
+//		const stmt = db.prepare(query);
+//		stmt.run(instructions, solution);
+//		stmt.finalize();
 	});
 }
 
@@ -43,7 +43,7 @@ exports.fetchN = function(vid, uid, type, directionStr, lastDt, MaxNbProblems, c
 	db.serialize(function() {
 		let typeLine = "";
 		if (uid > 0)
-			typeLine = "AND id " + (type=="others" ? "!=" : "=") + " " + uid;
+			typeLine = "AND uid " + (type=="others" ? "!=" : "=") + " " + uid;
 		const query =
 			"SELECT * FROM Problems " +
 			"WHERE vid = " + vid +
@@ -54,16 +54,17 @@ exports.fetchN = function(vid, uid, type, directionStr, lastDt, MaxNbProblems, c
 	});
 }
 
-exports.update = function(id, uid, fen, instructions, solution)
+// TODO: update fails (but insert is OK)
+exports.update = function(id, uid, fen, instructions, solution, cb)
 {
 	db.serialize(function() {
 		const query =
-			"UPDATE Problems " +
-				"fen = " + fen + ", " +
-				"instructions = " + instructions + ", " +
-				"solution = " + solution + " " +
+			"UPDATE Problems SET " +
+				"fen = '" + fen + "', " +
+				"instructions = ?, " +
+				"solution = ? " +
 			"WHERE id = " + id + " AND uid = " + uid;
-		db.run(query);
+		db.run(query, [instructions,solution], cb);
 	});
 }
 

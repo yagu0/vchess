@@ -24,6 +24,7 @@ Vue.component("my-tab-games", {
 			</my-game-list>
 			<my-game-list v-show="display=='imported'" :games="imported">
 			</my-game-list>
+			<button @click="update">Refresh</button>
 		</div>
 	`,
 	created: function() {

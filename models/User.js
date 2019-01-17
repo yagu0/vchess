@@ -1,6 +1,6 @@
 var db = require("../utils/database");
 var maild = require("../utils/mailer.js");
-var TokenGen = require("../utils/tokenGenerator");
+var genToken = require("../utils/tokenGenerator");
 var params = require("../config/parameters");
 
 /*
@@ -14,10 +14,7 @@ var params = require("../config/parameters");
  *   notify: boolean (send email notifications for corr games)
  */
 
-// TODO: consider sanitizing http://www.unixwiz.net/techtips/sql-injection.html
-// But parameters are supposed to already be cleaned (in controller).
-
-// User creation
+// NOTE: parameters are already cleaned (in controller), thus no sanitization here
 exports.create = function(name, email, notify, callback)
 {
 	db.serialize(function() {
@@ -73,7 +70,7 @@ exports.trySetSessionToken = function(uid, cb)
 		db.get(querySessionToken, (err,ret) => {
 			if (!!err)
 				return cb(err);
-			const token = ret.sessionToken || TokenGen.generate(params.token.length);
+			const token = ret.sessionToken || genToken(params.token.length);
 			const queryUpdate =
 				"UPDATE Users " +
 				"SET loginToken = NULL" +

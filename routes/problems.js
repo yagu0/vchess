@@ -55,27 +55,39 @@ router.get("/problems/:vid([0-9]+)", access.ajax, (req,res) => {
 // Upload a problem (sanitize inputs)
 router.post("/problems/:vid([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const vid = req.params["vid"];
-	const s = sanitizeUserInput(req.body["fen"], req.body["instructions"], req.body["solution"]);
+	const s = sanitizeUserInput(
+		req.body["fen"], req.body["instructions"], req.body["solution"]);
 	if (typeof s === "string")
 		return res.json({errmsg: s});
-  ProblemModel.create(vid, s.fen, s.instructions, s.solution);
-	res.json({});
+  ProblemModel.create(req.userId, vid, s.fen, s.instructions, s.solution,
+		(err,pid) => {
+			if (!!err)
+				return res.json(err);
+			res.json({id: pid["rowid"]});
+		}
+	);
 });
 
 // Update a problem (also sanitize inputs)
 router.put("/problems/:id([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const pid = req.params["id"]; //problem ID
-	const s = sanitizeUserInput(req.body["fen"], req.body["instructions"], req.body["solution"]);
+	const s = sanitizeUserInput(
+		req.body["fen"], req.body["instructions"], req.body["solution"]);
 	if (typeof s === "string")
 		return res.json({errmsg: s});
-	ProblemModel.update(pid, req.userId, fen, instructions, solution);
-	res.json({});
+	ProblemModel.update(pid, req.userId, s.fen, s.instructions, s.solution,
+		err => {
+			if (!!err)
+				return res.json(err);
+			res.json({});
+		}
+	);
 });
 
 // Delete a problem
 router.delete("/problems/:id([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const pid = req.params["id"]; //problem ID
-  ProblemModel.delete(pid, req.userId);
+  ProblemModel.remove(pid, req.userId);
 	res.json({});
 });
 
