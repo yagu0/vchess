@@ -31,12 +31,10 @@ block content
 			my-room(v-show="display=='room'" :conn="conn" :settings="settings")
 			my-tab-games(v-show="display=='tabGames'")
 			my-rules(v-show="display=='rules'" :settings="settings")
-			my-problems(v-show="display=='problems'" :query-hash="queryHash"
-				:settings="settings")
-			my-game(v-show="display=='game'" :game-id="gameid" :conn="conn"
+			my-problems(v-show="display=='problems'" :prob-id="probId" :settings="settings")
+			my-game(v-show="display=='game'" :game-ref="gameRef" :conn="conn"
 				:allow-chat="allowChat" :allow-movelist="allowMovelist"
-				:mode="mode" :query-hash="queryHash" :settings="settings"
-				@game-over="archiveGame")
+				:mode="mode" :settings="settings" @game-over="archiveGame")
 
 block javascripts
 	script(src="/javascripts/utils/array.js")

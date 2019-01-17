@@ -1,5 +1,5 @@
 Vue.component('my-problems', {
-	props: ["queryHash","settings"],
+	props: ["probId","settings"],
 	data: function () {
 		return {
 			userId: user.id,
@@ -10,6 +10,7 @@ Vue.component('my-problems', {
 			curProb: null, //(reference to) current displayed problem (if any)
 			showSolution: false,
 			nomoreMessage: "",
+			mode: "analyze", //for game component
 			pbNum: 0, //to navigate directly to some problem
 			// New problem (to upload), or existing problem to edit:
 			modalProb: {
@@ -45,13 +46,12 @@ Vue.component('my-problems', {
 				<div id="instructions-div" class="section-content">
 					<p id="problem-instructions">{{ curProb.instructions }}</p>
 				</div>
-				<my-game :fen="curProb.fen" :mode="analyze" :allowMovelist="true"
-					:settings="settings"
-				>
+				<my-game :fen="curProb.fen" :mode="mode" :allowMovelist="true"
+					:settings="settings">
 				</my-game>
 				<div id="solution-div" class="section-content">
 					<h3 class="clickable" @click="showSolution = !showSolution">
-						{{ translations["Show solution"] }}
+						{{ translate("Show solution") }}
 					</h3>
 					<p id="problem-solution" v-show="showSolution">{{ curProb.solution }}</p>
 				</div>
@@ -120,27 +120,18 @@ Vue.component('my-problems', {
 		</div>
 	`,
 	watch: {
-		queryHash: function(newQhash) {
-			if (!!newQhash)
-			{
-				// New query hash = "id=42"; get 42 as problem ID
-				const pid = parseInt(newQhash.substr(2));
-				this.showProblem(pid);
-			}
-			else
-				this.curProb = null; //(back to) list display
+		probId: function() {
+			this.showProblem(this.probId);
 		},
 	},
 	created: function() {
-		if (!!this.queryHash)
-		{
-			const pid = parseInt(this.queryHash.substr(2));
-			this.showProblem(pid);
-		}
+		if (!!this.probId)
+			this.showProblem(this.probId);
 		else
 			this.firstFetch();
 	},
 	methods: {
+		translate: translate,
 		firstFetch: function() {
 			// Fetch most recent problems from server, for both lists
 			this.fetchProblems("others", "bacwkard");
@@ -155,15 +146,15 @@ Vue.component('my-problems', {
 				const pIdx = parray.findIndex(p => p.id == pid);
 				if (pIdx >= 0)
 				{
-					curProb = parray[pIdx];
+					this.curProb = parray[pIdx];
 					break;
 				}
 			}
-			if (!curProb)
+			if (!this.curProb)
 			{
 				// Cannot find problem in current set; get from server, and add to singletons.
 				ajax(
-					"/problems/" + variant.name + "/" + pid, //TODO: use variant._id ?
+					"/problems/" + variant.id + "/" + pid, //TODO: variant ID should not be required
 					"GET",
 					response => {
 						if (!!response.problem)
@@ -176,9 +167,6 @@ Vue.component('my-problems', {
 					}
 				);
 			}
-		},
-		translate: function(text) {
-			return translations[text];
 		},
 		curProblems: function() {
 			switch (this.display)

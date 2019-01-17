@@ -2,8 +2,8 @@ new Vue({
 	el: "#VueElement",
 	data: {
 		display: "", //default to main hall; see "created()" function
-		gameid: undefined, //...yet
-		queryHash: "",
+		gameRef: undefined, //...for now
+		probId: undefined,
 		conn: null,
 		mode: "analyze",
 		allowChat: false,
@@ -19,14 +19,11 @@ new Vue({
 		},
 	},
 	created: function() {
+		window.onhashchange = this.setDisplay;
 		if (!!localStorage["variant"])
-		{
 			location.hash = "#game?id=" + localStorage["gameId"];
-			this.display = location.hash.substr(1);
-		}
 		else
 			this.setDisplay();
-		window.onhashchange = this.setDisplay;
 		// Our ID, always set (DB id if registered, collision-free random string otherwise)
 		this.myid = user.id || localStorage["myid"] || "anon-" + getRandString();
 		this.conn = new WebSocket(socketUrl + "/?sid=" + this.myid + "&page=" + variant.id);
@@ -56,7 +53,21 @@ new Vue({
 				location.hash = "#room"; //default
 			const hashParts = location.hash.substr(1).split("?");
 			this.display = hashParts[0];
-			this.queryHash = hashParts[1]; //may be empty, undefined...
+			if (hashParts[0] == "problems" && !!hashParts[1])
+			{
+				// Show a specific problem
+				this.probId = hashParts[1].split("=")[1];
+			}
+			else if (hashParts[0] == "game" && !!hashParts[1])
+			{
+				// Show a specific game, maybe with a user ID
+				const params = hashParts[1].split("&").filter(h => h.split("=")[1]);
+				// TODO: Vue.set(...) probably required here
+				this.gameRef = {
+					id: params[0],
+					uid: params[1], //may be undefined
+				};
+			}
 			// Close menu on small screens:
 			let menuToggle = document.getElementById("drawer-control");
 			if (!!menuToggle)

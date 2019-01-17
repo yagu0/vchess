@@ -10,8 +10,8 @@ Vue.component('my-game', {
 	// fen: to start from a FEN without identifiers (analyze mode)
 	// subMode: "auto" (game comp vs comp) or "corr" (correspondance game),
 	// or "examine" (after human game: TODO)
-	props: ["conn","gameId","fen","mode","subMode","allowChat","allowMovelist",
-		"queryHash","settings"],
+	props: ["conn","gameRef","fen","mode","subMode",
+		"allowChat","allowMovelist","settings"],
 	data: function() {
 		return {
 			// Web worker to play computer moves without freezing interface:
@@ -41,12 +41,7 @@ Vue.component('my-game', {
 				return this.$emit("computer-think");
 			this.newGameFromFen();
 		},
-		gameId: function() {
-			this.loadGame();
-		},
-		queryHash: function(newQhash) {
-			// New query hash = "id=42"; get 42 as gameId
-			this.gameId = parseInt(newQhash.substr(2));
+		gameRef: function() {
 			this.loadGame();
 		},
 	},
@@ -121,7 +116,7 @@ Vue.component('my-game', {
 		</div>
 	`,
 	created: function() {
-		if (!!this.gameId)
+		if (!!this.gameRef)
 			this.loadGame();
 		else if (!!this.fen)
 		{
@@ -130,11 +125,11 @@ Vue.component('my-game', {
 		}
 		// TODO: if I'm one of the players in game, then:
 		// Send ping to server (answer pong if opponent is connected)
-		if (true && !!this.conn)
+		if (true && !!this.conn && !!this.gameRef)
 		{
 			this.conn.onopen = () => {
 				this.conn.send(JSON.stringify({
-					code:"ping",oppid:this.oppid,gameId:this.gameId}));
+					code:"ping",oppid:this.oppid,gameId:this.gameRef.id}));
 			};
 		}
 		// TODO: also handle "draw accepted" (use opponents array?)
@@ -149,7 +144,7 @@ Vue.component('my-game', {
 					this.play(data.move, variant.name!="Dark" ? "animate" : null);
 					break;
 				case "pong": //received if we sent a ping (game still alive on our side)
-					if (this.gameId != data.gameId)
+					if (this.gameRef.id != data.gameId)
 						break; //games IDs don't match: definitely over...
 					this.oppConnected = true;
 					// Send our "last state" informations to opponent(s)
@@ -158,7 +153,7 @@ Vue.component('my-game', {
 						this.conn.send(JSON.stringify({
 							code: "lastate",
 							oppid: oid,
-							gameId: this.gameId,
+							gameId: this.gameRef.id,
 							lastMove: (L>0?this.vr.moves[L-1]:undefined),
 							movesCount: L,
 						}));
@@ -167,7 +162,7 @@ Vue.component('my-game', {
 				// TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves (not just one)
 				case "lastate": //got opponent infos about last move
 					L = this.vr.moves.length;
-					if (this.gameId != data.gameId)
+					if (this.gameRef.id != data.gameId)
 						break; //games IDs don't match: nothing we can do...
 					// OK, opponent still in game (which might be over)
 					if (this.score != "*")
@@ -176,7 +171,7 @@ Vue.component('my-game', {
 						this.conn.send(JSON.stringify({
 							code: "lastate",
 							oppid: data.oppid,
-							gameId: this.gameId,
+							gameId: this.gameRef.id,
 							score: this.score,
 						}));
 					}
@@ -188,7 +183,7 @@ Vue.component('my-game', {
 						this.conn.send(JSON.stringify({
 							code: "lastate",
 							oppid: this.opponent.id,
-							gameId: this.gameId,
+							gameId: this.gameRef.id,
 							lastMove: this.vr.moves[L-1],
 							movesCount: L,
 						}));
@@ -324,7 +319,7 @@ Vue.component('my-game', {
 			// TODO: ask game to remote peer if this.remoteId is set
 			// (or just if game not found locally)
 			// NOTE: if it's a corr game, ask it from server
-			const game = getGameFromStorage(this.gameId);
+			const game = getGameFromStorage(this.gameRef.id, this.gameRef.uid); //uid may be blank
 			this.opponent.id = game.oppid; //opponent ID in case of running HH game
 			this.opponent.name = game.oppname; //maye be blank (if anonymous)
 			this.score = game.score;
