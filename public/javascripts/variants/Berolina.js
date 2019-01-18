@@ -133,5 +133,3 @@ class BerolinaRules extends ChessRules
 		return super.getNotation(move); //all other pieces are orthodox
 	}
 }
-
-const VariantRules = BerolinaRules;

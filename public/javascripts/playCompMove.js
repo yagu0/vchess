@@ -9,7 +9,7 @@ onmessage = function(e)
 				'/javascripts/base_rules.js',
 				'/javascripts/utils/array.js',
 				'/javascripts/variants/' + e.data[1] + '.js');
-			self.V = VariantRules;
+			self.V = eval(e.data[1] + "Rules");
 			break;
 		case "init":
 			const fen = e.data[1];

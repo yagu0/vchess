@@ -144,7 +144,7 @@ Vue.component('my-room', {
 		},
 		// user: last person to accept the challenge
 		newGame: function(chall, user) {
-			const fen = chall.fen || VariantRules.GenRandInitFen();
+			const fen = chall.fen || V.GenRandInitFen();
 			const game = {}; //TODO: fen, players, time ...
 			//setStorage(game); //TODO
 			game.players.forEach(p => {

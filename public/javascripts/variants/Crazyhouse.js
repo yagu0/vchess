@@ -281,5 +281,3 @@ class CrazyhouseRules extends ChessRules
 		return "@" + V.CoordsToSquare(move.end);
 	}
 }
-
-const VariantRules = CrazyhouseRules;

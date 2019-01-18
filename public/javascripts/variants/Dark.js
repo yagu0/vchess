@@ -285,5 +285,3 @@ class DarkRules extends ChessRules
 		return moves[_.sample(candidates, 1)];
 	}
 }
-
-const VariantRules = DarkRules;

@@ -120,7 +120,7 @@ Vue.component('my-game', {
 			this.loadGame();
 		else if (!!this.fen)
 		{
-			this.vr = new VariantRules(this.fen);
+			this.vr = new V(this.fen);
 			this.fenStart = this.fen;
 		}
 		// TODO: if I'm one of the players in game, then:
@@ -296,7 +296,7 @@ Vue.component('my-game', {
 		},
 		translate: translate,
 		newGameFromFen: function() {
-			this.vr = new VariantRules(this.fen);
+			this.vr = new V(this.fen);
 			this.moves = [];
 			this.cursor = -1;
 			this.fenStart = this.fen;
@@ -532,12 +532,12 @@ Vue.component('my-game', {
 				this.moves.pop();
 		},
 		gotoMove: function(index) {
-			this.vr = new VariantRules(this.moves[index].fen);
+			this.vr = new V(this.moves[index].fen);
 			this.cursor = index;
 			this.lastMove = this.moves[index];
 		},
 		gotoBegin: function() {
-			this.vr = new VariantRules(this.fenStart);
+			this.vr = new V(this.fenStart);
 			this.cursor = -1;
 			this.lastMove = null;
 		},

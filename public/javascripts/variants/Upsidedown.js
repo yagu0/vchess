@@ -68,5 +68,3 @@ class UpsidedownRules extends ChessRules
 			" w"; //no castle, no en-passant
 	}
 }
-
-const VariantRules = UpsidedownRules;

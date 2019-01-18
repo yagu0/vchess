@@ -614,5 +614,3 @@ class BaroqueRules extends ChessRules
 		return notation;
 	}
 }
-
-const VariantRules = BaroqueRules;

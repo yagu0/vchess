@@ -76,7 +76,7 @@ function getShadowArray(shadow)
 function getDiagram(args)
 {
 	// Obtain the array of pieces images names:
-	const board = VariantRules.GetBoard(args.position);
+	const board = V.GetBoard(args.position);
 	const orientation = args.orientation || "w";
 	const markArray = getMarkArray(args.marks);
 	const shadowArray = getShadowArray(args.shadow);

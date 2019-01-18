@@ -225,5 +225,3 @@ class ZenRules extends ChessRules
 		}
 	}
 }
-
-const VariantRules = ZenRules;

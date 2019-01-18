@@ -133,5 +133,3 @@ class SwitchingRules extends ChessRules
 		return "S" + V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
 	}
 }
-
-const VariantRules = SwitchingRules;

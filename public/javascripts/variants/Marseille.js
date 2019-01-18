@@ -293,5 +293,3 @@ class MarseilleRules extends ChessRules
 		return selected;
 	}
 }
-
-const VariantRules = MarseilleRules;

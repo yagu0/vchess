@@ -22,10 +22,10 @@ block content
 				#flagMenu.clickable(onClick="doClick('modalLang')")
 					img(src="/images/flags/" + lang + ".svg")
 				include userMenu
-				a.right-menu(v-show="display=='variants'" href="#games")
+				a.right-menu(v-show="display=='variants'" href="#correspondance")
 					.info-container
 						p Correspondance
-				a.right-menu(v-show="display=='games'" href="#variants")
+				a.right-menu(v-show="display=='correspondance'" href="#variants")
 					.info-container
 						p Variants
 		.row(v-show="display=='variants'")
@@ -43,5 +43,6 @@ block javascripts
 	script(src="/javascripts/socket_url.js")
 	script(src="/javascripts/components/variantSummary.js")
 	script(src="/javascripts/components/gameList.js")
+	script(src="/javascripts/components/challengeList.js")
 	script(src="/javascripts/components/correspondance.js")
 	script(src="/javascripts/index.js")

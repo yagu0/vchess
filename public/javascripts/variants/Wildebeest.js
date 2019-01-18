@@ -285,5 +285,3 @@ class WildebeestRules extends ChessRules
 			" w 1111 -";
 	}
 }
-
-const VariantRules = WildebeestRules;

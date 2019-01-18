@@ -37,6 +37,9 @@ create table Challenges (
 	uid integer,
 	vid integer,
 	nbPlayers integer,
+	fen varchar,
+	mainTime integer,
+	addTime integer,
 	foreign key (uid) references Users(id),
 	foreign key (vid) references Variants(id)
 );
@@ -52,8 +55,11 @@ create table WillPlay (
 create table Games (
 	id integer primary key,
 	vid integer,
-	fen varchar, --initial position
-	score varchar default '*',
+	fenStart varchar, --initial state
+	fen varchar, --current state
+	score varchar,
+	mainTime integer,
+	addTime integer,
 	foreign key (vid) references Variants(id)
 );
 
@@ -62,6 +68,7 @@ create table Players (
 	gid integer,
 	uid integer,
 	color character,
+	rtime integer, --remaining time in milliseconds
 	foreign key (gid) references Games(id),
 	foreign key (uid) references Users(id)
 );
@@ -69,6 +76,7 @@ create table Players (
 create table Moves (
 	gid integer,
 	move varchar,
+	message varchar,
 	played datetime, --when was this move played?
 	idx integer, --index of the move in the game
 	color character, --required for e.g. Marseillais Chess

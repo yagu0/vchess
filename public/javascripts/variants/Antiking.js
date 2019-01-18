@@ -198,5 +198,3 @@ class AntikingRules extends ChessRules
 			" w 1111 -";
 	}
 }
-
-const VariantRules = AntikingRules;

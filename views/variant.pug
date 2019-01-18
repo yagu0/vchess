@@ -37,16 +37,15 @@ block content
 				:mode="mode" :settings="settings" @game-over="archiveGame")
 
 block javascripts
-	script(src="/javascripts/utils/array.js")
 	script(src="/javascripts/utils/printDiagram.js")
 	script(src="/javascripts/utils/datetime.js")
 	script(src="/javascripts/utils/squareId.js")
 	script(src="/javascripts/socket_url.js")
-	script(src="/javascripts/base_rules.js")
 	script(src="/javascripts/variants/" + variant.name + ".js")
 	script.
-		const V = VariantRules; //because this variable is often used
 		const variant = !{JSON.stringify(variant)};
+		// Just 'V' because this variable is often used:
+		const V = eval(variant.name + "Rules");
 	script(src="/javascripts/components/board.js")
 	script(src="/javascripts/components/chat.js")
 	script(src="/javascripts/components/gameList.js")
