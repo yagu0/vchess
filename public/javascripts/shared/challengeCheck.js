@@ -1,4 +1,5 @@
-function checkChallenge(c)
+// 'vname' for 'variant name' is defined when run on client side
+function checkChallenge(c, vname)
 {
 	const vid = parseInt(c.vid);
 	if (isNaN(vid) || vid <= 0)
@@ -15,44 +16,30 @@ function checkChallenge(c)
 	let playerCount = 0;
 	for (p of c.players)
 	{
-		if (p.length > 0)
+		if (p.name.length > 0)
 		{
-			if (!p.match(/^[\w]+$/))
+			if (!p.name.match(/^[\w]+$/))
 				return "Wrong characters in players names";
 			playerCount++;
 		}
 	}
 
-	if (playerCount > 0 && playerCount != c.nbPlayers)
+	if (playerCount > 0 && playerCount != c.nbPlayers-1)
 		return "None, or all of the opponent names must be filled"
 
-	if (!!document) //client side
+	if (typeof document !== "undefined") //client side
 	{
-		const idxInVariants = variantArray.findIndex(v => v.id == c.vid);
-		const vname = variantArray[idxInVariants].name;
-		const scriptId = vname + "RulesScript";
-		const afterRulesAreLoaded = () => {
-			const V = eval(vname + "Rules");
-			// Allow custom FEN (and check it) only for individual challenges
-			if (c.fen.length > 0 && playerCount > 0)
-			{
-				if (!V.IsGoodFen(c.fen))
-					return "Bad FEN string";
-			}
-			else
-			{
-				// Generate a FEN
-				c.fen = V.GenRandInitFen();
-			}
-		};
-		if (!document.getElementById(scriptId))
+		const V = eval(vname + "Rules");
+		// Allow custom FEN (and check it) only for individual challenges
+		if (c.fen.length > 0 && playerCount > 0)
 		{
-			// Load variant rules (only once)
-			var script = document.createElement("script");
-			script.id = scriptId;
-			script.src = "/javascripts/variants/" + vname + ".js";
-			document.body.appendChild(script);
-			script.onload = afterRulesAreLoaded;
+			if (!V.IsGoodFen(c.fen))
+				return "Bad FEN string";
+		}
+		else
+		{
+			// Generate a FEN
+			c.fen = V.GenRandInitFen();
 		}
 	}
 	else

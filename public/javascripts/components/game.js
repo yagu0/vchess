@@ -490,7 +490,7 @@ Vue.component('my-game', {
 				if (this.cursor == this.moves.length)
 					this.moves.push(move);
 				else
-					this.moves = this.moves.slice(0,this.cursor-1).concat([move]);
+					this.moves = this.moves.slice(0,this.cursor).concat([move]);
 			}
 			// Is opponent in check?
 			this.incheck = this.vr.getCheckSquares(this.vr.turn);

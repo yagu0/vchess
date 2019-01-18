@@ -23,16 +23,17 @@ const ChallengeModel =
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Challenges (added, uid, vid, nbPlayers, fen, mainTime, addTime) " +
-				"VALUES (" + Date.now() + "," + c.uid + "," + c.vid + "," + c.nbPlayers + "," +
-					c.fen + "," + c.mainTime + "," + c.increment + ")";
+				"INSERT INTO Challenges " +
+				"(added, uid, vid, nbPlayers, fen, mainTime, addTime) VALUES " +
+				"(" + Date.now() + "," + c.uid + "," + c.vid + "," + c.nbPlayers +
+					",'" + c.fen + "'," + c.mainTime + "," + c.increment + ")";
 			db.run(query, err => {
 				if (!!err)
 					return cb(err);
 				db.get("SELECT last_insert_rowid() AS rowid", (err2,lastId) => {
 					query =
 						"INSERT INTO WillPlay VALUES " +
-						"(" + lastId["rowid"] + "," + uid + ")";
+						"(" + lastId["rowid"] + "," + c.uid + ")";
 						db.run(query, (err,ret) => {
 							cb(err, lastId); //all we need is the challenge ID
 						});
@@ -64,6 +65,7 @@ const ChallengeModel =
 						return cb(err2);
 					const challenge = {
 						id: id,
+						uid: challengeInfo.uid,
 						vname: challengeInfo.name,
 						added: challengeInfo.added,
 						nbPlayers: challengeInfo.nbPlayers,

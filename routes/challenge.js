@@ -18,7 +18,7 @@ router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) =>
 	};
 	const error = checkChallenge(chall);
 	ChallengeModel.create(chall, (err,lastId) => {
-		res.json(err || {challenge: Object.assign(chall, {id: lastId["rowid"]})});
+		res.json(err || {cid: lastId["rowid"]});
 	});
 });
 

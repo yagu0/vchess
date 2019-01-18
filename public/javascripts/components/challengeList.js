@@ -29,3 +29,5 @@ Vue.component("my-challenge-list", {
 		</table>
 	`,
 });
+
+// TODO: challenge format from/to ou uid/players ............

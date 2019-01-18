@@ -9,7 +9,7 @@ Vue.component("my-correspondance", {
 				fen: "",
 				vid: 0,
 				nbPlayers: 0,
-				players: ["","",""],
+				players: [{id:0,name:""},{id:0,name:""},{id:0,name:""}],
 				mainTime: 0,
 				increment: 0,
 			},
@@ -25,11 +25,15 @@ Vue.component("my-correspondance", {
 					<fieldset>
 						<label for="selectVariant">{{ translate("Variant") }}</label>
 						<select id="selectVariant" v-model="newgameInfo.vid">
-							<option v-for="v in variants" :value="v.id">{{ v.name }}</option>
+							<option v-for="v in variants" :value="v.id">
+								{{ v.name }}
+							</option>
 						</select>
 					</fieldset>
 					<fieldset>
-						<label for="selectNbPlayers">{{ translate("Number of players") }}</label>
+						<label for="selectNbPlayers">
+							{{ translate("Number of players") }}
+						</label>
 						<select id="selectNbPlayers" v-model="newgameInfo.nbPlayers">
 							<option v-show="possibleNbplayers(2)" value="2">2</option>
 							<option v-show="possibleNbplayers(3)" value="3">3</option>
@@ -39,30 +43,37 @@ Vue.component("my-correspondance", {
 					<fieldset>
 						<label for="timeControl">Time control (in days)</label>
 						<div id="timeControl">
-							<input type="number" v-model="newgameInfo.mainTime" placeholder="Main time"/>
-							<input type="number" v-model="newgameInfo.increment" placeholder="Increment"/>
+							<input type="number" v-model="newgameInfo.mainTime"
+								placeholder="Main time"/>
+							<input type="number" v-model="newgameInfo.increment"
+								placeholder="Increment"/>
 						</div>
 					</fieldset>
 					<fieldset>
 						<label for="selectPlayers">{{ translate("Play with?") }}</label>
 						<div id="selectPlayers">
-							<input type="text" v-model="newgameInfo.players[0]"/>
+							<input type="text" v-model="newgameInfo.players[0].name"/>
 							<input v-show="newgameInfo.nbPlayers>=3" type="text"
-								v-model="newgameInfo.players[1]"/>
+								v-model="newgameInfo.players[1].name"/>
 							<input v-show="newgameInfo.nbPlayers==4" type="text"
-								v-model="newgameInfo.players[2]"/>
+								v-model="newgameInfo.players[2].name"/>
 						</div>
 					</fieldset>
 					<fieldset>
-						<label for="inputFen">{{ translate("FEN (ignored if players fields are blank)") }}</label>
+						<label for="inputFen">
+							{{ translate("FEN (ignored if players fields are blank)") }}
+						</label>
 						<input id="inputFen" type="text" v-model="newgameInfo.fen"/>
 					</fieldset>
 					<button @click="newGame">Launch game</button>
 				</div>
 			</div>
-			<p v-if="!userId">Correspondance play is reserved to registered users</p>
+			<p v-if="!userId">
+				Correspondance play is reserved to registered users
+			</p>
 			<div v-if="!!userId">
-				<my-challenge-list :challenges="challenges" @click-challenge="clickChallenge">
+				<my-challenge-list :challenges="challenges"
+					@click-challenge="clickChallenge">
 				</my-challenge-list>
 				<button onClick="doClick('modalNewgame')">New game</button>
 				<my-game-list :games="games" @show-game="showGame">
@@ -97,26 +108,53 @@ Vue.component("my-correspondance", {
 			location.href="/variant#game?id=" + g.id;
 		},
 		newGame: function() {
-			// NOTE: side-effect = set FEN
-			// TODO: (to avoid any cheating option) separate the GenRandInitFen() functions
-			// in separate files, load on server and generate FEN on server.
-			const error = checkChallenge(this.newgameInfo);
-			if (!!error)
-				return alert(error);
-			// Possible (server) error if filled player does not exist
-			ajax(
-				"/challenges/" + this.newgameInfo.vid,
-				"POST",
-				this.newgameInfo,
-				response => {
-					this.challenges.push(response.challenge);
-				}
-			);
+			const afterRulesAreLoaded = () => {
+				// NOTE: side-effect = set FEN
+				// TODO: (to avoid any cheating option) separate the GenRandInitFen() functions
+				// in separate files, load on server and generate FEN on server.
+				const error = checkChallenge(this.newgameInfo, vname);
+				if (!!error)
+					return alert(error);
+				// Possible (server) error if filled player does not exist
+				ajax(
+					"/challenges/" + this.newgameInfo.vid,
+					"POST",
+					this.newgameInfo,
+					response => {
+						const chall = Object.assign({},
+							this.newgameInfo,
+							{
+								id: response.cid,
+								uid: user.id,
+								added: Date.now(),
+								vname: vname,
+							},
+						this.challenges.push(response.challengei);
+					}
+				);
+			};
+			const idxInVariants =
+				variantArray.findIndex(v => v.id == this.newgameInfo.vid);
+			const vname = variantArray[idxInVariants].name;
+			const scriptId = vname + "RulesScript";
+			if (!document.getElementById(scriptId))
+			{
+				// Load variant rules (only once)
+				var script = document.createElement("script");
+				script.id = scriptId;
+				script.onload = afterRulesAreLoaded;
+				//script.addEventListener ("load", afterRulesAreLoaded, false);
+				script.src = "/javascripts/variants/" + vname + ".js";
+				document.body.appendChild(script);
+			}
+			else
+				afterRulesAreLoaded();
 		},
 		possibleNbplayers: function(nbp) {
 			if (this.newgameInfo.vid == 0)
 				return false;
-			const idxInVariants = variantArray.findIndex(v => v.id == this.newgameInfo.vid);
+			const idxInVariants =
+				variantArray.findIndex(v => v.id == this.newgameInfo.vid);
 			return NbPlayers[variantArray[idxInVariants].name].includes(nbp);
 		},
 	},
