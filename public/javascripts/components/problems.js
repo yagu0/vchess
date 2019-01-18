@@ -182,8 +182,13 @@ Vue.component('my-problems', {
 		},
 		// TODO?: get 50 from server but only show 10 at a time (for example)
 		showNext: function(direction) {
+			const nomorePb =
+				problems => {
+					if (!problems || problems.length == 0)
+						this.noMoreProblems("No more problems in this direction");
+				};
 			if (!this.curProb)
-				return this.fetchProblems(this.display, direction);
+				return this.fetchProblems(this.display, direction, nomorePb);
 			// Show next problem (older or newer):
 			let curProbs = this.curProblems();
 			// Try to find a neighbour problem in the direction, among current set
@@ -195,9 +200,15 @@ Vue.component('my-problems', {
 			}
 			// Boundary case: nothing in current set, need to fetch from server
 			const curSize = curProbs.length;
-			this.fetchProblems(this.display, direction, () => {
-				// Ok, found something:
-				this.curProb = this.findClosestNeighbor(this.curProb, curProbs, direction);
+			this.fetchProblems(this.display, direction, problems => {
+				if (problems.length > 0)
+				{
+					// Ok, found something:
+					this.curProb =
+						this.findClosestNeighbor(this.curProb, curProbs, direction);
+				}
+				else
+					nomorePb();
 			});
 		},
 		findClosestNeighbor: function(problem, probList, direction) {
@@ -260,18 +271,19 @@ Vue.component('my-problems', {
 					last_dt: last_dt,
 				},
 				response => {
-					if (response.problems.length == 0)
-						return this.noMoreProblems("No more problems in this direction");
-					Array.prototype.push.apply(problems,
-						response.problems.sort((p1,p2) => { return p2.added - p1.added; }));
-					// If one list is empty but not the other, show the non-empty
-					const otherArray = (type == "mine" ? this.problems : this.myProblems);
-					if (problems.length > 0 && otherArray.length == 0)
-						this.display = type;
-					if (!!cb)
-						cb();
-					else
+					if (response.problems.length > 0)
+					{
+						Array.prototype.push.apply(problems, response.problems.sort(
+							(p1,p2) => { return p2.added - p1.added; }));
+						// If one list is empty but not the other, show the non-empty
+						const otherArray =
+							(type == "mine" ? this.problems : this.myProblems);
+						if (otherArray.length == 0)
+							this.display = type;
 						this.$forceUpdate(); //TODO...
+					}
+					if (!!cb)
+						cb(response.problems);
 				}
 			);
 		},
@@ -320,6 +332,8 @@ Vue.component('my-problems', {
 							instructions: this.modalProb.instructions,
 							solution: this.modalProb.solution,
 						});
+						if (!this.curProb && this.display != "mine")
+							this.display = "mine";
 					}
 					else
 						this.modalProb.id = 0;

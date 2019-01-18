@@ -10,7 +10,7 @@ Vue.component('my-problem-summary', {
 				<p v-html="prob.instructions"></p>
 				<p v-if="!!prob.preview" v-html="prob.solution"></p>
 				<p v-else class="problem-time">{{ timestamp2date(prob.added) }}</p>
-				<button @click="$emit('show-problem')">Show</button>
+				<button v-show="!preview" @click="$emit('show-problem')">Show</button>
 				<div v-show="prob.uid==userid && !preview" class="button-group">
 					<button @click="$emit('edit-problem')">Edit</button>
 					<button @click="$emit('delete-problem')">Delete</button>
