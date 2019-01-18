@@ -36,6 +36,7 @@ create table Challenges (
 	added datetime,
 	uid integer,
 	vid integer,
+	nbPlayers integer,
 	foreign key (uid) references Users(id),
 	foreign key (vid) references Variants(id)
 );
@@ -44,7 +45,6 @@ create table Challenges (
 create table WillPlay (
 	cid integer,
 	uid integer,
-	yes boolean,
 	foreign key (cid) references Challenges(id),
 	foreign key (uid) references Users(id)
 );
@@ -53,7 +53,7 @@ create table Games (
 	id integer primary key,
 	vid integer,
 	fen varchar, --initial position
-	score varchar,
+	score varchar default '*',
 	foreign key (vid) references Variants(id)
 );
 

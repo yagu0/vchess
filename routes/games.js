@@ -92,7 +92,8 @@ router.get("/gamesbyplayer", access.logged, access.ajax, (req,res) => {
 	});
 });
 
-// TODO: if newmove fail, takeback in GUI // TODO: check move structure
+// TODO: if newmove fail, takeback in GUI
+// TODO: check move structure
 // TODO: for corr games, move should contain an optional "message" field ("corr chat" !)
 router.post("/moves", access.logged, access.ajax, (req,res) => {
 	let gid = ObjectId(req.body.gid);

@@ -21,9 +21,6 @@ exports.create = function(uid, vid, fen, instructions, solution, cb)
 				return cb(err);
 			db.get("SELECT last_insert_rowid() AS rowid", cb);
 		});
-//		const stmt = db.prepare(query);
-//		stmt.run(instructions, solution);
-//		stmt.finalize();
 	});
 }
 

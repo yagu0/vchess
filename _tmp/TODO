@@ -1,5 +1,7 @@
-Après ajout d'un problème, passer display à "mine"
-Résoudre le pb "no more problems" when navigating after loading one pb
+Use better-sqlite3 instead of node-sqlite3:
+https://www.npmjs.com/package/better-sqlite3
+
+CRON task remove unlogged users, finished corr games after 7 days, individual challenges older than 7 days
 
 tell opponent that I got the move, for him to start timer (and lose...)
   --> no, not needed and impossible if everybody is offline
