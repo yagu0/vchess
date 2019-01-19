@@ -1,0 +1,157 @@
+doctype html
+html
+
+	head
+		meta(charset="UTF-8")
+		title vchess - club
+		meta(name="viewport" content="width=device-width, initial-scale=1")
+		meta(name="msapplication-config"
+			content="/images/favicon/browserconfig.xml")
+		meta(name="theme-color" content="#ffffff")
+		link(rel="stylesheet"
+			href="//cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.0/mini-default.min.css")
+		link(rel="stylesheet"
+			href="//fonts.googleapis.com/css?family=Open+Sans:400,700")
+		link(rel="apple-touch-icon" sizes="180x180"
+			href="/images/favicon/apple-touch-icon.png")
+		link(rel="icon" type="image/png" sizes="32x32"
+			href="/images/favicon/favicon-32x32.png")
+		link(rel="icon" type="image/png" sizes="16x16"
+			href="/images/favicon/favicon-16x16.png")
+		link(rel="manifest" href="/images/favicon/manifest.json")
+		link(rel="mask-icon" href="/images/favicon/safari-pinned-tab.svg"
+			color="#5bbad5")
+		link(rel="shortcut icon" href="/images/favicon/favicon.ico")
+		link(rel="stylesheet" href="/stylesheets/app.css")
+
+	// TODO: on-demand components, do not load all at startup
+	body
+		-
+			var langName = {
+				"en": "English",
+				"es": "Español",
+				"fr": "Français",
+			};
+		case lang
+			when "en"
+				include translations/en
+				include welcome/en
+			when "es"
+				include translations/es
+				include welcome/es
+			when "fr"
+				include translations/fr
+				include welcome/fr
+		include modals
+		main#VueElement
+			my-upsert-user
+			.container
+				// Header (on index only)
+				.row(v-show="display=='index'")
+					.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+						header
+							img(src="/images/index/unicorn.svg")
+							.info-container
+								p vchess.club
+							img(src="/images/index/wildebeest.svg")
+				// Menu (top of page)
+				.row
+					.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+						label.drawer-toggle(for="drawerControl")
+						input#drawerControl.drawer(type="checkbox")
+						#menuBar
+							label.drawer-close(for="drawerControl")
+							a.icon-link(href="/")
+								i(data-feather="home")
+							a(href="#room")
+								=translations["Hall"]
+							a(href="#tabGames")
+								=translations["My games"]
+							a(href="#rules")
+								=translations["Rules"]
+							a(href="#problems")
+								=translations["Problems"]
+							#userMenu.clickable.right-menu(onClick="doClick('modalUser')")
+								.info-container
+									if !user.email
+										p
+											span Login
+											span.icon-user
+									else
+										p
+											span Update
+											span.icon-user
+							#flagMenu.clickable.right-menu(onClick="doClick('modalLang')")
+							img(src="/images/flags/" + lang + ".svg")
+						#settings.clickable(v-show="display!='index'" onClick="doClick('modalSettings')")
+							i(data-feather="settings")
+						#mainTitle.clickable(onClick="doClick('modalWelcome')")
+							.info-container
+								p Introduction
+				.row
+					.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+				.row(v-show="display=='variants'")
+					.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+						label(for="prefixFilter") Type first letters...
+						input#prefixFilter(v-model="curPrefix")
+					my-variant-summary(v-for="(v,idx) in sortedCounts"
+						v-bind:vobj="v" v-bind:index="idx" v-bind:key="v.name")
+				.row(v-show="display=='correspondance'")
+					my-correspondance
+				.row
+					my-room(v-show="display=='room'" :conn="conn" :settings="settings")
+					my-tab-games(v-show="display=='tabGames'")
+					my-rules(v-show="display=='rules'" :settings="settings")
+					my-problems(v-show="display=='problems'" :prob-id="probId" :settings="settings")
+					my-game(v-show="display=='game'" :game-ref="gameRef" :conn="conn"
+						:allow-chat="allowChat" :allow-movelist="allowMovelist"
+						:mode="mode" :settings="settings" @game-over="archiveGame")
+
+		footer.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
+			div
+				a(href="https://github.com/yagu0/vchess") Source code
+				p.clickable(onClick="document.getElementById('modalContact').checked=true")
+					=translations["Contact form"]
+
+		script.
+			const translations = !{JSON.stringify(translations)};
+			const user = !{JSON.stringify(user)};
+			const variantArray = !{JSON.stringify(variantArray)};
+		// TODO: get rid of underscore
+		// (used essentially for _.random(), _.sample() and _.range())
+		script(src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js")
+		// TODO: add only the necessary icons to mini-css custom build
+		script(src="//unpkg.com/feather-icons")
+		if development
+			script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+		else
+			script(src="https://cdn.jsdelivr.net/npm/vue")
+		script(src="/javascripts/utils/printDiagram.js")
+		script(src="/javascripts/utils/datetime.js")
+		script(src="/javascripts/utils/squareId.js")
+		script(src="/javascripts/utils/misc.js")
+		script(src="/javascripts/utils/ajax.js")
+		script(src="/javascripts/utils/array.js")
+		script(src="/javascripts/shared/nbPlayers.js")
+		script(src="/javascripts/shared/challengeCheck.js")
+		script(src="/javascripts/shared/userCheck.js")
+		script(src="/javascripts/components/upsertUser.js")
+		script(src="/javascripts/components/variantSummary.js")
+		script(src="/javascripts/components/correspondance.js")
+		script(src="/javascripts/components/board.js")
+		script(src="/javascripts/components/chat.js")
+		script(src="/javascripts/components/gameList.js")
+		script(src="/javascripts/components/challengeList.js")
+		script(src="/javascripts/components/moveList.js")
+		script(src="/javascripts/components/game.js")
+		script(src="/javascripts/components/rules.js")
+		script(src="/javascripts/components/room.js")
+		script(src="/javascripts/components/tabGames.js")
+		script(src="/javascripts/components/problemSummary.js")
+		script(src="/javascripts/components/problems.js")
+		script(src="/javascripts/base_rules.js")
+		script(src="/javascripts/contactForm.js")
+		script(src="/javascripts/socket_url.js")
+		script(src="/javascripts/index.js")
+		script(src="/javascripts/variant.js")
+		script(src="/javascripts/app.js")

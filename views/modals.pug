@@ -1,3 +1,15 @@
+input#modalLang.modal(type="checkbox")
+div(role="dialog")
+	#language.card
+		label.modal-close(for="modalLang")
+		form
+			fieldset
+				label(for="langSelect")= translations["Language"]
+				select#langSelect
+					each language,langCode in langName
+						option(value=langCode selected=(lang==langCode))
+							=language
+
 input#modalSettings.modal(type="checkbox")
 div(role="dialog" aria-labelledby="settingsTitle")
 	.card.smallpad(@change="updateSettings")
@@ -33,3 +45,22 @@ div(role="dialog" aria-labelledby="settingsTitle")
 				option(value="0")= translations["None"]
 				option(value="1")= translations["New game"]
 				option(value="2")= translations["All"]
+
+input#modalContact.modal(type="checkbox")
+div(role="dialog" aria-labelledby="contactTitle")
+	form.card.smallpad
+		label.modal-close(for="modalContact")
+		h3#contactTitle.section= translations["Contact form"]
+		fieldset
+			label(for="userEmail")= translations["Email"]
+			input#userEmail(type="email")
+		fieldset
+			label(for="mailSubject")= translations["Subject"]
+			input#mailSubject(type="text")
+		fieldset
+			label(for="mailContent")= translations["Content"]
+			br
+			textarea#mailContent
+		fieldset
+			button(type="button" onClick="trySendMessage()") Send
+			p#emailSent= translations["Email sent!"]
