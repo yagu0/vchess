@@ -1,0 +1,10 @@
+En dev, faire tourner les deux serveurs 3000 et 8080, server + client
+En prod, client est statique ==> juste serveur, comme d'hab
+
+index.js ne va rien chercher sur serveur, pas même les trucs indispensables comme variant ou variantArray
+==> ils sont demandés au serveur en arrivant sur la page (avec éventuellement "Variant does not exist")
+
+https://alligator.io/vuejs/lazy-loading-vue-cli-3-webpack/
+https://webpack.js.org/guides/code-splitting/#dynamic-imports
+https://vue-loader.vuejs.org/guide/pre-processors.html#pug
+https://cli.vuejs.org/guide/webpack.html#simple-configuration

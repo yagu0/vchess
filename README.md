@@ -8,30 +8,6 @@ Notes:
  - Games start with a random assymetric position!
  - No ratings, no tournaments: no "competition spirit"
 
-## Resources
-
-Server side:
- - Node.js,
- - Express,
- - Other npm packages (see package.json),
-
-Client side:
- - Vue.js,
- - Underscore.js,
- - mini.css,
- - Google font 'Open Sans' + a few icons,
-
-Sounds and pieces images where found at various locations.
-
-## Installation (for developers)
-
- 0. Install git-fat https://github.com/jedbrown/git-fat
- 1. git fat init && git fat pull
- 2. Execute db/\*.sql scripts to create and fill db/vchess.sqlite
- 3. Rename and edit public/javascripts/socket\_url.js.dist into socket\_url.js
- 4. Rename and edit config/parameters.js.dist into parameters.js
- 5. npm i && npm start
-
 ## Get involved
 
 All contributions are welcome! For example,
