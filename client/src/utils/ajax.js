@@ -1,3 +1,5 @@
+import params from "../parameters"; //for server URL
+
 // From JSON (encoded string values!) to "arg1=...&arg2=..."
 function toQueryString(data)
 {
@@ -42,7 +44,7 @@ export function ajax(url, method, data, success, error)
 		// Append query params to URL
 		url += "/?" + toQueryString(data);
 	}
-	xhr.open(method, url, true);
+	xhr.open(method, params.serverUrl + url, true);
 	xhr.setRequestHeader('X-Requested-With', "XMLHttpRequest");
 	if (["POST","PUT"].includes(method))
 	{

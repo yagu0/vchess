@@ -22,6 +22,10 @@ export default {
 		//	.then((V) => {
 		//		console.log(V);
 		//	});
+		//console.log(this.$variants);
+
+		// TODO: components which need to access user.name and user.id should
+		// import a module with a function to get this from localStorage (or anonymous)
 	},
 	methods: {
 		//...

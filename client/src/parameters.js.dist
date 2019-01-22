@@ -1,0 +1,10 @@
+const Parameters =
+{
+	// URL of your socket server
+	socketUrl: "ws://localhost:3000",
+
+	// URL of the server (leave blank for 1-server case)
+	serverUrl: "http://localhost:3000",
+};
+
+export default Parameters;
