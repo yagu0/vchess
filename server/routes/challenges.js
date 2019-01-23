@@ -3,7 +3,6 @@
 let router = require("express").Router();
 const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
-const checkChallenge = require("../data/challengeCheck.js");
 
 router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const vid = req.params["vid"];
@@ -16,7 +15,7 @@ router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) =>
 		nbPlayers: req.body["nbPlayers"],
 		players: req.body["players"],
 	};
-	const error = checkChallenge(chall);
+	const error = ChallengeModel.checkChallenge(chall);
 	ChallengeModel.create(chall, (err,lastId) => {
 		res.json(err || {cid: lastId["rowid"]});
 	});

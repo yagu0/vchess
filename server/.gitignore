@@ -18,7 +18,7 @@ pids
 # Various files
 /db/vchess.sqlite
 /config/parameters.js
-/serve/
+/static/
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release

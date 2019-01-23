@@ -33,13 +33,6 @@ new Vue({
 		this.conn.onclose = socketCloseListener;
 	},
 	methods: {
-		updateSettings: function(event) {
-			const propName =
-				event.target.id.substr(3).replace(/^\w/, c => c.toLowerCase())
-			localStorage[propName] = ["highlight","coords"].includes(propName)
-				? event.target.checked
-				: event.target.value;
-		},
 		// Game is over, clear storage and put it in indexedDB
 		archiveGame: function() {
 			// TODO: ...

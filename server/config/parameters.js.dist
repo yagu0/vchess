@@ -5,6 +5,12 @@ module.exports =
 
 	// To know in which environment the code run
 	env: process.env.NODE_ENV || 'development',
+	
+	// CORS: cross-origin resource sharing options
+	cors: {
+		enable: Parameters.env === "development",
+		allowedOrigin: "*",
+	},
 
 	// Lifespan of a (login) cookie
 	cookieExpire: 183*24*60*60*1000, //6 months in milliseconds

@@ -1,0 +1,40 @@
+input#modalWelcome.modal(type="checkbox")
+div(role="dialog")
+  #welcome.card.text-center
+    label.modal-close(for="modalWelcome")
+    h3.blue.section Bienvenue sur v[ariant]chess.club!
+    .section
+      p Un site où jouer à des variantes du jeu d'échecs en direct.
+      p Mais attendez... c'est quoi une "variante" ?
+      img(src="/images/Hexagonal_chess.svg")
+      p Comme suggéré par l'image, le point de départ d'une variante ressemble en général à un échiquier avec les pièces habituelles (sinon ce n'est plus une variante, mais un nouveau jeu).
+      p.emphasis.purple Cependant...
+      p Chaque variante a ses propres règles, qui peuvent définir
+      table.list-table
+        tbody
+          tr
+            td * différents déplacements de pièces
+          tr
+            td * différent(s) échiquier(s)
+          tr
+            td * de nouvelles pièces
+          tr
+            td * des effets de bord sur les coups
+          tr
+            td ...etc
+    .section
+      p Exemple: imaginez qu'une capture soit une explosion atomique, détruisant tout ce qui se trouve sur les 8 cases à proximité &ndash; sauf les pions, qui tels les cafards résistent à ce genre de truc.
+      p Définissez également un but : faire exploser le roi adverse.
+      p &rarr; Bravo, vous venez de décrire les échecs atomiques ! (Jouable ici)
+    .section
+      p.emphasis.purple
+        | OK ça a l'air intéressant, mais pourquoi ce serait amusant ?!
+      p Car toutes les parties démarrent avec une position aléatoire : terminées les laborieuses mémorisations d'ouverture, vous pouvez exprimer vos talents échiquéens dès le premier coup ! Aucune partie ne ressemble à une autre.
+      -
+        var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
+          "List_of_chess_variants#/media/File:Hexagonal_chess.svg";
+      p.
+        Pour s'informer sur des centaines de variantes (au moins), je vous invite à
+        visiter l'excellent site
+        #[a(href="https://www.chessvariants.com/") chessvariants].
+    p.smallfont Crédit image : #[a(href=wikipediaUrl) Wikipedia]

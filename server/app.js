@@ -7,7 +7,7 @@ var favicon = require('serve-favicon');
 
 var app = express();
 
-app.use(favicon(path.join(__dirname, "favicon", "favicon.ico")));
+app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 
 if (app.get('env') === 'development')
 {
@@ -27,13 +27,13 @@ else
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'serve'))); //client "prod" files
+app.use(express.static(path.join(__dirname, 'static'))); //client "prod" files
 
 // In development stage the client side has its own server
-if (app.get('env') === 'development')
+if (params.cors.enable)
 {
 	app.use(function(req, res, next) {
-		res.header("Access-Control-Allow-Origin", "*");
+		res.header("Access-Control-Allow-Origin", params.cors.allowedOrigin);
 		res.header("Access-Control-Allow-Headers",
 			"Origin, X-Requested-With, Content-Type, Accept");
 		next();

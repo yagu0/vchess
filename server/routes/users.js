@@ -6,7 +6,6 @@ var sendEmail = require('../utils/mailer');
 var genToken = require("../utils/tokenGenerator");
 var access = require("../utils/access");
 var params = require("../config/parameters");
-var checkNameEmail = require("../data/userCheck")
 
 // to: object user (to who we send an email)
 function setAndSendLoginToken(subject, to, res)
@@ -33,7 +32,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
 	const name = req.body.name;
 	const email = req.body.email;
 	const notify = !!req.body.notify;
-	const error = checkNameEmail({name: name, email: email});
+	const error = UserModel.checkNameEmail({name: name, email: email});
 	if (!!error)
 		return res.json({errmsg: error});
 	UserModel.create(name, email, notify, (err,uid) => {
@@ -51,7 +50,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
 router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 	const nameOrEmail = decodeURIComponent(req.query.nameOrEmail);
 	const type = (nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
-	const error = checkNameEmail({[type]: nameOrEmail});
+	const error = UserModel.checkNameEmail({[type]: nameOrEmail});
 	if (!!error)
 		return res.json({errmsg: error});
 	UserModel.getOne(type, nameOrEmail, (err,user) => {
@@ -86,7 +85,7 @@ router.get('/authenticate', access.unlogged, (req,res) => {
 router.put('/update', access.logged, access.ajax, (req,res) => {
 	const name = req.body.name;
 	const email = req.body.email;
-	const error = checkNameEmail({name: name, email: email});
+	const error = UserModel.checkNameEmail({name: name, email: email});
 	if (!!error)
 		return res.json({errmsg: error});
 	const user = {

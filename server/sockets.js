@@ -2,11 +2,12 @@ const url = require('url');
 const VariantModel = require("./models/Variant");
 
 // Node version in Ubuntu 16.04 does not know about URL class
-function getJsonFromUrl(url) {
-	var query = url.substr(2); //starts with "/?"
-	var result = {};
-	query.split("&").forEach(function(part) {
-		var item = part.split("=");
+function getJsonFromUrl(url)
+{
+	const query = url.substr(2); //starts with "/?"
+	let result = {};
+	query.split("&").forEach((part) => {
+		const item = part.split("=");
 		result[item[0]] = decodeURIComponent(item[1]);
 	});
 	return result;
