@@ -16,7 +16,7 @@
               p vchess.club {{ $lang }}
             img(src="./assets/images/index/wildebeest.svg")
     .row
-      // Menu (top of page)
+      // Menu (top of page): TODO how to organize it ?
       nav
         router-link(to="/") Home
         | &nbsp;|&nbsp;

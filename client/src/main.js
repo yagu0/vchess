@@ -24,6 +24,10 @@ new Vue({
       Vue.prototype.$tr = tModule.translations;
       //console.log(tModule.translations);
     },
+    $route: function(newRoute) {
+      console.log(this.$route.params);
+      //TODO: conn.send("enter", newRoute)
+    },
   },
 	created: function() {
     const supportedLangs = ["en","es","fr"];
@@ -31,9 +35,7 @@ new Vue({
       supportedLangs.includes(navigator.language)
         ? navigator.language
         : "en";
-		ajax("/variants", "GET", res => {
-			Vue.prototype.$variants = res.variantArray;
-		});
+		ajax("/variants", "GET", res => { Vue.prototype.$variants = res.variantArray; });
     Vue.prototype.$tr = {}; //to avoid a compiler error
 		// TODO: if there is a socket ID in localStorage, it means a live game was interrupted (and should resume)
 		const myid = localStorage["myid"] || util.getRandString();
@@ -63,10 +65,4 @@ new Vue({
 // game : aussi systématique
 // problems: on-demand
 //
-// It works (to watch for route change), in a component:
-//watch: {
-//  $route: function(newRoute) {
-//    console.log(this.$route.params);
-//  },
-//},
 // See https://router.vuejs.org/guide/essentials/dynamic-matching.html#reacting-to-params-changes
