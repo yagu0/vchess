@@ -35,6 +35,7 @@ new Vue({
 			Vue.prototype.$variants = res.variantArray;
 		});
     Vue.prototype.$tr = {}; //to avoid a compiler error
+		// TODO: if there is a socket ID in localStorage, it means a live game was interrupted (and should resume)
 		const myid = localStorage["myid"] || util.getRandString();
 		// NOTE: in this version, we don't say on which page we are, yet
 		// ==> we'll say "enter/leave" page XY (in fact juste "enter", seemingly)

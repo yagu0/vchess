@@ -8,7 +8,7 @@ module.exports =
 	
 	// CORS: cross-origin resource sharing options
 	cors: {
-		enable: Parameters.env === "development",
+		enable: true,
 		allowedOrigin: "*",
 	},
 
