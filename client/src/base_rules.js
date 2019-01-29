@@ -236,28 +236,28 @@ class ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = _.range(8);
+			let positions = range(8);
 
 			// Get random squares for bishops
-			let randIndex = 2 * _.random(3);
+			let randIndex = 2 * random(4);
 			const bishop1Pos = positions[randIndex];
 			// The second bishop must be on a square of different color
-			let randIndex_tmp = 2 * _.random(3) + 1;
+			let randIndex_tmp = 2 * random(4) + 1;
 			const bishop2Pos = positions[randIndex_tmp];
 			// Remove chosen squares
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
 			// Get random squares for knights
-			randIndex = _.random(5);
+			randIndex = random(6);
 			const knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = _.random(4);
+			randIndex = random(5);
 			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Get random square for queen
-			randIndex = _.random(3);
+			randIndex = random(4);
 			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
@@ -1132,7 +1132,7 @@ class ChessRules
 		let moves1 = this.getAllValidMoves("computer");
 
 		// Can I mate in 1 ? (for Magnetic & Extinction)
-		for (let i of _.shuffle(_.range(moves1.length)))
+		for (let i of shuffle(range(moves1.length)))
 		{
 			this.play(moves1[i]);
 			let finish = (Math.abs(this.evalPosition()) >= V.THRESHOLD_MATE);
@@ -1190,7 +1190,7 @@ class ChessRules
 		let candidates = [0]; //indices of candidates moves
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
-		let currentBest = moves1[_.sample(candidates, 1)];
+		let currentBest = moves1[sample(candidates)];
 
 		// From here, depth >= 3: may take a while, so we control time
 		const timeStart = Date.now();
@@ -1218,7 +1218,7 @@ class ChessRules
 		candidates = [0];
 		for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
 			candidates.push(j);
-		return moves1[_.sample(candidates, 1)];
+		return moves1[sample(candidates)];
 	}
 
 	alphabeta(depth, alpha, beta)

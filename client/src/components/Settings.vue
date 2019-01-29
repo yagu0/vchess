@@ -7,28 +7,28 @@ div
       h3#settingsTitle.section {{ $tr["Preferences"] }}
       fieldset
         label(for="setSqSize") {{ $tr["Square size (in pixels). 0 for 'adaptative'"] }}
-        input#setSqSize(type="number" v-model="settings.sqSize")
+        input#setSqSize(type="number" v-model="$settings.sqSize")
       fieldset
         label(for="selectHints") {{ $tr["Show move hints?"] }}
-        select#setHints(v-model="settings.hints")
+        select#setHints(v-model="$settings.hints")
           option(value="0") {{ $tr["None"] }}
           option(value="1") {{ $tr["Moves from a square"] }}
           option(value="2") {{ $tr["Pieces which can move"] }}
       fieldset
         label(for="setHighlight") {{ $tr["Highlight squares? (Last move & checks)"] }}
-        input#setHighlight(type="checkbox" v-model="settings.highlight")
+        input#setHighlight(type="checkbox" v-model="$settings.highlight")
       fieldset
         label(for="setCoords") {{ $tr["Show board coordinates?"] }}
-        input#setCoords(type="checkbox" v-model="settings.coords")
+        input#setCoords(type="checkbox" v-model="$settings.coords")
       fieldset
         label(for="selectColor") {{ $tr["Board colors"] }}
-        select#setBcolor(v-model="settings.bcolor")
+        select#setBcolor(v-model="$settings.bcolor")
           option(value="lichess") {{ $tr["brown"] }}
           option(value="chesscom") {{ $tr["green"] }}
           option(value="chesstempo") {{ $tr["blue"] }}
       fieldset
         label(for="selectSound") {{ $tr["Play sounds?"] }}
-        select#setSound(v-model="settings.sound")
+        select#setSound(v-model="$settings.sound")
           option(value="0") {{ $tr["None"] }}
           option(value="1") {{ $tr["New game"] }}
           option(value="2") {{ $tr["All"] }}
@@ -37,7 +37,7 @@ div
 <script>
 export default {
   name: "Settings",
-  props: ["settings"],
+  //props: ["settings"],
 	methods: {
     updateSettings: function(event) {
       const propName =

@@ -31,5 +31,6 @@ export default new Router({
 			name: "test",
 			component: loadView("Test"),
 		},
+    // TODO: gameRef, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
   ]
 });

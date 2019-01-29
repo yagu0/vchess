@@ -287,7 +287,7 @@ class MarseilleRules extends ChessRules
 			candidates.push(i);
 		}
 
-		const selected = doubleMoves[_.sample(candidates, 1)].moves;
+		const selected = doubleMoves[sample(candidates)].moves;
 		if (selected.length == 1)
 			return selected[0];
 		return selected;

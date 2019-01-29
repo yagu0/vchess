@@ -12,9 +12,6 @@ new Vue({
   render: function(h) {
     return h(App);
   },
-//  data: {
-//    lang: "",
-//  },
   watch: {
     $lang: async function(newLang) {
       // Fill modalWelcome, and import translations from "./translations/$lang.js"
@@ -42,11 +39,26 @@ new Vue({
 		// NOTE: in this version, we don't say on which page we are, yet
 		// ==> we'll say "enter/leave" page XY (in fact juste "enter", seemingly)
 		Vue.prototype.$conn = new WebSocket(params.socketUrl + "/?sid=" + myid);
+		// Settings initialized with values from localStorage
+		Vue.prototype.$settings = {
+			bcolor: localStorage["bcolor"] || "lichess",
+			sound: parseInt(localStorage["sound"]) || 2,
+			hints: parseInt(localStorage["hints"]) || 1,
+			coords: !!eval(localStorage["coords"]),
+			highlight: !!eval(localStorage["highlight"]),
+			sqSize: parseInt(localStorage["sqSize"]),
+		};
+		const socketCloseListener = () => {
+			Vue.prototype.$conn = new WebSocket(params.socketUrl + "/?sid=" + myid);
+		}
+		Vue.prototype.$conn.onclose = socketCloseListener;
 		//TODO: si une partie en cours dans storage, rediriger vers cette partie
 		//(à condition que l'URL n'y corresponde pas déjà !)
 		// TODO: à l'arrivée sur le site : set peerID (un identifiant unique
 		// en tout cas...) si pas trouvé dans localStorage "myid"
 		// (l'identifiant de l'utilisateur si connecté)
+//		if (!!localStorage["variant"])
+//			location.hash = "#game?id=" + localStorage["gameId"];
 	},
 	// Later, for icons (if using feather):
 //	mounted: function() {
@@ -66,3 +78,7 @@ new Vue({
 // problems: on-demand
 //
 // See https://router.vuejs.org/guide/essentials/dynamic-matching.html#reacting-to-params-changes
+//	created: function() {
+//		window.onhashchange = this.setDisplay;
+//	},
+//});

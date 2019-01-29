@@ -16,9 +16,9 @@ class UpsidedownRules extends ChessRules
 		let pieces = { "w": new Array(8), "b": new Array(8) };
 		for (let c of ["w","b"])
 		{
-			let positions = _.range(8);
+			let positions = range(8);
 
-			let randIndex = _.random(7);
+			let randIndex = random(8);
 			const kingPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
@@ -35,18 +35,18 @@ class UpsidedownRules extends ChessRules
 			positions.splice(knight1Index, 1);
 
 			// King+knight1 are on two consecutive squares: one light, one dark
-			randIndex = 2 * _.random(2);
+			randIndex = 2 * random(3);
 			const bishop1Pos = positions[randIndex];
-			let randIndex_tmp = 2 * _.random(2) + 1;
+			let randIndex_tmp = 2 * random(3) + 1;
 			const bishop2Pos = positions[randIndex_tmp];
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
-			randIndex = _.random(3);
+			randIndex = random(4);
 			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = _.random(2);
+			randIndex = random(3);
 			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 

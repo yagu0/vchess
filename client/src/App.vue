@@ -12,7 +12,7 @@
         .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
 					img(src="./assets/images/index/unicorn.svg")
 					.info-container
-						p vchess.club {{ $lang }}
+						p vchess.club
 					img(src="./assets/images/index/wildebeest.svg")
     .row
       // Menu (top of page):
@@ -56,6 +56,9 @@
 					a(href="https://github.com/yagu0/vchess") Source code
 					p.clickable(onClick="doClick('modalContact')")
 						= translations["Contact form"]
+  //my-game(:game-ref="gameRef" :mode="mode" :settings="settings" @game-over="archiveGame")
+  //// TODO: add only the necessary icons to mini-css custom build
+  //script(src="//unpkg.com/feather-icons")
 </template>
 
 <script>

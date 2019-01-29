@@ -73,7 +73,7 @@ function getShadowArray(shadow)
 
 // args: object with position (mandatory), and
 // orientation, marks, shadow (optional)
-function getDiagram(args)
+export function getDiagram(args)
 {
 	// Obtain the array of pieces images names:
 	const board = V.GetBoard(args.position);

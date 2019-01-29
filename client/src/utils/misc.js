@@ -23,6 +23,42 @@ export const util =
     return defaut; //cookie not found
   },
 
+  random: function(min, max)
+  {
+    if (!max)
+    {
+      max = min;
+      min = 0;
+    }
+    return Math.floor(Math.random() * (max - min) ) + min;
+  },
+
+  // Inspired by https://github.com/jashkenas/underscore/blob/master/underscore.js
+  sample: function(arr, n)
+  {
+    n = n || 1;
+    let cpArr = arr.map(e => e);
+    for (let index = 0; index < n; index++)
+    {
+      const rand = getRandInt(index, n);
+      const temp = cpArr[index];
+      cpArr[index] = cpArr[rand];
+      cpArr[rand] = temp;
+    }
+    return cpArr.slice(0, n);
+  },
+
+  shuffle: function(arr)
+  {
+    return sample(arr, arr.length);
+  },
+
+  range: function(max)
+  {
+    return [...Array(max).keys()];
+  }
+
+  // TODO: rename into "cookie" et supprimer les deux ci-dessous
   // Random (enough) string for socket and game IDs
   getRandString: function()
   {
@@ -34,10 +70,5 @@ export const util =
   doClick: function(elemId)
   {
     document.getElementById(elemId).click(); //or ".checked = true"
-  },
-
-  translate: function(msg)
-  {
-    return translations[msg];
   },
 };

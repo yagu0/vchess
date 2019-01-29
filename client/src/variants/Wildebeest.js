@@ -231,14 +231,14 @@ class WildebeestRules extends ChessRules
 		let pieces = { "w": new Array(10), "b": new Array(10) };
 		for (let c of ["w","b"])
 		{
-			let positions = _.range(11);
+			let positions = range(11);
 
 			// Get random squares for bishops + camels (different colors)
-			let randIndexes = _.sample(_.range(6), 2).map(i => { return 2*i; });
+			let randIndexes = sample(range(6), 2).map(i => { return 2*i; });
 			let bishop1Pos = positions[randIndexes[0]];
 			let camel1Pos = positions[randIndexes[1]];
 			// The second bishop (camel) must be on a square of different color
-			let randIndexes_tmp = _.sample(_.range(5), 2).map(i => { return 2*i+1; });
+			let randIndexes_tmp = sample(range(5), 2).map(i => { return 2*i+1; });
 			let bishop2Pos = positions[randIndexes_tmp[0]];
 			let camel2Pos = positions[randIndexes_tmp[1]];
 			for (let idx of randIndexes.concat(randIndexes_tmp)
@@ -247,19 +247,19 @@ class WildebeestRules extends ChessRules
 				positions.splice(idx, 1);
 			}
 
-			let randIndex = _.random(6);
+			let randIndex = random(7);
 			let knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = _.random(5);
+			randIndex = random(6);
 			let knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = _.random(4);
+			randIndex = random(5);
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Random square for wildebeest
-			randIndex = _.random(3);
+			randIndex = random(4);
 			let wildebeestPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 

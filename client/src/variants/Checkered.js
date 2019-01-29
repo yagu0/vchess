@@ -55,8 +55,8 @@ class CheckeredRules extends ChessRules
 		super.setFlags(fenflags); //castleFlags
 		this.pawnFlags =
 		{
-			"w": _.map(_.range(8), i => true), //pawns can move 2 squares?
-			"b": _.map(_.range(8), i => true)
+			"w": [...Array(8).fill(true)], //pawns can move 2 squares?
+			"b": [...Array(8).fill(true)],
 		};
 		if (!fenflags)
 			return;

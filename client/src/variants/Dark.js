@@ -282,6 +282,6 @@ class DarkRules extends ChessRules
 		let candidates = [0];
 		for (let j=1; j<moves.length && moves[j].eval == moves[0].eval; j++)
 			candidates.push(j);
-		return moves[_.sample(candidates, 1)];
+		return moves[sample(candidates)];
 	}
 }

@@ -51,7 +51,7 @@ class GrandRules extends ChessRules
 
 	getCapturedFen()
 	{
-		let counts = _.map(_.range(14), 0);
+		let counts = [...Array(14).fill(0)];
 		let i = 0;
 		for (let j=0; j<V.PIECES.length; j++)
 		{
@@ -329,38 +329,38 @@ class GrandRules extends ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = _.range(10);
+			let positions = range(10);
 
 			// Get random squares for bishops
-			let randIndex = 2 * _.random(4);
+			let randIndex = 2 * random(5);
 			let bishop1Pos = positions[randIndex];
 			// The second bishop must be on a square of different color
-			let randIndex_tmp = 2 * _.random(4) + 1;
+			let randIndex_tmp = 2 * random(5) + 1;
 			let bishop2Pos = positions[randIndex_tmp];
 			// Remove chosen squares
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
 			// Get random squares for knights
-			randIndex = _.random(7);
+			randIndex = random(8);
 			let knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = _.random(6);
+			randIndex = random(7);
 			let knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Get random square for queen
-			randIndex = _.random(5);
+			randIndex = random(6);
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// ...random square for marshall
-			randIndex = _.random(4);
+			randIndex = random(5);
 			let marshallPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// ...random square for cardinal
-			randIndex = _.random(3);
+			randIndex = random(4);
 			let cardinalPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 

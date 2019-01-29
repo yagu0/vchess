@@ -78,7 +78,7 @@ Vue.component('my-board', {
 					'clearer': true,
 				},
 			},
-			[_.range(sizeX).map(i => {
+			[...Array(sizeX).keys()].map(i => {
 				let ci = (this.orientation=='w' ? i : sizeX-i-1);
 				return h(
 					'div',
@@ -88,7 +88,7 @@ Vue.component('my-board', {
 						},
 						style: { 'opacity': this.choices.length>0?"0.5":"1" },
 					},
-					_.range(sizeY).map(j => {
+					[...Array(sizeY).keys()].map(j => {
 						let cj = (this.orientation=='w' ? j : sizeY-j-1);
 						let elems = [];
 						if (this.vr.board[ci][cj] != V.EMPTY && (variant.name!="Dark"
@@ -140,7 +140,7 @@ Vue.component('my-board', {
 									'in-shadow': variant.name=="Dark" && !this.gameOver
 										&& this.mode != "analyze"
 										&& !this.vr.enlightened[this.userColor][ci][cj],
-									'highlight': showLight && !!lm && _.isMatch(lm.end, {x:ci,y:cj}),
+									'highlight': showLight && !!lm && lm.end.x == ci && lm.end.y == cj,
 									'incheck': showLight && incheckSq[ci][cj],
 								},
 								attrs: {

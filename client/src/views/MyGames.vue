@@ -1,3 +1,8 @@
+<template>
+  <div class="about">
+    <h1>This is an about page</h1>
+  </div>
+</template>
 // "My" games: tabs my archived local games, my correspondance games
 // + my imported games (of any type).
 // TODO: later, also add possibility to upload a game (parse PGN).

@@ -1,3 +1,21 @@
+<template>
+  <div class="home">
+    <Home msg="Welcome to Your Vue.js Apppp"/>
+  </div>
+</template>
+
+<script>
+// @ is an alias to /src
+import HelloWorld from "@/components/HelloWorld.vue";
+
+export default {
+  name: "home",
+  components: {
+    HelloWorld,
+  }
+};
+</script>
+
 // main playing hall: chat + online players + current challenges + button "new game"
 // TODO: my-challenge-list, gérant clicks sur challenges, affichage, réception/émission des infos sur challenges ; de même, my-player-list
 // TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
