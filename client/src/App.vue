@@ -48,7 +48,8 @@
 					img(src="/images/flags/" + lang + ".svg")
 				#settings.clickable(v-show="display!='index'" onClick="doClick('modalSettings')")
 					i(data-feather="settings")
-      router-view
+    .row
+			router-view
 		.row
 			footer
 				.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
