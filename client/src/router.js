@@ -15,6 +15,16 @@ export default new Router({
       name: "home",
       component: Home,
     },
+    {
+      path: "/variants",
+      name: "variants",
+      component: loadView("Variants"),
+    },
+//    {
+//      path: "/variants/:vname([a-zA-Z0-9]+)",
+//      name: "rules",
+//      component: Rules,
+//    },
 //    {
 //      path: "/about",
 //      name: "about",
@@ -26,11 +36,6 @@ export default new Router({
 //        //	return import(/* webpackChunkName: "about" */ "./views/About.vue");
 //				//}
 //    },
-//		{
-//			path: "/test",
-//			name: "test",
-//			component: loadView("Test"),
-//		},
     // TODO: gameRef, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
   ]
 });

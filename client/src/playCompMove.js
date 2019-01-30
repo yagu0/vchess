@@ -5,7 +5,6 @@ onmessage = function(e)
 	{
 		case "scripts":
 			self.importScripts(
-				'//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js',
 				'/javascripts/base_rules.js',
 				'/javascripts/utils/array.js',
 				'/javascripts/variants/' + e.data[1] + '.js');
