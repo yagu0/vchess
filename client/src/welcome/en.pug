@@ -42,8 +42,12 @@ div(role="dialog")
       -
         var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
           "List_of_chess_variants#/media/File:Hexagonal_chess.svg";
-      p.
-        For informations about hundreds (if not thousands) of variants, you
-        can visit the excellent
-        #[a(href="https://www.chessvariants.com/") chessvariants] website.
-    p.smallfont Image credit: #[a(href=wikipediaUrl) Wikipedia]
+      p
+        | For informations about hundreds (if not thousands) of variants, you
+        | can visit the excellent 
+				a(href="https://www.chessvariants.com/" _target="blank" rel="noopener")
+					| chessvariants
+				| &nbsp;website.
+		p.smallfont
+			| Image credit:
+			a(href=wikipediaUrl _target="blank" rel="noopener") Wikipedia

@@ -24,7 +24,7 @@ div
 import { ajax } from "../utils/ajax";
 export default {
   name: "ContactForm",
-	methods: {
+  methods: {
 		// Note: not using Vue here, but would be possible
     trySendMessage: function() {
       let email = document.getElementById("userEmail");

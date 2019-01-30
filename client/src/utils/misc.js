@@ -56,7 +56,7 @@ export const util =
   range: function(max)
   {
     return [...Array(max).keys()];
-  }
+  },
 
   // TODO: rename into "cookie" et supprimer les deux ci-dessous
   // Random (enough) string for socket and game IDs
