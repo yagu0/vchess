@@ -1,61 +1,50 @@
 // Logic to login, or create / update a user (and also logout)
-vv = Vue.component('my-upsert-user', {
+<template lang="pug">
+div
+  input#modalUser.modal(type="checkbox" @change="trySetEnterTime")
+  div(role="dialog")
+    .card
+      label.modal-close(for="modalUser")
+      h3 {{ stage }}
+      form#userForm(@submit.prevent="onSubmit()")
+        div(v-show="stage!='Login'")
+          fieldset
+            label(for="username") Name
+            input#username(type="text" v-model="user.name")
+          fieldset
+            <label for="useremail">Email</label>
+            <input id="useremail" type="email" v-model="user.email"/>
+          fieldset
+            <label for="notifyNew">Notify new moves &amp; games</label>
+            <input id="notifyNew" type="checkbox" v-model="user.notify"/>
+        div(v-show="stage=='Login'")
+          fieldset
+            <label for="nameOrEmail">Name or Email</label>
+            <input id="nameOrEmail" type="text" v-model="nameOrEmail"/>
+      .button-group
+        button#submit(@click="onSubmit()")
+          span {{ submitMessage }}
+          i.material-icons send
+        button(v-if="stage!='Update'" @click="toggleStage()")
+          span {{ stage=="Login" ? "Register" : "Login" }}
+        button(v-if="stage=='Update'" onClick="location.replace('/logout')")
+          span Logout
+      #dialog(:style="{display: displayInfo}") {{ infoMsg }}
+</template>
+
+<script>
+import { store } from "@/store";
+export default {
+  name: 'my-upsert-user',
 	data: function() {
 		return {
-			user: user, //initialized with global user object
+			user: store.state.user, //initialized with global user object
 			nameOrEmail: "", //for login
-			stage: (!user.email ? "Login" : "Update"),
+			stage: (!store.state.user.id ? "Login" : "Update"),
 			infoMsg: "",
 			enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
 		};
 	},
-	template: `
-		<div>
-			<input id="modalUser" class="modal" type="checkbox"
-					@change="trySetEnterTime"/>
-			<div role="dialog">
-				<div class="card">
-					<label class="modal-close" for="modalUser"></label>
-					<h3>{{ stage }}</h3>
-					<form id="userForm" @submit.prevent="onSubmit()">
-						<div v-show="stage!='Login'">
-							<fieldset>
-								<label for="username">Name</label>
-								<input id="username" type="text" v-model="user.name"/>
-							</fieldset>
-							<fieldset>
-								<label for="useremail">Email</label>
-								<input id="useremail" type="email" v-model="user.email"/>
-							</fieldset>
-							<fieldset>
-								<label for="notifyNew">Notify new moves &amp; games</label>
-								<input id="notifyNew" type="checkbox" v-model="user.notify"/>
-							</fieldset>
-						</div>
-						<div v-show="stage=='Login'">
-							<fieldset>
-								<label for="nameOrEmail">Name or Email</label>
-								<input id="nameOrEmail" type="text" v-model="nameOrEmail"/>
-							</fieldset>
-						</div>
-					</form>
-					<div class="button-group">
-						<button id="submit" @click="onSubmit()">
-							<span>{{ submitMessage }}</span>
-							<i class="material-icons">send</i>
-						</button>
-						<button v-if="stage!='Update'" @click="toggleStage()">
-							<span>{{ stage=="Login" ? "Register" : "Login" }}</span>
-						</button>
-						<button v-if="stage=='Update'" onClick="location.replace('/logout')">
-							<span>Logout</span>
-						</button>
-					</div>
-					<div id="dialog" :style="{display: displayInfo}">{{ infoMsg }}</div>
-				</div>
-			</div>
-		</div>
-	`,
 	computed: {
 		submitMessage: function() {
 			switch (this.stage)
@@ -142,6 +131,9 @@ vv = Vue.component('my-upsert-user', {
 						// Store our identifiers in local storage (by little anticipation...)
 						localStorage["myid"] = res.id;
 						localStorage["myname"] = res.name;
+            // Also in global object
+            this.$user.id = res.id;
+            this.$user.name = res.name;
 					}
 					setTimeout(() => {
 						this.infoMsg = "";
@@ -156,5 +148,6 @@ vv = Vue.component('my-upsert-user', {
 				}
 			);
 		},
-	}
-});
+	},
+};
+</script>

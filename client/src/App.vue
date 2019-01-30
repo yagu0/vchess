@@ -3,11 +3,12 @@
   // modal "welcome" will be filled in the selected language
   #modalWelcome
   Language
-  Settings(:settings="settings")
+  Settings
   ContactForm
+  UpsertUser
   .container
     .row(v-show="$route.path == '/'")
-      // Header (on index only)
+      // Header (on index only ?!)
       header
         .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
           img(src="./assets/images/index/unicorn.svg")
@@ -27,20 +28,21 @@
             // select options all variants + filter possible (as in problems)
             | Home
           router-link(to="/myGames")
-            | {{ $tr["My games"] }}
+            | {{ st.tr["My games"] }}
           router-link(to="/rules")
             // Boxes OK for rules/Atomic/ ...etc
-            | {{ $tr["Rules"] }}
+            | {{ st.tr["Rules"] }}
           router-link(to="/problems")
-            | {{ $tr["Problems"] }}
+            | {{ st.tr["Problems"] }}
           #userMenu.clickable.right-menu(onClick="doClick('modalUser')")
             .info-container
               p
-                span {{ !$user.email ? "Login" : "Update" }}
+                span {{ !st.user.id ? "Login" : "Update" }}
                 span.icon-user
           #flagMenu.clickable.right-menu(onClick="doClick('modalLang')")
           img(src="/images/flags/" + lang + ".svg")
         #settings.clickable(onClick="doClick('modalSettings')")
+          | Settings
           i(data-feather="settings")
     .row
       router-view
@@ -49,7 +51,7 @@
         .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
           a(href="https://github.com/yagu0/vchess") Source code
           p.clickable(onClick="doClick('modalContact')")
-            | {{ $tr["Contact form"] }}
+            | {{ st.tr["Contact form"] }}
   //my-game(:game-ref="gameRef" :mode="mode" :settings="settings" @game-over="archiveGame")
   //// TODO: add only the necessary icons to mini-css custom build
   //script(src="//unpkg.com/feather-icons")
@@ -60,16 +62,19 @@
 import ContactForm from "@/components/ContactForm.vue";
 import Language from "@/components/Language.vue";
 import Settings from "@/components/Settings.vue";
+import UpsertUser from "@/components/UpsertUser.vue";
+import { store } from "./store.js";
 export default {
-  data: function() {
-    return {
-      settings: {}, //TODO
-    };
-  },
   components: {
     ContactForm,
     Language,
     Settings,
+    UpsertUser,
+  },
+  data: function() {
+    return {
+      st: store.state,
+    };
   },
 };
 </script>

@@ -4,40 +4,45 @@ div
   div(role="dialog" aria-labelledby="settingsTitle")
     .card.smallpad(@change="updateSettings")
       label.modal-close(for="modalSettings")
-      h3#settingsTitle.section {{ $tr["Preferences"] }}
+      h3#settingsTitle.section {{ st.tr["Preferences"] }}
       fieldset
-        label(for="setSqSize") {{ $tr["Square size (in pixels). 0 for 'adaptative'"] }}
-        input#setSqSize(type="number" v-model="$settings.sqSize")
+        label(for="setSqSize") {{ st.tr["Square size (in pixels). 0 for 'adaptative'"] }}
+        input#setSqSize(type="number" v-model="st.settings.sqSize")
       fieldset
-        label(for="selectHints") {{ $tr["Show move hints?"] }}
-        select#setHints(v-model="$settings.hints")
-          option(value="0") {{ $tr["None"] }}
-          option(value="1") {{ $tr["Moves from a square"] }}
-          option(value="2") {{ $tr["Pieces which can move"] }}
+        label(for="selectHints") {{ st.tr["Show move hints?"] }}
+        select#setHints(v-model="st.settings.hints")
+          option(value="0") {{ st.tr["None"] }}
+          option(value="1") {{ st.tr["Moves from a square"] }}
+          option(value="2") {{ st.tr["Pieces which can move"] }}
       fieldset
-        label(for="setHighlight") {{ $tr["Highlight squares? (Last move & checks)"] }}
-        input#setHighlight(type="checkbox" v-model="$settings.highlight")
+        label(for="setHighlight") {{ st.tr["Highlight squares? (Last move & checks)"] }}
+        input#setHighlight(type="checkbox" v-model="st.settings.highlight")
       fieldset
-        label(for="setCoords") {{ $tr["Show board coordinates?"] }}
-        input#setCoords(type="checkbox" v-model="$settings.coords")
+        label(for="setCoords") {{ st.tr["Show board coordinates?"] }}
+        input#setCoords(type="checkbox" v-model="st.settings.coords")
       fieldset
-        label(for="selectColor") {{ $tr["Board colors"] }}
-        select#setBcolor(v-model="$settings.bcolor")
-          option(value="lichess") {{ $tr["brown"] }}
-          option(value="chesscom") {{ $tr["green"] }}
-          option(value="chesstempo") {{ $tr["blue"] }}
+        label(for="selectColor") {{ st.tr["Board colors"] }}
+        select#setBcolor(v-model="st.settings.bcolor")
+          option(value="lichess") {{ st.tr["brown"] }}
+          option(value="chesscom") {{ st.tr["green"] }}
+          option(value="chesstempo") {{ st.tr["blue"] }}
       fieldset
-        label(for="selectSound") {{ $tr["Play sounds?"] }}
-        select#setSound(v-model="$settings.sound")
-          option(value="0") {{ $tr["None"] }}
-          option(value="1") {{ $tr["New game"] }}
-          option(value="2") {{ $tr["All"] }}
+        label(for="selectSound") {{ st.tr["Play sounds?"] }}
+        select#setSound(v-model="st.settings.sound")
+          option(value="0") {{ st.tr["None"] }}
+          option(value="1") {{ st.tr["New game"] }}
+          option(value="2") {{ st.tr["All"] }}
 </template>
 
 <script>
+import { store } from "@/store.js";
 export default {
-  name: "Settings",
-  //props: ["settings"],
+  name: "my-settings",
+  data: function() {
+    return {
+      st: store.state,
+    };
+  },
 	methods: {
     updateSettings: function(event) {
       const propName =

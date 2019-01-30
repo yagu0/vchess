@@ -12,7 +12,7 @@ div
       label.modal-close(for="modalLang")
       form
         fieldset
-          label(for="langSelect") {{ $tr["Language"] }}
+          label(for="langSelect") {{ st.tr["Language"] }}
           select#langSelect
             each language,langCode in langName
               option(value=langCode selected=(lang==langCode))
@@ -20,13 +20,18 @@ div
 </template>
 
 <script>
+import { store } from "@/store";
 export default {
-  name: "Language",
+  name: "my-language",
+  data: function() {
+    return {
+      st: store.state,
+    };
+  },
 	methods: {
-    // Used both on index and variant page, to switch language
     setLanguage: function(e) {
       localStorage["lang"] = e.target.value;
-      this.$lang = e.target.value;
+      store.setLanguage(e.target.value);
     },
 	},
 };

@@ -22,3 +22,8 @@ export function init(size1, size2, initElem)
 {
   return [...Array(size1)].map(e => Array(size2).fill(initElem));
 }
+
+export function range(max)
+{
+  return [...Array(max).keys()];
+}

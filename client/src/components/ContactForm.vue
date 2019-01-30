@@ -4,26 +4,32 @@ div
   div(role="dialog" aria-labelledby="contactTitle")
     form.card.smallpad
       label.modal-close(for="modalContact")
-      h3#contactTitle.section {{ $tr["Contact form"] }}
+      h3#contactTitle.section {{ st.tr["Contact form"] }}
       fieldset
-        label(for="userEmail") {{ $tr["Email"] }}
+        label(for="userEmail") {{ st.tr["Email"] }}
         input#userEmail(type="email")
       fieldset
-        label(for="mailSubject") {{ $tr["Subject"] }}
+        label(for="mailSubject") {{ st.tr["Subject"] }}
         input#mailSubject(type="text")
       fieldset
-        label(for="mailContent") {{ $tr["Content"] }}
+        label(for="mailContent") {{ st.tr["Content"] }}
         br
         textarea#mailContent
       fieldset
         button(type="button" onClick="trySendMessage()") Send
-        p#emailSent {{ $tr["Email sent!"] }}
+        p#emailSent {{ st.tr["Email sent!"] }}
 </template>
 
 <script>
 import { ajax } from "../utils/ajax";
+import { store } from "@/store";
 export default {
-  name: "ContactForm",
+  name: "my-contact-form",
+  data: function() {
+    return {
+      st: store.state,
+    };
+  },
   methods: {
 		// Note: not using Vue here, but would be possible
     trySendMessage: function() {
