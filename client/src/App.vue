@@ -138,6 +138,8 @@ footer
   //background-color: #000033
   font-size: 1rem
   width: 100%
+  padding-left: 0
+  padding-right: 0
   display: inline-flex
   align-items: center
   justify-content: center
