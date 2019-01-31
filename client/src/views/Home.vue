@@ -74,25 +74,25 @@ export default {
     GameList,
     ChallengeList,
   },
-	data: function () {
-		return {
+  data: function () {
+    return {
       st: store.state,
-			gdisplay: "live",
-			liveGames: [],
-			corrGames: [],
-			players: [], //online players
-			challenges: [], //live challenges
-			willPlay: [], //IDs of challenges in which I decide to play (>= 3 players)
-			newgameInfo: {
-				fen: "",
-				vid: 0,
-				nbPlayers: 0,
-				players: [{id:0,name:""},{id:0,name:""},{id:0,name:""}],
-				mainTime: 0,
-				increment: 0,
-			},
-		};
-	},
+      gdisplay: "live",
+      liveGames: [],
+      corrGames: [],
+      players: [], //online players
+      challenges: [], //live challenges
+      willPlay: [], //IDs of challenges in which I decide to play (>= 3 players)
+      newgameInfo: {
+        fen: "",
+        vid: 0,
+        nbPlayers: 0,
+        players: [{id:0,name:""},{id:0,name:""},{id:0,name:""}],
+        mainTime: 0,
+        increment: 0,
+      },
+    };
+  },
   watch: {
     "st.conn": function() {
       // TODO: ask server for current corr games (all but mines: names, ID, time control)
@@ -135,113 +135,113 @@ export default {
       this.st.conn.onclose = socketCloseListener;
     },
   },
-	methods: {
-		showGame: function(game) {
+  methods: {
+    showGame: function(game) {
       // NOTE: if we are an observer, the game will be found in main games list
       // (sent by connected remote players)
       this.$router.push("/" + game.id)
-		},
-		challenge: function(player) {
-			this.st.conn.send(JSON.stringify({code:"sendchallenge", oppid:p.id,
-				user:{name:this.st.user.name,id:this.st.user.id}}));
-		},
-		clickChallenge: function(challenge) {
-			const index = this.challenges.findIndex(c => c.id == challenge.id);
-			const toIdx = challenge.to.findIndex(p => p.id == user.id);
-			const me = {name:user.name,id:user.id};
-			if (toIdx >= 0)
-			{
-				// It's a multiplayer challenge I accepted: withdraw
-				this.st.conn.send(JSON.stringify({code:"withdrawchallenge",
-					cid:challenge.id, user:me}));
-				this.challenges.to.splice(toIdx, 1);
-			}
-			else if (challenge.from.id == user.id) //it's my challenge: cancel it
-			{
-				this.st.conn.send(JSON.stringify({code:"cancelchallenge", cid:challenge.id}));
-				this.challenges.splice(index, 1);
-			}
-			else //accept a challenge
-			{
-				this.st.conn.send(JSON.stringify({code:"acceptchallenge",
-					cid:challenge.id, user:me}));
-				this.challenges[index].to.push(me);
-			}
-			// TODO: accepter un challenge peut lancer une partie, il
-			// faut alors supprimer challenge + creer partie + la retourner et l'ajouter ici
-			// autres actions:
-			// supprime mon défi
-			// accepte un défi
-			// annule l'acceptation d'un défi (si >= 3 joueurs)
-			//
-			// si pas le mien et FEN speciale :: (charger code variante et)
-			// montrer diagramme + couleur (orienté)
-		},
-		// user: last person to accept the challenge
-		newGameLive: function(chall, user) {
-			const fen = chall.fen || V.GenRandInitFen();
-			const game = {}; //TODO: fen, players, time ...
-			//setStorage(game); //TODO
-			game.players.forEach(p => {
-				this.conn.send(
-					JSON.stringify({code:"newgame", oppid:p.id, game:game}));
-			});
-			if (this.settings.sound >= 1)
-				new Audio("/sounds/newgame.mp3").play().catch(err => {});
-		},
-		newGame: function() {
-			const afterRulesAreLoaded = () => {
-				// NOTE: side-effect = set FEN
-				// TODO: (to avoid any cheating option) separate the GenRandInitFen() functions
-				// in separate files, load on server and generate FEN on server.
-				const error = checkChallenge(this.newgameInfo, vname);
-				if (!!error)
-					return alert(error);
-				// Possible (server) error if filled player does not exist
-				ajax(
-					"/challenges/" + this.newgameInfo.vid,
-					"POST",
-					this.newgameInfo,
-					response => {
-						const chall = Object.assign({},
-							this.newgameInfo,
-							{
-								id: response.cid,
-								uid: user.id,
-								added: Date.now(),
-								vname: vname,
-							});
-						this.challenges.push(chall);
-					}
-				);
+    },
+    challenge: function(player) {
+      this.st.conn.send(JSON.stringify({code:"sendchallenge", oppid:p.id,
+        user:{name:this.st.user.name,id:this.st.user.id}}));
+    },
+    clickChallenge: function(challenge) {
+      const index = this.challenges.findIndex(c => c.id == challenge.id);
+      const toIdx = challenge.to.findIndex(p => p.id == user.id);
+      const me = {name:user.name,id:user.id};
+      if (toIdx >= 0)
+      {
+        // It's a multiplayer challenge I accepted: withdraw
+        this.st.conn.send(JSON.stringify({code:"withdrawchallenge",
+          cid:challenge.id, user:me}));
+        this.challenges.to.splice(toIdx, 1);
+      }
+      else if (challenge.from.id == user.id) //it's my challenge: cancel it
+      {
+        this.st.conn.send(JSON.stringify({code:"cancelchallenge", cid:challenge.id}));
+        this.challenges.splice(index, 1);
+      }
+      else //accept a challenge
+      {
+        this.st.conn.send(JSON.stringify({code:"acceptchallenge",
+          cid:challenge.id, user:me}));
+        this.challenges[index].to.push(me);
+      }
+      // TODO: accepter un challenge peut lancer une partie, il
+      // faut alors supprimer challenge + creer partie + la retourner et l'ajouter ici
+      // autres actions:
+      // supprime mon défi
+      // accepte un défi
+      // annule l'acceptation d'un défi (si >= 3 joueurs)
+      //
+      // si pas le mien et FEN speciale :: (charger code variante et)
+      // montrer diagramme + couleur (orienté)
+    },
+    // user: last person to accept the challenge
+    newGameLive: function(chall, user) {
+      const fen = chall.fen || V.GenRandInitFen();
+      const game = {}; //TODO: fen, players, time ...
+      //setStorage(game); //TODO
+      game.players.forEach(p => {
+        this.conn.send(
+          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
+      });
+      if (this.settings.sound >= 1)
+        new Audio("/sounds/newgame.mp3").play().catch(err => {});
+    },
+    newGame: function() {
+      const afterRulesAreLoaded = () => {
+        // NOTE: side-effect = set FEN
+        // TODO: (to avoid any cheating option) separate the GenRandInitFen() functions
+        // in separate files, load on server and generate FEN on server.
+        const error = checkChallenge(this.newgameInfo, vname);
+        if (!!error)
+          return alert(error);
+        // Possible (server) error if filled player does not exist
+        ajax(
+          "/challenges/" + this.newgameInfo.vid,
+          "POST",
+          this.newgameInfo,
+          response => {
+            const chall = Object.assign({},
+              this.newgameInfo,
+              {
+                id: response.cid,
+                uid: user.id,
+                added: Date.now(),
+                vname: vname,
+              });
+            this.challenges.push(chall);
+          }
+        );
         // TODO: else, if live game: send infos (socket), and...
-			};
-			const idxInVariants =
-				variantArray.findIndex(v => v.id == this.newgameInfo.vid);
-			const vname = variantArray[idxInVariants].name;
-			const scriptId = vname + "RulesScript";
-			if (!document.getElementById(scriptId))
-			{
-				// Load variant rules (only once)
-				var script = document.createElement("script");
-				script.id = scriptId;
-				script.onload = afterRulesAreLoaded;
-				//script.addEventListener ("load", afterRulesAreLoaded, false);
-				script.src = "/javascripts/variants/" + vname + ".js";
-				document.body.appendChild(script);
-			}
-			else
-				afterRulesAreLoaded();
-		},
-		possibleNbplayers: function(nbp) {
-			if (this.newgameInfo.vid == 0)
-				return false;
+      };
+      const idxInVariants =
+        variantArray.findIndex(v => v.id == this.newgameInfo.vid);
+      const vname = variantArray[idxInVariants].name;
+      const scriptId = vname + "RulesScript";
+      if (!document.getElementById(scriptId))
+      {
+        // Load variant rules (only once)
+        var script = document.createElement("script");
+        script.id = scriptId;
+        script.onload = afterRulesAreLoaded;
+        //script.addEventListener ("load", afterRulesAreLoaded, false);
+        script.src = "/javascripts/variants/" + vname + ".js";
+        document.body.appendChild(script);
+      }
+      else
+        afterRulesAreLoaded();
+    },
+    possibleNbplayers: function(nbp) {
+      if (this.newgameInfo.vid == 0)
+        return false;
       const variants = this.st.variants;
-			const idxInVariants =
-				variants.findIndex(v => v.id == this.newgameInfo.vid);
-			return NbPlayers[variants[idxInVariants].name].includes(nbp);
-		},
-	},
+      const idxInVariants =
+        variants.findIndex(v => v.id == this.newgameInfo.vid);
+      return NbPlayers[variants[idxInVariants].name].includes(nbp);
+    },
+  },
 };
 </script>
 

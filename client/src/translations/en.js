@@ -1,7 +1,13 @@
 export const translations =
 {
-  "Language": "Language",
+  "Home": "Home",
+  "Variants": "Variants",
+  "My games": "My games",
+  "Problems": "Problems",
   "Contact form": "Contact form",
+  "Source code": "Source code",
+
+  "Language": "Language",
   "Email": "Email",
   "Subject": "Subject",
   "Content": "Content",
@@ -38,7 +44,6 @@ export const translations =
   "Waiting for opponent...": "Waiting for opponent...",
   "Rules": "Rules",
   "Play": "Play",
-  "Problems": "Problems",
   "White win": "White win",
   "Black win": "Black win",
   "Draw": "Draw",

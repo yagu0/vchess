@@ -39,11 +39,10 @@
                 | {{ !st.user.id ? "Login" : "Update" }}
               .clickable(onClick="doClick('modalSettings')")
                 | {{ st.tr["Settings"] }}
-              .clickable(onClick="doClick('modalLang')")
+              .clickable#flagContainer(onClick="doClick('modalLang')")
                 img(v-if="!!st.lang"
                   :src="require(`@/assets/images/flags/${st.lang}.svg`)")
-    .row
-      router-view
+    router-view
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         footer
@@ -87,6 +86,39 @@ export default {
   @media screen and (max-width: 767px)
     padding: 0
 
+.row > div
+  padding: 0
+
+.nopadding
+  padding: 0
+
+#modalWelcome
+  max-width: 767px
+  @media screen and (max-width: 767px)
+    max-width: 100vw
+  img
+    width: 75%
+    @media screen and (max-width: 767px)
+      width: 100%
+      max-width: 552px
+  ul
+    list-style-type: none
+  // TODO: bad practice, shouldn't use table to align things...
+  table.list-table
+    width: 300px
+    margin: 0 auto
+    border: 0
+    tbody
+      border: 0
+      tr
+        border: 0
+        margin: 0
+        padding: 0
+        td
+          padding: 0
+          text-align: left
+          border: 0
+
 header
   width: 100%
   display: flex
@@ -102,6 +134,7 @@ header
 
 nav
   width: 100%
+  margin: 0
   padding: 0
   & > #menuBar
     width: 100%
@@ -125,10 +158,12 @@ nav
       justify-content: flex-end
       & > div
         display: inline-block
+        &#flagContainer
+          display: inline-flex
         & > img
           padding: 0
-          width: 30px
-          height: 30px
+          width: 36px
+          height: 27px
 
 // TODO: drawer, until 600px wide OK (seemingly)
 // After, zone where left and right just go on top of another

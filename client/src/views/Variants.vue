@@ -1,6 +1,6 @@
 <template lang="pug">
-div
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+.row
+  .nopadding.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
     label(for="prefixFilter") Type first letters...
     input#prefixFilter(v-model="curPrefix")
   .variant.col-sm-12.col-md-5.col-lg-4(
@@ -50,19 +50,21 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+<style scoped lang="sass">
+// TODO: box-shadow or box-sizing ? https://stackoverflow.com/a/13517809
+.variant
+  box-sizing: border-box
+  border: 1px solid brown
+  background-color: lightyellow
+  &:hover
+    background-color: yellow
+  a
+    color: #663300
+    text-decoration: none
+  .boxtitle
+    font-weight: bold
+    margin-bottom: 0
+  .description
+    @media screen and (max-width: 767px)
+      margin-top: 0
 </style>
