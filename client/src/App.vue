@@ -1,7 +1,5 @@
 <template lang="pug">
 #app
-  // modal "welcome" will be filled in the selected language
-  #modalWelcome
   Language
   Settings
   ContactForm
@@ -91,33 +89,6 @@ export default {
 
 .nopadding
   padding: 0
-
-#modalWelcome
-  max-width: 767px
-  @media screen and (max-width: 767px)
-    max-width: 100vw
-  img
-    width: 75%
-    @media screen and (max-width: 767px)
-      width: 100%
-      max-width: 552px
-  ul
-    list-style-type: none
-  // TODO: bad practice, shouldn't use table to align things...
-  table.list-table
-    width: 300px
-    margin: 0 auto
-    border: 0
-    tbody
-      border: 0
-      tr
-        border: 0
-        margin: 0
-        padding: 0
-        td
-          padding: 0
-          text-align: left
-          border: 0
 
 header
   width: 100%

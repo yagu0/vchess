@@ -25,3 +25,7 @@ send
 settings
 user
 x
+
+Use raw-loader to show rules (+ post-processing)
+document.getElementById("modalWelcome").innerHTML =
+  require("raw-loader!pug-plain-loader!@/welcome/" + this.state.lang + ".pug");

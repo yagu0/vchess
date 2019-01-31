@@ -43,9 +43,7 @@ export const store =
     this.setTranslations();
   },
   setTranslations: async function() {
-    // Fill modalWelcome, and import translations from "./translations/$lang.js"
-    document.getElementById("modalWelcome").innerHTML =
-      require("raw-loader!pug-plain-loader!@/welcome/" + this.state.lang + ".pug");
+    // Import translations from "./translations/$lang.js"
     const tModule = await import("@/translations/" + this.state.lang + ".js");
     this.state.tr = tModule.translations;
   },
