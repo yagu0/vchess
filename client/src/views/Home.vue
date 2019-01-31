@@ -7,7 +7,7 @@ div
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }}
         select#selectVariant(v-model="newgameInfo.vid")
-          option(v-for="v in variants" :value="v.id") {{ v.name }}
+          option(v-for="v in st.variants" :value="v.id") {{ v.name }}
       fieldset
         label(for="selectNbPlayers") {{ st.tr["Number of players"] }}
         select#selectNbPlayers(v-model="newgameInfo.nbPlayers")
@@ -31,14 +31,14 @@ div
             v-model="newgameInfo.players[2].name")
       fieldset
         label(for="inputFen")
-          {{ st.tr["FEN (ignored if players fields are blank)"] }}
+          | {{ st.tr["FEN (ignored if players fields are blank)"] }}
         input#inputFen(type="text" v-model="newgameInfo.fen")
       button(@click="newGame") Launch game
       p TODO: cadence, adversaire (pre-filled if click on name)
       p cadence 2m+12s ou 7d+1d (m,s ou d,d) --> main, increment
       p Note: leave FEN blank for random; FEN only for targeted challenge
   div
-    my-challenge-list(:challenges="challenges" @click-challenge="clickChallenge")
+    ChallengeList(:challenges="challenges" @click-challenge="clickChallenge")
     div(style="border:1px solid black")
       h3 Online players
       div(v-for="p in players" @click="challenge(p)") {{ p.name }}
@@ -47,9 +47,9 @@ div
     .button-group
       button(@click="gdisplay='live'") Live games
       button(@click="gdisplay='corr'") Correspondance games
-    my-game-list(v-show="gdisplay=='live'" :games="liveGames"
+    GameList(v-show="gdisplay=='live'" :games="liveGames"
       @show-game="showGame")
-    my-game-list(v-show="gdisplay=='corr'" :games="corrGames"
+    GameList(v-show="gdisplay=='corr'" :games="corrGames"
       @show-game="showGame")
 </template>
 
@@ -65,6 +65,7 @@ fin de partie corr: supprimer partie du serveur au bout de 7 jours (arbitraire)
 // TODO: au moins l'échange des coups en P2P ? et game chat ?
 // TODO: objet game, objet challenge ? et player ?
 import { store } from "@/store";
+import { NbPlayers } from "@/data/nbPlayers";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -92,46 +93,48 @@ export default {
 			},
 		};
 	},
-	created: function() {
-		// TODO: ask server for current corr games (all but mines: names, ID, time control)
-		const socketMessageListener = msg => {
-			const data = JSON.parse(msg.data);
-			switch (data.code)
-			{
-				case "newgame":
-					// TODO: new game just started: data contain all informations
-					// (id, players, time control, fenStart ...)
-					break;
-				// TODO: also receive live games summaries (update)
-				// (just players names, time control, and ID + player ID)
-				case "acceptchallenge":
-					// oppid: opponent socket ID (or DB id if registered)
-					if (true) //TODO: if challenge is full
-						this.newGame(data.challenge, data.user); //user.id et user.name
-					break;
-				case "withdrawchallenge":
-					// TODO
-					break;
-				case "cancelchallenge":
-					// TODO
-					break;
-				// TODO: distinguish these (dis)connect events from their analogs in game.js
-				case "connect":
-					this.players.push({name:data.name, id:data.uid});
-					break;
-				case "disconnect":
-					const pIdx = this.players.findIndex(p => p.id == data.uid);
-					this.players.splice(pIdx);
-					break;
-			}
-		};
-		const socketCloseListener = () => {
-			this.st.conn.addEventListener('message', socketMessageListener);
-			this.st.conn.addEventListener('close', socketCloseListener);
-		};
-		this.st.conn.onmessage = socketMessageListener;
-		this.st.conn.onclose = socketCloseListener;
-	},
+  watch: {
+    "st.conn": function() {
+      // TODO: ask server for current corr games (all but mines: names, ID, time control)
+      const socketMessageListener = msg => {
+        const data = JSON.parse(msg.data);
+        switch (data.code)
+        {
+          case "newgame":
+            // TODO: new game just started: data contain all informations
+            // (id, players, time control, fenStart ...)
+            break;
+          // TODO: also receive live games summaries (update)
+          // (just players names, time control, and ID + player ID)
+          case "acceptchallenge":
+            // oppid: opponent socket ID (or DB id if registered)
+            if (true) //TODO: if challenge is full
+              this.newGame(data.challenge, data.user); //user.id et user.name
+            break;
+          case "withdrawchallenge":
+            // TODO
+            break;
+          case "cancelchallenge":
+            // TODO
+            break;
+          // TODO: distinguish these (dis)connect events from their analogs in game.js
+          case "connect":
+            this.players.push({name:data.name, id:data.uid});
+            break;
+          case "disconnect":
+            const pIdx = this.players.findIndex(p => p.id == data.uid);
+            this.players.splice(pIdx);
+            break;
+        }
+      };
+      const socketCloseListener = () => {
+        this.st.conn.addEventListener('message', socketMessageListener);
+        this.st.conn.addEventListener('close', socketCloseListener);
+      };
+      this.st.conn.onmessage = socketMessageListener;
+      this.st.conn.onclose = socketCloseListener;
+    },
+  },
 	methods: {
 		showGame: function(game) {
       // NOTE: if we are an observer, the game will be found in main games list
@@ -207,8 +210,8 @@ export default {
 								uid: user.id,
 								added: Date.now(),
 								vname: vname,
-							},
-						this.challenges.push(response.challenge);
+							});
+						this.challenges.push(chall);
 					}
 				);
         // TODO: else, if live game: send infos (socket), and...
@@ -233,10 +236,15 @@ export default {
 		possibleNbplayers: function(nbp) {
 			if (this.newgameInfo.vid == 0)
 				return false;
+      const variants = this.st.variants;
 			const idxInVariants =
-				variantArray.findIndex(v => v.id == this.newgameInfo.vid);
-			return NbPlayers[variantArray[idxInVariants].name].includes(nbp);
+				variants.findIndex(v => v.id == this.newgameInfo.vid);
+			return NbPlayers[variants[idxInVariants].name].includes(nbp);
 		},
 	},
-});
+};
 </script>
+
+<style lang="sass">
+// TODO
+</style>

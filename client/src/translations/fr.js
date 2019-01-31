@@ -1,5 +1,12 @@
 export const translations =
 {
+  "Home": "Accueil",
+  "Variants": "Variantes",
+  "My games": "Mes parties",
+  "Problems": "Problèmes",
+  "Contact form": "Formulaire de contact",
+  "Source code": "Code source",
+
   "Language": "Langue",
 
   // Index page:
@@ -31,7 +38,6 @@ export const translations =
   "Waiting for opponent...": "En attente d'un adversaire...",
   "Rules": "Règles",
   "Play": "Jouer",
-  "Problems": "Problèmes",
   "White win": "Les blancs gagnent",
   "Black win": "Les noirs gagnent",
   "Draw": "Match nul",

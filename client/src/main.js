@@ -38,6 +38,7 @@ new Vue({
 //  mounted: function() {
 //    feather.replace();
 //  },
+  // "mounted" and not "created", because modalWelcome must be filled
   mounted: function() {
     store.initialize();
   },

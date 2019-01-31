@@ -8,48 +8,46 @@
   UpsertUser
   .container
     .row(v-show="$route.path == '/'")
-      // Header (on index only ?!)
-      header
-        .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+        // Header (on index only)
+        header
           img(src="./assets/images/index/unicorn.svg")
           .info-container
             p vchess.club
           img(src="./assets/images/index/wildebeest.svg")
     .row
-      // Menu (top of page):
-      // shared: Home + flags, userMenu
-      // variant: hall, problems, rules, my games + settings
-      nav
-        label.drawer-toggle(for="drawerControl")
-        input#drawerControl.drawer(type="checkbox")
-        #menuBar
-          label.drawer-close(for="drawerControl")
-          router-link(to="/")
-            // select options all variants + filter possible (as in problems)
-            | Home
-          router-link(to="/myGames")
-            | {{ st.tr["My games"] }}
-          router-link(to="/rules")
-            // Boxes OK for rules/Atomic/ ...etc
-            | {{ st.tr["Rules"] }}
-          router-link(to="/problems")
-            | {{ st.tr["Problems"] }}
-          #userMenu.clickable.right-menu(onClick="doClick('modalUser')")
-            .info-container
-              p
-                span {{ !st.user.id ? "Login" : "Update" }}
-                span.icon-user
-          #flagMenu.clickable.right-menu(onClick="doClick('modalLang')")
-          img(src="/images/flags/" + lang + ".svg")
-        #settings.clickable(onClick="doClick('modalSettings')")
-          | Settings
-          i(data-feather="settings")
+      .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+        // Menu (top of page):
+        // Left: home, variants, mygames, problems
+        // Right: usermenu, settings, flag
+        nav
+          label.drawer-toggle(for="drawerControl")
+          input#drawerControl.drawer(type="checkbox")
+          #menuBar
+            label.drawer-close(for="drawerControl")
+            #leftMenu
+              router-link(to="/")
+                | {{ st.tr["Home"] }}
+              router-link(to="/variants")
+                | {{ st.tr["Variants"] }}
+              router-link(to="/mygames")
+                | {{ st.tr["My games"] }}
+              router-link(to="/problems")
+                | {{ st.tr["Problems"] }}
+            #rightMenu
+              .clickable(onClick="doClick('modalUser')")
+                | {{ !st.user.id ? "Login" : "Update" }}
+              .clickable(onClick="doClick('modalSettings')")
+                | {{ st.tr["Settings"] }}
+              .clickable(onClick="doClick('modalLang')")
+                img(v-if="!!st.lang"
+                  :src="require(`@/assets/images/flags/${st.lang}.svg`)")
     .row
       router-view
     .row
-      footer
-        .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2.text-center
-          a(href="https://github.com/yagu0/vchess") Source code
+      .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+        footer
+          a(href="https://github.com/yagu0/vchess") {{ st.tr["Source code"] }}
           p.clickable(onClick="doClick('modalContact')")
             | {{ st.tr["Contact form"] }}
   //my-game(:game-ref="gameRef" :mode="mode" :settings="settings" @game-over="archiveGame")
@@ -84,14 +82,75 @@ export default {
   font-family: "Avenir", Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
-  text-align: center
-  color: #2c3e50
 
-#nav
-  padding: 30px
-  a
-    font-weight: bold
-    color: #2c3e50
-    &.router-link-exact-active
-      color: #42b983
+.container
+  @media screen and (max-width: 767px)
+    padding: 0
+
+header
+  width: 100%
+  display: flex
+  align-items: center
+  justify-content: center
+  margin: 0 auto
+  & > img
+    width: 30px
+    height: 30px
+
+.clickable
+  cursor: pointer
+
+nav
+  width: 100%
+  padding: 0
+  & > #menuBar
+    width: 100%
+    padding: 0
+    & > #leftMenu
+      padding: 0
+      width: 50%
+      display: inline-flex
+      align-items: center
+      justify-content: flex-start
+      & > a
+        display: inline-block
+        color: #2c3e50
+        &.router-link-exact-active
+          color: #42b983
+    & > #rightMenu
+      padding: 0
+      width: 50%
+      display: inline-flex
+      align-items: center
+      justify-content: flex-end
+      & > div
+        display: inline-block
+        & > img
+          padding: 0
+          width: 30px
+          height: 30px
+
+// TODO: drawer, until 600px wide OK (seemingly)
+// After, zone where left and right just go on top of another
+// Then, on narrow screen put everything on one line
+[type="checkbox"].drawer+*
+  right: -767px
+
+footer
+  //background-color: #000033
+  font-size: 1rem
+  width: 100%
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  & > a
+    display: inline-block
+    margin: 0 10px 0 0
+    &:link
+      color: #2c3e50
+    &:hover
+      text-decoration: none
+  & > p
+    display: inline-block
+    margin: 0 0 0 10px
 </style>

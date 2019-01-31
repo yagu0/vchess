@@ -1,4 +1,4 @@
-const NbPlayers =
+export const NbPlayers =
 {
 	"Alice": [2,3,4],
 	"Antiking": [2,3,4],
@@ -19,5 +19,3 @@ const NbPlayers =
 	"Wildebeest": [2],
 	"Zen": [2,3,4],
 };
-
-try { module.exports = NbPlayers; } catch (e) { } //for server
