@@ -15,7 +15,7 @@
 <script>
 import { store } from "@/store";
 export default {
-  name: "variants",
+  name: "my-variants",
   data: function() {
     return {
       curPrefix: "",

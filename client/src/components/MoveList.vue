@@ -1,5 +1,7 @@
+<script>
 // Component for moves list on the right
-Vue.component('my-move-list', {
+export default {
+  name: 'my-move-list',
 	props: ["moves","cursor"], //TODO: other props for e.g. players names + connected indicator
 	// --> we could also add turn indicator here
 	data: function() {
@@ -91,4 +93,5 @@ Vue.component('my-move-list', {
 			this.$emit("goto-move", index);
 		},
 	},
-})
+};
+</script>

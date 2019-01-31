@@ -69,7 +69,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
-  name: "home",
+  name: "my-hall",
   components: {
     GameList,
     ChallengeList,

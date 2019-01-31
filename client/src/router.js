@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
+import Hall from "./views/Hall.vue";
 
 Vue.use(Router);
 
@@ -12,19 +12,19 @@ export default new Router({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: Home,
+      name: "hall",
+      component: Hall,
     },
     {
       path: "/variants",
       name: "variants",
       component: loadView("Variants"),
     },
-//    {
-//      path: "/variants/:vname([a-zA-Z0-9]+)",
-//      name: "rules",
-//      component: Rules,
-//    },
+    {
+      path: "/variants/:vname([a-zA-Z0-9]+)",
+      name: "rules",
+      component: loadView("Rules"),
+    },
 //    {
 //      path: "/about",
 //      name: "about",

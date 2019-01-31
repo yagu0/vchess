@@ -1,6 +1,6 @@
 export const translations =
 {
-  "Home": "Accueil",
+  "Hall": "Hall",
   "Variants": "Variantes",
   "My games": "Mes parties",
   "Problems": "Problèmes",

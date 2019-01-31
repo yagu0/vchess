@@ -5,18 +5,10 @@
   ContactForm
   UpsertUser
   .container
-    .row(v-show="$route.path == '/'")
-      .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-        // Header (on index only)
-        header
-          img(src="./assets/images/index/unicorn.svg")
-          .info-container
-            p vchess.club
-          img(src="./assets/images/index/wildebeest.svg")
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         // Menu (top of page):
-        // Left: home, variants, mygames, problems
+        // Left: hall, variants, mygames, problems
         // Right: usermenu, settings, flag
         nav
           label.drawer-toggle(for="drawerControl")
@@ -25,7 +17,7 @@
             label.drawer-close(for="drawerControl")
             #leftMenu
               router-link(to="/")
-                | {{ st.tr["Home"] }}
+                | {{ st.tr["Hall"] }}
               router-link(to="/variants")
                 | {{ st.tr["Variants"] }}
               router-link(to="/mygames")
