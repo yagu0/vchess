@@ -10,8 +10,8 @@
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
     div(v-show="display=='rules'" v-html="content" class="section-content")
-    Game(v-show="display=='computer'" :mycolor="mycolor" :fen="fen"
-      :mode="mode" :sub-mode="subMode"
+    Game(v-show="display=='computer'" :mycolor="mycolor" :gid-or-fen="fen"
+      :mode="mode" :sub-mode="subMode" :variant="variant"
       @computer-think="gameInProgress=false" @game-over="stopGame")
 </template>
 
@@ -20,9 +20,13 @@ import Game from "@/components/Game.vue";
 import { store } from "@/store";
 export default {
   name: 'my-rules',
+  components: {
+    Game,
+  },
   data: function() {
     return {
       st: store.state,
+      variant: null,
       content: "",
       display: "rules",
       mode: "computer",
@@ -31,6 +35,11 @@ export default {
       mycolor: "w",
       fen: "",
     };
+  },
+  created: function() {
+    const vname = this.$route.params["vname"];
+    const idxOfVar = this.st.variants.indexOf(e => e.name == vname);
+    this.variant = this.st.variants[idxOfVar];
   },
   mounted: function() {
     // Method to replace diagrams in loaded HTML

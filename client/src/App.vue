@@ -63,6 +63,10 @@ export default {
       st: store.state,
     };
   },
+//    // TODO: $route: ...
+//    gameRef: function() {
+//      this.loadGame();
+//    },
 };
 </script>
 

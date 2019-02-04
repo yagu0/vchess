@@ -1,3 +1,4 @@
+<script>
 // This can work for squared boards (2 or 4 players), with some adaptations (TODO)
 // TODO: for 3 players, write a "board3.js"
 export default {
@@ -152,7 +153,7 @@ export default {
             );
           })
         );
-      }), choices]
+      })
     );
     let elementArray = [choices, gameDiv];
     if (!!this.vr.reserve)

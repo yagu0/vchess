@@ -1,3 +1,5 @@
+// TODO: https://github.com/webpack-contrib/worker-loader
+// https://stackoverflow.com/questions/48713072/how-to-get-js-function-into-webworker-via-importscripts
 // For asynchronous computer move search
 onmessage = function(e)
 {
@@ -5,10 +7,10 @@ onmessage = function(e)
 	{
 		case "scripts":
 			self.importScripts(
-				'/javascripts/base_rules.js',
-				'/javascripts/utils/array.js',
-				'/javascripts/variants/' + e.data[1] + '.js');
-			self.V = eval(e.data[1] + "Rules");
+				'@/base_rules.js',
+				'@/utils/array.js',
+				'@/variants/' + e.data[1] + '.js');
+			self.V = eval("VariantRules");
 			break;
 		case "init":
 			const fen = e.data[1];
