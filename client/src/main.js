@@ -20,6 +20,7 @@ new Vue({
 //  },
   created: function() {
     window.doClick = (elemId) => { document.getElementById(elemId).click() };
+    store.initialize();
 		
     // TODO: AJAX call get corr games (all variants)
 		// si dernier lastMove sur serveur n'est pas le mien et nextColor == moi, alors background orange
@@ -33,13 +34,6 @@ new Vue({
     // (l'identifiant de l'utilisateur si connecté)
 //    if (!!localStorage["variant"])
 //      location.hash = "#game?id=" + localStorage["gameId"];
-  },
-  // Later, for icons (if using feather):
-//  mounted: function() {
-//    feather.replace();
-//  },
-  created: function() {
-    store.initialize();
   },
 }).$mount("#app");
 

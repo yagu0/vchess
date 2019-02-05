@@ -10,7 +10,7 @@
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
     div(v-show="display=='rules'" v-html="content" class="section-content")
-    Game(v-show="display=='computer'" :mycolor="mycolor" :gid-or-fen="fen"
+    Game(v-show="display=='computer'" :gid-or-fen="fen"
       :mode="mode" :sub-mode="subMode" :variant="variant"
       @computer-think="gameInProgress=false" @game-over="stopGame")
 </template>
@@ -36,6 +36,7 @@ export default {
       fen: "",
     };
   },
+  // TODO: variant is initialized before store initializes, so remain null (I think)
   created: function() {
     const vname = this.$route.params["vname"];
     const idxOfVar = this.st.variants.indexOf(e => e.name == vname);
@@ -49,7 +50,8 @@ export default {
     };
     // (AJAX) Request to get rules content (plain text, HTML)
     this.content =
-      require("raw-loader!pug-plain-loader!@/rules/" +
+      // TODO: why doesn't this work? require("raw-loader!pug-plain-loader!@/rules/"...)
+      require("raw-loader!@/rules/" +
         this.$route.params["vname"] + "/" + this.st.lang + ".pug")
       .replace(/(fen:)([^:]*):/g, replaceByDiag);
   },
