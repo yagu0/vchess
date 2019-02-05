@@ -1,29 +1,32 @@
 // Remove item(s) in array (if present)
-export function remove(array, rfun, all)
+export const ArrayFun =
 {
-  const index = array.findIndex(rfun);
-  if (index >= 0)
+  remove: function(array, rfun, all)
   {
-    array.splice(index, 1);
-    if (!!all)
+    const index = array.findIndex(rfun);
+    if (index >= 0)
     {
-      // Reverse loop because of the splice below
-      for (let i=array.length-1; i>=index; i--)
+      array.splice(index, 1);
+      if (!!all)
       {
-        if (rfun(array[i]))
-          array.splice(i, 1);
+        // Reverse loop because of the splice below
+        for (let i=array.length-1; i>=index; i--)
+        {
+          if (rfun(array[i]))
+            array.splice(i, 1);
+        }
       }
     }
-  }
-}
+  },
 
-// Double array intialization
-export function init(size1, size2, initElem)
-{
-  return [...Array(size1)].map(e => Array(size2).fill(initElem));
-}
+  // Double array intialization
+  init: function(size1, size2, initElem)
+  {
+    return [...Array(size1)].map(e => Array(size2).fill(initElem));
+  },
 
-export function range(max)
-{
-  return [...Array(max).keys()];
-}
+  range: function(max)
+  {
+    return [...Array(max).keys()];
+  },
+};

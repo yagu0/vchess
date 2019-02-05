@@ -1,7 +1,10 @@
 // (Orthodox) Chess rules are defined in ChessRules class.
 // Variants generally inherit from it, and modify some parts.
 
-class PiPo //Piece+Position
+import { ArrayFun } from "@/utils/array";
+import { random, sample, shuffle } from "@/utils/alea";
+
+export const PiPo = class PiPo //Piece+Position
 {
 	// o: {piece[p], color[c], posX[x], posY[y]}
 	constructor(o)
@@ -14,7 +17,7 @@ class PiPo //Piece+Position
 }
 
 // TODO: for animation, moves should contains "moving" and "fading" maybe...
-class Move
+export const Move = class Move
 {
 	// o: {appear, vanish, [start,] [end,]}
 	// appear,vanish = arrays of PiPo
@@ -29,7 +32,7 @@ class Move
 }
 
 // NOTE: x coords = top to bottom; y = left to right (from white player perspective)
-class ChessRules
+export const ChessRules = class ChessRules
 {
 	//////////////
 	// MISC UTILS
@@ -236,7 +239,7 @@ class ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = range(8);
+			let positions = ArrayFun.range(8);
 
 			// Get random squares for bishops
 			let randIndex = 2 * random(4);
@@ -374,7 +377,7 @@ class ChessRules
 	static GetBoard(position)
 	{
 		const rows = position.split("/");
-		let board = doubleArray(V.size.x, V.size.y, "");
+		let board = ArrayFun.init(V.size.x, V.size.y, "");
 		for (let i=0; i<rows.length; i++)
 		{
 			let j = 0;
@@ -1132,7 +1135,7 @@ class ChessRules
 		let moves1 = this.getAllValidMoves("computer");
 
 		// Can I mate in 1 ? (for Magnetic & Extinction)
-		for (let i of shuffle(range(moves1.length)))
+		for (let i of shuffle(ArrayFun.range(moves1.length)))
 		{
 			this.play(moves1[i]);
 			let finish = (Math.abs(this.evalPosition()) >= V.THRESHOLD_MATE);

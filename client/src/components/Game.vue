@@ -8,7 +8,7 @@
         h3#eogMessage.section {{ endgameMessage }}
       //Chat(:opponents="opponents" :people="people")
       Board(:vr="vr" :last-move="lastMove" :mode="mode" :user-color="mycolor"
-        :orientation="orientation" @play-move="play")
+        :orientation="orientation" :vname="variant.name" @play-move="play")
       .button-group
         button(@click="() => play()") Play
         button(@click="() => undo()") Undo
@@ -46,8 +46,16 @@ import Board from "@/components/Board.vue";
 //import Chat from "@/components/Chat.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
+
+import { getSquareId } from "@/utils/squareId";
+
+import Worker from 'worker-loader!@/playCompMove';
+
 export default {
   name: 'my-game',
+  components: {
+    Board,
+  },
   // gameId: to find the game in storage (assumption: it exists)
   // fen: to start from a FEN without identifiers (analyze mode)
   // subMode: "auto" (game comp vs comp) or "corr" (correspondance game),
@@ -58,7 +66,6 @@ export default {
     return {
       st: store.state,
       // Web worker to play computer moves without freezing interface:
-      compWorker: new Worker('/javascripts/playCompMove.js'),
       timeStart: undefined, //time when computer starts thinking
       vr: null, //VariantRules object, describing the game state + rules
       endgameMessage: "",
@@ -75,6 +82,7 @@ export default {
       moves: [], //all moves played in current game
       cursor: -1, //index of the move just played
       lastMove: null,
+      compWorker: null,
     };
   },
   watch: {
@@ -83,6 +91,8 @@ export default {
       if (this.mode == "computer" && this.lockCompThink)
         return this.$emit("computer-think");
       this.launchGame();
+    },
+    variant: function(newVar) {
     },
   },
   computed: {
@@ -200,7 +210,7 @@ export default {
       this.conn.onclose = socketCloseListener;
     }
     // Computer moves web worker logic: (TODO: also for observers in HH games ?)
-    this.compWorker.postMessage(["scripts",this.variant.name]);
+    this.compWorker = new Worker(); //'/javascripts/playCompMove.js'),
     this.compWorker.onmessage = e => {
       this.lockCompThink = true; //to avoid some ghost moves
       let compMove = e.data;
@@ -271,7 +281,8 @@ export default {
     },
     launchGame: async function() {
       const vModule = await import("@/variants/" + this.variant.name + ".js");
-      window.V = tModule.VariantRules;
+      window.V = vModule.VariantRules;
+      this.compWorker.postMessage(["scripts",this.variant.name]);
       if (this.gidOrFen.indexOf('/') >= 0)
         this.newGameFromFen(this.gidOrFen);
       else
@@ -400,7 +411,7 @@ export default {
         document.querySelector("#" + getSquareId(move.start) + " > img.piece");
       // HACK for animation (with positive translate, image slides "under background")
       // Possible improvement: just alter squares on the piece's way...
-      squares = document.getElementsByClassName("board");
+      const squares = document.getElementsByClassName("board");
       for (let i=0; i<squares.length; i++)
       {
         let square = squares.item(i);
@@ -453,7 +464,7 @@ export default {
       this.lastMove = move;
       if (!move.fen)
         move.fen = this.vr.getFen();
-      if (this.settings.sound == 2)
+      if (this.st.settings.sound == 2)
         new Audio("/sounds/move.mp3").play().catch(err => {});
       if (this.mode == "human")
       {
@@ -505,7 +516,7 @@ export default {
       this.vr.undo(move);
       this.cursor--;
       this.lastMove = (this.cursor >= 0 ? this.moves[this.cursor] : undefined);
-      if (this.settings.sound == 2)
+      if (this.st.settings.sound == 2)
         new Audio("/sounds/undo.mp3").play().catch(err => {});
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
       if (navigate)

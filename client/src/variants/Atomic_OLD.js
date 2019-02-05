@@ -1,4 +1,5 @@
-class AtomicRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+export const VariantRules = class AtomicRules extends ChessRules
 {
 	getPotentialMovesFrom([x,y])
 	{

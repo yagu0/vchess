@@ -1,13 +1,17 @@
 <script>
 // This can work for squared boards (2 or 4 players), with some adaptations (TODO)
 // TODO: for 3 players, write a "board3.js"
+
+import { getSquareId, getSquareFromId } from "@/utils/squareId";
+import { ArrayFun } from "@/utils/array";
+
 export default {
   name: 'my-board',
   // Last move cannot be guessed from here, and is required to highlight squares
   // vr: object to check moves, print board...
   // mode: HH, HC or analyze
   // userColor: for mode HH or HC
-  props: ["vr","lastMove","mode","orientation","userColor"],
+  props: ["vr","lastMove","mode","orientation","userColor","vname"],
   data: function () {
     return {
       hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
@@ -24,10 +28,10 @@ export default {
       return;
     const [sizeX,sizeY] = [V.size.x,V.size.y];
     // Precompute hints squares to facilitate rendering
-    let hintSquares = doubleArray(sizeX, sizeY, false);
+    let hintSquares = ArrayFun.init(sizeX, sizeY, false);
     this.possibleMoves.forEach(m => { hintSquares[m.end.x][m.end.y] = true; });
     // Also precompute in-check squares
-    let incheckSq = doubleArray(sizeX, sizeY, false);
+    let incheckSq = ArrayFun.init(sizeX, sizeY, false);
     this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
     const squareWidth = 40; //TODO: compute this
     const choices = h(
@@ -71,7 +75,7 @@ export default {
     );
     // Create board element (+ reserves if needed by variant or mode)
     const lm = this.lastMove;
-    const showLight = this.hints && variant.name != "Dark";
+    const showLight = this.hints && this.vname != "Dark";
     const gameDiv = h(
       'div',
       {
@@ -93,7 +97,7 @@ export default {
           [...Array(sizeY).keys()].map(j => {
             let cj = (this.orientation=='w' ? j : sizeY-j-1);
             let elems = [];
-            if (this.vr.board[ci][cj] != V.EMPTY && (variant.name!="Dark"
+            if (this.vr.board[ci][cj] != V.EMPTY && (this.vname!="Dark"
               || this.gameOver || this.mode == "analyze"
               || this.vr.enlightened[this.userColor][ci][cj]))
             {
@@ -107,7 +111,7 @@ export default {
                         && this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
                     },
                     attrs: {
-                      src: "/images/pieces/" +
+                      src: "@/assets/images/pieces/" +
                         V.getPpath(this.vr.board[ci][cj]) + ".svg",
                     },
                   }
@@ -139,7 +143,7 @@ export default {
                   'light-square': (i+j)%2==0,
                   'dark-square': (i+j)%2==1,
                   [this.bcolor]: true,
-                  'in-shadow': variant.name=="Dark" && !this.gameOver
+                  'in-shadow': this.vname=="Dark" && !this.gameOver
                     && this.mode != "analyze"
                     && !this.vr.enlightened[this.userColor][ci][cj],
                   'highlight': showLight && !!lm && lm.end.x == ci && lm.end.y == cj,

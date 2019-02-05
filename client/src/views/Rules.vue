@@ -18,6 +18,7 @@
 <script>
 import Game from "@/components/Game.vue";
 import { store } from "@/store";
+import { getDiagram } from "@/utils/printDiagram";
 export default {
   name: 'my-rules',
   components: {
@@ -26,7 +27,7 @@ export default {
   data: function() {
     return {
       st: store.state,
-      variant: null,
+      variant: {id: 0, name: "Unknown"}, //...yet
       content: "",
       display: "rules",
       mode: "computer",
@@ -36,13 +37,14 @@ export default {
       fen: "",
     };
   },
-  // TODO: variant is initialized before store initializes, so remain null (I think)
-  created: function() {
+  mounted: async function() {
+    // NOTE: variant cannot be set before store is initialized
     const vname = this.$route.params["vname"];
-    const idxOfVar = this.st.variants.indexOf(e => e.name == vname);
-    this.variant = this.st.variants[idxOfVar];
-  },
-  mounted: function() {
+    //const idxOfVar = this.st.variants.indexOf(e => e.name == vname);
+    //this.variant = this.st.variants[idxOfVar]; //TODO: is it the right timing?!
+    this.variant.name = vname;
+    const vModule = await import("@/variants/" + vname + ".js");
+    window.V = vModule.VariantRules;
     // Method to replace diagrams in loaded HTML
     const replaceByDiag = (match, p1, p2) => {
       const args = this.parseFen(p2);
@@ -51,8 +53,7 @@ export default {
     // (AJAX) Request to get rules content (plain text, HTML)
     this.content =
       // TODO: why doesn't this work? require("raw-loader!pug-plain-loader!@/rules/"...)
-      require("raw-loader!@/rules/" +
-        this.$route.params["vname"] + "/" + this.st.lang + ".pug")
+      require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")
       .replace(/(fen:)([^:]*):/g, replaceByDiag);
   },
   methods: {

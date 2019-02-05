@@ -1,9 +1,11 @@
+import { ArrayFun } from "@/utils/array";
+
 // Turn (human) marks into coordinates
 function getMarkArray(marks)
 {
 	if (!marks || marks == "-")
 		return [];
-	let markArray = doubleArray(V.size.x, V.size.y, false);
+	let markArray = ArrayFun.init(V.size.x, V.size.y, false);
 	const squares = marks.split(",");
 	for (let i=0; i<squares.length; i++)
 	{
@@ -18,7 +20,7 @@ function getShadowArray(shadow)
 {
 	if (!shadow || shadow == "-")
 		return [];
-	let shadowArray = doubleArray(V.size.x, V.size.y, false);
+	let shadowArray = ArrayFun.init(V.size.x, V.size.y, false);
 	const squares = shadow.split(",");
 	for (let i=0; i<squares.length; i++)
 	{
