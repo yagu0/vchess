@@ -9,7 +9,7 @@
         | Beat the computer!
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
-    div(v-show="display=='rules'" v-html="content" class="section-content")
+    VariantRules(v-show="display=='rules'" :vname="variant.name")
     Game(v-show="display=='computer'" :gid-or-fen="fen"
       :mode="mode" :sub-mode="subMode" :variant="variant"
       @computer-think="gameInProgress=false" @game-over="stopGame")
@@ -18,17 +18,17 @@
 <script>
 import Game from "@/components/Game.vue";
 import { store } from "@/store";
-import { getDiagram } from "@/utils/printDiagram";
+import VariantRules from "@/components/VariantRules";
 export default {
   name: 'my-rules',
   components: {
     Game,
+    VariantRules,
   },
   data: function() {
     return {
       st: store.state,
-      variant: {id: 0, name: "Unknown"}, //...yet
-      content: "",
+      variant: {id: 0, name: "_unknown"}, //...yet
       display: "rules",
       mode: "computer",
       subMode: "", //'auto' for game CPU vs CPU
@@ -37,37 +37,28 @@ export default {
       fen: "",
     };
   },
-  mounted: async function() {
+  watch: {
+    $route: function(newRoute) {
+      this.tryChangeVariant(newRoute.params["vname"]);
+    },
+  },
+  created: async function() {
     // NOTE: variant cannot be set before store is initialized
-    const vname = this.$route.params["vname"];
-    //const idxOfVar = this.st.variants.indexOf(e => e.name == vname);
-    //this.variant = this.st.variants[idxOfVar]; //TODO: is it the right timing?!
-    this.variant.name = vname;
-    const vModule = await import("@/variants/" + vname + ".js");
-    window.V = vModule.VariantRules;
-    // Method to replace diagrams in loaded HTML
-    const replaceByDiag = (match, p1, p2) => {
-      const args = this.parseFen(p2);
-      return getDiagram(args);
-    };
-    // (AJAX) Request to get rules content (plain text, HTML)
-    // TODO: find a way to have Diagram(er) as a component,
-    // thus allowing images import through require(), handled by Webpack
-    // ==> the rules files should be less static
-    this.content =
-      // TODO: why doesn't this work? require("raw-loader!pug-plain-loader!@/rules/"...)
-      require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")
-      .replace(/(fen:)([^:]*):/g, replaceByDiag);
+    this.tryChangeVariant(this.$route.params["vname"]);
   },
   methods: {
-    parseFen(fen) {
-      const fenParts = fen.split(" ");
-      return {
-        position: fenParts[0],
-        marks: fenParts[1],
-        orientation: fenParts[2],
-        shadow: fenParts[3],
-      };
+    tryChangeVariant: async function(vname) {
+      if (vname == "_unknown")
+        return;
+      if (this.st.variants.length > 0)
+      {
+        const idxOfVar = this.st.variants.findIndex(e => e.name == vname);
+        this.variant = this.st.variants[idxOfVar];
+      }
+      else
+        this.variant.name = vname;
+      const vModule = await import("@/variants/" + vname + ".js");
+      window.V = vModule.VariantRules;
     },
     startGame: function() {
       if (this.gameInProgress)
