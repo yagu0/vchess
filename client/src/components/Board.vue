@@ -111,8 +111,8 @@ export default {
                         && this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
                     },
                     attrs: {
-                      src: require("@/assets/images/pieces/" +
-                        V.getPpath(this.vr.board[ci][cj]) + ".svg"),
+                      src: "/images/pieces/" +
+                        V.getPpath(this.vr.board[ci][cj]) + ".svg",
                     },
                   }
                 )
@@ -364,5 +364,102 @@ export default {
 </script>
 
 <style lang="sass">
-// TODO: styles to see pieces!
+.game.reserve-div
+  margin-bottom: 18px
+
+.reserve-count
+  padding-left: 40%
+
+.reserve-row-1
+  margin-bottom: 15px
+
+div.board
+  float: left
+  height: 0
+  display: inline-block
+  position: relative
+
+div.board8
+  width: 12.5%
+  padding-bottom: 12.5%
+
+div.board10
+  width: 10%
+  padding-bottom: 10%
+
+div.board11
+  width: 9.09%
+  padding-bottom: 9.1%
+
+// NOTE: no variants with reserve of size != 8
+
+.game
+  width: 80vh
+  margin: 0 auto
+  .board
+    cursor: pointer
+  @media screen and (max-width: 767px)
+    width: 100%
+    margin: 0
+
+#choices
+  margin: 0 auto 0 auto
+  position: relative
+  z-index: 300
+  overflow-y: inherit
+  background-color: rgba(0,0,0,0)
+  img
+    cursor: pointer
+    background-color: #e6ee9c
+    &:hover
+      background-color: skyblue
+    &.choice-piece
+      width: 100%
+      height: auto
+      display: block
+
+img.piece
+  width: 100%
+
+img.piece, img.mark-square
+  max-width: 100%
+  height: auto
+  display: block
+
+img.mark-square
+  opacity: 0.6
+  width: 76%
+  position: absolute
+  top: 12%
+  left: 12%
+  opacity: .7
+
+img.ghost
+  position: absolute
+  opacity: 0.4
+  top: 0
+
+.highlight
+  background-color: #00cc66 !important
+
+.in-shadow
+  filter: brightness(50%)
+
+.incheck
+  background-color: #cc3300 !important
+
+.light-square.lichess
+  background-color: #f0d9b5;
+.dark-square.lichess
+  background-color: #b58863;
+
+.light-square.chesscom
+  background-color: #e5e5ca;
+.dark-square.chesscom
+  background-color: #6f8f57;
+
+.light-square.chesstempo
+  background-color: #fdfdfd;
+.dark-square.chesstempo
+  background-color: #88a0a8;
 </style>
