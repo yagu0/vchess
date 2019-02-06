@@ -111,8 +111,8 @@ export default {
                         && this.selectedPiece.parentNode.id == "sq-"+ci+"-"+cj,
                     },
                     attrs: {
-                      src: "@/assets/images/pieces/" +
-                        V.getPpath(this.vr.board[ci][cj]) + ".svg",
+                      src: require("@/assets/images/pieces/" +
+                        V.getPpath(this.vr.board[ci][cj]) + ".svg"),
                     },
                   }
                 )
@@ -239,11 +239,11 @@ export default {
       'div',
       {
         'class': {
-          "col-sm-12":true,
-          "col-md-10":true,
-          "col-md-offset-1":true,
-          "col-lg-8":true,
-          "col-lg-offset-2":true,
+          "col-sm-12": true,
+          "col-md-10": true,
+          "col-md-offset-1": true,
+          "col-lg-8": true,
+          "col-lg-offset-2": true,
         },
         // NOTE: click = mousedown + mouseup
         on: {
@@ -362,3 +362,7 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+// TODO: styles to see pieces!
+</style>

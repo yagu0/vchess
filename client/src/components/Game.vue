@@ -6,31 +6,31 @@
       .card.smallpad.small-modal.text-center
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
-      //Chat(:opponents="opponents" :people="people")
-      Board(:vr="vr" :last-move="lastMove" :mode="mode" :user-color="mycolor"
-        :orientation="orientation" :vname="variant.name" @play-move="play")
+    //Chat(:opponents="opponents" :people="people")
+    Board(:vr="vr" :last-move="lastMove" :mode="mode" :user-color="mycolor"
+      :orientation="orientation" :vname="variant.name" @play-move="play")
+    .button-group
+      button(@click="() => play()") Play
+      button(@click="() => undo()") Undo
+      button(@click="flip") Flip
+      button(@click="gotoBegin") GotoBegin
+      button(@click="gotoEnd") GotoEnd
+    .button-group(v-if="mode=='human'")
+      button(@click="offerDraw") Draw
+      button(@click="abortGame") Abort
+      button(@click="resign") Resign
+    div(v-if="mode=='human' && subMode=='corr'")
+      textarea(v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg")
+      div(v-show="cursor>=0") {{ moves[cursor].message }}
+    .section-content(v-if="showFen && !!vr" id="fen-div")
+      p#fenString.text-center {{ vr.getFen() }}
+    #pgnDiv.section-content
+      a#download(href="#")
       .button-group
-        button(@click="() => play()") Play
-        button(@click="() => undo()") Undo
-        button(@click="flip") Flip
-        button(@click="gotoBegin") GotoBegin
-        button(@click="gotoEnd") GotoEnd
-      .button-group(v-if="mode=='human'")
-        button(@click="offerDraw") Draw
-        button(@click="abortGame") Abort
-        button(@click="resign") Resign
-      div(v-if="mode=='human' && subMode=='corr'")
-        textarea(v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg")
-        div(v-show="cursor>=0") {{ moves[cursor].message }}
-      .section-content(v-if="showFen && !!vr" id="fen-div")
-        p#fenString.text-center {{ vr.getFen() }}
-      #pgnDiv.section-content
-        a#download(href="#")
-        .button-group
-          button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
-          button Import game
-      //MoveList(v-if="showMoves"
-        :moves="moves" :cursor="cursor" @goto-move="gotoMove")
+        button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
+        button Import game
+    //MoveList(v-if="showMoves"
+      :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
 
 <script>
@@ -91,8 +91,6 @@ export default {
       if (this.mode == "computer" && this.lockCompThink)
         return this.$emit("computer-think");
       this.launchGame();
-    },
-    variant: function(newVar) {
     },
   },
   computed: {

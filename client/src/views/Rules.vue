@@ -1,6 +1,6 @@
 <template lang="pug">
 .row
-  .col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2
+  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
     .button-group
       button(@click="display='rules'") Read the rules
       button(v-show="!gameInProgress" @click="watchComputerGame")
@@ -51,6 +51,9 @@ export default {
       return getDiagram(args);
     };
     // (AJAX) Request to get rules content (plain text, HTML)
+    // TODO: find a way to have Diagram(er) as a component,
+    // thus allowing images import through require(), handled by Webpack
+    // ==> the rules files should be less static
     this.content =
       // TODO: why doesn't this work? require("raw-loader!pug-plain-loader!@/rules/"...)
       require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")

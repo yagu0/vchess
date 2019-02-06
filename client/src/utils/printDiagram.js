@@ -97,8 +97,8 @@ export function getDiagram(args)
 				"'>";
 			if (board[i][j] != V.EMPTY)
 			{
-				boardDiv += "<img src='/images/pieces/" +
-					V.getPpath(board[i][j]) + ".svg' class='piece'/>";
+				boardDiv += "<img :src='require(`@/assets/images/pieces/" +
+					V.getPpath(board[i][j]) + ".svg`) class='piece'/>";
 			}
 			if (markArray.length > 0 && markArray[i][j])
 				boardDiv += "<img src='/images/mark.svg' class='mark-square'/>";
