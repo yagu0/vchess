@@ -178,8 +178,8 @@ export default {
           this.endGame(this.mycolor=="w"?"1-0":"0-1");
           break;
         // TODO: also use (dis)connect info to count online players?
-        case "connect":
-        case "disconnect":
+        case "gameconnect":
+        case "gamedisconnect":
           if (this.mode=="human")
           {
             const online = (data.code == "connect");

@@ -1,19 +1,19 @@
 // Remove item(s) in array (if present)
 export const ArrayFun =
 {
-  remove: function(array, rfun, all)
+  remove: function(arr, rfun, all)
   {
-    const index = array.findIndex(rfun);
+    const index = arr.findIndex(rfun);
     if (index >= 0)
     {
-      array.splice(index, 1);
+      arr.splice(index, 1);
       if (!!all)
       {
         // Reverse loop because of the splice below
-        for (let i=array.length-1; i>=index; i--)
+        for (let i=arr.length-1; i>=index; i--)
         {
-          if (rfun(array[i]))
-            array.splice(i, 1);
+          if (rfun(arr[i]))
+            arr.splice(i, 1);
         }
       }
     }

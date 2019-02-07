@@ -1,4 +1,4 @@
-function checkNameEmail(o)
+export function checkNameEmail(o)
 {
 	if (typeof o.name === "string")
 	{
@@ -15,5 +15,3 @@ function checkNameEmail(o)
 			return "Bad characters in email";
 	}
 }
-
-try { module.exports = checkNameEmail; } catch(e) { } //for server
