@@ -1,3 +1,9 @@
+Hall + problems : similar pages, with "New game[problem]" button
+with a list of variants.
+--> but display all challenges (and all problems)
+Possible filter: write a few variant names, to keep only these.
+--> In settings !
+
 Use better-sqlite3 instead of node-sqlite3:
 https://www.npmjs.com/package/better-sqlite3
 
