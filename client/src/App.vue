@@ -30,8 +30,7 @@
               .clickable(onClick="doClick('modalSettings')")
                 | {{ st.tr["Settings"] }}
               .clickable#flagContainer(onClick="doClick('modalLang')")
-                img(v-if="!!st.lang"
-                  :src="require(`@/assets/images/flags/${st.lang}.svg`)")
+                img(v-if="!!st.lang" :src="flagImage")
     router-view
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -67,6 +66,11 @@ export default {
 //    gameRef: function() {
 //      this.loadGame();
 //    },
+  computed: {
+    flagImage: function() {
+      return `/images/flags/${this.st.lang}.svg`;
+    },
+  },
 };
 </script>
 

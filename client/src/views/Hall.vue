@@ -21,22 +21,26 @@ main
       fieldset
         label(for="selectPlayers") {{ st.tr["Play with? (optional)"] }}
         #selectPlayers
-          input(type="text" v-model="newchallenge.players[0].name")
+          input(type="text" v-model="newchallenge.to[0].name")
           input(v-show="newchallenge.nbPlayers>=3" type="text"
-            v-model="newchallenge.players[1].name")
+            v-model="newchallenge.to[1].name")
           input(v-show="newchallenge.nbPlayers==4" type="text"
-            v-model="newchallenge.players[2].name")
+            v-model="newchallenge.to[2].name")
       fieldset
         label(for="inputFen") {{ st.tr["FEN (optional)"] }}
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") Send challenge
   .row
     .col-sm-12.col-md-5.col-md-offset-1.col-lg-4.col-lg-offset-2
-      ChallengeList(:challenges="challenges" @click-challenge="clickChallenge")
-    .col-sm-12.col-md-5.col-lg-4
-      #players
+      .button-group
+        button(@click="cpdisplay='challenges'") Challenges
+        button(@click="cpdisplay='players'") Players
+      ChallengeList(v-show="cpdisplay=='challenges'"
+        :challenges="challenges" @click-challenge="clickChallenge")
+      #players(v-show="cpdisplay=='players'")
         h3 Online players
-        div(v-for="p in players" @click="challenge(p)") {{ p.name }}
+        //TODO: uniquePlayers, show "5 anonymous", and do nothing on click on anonymous
+        div(v-for="p in uniquePlayers" @click="challenge(p)") {{ p.name }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       button(onClick="doClick('modalNewgame')") New game
@@ -81,11 +85,13 @@ fin de partie corr: supprimer partie du serveur au bout de 7 jours (arbitraire)
  *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
  *  - receive "new game": if live, store locally + redirect to game
  *    If corr: notify "new game has started", give link, but do not redirect
+ *  - receive new challenge: if targeted, replace our name with sender name
 */
 import { store } from "@/store";
 import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
+import { ajax } from "@/utils/ajax";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -107,8 +113,13 @@ export default {
         fen: "",
         vid: 0,
         nbPlayers: 0,
-        // TODO: distinguer uid et sid !
-        players: [{id:0,name:""},{id:0,name:""},{id:0,name:""}],
+        // NOTE: id (server DB) and sid (socket ID).
+        // Anonymous players just have a socket ID.
+        to: [
+          {id:0, sid:"", name:""},
+          {id:0, sid:"", name:""},
+          {id:0, sid:"", name:""}
+        ],
         timeControl: "",
       },
     };
@@ -156,6 +167,8 @@ export default {
           break;
         case "halldisconnect":
           ArrayFun.remove(this.players, p => p.id == data.uid);
+          // TODO: also remove all challenges sent by this player,
+          // and all live games where he plays and no other opponent is online
           break;
       }
     },
@@ -216,58 +229,73 @@ export default {
     newChallenge: async function() {
       const idxInVariants =
         this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
-      const vname = variants[idxInVariants].name;
+      const vname = this.st.variants[idxInVariants].name;
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
-      // NOTE: side-effect = set FEN, and mainTime + increment in seconds
-      // TODO: (to limit cheating options) separate the GenRandInitFen() functions
-      // in separate files, load on server and generate FEN on server.
+      // checkChallenge side-effect = set FEN, and mainTime + increment in seconds
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
-      // TODO: 40 = average number of moves ?
-      if (this.newchallenge.mainTime + 40 * this.newchallenge.increment
-        >= 3*24*60*60) //3 days (TODO: heuristic...)
+      // Less than 3 days ==> live game (TODO: heuristic... 40 moves also)
+      const liveGame =
+        this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
+      // Check that the players (if any indicated) are online
+      for (let p of this.newchallenge.to)
       {
-        // Correspondance game:
-        // Possible (server) error if filled player does not exist
-        ajax(
-          "/challenges/" + this.newchallenge.vid,
-          "POST",
+        if (p.name != "")
+        {
+          const pIdx = this.players.findIndex(pl => pl.name == p.name);
+          if (pIdx === -1)
+            return alert(p.name + " is not connected");
+          p.id = this.players[pIdx].id;
+          p.sid = this.players[pIdx].sid;
+        }
+      }
+      const finishAddChallenge = (cid) => {
+        const chall = Object.assign(
+          {},
           this.newchallenge,
-          response => {
-            const chall = Object.assign({},
-              this.newchallenge,
-              {
-                id: response.cid,
-                uid: this.st.user.id,
-                added: Date.now(),
-                vname: vname,
-              });
-            this.challenges.push(chall);
-            document.getElementById("modalNewgame").checked = false;
+          {
+            id: cid,
+            from: this.st.user,
+            added: Date.now(),
+            vname: vname,
           }
         );
-      }
-      else
+        this.challenges.push(chall);
+        document.getElementById("modalNewgame").checked = false;
+      };
+      if (liveGame)
       {
-        // Considered live game
-        if (this.newchallenges.players[0].id > 0)
+        const chall = JSON.stringify({
+          code: "sendchallenge",
+          sender: {name:this.st.user.name, id:this.st.user.id, sid:this.st.user.sid},
+        });
+        if (this.newchallenge.to[0].id > 0)
         {
-          // Challenge with target players
-          this.newchallenges.players.forEach(p => {
-            this.st.conn.send(JSON.stringify({
-              code: "sendchallenge",
-              oppid: p.id,
-              user: {name:this.st.user.name, id:this.st.user.id}
-            }));
+          // Challenge with targeted players
+          this.newchallenge.to.forEach(p => {
+            if (p.id > 0)
+              this.st.conn.send(Object.assign({}, chall, {receiver: p.sid}));
           });
         }
         else
         {
           // Open challenge: send to all connected players
-          // TODO
+          this.players.forEach(p => { this.st.conn.send(chall); });
         }
+        // Live challenges have cid = 0
+        finishAddChallenge(0);
+      }
+      else //correspondance game:
+      {
+        // Possible (server) error if filled player does not exist
+        ajax(
+          "/challenges/" + this.newchallenge.vid,
+          "POST",
+          this.newchallenge,
+          response => { finishAddChallenge(cid); }
+        );
       }
     },
     possibleNbplayers: function(nbp) {

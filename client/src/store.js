@@ -15,13 +15,11 @@ export const store =
   initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
     this.state.user = {
-      // id and name could be undefined
-      id: localStorage["myuid"],
-      name: localStorage["myname"],
+      id: localStorage["myuid"] || 0,
+      name: localStorage["myname"] || "", //"anonymous"
+      sid: localStorage["mysid"] || getRandString(),
     };
-    // TODO: if there is a socket ID in localStorage, it means a live game was interrupted (and should resume)
-    const mysid = localStorage["mysid"] || getRandString();
-    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
+    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + this.state.user.sid);
     // Settings initialized with values from localStorage
     this.state.settings = {
       bcolor: localStorage["bcolor"] || "lichess",

@@ -50,10 +50,12 @@ export function checkChallenge(c)
       return "Increment must be positive";
     c.increment = timeUnitToSeconds(incrementValue, incrementUnit);
   }
+  else
+    c.increment = 0;
 
 	// Basic alphanumeric check for players names
 	let playerCount = 0;
-	for (p of c.players)
+	for (const p of c.to)
 	{
 		if (p.name.length > 0)
 		{

@@ -1,5 +1,6 @@
+import { ChessRules } from "@/base_rules";
 // NOTE: alternative implementation, probably cleaner = use only 1 board
-class AliceRules extends ChessRules
+export const VariantRules = class AliceRules extends ChessRules
 {
 	static get ALICE_PIECES()
 	{
