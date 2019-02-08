@@ -84,14 +84,8 @@ export default {
         fen: "",
         vid: 0,
         nbPlayers: 0,
-        // NOTE: id (server DB) and sid (socket ID).
-        // Anonymous players just have a socket ID.
-        to: [
-          {id:0, sid:"", name:""},
-          {id:0, sid:"", name:""},
-          {id:0, sid:"", name:""}
-        ],
-        timeControl: "",
+        to: ["", "", ""], //name of challenged players
+        timeControl: "", //"2m+2s" ...etc
       },
     };
   },
@@ -276,6 +270,10 @@ export default {
         if (p.name != "")
         {
           const pIdx = this.players.findIndex(pl => pl.name == p.name);
+          // TODO: for correspondance play we don't require players to be online
+          // (==> we don't have IDs, and no sid)
+          // NOTE: id (server DB) and sid (socket ID).
+          // Anonymous players just have a socket ID.
           if (pIdx === -1)
             return alert(p.name + " is not connected");
           p.id = this.players[pIdx].id;

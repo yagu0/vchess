@@ -55,12 +55,12 @@ export function checkChallenge(c)
 
 	// Basic alphanumeric check for players names
 	let playerCount = 0;
-	for (const p of c.to)
+	for (const pname of c.to)
 	{
-		if (p.name.length > 0)
+		if (pname.length > 0)
 		{
       // TODO: slightly redundant (see data/userCheck.js)
-			if (!p.name.match(/^[\w]+$/))
+			if (!pname.match(/^[\w]+$/))
 				return "Wrong characters in players names";
 			playerCount++;
 		}
