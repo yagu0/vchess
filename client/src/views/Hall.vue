@@ -1,3 +1,5 @@
+<!-- Main playing hall: online players + current challenges + button "new game" -->
+
 <template lang="pug">
 main
   input#modalNewgame.modal(type="checkbox")
@@ -15,10 +17,10 @@ main
           option(v-show="possibleNbplayers(3)" value="3") 3
           option(v-show="possibleNbplayers(4)" value="4") 4
       fieldset
-        label(for="timeControl") Time control (e.g. 3m, 1h+30s, 7d+1d)
+        label(for="timeControl") {{ st.tr["Time control"] }}
         input#timeControl(type="text" v-model="newchallenge.timeControl"
-          placeholder="Time control")
-      fieldset
+          placeholder="3m+2s, 1h+30s, 7d+1d ...")
+      fieldset(v-if="st.user.id > 0")
         label(for="selectPlayers") {{ st.tr["Play with? (optional)"] }}
         #selectPlayers
           input(type="text" v-model="newchallenge.to[0].name")
@@ -26,10 +28,10 @@ main
             v-model="newchallenge.to[1].name")
           input(v-show="newchallenge.nbPlayers==4" type="text"
             v-model="newchallenge.to[2].name")
-      fieldset
+      fieldset(v-if="st.user.id > 0")
         label(for="inputFen") {{ st.tr["FEN (optional)"] }}
         input#inputFen(type="text" v-model="newchallenge.fen")
-      button(@click="newChallenge") Send challenge
+      button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
     .col-sm-12.col-md-5.col-md-offset-1.col-lg-4.col-lg-offset-2
       .button-group
@@ -39,8 +41,8 @@ main
         :challenges="challenges" @click-challenge="clickChallenge")
       #players(v-show="cpdisplay=='players'")
         h3 Online players
-        //TODO: uniquePlayers, show "5 anonymous", and do nothing on click on anonymous
-        div(v-for="p in uniquePlayers" @click="challenge(p)") {{ p.name }}
+        div(v-for="p in uniquePlayers" @click="tryChallenge(p)")
+          | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       button(onClick="doClick('modalNewgame')") New game
@@ -56,37 +58,6 @@ main
 </template>
 
 <script>
-// TODO: blank time control == untimed
-// main playing hall: online players + current challenges + button "new game"
-// TODO: si on est en train de jouer une partie, le notifier aux nouveaux connectés
-/*
-TODO: surligner si nouveau défi perso et pas affichage courant
-(cadences base + incrément, corr == incr >= 1jour ou base >= 7j)
---> correspondance: stocker sur serveur lastMove + uid + color + movesCount + gameId + variant + timeleft
-fin de partie corr: supprimer partie du serveur au bout de 7 jours (arbitraire)
-*/
-// TODO: au moins l'échange des coups en P2P ? et game chat ?
-// TODO: objet game, objet challenge ? et player ?
-/*
- * Possible events:
- *  - send new challenge (corr or live, cf. time control), with button or click on player
- *  - accept challenge (corr or live) --> send info to all concerned players
- *  - cancel challenge (click on sent challenge) --> send info to all concerned players
- *  - withdraw from challenge (if >= 3 players and previously accepted)
- *    --> send info to all concerned players
- *  - prepare and start new game (if challenge is full after acceptation)
- *    Also send to all connected players (only from me)
- *  - receive "player connect": send all our current challenges (to him or global)
- *    Also send all our games (live - max 1 - and corr) [in web worker ?]
- *    + all our sent challenges.
- *  - receive "playergames": list of games by some connected player (NO corr)
- *  - receive "playerchallenges": list of challenges (sent) by some online player (NO corr)
- *  - receive "player disconnect": remove from players list
- *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
- *  - receive "new game": if live, store locally + redirect to game
- *    If corr: notify "new game has started", give link, but do not redirect
- *  - receive new challenge: if targeted, replace our name with sender name
-*/
 import { store } from "@/store";
 import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
@@ -103,12 +74,12 @@ export default {
   data: function () {
     return {
       st: store.state,
+      cpdisplay: "challenges",
       gdisplay: "live",
       liveGames: [],
       corrGames: [],
+      challenges: [],
       players: [], //online players
-      challenges: [], //live challenges
-      willPlay: [], //IDs of challenges in which I decide to play (>= 3 players)
       newchallenge: {
         fen: "",
         vid: 0,
@@ -124,6 +95,20 @@ export default {
       },
     };
   },
+  computed: {
+    uniquePlayers: function() {
+      // Show e.g. "5 @nonymous", and do nothing on click on anonymous
+      let playerList = [{id:0, name:"@nonymous", count:0}];
+      this.players.forEach(p => {
+        if (p.id > 0)
+          playerList.push(p);
+        else
+          playerList[0].count++;
+      });
+      return playerList;
+    },
+  },
+  // TODO: this looks ugly... (use VueX ?!)
   watch: {
     "st.conn": function() {
       this.st.conn.onmessage = this.socketMessageListener;
@@ -132,23 +117,45 @@ export default {
   },
   created: function() {
     // TODO: ask server for current corr games (all but mines: names, ID, time control)
+    // also ask for corr challenges
+    // TODO: add myself to players
+    // --> when sending something, send to all players but NOT me !
     if (!!this.st.conn)
     {
       this.st.conn.onmessage = this.socketMessageListener;
       this.st.conn.onclose = this.socketCloseListener;
     }
+    this.players.push(this.st.user);
   },
   methods: {
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+// *  - receive "new game": if live, store locally + redirect to game
+// *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
           // TODO: new game just started: data contain all informations
           // (id, players, time control, fenStart ...)
+          // + cid to remove challenge from list
           break;
-        // TODO: also receive live games summaries (update)
-        // (just players names, time control, and ID + player ID)
+// *  - receive "playergame": a live game by some connected player (NO corr)
+        case "playergame":
+          // TODO: receive live game summary (update, count moves)
+          // (just players names, time control, and ID + player ID)
+          break;
+// *  - receive "playerchallenges": list of challenges (sent) by some online player (NO corr)
+        case "playerchallenges":
+          // TODO: receive challenge + challenge updates
+          break;
+        case "newmove": //live or corr
+          // TODO: name conflict ? (game "newmove" event)
+          break;
+// *  - receive new challenge: if targeted, replace our name with sender name
+        case "newchallenge":
+          // receive live or corr challenge
+          break;
+// *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
         case "acceptchallenge":
           if (true) //TODO: if challenge is full
             this.newGame(data.challenge, data.user); //user.id et user.name
@@ -162,10 +169,18 @@ export default {
         case "cancelchallenge":
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
-        case "hallconnect":
+// NOTE: finally only one connect / disconnect couple of events
+// (because on server side we wouldn't know which to choose)
+        case "connect":
+// *  - receive "player connect": send all our current challenges (to him or global)
+// *    Also send all our games (live - max 1 - and corr) [in web worker ?]
+// *    + all our sent challenges.
           this.players.push({name:data.name, id:data.uid});
+          // TODO: si on est en train de jouer une partie, le notifier au nouveau connecté
+          // envoyer aussi nos défis
           break;
-        case "halldisconnect":
+// *  - receive "player disconnect": remove from players list
+        case "disconnect":
           ArrayFun.remove(this.players, p => p.id == data.uid);
           // TODO: also remove all challenges sent by this player,
           // and all live games where he plays and no other opponent is online
@@ -173,20 +188,35 @@ export default {
       }
     },
     socketCloseListener: function() {
-      this.st.conn.addEventListener('message', socketMessageListener);
-      this.st.conn.addEventListener('close', socketCloseListener);
-    },
-    clickPlayer: function() {
-      //this.newgameInfo.players[0].name = clickPlayer.name;
-      //show modal;
+      // connexion is reinitialized in store.js
+      this.st.conn.addEventListener('message', this.socketMessageListener);
+      this.st.conn.addEventListener('close', this.socketCloseListener);
     },
     showGame: function(game) {
       // NOTE: if we are an observer, the game will be found in main games list
       // (sent by connected remote players)
+      // TODO: game path ? /vname/gameId seems better
       this.$router.push("/" + game.id)
     },
-    challenge: function(player) {
+    tryChallenge: function(player) {
+      if (player.id == 0)
+        return; //anonymous players cannot be challenged
+      this.newchallenge.players[0] = {
+        name: player.name,
+        id: player.id,
+        sid: player.sid,
+      };
+      doClick("modalNewgame");
     },
+// *  - accept challenge (corr or live) --> send info to all concerned players
+// *  - cancel challenge (click on sent challenge) --> send info to all concerned players
+// *  - withdraw from challenge (if >= 3 players and previously accepted)
+// *    --> send info to all concerned players
+// *  - refuse challenge (or receive refusal): send to all challenge players (from + to)
+// *    except us ; graphics: modal again ? (inline ?)
+// *  - prepare and start new game (if challenge is full after acceptation)
+// *    --> include challenge ID (so that opponents can delete the challenge too)
+// *    Also send to all connected players (only from me)
     clickChallenge: function(challenge) {
       const index = this.challenges.findIndex(c => c.id == challenge.id);
       const toIdx = challenge.to.findIndex(p => p.id == user.id);
@@ -214,18 +244,19 @@ export default {
       // si pas le mien et FEN speciale :: (charger code variante et)
       // montrer diagramme + couleur (orienté)
     },
-    // user: last person to accept the challenge
-    newGame: function(chall, user) {
-      const fen = chall.fen || V.GenRandInitFen();
-      const game = {}; //TODO: fen, players, time ...
-      //setStorage(game); //TODO
-      game.players.forEach(p => { //...even if game is by corr (could be played live, why not...)
-        this.conn.send(
-          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
-      });
-      if (this.settings.sound >= 1)
-        new Audio("/sounds/newgame.mp3").play().catch(err => {});
-    },
+    // user: last person to accept the challenge (TODO: revoir ça)
+//    newGame: function(chall, user) {
+//      const fen = chall.fen || V.GenRandInitFen();
+//      const game = {}; //TODO: fen, players, time ...
+//      //setStorage(game); //TODO
+//      game.players.forEach(p => { //...even if game is by corr (could be played live, why not...)
+//        this.conn.send(
+//          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
+//      });
+//      if (this.settings.sound >= 1)
+//        new Audio("/sounds/newgame.mp3").play().catch(err => {});
+//    },
+    // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
       const idxInVariants =
         this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
@@ -251,6 +282,7 @@ export default {
           p.sid = this.players[pIdx].sid;
         }
       }
+      // TODO: clarify challenge format (too many fields for now :/ )
       const finishAddChallenge = (cid) => {
         const chall = Object.assign(
           {},
@@ -263,12 +295,9 @@ export default {
           }
         );
         this.challenges.push(chall);
-        document.getElementById("modalNewgame").checked = false;
-      };
-      if (liveGame)
-      {
+        // Send challenge to peers
         const chall = JSON.stringify({
-          code: "sendchallenge",
+          code: "newchallenge",
           sender: {name:this.st.user.name, id:this.st.user.id, sid:this.st.user.sid},
         });
         if (this.newchallenge.to[0].id > 0)
@@ -284,12 +313,16 @@ export default {
           // Open challenge: send to all connected players
           this.players.forEach(p => { this.st.conn.send(chall); });
         }
+        document.getElementById("modalNewgame").checked = false;
+      };
+      if (liveGame)
+      {
         // Live challenges have cid = 0
         finishAddChallenge(0);
       }
-      else //correspondance game:
+      else
       {
-        // Possible (server) error if filled player does not exist
+        // Correspondance game: send challenge to server
         ajax(
           "/challenges/" + this.newchallenge.vid,
           "POST",

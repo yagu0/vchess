@@ -1,3 +1,11 @@
+--> correspondance: stocker sur serveur lastMove + uid + color + movesCount + gameId + variant + timeleft
+fin de partie corr: supprimer partie du serveur au bout de 7 jours (arbitraire)
+// TODO: au moins l'échange des coups en P2P ? et game chat ?
+
+// TODO: surligner "hall" (menu) si nouveau défi perso (reçu) et pas affichage courant
+// de même surligner "my games" si c'est à nous de jouer dans une partie (corr)
+// ==> myGames componentn + Game component must listen for "new move" events
+
 Hall + problems : similar pages, with "New game[problem]" button
 with a list of variants.
 --> but display all challenges (and all problems)
