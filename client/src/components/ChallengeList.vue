@@ -6,7 +6,7 @@ table
     th To
     th Cadence
   tr(v-for="c in challenges" @click="$emit('click-challenge',c)")
-    td {{ c.vname }}
+    td {{ c.variant.name }}
     td {{ c.from.name }}
     td(v-if="c.to[0].id > 0")
       span(v-for="p in c.to") {{ p.name }}

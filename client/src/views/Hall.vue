@@ -107,25 +107,31 @@ export default {
     "st.conn": function() {
       this.st.conn.onmessage = this.socketMessageListener;
       this.st.conn.onclose = this.socketCloseListener;
+      // Ask server for for room composition:
+      this.st.conn.send(JSON.stringify({code:"askplayers"}));
     },
   },
   created: function() {
     // TODO: ask server for current corr games (all but mines: names, ID, time control)
     // also ask for corr challenges
-    // TODO: add myself to players
-    // --> when sending something, send to all players but NOT me !
     if (!!this.st.conn)
     {
       this.st.conn.onmessage = this.socketMessageListener;
       this.st.conn.onclose = this.socketCloseListener;
+      // Ask server for for room composition:
+      this.st.conn.send(JSON.stringify({code:"askplayers"}));
     }
-    this.players.push(this.st.user);
   },
   methods: {
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+        case "room":
+          // TODO: receive room composition (sids at least, id + names if registered)
+          // Add myself to players
+          this.players.push(this.st.user);
+        // TODO: also receive "askchallenges", "askgames"
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
@@ -252,6 +258,11 @@ export default {
 //    },
     // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
+      if (this.challenges.some(c => c.from.sid == this.st.user.sid))
+      {
+        document.getElementById("modalNewgame").checked = false;
+        return alert("You already have a pending challenge");
+      }
       const idxInVariants =
         this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
       const vname = this.st.variants[idxInVariants].name;
@@ -265,58 +276,75 @@ export default {
       const liveGame =
         this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
       // Check that the players (if any indicated) are online
-      for (let p of this.newchallenge.to)
+      let chall =
+      {
+        id: 0, //unknown yet (no ID for live challenges)
+        from: this.st.user,
+        added: Date.now(),
+        fen: this.newchallenge.fen,
+        variant: {id: this.newchallenge.vid, name: vname},
+        nbPlayers: this.newchallenge.nbPlayers,
+        to: [
+          {id: 0, name: this.newchallenge.to[0], sid: ""},
+          {id: 0, name: this.newchallenge.to[1], sid: ""},
+          {id: 0, name: this.newchallenge.to[2], sid: ""},
+        ],
+        timeControl: this.newchallenge.timeControl,
+        mainTime: this.newchallenge.mainTime,
+        increment: this.newchallenge.increment,
+      };
+      for (let p of chall.to)
       {
         if (p.name != "")
         {
           const pIdx = this.players.findIndex(pl => pl.name == p.name);
-          // TODO: for correspondance play we don't require players to be online
-          // (==> we don't have IDs, and no sid)
           // NOTE: id (server DB) and sid (socket ID).
           // Anonymous players just have a socket ID.
-          if (pIdx === -1)
+          // NOTE: for correspondance play we don't require players to be online
+          // (==> we don't have IDs, and no sid)
+          if (liveGame && pIdx === -1)
             return alert(p.name + " is not connected");
           p.id = this.players[pIdx].id;
           p.sid = this.players[pIdx].sid;
         }
       }
-      // TODO: clarify challenge format (too many fields for now :/ )
-      const finishAddChallenge = (cid) => {
-        const chall = Object.assign(
-          {},
-          this.newchallenge,
-          {
-            id: cid,
-            from: this.st.user,
-            added: Date.now(),
-            vname: vname,
-          }
-        );
+      const finishAddChallenge = () => {
         this.challenges.push(chall);
         // Send challenge to peers
-        const chall = JSON.stringify({
+        const challSock =
+        {
           code: "newchallenge",
-          sender: {name:this.st.user.name, id:this.st.user.id, sid:this.st.user.sid},
-        });
-        if (this.newchallenge.to[0].id > 0)
+          chall: chall,
+        };
+        if (chall.to[0].id > 0)
         {
           // Challenge with targeted players
-          this.newchallenge.to.forEach(p => {
+          chall.to.forEach(p => {
             if (p.id > 0)
-              this.st.conn.send(Object.assign({}, chall, {receiver: p.sid}));
+            {
+              this.st.conn.send(JSON.stringify(Object.assign(
+                {},
+                challSock,
+                {receiver: p.sid}
+              )));
+            }
           });
         }
         else
         {
-          // Open challenge: send to all connected players
-          this.players.forEach(p => { this.st.conn.send(chall); });
+          // Open challenge: send to all connected players (except us)
+          const strChallSock = JSON.stringify(challSock);
+          this.players.forEach(p => {
+            if (p.sid != this.st.user.sid) //only sid is always set
+              this.st.conn.send(strChallSock);
+          });
         }
         document.getElementById("modalNewgame").checked = false;
       };
       if (liveGame)
       {
         // Live challenges have cid = 0
-        finishAddChallenge(0);
+        finishAddChallenge();
       }
       else
       {
@@ -324,8 +352,11 @@ export default {
         ajax(
           "/challenges/" + this.newchallenge.vid,
           "POST",
-          this.newchallenge,
-          response => { finishAddChallenge(cid); }
+          chall,
+          response => {
+            chall.id = response.cid;
+            finishAddChallenge();
+          }
         );
       }
     },
