@@ -37,44 +37,56 @@ module.exports = function(wss) {
 		if (!!clients[sid])
 			return socket.send(JSON.stringify({code:"duplicate"}));
 		clients[sid] = socket;
-		socket.on("message", objtxt => {
+		// Notify room:
+    Object.keys(clients).forEach(k => {
+      if (k != sid)
+        clients[k].send(JSON.stringify({code:"connect",sid:sid}));
+    });
+    socket.on("message", objtxt => {
 			let obj = JSON.parse(objtxt);
-      if (!!obj.oppid && !clients[oppid])
+      if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
+      //console.log(obj.code);
 			switch (obj.code)
 			{
-        case "askplayers":
-          socket.send(JSON.stringify({code:"room", players:clients}));
+        case "askclients":
+          socket.send(JSON.stringify({code:"clients", sockIds:Object.keys(clients).filter(k => k != sid)}));
+          break;
+        case "askidentity":
+          clients[obj.target].send(JSON.stringify({code:"identify",from:sid}));
+          break;
+        case "identity":
+          clients[obj.target].send(JSON.stringify({code:"identity",user:obj.user}));
           break;
         case "askchallenges":
           // TODO: ask directly to people (webRTC)
+          // TODO... + clarify socket system
           break;
+        case "newchallenge":
+          clients[obj.target].send(JSON.stringify({code:"newchallenge",chall:obj.chall}));
         case "askgames":
           // TODO: ask directly to people (webRTC)
           break;
 				case "newchat":
-          clients[obj.oppid].send(JSON.stringify({code:"newchat",msg:obj.msg}));
+          clients[obj.target].send(JSON.stringify({code:"newchat",msg:obj.msg}));
 					break;
 				// Transmit chats and moves to current room
 				// TODO: WebRTC instead in this case (most demanding?)
 				case "newmove":
-          clients[obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
+          clients[obj.target].send(JSON.stringify({code:"newmove",move:obj.move}));
 					break;
 				// TODO: generalize that for several opponents
 				case "ping":
 					socket.send(JSON.stringify({code:"pong",gameId:obj.gameId}));
 					break;
 				case "lastate":
-          const oppId = obj.oppid;
-          obj.oppid = sid; //I'm oppid for my opponent
+          const oppId = obj.target;
+          obj.oppid = sid; //I'm the opponent of my opponent(s)
           clients[oppId].send(JSON.stringify(obj));
 					break;
 				// TODO: moreover, here, game info should be sent (through challenge; not stored here)
 				case "newgame":
-          clients[oppId].send(
-            JSON.stringify(
-              {code:"newgame",fen:fen,oppid:sid,color:"w",gameid:"TODO"}),
-            noop);
+          clients[obj.target].send(JSON.stringify({code:"newgame", game:obj.game}));
 					break;
 				case "cancelnewgame": //if a user cancel his seek
 					// TODO: just transmit event
@@ -82,7 +94,7 @@ module.exports = function(wss) {
 					break;
 				// TODO: also other challenge events
 				case "resign":
-          clients[obj.oppid].send(JSON.stringify({code:"resign"}));
+          clients[obj.target].send(JSON.stringify({code:"resign"}));
 					break;
 				// TODO: case "challenge" (get ID) --> send to all, "acceptchallenge" (with ID) --> send to all, "cancelchallenge" --> send to all
 				// also, "sendgame" (give current game info, if any) --> to new connections, "sendchallenges" (same for challenges) --> to new connections

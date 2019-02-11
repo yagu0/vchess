@@ -112,7 +112,7 @@ export default {
     // also ask for corr challenges
     // Ask server for for room composition:
     const socketOpenListener = () => {
-      this.st.conn.send(JSON.stringify({code:"askplayers"}));
+      this.st.conn.send(JSON.stringify({code:"askclients"}));
     };
     this.st.conn.onopen = socketOpenListener;
     this.st.conn.onmessage = this.socketMessageListener;
@@ -128,9 +128,25 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
-        case "room":
-          // TODO: receive room composition (sids at least, id + names if registered)
-        // TODO: also receive "askchallenges", "askgames"
+        case "clients":
+          data.sockIds.forEach(sid => {
+            this.players.push({sid:sid, id:0, name:""});
+            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+          });
+          break;
+          // TODO: also receive "askchallenges", "askgames"
+        case "identify":
+          // Request for identification
+          this.st.conn.send(JSON.stringify({code:"identity", user:this.st.user, target:data.from}));
+          break;
+        case "identity":
+          if (data.user.id > 0)
+          {
+            const pIdx = this.players.findIndex(p => p.sid == data.user.sid);
+            this.players[pIdx].id = data.user.id;
+            this.players[pIdx].name = data.user.name;
+          }
+          break;
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
@@ -153,6 +169,7 @@ export default {
 // *  - receive new challenge: if targeted, replace our name with sender name
         case "newchallenge":
           // receive live or corr challenge
+          this.challenges.push(data.chall);
           break;
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
         case "acceptchallenge":
@@ -174,13 +191,14 @@ export default {
 // *  - receive "player connect": send all our current challenges (to him or global)
 // *    Also send all our games (live - max 1 - and corr) [in web worker ?]
 // *    + all our sent challenges.
-          this.players.push({name:data.name, id:data.uid});
+          this.players.push({name:"", id:0, sid:data.sid});
+          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
           // TODO: si on est en train de jouer une partie, le notifier au nouveau connecté
           // envoyer aussi nos défis
           break;
 // *  - receive "player disconnect": remove from players list
         case "disconnect":
-          ArrayFun.remove(this.players, p => p.id == data.uid);
+          ArrayFun.remove(this.players, p => p.sid == data.sid);
           // TODO: also remove all challenges sent by this player,
           // and all live games where he plays and no other opponent is online
           break;
@@ -305,32 +323,30 @@ export default {
       const finishAddChallenge = () => {
         this.challenges.push(chall);
         // Send challenge to peers
-        const challSock =
+        let challSock =
         {
           code: "newchallenge",
           chall: chall,
+          target: "",
+        };
+        const sendChallengeTo = (sid) => {
+          challSock.target = sid;
+          this.st.conn.send(JSON.stringify(challSock));
         };
         if (chall.to[0].id > 0)
         {
           // Challenge with targeted players
           chall.to.forEach(p => {
             if (p.id > 0)
-            {
-              this.st.conn.send(JSON.stringify(Object.assign(
-                {},
-                challSock,
-                {receiver: p.sid}
-              )));
-            }
+              sendChallengeTo(p.sid);
           });
         }
         else
         {
           // Open challenge: send to all connected players (except us)
-          const strChallSock = JSON.stringify(challSock);
           this.players.forEach(p => {
             if (p.sid != this.st.user.sid) //only sid is always set
-              this.st.conn.send(strChallSock);
+              sendChallengeTo(p.sid);
           });
         }
         document.getElementById("modalNewgame").checked = false;
