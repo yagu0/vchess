@@ -29,9 +29,7 @@ function remInArray(arr, item)
 //TODO: programmatic re-navigation on current game if we receive a move and are not there
 
 module.exports = function(wss) {
-	let clients = {}; //associative array client sid --> socket
-	// No-op function as a callback when sending messages
-	const noop = () => { };
+	let clients = {}; //associative array sid --> socket
 	wss.on("connection", (socket, req) => {
 		const query = getJsonFromUrl(req.url);
 		const sid = query["sid"];
@@ -45,13 +43,22 @@ module.exports = function(wss) {
         return; //receiver not connected, nothing we can do
 			switch (obj.code)
 			{
+        case "askplayers":
+          socket.send(JSON.stringify({code:"room", players:clients}));
+          break;
+        case "askchallenges":
+          // TODO: ask directly to people (webRTC)
+          break;
+        case "askgames":
+          // TODO: ask directly to people (webRTC)
+          break;
+				case "newchat":
+          clients[obj.oppid].send(JSON.stringify({code:"newchat",msg:obj.msg}));
+					break;
 				// Transmit chats and moves to current room
 				// TODO: WebRTC instead in this case (most demanding?)
-				case "newchat":
-          clients[obj.oppid].send(JSON.stringify({code:"newchat",msg:obj.msg}), noop);
-					break;
 				case "newmove":
-          clients[obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}), noop);
+          clients[obj.oppid].send(JSON.stringify({code:"newmove",move:obj.move}));
 					break;
 				// TODO: generalize that for several opponents
 				case "ping":
@@ -60,7 +67,7 @@ module.exports = function(wss) {
 				case "lastate":
           const oppId = obj.oppid;
           obj.oppid = sid; //I'm oppid for my opponent
-          clients[oppId].send(JSON.stringify(obj), noop);
+          clients[oppId].send(JSON.stringify(obj));
 					break;
 				// TODO: moreover, here, game info should be sent (through challenge; not stored here)
 				case "newgame":
@@ -75,7 +82,7 @@ module.exports = function(wss) {
 					break;
 				// TODO: also other challenge events
 				case "resign":
-          clients[obj.oppid].send(JSON.stringify({code:"resign"}), noop);
+          clients[obj.oppid].send(JSON.stringify({code:"resign"}));
 					break;
 				// TODO: case "challenge" (get ID) --> send to all, "acceptchallenge" (with ID) --> send to all, "cancelchallenge" --> send to all
 				// also, "sendgame" (give current game info, if any) --> to new connections, "sendchallenges" (same for challenges) --> to new connections
@@ -90,7 +97,7 @@ module.exports = function(wss) {
 			delete clients[sid];
       // Notify every other connected client
       Object.keys(clients).forEach( k => {
-        clients[k].send(JSON.stringify({code:"disconnect",sid:sid}), noop);
+        clients[k].send(JSON.stringify({code:"disconnect",sid:sid}));
       });
 		});
 	});

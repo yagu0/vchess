@@ -2,6 +2,8 @@
 // This can work for squared boards (2 or 4 players), with some adaptations (TODO)
 // TODO: for 3 players, write a "board3.js"
 
+// TODO: current clicked square + moving square as parameters, + highlight
+
 import { getSquareId, getSquareFromId } from "@/utils/squareId";
 import { ArrayFun } from "@/utils/array";
 

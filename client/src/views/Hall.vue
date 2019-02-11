@@ -92,35 +92,36 @@ export default {
   computed: {
     uniquePlayers: function() {
       // Show e.g. "5 @nonymous", and do nothing on click on anonymous
-      let playerList = [{id:0, name:"@nonymous", count:0}];
+      let anonymous = {id:0, name:"@nonymous", count:0};
+      let playerList = [];
       this.players.forEach(p => {
         if (p.id > 0)
           playerList.push(p);
         else
-          playerList[0].count++;
+          anonymous.count++;
       });
+      if (anonymous.count > 0)
+        playerList.push(anonymous);
       return playerList;
     },
   },
-  // TODO: this looks ugly... (use VueX ?!)
-  watch: {
-    "st.conn": function() {
-      this.st.conn.onmessage = this.socketMessageListener;
-      this.st.conn.onclose = this.socketCloseListener;
-      // Ask server for for room composition:
-      this.st.conn.send(JSON.stringify({code:"askplayers"}));
-    },
-  },
   created: function() {
+    // Always add myself to players' list
+    this.players.push(this.st.user);
     // TODO: ask server for current corr games (all but mines: names, ID, time control)
     // also ask for corr challenges
-    if (!!this.st.conn)
-    {
-      this.st.conn.onmessage = this.socketMessageListener;
-      this.st.conn.onclose = this.socketCloseListener;
-      // Ask server for for room composition:
+    // Ask server for for room composition:
+    const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"askplayers"}));
-    }
+    };
+    this.st.conn.onopen = socketOpenListener;
+    this.st.conn.onmessage = this.socketMessageListener;
+    const socketCloseListener = () => {
+      // connexion is reinitialized in store.js
+      this.st.conn.addEventListener('message', this.socketMessageListener);
+      this.st.conn.addEventListener('close', socketCloseListener);
+    };
+    this.st.conn.onclose = socketCloseListener;
   },
   methods: {
     socketMessageListener: function(msg) {
@@ -129,8 +130,6 @@ export default {
       {
         case "room":
           // TODO: receive room composition (sids at least, id + names if registered)
-          // Add myself to players
-          this.players.push(this.st.user);
         // TODO: also receive "askchallenges", "askgames"
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
@@ -186,11 +185,6 @@ export default {
           // and all live games where he plays and no other opponent is online
           break;
       }
-    },
-    socketCloseListener: function() {
-      // connexion is reinitialized in store.js
-      this.st.conn.addEventListener('message', this.socketMessageListener);
-      this.st.conn.addEventListener('close', this.socketCloseListener);
     },
     showGame: function(game) {
       // NOTE: if we are an observer, the game will be found in main games list
