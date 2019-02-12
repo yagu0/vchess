@@ -63,6 +63,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
+import { genRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -284,6 +285,14 @@ export default {
 //      if (this.settings.sound >= 1)
 //        new Audio("/sounds/newgame.mp3").play().catch(err => {});
 //    },
+    // Load a variant file (TODO: should probably be global)
+    loadVariant: async function(vid, variantArray) {
+      const idxInVariants = variantArray.findIndex(v => v.id == vid);
+      const vname = variantArray[idxInVariants].name;
+      const vModule = await import("@/variants/" + vname + ".js");
+      window.V = vModule.VariantRules;
+      return vname;
+    },
     // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
       if (this.challenges.some(c => c.from.sid == this.st.user.sid))
@@ -291,16 +300,16 @@ export default {
         document.getElementById("modalNewgame").checked = false;
         return alert("You already have a pending challenge");
       }
-      const idxInVariants =
-        this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
-      const vname = this.st.variants[idxInVariants].name;
-      const vModule = await import("@/variants/" + vname + ".js");
-      window.V = vModule.VariantRules;
+      // TODO: put this "load variant" block elsewhere
+      const vname = this.loadVariant(this.newchallenge.vid, this.st.variants);
       // checkChallenge side-effect = set FEN, and mainTime + increment in seconds
       // TODO: should not be a side-effect but set here ; for received server challenges we do not have mainTime+increment
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
+// TODO: set FEN, set mainTime and increment ?!
+else //generate a FEN
+    c.fen = V.GenRandInitFen();
       // Less than 3 days ==> live game (TODO: heuristic... 40 moves also)
       const liveGame =
         this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
@@ -337,7 +346,8 @@ export default {
           p.sid = this.players[pIdx].sid;
         }
       }
-      const finishAddChallenge = () => {
+      const finishAddChallenge = (cid) => {
+        chall.id = cid || "c" + genRandString();
         this.challenges.push(chall);
         // Send challenge to peers
         let challSock =
@@ -368,11 +378,6 @@ export default {
         }
         document.getElementById("modalNewgame").checked = false;
       };
-      
-      
-      // TODO: challenges all have IDs: "c" + genRandString()
-      
-      
       if (liveGame)
       {
         // Live challenges have cid = 0
