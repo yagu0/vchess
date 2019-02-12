@@ -6,15 +6,7 @@ const ChallengeModel = require("../models/Challenge");
 
 router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) => {
 	const vid = req.params["vid"];
-	const chall = {
-		uid: req.userId,
-		vid: vid,
-		fen: req.body["fen"],
-		mainTime: req.body["mainTime"],
-		increment: req.body["increment"],
-		nbPlayers: req.body["nbPlayers"],
-		players: req.body["players"],
-	};
+	// TODO: check data req.body.chall (
 	const error = ChallengeModel.checkChallenge(chall);
 	ChallengeModel.create(chall, (err,lastId) => {
 		res.json(err || {cid: lastId["rowid"]});
@@ -22,7 +14,7 @@ router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) =>
 });
 
 //// index
-//router.get("/challengesbyplayer", access.logged, access.ajax, (req,res) => {
+//router.get("/challenges", access.logged, access.ajax, (req,res) => {
 //	if (req.query["uid"] != req.user._id)
 //		return res.json({errmsg: "Not your challenges"});
 //	let uid = ObjectID(req.query["uid"]);

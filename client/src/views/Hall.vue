@@ -108,9 +108,23 @@ export default {
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
-    // TODO: ask server for current corr games (all but mines: names, ID, time control)
-    // also ask for corr challenges
-    // Ask server for for room composition:
+    // Ask server for current corr games (all but mines)
+    ajax(
+      "",
+      "GET",
+      response => {
+
+      }
+    );
+    // Also ask for corr challenges (all)
+    ajax(
+      "",
+      "GET",
+      response => {
+
+      }
+    );
+    // 0.1] Ask server for for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"askclients"}));
     };
@@ -128,6 +142,7 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+        // 0.2] Receive clients list (just socket IDs)
         case "clients":
           data.sockIds.forEach(sid => {
             this.players.push({sid:sid, id:0, name:""});
@@ -137,10 +152,11 @@ export default {
           // TODO: also receive "askchallenges", "askgames"
         case "identify":
           // Request for identification
-          this.st.conn.send(JSON.stringify({code:"identity", user:this.st.user, target:data.from}));
+          this.st.conn.send(JSON.stringify(
+            {code:"identity", user:this.st.user, target:data.from}));
           break;
         case "identity":
-          if (data.user.id > 0)
+          if (data.user.id > 0) //otherwise "anonymous", nothing to retrieve
           {
             const pIdx = this.players.findIndex(p => p.sid == data.user.sid);
             this.players[pIdx].id = data.user.id;
@@ -281,6 +297,7 @@ export default {
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
       // checkChallenge side-effect = set FEN, and mainTime + increment in seconds
+      // TODO: should not be a side-effect but set here ; for received server challenges we do not have mainTime+increment
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
@@ -351,6 +368,11 @@ export default {
         }
         document.getElementById("modalNewgame").checked = false;
       };
+      
+      
+      // TODO: challenges all have IDs: "c" + genRandString()
+      
+      
       if (liveGame)
       {
         // Live challenges have cid = 0
@@ -358,11 +380,19 @@ export default {
       }
       else
       {
+        const chall = {
+          uid: req.body["from"],
+          vid: req.body["vid"],
+          fen: req.body["fen"],
+          timeControl: req.body["timeControl"],
+          nbPlayers: req.body["nbPlayers"],
+          to: req.body["to"], //array of IDs
+        };
         // Correspondance game: send challenge to server
         ajax(
           "/challenges/" + this.newchallenge.vid,
           "POST",
-          chall,
+          ,
           response => {
             chall.id = response.cid;
             finishAddChallenge();
