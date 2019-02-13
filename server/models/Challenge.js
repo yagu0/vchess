@@ -8,8 +8,7 @@ var db = require("../utils/database");
  *   vid: variant id (int)
  *   nbPlayers: integer
  *   fen: varchar (optional)
- *   mainTime: integer
- *   addTime: integer
+ *   timeControl: string (3m+2s, 7d+1d ...)
  *
  * Structure table WillPlay:
  *   cid: ref challenge id
@@ -20,53 +19,39 @@ const ChallengeModel =
 {
 	checkChallenge: function(c)
 	{
-		const vid = parseInt(c.vid);
-		if (isNaN(vid) || vid <= 0)
-			return "Please select a variant";
+    if (!c.vid.match(/^[0-9]+$/))
+			return "Wrong variant ID";
 
-		const mainTime = parseInt(c.mainTime);
-		const increment = parseInt(c.increment);
-		if (isNaN(mainTime) || mainTime <= 0)
-			return "Main time should be strictly positive";
-		if (isNaN(increment) || increment < 0)
-			return "Increment must be positive";
+    if (!c.timeControl.match(/^[0-9dhms +]+$/))
+      return "Wrong characters in time control";
 
-		// Basic alphanumeric check for players names
-		let playerCount = 0;
-		for (p of c.players)
-		{
-			if (p.name.length > 0)
-			{
-				if (!p.name.match(/^[\w]+$/))
-					return "Wrong characters in players names";
-				playerCount++;
-			}
-		}
+    if (!c.nbPlayers.match(/^[0-9]+$/))
+			return "Wrong number of players";
 
-		if (playerCount > 0 && playerCount != c.nbPlayers-1)
-			return "None, or all of the opponent names must be filled"
-
-		// Just characters check on server:
-		if (!c.fen.match(/^[a-zA-Z0-9, /-]*$/))
+		if (!c.fen.match(/^[a-zA-Z0-9, /-]+$/))
 			return "Bad FEN string";
 	},
 
-	// fen cannot be undefined; TODO: generate fen on server instead
+	// fen cannot be undefined
 	create: function(c, cb)
 	{
 		db.serialize(function() {
 			let query =
 				"INSERT INTO Challenges " +
-				"(added, uid, vid, nbPlayers, fen, mainTime, addTime) VALUES " +
+				"(added, uid, vid, nbPlayers, fen, timeControl) VALUES " +
 				"(" + Date.now() + "," + c.uid + "," + c.vid + "," + c.nbPlayers +
-					",'" + c.fen + "'," + c.mainTime + "," + c.increment + ")";
+					",'" + c.fen + "'," + c.timeControl + ")";
 			db.run(query, err => {
 				if (!!err)
 					return cb(err);
 				db.get("SELECT last_insert_rowid() AS rowid", (err2,lastId) => {
-					query =
+					
+          // TODO: also insert "will play" "no" for other players ?
+          // willplay = "maybe" by default ?
+          
+          query =
 						"INSERT INTO WillPlay VALUES " +
-						"(" + lastId["rowid"] + "," + c.uid + ")";
+						"(true," + lastId["rowid"] + "," + c.uid + ")";
 						db.run(query, (err,ret) => {
 							cb(err, lastId); //all we need is the challenge ID
 						});
@@ -104,8 +89,7 @@ const ChallengeModel =
 						nbPlayers: challengeInfo.nbPlayers,
 						players: players, //currently in
 						fen: challengeInfo.fen,
-						mainTime: challengeInfo.mainTime,
-						increment: challengeInfo.addTime,
+						timeControl: challengeInfo.timeControl,
 					};
 					return cb(null, challenge);
 				});

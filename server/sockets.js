@@ -33,7 +33,7 @@ module.exports = function(wss) {
 	wss.on("connection", (socket, req) => {
 		const query = getJsonFromUrl(req.url);
 		const sid = query["sid"];
-		// Ignore duplicate connections (on the same live game that we play):
+    // Ignore duplicate connections (on the same live game that we play):
 		if (!!clients[sid])
 			return socket.send(JSON.stringify({code:"duplicate"}));
 		clients[sid] = socket;

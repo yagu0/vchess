@@ -38,15 +38,15 @@ create table Challenges (
 	vid integer,
 	nbPlayers integer,
 	fen varchar,
-	mainTime integer,
-	addTime integer,
+	timeControl varchar,
 	foreign key (uid) references Users(id),
 	foreign key (vid) references Variants(id)
 );
 
--- Store informations about players who accept a challenge
+-- Store informations about players who (potentially) accept a challenge
 create table WillPlay (
-	cid integer,
+	yes boolean,
+  cid integer,
 	uid integer,
 	foreign key (cid) references Challenges(id),
 	foreign key (uid) references Users(id)

@@ -3,12 +3,13 @@
 let router = require("express").Router();
 const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
+const UserModel = require("../models/User"); //for name check
 
-router.post("/challenges/:vid([0-9]+)", access.logged, access.ajax, (req,res) => {
-	const vid = req.params["vid"];
-	// TODO: check data req.body.chall (
-	const error = ChallengeModel.checkChallenge(chall);
-	ChallengeModel.create(chall, (err,lastId) => {
+router.post("/challenges", access.logged, access.ajax, (req,res) => {
+	const error = ChallengeModel.checkChallenge(req.body.chall);
+  // TODO: treat "to" field separately (search users by name)
+  // --> replace "to" by an array of uid (in chall), then call:
+	ChallengeModel.create(req.body.chall, (err,lastId) => {
 		res.json(err || {cid: lastId["rowid"]});
 	});
 });

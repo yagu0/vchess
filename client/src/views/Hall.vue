@@ -63,7 +63,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
-import { genRandString } from "@/utils/alea";
+import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -110,29 +110,31 @@ export default {
     // Always add myself to players' list
     this.players.push(this.st.user);
     // Ask server for current corr games (all but mines)
-    ajax(
-      "",
-      "GET",
-      response => {
-
-      }
-    );
-    // Also ask for corr challenges (all)
-    ajax(
-      "",
-      "GET",
-      response => {
-
-      }
-    );
+//    ajax(
+//      "",
+//      "GET",
+//      response => {
+//
+//      }
+//    );
+//    // Also ask for corr challenges (all)
+//    ajax(
+//      "",
+//      "GET",
+//      response => {
+//
+//      }
+//    );
     // 0.1] Ask server for for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"askclients"}));
     };
     this.st.conn.onopen = socketOpenListener;
+    this.oldOnmessage = this.st.conn.onmessage || Function.prototype; //TODO: required here?
     this.st.conn.onmessage = this.socketMessageListener;
+    const oldOnclose = this.st.conn.onclose;
     const socketCloseListener = () => {
-      // connexion is reinitialized in store.js
+      oldOnclose(); //reinitialize connexion (in store.js)
       this.st.conn.addEventListener('message', this.socketMessageListener);
       this.st.conn.addEventListener('close', socketCloseListener);
     };
@@ -140,6 +142,10 @@ export default {
   },
   methods: {
     socketMessageListener: function(msg) {
+      // Save and call current st.conn.onmessage if one was already defined
+      // --> also needed in future Game.vue (also in Chat.vue component)
+      // TODO: merge Game.vue and MoveList.vue (one logic entity, no ?)
+      this.oldOnmessage(msg);
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
@@ -308,8 +314,8 @@ export default {
       if (!!error)
         return alert(error);
 // TODO: set FEN, set mainTime and increment ?!
-else //generate a FEN
-    c.fen = V.GenRandInitFen();
+//else //generate a FEN
+//    c.fen = V.GenRandInitFen();
       // Less than 3 days ==> live game (TODO: heuristic... 40 moves also)
       const liveGame =
         this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
@@ -347,7 +353,7 @@ else //generate a FEN
         }
       }
       const finishAddChallenge = (cid) => {
-        chall.id = cid || "c" + genRandString();
+        chall.id = cid || "c" + getRandString();
         this.challenges.push(chall);
         // Send challenge to peers
         let challSock =
@@ -397,7 +403,7 @@ else //generate a FEN
         ajax(
           "/challenges/" + this.newchallenge.vid,
           "POST",
-          ,
+          chall,
           response => {
             chall.id = response.cid;
             finishAddChallenge();
