@@ -1,5 +1,3 @@
-<!-- Main playing hall: online players + current challenges + button "new game" -->
-
 <template lang="pug">
 main
   input#modalNewgame.modal(type="checkbox")
@@ -13,7 +11,7 @@ main
       fieldset
         label(for="selectNbPlayers") {{ st.tr["Number of players"] }}
         select#selectNbPlayers(v-model="newchallenge.nbPlayers")
-          option(v-show="possibleNbplayers(2)" value="2") 2
+          option(v-show="possibleNbplayers(2)" value="2" selected) 2
           option(v-show="possibleNbplayers(3)" value="3") 3
           option(v-show="possibleNbplayers(4)" value="4") 4
       fieldset
@@ -23,11 +21,11 @@ main
       fieldset(v-if="st.user.id > 0")
         label(for="selectPlayers") {{ st.tr["Play with? (optional)"] }}
         #selectPlayers
-          input(type="text" v-model="newchallenge.to[0].name")
+          input(type="text" v-model="newchallenge.to[0]")
           input(v-show="newchallenge.nbPlayers>=3" type="text"
-            v-model="newchallenge.to[1].name")
+            v-model="newchallenge.to[1]")
           input(v-show="newchallenge.nbPlayers==4" type="text"
-            v-model="newchallenge.to[2].name")
+            v-model="newchallenge.to[2]")
       fieldset(v-if="st.user.id > 0")
         label(for="inputFen") {{ st.tr["FEN (optional)"] }}
         input#inputFen(type="text" v-model="newchallenge.fen")
@@ -41,7 +39,9 @@ main
         :challenges="challenges" @click-challenge="clickChallenge")
       #players(v-show="cpdisplay=='players'")
         h3 Online players
-        div(v-for="p in uniquePlayers" @click="tryChallenge(p)")
+        .player(v-for="p in uniquePlayers" @click="tryChallenge(p)"
+          :class="{anonymous: !!p.count}"
+        )
           | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -127,10 +127,11 @@ export default {
 //    );
     // 0.1] Ask server for for room composition:
     const socketOpenListener = () => {
-      this.st.conn.send(JSON.stringify({code:"askclients"}));
+      this.st.conn.send(JSON.stringify({code:"pollclients"}));
     };
     this.st.conn.onopen = socketOpenListener;
-    this.oldOnmessage = this.st.conn.onmessage || Function.prototype; //TODO: required here?
+    // TODO: is this required here?
+    this.oldOnmessage = this.st.conn.onmessage || Function.prototype;
     this.st.conn.onmessage = this.socketMessageListener;
     const oldOnclose = this.st.conn.onclose;
     const socketCloseListener = () => {
@@ -150,17 +151,39 @@ export default {
       switch (data.code)
       {
         // 0.2] Receive clients list (just socket IDs)
-        case "clients":
+        case "pollclients":
           data.sockIds.forEach(sid => {
             this.players.push({sid:sid, id:0, name:""});
+            // Ask identity, challenges and game(s)
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+            this.st.conn.send(JSON.stringify({code:"askchallenges", target:sid}));
+            this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
           });
           break;
-          // TODO: also receive "askchallenges", "askgames"
-        case "identify":
+        case "askidentity":
           // Request for identification
           this.st.conn.send(JSON.stringify(
             {code:"identity", user:this.st.user, target:data.from}));
+          break;
+        case "askchallenges":
+          // Send my current challenges
+          const myChallenges = this.challenges
+            .filter(c => c.from.sid == this.st.user.sid)
+            .map(c => {
+              // Minimal challenge informations: (from not required)
+              to: c.to,
+              fen: c.fen,
+              vid: c.vid,
+              timeControl: c.timeControl
+            });
+          if (myChallenges.length > 0)
+          {
+            this.st.conn.send(JSON.stringify({code:"challenges",
+              challenges:myChallenges, target:data.from})
+          }
+          break;
+        case "askgame":
+          // TODO: Send my current live game (if any)
           break;
         case "identity":
           if (data.user.id > 0) //otherwise "anonymous", nothing to retrieve
@@ -169,6 +192,12 @@ export default {
             this.players[pIdx].id = data.user.id;
             this.players[pIdx].name = data.user.name;
           }
+          break;
+        case "challenges":
+          // Receive challenges from some player
+          break;
+        case "games":
+          // Receive live game from some player
           break;
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
@@ -236,11 +265,7 @@ export default {
     tryChallenge: function(player) {
       if (player.id == 0)
         return; //anonymous players cannot be challenged
-      this.newchallenge.players[0] = {
-        name: player.name,
-        id: player.id,
-        sid: player.sid,
-      };
+      this.newchallenge.to[0] = player.name;
       doClick("modalNewgame");
     },
 // *  - accept challenge (corr or live) --> send info to all concerned players
@@ -253,14 +278,14 @@ export default {
 // *    --> include challenge ID (so that opponents can delete the challenge too)
 // *    Also send to all connected players (only from me)
     clickChallenge: function(challenge) {
+      // TODO: also correspondance case (send to server)
       const index = this.challenges.findIndex(c => c.id == challenge.id);
-      const toIdx = challenge.to.findIndex(p => p.id == user.id);
-      const me = {name:user.name,id:user.id};
+      const toIdx = challenge.to.findIndex(name => name == this.st.user.name);
       if (toIdx >= 0)
       {
         // It's a multiplayer challenge I accepted: withdraw
         this.st.conn.send(JSON.stringify({code:"withdrawchallenge",
-          cid:challenge.id, user:me}));
+          cid:challenge.id, user:this.st.user.sid}));
         this.challenges.to.splice(toIdx, 1);
       }
       else if (challenge.from.id == user.id) //it's my challenge: cancel it
@@ -320,11 +345,12 @@ export default {
       const liveGame =
         this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
       // Check that the players (if any indicated) are online
-      let chall =
-      {
-        id: 0, //unknown yet (no ID for live challenges)
-        from: this.st.user,
-        added: Date.now(),
+      let chall = Object.Assign(
+        {},
+        this.newchallenge,
+        {
+          from: this.st.user,
+          added: Date.now(),
         fen: this.newchallenge.fen,
         variant: {id: this.newchallenge.vid, name: vname},
         nbPlayers: this.newchallenge.nbPlayers,
@@ -334,8 +360,6 @@ export default {
           {id: 0, name: this.newchallenge.to[2], sid: ""},
         ],
         timeControl: this.newchallenge.timeControl,
-        mainTime: this.newchallenge.mainTime,
-        increment: this.newchallenge.increment,
       };
       for (let p of chall.to)
       {

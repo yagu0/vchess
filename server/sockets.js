@@ -49,18 +49,27 @@ module.exports = function(wss) {
       //console.log(obj.code);
 			switch (obj.code)
 			{
-        case "askclients":
-          socket.send(JSON.stringify({code:"clients", sockIds:Object.keys(clients).filter(k => k != sid)}));
+        case "pollclients":
+          socket.send(JSON.stringify({code:"pollclients",
+            sockIds:Object.keys(clients).filter(k => k != sid)}));
           break;
         case "askidentity":
-          clients[obj.target].send(JSON.stringify({code:"identify",from:sid}));
-          break;
-        case "identity":
-          clients[obj.target].send(JSON.stringify({code:"identity",user:obj.user}));
+          clients[obj.target].send(
+            JSON.stringify({code:"askidentity",from:sid}));
           break;
         case "askchallenges":
-          // TODO: ask directly to people (webRTC)
-          // TODO... + clarify socket system
+          clients[obj.target].send(
+            JSON.stringify({code:"askchallenges",from:sid}));
+          break;
+        case "askgame":
+          clients[obj.target].send(
+            JSON.stringify({code:"askgame",from:sid}));
+          break;
+        case "identity":
+          clients[obj.target].send(
+            JSON.stringify({code:"identity",user:obj.user}));
+          break;
+        case "askchallenges":
           break;
         case "newchallenge":
           clients[obj.target].send(JSON.stringify({code:"newchallenge",chall:obj.chall}));
