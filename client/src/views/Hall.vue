@@ -165,25 +165,27 @@ export default {
           this.st.conn.send(JSON.stringify(
             {code:"identity", user:this.st.user, target:data.from}));
           break;
-        case "askchallenges":
-          // Send my current challenges
-          const myChallenges = this.challenges
-            .filter(c => c.from.sid == this.st.user.sid)
-            .map(c => {
+        case "askchallenge":
+          // Send my current live challenge
+          const cIdx = this.challenges
+            .findIndex(c => c.from.sid == this.st.user.sid && c.liveGame);
+          if (cIdx >= 0)
+          {
+            const c = this.challenges[cIdx];
+            const myChallenge =
+            {
               // Minimal challenge informations: (from not required)
               to: c.to,
               fen: c.fen,
               vid: c.vid,
               timeControl: c.timeControl
-            });
-          if (myChallenges.length > 0)
-          {
-            this.st.conn.send(JSON.stringify({code:"challenges",
-              challenges:myChallenges, target:data.from})
+            };
+            this.st.conn.send(JSON.stringify({code:"challenge",
+              challenge:myChallenge, target:data.from})
           }
           break;
         case "askgame":
-          // TODO: Send my current live game (if any)
+          // TODO: Send my current live game (if any): variant, players, movesCount
           break;
         case "identity":
           if (data.user.id > 0) //otherwise "anonymous", nothing to retrieve
@@ -193,11 +195,11 @@ export default {
             this.players[pIdx].name = data.user.name;
           }
           break;
-        case "challenges":
-          // Receive challenges from some player
+        case "challenge":
+          // Receive challenge from some player (+sid)
           break;
-        case "games":
-          // Receive live game from some player
+        case "game":
+          // Receive live game from some player (+sid)
           break;
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
@@ -326,24 +328,19 @@ export default {
     },
     // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
-      if (this.challenges.some(c => c.from.sid == this.st.user.sid))
-      {
-        document.getElementById("modalNewgame").checked = false;
-        return alert("You already have a pending challenge");
-      }
       // TODO: put this "load variant" block elsewhere
       const vname = this.loadVariant(this.newchallenge.vid, this.st.variants);
-      // checkChallenge side-effect = set FEN, and mainTime + increment in seconds
+      // checkChallenge side-effect = , and mainTime + increment in seconds
       // TODO: should not be a side-effect but set here ; for received server challenges we do not have mainTime+increment
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
-// TODO: set FEN, set mainTime and increment ?!
-//else //generate a FEN
-//    c.fen = V.GenRandInitFen();
-      // Less than 3 days ==> live game (TODO: heuristic... 40 moves also)
-      const liveGame =
-        this.newchallenge.mainTime + 40 * this.newchallenge.increment < 3*24*60*60;
+      if (this.challenges.some(c => c.from.sid == this.st.user.sid && c.liveGame))
+      {
+        document.getElementById("modalNewgame").checked = false;
+        return alert("You already have a pending live challenge");
+        // TODO: better to just replace current challenge
+      }
       // Check that the players (if any indicated) are online
       let chall = Object.Assign(
         {},
@@ -351,7 +348,7 @@ export default {
         {
           from: this.st.user,
           added: Date.now(),
-        fen: this.newchallenge.fen,
+        fen: this.newchallenge.fen || V.GenRandInitFen(),
         variant: {id: this.newchallenge.vid, name: vname},
         nbPlayers: this.newchallenge.nbPlayers,
         to: [
@@ -408,7 +405,7 @@ export default {
         }
         document.getElementById("modalNewgame").checked = false;
       };
-      if (liveGame)
+      if (this.newchallenge.liveGame)
       {
         // Live challenges have cid = 0
         finishAddChallenge();

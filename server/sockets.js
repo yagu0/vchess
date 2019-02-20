@@ -57,9 +57,9 @@ module.exports = function(wss) {
           clients[obj.target].send(
             JSON.stringify({code:"askidentity",from:sid}));
           break;
-        case "askchallenges":
+        case "askchallenge":
           clients[obj.target].send(
-            JSON.stringify({code:"askchallenges",from:sid}));
+            JSON.stringify({code:"askchallenge",from:sid}));
           break;
         case "askgame":
           clients[obj.target].send(
@@ -69,13 +69,14 @@ module.exports = function(wss) {
           clients[obj.target].send(
             JSON.stringify({code:"identity",user:obj.user}));
           break;
-        case "askchallenges":
+        case "challenge":
+          // Relay challenge to other player
+          break;
+        case "game":
+          // Relay (live) game to other player
           break;
         case "newchallenge":
           clients[obj.target].send(JSON.stringify({code:"newchallenge",chall:obj.chall}));
-        case "askgames":
-          // TODO: ask directly to people (webRTC)
-          break;
 				case "newchat":
           clients[obj.target].send(JSON.stringify({code:"newchat",msg:obj.msg}));
 					break;
