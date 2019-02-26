@@ -34,7 +34,7 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       button(onClick="doClick('modalNewgame')") New game
   .row
-    .col-sm-12.col-md-5.col-md-offset-1.col-lg-4.col-lg-offset-2
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .collapse
         input#challengeSection(type="radio" checked aria-hidden="true" name="accordion")
         label(for="challengeSection" aria-hidden="true") Challenges
@@ -46,9 +46,12 @@ main
             :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
           ChallengeList(v-show="cdisplay=='corr'"
             :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
-        input#peopleSection(type="radio" checked aria-hidden="true" name="accordion")
+        input#peopleSection(type="radio" aria-hidden="true" name="accordion")
         label(for="peopleSection" aria-hidden="true") People
         div
+          .button-group
+            button(@click="pdisplay='players'") Players
+            button(@click="pdisplay='chat'") Chat
           #players(v-show="pdisplay=='players'")
             h3 Online players
             .player(v-for="p in uniquePlayers" @click="tryChallenge(p)"
@@ -57,7 +60,7 @@ main
               | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
           #chat(v-show="pdisplay=='chat'")
             h3 Chat (TODO)
-        input#gameSection(type="radio" checked aria-hidden="true" name="accordion")
+        input#gameSection(type="radio" aria-hidden="true" name="accordion")
         label(for="gameSection" aria-hidden="true") Games
         div
           .button-group
@@ -92,7 +95,7 @@ export default {
       gdisplay: "live",
       games: [],
       challenges: [],
-      players: [], //online players
+      players: [], //online players (rename into "people" ?)
       newchallenge: {
         fen: "",
         vid: 0,
@@ -173,6 +176,7 @@ export default {
       {
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
+        {
           data.sockIds.forEach(sid => {
             this.players.push({sid:sid, id:0, name:""});
             // Ask identity, challenges and game(s)
@@ -181,7 +185,9 @@ export default {
             this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
           });
           break;
+        }
         case "askidentity":
+        {
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
@@ -189,7 +195,9 @@ export default {
               {code:"identity", user:this.st.user, target:data.from}));
           }
           break;
+        }
         case "askchallenge":
+        {
           // Send my current live challenge (if any)
           const cIdx = this.challenges
             .findIndex(c => c.from.sid == this.st.user.sid && c.type == "live");
@@ -205,71 +213,100 @@ export default {
               timeControl: c.timeControl
             };
             this.st.conn.send(JSON.stringify({code:"challenge",
-              challenge:myChallenge, target:data.from})
+              challenge:myChallenge, target:data.from}));
           }
           break;
+        }
         case "askgame":
+        {
           // TODO: Send my current live game (if any): variant, players, movesCount
           break;
+        }
         case "identity":
+        {
           const pIdx = this.players.findIndex(p => p.sid == data.user.sid);
           this.players[pIdx].id = data.user.id;
           this.players[pIdx].name = data.user.name;
           break;
+        }
         case "challenge":
+        {
           // Receive challenge from some player (+sid)
           let newChall = data.chall;
           newChall.type = classifyChallenge(data.chall);
           const pIdx = this.players.findIndex(p => p.sid == data.sid);
           newChall.from = this.players[pIdx]; //may be anonymous
+          newChall.added = Date.now();
           this.challenges.push(newChall);
           break;
+        }
         case "game":
+        {
           // Receive game from some player (+sid)
           // TODO: receive game summary (update, count moves)
           // (just players names, time control, and ID + player ID)
           // NOTE: it may be correspondance (if newgame while we are connected)
           break;
+        }
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
+        {
           // TODO: new game just started: data contain all informations
           // (id, players, time control, fenStart ...)
           // + cid to remove challenge from list
           break;
+        }
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
         case "acceptchallenge":
-          // someone accept an open (or targeted) challenge
-          // ==> if (open and) full and I don't play, delete from list
-          // If I play: just add player. Then, if full send a "newgame"
-          // and (if full) in any case, remove challenge from list.
-          if (this.challenges.some(c => c.id == data.cid) //.............TODO
-            this.newGame(data.challenge, data.user); //user.id et user.name
+        {
+          // Someone accept an open (or targeted) challenge,
+          // of 3 or more players and empty slots remain.
+          const cIdx = this.challenges.findIndex(c => c.id == data.cid);
+          let players = this.challenges[cIdx].to;
+          const pIdx = this.players.fndIndex(p => p.sid == data.from);
+          for (let i=0; i<players.length; i++)
+          {
+            if (!players[i])
+            {
+              players[i] = this.players[pIdx].name;
+              break;
+            }
+          }
           break;
+        }
         case "withdrawchallenge":
+        {
           const cIdx = this.challenges.findIndex(c => c.id == data.cid);
           let chall = this.challenges[cIdx]
           ArrayFun.remove(chall.players, p => p.id == data.uid);
           chall.players.push({id:0, name:""});
           break;
-        case "cancelchallenge":
+        }
+        case "deletechallenge":
+        {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
+        }
         // TODO: distinguish hallConnect and gameConnect ?
         // Or global variable players
         // + game variable: "observers"
         case "connect":
 // *  - receive "player connect": send our current challenge (to him or global)
 // *    Also send all our games (live - max 1 - and corr) [in web worker ?]
+        {
           this.players.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
           break;
+        }
 // *  - receive "player disconnect": remove from players list
         case "disconnect":
+        {
           ArrayFun.remove(this.players, p => p.sid == data.sid);
           // TODO: also remove all challenges sent by this player,
           // and all live games where he plays and no other opponent is online
           break;
+        }
       }
     },
     showGame: function(game) {
@@ -319,6 +356,7 @@ export default {
       // faut alors supprimer challenge + creer partie + la retourner et l'ajouter ici
       // si pas le mien et FEN speciale :: (charger code variante et)
       // montrer diagramme + couleur (orienté)
+      //this.newGame(data.challenge, data.user); //user.id et user.name
     },
     // user: last person to accept the challenge (TODO: revoir ça)
 //    newGame: function(chall, user) {
@@ -332,118 +370,93 @@ export default {
 //      if (this.settings.sound >= 1)
 //        new Audio("/sounds/newgame.mp3").play().catch(err => {});
 //    },
-    // Load a variant file (TODO: should probably be global)
-    loadVariant: async function(vid, variantArray) {
-      const idxInVariants = variantArray.findIndex(v => v.id == vid);
-      const vname = variantArray[idxInVariants].name;
-      const vModule = await import("@/variants/" + vname + ".js");
-      window.V = vModule.VariantRules;
-      return vname;
-    },
     // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
       // TODO: put this "load variant" block elsewhere
-      const vname = this.loadVariant(this.newchallenge.vid, this.st.variants);
-      // checkChallenge side-effect = , and mainTime + increment in seconds
-      // TODO: should not be a side-effect but set here ; for received server challenges we do not have mainTime+increment
+      const vIdx = this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
+      const vname = this.st.variants[vIdx].name;
+      const vModule = await import("@/variants/" + vname + ".js");
+      window.V = vModule.VariantRules;
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
-      if (this.challenges.some(c => c.from.sid == this.st.user.sid && c.liveGame))
+      const ctype = this.classifyChallenge(this.newchallenge);
+      const cto = this.newchallenge.to.slice(0, this.newchallenge.nbPlayers);
+      let chall =
       {
-        document.getElementById("modalNewgame").checked = false;
-        return alert("You already have a pending live challenge");
-        // TODO: better to just replace current challenge
-        // --> also for corr challenges
-      }
-      // Check that the players (if any indicated) are online
-      let chall = Object.Assign(
-        {},
-        this.newchallenge,
-        {
-          from: this.st.user,
-          added: Date.now(),
         fen: this.newchallenge.fen || V.GenRandInitFen(),
-        variant: {id: this.newchallenge.vid, name: vname},
-        nbPlayers: this.newchallenge.nbPlayers,
-        to: [
-          {id: 0, name: this.newchallenge.to[0], sid: ""},
-          {id: 0, name: this.newchallenge.to[1], sid: ""},
-          {id: 0, name: this.newchallenge.to[2], sid: ""},
-        ],
+        to: cto,
         timeControl: this.newchallenge.timeControl,
+        from: this.st.user.sid,
+        vid: this.newchallenge.vid,
       };
-      for (let p of chall.to)
-      {
-        if (p.name != "")
-        {
-          const pIdx = this.players.findIndex(pl => pl.name == p.name);
-          // NOTE: id (server DB) and sid (socket ID).
-          // Anonymous players just have a socket ID.
-          // NOTE: for correspondance play we don't require players to be online
-          // (==> we don't have IDs, and no sid)
-          if (liveGame && pIdx === -1)
-            return alert(p.name + " is not connected");
-          p.id = this.players[pIdx].id;
-          p.sid = this.players[pIdx].sid;
-        }
-      }
-      const finishAddChallenge = (cid) => {
-        chall.id = cid || "c" + getRandString();
-        this.challenges.push(chall);
-        // Send challenge to peers
-        let challSock =
-        {
-          code: "newchallenge",
-          chall: chall,
-          target: "",
+      const sendSomethingTo = (to, code, obj) => {
+        const doSend = (code, obj, sid) => {
+          this.st.conn.send(JSON.stringify(Object.assign(
+            {},
+            {code: code},
+            obj,
+            {target: sid}
+          )));
         };
-        const sendChallengeTo = (sid) => {
-          challSock.target = sid;
-          this.st.conn.send(JSON.stringify(challSock));
+        const getSid = (pname) => {
+          const pIdx = this.players.findIndex(pl => pl.name == pname);
+          if (ctype == "live" && pIdx === -1)
+            alert("Warning: " + p.name + " is not connected");
+          return this.players[pIdx].sid;
         };
-        if (chall.to[0].id > 0)
+        if (!!to[0])
         {
           // Challenge with targeted players
-          chall.to.forEach(p => {
-            if (p.id > 0)
-              sendChallengeTo(p.sid);
-          });
+          to.forEach(pname => { doSend(code, obj, getSid(pname)); });
         }
         else
         {
           // Open challenge: send to all connected players (except us)
           this.players.forEach(p => {
             if (p.sid != this.st.user.sid) //only sid is always set
-              sendChallengeTo(p.sid);
+              doSend(code, obj, p.sid);
           });
         }
+      };
+      const finishAddChallenge = (cid) => {
+        chall.id = cid || "c" + getRandString();
+        // Send challenge to peers
+        sendSomethingTo(cto, "challenge", chall);
+        chall.added = Date.now();
+        this.challenges.push(chall);
         document.getElementById("modalNewgame").checked = false;
       };
-      if (this.newchallenge.liveGame)
+      const cIdx = this.challenges.findIndex(
+        c => c.from.sid == this.st.user.sid && c.type == ctype);
+      if (cIdx >= 0)
       {
-        // Live challenges have cid = 0
+        // Delete current challenge (will be replaced now)
+        sendSomethingTo(this.challenges[cIdx].to,
+          "deletechallenge", {cid:this.challenges[cIdx].id});
+        if (ctype == "corr")
+        {
+          ajax(
+            "/challenges",
+            "DELETE",
+            {id: this.challenges[cIdx].id}
+          );
+        }
+        this.challenges.splice(cIdx, 1);
+      }
+      if (ctype == "live")
+      {
+        // Live challenges have a random ID
         finishAddChallenge();
       }
       else
       {
-        const chall = {
-          uid: req.body["from"],
-          vid: req.body["vid"],
-          fen: req.body["fen"],
-          timeControl: req.body["timeControl"],
-          nbPlayers: req.body["nbPlayers"],
-          to: req.body["to"], //array of IDs
-        };
         // Correspondance game: send challenge to server
         ajax(
-          "/challenges/" + this.newchallenge.vid,
+          "/challenges",
           "POST",
           chall,
-          response => {
-            chall.id = response.cid;
-            finishAddChallenge();
-          }
+          response => { finishAddChallenge(response.cid); }
         );
       }
     },
@@ -454,6 +467,10 @@ export default {
       const idxInVariants =
         variants.findIndex(v => v.id == this.newchallenge.vid);
       return NbPlayers[variants[idxInVariants].name].includes(nbp);
+    },
+    newGame: function(cid) {
+      // TODO: don't forget to send "deletechallenge" message to all concerned players
+      // + setup colors and send game infos to players (message "newgame")
     },
   },
 };

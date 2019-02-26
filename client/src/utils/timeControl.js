@@ -32,11 +32,11 @@ export function extractTime(timeControl)
   let increment = 0;
   if (tcParts.length >= 2)
   {
-    const increment = tcParts[1].match(/([0-9]+)([smhd])/);
-    if (!increment)
+    const incrementArray = tcParts[1].match(/([0-9]+)([smhd])/);
+    if (!incrementArray)
       return null;
-    const incrementValue = parseInt(increment[1]);
-    const incrementUnit = increment[2];
+    const incrementValue = parseInt(incrementArray[1]);
+    const incrementUnit = incrementArray[2];
     // Increment unit cannot be larger than main unit:
     if (isLargerUnit(incrementUnit, mainTimeUnit))
       return null;
