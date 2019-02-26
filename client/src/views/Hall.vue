@@ -31,30 +31,42 @@ main
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
-    .col-sm-12.col-md-5.col-md-offset-1.col-lg-4.col-lg-offset-2
-      .button-group
-        button(@click="cpdisplay='challenges'") Challenges
-        button(@click="cpdisplay='players'") Players
-      ChallengeList(v-show="cpdisplay=='challenges'"
-        :challenges="challenges" @click-challenge="clickChallenge")
-      #players(v-show="cpdisplay=='players'")
-        h3 Online players
-        .player(v-for="p in uniquePlayers" @click="tryChallenge(p)"
-          :class="{anonymous: !!p.count}"
-        )
-          | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
-  .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       button(onClick="doClick('modalNewgame')") New game
   .row
-    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      .button-group
-        button(@click="gdisplay='live'") Live games
-        button(@click="gdisplay='corr'") Correspondance games
-      GameList(v-show="gdisplay=='live'" :games="liveGames"
-        @show-game="showGame")
-      GameList(v-show="gdisplay=='corr'" :games="corrGames"
-        @show-game="showGame")
+    .col-sm-12.col-md-5.col-md-offset-1.col-lg-4.col-lg-offset-2
+      .collapse
+        input#challengeSection(type="radio" checked aria-hidden="true" name="accordion")
+        label(for="challengeSection" aria-hidden="true") Challenges
+        div
+          .button-group
+            button(@click="cdisplay='live'") Live Challenges
+            button(@click="cdisplay='corr'") Correspondance challenges
+          ChallengeList(v-show="cdisplay=='live'"
+            :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
+          ChallengeList(v-show="cdisplay=='corr'"
+            :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
+        input#peopleSection(type="radio" checked aria-hidden="true" name="accordion")
+        label(for="peopleSection" aria-hidden="true") People
+        div
+          #players(v-show="pdisplay=='players'")
+            h3 Online players
+            .player(v-for="p in uniquePlayers" @click="tryChallenge(p)"
+              :class="{anonymous: !!p.count}"
+            )
+              | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
+          #chat(v-show="pdisplay=='chat'")
+            h3 Chat (TODO)
+        input#gameSection(type="radio" checked aria-hidden="true" name="accordion")
+        label(for="gameSection" aria-hidden="true") Games
+        div
+          .button-group
+            button(@click="gdisplay='live'") Live games
+            button(@click="gdisplay='corr'") Correspondance games
+          GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
+            @show-game="showGame")
+          GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
+            @show-game="showGame")
 </template>
 
 <script>
@@ -75,10 +87,10 @@ export default {
   data: function () {
     return {
       st: store.state,
-      cpdisplay: "challenges",
+      cdisplay: "live", //or corr
+      pdisplay: "players", //or chat
       gdisplay: "live",
-      liveGames: [],
-      corrGames: [],
+      games: [],
       challenges: [],
       players: [], //online players
       newchallenge: {
@@ -92,7 +104,7 @@ export default {
   },
   computed: {
     uniquePlayers: function() {
-      // Show e.g. "5 @nonymous", and do nothing on click on anonymous
+      // Show e.g. "@nonymous (5)", and do nothing on click on anonymous
       let anonymous = {id:0, name:"@nonymous", count:0};
       let playerList = [];
       this.players.forEach(p => {
@@ -142,10 +154,19 @@ export default {
     this.st.conn.onclose = socketCloseListener;
   },
   methods: {
+    filterChallenges: function(type) {
+      return this.challenges.filter(c => c.type == type);
+    },
+    filterGames: function(type) {
+      return this.games.filter(c => c.type == type);
+    },
+    classifyChallenge: function(c) {
+      // Heuristic: should work for most cases... (TODO)
+      return (c.timeControl.indexOf('d') === -1 ? "live" : "corr");
+    },
     socketMessageListener: function(msg) {
       // Save and call current st.conn.onmessage if one was already defined
       // --> also needed in future Game.vue (also in Chat.vue component)
-      // TODO: merge Game.vue and MoveList.vue (one logic entity, no ?)
       this.oldOnmessage(msg);
       const data = JSON.parse(msg.data);
       switch (data.code)
@@ -161,14 +182,17 @@ export default {
           });
           break;
         case "askidentity":
-          // Request for identification
-          this.st.conn.send(JSON.stringify(
-            {code:"identity", user:this.st.user, target:data.from}));
+          // Request for identification: reply if I'm not anonymous
+          if (this.st.user.id > 0)
+          {
+            this.st.conn.send(JSON.stringify(
+              {code:"identity", user:this.st.user, target:data.from}));
+          }
           break;
         case "askchallenge":
-          // Send my current live challenge
+          // Send my current live challenge (if any)
           const cIdx = this.challenges
-            .findIndex(c => c.from.sid == this.st.user.sid && c.liveGame);
+            .findIndex(c => c.from.sid == this.st.user.sid && c.type == "live");
           if (cIdx >= 0)
           {
             const c = this.challenges[cIdx];
@@ -188,18 +212,23 @@ export default {
           // TODO: Send my current live game (if any): variant, players, movesCount
           break;
         case "identity":
-          if (data.user.id > 0) //otherwise "anonymous", nothing to retrieve
-          {
-            const pIdx = this.players.findIndex(p => p.sid == data.user.sid);
-            this.players[pIdx].id = data.user.id;
-            this.players[pIdx].name = data.user.name;
-          }
+          const pIdx = this.players.findIndex(p => p.sid == data.user.sid);
+          this.players[pIdx].id = data.user.id;
+          this.players[pIdx].name = data.user.name;
           break;
         case "challenge":
           // Receive challenge from some player (+sid)
+          let newChall = data.chall;
+          newChall.type = classifyChallenge(data.chall);
+          const pIdx = this.players.findIndex(p => p.sid == data.sid);
+          newChall.from = this.players[pIdx]; //may be anonymous
+          this.challenges.push(newChall);
           break;
         case "game":
-          // Receive live game from some player (+sid)
+          // Receive game from some player (+sid)
+          // TODO: receive game summary (update, count moves)
+          // (just players names, time control, and ID + player ID)
+          // NOTE: it may be correspondance (if newgame while we are connected)
           break;
 // *  - receive "new game": if live, store locally + redirect to game
 // *    If corr: notify "new game has started", give link, but do not redirect
@@ -208,26 +237,13 @@ export default {
           // (id, players, time control, fenStart ...)
           // + cid to remove challenge from list
           break;
-// *  - receive "playergame": a live game by some connected player (NO corr)
-        case "playergame":
-          // TODO: receive live game summary (update, count moves)
-          // (just players names, time control, and ID + player ID)
-          break;
-// *  - receive "playerchallenges": list of challenges (sent) by some online player (NO corr)
-        case "playerchallenges":
-          // TODO: receive challenge + challenge updates
-          break;
-        case "newmove": //live or corr
-          // TODO: name conflict ? (game "newmove" event)
-          break;
-// *  - receive new challenge: if targeted, replace our name with sender name
-        case "newchallenge":
-          // receive live or corr challenge
-          this.challenges.push(data.chall);
-          break;
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
         case "acceptchallenge":
-          if (true) //TODO: if challenge is full
+          // someone accept an open (or targeted) challenge
+          // ==> if (open and) full and I don't play, delete from list
+          // If I play: just add player. Then, if full send a "newgame"
+          // and (if full) in any case, remove challenge from list.
+          if (this.challenges.some(c => c.id == data.cid) //.............TODO
             this.newGame(data.challenge, data.user); //user.id et user.name
           break;
         case "withdrawchallenge":
@@ -239,16 +255,14 @@ export default {
         case "cancelchallenge":
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
-// NOTE: finally only one connect / disconnect couple of events
-// (because on server side we wouldn't know which to choose)
+        // TODO: distinguish hallConnect and gameConnect ?
+        // Or global variable players
+        // + game variable: "observers"
         case "connect":
-// *  - receive "player connect": send all our current challenges (to him or global)
+// *  - receive "player connect": send our current challenge (to him or global)
 // *    Also send all our games (live - max 1 - and corr) [in web worker ?]
-// *    + all our sent challenges.
           this.players.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
-          // TODO: si on est en train de jouer une partie, le notifier au nouveau connecté
-          // envoyer aussi nos défis
           break;
 // *  - receive "player disconnect": remove from players list
         case "disconnect":
@@ -262,7 +276,7 @@ export default {
       // NOTE: if we are an observer, the game will be found in main games list
       // (sent by connected remote players)
       // TODO: game path ? /vname/gameId seems better
-      this.$router.push("/" + game.id)
+      this.$router.push("/" + game.id);
     },
     tryChallenge: function(player) {
       if (player.id == 0)
@@ -340,6 +354,7 @@ export default {
         document.getElementById("modalNewgame").checked = false;
         return alert("You already have a pending live challenge");
         // TODO: better to just replace current challenge
+        // --> also for corr challenges
       }
       // Check that the players (if any indicated) are online
       let chall = Object.Assign(

@@ -71,12 +71,12 @@ module.exports = function(wss) {
           break;
         case "challenge":
           // Relay challenge to other player
+          clients[obj.target].send(
+            JSON.stringify({code:"challenge", chall:obj.challenge, from:sid}));
           break;
         case "game":
           // Relay (live) game to other player
           break;
-        case "newchallenge":
-          clients[obj.target].send(JSON.stringify({code:"newchallenge",chall:obj.chall}));
 				case "newchat":
           clients[obj.target].send(JSON.stringify({code:"newchat",msg:obj.msg}));
 					break;

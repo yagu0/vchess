@@ -1,3 +1,4 @@
+<!-- TODO: merge Game.vue and MoveList.vue (one logic entity, no ?) -->
 <script>
 // Component for moves list on the right
 export default {
