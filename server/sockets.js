@@ -78,6 +78,14 @@ module.exports = function(wss) {
           clients[obj.target].send(
             JSON.stringify({code:"acceptchallenge", cid:obj.cid, from:sid}));
           break;
+        case "withdrawchallenge":
+          clients[obj.target].send(
+            JSON.stringify({code:"withdrawchallenge", cid:obj.cid, from:sid}));
+          break;
+        case "newgame":
+          clients[obj.target].send(JSON.stringify(
+            {code:"newgame", gameInfo:obj.gameInfo}));
+          break;
         case "game":
           // TODO: relay (live) game to other player
           break;
@@ -99,13 +107,6 @@ module.exports = function(wss) {
           clients[oppId].send(JSON.stringify(obj));
 					break;
 				// TODO: moreover, here, game info should be sent (through challenge; not stored here)
-				case "newgame":
-          clients[obj.target].send(JSON.stringify({code:"newgame", game:obj.game}));
-					break;
-				case "cancelnewgame": //if a user cancel his seek
-					// TODO: just transmit event
-					//delete games[page];
-					break;
 				// TODO: also other challenge events
 				case "resign":
           clients[obj.target].send(JSON.stringify({code:"resign"}));

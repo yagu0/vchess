@@ -78,7 +78,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
-import { getRandString } from "@/utils/alea";
+import { getRandString, shuffle } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -157,6 +157,7 @@ export default {
     this.st.conn.onclose = socketCloseListener;
   },
   methods: {
+    // Helpers:
     filterChallenges: function(type) {
       return this.challenges.filter(c => c.type == type);
     },
@@ -167,6 +168,60 @@ export default {
       // Heuristic: should work for most cases... (TODO)
       return (c.timeControl.indexOf('d') === -1 ? "live" : "corr");
     },
+    possibleNbplayers: function(nbp) {
+      if (this.newchallenge.vid == 0)
+        return false;
+      const idxInVariants =
+        this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
+      return NbPlayers[this.st.variants[idxInVariants].name].includes(nbp);
+    },
+    showGame: function(game) {
+      // NOTE: if we are an observer, the game will be found in main games list
+      // (sent by connected remote players)
+      // TODO: game path ? /vname/gameId seems better
+      this.$router.push("/" + game.id);
+    },
+    getVname: function(vid) {
+      const vIdx = this.st.variants.findIndex(v => v.id == vid);
+      return this.st.variants[vIdx].name;
+    },
+    getSid: function(pname) {
+      const pIdx = this.players.findIndex(pl => pl.name == pname);
+      return (pIdx === -1 ? null : this.players[pIdx].sid);
+    },
+    sendSomethingTo: function(to, code, obj, warnDisconnected) {
+      const doSend = (code, obj, sid) => {
+        this.st.conn.send(JSON.stringify(Object.assign(
+          {},
+          {code: code},
+          obj,
+          {target: sid}
+        )));
+      };
+      else if (!!to[0])
+      {
+        to.forEach(pname => {
+          // Challenge with targeted players
+          const targetSid = this.getSid(pname);
+          if (!targetSid)
+          {
+            if (!!warnDisconnected)
+              alert("Warning: " + pname + " is not connected");
+          }
+          else
+            doSend(code, obj, targetSid);
+        });
+      }
+      else
+      {
+        // Open challenge: send to all connected players (except us)
+        this.players.forEach(p => {
+          if (p.sid != this.st.user.sid) //only sid is always set
+            doSend(code, obj, p.sid);
+        });
+      }
+    },
+    // Messaging center:
     socketMessageListener: function(msg) {
       // Save and call current st.conn.onmessage if one was already defined
       // --> also needed in future Game.vue (also in Chat.vue component)
@@ -259,31 +314,39 @@ export default {
           break;
         }
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
+        // NOTE: challenge "socket" actions accept+withdraw only for live challenges
         case "acceptchallenge":
         {
           // Someone accept an open (or targeted) challenge
           // TODO: keep SIDs, since we need them to notify newgame after chall is complete
           const cIdx = this.challenges.findIndex(c => c.id == data.cid);
-          let players = this.challenges[cIdx].to;
+          let c = this.challenges[cIdx];
+          if (!c.seats)
+            c.seats = [...Array(c.to.length)];
           const pIdx = this.players.findIndex(p => p.sid == data.from);
-          for (let i=0; i<players.length; i++)
+          // Put this player in the first empty seat we find:
+          let sIdx = 0;
+          for (; sIdx<c.seats.length; sIdx++)
           {
-            if (!players[i])
+            if (!c.seats[sIdx])
             {
-              players[i] = this.players[pIdx].name;
+              c.seats[sIdx] = this.players[pIdx];
               break;
             }
           }
-          // TODO: if challenge is complete, launch game
-          //this.newGame(data.challenge, data.user); //user.id et user.name
+          if (sIdx == c.seats.length - 1)
+          {
+            // All seats are taken: game can start
+            this.launchGame(c);
+          }
           break;
         }
         case "withdrawchallenge":
         {
           const cIdx = this.challenges.findIndex(c => c.id == data.cid);
-          let chall = this.challenges[cIdx]
-          ArrayFun.remove(chall.players, p => p.id == data.uid);
-          chall.players.push({id:0, name:""});
+          let seats = this.challenges[cIdx].seats;
+          const sIdx = seats.findIndex(s => s.sid == data.sid);
+          seats[sIdx] = undefined;
           break;
         }
         case "refusechallenge":
@@ -297,9 +360,8 @@ export default {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
-        // TODO: distinguish hallConnect and gameConnect ?
-        // Or global variable players
-        // + game variable: "observers"
+        // TODO: distinguish hallConnect and gameConnect?
+        // Or (better) global variable players + game variable: "observers"
         case "connect":
 // *  - receive "player connect": send our current challenge (to him or global)
 // *    Also send all our games (live - max 1 - and corr) [in web worker ?]
@@ -312,108 +374,26 @@ export default {
         case "disconnect":
         {
           ArrayFun.remove(this.players, p => p.sid == data.sid);
-          // TODO: also remove all challenges sent by this player,
+          // Also remove all challenges sent by this player:
+          for (let cIdx = this.challenges.length-1; cIdx >= 0; cIdx--)
+          {
+            if (this.challenges[cIdx].from.sid == data.sid)
+              this.challenges.splice(cIdx, 1);
+          }
           // and all live games where he plays and no other opponent is online
+          // TODO
           break;
         }
       }
     },
-    showGame: function(game) {
-      // NOTE: if we are an observer, the game will be found in main games list
-      // (sent by connected remote players)
-      // TODO: game path ? /vname/gameId seems better
-      this.$router.push("/" + game.id);
-    },
+    // Challenge lifecycle:
     tryChallenge: function(player) {
       if (player.id == 0)
         return; //anonymous players cannot be challenged
       this.newchallenge.to[0] = player.name;
       doClick("modalNewgame");
     },
-// *  - accept challenge (corr or live) --> send info to challenge creator
-// *  - cancel challenge (click on sent challenge) --> send info to all concerned players
-// *  - withdraw from challenge (if >= 3 players and previously accepted)
-// *    --> send info to challenge creator
-// *  - refuse challenge: send "refuse" to challenge sender, and "delete" to others
-// *  - prepare and start new game (if challenge is full after acceptation)
-// *    --> include challenge ID (so that opponents can delete the challenge too)
-    clickChallenge: function(c) {
-      // TODO: also correspondance case (send to server)
-      if (!!c.accepted)
-      {
-        // It's a multiplayer challenge I accepted: withdraw
-        this.sendSomethingTo(c.from.sid, "withdrawchallenge",
-          {cid:c.id, user:this.st.user.sid});
-        c.accepted = false;
-      }
-      else if (c.from.sid == this.st.user.sid) //it's my challenge: cancel it
-      {
-        this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
-        ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      }
-      else //accept (or refuse) a challenge
-      {
-        c.accepted = true;
-        if (!!c.to[0])
-        {
-          // TODO: if special FEN, show diagram after loading variant
-          c.accepted = confirm("Accept challenge?");
-        }
-        this.sendSomethingTo(c.from.sid,
-          (c.accepted ? "accept" : "refuse") + "challenge", {cid: c.id});
-        if (!c.accepted)
-          ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      }
-    },
-//    newGame: function(chall, user) {
-//      const fen = chall.fen || V.GenRandInitFen();
-//      const game = {}; //TODO: fen, players, time ...
-//      //setStorage(game); //TODO
-//      game.players.forEach(p => { //...even if game is by corr (could be played live, why not...)
-//        this.conn.send(
-//          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
-//      });
-//      if (this.settings.sound >= 1)
-//        new Audio("/sounds/newgame.mp3").play().catch(err => {});
-//    },
-    getVname: function(vid) {
-      const vIdx = this.st.variants.findIndex(v => v.id == vid);
-      return this.st.variants[vIdx].name;
-    },
-    sendSomethingTo: function(to, code, obj, warnDisconnected) {
-      const doSend = (code, obj, sid) => {
-        this.st.conn.send(JSON.stringify(Object.assign(
-          {},
-          {code: code},
-          obj,
-          {target: sid}
-        )));
-      };
-      const getSid = (pname) => {
-        const pIdx = this.players.findIndex(pl => pl.name == pname);
-        if (!!warnDisconnected && ctype == "live" && pIdx === -1)
-          alert("Warning: " + p.name + " is not connected");
-        return this.players[pIdx].sid;
-      };
-      if (!Array.isArray(to)) //pass sid directly
-        doSend(code, obj, to);
-      else if (!!to[0])
-      {
-        // Challenge with targeted players
-        to.forEach(pname => { doSend(code, obj, getSid(pname)); });
-      }
-      else
-      {
-        // Open challenge: send to all connected players (except us)
-        this.players.forEach(p => {
-          if (p.sid != this.st.user.sid) //only sid is always set
-            doSend(code, obj, p.sid);
-        });
-      }
-    },
-    // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
-      // TODO: put this "load variant" block elsewhere
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
@@ -425,7 +405,7 @@ export default {
       // NOTE: "from" information is not required here
       let chall =
       {
-        fen: this.newchallenge.fen || V.GenRandInitFen(),
+        fen: this.newchallenge.fen,
         to: cto,
         timeControl: this.newchallenge.timeControl,
         vid: this.newchallenge.vid,
@@ -474,17 +454,78 @@ export default {
         );
       }
     },
-    possibleNbplayers: function(nbp) {
-      if (this.newchallenge.vid == 0)
-        return false;
-      const variants = this.st.variants;
-      const idxInVariants =
-        variants.findIndex(v => v.id == this.newchallenge.vid);
-      return NbPlayers[variants[idxInVariants].name].includes(nbp);
+// *  - accept challenge (corr or live) --> send info to challenge creator
+// *  - cancel challenge (click on sent challenge) --> send info to all concerned players
+// *  - withdraw from challenge (if >= 3 players and previously accepted)
+// *    --> send info to challenge creator
+// *  - refuse challenge: send "refuse" to challenge sender, and "delete" to others
+// *  - prepare and start new game (if challenge is full after acceptation)
+// *    --> include challenge ID (so that opponents can delete the challenge too)
+    clickChallenge: function(c) {
+      // TODO: also correspondance case (send to server)
+      if (!!c.accepted)
+      {
+        // It's a multiplayer challenge I accepted: withdraw
+        this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
+          cid: c.id, target: c.from.sid}));
+        c.accepted = false;
+      }
+      else if (c.from.sid == this.st.user.sid) //it's my challenge: cancel it
+      {
+        this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
+        ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+      }
+      else //accept (or refuse) a challenge
+      {
+        c.accepted = true;
+        if (!!c.to[0])
+        {
+          // TODO: if special FEN, show diagram after loading variant
+          c.accepted = confirm("Accept challenge?");
+        }
+        this.st.conn.send(JSON.stringify({
+          code: (c.accepted ? "accept" : "refuse") + "challenge",
+          cid: c.id, target: c.from.sid}));
+        if (!c.accepted)
+          ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+      }
     },
-    newGame: function(cid) {
-      // TODO: don't forget to send "deletechallenge" message to all concerned players
-      // + setup colors and send game infos to players (message "newgame")
+    launchGame: function(c) {
+      // Just assign colors and pass the message
+      const vname = this.getVname(c.vid);
+      const vModule = await import("@/variants/" + vname + ".js");
+      window.V = vModule.VariantRules;
+      let players = [c.from];
+      Array.prototype.push.apply(players, c.seats);
+      c.type == corr alors use id...sinon sid (figés)
+      let gameInfo =
+      {
+        cid: c.id, //required to remove challenge
+        fen: c.fen || V.GenRandInitFen(),
+        // Shuffle players order (white then black then other colors).
+        // Players' names are not required
+        players: shuffle(players).map(p => {id:p.id, sid:p.sid},
+        vid: c.vid,
+        timeControl: c.timeControl,
+      };
+      c.seats.forEach(s => {
+        this.st.conn.send(JSON.stringify({code:"newgame",
+          gameInfo:gameInfo, target:s.sid}));
+      });
+      this.newGame(gameInfo); //also!
+    },
+    newGame: function(gameInfo) {
+      // Extract times (in [milli?]seconds), set clocks,
+      // store in localStorage if live (on server otherwise)
+//      const fen = chall.fen || V.GenRandInitFen();
+//      const game = {}; //TODO: fen, players, time ...
+//      //setStorage(game); //TODO
+//      game.players.forEach(p => { //...even if game is by corr (could be played live, why not...)
+//        this.conn.send(
+//          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
+//      });
+//      if (this.settings.sound >= 1)
+//        new Audio("/sounds/newgame.mp3").play().catch(err => {});
     },
   },
 };
