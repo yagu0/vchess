@@ -233,10 +233,11 @@ export default {
         {
           // Receive challenge from some player (+sid)
           let newChall = data.chall;
-          newChall.type = classifyChallenge(data.chall);
-          const pIdx = this.players.findIndex(p => p.sid == data.sid);
+          newChall.type = this.classifyChallenge(data.chall);
+          const pIdx = this.players.findIndex(p => p.sid == data.from);
           newChall.from = this.players[pIdx]; //may be anonymous
           newChall.added = Date.now();
+          newChall.vname = this.getVname(newChall.vid);
           this.challenges.push(newChall);
           break;
         }
@@ -260,11 +261,11 @@ export default {
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
         case "acceptchallenge":
         {
-          // Someone accept an open (or targeted) challenge,
-          // of 3 or more players and empty slots remain.
+          // Someone accept an open (or targeted) challenge
+          // TODO: keep SIDs, since we need them to notify newgame after chall is complete
           const cIdx = this.challenges.findIndex(c => c.id == data.cid);
           let players = this.challenges[cIdx].to;
-          const pIdx = this.players.fndIndex(p => p.sid == data.from);
+          const pIdx = this.players.findIndex(p => p.sid == data.from);
           for (let i=0; i<players.length; i++)
           {
             if (!players[i])
@@ -273,6 +274,8 @@ export default {
               break;
             }
           }
+          // TODO: if challenge is complete, launch game
+          //this.newGame(data.challenge, data.user); //user.id et user.name
           break;
         }
         case "withdrawchallenge":
@@ -281,6 +284,12 @@ export default {
           let chall = this.challenges[cIdx]
           ArrayFun.remove(chall.players, p => p.id == data.uid);
           chall.players.push({id:0, name:""});
+          break;
+        }
+        case "refusechallenge":
+        {
+          // TODO: show "player XXX refused challenge", and
+          // remove challenge from list.
           break;
         }
         case "deletechallenge":
@@ -321,44 +330,41 @@ export default {
       this.newchallenge.to[0] = player.name;
       doClick("modalNewgame");
     },
-// *  - accept challenge (corr or live) --> send info to all concerned players
+// *  - accept challenge (corr or live) --> send info to challenge creator
 // *  - cancel challenge (click on sent challenge) --> send info to all concerned players
 // *  - withdraw from challenge (if >= 3 players and previously accepted)
-// *    --> send info to all concerned players
-// *  - refuse challenge (or receive refusal): send to all challenge players (from + to)
-// *    except us ; graphics: modal again ? (inline ?)
+// *    --> send info to challenge creator
+// *  - refuse challenge: send "refuse" to challenge sender, and "delete" to others
 // *  - prepare and start new game (if challenge is full after acceptation)
 // *    --> include challenge ID (so that opponents can delete the challenge too)
-// *    Also send to all connected players (only from me)
-    clickChallenge: function(challenge) {
+    clickChallenge: function(c) {
       // TODO: also correspondance case (send to server)
-      const index = this.challenges.findIndex(c => c.id == challenge.id);
-      const toIdx = challenge.to.findIndex(name => name == this.st.user.name);
-      if (toIdx >= 0)
+      if (!!c.accepted)
       {
         // It's a multiplayer challenge I accepted: withdraw
-        this.st.conn.send(JSON.stringify({code:"withdrawchallenge",
-          cid:challenge.id, user:this.st.user.sid}));
-        this.challenges.to.splice(toIdx, 1);
+        this.sendSomethingTo(c.from.sid, "withdrawchallenge",
+          {cid:c.id, user:this.st.user.sid});
+        c.accepted = false;
       }
-      else if (challenge.from.id == user.id) //it's my challenge: cancel it
+      else if (c.from.sid == this.st.user.sid) //it's my challenge: cancel it
       {
-        this.st.conn.send(JSON.stringify({code:"cancelchallenge", cid:challenge.id}));
-        this.challenges.splice(index, 1);
+        this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
+        ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       }
-      else //accept a challenge
+      else //accept (or refuse) a challenge
       {
-        this.st.conn.send(JSON.stringify({code:"acceptchallenge",
-          cid:challenge.id, user:me}));
-        this.challenges[index].to.push(me);
+        c.accepted = true;
+        if (!!c.to[0])
+        {
+          // TODO: if special FEN, show diagram after loading variant
+          c.accepted = confirm("Accept challenge?");
+        }
+        this.sendSomethingTo(c.from.sid,
+          (c.accepted ? "accept" : "refuse") + "challenge", {cid: c.id});
+        if (!c.accepted)
+          ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       }
-      // TODO: accepter un challenge peut lancer une partie, il
-      // faut alors supprimer challenge + creer partie + la retourner et l'ajouter ici
-      // si pas le mien et FEN speciale :: (charger code variante et)
-      // montrer diagramme + couleur (orienté)
-      //this.newGame(data.challenge, data.user); //user.id et user.name
     },
-    // user: last person to accept the challenge (TODO: revoir ça)
 //    newGame: function(chall, user) {
 //      const fen = chall.fen || V.GenRandInitFen();
 //      const game = {}; //TODO: fen, players, time ...
@@ -370,11 +376,45 @@ export default {
 //      if (this.settings.sound >= 1)
 //        new Audio("/sounds/newgame.mp3").play().catch(err => {});
 //    },
+    getVname: function(vid) {
+      const vIdx = this.st.variants.findIndex(v => v.id == vid);
+      return this.st.variants[vIdx].name;
+    },
+    sendSomethingTo: function(to, code, obj, warnDisconnected) {
+      const doSend = (code, obj, sid) => {
+        this.st.conn.send(JSON.stringify(Object.assign(
+          {},
+          {code: code},
+          obj,
+          {target: sid}
+        )));
+      };
+      const getSid = (pname) => {
+        const pIdx = this.players.findIndex(pl => pl.name == pname);
+        if (!!warnDisconnected && ctype == "live" && pIdx === -1)
+          alert("Warning: " + p.name + " is not connected");
+        return this.players[pIdx].sid;
+      };
+      if (!Array.isArray(to)) //pass sid directly
+        doSend(code, obj, to);
+      else if (!!to[0])
+      {
+        // Challenge with targeted players
+        to.forEach(pname => { doSend(code, obj, getSid(pname)); });
+      }
+      else
+      {
+        // Open challenge: send to all connected players (except us)
+        this.players.forEach(p => {
+          if (p.sid != this.st.user.sid) //only sid is always set
+            doSend(code, obj, p.sid);
+        });
+      }
+    },
     // Send new challenge (corr or live, cf. time control), with button or click on player
     newChallenge: async function() {
       // TODO: put this "load variant" block elsewhere
-      const vIdx = this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
-      const vname = this.st.variants[vIdx].name;
+      const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
       const error = checkChallenge(this.newchallenge);
@@ -382,48 +422,22 @@ export default {
         return alert(error);
       const ctype = this.classifyChallenge(this.newchallenge);
       const cto = this.newchallenge.to.slice(0, this.newchallenge.nbPlayers);
+      // NOTE: "from" information is not required here
       let chall =
       {
         fen: this.newchallenge.fen || V.GenRandInitFen(),
         to: cto,
         timeControl: this.newchallenge.timeControl,
-        from: this.st.user.sid,
         vid: this.newchallenge.vid,
-      };
-      const sendSomethingTo = (to, code, obj) => {
-        const doSend = (code, obj, sid) => {
-          this.st.conn.send(JSON.stringify(Object.assign(
-            {},
-            {code: code},
-            obj,
-            {target: sid}
-          )));
-        };
-        const getSid = (pname) => {
-          const pIdx = this.players.findIndex(pl => pl.name == pname);
-          if (ctype == "live" && pIdx === -1)
-            alert("Warning: " + p.name + " is not connected");
-          return this.players[pIdx].sid;
-        };
-        if (!!to[0])
-        {
-          // Challenge with targeted players
-          to.forEach(pname => { doSend(code, obj, getSid(pname)); });
-        }
-        else
-        {
-          // Open challenge: send to all connected players (except us)
-          this.players.forEach(p => {
-            if (p.sid != this.st.user.sid) //only sid is always set
-              doSend(code, obj, p.sid);
-          });
-        }
       };
       const finishAddChallenge = (cid) => {
         chall.id = cid || "c" + getRandString();
         // Send challenge to peers
-        sendSomethingTo(cto, "challenge", chall);
+        this.sendSomethingTo(cto, "challenge", {chall:chall}, "warnDisconnected");
         chall.added = Date.now();
+        chall.type = ctype;
+        chall.vname = vname;
+        chall.from = this.st.user;
         this.challenges.push(chall);
         document.getElementById("modalNewgame").checked = false;
       };
@@ -432,7 +446,7 @@ export default {
       if (cIdx >= 0)
       {
         // Delete current challenge (will be replaced now)
-        sendSomethingTo(this.challenges[cIdx].to,
+        this.sendSomethingTo(this.challenges[cIdx].to,
           "deletechallenge", {cid:this.challenges[cIdx].id});
         if (ctype == "corr")
         {

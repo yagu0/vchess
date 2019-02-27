@@ -72,10 +72,14 @@ module.exports = function(wss) {
         case "challenge":
           // Relay challenge to other player
           clients[obj.target].send(
-            JSON.stringify({code:"challenge", chall:obj.challenge, from:sid}));
+            JSON.stringify({code:"challenge", chall:obj.chall, from:sid}));
+          break;
+        case "acceptchallenge":
+          clients[obj.target].send(
+            JSON.stringify({code:"acceptchallenge", cid:obj.cid, from:sid}));
           break;
         case "game":
-          // Relay (live) game to other player
+          // TODO: relay (live) game to other player
           break;
 				case "newchat":
           clients[obj.target].send(JSON.stringify({code:"newchat",msg:obj.msg}));
@@ -108,11 +112,6 @@ module.exports = function(wss) {
 					break;
 				// TODO: case "challenge" (get ID) --> send to all, "acceptchallenge" (with ID) --> send to all, "cancelchallenge" --> send to all
 				// also, "sendgame" (give current game info, if any) --> to new connections, "sendchallenges" (same for challenges) --> to new connections
-        case "newchallenge":
-          console.log("challenge received");
-          console.log(obj.sender);
-          console.log(obj);
-          break;
 			}
 		});
 		socket.on("close", () => {

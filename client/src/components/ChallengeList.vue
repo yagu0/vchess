@@ -6,11 +6,11 @@ table
     th To
     th Cadence
   tr(v-for="c in challenges" @click="$emit('click-challenge',c)")
-    td {{ c.variant.name }}
+    td {{ c.vname }}
     td {{ c.from.name }}
-    td(v-if="c.to[0].id > 0")
-      span(v-for="p in c.to") {{ p.name }}
-    td(v-else) {{ c.nbPlayers - 1 }} player{{ c.nbPlayers >= 3 ? 's' : '' }}
+    td(v-if="!!c.to[0]")
+      span(v-for="pname in c.to") {{ pname }}
+    td(v-else) {{ c.to.length - 1 }} player{{ c.to.length >= 3 ? 's' : '' }}
     td {{ c.timeControl }}
 </template>
 
