@@ -79,6 +79,7 @@ import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
 import { getRandString, shuffle } from "@/utils/alea";
+import { extractTime } from "@/utils/timeControl";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -176,10 +177,10 @@ export default {
       return NbPlayers[this.st.variants[idxInVariants].name].includes(nbp);
     },
     showGame: function(game) {
-      // NOTE: if we are an observer, the game will be found in main games list
-      // (sent by connected remote players)
-      // TODO: game path ? /vname/gameId seems better
-      this.$router.push("/" + game.id);
+      // NOTE: we are an observer, since only games I don't play are shown here
+      // ==> Moves sent by connected remote player(s)
+      const sids = game.players.map(p => p.sid).join(",");
+      this.$router.push("/" + game.id + "?sids=" + sids);
     },
     getVname: function(vid) {
       const vIdx = this.st.variants.findIndex(v => v.id == vid);
@@ -188,6 +189,10 @@ export default {
     getSid: function(pname) {
       const pIdx = this.players.findIndex(pl => pl.name == pname);
       return (pIdx === -1 ? null : this.players[pIdx].sid);
+    },
+    getPname: function(sid) {
+      const pIdx = this.players.findIndex(pl => pl.sid == sid);
+      return (pIdx === -1 ? null : this.players[pIdx].name);
     },
     sendSomethingTo: function(to, code, obj, warnDisconnected) {
       const doSend = (code, obj, sid) => {
@@ -308,9 +313,10 @@ export default {
 // *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
         {
-          // TODO: new game just started: data contain all informations
-          // (id, players, time control, fenStart ...)
-          // + cid to remove challenge from list
+          // Delete corresponding challenge:
+          ArrayFun.remove(this.challenges, c => c.id == data.cid);
+          // New game just started: data contain all informations
+          this.newGame(data.gameInfo);
           break;
         }
 // *  - receive "accept/withdraw/cancel challenge": apply action to challenges list
@@ -318,7 +324,6 @@ export default {
         case "acceptchallenge":
         {
           // Someone accept an open (or targeted) challenge
-          // TODO: keep SIDs, since we need them to notify newgame after chall is complete
           const cIdx = this.challenges.findIndex(c => c.id == data.cid);
           let c = this.challenges[cIdx];
           if (!c.seats)
@@ -351,8 +356,8 @@ export default {
         }
         case "refusechallenge":
         {
-          // TODO: show "player XXX refused challenge", and
-          // remove challenge from list.
+          alert(this.getPname(data.from) + " refused your challenge");
+          ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
         case "deletechallenge":
@@ -360,15 +365,13 @@ export default {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
-        // TODO: distinguish hallConnect and gameConnect?
-        // Or (better) global variable players + game variable: "observers"
         case "connect":
-// *  - receive "player connect": send our current challenge (to him or global)
-// *    Also send all our games (live - max 1 - and corr) [in web worker ?]
         {
           this.players.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
           break;
+// *  - receive "player connect": TODO = send our current challenge (to him or global)
+// *    Also send all our games (live - max 1 - and corr) [in web worker ?]
         }
 // *  - receive "player disconnect": remove from players list
         case "disconnect":
@@ -490,6 +493,8 @@ export default {
           ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       }
     },
+    // c.type == corr alors use id...sinon sid (figés)
+    // NOTE: only for live games ?
     launchGame: function(c) {
       // Just assign colors and pass the message
       const vname = this.getVname(c.vid);
@@ -497,33 +502,31 @@ export default {
       window.V = vModule.VariantRules;
       let players = [c.from];
       Array.prototype.push.apply(players, c.seats);
-      c.type == corr alors use id...sinon sid (figés)
       let gameInfo =
       {
-        cid: c.id, //required to remove challenge
         fen: c.fen || V.GenRandInitFen(),
         // Shuffle players order (white then black then other colors).
-        // Players' names are not required
-        players: shuffle(players).map(p => {id:p.id, sid:p.sid},
+        // Players' names may be required if game start when a player is offline
+        players: shuffle(players).map(p => {name:p.name, sid:p.sid},
         vid: c.vid,
         timeControl: c.timeControl,
       };
       c.seats.forEach(s => {
+        // NOTE: cid required to remove challenge
         this.st.conn.send(JSON.stringify({code:"newgame",
-          gameInfo:gameInfo, target:s.sid}));
+          gameInfo:gameInfo, cid:c.id, target:s.sid}));
       });
+      // Delete corresponding challenge:
+      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       this.newGame(gameInfo); //also!
     },
+    // NOTE: for live games only (corr games are laucnhed on server)
     newGame: function(gameInfo) {
-      // Extract times (in [milli?]seconds), set clocks,
-      // store in localStorage if live (on server otherwise)
-//      const fen = chall.fen || V.GenRandInitFen();
-//      const game = {}; //TODO: fen, players, time ...
-//      //setStorage(game); //TODO
-//      game.players.forEach(p => { //...even if game is by corr (could be played live, why not...)
-//        this.conn.send(
-//          JSON.stringify({code:"newgame", oppid:p.id, game:game}));
-//      });
+      // Extract times (in [milli]seconds), set clocks, store in localStorage
+      const tc = extractTime(gameInfo.timeControl);
+      dddddddd
+      // TODO: [in game] send move + elapsed time (in milliseconds); in case of "lastate" message too
+      //      //setStorage(game); //TODO
 //      if (this.settings.sound >= 1)
 //        new Audio("/sounds/newgame.mp3").play().catch(err => {});
     },
