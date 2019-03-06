@@ -133,7 +133,7 @@ export default {
 //
 //      }
 //    );
-//    // Also ask for corr challenges (all)
+    //    // Also ask for corr challenges (all) --> + accepted status if I play
 //    ajax(
 //      "",
 //      "GET",
@@ -141,7 +141,7 @@ export default {
 //
 //      }
 //    );
-    // 0.1] Ask server for for room composition:
+    // 0.1] Ask server for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
     };
@@ -165,9 +165,9 @@ export default {
     filterGames: function(type) {
       return this.games.filter(c => c.type == type);
     },
-    classifyChallenge: function(c) {
+    classifyObject: function(o) { //challenge or game
       // Heuristic: should work for most cases... (TODO)
-      return (c.timeControl.indexOf('d') === -1 ? "live" : "corr");
+      return (o.timeControl.indexOf('d') === -1 ? "live" : "corr");
     },
     possibleNbplayers: function(nbp) {
       if (this.newchallenge.vid == 0)
@@ -176,11 +176,16 @@ export default {
         this.st.variants.findIndex(v => v.id == this.newchallenge.vid);
       return NbPlayers[this.st.variants[idxInVariants].name].includes(nbp);
     },
-    showGame: function(game) {
+    showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
-      // ==> Moves sent by connected remote player(s)
-      const sids = game.players.map(p => p.sid).join(",");
-      this.$router.push("/" + game.id + "?sids=" + sids);
+      // ==> Moves sent by connected remote player(s) if live game
+      let url = "/" + g.id;
+      if (g.type == "live")
+      {
+        const sids = g.players.map(p => p.sid).join(",");
+        url += "?sids=" + sids;
+      }
+      this.$router.push(url);
     },
     getVname: function(vid) {
       const vIdx = this.st.variants.findIndex(v => v.id == vid);
@@ -241,7 +246,7 @@ export default {
             this.players.push({sid:sid, id:0, name:""});
             // Ask identity, challenges and game(s)
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
-            this.st.conn.send(JSON.stringify({code:"askchallenges", target:sid}));
+            this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
             this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
           });
           break;
@@ -267,6 +272,7 @@ export default {
             const myChallenge =
             {
               // Minimal challenge informations: (from not required)
+              id: c.id,
               to: c.to,
               fen: c.fen,
               vid: c.vid,
@@ -279,7 +285,20 @@ export default {
         }
         case "askgame":
         {
-          // TODO: Send my current live game (if any): variant, players, movesCount
+          // Send my current live game (if any)
+          if (!!localStorage["gid"])
+          {
+            const myGame =
+            {
+              // Minimal game informations: (fen+clock not required)
+              id: localStorage["gid"],
+              players: JSON.parse(localStorage["players"]), //array sid+name
+              vid: localStorage["vid"],
+              timeControl: localStorage["timeControl"],
+            };
+            this.st.conn.send(JSON.stringify({code:"game",
+              game:myGame, target:data.from}));
+          }
           break;
         }
         case "identity":
@@ -293,7 +312,7 @@ export default {
         {
           // Receive challenge from some player (+sid)
           let newChall = data.chall;
-          newChall.type = this.classifyChallenge(data.chall);
+          newChall.type = this.classifyObject(data.chall);
           const pIdx = this.players.findIndex(p => p.sid == data.from);
           newChall.from = this.players[pIdx]; //may be anonymous
           newChall.added = Date.now();
@@ -304,9 +323,11 @@ export default {
         case "game":
         {
           // Receive game from some player (+sid)
-          // TODO: receive game summary (update, count moves)
-          // (just players names, time control, and ID + player ID)
           // NOTE: it may be correspondance (if newgame while we are connected)
+          let newGame = data.game;
+          newGame.type = this.classifyObject(data.game);
+          newGame.vname = this.getVname(newGame.vid);
+          this.games.push(newGame);
           break;
         }
 // *  - receive "new game": if live, store locally + redirect to game
@@ -369,22 +390,19 @@ export default {
         {
           this.players.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
+          this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
+          this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
           break;
-// *  - receive "player connect": TODO = send our current challenge (to him or global)
-// *    Also send all our games (live - max 1 - and corr) [in web worker ?]
         }
-// *  - receive "player disconnect": remove from players list
         case "disconnect":
         {
           ArrayFun.remove(this.players, p => p.sid == data.sid);
           // Also remove all challenges sent by this player:
-          for (let cIdx = this.challenges.length-1; cIdx >= 0; cIdx--)
-          {
-            if (this.challenges[cIdx].from.sid == data.sid)
-              this.challenges.splice(cIdx, 1);
-          }
-          // and all live games where he plays and no other opponent is online
-          // TODO
+          ArrayFun.remove(this.challenges, c => c.from.sid == data.sid);
+          // And all live games where he plays and no other opponent is online
+          ArrayFun.remove(this.games, g =>
+            g.type == "live" && (g.players.every(p => p.sid == data.sid
+              || !this.players.some(pl => pl.sid == p.sid))), "all");
           break;
         }
       }
@@ -403,7 +421,7 @@ export default {
       const error = checkChallenge(this.newchallenge);
       if (!!error)
         return alert(error);
-      const ctype = this.classifyChallenge(this.newchallenge);
+      const ctype = this.classifyObject(this.newchallenge);
       const cto = this.newchallenge.to.slice(0, this.newchallenge.nbPlayers);
       // NOTE: "from" information is not required here
       let chall =
@@ -413,10 +431,10 @@ export default {
         timeControl: this.newchallenge.timeControl,
         vid: this.newchallenge.vid,
       };
-      const finishAddChallenge = (cid) => {
+      const finishAddChallenge = (cid,warnDisconnected) => {
         chall.id = cid || "c" + getRandString();
-        // Send challenge to peers
-        this.sendSomethingTo(cto, "challenge", {chall:chall}, "warnDisconnected");
+        // Send challenge to peers (if connected)
+        this.sendSomethingTo(cto, "challenge", {chall:chall}, !!warnDisconnected);
         chall.added = Date.now();
         chall.type = ctype;
         chall.vname = vname;
@@ -444,7 +462,7 @@ export default {
       if (ctype == "live")
       {
         // Live challenges have a random ID
-        finishAddChallenge();
+        finishAddChallenge(null, "warnDisconnected");
       }
       else
       {
@@ -465,13 +483,25 @@ export default {
 // *  - prepare and start new game (if challenge is full after acceptation)
 // *    --> include challenge ID (so that opponents can delete the challenge too)
     clickChallenge: function(c) {
-      // TODO: also correspondance case (send to server)
-      if (!!c.accepted)
+      switch (c.type)
       {
-        // It's a multiplayer challenge I accepted: withdraw
-        this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
-          cid: c.id, target: c.from.sid}));
-        c.accepted = false;
+        case "live":
+          if (!!c.accepted)
+          {
+            this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
+              cid: c.id, target: c.from.sid}));
+          
+          break;
+        case "corr":
+          ajax(
+            "/challenges",
+            "PUT",
+            {action:"withdraw", id: this.challenges[cIdx].id}
+          );
+          break;
+      }
+      c.accepted = false;
+      {
       }
       else if (c.from.sid == this.st.user.sid) //it's my challenge: cancel it
       {
