@@ -7,4 +7,5 @@ quand on arrive dans la partie, on poll les sids pour savoir qui est en ligne (p
 ensuite quand qqun se deco il suffit d'écouter "disconnect"
 pareil quand quelqu'un reco.
 (c'est assez rudimentaire et écoute trop de messages, mais dans un premier temps...)
+      // TODO: [in game] send move + elapsed time (in milliseconds); in case of "lastate" message too
 -->

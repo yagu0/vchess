@@ -9,6 +9,22 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
 	const error = ChallengeModel.checkChallenge(req.body.chall);
   // TODO: treat "to" field separately (search users by name)
   // --> replace "to" by an array of uid (in chall), then call:
+	const from = req.userId;
+//	let to = !!req.body.to ? ObjectID(req.body.to) : undefined;
+//	let nameTo = !!req.body.nameTo ? req.body.nameTo : undefined;
+//	let vid = ObjectID(req.body.vid);
+//	if (!to && !!nameTo)
+//	{
+//		UserModel.getByName(nameTo, (err,user) => {
+//			access.checkRequest(res, err, user, "Opponent not found", () => {
+//				createChallenge(vid, from, user._id, res);
+//			});
+//		});
+//	}
+//	else if (!!to)
+//		createChallenge(vid, from, to, res);
+//	else
+//		createChallenge(vid, from, undefined, res); //automatch
 	ChallengeModel.create(req.body.chall, (err,lastId) => {
 		res.json(err || {cid: lastId["rowid"]});
 	});
@@ -34,28 +50,6 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
 //		});
 //	});
 //}
-//
-//// from[, to][,nameTo]
-//router.post("/challenges", access.logged, access.ajax, (req,res) => {
-//	if (req.body.from != req.user._id)
-//		return res.json({errmsg: "Identity usurpation"});
-//	let from = ObjectID(req.body.from);
-//	let to = !!req.body.to ? ObjectID(req.body.to) : undefined;
-//	let nameTo = !!req.body.nameTo ? req.body.nameTo : undefined;
-//	let vid = ObjectID(req.body.vid);
-//	if (!to && !!nameTo)
-//	{
-//		UserModel.getByName(nameTo, (err,user) => {
-//			access.checkRequest(res, err, user, "Opponent not found", () => {
-//				createChallenge(vid, from, user._id, res);
-//			});
-//		});
-//	}
-//	else if (!!to)
-//		createChallenge(vid, from, to, res);
-//	else
-//		createChallenge(vid, from, undefined, res); //automatch
-//});
 //
 //router.delete("/challenges", access.logged, access.ajax, (req,res) => {
 //	let cid = ObjectID(req.query.cid);

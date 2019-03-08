@@ -292,8 +292,8 @@ export default {
             {
               // Minimal game informations: (fen+clock not required)
               id: localStorage["gid"],
-              players: JSON.parse(localStorage["players"]), //array sid+name
-              vid: localStorage["vid"],
+              players: JSON.parse(localStorage["players"]), //array sid+id+name
+              vname: localStorage["vname"],
               timeControl: localStorage["timeControl"],
             };
             this.st.conn.send(JSON.stringify({code:"game",
@@ -326,7 +326,7 @@ export default {
           // NOTE: it may be correspondance (if newgame while we are connected)
           let newGame = data.game;
           newGame.type = this.classifyObject(data.game);
-          newGame.vname = this.getVname(newGame.vid);
+          newGame.vname = newGame.vname;
           this.games.push(newGame);
           break;
         }
@@ -550,15 +550,23 @@ export default {
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       this.newGame(gameInfo); //also!
     },
-    // NOTE: for live games only (corr games are laucnhed on server)
+    // NOTE: for live games only (corr games are launched on server)
     newGame: function(gameInfo) {
+      localStorage["gid"] = getRandString();
       // Extract times (in [milli]seconds), set clocks, store in localStorage
       const tc = extractTime(gameInfo.timeControl);
-      dddddddd
-      // TODO: [in game] send move + elapsed time (in milliseconds); in case of "lastate" message too
-      //      //setStorage(game); //TODO
-//      if (this.settings.sound >= 1)
-//        new Audio("/sounds/newgame.mp3").play().catch(err => {});
+      localStorage["timeControl"] = gameInfo.timeControl;
+      localStorage["clocks"] = JSON.stringify(
+        [...Array(gameInfo.players.length)].fill(tc.mainTime));
+      localStorage["increment"] = tc.increment;
+      localStorage["started"] = JSON.stringify(
+        [...Array(gameInfo.players.length)].fill(false));
+      localStorage["mysid"] = this.st.user.sid;
+      localStorage["vname"] = this.getVname(gameInfo.vid);
+      localStorage["fenInit"] = gameInfo.fen;
+      localStorage["players"] = JSON.stringify(gameInfo.players);
+      if (this.st.settings.sound >= 1)
+        new Audio("/sounds/newgame.mp3").play().catch(err => {});
     },
   },
 };
