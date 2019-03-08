@@ -107,13 +107,9 @@ module.exports = function(wss) {
           obj.oppid = sid; //I'm the opponent of my opponent(s)
           clients[oppId].send(JSON.stringify(obj));
           break;
-        // TODO: moreover, here, game info should be sent (through challenge; not stored here)
-        // TODO: also other challenge events
         case "resign":
           clients[obj.target].send(JSON.stringify({code:"resign"}));
           break;
-        // TODO: case "challenge" (get ID) --> send to all, "acceptchallenge" (with ID) --> send to all, "cancelchallenge" --> send to all
-        // also, "sendgame" (give current game info, if any) --> to new connections, "sendchallenges" (same for challenges) --> to new connections
       }
     });
     socket.on("close", () => {
