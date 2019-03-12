@@ -13,6 +13,7 @@ var db = require("../utils/database");
  * Structure table WillPlay:
  *   cid: ref challenge id
  *   uid: ref user id
+ *   yes: boolean (false means "not decided yet")
  */
 
 const ChallengeModel =
@@ -25,12 +26,21 @@ const ChallengeModel =
     if (!c.timeControl.match(/^[0-9dhms +]+$/))
       return "Wrong characters in time control";
 
-    if (!c.nbPlayers.match(/^[0-9]+$/))
-			return "Wrong number of players";
-
 		if (!c.fen.match(/^[a-zA-Z0-9, /-]+$/))
 			return "Bad FEN string";
 	},
+
+  initializeWillPlay: function(uids, cid, cb)
+  {
+    let query = "INSERT INTO WillPlay VALUES ";
+    for (let i=0; i<uids.length; i++)
+    {
+      query += "(false," + cid + "," + uids[i] + ")";
+      if (i < uids.length-1)
+        query += ",";
+    }
+    db.run(query, cb);
+  },
 
 	// fen cannot be undefined
 	create: function(c, cb)
@@ -45,16 +55,12 @@ const ChallengeModel =
 				if (!!err)
 					return cb(err);
 				db.get("SELECT last_insert_rowid() AS rowid", (err2,lastId) => {
-					
-          // TODO: also insert "will play" "no" for other players ?
-          // willplay = "maybe" by default ?
-          
           query =
 						"INSERT INTO WillPlay VALUES " +
 						"(true," + lastId["rowid"] + "," + c.uid + ")";
-						db.run(query, (err,ret) => {
-							cb(err, lastId); //all we need is the challenge ID
-						});
+					db.run(query, (err,ret) => {
+						cb(err, lastId); //all we need is the challenge ID
+					});
 				});
 			});
 		});
@@ -120,14 +126,14 @@ const ChallengeModel =
 		});
 	},
 
-	remove: function(id)
+	remove: function(id, uid)
 	{
-		db.parallelize(function() {
+		db.serialize(function() {
 			let query =
 				"DELETE FROM Challenges " +
-				"WHERE id = " + id;
-			db.run(query);
-			query =
+				"WHERE id = " + id + " AND uid = " + uid;
+			db.run(query, (err,ret) => {
+			  if (!!err && query = //TODO
 				"DELETE FROM WillPlay " +
 				"WHERE cid = " + id;
 			db.run(query);
