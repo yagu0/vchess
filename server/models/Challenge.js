@@ -126,6 +126,15 @@ const ChallengeModel =
 		});
 	},
 
+  testfunc: function()
+  {
+    db.serialize(function() {
+      db.run("DELETE * FROM TableTest", (err,ret) => {
+        console.log(ret);
+      });
+    });
+  },
+
 	remove: function(id, uid)
 	{
 		db.serialize(function() {
@@ -133,10 +142,15 @@ const ChallengeModel =
 				"DELETE FROM Challenges " +
 				"WHERE id = " + id + " AND uid = " + uid;
 			db.run(query, (err,ret) => {
-			  if (!!err && query = //TODO
-				"DELETE FROM WillPlay " +
-				"WHERE cid = " + id;
-			db.run(query);
+			  if (!err && ret >= 1)
+        {
+          // Also remove matching WillPlay entries if a challenge was deleted
+          query =
+				    "DELETE FROM WillPlay " +
+				    "WHERE cid = " + id;
+			    db.run(query);
+        }
+      });
 		});
 	},
 }

@@ -66,9 +66,9 @@ const UserModel =
   getByName: function(names, cb) {
 		db.serialize(function() {
 			const query =
-				"SELECT id
+				"SELECT id " +
         "FROM Users " +
-				"WHERE name IN ('" + names.join("','") + "')";;
+				"WHERE name IN ('" + names.join("','") + "')";
 			db.all(query, cb);
 		});
   },

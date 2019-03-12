@@ -37,13 +37,6 @@ new Vue({
   },
 }).$mount("#app");
 
-// TODO: get rules, dynamic import
-// Load a rules page (AJAX)
-// router.get("/rules/:vname([a-zA-Z0-9]+)", access.ajax, (req,res) => {
-//  const lang = selectLanguage(req, res);
-//  res.render("rules/" + req.params["vname"] + "/" + lang);
-// });
-//
 // board2, 3, 4 automatiquement, mais rules separement (les 3 pour une)
 // game : aussi systématique
 // problems: on-demand

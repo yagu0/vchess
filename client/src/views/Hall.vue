@@ -125,6 +125,10 @@ export default {
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
+
+    console.log("created");
+ajax("/testtest", "DELETE");
+
     // Ask server for current corr games (all but mines)
 //    ajax(
 //      "",
@@ -208,7 +212,7 @@ export default {
           {target: sid}
         )));
       };
-      else if (!!to[0])
+      if (!!to[0])
       {
         to.forEach(pname => {
           // Challenge with targeted players
@@ -483,30 +487,34 @@ export default {
 // *  - prepare and start new game (if challenge is full after acceptation)
 // *    --> include challenge ID (so that opponents can delete the challenge too)
     clickChallenge: function(c) {
-      switch (c.type)
+      if (!!c.accepted)
       {
-        case "live":
-          if (!!c.accepted)
-          {
-            this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
-              cid: c.id, target: c.from.sid}));
-          
-          break;
-        case "corr":
+        this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
+          cid: c.id, target: c.from.sid}));
+        if (c.type == "corr")
+        {
           ajax(
             "/challenges",
             "PUT",
             {action:"withdraw", id: this.challenges[cIdx].id}
           );
-          break;
+        }
+        c.accepted = false;
       }
-      c.accepted = false;
+      else if (c.from.sid == this.st.user.sid
+        || (this.st.user.id > 0 && c.from.id == this.st.user.id))
       {
-      }
-      else if (c.from.sid == this.st.user.sid) //it's my challenge: cancel it
-      {
+        // It's my challenge: cancel it
         this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
         ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+        if (c.type == "corr")
+        {
+          ajax(
+            "/challenges",
+            "DELETE",
+            {id: this.challenges[cIdx].id}
+          );
+        }
       }
       else //accept (or refuse) a challenge
       {
@@ -516,16 +524,35 @@ export default {
           // TODO: if special FEN, show diagram after loading variant
           c.accepted = confirm("Accept challenge?");
         }
+        const action = (c.accepted ? "accept" : "refuse");
         this.st.conn.send(JSON.stringify({
-          code: (c.accepted ? "accept" : "refuse") + "challenge",
+          code: action + "challenge",
           cid: c.id, target: c.from.sid}));
+        if (c.type == "corr")
+        {
+          ajax(
+            "/challenges",
+            "PUT",
+            {action: action, id: this.challenges[cIdx].id}
+          );
+        }
         if (!c.accepted)
+        {
           ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+          if (c.type == "corr")
+          {
+            ajax(
+              "/challenges",
+              "DELETE",
+              {id: this.challenges[cIdx].id}
+            );
+          }
+        }
       }
     },
     // c.type == corr alors use id...sinon sid (figés)
     // NOTE: only for live games ?
-    launchGame: function(c) {
+    launchGame: async function(c) {
       // Just assign colors and pass the message
       const vname = this.getVname(c.vid);
       const vModule = await import("@/variants/" + vname + ".js");
@@ -537,7 +564,7 @@ export default {
         fen: c.fen || V.GenRandInitFen(),
         // Shuffle players order (white then black then other colors).
         // Players' names may be required if game start when a player is offline
-        players: shuffle(players).map(p => {name:p.name, sid:p.sid},
+        players: shuffle(players).map(p => { return {name:p.name, sid:p.sid} }),
         vid: c.vid,
         timeControl: c.timeControl,
       };

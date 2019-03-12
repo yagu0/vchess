@@ -5,6 +5,11 @@ const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
 const UserModel = require("../models/User"); //for name check
 
+router.delete("/testtest", access.ajax, (req,res) => {
+  console.log("passag");
+  ChallengeModel.testfunc();
+});
+
 router.post("/challenges", access.logged, access.ajax, (req,res) => {
   const error = ChallengeModel.checkChallenge(req.body.chall);
   if (!!error)
