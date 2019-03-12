@@ -126,15 +126,6 @@ const ChallengeModel =
 		});
 	},
 
-  testfunc: function()
-  {
-    db.serialize(function() {
-      db.run("DELETE * FROM TableTest", (err,ret) => {
-        console.log(ret);
-      });
-    });
-  },
-
 	remove: function(id, uid)
 	{
 		db.serialize(function() {

@@ -125,10 +125,6 @@ export default {
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
-
-    console.log("created");
-ajax("/testtest", "DELETE");
-
     // Ask server for current corr games (all but mines)
 //    ajax(
 //      "",
