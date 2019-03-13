@@ -5,6 +5,12 @@ const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
 const UserModel = require("../models/User"); //for name check
 
+router.get("/challenges", access.logged, access.ajax, (req,res) => {
+  ChallengeModel.getByUser(req.query["uid"], (err,challenges) => {
+    res.json(err || {challenges:challenges});
+  });
+});
+
 router.post("/challenges", access.logged, access.ajax, (req,res) => {
   const error = ChallengeModel.checkChallenge(req.body.chall);
   if (!!error)
@@ -42,6 +48,32 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
       res.json({cid: lastId["rowid"]});
   });
 });
+
+// Nothing to do if challenge is refused (just removal)
+router.put("/challenges", access.logged, access.ajax, (req,res) => {
+  switch (req.body.action)
+  {
+    case "withdraw":
+      // turn WillPlay to false (TODO?)
+      break;
+    case "accept":
+      // turn WillPlay to true; if then challenge is full, launch game
+      ChallengeModel.getSeatCount(req.body.id, (scount) => {
+        if (scount == 1)
+          launchGame(req.body.id, req.userId);
+        else
+          ChallengeModel.setSeat(req.body.id, req.userId);
+      })
+      break;
+  }
+  res.json({});
+});
+
+function launchGame(cid, uid)
+{
+  // TODO: gather challenge infos + WillPlay
+  // Then create game, and remove challenge + WillPlay
+}
 
 //// index
 //router.get("/challenges", access.logged, access.ajax, (req,res) => {

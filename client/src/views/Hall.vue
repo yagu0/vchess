@@ -127,20 +127,24 @@ export default {
     this.players.push(this.st.user);
     // Ask server for current corr games (all but mines)
 //    ajax(
-//      "",
+//      "/games",
 //      "GET",
+//      {excluded: this.st.user.id},
 //      response => {
-//
+//        this.games = this.games.concat(response.games);
 //      }
 //    );
-    //    // Also ask for corr challenges (all) --> + accepted status if I play
-//    ajax(
-//      "",
-//      "GET",
-//      response => {
-//
-//      }
-//    );
+    // Also ask for corr challenges (open + personal to me)
+    ajax(
+      "/challenges",
+      "GET",
+      {uid: this.st.user.id},
+      response => {
+        console.log(response.challenges);
+        // TODO: post-treatment on challenges ?
+        this.challenges = this.challenges.concat(response.challenges);
+      }
+    );
     // 0.1] Ask server for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
@@ -520,16 +524,15 @@ export default {
           // TODO: if special FEN, show diagram after loading variant
           c.accepted = confirm("Accept challenge?");
         }
-        const action = (c.accepted ? "accept" : "refuse");
         this.st.conn.send(JSON.stringify({
-          code: action + "challenge",
+          code: (c.accepted ? "accept" : "refuse") + "challenge",
           cid: c.id, target: c.from.sid}));
-        if (c.type == "corr")
+        if (c.type == "corr" && c.accepted)
         {
           ajax(
             "/challenges",
             "PUT",
-            {action: action, id: this.challenges[cIdx].id}
+            {action: "accept", id: this.challenges[cIdx].id}
           );
         }
         if (!c.accepted)

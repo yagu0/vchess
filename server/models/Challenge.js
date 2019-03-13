@@ -126,20 +126,61 @@ const ChallengeModel =
 		});
 	},
 
+  getSeatCount: function(id, cb)
+  {
+		db.serialize(function() {
+      let query =
+        "SELECT COUNT(*) AS scount " +
+        "FROM WillPlay " +
+        "WHERE cid = " + id;
+      db.get(query, (err,scRow) => {
+        if (!!err)
+          return cb(err);
+        query =
+          "SELECT nbPlayers " +
+          "FROM Challenges " +
+          "WHERE id = " + id;
+        db.get(query, (err2,chRow) => {
+          if (!!err2)
+            return cb(err2);
+          cb(chRow["nbPlayers"] - scRow["scount"]);
+        });
+      });
+    });
+  },
+
+  setSeat: function(id, uid)
+  {
+    // TODO: remove extra "db.serialize" (parallelize by default)
+    //db.serialize(function() {
+    const query =
+      "INSERT OR REPLACE INTO WillPlay " +
+      "VALUES (true," + id + "," + uid +")";
+    db.run(query);
+    //});
+  },
+
 	remove: function(id, uid)
 	{
 		db.serialize(function() {
 			let query =
-				"DELETE FROM Challenges " +
-				"WHERE id = " + id + " AND uid = " + uid;
-			db.run(query, (err,ret) => {
-			  if (!err && ret >= 1)
+        "SELECT 1 " +
+        "FROM Challenges " +
+        "WHERE id = " + id + " AND uid = " + uid;
+      db.run(query, (err,rows) => {
+        if (rows.length > 0) //it's my challenge
         {
-          // Also remove matching WillPlay entries if a challenge was deleted
-          query =
-				    "DELETE FROM WillPlay " +
-				    "WHERE cid = " + id;
-			    db.run(query);
+          db.parallelize(function() {
+            query =
+              "DELETE FROM Challenges " +
+              "WHERE id = " + id;
+            db.run(query);
+            // Also remove matching WillPlay entries if a challenge was deleted
+            query =
+              "DELETE FROM WillPlay " +
+              "WHERE cid = " + id;
+            db.run(query);
+          });
         }
       });
 		});

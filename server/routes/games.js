@@ -1,3 +1,7 @@
+router.get("/games", access.logged, access.ajax, (req,res) => {
+  const excluded = req.query["excluded"]; //TODO: think about query params here
+});
+
 // TODO: adapt for correspondance play
 
 var router = require("express").Router();
