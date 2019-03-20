@@ -21,7 +21,11 @@ function setAndSendLoginToken(subject, to, res)
 			params.siteURL + "/authenticate?token=" + token + "\\n" +
 			"Token will expire in " + params.token.expire/(1000*60) + " minutes."
 		sendEmail(params.mail.noreply, to.email, subject, body, err => {
-			// "id" is generally the only info missing on client side,
+			
+      console.log("send login infos ::");
+      console.log(to);
+      
+      // "id" is generally the only info missing on client side,
 			// but the name is also unknown if log-in with the email.
 			res.json(err || {id: to.id, name: to.name});
 		});

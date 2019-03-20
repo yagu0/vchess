@@ -78,12 +78,15 @@ const ChallengeModel =
 			db.get(query, (err,challengeInfo) => {
 				if (!!err)
 					return cb(err);
+        let condition = "";
+        if (!!challengeInfo.to[0])
+          condition = " AND u.name in (" + challengeInfo.to.join(",") + ")";
 				query =
 					"SELECT w.uid AS id, u.name " +
 					"FROM WillPlay w " +
 					"JOIN Users u " +
 					"  ON w.uid = u.id " +
-					"WHERE w.cid = " + id;
+					"WHERE w.cid = " + id + condition;
 				db.run(query, (err2,players) => {
 					if (!!err2)
 						return cb(err2);
@@ -113,6 +116,7 @@ const ChallengeModel =
 			db.run(query, (err,challIds) => {
 				if (!!err)
 					return cb(err);
+        challIds = challIds || [];
 				let challenges = [];
 				challIds.forEach(cidRow => {
 					ChallengeModel.getOne(cidRow["cid"], (err2,chall) => {

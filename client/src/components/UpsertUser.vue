@@ -34,120 +34,129 @@ div
 
 <script>
 import { store } from "@/store";
+import { checkNameEmail } from "@/data/userCheck";
+import { ajax } from "@/utils/ajax";
 export default {
   name: 'my-upsert-user',
-	data: function() {
-		return {
-			user: store.state.user, //initialized with global user object
-			nameOrEmail: "", //for login
-			stage: (!store.state.user.id ? "Login" : "Update"),
-			infoMsg: "",
-			enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
-		};
-	},
-	computed: {
-		submitMessage: function() {
-			switch (this.stage)
-			{
-				case "Login":
-					return "Go";
-				case "Register":
-					return "Send";
-				case "Update":
-					return "Apply";
-			}
-		},
-		displayInfo: function() {
-			return (this.infoMsg.length > 0 ? "block" : "none");
-		},
-	},
-	methods: {
-		trySetEnterTime: function(event) {
-			if (!!event.target.checked)
-				this.enterTime = Date.now();
-		},
-		toggleStage: function() {
-			// Loop login <--> register (update is for logged-in users)
-			this.stage = (this.stage == "Login" ? "Register" : "Login");
-		},
-		ajaxUrl: function() {
-			switch (this.stage)
-			{
-				case "Login":
-					return "/sendtoken";
-				case "Register":
-					return "/register";
-				case "Update":
-					return "/update";
-			}
-		},
-		ajaxMethod: function() {
-			switch (this.stage)
-			{
-				case "Login":
-					return "GET";
-				case "Register":
-					return "POST";
-				case "Update":
-					return "PUT";
-			}
-		},
-		infoMessage: function() {
-			switch (this.stage)
-			{
-				case "Login":
-					return "Connection token sent. Check your emails!";
-				case "Register":
-					return "Registration complete! Please check your emails.";
-				case "Update":
-					return "Modifications applied!";
-			}
-		},
-		onSubmit: function() {
-			// Basic anti-bot strategy:
-			const exitTime = Date.now();
-			if (this.stage == "Register" && exitTime - this.enterTime < 5000)
-				return; //silently return, in (curious) case of it was legitimate
-			let error = undefined;
-			if (this.stage == 'Login')
-			{
-				const type = (this.nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
-				error = checkNameEmail({[type]: this.nameOrEmail});
-			}
-			else
-				error = checkNameEmail(this.user);
-			if (!!error)
-				return alert(error);
-			this.infoMsg = "Processing... Please wait";
-			ajax(this.ajaxUrl(), this.ajaxMethod(),
-				this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.user,
-				res => {
-					this.infoMsg = this.infoMessage();
-					if (this.stage != "Update")
-					{
-						this.nameOrEmail = "";
-						this.user["email"] = "";
-						this.user["name"] = "";
-						// Store our identifiers in local storage (by little anticipation...)
-						localStorage["myid"] = res.id;
-						localStorage["myname"] = res.name;
+  data: function() {
+    return {
+      user: store.state.user, //initialized with global user object
+      nameOrEmail: "", //for login
+      stage: (!store.state.user.id ? "Login" : "Update"),
+      infoMsg: "",
+      enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
+    };
+  },
+  computed: {
+    submitMessage: function() {
+      switch (this.stage)
+      {
+        case "Login":
+          return "Go";
+        case "Register":
+          return "Send";
+        case "Update":
+          return "Apply";
+      }
+    },
+    displayInfo: function() {
+      return (this.infoMsg.length > 0 ? "block" : "none");
+    },
+  },
+  methods: {
+    trySetEnterTime: function(event) {
+      if (!!event.target.checked)
+        this.enterTime = Date.now();
+    },
+    toggleStage: function() {
+      // Loop login <--> register (update is for logged-in users)
+      this.stage = (this.stage == "Login" ? "Register" : "Login");
+    },
+    ajaxUrl: function() {
+      switch (this.stage)
+      {
+        case "Login":
+          return "/sendtoken";
+        case "Register":
+          return "/register";
+        case "Update":
+          return "/update";
+      }
+    },
+    ajaxMethod: function() {
+      switch (this.stage)
+      {
+        case "Login":
+          return "GET";
+        case "Register":
+          return "POST";
+        case "Update":
+          return "PUT";
+      }
+    },
+    infoMessage: function() {
+      switch (this.stage)
+      {
+        case "Login":
+          return "Connection token sent. Check your emails!";
+        case "Register":
+          return "Registration complete! Please check your emails.";
+        case "Update":
+          return "Modifications applied!";
+      }
+    },
+    onSubmit: function() {
+      // Basic anti-bot strategy:
+      const exitTime = Date.now();
+      if (this.stage == "Register" && exitTime - this.enterTime < 5000)
+        return; //silently return, in (curious) case of it was legitimate
+      let error = undefined;
+      if (this.stage == 'Login')
+      {
+        const type = (this.nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
+        error = checkNameEmail({[type]: this.nameOrEmail});
+      }
+      else
+        error = checkNameEmail(this.user);
+      if (!!error)
+        return alert(error);
+      this.infoMsg = "Processing... Please wait";
+      ajax(this.ajaxUrl(), this.ajaxMethod(),
+        this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.user,
+        res => {
+
+          console.log("receive login infos");
+          console.log(res);
+
+          this.infoMsg = this.infoMessage();
+          if (this.stage != "Update")
+          {
+            this.nameOrEmail = "";
+            this.user["email"] = "";
+            this.user["name"] = "";
+            
+            debugger; //TODO: 2 passages ici au lieu d'1 lors du register
+            
+            // Store our identifiers in local storage (by little anticipation...)
+            localStorage["myid"] = res.id;
+            localStorage["myname"] = res.name;
             // Also in global object
-            this.$user.id = res.id;
-            this.$user.name = res.name;
-					}
-					setTimeout(() => {
-						this.infoMsg = "";
-						if (this.stage == "Register")
-							this.stage = "Login";
-						document.getElementById("modalUser").checked = false;
-					}, 2000);
-				},
-				err => {
-					this.infoMsg = "";
-					alert(err);
-				}
-			);
-		},
-	},
+            this.st.user.id = res.id;
+            this.st.user.name = res.name;
+          }
+          setTimeout(() => {
+            this.infoMsg = "";
+            if (this.stage == "Register")
+              this.stage = "Login";
+            document.getElementById("modalUser").checked = false;
+          }, 2000);
+        },
+        err => {
+          this.infoMsg = "";
+          alert(err);
+        }
+      );
+    },
+  },
 };
 </script>

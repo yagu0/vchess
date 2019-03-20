@@ -5,7 +5,7 @@ const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
 const UserModel = require("../models/User"); //for name check
 
-router.get("/challenges", access.logged, access.ajax, (req,res) => {
+router.get("/challenges", (req,res) => {
   ChallengeModel.getByUser(req.query["uid"], (err,challenges) => {
     res.json(err || {challenges:challenges});
   });

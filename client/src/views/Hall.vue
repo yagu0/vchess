@@ -125,6 +125,8 @@ export default {
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
+    if (this.st.user.id > 0)
+    {
     // Ask server for current corr games (all but mines)
 //    ajax(
 //      "/games",
@@ -134,17 +136,18 @@ export default {
 //        this.games = this.games.concat(response.games);
 //      }
 //    );
-    // Also ask for corr challenges (open + personal to me)
-    ajax(
-      "/challenges",
-      "GET",
-      {uid: this.st.user.id},
-      response => {
-        console.log(response.challenges);
-        // TODO: post-treatment on challenges ?
-        this.challenges = this.challenges.concat(response.challenges);
-      }
-    );
+    // Also ask for corr challenges (open + sent to me)
+      ajax(
+        "/challenges",
+        "GET",
+        {uid: this.st.user.id},
+        response => {
+          console.log(response.challenges);
+          // TODO: post-treatment on challenges ?
+          this.challenges = this.challenges.concat(response.challenges);
+        }
+      );
+    }
     // 0.1] Ask server for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
@@ -394,8 +397,8 @@ export default {
         {
           this.players.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
-          this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
-          this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
+          this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.sid}));
+          this.st.conn.send(JSON.stringify({code:"askgame", target:data.sid}));
           break;
         }
         case "disconnect":
@@ -549,8 +552,7 @@ export default {
         }
       }
     },
-    // c.type == corr alors use id...sinon sid (figés)
-    // NOTE: only for live games ?
+    // NOTE: for live games only (corr games are launched on server)
     launchGame: async function(c) {
       // Just assign colors and pass the message
       const vname = this.getVname(c.vid);
