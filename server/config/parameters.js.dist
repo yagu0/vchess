@@ -9,7 +9,7 @@ module.exports =
 	// CORS: cross-origin resource sharing options
 	cors: {
 		enable: true,
-		allowedOrigin: "*",
+		allowedOrigin: "http://localhost:8080",
 	},
 
 	// Lifespan of a (login) cookie

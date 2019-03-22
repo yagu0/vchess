@@ -18,13 +18,9 @@ function setAndSendLoginToken(subject, to, res)
 		const body =
 			"Hello " + to.name + "!\n" +
 			"Access your account here: " +
-			params.siteURL + "/authenticate?token=" + token + "\\n" +
+			params.siteURL + "/#/authenticate/" + token + "\\n" +
 			"Token will expire in " + params.token.expire/(1000*60) + " minutes."
 		sendEmail(params.mail.noreply, to.email, subject, body, err => {
-			
-      console.log("send login infos ::");
-      console.log(to);
-      
       // "id" is generally the only info missing on client side,
 			// but the name is also unknown if log-in with the email.
 			res.json(err || {id: to.id, name: to.name});
@@ -64,8 +60,8 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 	});
 });
 
-router.get('/authenticate', access.unlogged, (req,res) => {
-	UserModel.getOne("loginToken", req.query.token, (err,user) => {
+router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
+  UserModel.getOne("loginToken", req.query.token, (err,user) => {
 		access.checkRequest(res, err, user, "Invalid token", () => {
 			// If token older than params.tokenExpire, do nothing
 			if (Date.now() > user.loginTime + params.token.expire)
@@ -80,7 +76,7 @@ router.get('/authenticate', access.unlogged, (req,res) => {
 					secure: !!params.siteURL.match(/^https/),
 					maxAge: params.cookieExpire,
 				});
-				res.redirect("/");
+				res.json({name:user.name, id:user.id});
 			});
 		});
 	});
@@ -103,10 +99,9 @@ router.put('/update', access.logged, access.ajax, (req,res) => {
 	});
 });
 
-// Logout on server because the token cookie is httpOnly
-router.get('/logout', access.logged, (req,res) => {
+router.get('/logout', access.logged, access.ajax, (req,res) => {
 	res.clearCookie("token");
-	res.redirect('/');
+	res.json({});
 });
 
 module.exports = router;

@@ -8,6 +8,9 @@ function loadView(view) {
 	return () => import(/* webpackChunkName: "view-[request]" */ `@/views/${view}.vue`)
 }
 
+import { ajax } from "@/utils/ajax";
+import { store } from "@/store";
+
 export default new Router({
   routes: [
     {
@@ -24,6 +27,39 @@ export default new Router({
       path: "/variants/:vname([a-zA-Z0-9]+)",
       name: "rules",
       component: loadView("Rules"),
+    },
+    {
+      path: "/authenticate/:token",
+      name: "authenticate",
+      beforeEnter: (to, from, next) => {
+        ajax(
+          "/authenticate",
+          "GET",
+          {token: to.params["token"]},
+          (res) => {
+            store.state.user.id = res.id;
+            store.state.user.name = res.name;
+          }
+        );
+        next();
+      },
+      redirect: "/",
+    },
+    {
+      path: "/logout",
+      name: "logout",
+      beforeEnter: (to, from, next) => {
+        ajax(
+          "/logout",
+          "GET",
+          () => {
+            store.state.user.id = 0;
+            store.state.user.name = ""; //TODO: localStorage myId myname mysid ?
+          }
+        );
+        next();
+      },
+      redirect: "/",
     },
 //    {
 //      path: "/about",

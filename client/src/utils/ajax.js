@@ -26,16 +26,17 @@ export function ajax(url, method, data, success, error)
 	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200)
 		{
+      let res_json = "";
 			try {
-				let res_json = JSON.parse(xhr.responseText);
-				if (!res_json.errmsg)
-					success(res_json);
-				else
-					error(res_json.errmsg);
-			} catch (e) {
+				res_json = JSON.parse(xhr.responseText);
+      } catch (e) {
 				// Plain text (e.g. for rules retrieval)
-				success(xhr.responseText);
-			}
+				return success(xhr.responseText);
+      }
+      if (!res_json.errmsg)
+        success(res_json);
+			else
+				error(res_json.errmsg);
 		}
 	};
 
@@ -46,7 +47,10 @@ export function ajax(url, method, data, success, error)
 	}
 	xhr.open(method, params.serverUrl + url, true);
 	xhr.setRequestHeader('X-Requested-With', "XMLHttpRequest");
-	if (["POST","PUT"].includes(method))
+	// Next line because logout and authenticate set (cross-domain in dev mode) cookies
+  if (url.startsWith("/authenticate") || url.startsWith("/logout"))
+    xhr.withCredentials = true;
+  if (["POST","PUT"].includes(method))
 	{
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xhr.send(JSON.stringify(data));

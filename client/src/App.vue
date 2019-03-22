@@ -26,7 +26,7 @@
                 | {{ st.tr["Problems"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
-                | {{ !st.user.id ? "Login" : "Update" }}
+                | {{ st.user.id > 0 ? "Update" : "Login" }}
               .clickable(onClick="doClick('modalSettings')")
                 | {{ st.tr["Settings"] }}
               .clickable#flagContainer(onClick="doClick('modalLang')")

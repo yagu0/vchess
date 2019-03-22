@@ -12,22 +12,22 @@ div
             label(for="username") Name
             input#username(type="text" v-model="user.name")
           fieldset
-            <label for="useremail">Email</label>
-            <input id="useremail" type="email" v-model="user.email"/>
+            label(for="useremail") Email
+            input#useremail(type="email" v-model="user.email")
           fieldset
-            <label for="notifyNew">Notify new moves &amp; games</label>
-            <input id="notifyNew" type="checkbox" v-model="user.notify"/>
+            label(for="notifyNew") Notify new moves &amp; games
+            input#notifyNew(type="checkbox" v-model="user.notify")
         div(v-show="stage=='Login'")
           fieldset
-            <label for="nameOrEmail">Name or Email</label>
-            <input id="nameOrEmail" type="text" v-model="nameOrEmail"/>
+            label(for="nameOrEmail") Name or Email
+            input#nameOrEmail(type="text" v-model="nameOrEmail")
       .button-group
-        button#submit(@click="onSubmit()")
+        button#submit(type="button" @click="onSubmit()")
           span {{ submitMessage }}
           i.material-icons send
         button(v-if="stage!='Update'" @click="toggleStage()")
           span {{ stage=="Login" ? "Register" : "Login" }}
-        button(v-if="stage=='Update'" onClick="location.replace('/logout')")
+        button(v-else onClick="location.replace('/logout')")
           span Logout
       #dialog(:style="{display: displayInfo}") {{ infoMsg }}
 </template>
@@ -40,9 +40,9 @@ export default {
   name: 'my-upsert-user',
   data: function() {
     return {
-      user: store.state.user, //initialized with global user object
+      user: store.state.user,
       nameOrEmail: "", //for login
-      stage: (!store.state.user.id ? "Login" : "Update"),
+      stage: (store.state.user.id > 0 ? "Update" : "Login"), //TODO?
       infoMsg: "",
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
     };
@@ -124,25 +124,17 @@ export default {
       ajax(this.ajaxUrl(), this.ajaxMethod(),
         this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.user,
         res => {
-
-          console.log("receive login infos");
-          console.log(res);
-
           this.infoMsg = this.infoMessage();
           if (this.stage != "Update")
           {
             this.nameOrEmail = "";
             this.user["email"] = "";
-            this.user["name"] = "";
-            
-            debugger; //TODO: 2 passages ici au lieu d'1 lors du register
-            
+            // Update global object
+            this.user["name"] = res.name;
+            this.user["id"] = res.id;
             // Store our identifiers in local storage (by little anticipation...)
             localStorage["myid"] = res.id;
             localStorage["myname"] = res.name;
-            // Also in global object
-            this.st.user.id = res.id;
-            this.st.user.name = res.name;
           }
           setTimeout(() => {
             this.infoMsg = "";
