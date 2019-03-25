@@ -32,16 +32,21 @@ export default new Router({
       path: "/authenticate/:token",
       name: "authenticate",
       beforeEnter: (to, from, next) => {
+        console.log("ajax call authenticate");
         ajax(
           "/authenticate",
           "GET",
           {token: to.params["token"]},
           (res) => {
+            console.log(res);
             store.state.user.id = res.id;
             store.state.user.name = res.name;
+            store.state.user.email = res.email;
+            store.state.user.notify = res.notify;
+            // NOTE: mysid isn't cleared (required for potential game continuation)
+            next();
           }
         );
-        next();
       },
       redirect: "/",
     },
@@ -54,10 +59,12 @@ export default new Router({
           "GET",
           () => {
             store.state.user.id = 0;
-            store.state.user.name = ""; //TODO: localStorage myId myname mysid ?
+            store.state.user.name = "";
+            store.state.user.email = "";
+            store.state.user.notify = false;
+            next();
           }
         );
-        next();
       },
       redirect: "/",
     },

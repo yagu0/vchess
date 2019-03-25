@@ -15,10 +15,21 @@ export const store =
   initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
     this.state.user = {
-      id: localStorage["myuid"] || 0,
-      name: localStorage["myname"] || "", //"anonymous"
+      id: 0, //unknown yet
+      name: "", //"anonymous"
+      email: "", //unknown yet
+      notify: false, //email notifications
       sid: localStorage["mysid"] || getRandString(),
     };
+    ajax("/whoami", "GET", res => {
+      if (res.id > 0)
+      {
+        this.state.user.id = res.id;
+        this.state.user.name = res.name;
+        this.state.user.email = res.email;
+        this.state.user.notify = res.notify;
+      }
+    });
     this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + this.state.user.sid);
     // Settings initialized with values from localStorage
     this.state.settings = {

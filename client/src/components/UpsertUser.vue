@@ -1,4 +1,3 @@
-// Logic to login, or create / update a user (and also logout)
 <template lang="pug">
 div
   input#modalUser.modal(type="checkbox" @change="trySetEnterTime")
@@ -40,7 +39,7 @@ export default {
   name: 'my-upsert-user',
   data: function() {
     return {
-      user: store.state.user,
+      user: Object.assign({}, store.state.user),
       nameOrEmail: "", //for login
       stage: (store.state.user.id > 0 ? "Update" : "Login"), //TODO?
       infoMsg: "",
@@ -126,20 +125,9 @@ export default {
         res => {
           this.infoMsg = this.infoMessage();
           if (this.stage != "Update")
-          {
             this.nameOrEmail = "";
-            this.user["email"] = "";
-            // Update global object
-            this.user["name"] = res.name;
-            this.user["id"] = res.id;
-            // Store our identifiers in local storage (by little anticipation...)
-            localStorage["myid"] = res.id;
-            localStorage["myname"] = res.name;
-          }
           setTimeout(() => {
             this.infoMsg = "";
-            if (this.stage == "Register")
-              this.stage = "Login";
             document.getElementById("modalUser").checked = false;
           }, 2000);
         },

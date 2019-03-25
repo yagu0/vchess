@@ -7,6 +7,27 @@ var genToken = require("../utils/tokenGenerator");
 var access = require("../utils/access");
 var params = require("../config/parameters");
 
+router.get("/whoami", access.ajax, (req,res) => {
+  const callback = (user) => {
+    return res.json({
+      name: user.name,
+      email: user.email,
+      id: user.id,
+      notify: user.notify,
+    });
+  };
+  const anonymous = {name:"", email:"", id:0, notify:false};
+  console.log(req.cookies); //TODO: cookie not found after authenticate ?
+	if (!req.cookies.token)
+    return callback(anonymous);
+  UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {
+    if (!!err || !user)
+      callback(anonymous);
+    else (!!user)
+      callback(user);
+  });
+});
+
 // to: object user (to who we send an email)
 function setAndSendLoginToken(subject, to, res)
 {
@@ -71,12 +92,17 @@ router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
 				if (!!err)
 					return res.json({errmsg: err.toString()});
 				// Set cookie
-				res.cookie("token", token, {
+        res.cookie("token", token, {
 					httpOnly: true,
 					secure: !!params.siteURL.match(/^https/),
 					maxAge: params.cookieExpire,
 				});
-				res.json({name:user.name, id:user.id});
+				res.json({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          notify: user.notify,
+        });
 			});
 		});
 	});
