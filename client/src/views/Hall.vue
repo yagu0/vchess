@@ -395,6 +395,7 @@ export default {
         }
         case "deletechallenge":
         {
+          console.log("receive delete");
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
@@ -495,6 +496,9 @@ export default {
 // *  - prepare and start new game (if challenge is full after acceptation)
 // *    --> include challenge ID (so that opponents can delete the challenge too)
     clickChallenge: function(c) {
+      
+      console.log(c);
+      
       if (!!c.accepted)
       {
         this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
@@ -512,6 +516,7 @@ export default {
       else if (c.from.sid == this.st.user.sid
         || (this.st.user.id > 0 && c.from.id == this.st.user.id))
       {
+        console.log("send delete");
         // It's my challenge: cancel it
         this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
         ArrayFun.remove(this.challenges, ch => ch.id == c.id);
