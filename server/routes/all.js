@@ -1,4 +1,10 @@
 var router = require("express").Router();
+var access = require("../utils/access");
+
+// To avoid a weird preflight AJAX request error in dev mode...
+router.get("/", access.ajax, (req,res) => {
+  res.json({});
+});
 
 router.use("/", require("./challenges"));
 //router.use("/", require("./games"));

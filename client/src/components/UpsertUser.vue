@@ -26,7 +26,7 @@ div
           i.material-icons send
         button(v-if="stage!='Update'" @click="toggleStage()")
           span {{ stage=="Login" ? "Register" : "Login" }}
-        button(v-else onClick="location.replace('/logout')")
+        button(v-else @click="doLogout()")
           span Logout
       #dialog(:style="{display: displayInfo}") {{ infoMsg }}
 </template>
@@ -39,9 +39,9 @@ export default {
   name: 'my-upsert-user',
   data: function() {
     return {
-      user: Object.assign({}, store.state.user),
+      user: store.state.user,
       nameOrEmail: "", //for login
-      stage: (store.state.user.id > 0 ? "Update" : "Login"), //TODO?
+      logStage: "Login", //or Register
       infoMsg: "",
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
     };
@@ -61,6 +61,9 @@ export default {
     displayInfo: function() {
       return (this.infoMsg.length > 0 ? "block" : "none");
     },
+    stage: function() {
+      return this.user.id > 0 ? "Update" : this.logStage;
+    },
   },
   methods: {
     trySetEnterTime: function(event) {
@@ -69,7 +72,7 @@ export default {
     },
     toggleStage: function() {
       // Loop login <--> register (update is for logged-in users)
-      this.stage = (this.stage == "Login" ? "Register" : "Login");
+      this.logStage = (this.logStage == "Login" ? "Register" : "Login");
     },
     ajaxUrl: function() {
       switch (this.stage)
@@ -134,6 +137,18 @@ export default {
         err => {
           this.infoMsg = "";
           alert(err);
+        }
+      );
+    },
+    doLogout: function() {
+      ajax(
+        "/logout",
+        "GET",
+        () => {
+          this.user.id = 0;
+          this.user.name = "";
+          this.user.email = "";
+          this.user.notify = false;
         }
       );
     },

@@ -32,13 +32,11 @@ export default new Router({
       path: "/authenticate/:token",
       name: "authenticate",
       beforeEnter: (to, from, next) => {
-        console.log("ajax call authenticate");
         ajax(
           "/authenticate",
           "GET",
           {token: to.params["token"]},
           (res) => {
-            console.log(res);
             store.state.user.id = res.id;
             store.state.user.name = res.name;
             store.state.user.email = res.email;
@@ -48,25 +46,8 @@ export default new Router({
           }
         );
       },
-      redirect: "/",
-    },
-    {
-      path: "/logout",
-      name: "logout",
-      beforeEnter: (to, from, next) => {
-        ajax(
-          "/logout",
-          "GET",
-          () => {
-            store.state.user.id = 0;
-            store.state.user.name = "";
-            store.state.user.email = "";
-            store.state.user.notify = false;
-            next();
-          }
-        );
-      },
-      redirect: "/",
+      component: Hall,
+      //redirect: "/", //problem: redirection before end of AJAX request
     },
 //    {
 //      path: "/about",
