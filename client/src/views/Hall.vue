@@ -122,32 +122,37 @@ export default {
       return playerList;
     },
   },
+  watch: {
+    // Watch event "user infos retrieved" (through /whoami)
+    "st.user.id": function(newId) {
+      if (newId > 0) //should always be the case
+      {
+      // Ask server for current corr games (all but mines)
+  //    ajax(
+  //      "/games",
+  //      "GET",
+  //      {excluded: this.st.user.id},
+  //      response => {
+  //        this.games = this.games.concat(response.games);
+  //      }
+  //    );
+      // Also ask for corr challenges (open + sent to me)
+        ajax(
+          "/challenges",
+          "GET",
+          {uid: this.st.user.id},
+          response => {
+            console.log(response.challenges);
+            // TODO: post-treatment on challenges ?
+            this.challenges = this.challenges.concat(response.challenges);
+          }
+        );
+      }
+    },
+  },
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
-    if (this.st.user.id > 0)
-    {
-    // Ask server for current corr games (all but mines)
-//    ajax(
-//      "/games",
-//      "GET",
-//      {excluded: this.st.user.id},
-//      response => {
-//        this.games = this.games.concat(response.games);
-//      }
-//    );
-    // Also ask for corr challenges (open + sent to me)
-      ajax(
-        "/challenges",
-        "GET",
-        {uid: this.st.user.id},
-        response => {
-          console.log(response.challenges);
-          // TODO: post-treatment on challenges ?
-          this.challenges = this.challenges.concat(response.challenges);
-        }
-      );
-    }
     // 0.1] Ask server for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
