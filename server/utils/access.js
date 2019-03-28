@@ -6,7 +6,7 @@ module.exports =
 	logged: function(req, res, next) {
 		const callback = () => {
 			if (!loggedIn)
-				return res.redirect("/");
+				return res.json({errmsg: "Not logged in"});
 			next();
 		};
 		let loggedIn = undefined;
@@ -42,7 +42,7 @@ module.exports =
 		// Just a quick heuristic, which should be enough
 		const loggedIn = !!req.cookies.token;
 		if (loggedIn)
-			return res.redirect("/");
+			return res.json({errmsg: "Already logged in"});
 		next();
 	},
 

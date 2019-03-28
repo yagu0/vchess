@@ -48,7 +48,8 @@ export function ajax(url, method, data, success, error)
 	xhr.open(method, params.serverUrl + url, true);
 	xhr.setRequestHeader('X-Requested-With', "XMLHttpRequest");
 	// Next line to allow cross-domain cookies in dev mode (TODO: if...)
-  xhr.withCredentials = true;
+  if (params.cors)
+    xhr.withCredentials = true;
   if (["POST","PUT"].includes(method))
 	{
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");

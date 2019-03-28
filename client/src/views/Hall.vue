@@ -101,7 +101,7 @@ export default {
         fen: "",
         vid: 0,
         nbPlayers: 0,
-        to: ["", "", ""], //name of challenged players
+        to: ["", "", ""], //name(s) of challenged player(s)
         timeControl: "", //"2m+2s" ...etc
       },
     };
@@ -122,37 +122,32 @@ export default {
       return playerList;
     },
   },
-  watch: {
-    // Watch event "user infos retrieved" (through /whoami)
-    "st.user.id": function(newId) {
-      if (newId > 0) //should always be the case
-      {
-      // Ask server for current corr games (all but mines)
-  //    ajax(
-  //      "/games",
-  //      "GET",
-  //      {excluded: this.st.user.id},
-  //      response => {
-  //        this.games = this.games.concat(response.games);
-  //      }
-  //    );
-      // Also ask for corr challenges (open + sent to me)
-        ajax(
-          "/challenges",
-          "GET",
-          {uid: this.st.user.id},
-          response => {
-            console.log(response.challenges);
-            // TODO: post-treatment on challenges ?
-            this.challenges = this.challenges.concat(response.challenges);
-          }
-        );
-      }
-    },
-  },
   created: function() {
     // Always add myself to players' list
     this.players.push(this.st.user);
+    if (this.st.user.id > 0)
+    {
+    // Ask server for current corr games (all but mines)
+//    ajax(
+//      "/games",
+//      "GET",
+//      {excluded: this.st.user.id},
+//      response => {
+//        this.games = this.games.concat(response.games);
+//      }
+//    );
+    // Also ask for corr challenges (open + sent to me)
+      ajax(
+        "/challenges",
+        "GET",
+        {uid: this.st.user.id},
+        response => {
+          console.log(response.challenges);
+          // TODO: post-treatment on challenges ?
+          this.challenges = this.challenges.concat(response.challenges);
+        }
+      );
+    }
     // 0.1] Ask server for room composition:
     const socketOpenListener = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
@@ -395,7 +390,6 @@ export default {
         }
         case "deletechallenge":
         {
-          console.log("receive delete");
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
@@ -435,7 +429,7 @@ export default {
       if (!!error)
         return alert(error);
       const ctype = this.classifyObject(this.newchallenge);
-      const cto = this.newchallenge.to.slice(0, this.newchallenge.nbPlayers);
+      const cto = this.newchallenge.to.slice(0, this.newchallenge.nbPlayers - 1);
       // NOTE: "from" information is not required here
       let chall =
       {
@@ -496,9 +490,10 @@ export default {
 // *  - prepare and start new game (if challenge is full after acceptation)
 // *    --> include challenge ID (so that opponents can delete the challenge too)
     clickChallenge: function(c) {
-      
+
+      console.log("click challenge");
       console.log(c);
-      
+
       if (!!c.accepted)
       {
         this.st.conn.send(JSON.stringify({code: "withdrawchallenge",
@@ -516,7 +511,6 @@ export default {
       else if (c.from.sid == this.st.user.sid
         || (this.st.user.id > 0 && c.from.id == this.st.user.id))
       {
-        console.log("send delete");
         // It's my challenge: cancel it
         this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
         ArrayFun.remove(this.challenges, ch => ch.id == c.id);
@@ -599,7 +593,6 @@ export default {
       localStorage["increment"] = tc.increment;
       localStorage["started"] = JSON.stringify(
         [...Array(gameInfo.players.length)].fill(false));
-      localStorage["mysid"] = this.st.user.sid;
       localStorage["vname"] = this.getVname(gameInfo.vid);
       localStorage["fenInit"] = gameInfo.fen;
       localStorage["players"] = JSON.stringify(gameInfo.players);

@@ -83,6 +83,10 @@ module.exports = function(wss) {
           clients[obj.target].send(
             JSON.stringify({code:"refusechallenge", cid:obj.cid, from:sid}));
           break;
+        case "deletechallenge":
+          clients[obj.target].send(
+            JSON.stringify({code:"deletechallenge", cid:obj.cid, from:sid}));
+          break;
         case "newgame":
           clients[obj.target].send(JSON.stringify(
             {code:"newgame", gameInfo:obj.gameInfo, cid:obj.cid}));

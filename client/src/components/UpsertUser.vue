@@ -149,6 +149,8 @@ export default {
           this.user.name = "";
           this.user.email = "";
           this.user.notify = false;
+          delete localStorage["myid"];
+          delete localStorage["myname"];
         }
       );
     },

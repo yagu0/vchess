@@ -81,7 +81,7 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
   UserModel.getOne("loginToken", req.query.token, (err,user) => {
 		access.checkRequest(res, err, user, "Invalid token", () => {
-			// If token older than params.tokenExpire, do nothing
+      // If token older than params.tokenExpire, do nothing
 			if (Date.now() > user.loginTime + params.token.expire)
 				return res.json({errmsg: "Token expired"});
 			// Generate session token (if not exists) + destroy login token

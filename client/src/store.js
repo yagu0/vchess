@@ -14,22 +14,29 @@ export const store =
   },
   initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
+    let mysid = localStorage["mysid"];
+    if (!mysid)
+    {
+      mysid = getRandString();
+      localStorage["mysid"] = mysid; //done only once (unless user clear browser data)
+    }
     this.state.user = {
-      id: 0, //unknown yet
-      name: "", //"anonymous"
+      id: localStorage["myid"] || 0,
+      name: localStorage["myname"] || "", //"" for "anonymous"
       email: "", //unknown yet
       notify: false, //email notifications
-      sid: localStorage["mysid"] || getRandString(),
+      sid: mysid,
     };
-    ajax("/whoami", "GET", res => {
-      if (res.id > 0)
-      {
-        this.state.user.id = res.id;
-        this.state.user.name = res.name;
+    if (this.state.user.id > 0)
+    {
+      fetch(params.serverUrl + "/whoami", {
+        method: "GET",
+        credentials: params.cors ? "include" : "omit",
+      }).then((res) => {
         this.state.user.email = res.email;
         this.state.user.notify = res.notify;
-      }
-    });
+      });
+    }
     this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + this.state.user.sid);
     // Settings initialized with values from localStorage
     this.state.settings = {

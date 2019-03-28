@@ -37,11 +37,15 @@ export default new Router({
           "GET",
           {token: to.params["token"]},
           (res) => {
-            store.state.user.id = res.id;
-            store.state.user.name = res.name;
-            store.state.user.email = res.email;
-            store.state.user.notify = res.notify;
-            // NOTE: mysid isn't cleared (required for potential game continuation)
+            if (!res.errmsg) //if not already logged in
+            {
+              store.state.user.id = res.id;
+              store.state.user.name = res.name;
+              store.state.user.email = res.email;
+              store.state.user.notify = res.notify;
+              localStorage["myname"] = res.name;
+              localStorage["myid"] = res.id;
+            }
             next();
           }
         );
