@@ -598,6 +598,7 @@ export default {
       localStorage["players"] = JSON.stringify(gameInfo.players);
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});
+      // TODO: redirect to game
     },
   },
 };

@@ -10,19 +10,19 @@
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
     .section-content(v-show="display=='rules'" v-html="content")
-    Game(v-show="display=='computer'" :gid-or-fen="fen"
-      :mode="mode" :sub-mode="subMode" :variant="variant"
+    ComputerGame(v-show="display=='computer'"
+      :fen="fen" :mode="mode" :variant="variant"
       @computer-think="gameInProgress=false" @game-over="stopGame")
 </template>
 
 <script>
-import Game from "@/components/Game.vue";
+import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
 import { getDiagram } from "@/utils/printDiagram";
 export default {
   name: 'my-rules',
   components: {
-    Game,
+    ComputerGame,
   },
   data: function() {
     return {
@@ -30,15 +30,14 @@ export default {
       variant: {id: 0, name: "_unknown"}, //...yet
       content: "",
       display: "rules",
-      mode: "computer",
-      subMode: "", //'auto' for game CPU vs CPU
+      mode: "versus",
       gameInProgress: false,
       mycolor: "w",
       fen: "",
     };
   },
   watch: {
-    $route: function(newRoute) {
+    "$route": function(newRoute) {
       this.tryChangeVariant(newRoute.params["vname"]);
     },
   },
@@ -57,7 +56,7 @@ export default {
       };
     },
     tryChangeVariant: async function(vname) {
-      if (vname == "_unknown")
+      if (!vname || vname == "_unknown")
         return;
       if (this.st.variants.length > 0)
       {
@@ -82,7 +81,6 @@ export default {
       if (this.gameInProgress)
         return;
       this.gameInProgress = true;
-      this.mode = "computer";
       this.display = "computer";
       this.fen = V.GenRandInitFen();
     },
@@ -91,11 +89,11 @@ export default {
       this.mode = "analyze";
     },
     playAgainstComputer: function() {
-      this.subMode = "";
+      this.mode = "versus";
       this.startGame();
     },
     watchComputerGame: function() {
-      this.subMode = "auto";
+      this.mode = "auto";
       this.startGame();
     },
   },

@@ -11,9 +11,8 @@ export default {
   name: 'my-board',
   // Last move cannot be guessed from here, and is required to highlight squares
   // vr: object to check moves, print board...
-  // mode: HH, HC or analyze
   // userColor: for mode HH or HC
-  props: ["vr","lastMove","mode","orientation","userColor","vname"],
+  props: ["vr","lastMove","analyze","orientation","userColor","vname"],
   data: function () {
     return {
       hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
@@ -100,7 +99,7 @@ export default {
             let cj = (this.orientation=='w' ? j : sizeY-j-1);
             let elems = [];
             if (this.vr.board[ci][cj] != V.EMPTY && (this.vname!="Dark"
-              || this.gameOver || this.mode == "analyze"
+              || this.gameOver || this.analyze
               || this.vr.enlightened[this.userColor][ci][cj]))
             {
               elems.push(
@@ -146,8 +145,7 @@ export default {
                   'dark-square': (i+j)%2==1,
                   [this.bcolor]: true,
                   'in-shadow': this.vname=="Dark" && !this.gameOver
-                    && this.mode != "analyze"
-                    && !this.vr.enlightened[this.userColor][ci][cj],
+                    && !this.analyze && !this.vr.enlightened[this.userColor][ci][cj],
                   'highlight': showLight && !!lm && lm.end.x == ci && lm.end.y == cj,
                   'incheck': showLight && incheckSq[ci][cj],
                 },
@@ -293,9 +291,7 @@ export default {
         this.selectedPiece.style.zIndex = 3000;
         const startSquare = getSquareFromId(e.target.parentNode.id);
         this.possibleMoves = [];
-        const color = this.mode=="analyze" || this.gameOver
-          ? this.vr.turn
-          : this.userColor;
+        const color = (this.analyze || this.gameOver ? this.vr.turn : this.userColor);
         if (this.vr.canIplay(color,startSquare))
           this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
         // Next line add moving piece just after current image
