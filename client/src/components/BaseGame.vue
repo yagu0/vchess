@@ -37,11 +37,11 @@ export default {
     Board,
     //MoveList,
   },
-  props: ["variant","analyze","players"],
+  // "vr": VariantRules object, describing the game state + rules
+  props: ["vr","variant","analyze","players"],
   data: function() {
     return {
       st: store.state,
-      vr: null, //VariantRules object, describing the game state + rules
       endgameMessage: "",
       orientation: "w",
       score: "*", //'*' means 'unfinished'

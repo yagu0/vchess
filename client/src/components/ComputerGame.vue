@@ -1,7 +1,7 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:variant="variant.name" :analyze="analyze" : players="players")
+    BaseGame(:variant="variant.name" :analyze="analyze" :players="players")
 </template>
 
 <script>
@@ -24,9 +24,7 @@ export default {
       lockCompThink: false, //to avoid some ghost moves
       fenStart: "",
       compWorker: null,
-
-//TODO: players ? Computed?
-
+      players: ["Myself","Computer"], //always playing white for now
     };
   },
   computed: {
