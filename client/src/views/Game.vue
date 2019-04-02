@@ -12,11 +12,8 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:variant="variant.name" @game-over=".....TODO")
-
-
-
-localStorage["score"] = score;
+    //BaseGame(:variant="variant.name" @game-over=".....TODO")
+    //localStorage["score"] = score;
 
 
     .button-group(v-if="mode!='analyze'")
