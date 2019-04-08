@@ -1,4 +1,6 @@
 import { ChessRules } from "@/base_rules";
+import { ArrayFun} from "@/utils/array";
+
 // NOTE: alternative implementation, probably cleaner = use only 1 board
 export const VariantRules = class AliceRules extends ChessRules
 {
@@ -81,7 +83,7 @@ export const VariantRules = class AliceRules extends ChessRules
 	getSideBoard(mirrorSide)
 	{
 		// Build corresponding board from complete board
-		let sideBoard = doubleArray(V.size.x, V.size.y, "");
+		let sideBoard = ArrayFun.init(V.size.x, V.size.y, "");
 		for (let i=0; i<V.size.x; i++)
 		{
 			for (let j=0; j<V.size.y; j++)

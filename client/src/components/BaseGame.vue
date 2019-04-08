@@ -7,7 +7,7 @@
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
     Board(:vr="vr" :last-move="lastMove" :analyze="analyze" :user-color="mycolor"
-      :orientation="orientation" :vname="variant.name" @play-move="play")
+      :orientation="orientation" :vname="vname" @play-move="play")
     .button-group
       button(@click="play") Play
       button(@click="undo") Undo
@@ -38,17 +38,15 @@ export default {
     //MoveList,
   },
   // "vr": VariantRules object, describing the game state + rules
-  props: ["vr","variant","analyze","players"],
+  props: ["vname","analyze","vr","fenStart","players","mycolor"],
   data: function() {
     return {
       st: store.state,
+      // NOTE: all following variables must be reset at the beginning of a game
       endgameMessage: "",
       orientation: "w",
       score: "*", //'*' means 'unfinished'
-      // userColor: given by gameId, or fen in problems mode (if no game Id)...
-      mycolor: "w",
-      fenStart: "",
-      moves: [], //all moves played in current game
+      moves: [],
       cursor: -1, //index of the move just played
       lastMove: null,
     };
@@ -59,7 +57,7 @@ export default {
       //return window.innerWidth >= 768;
     },
     showFen: function() {
-      return this.variant.name != "Dark" || this.score != "*";
+      return this.vname != "Dark" || this.score != "*";
     },
   },
   methods: {
@@ -93,7 +91,7 @@ export default {
     getPgn: function() {
       let pgn = "";
       pgn += '[Site "vchess.club"]\n';
-      pgn += '[Variant "' + this.variant.name + '"]\n';
+      pgn += '[Variant "' + this.vname + '"]\n';
       pgn += '[Date "' + getDate(new Date()) + '"]\n';
       pgn += '[White "' + this.players[0] + '"]\n';
       pgn += '[Black "' + this.players[1] + '"]\n';
@@ -187,7 +185,7 @@ export default {
         move.fen = this.vr.getFen();
       if (this.st.settings.sound == 2)
         new Audio("/sounds/move.mp3").play().catch(err => {});
-      // Send the move to web worker (including his own moves)
+      // Send the move to web worker (including his own moves) //TODO: doesn't work here --> need to send an event instead
       this.compWorker.postMessage(["newmove",move]);
       if (!navigate && (this.score == "*" || this.analyze))
       {

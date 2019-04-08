@@ -1,7 +1,8 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:variant="variant.name" :analyze="analyze" :players="players")
+    BaseGame(:vname="vname" :analyze="analyze"
+      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor")
 </template>
 
 <script>
@@ -15,16 +16,19 @@ export default {
     BaseGame,
   },
   // mode: "auto" (game comp vs comp), "versus" (normal) or "analyze"
-  props: ["fen","mode","variant"],
+  props: ["fen","mode","vname"],
   data: function() {
     return {
       st: store.state,
+      // variables passed to BaseGame:
+      fenStart: "",
+      vr: null,
+      players: ["Myself","Computer"], //always playing white for now
+      mycolor: "w",
       // Web worker to play computer moves without freezing interface:
       timeStart: undefined, //time when computer starts thinking
       lockCompThink: false, //to avoid some ghost moves
-      fenStart: "",
       compWorker: null,
-      players: ["Myself","Computer"], //always playing white for now
     };
   },
   computed: {
@@ -42,8 +46,6 @@ export default {
   },
   // Modal end of game, and then sub-components
   created: function() {
-    if (!!this.fen)
-      this.launchGame();
     // Computer moves web worker logic: (TODO: also for observers in HH games ?)
     this.compWorker = new Worker(); //'/javascripts/playCompMove.js'),
     this.compWorker.onmessage = e => {
@@ -54,7 +56,7 @@ export default {
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500-(Date.now()-this.timeStart), 0);
       setTimeout(() => {
-        const animate = this.variant.name != "Dark";
+        const animate = this.vname != "Dark";
         this.play(compMove[0], animate);
         if (compMove.length == 2)
           setTimeout( () => { this.play(compMove[1], animate); }, 750);
@@ -62,14 +64,16 @@ export default {
           setTimeout( () => this.lockCompThink = false, 250);
       }, delay);
     }
+    if (!!this.fen)
+      this.launchGame();
   },
   // dans variant.js (plutôt room.js) conn gère aussi les challenges
   // et les chats dans chat.js. Puis en webRTC, repenser tout ça.
   methods: {
     launchGame: async function() {
-      const vModule = await import("@/variants/" + this.variant.name + ".js");
+      const vModule = await import("@/variants/" + this.vname + ".js");
       window.V = vModule.VariantRules;
-      this.compWorker.postMessage(["scripts",this.variant.name]);
+      this.compWorker.postMessage(["scripts",this.vname]);
       this.newGameFromFen(this.fen);
     },
     newGameFromFen: function(fen) {
