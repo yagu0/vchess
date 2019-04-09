@@ -2,7 +2,8 @@
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
     BaseGame(:vname="vname" :analyze="analyze"
-      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor")
+      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor"
+      ref="basegame" @newmove="processMove")
 </template>
 
 <script>
@@ -56,10 +57,10 @@ export default {
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500-(Date.now()-this.timeStart), 0);
       setTimeout(() => {
-        const animate = this.vname != "Dark";
-        this.play(compMove[0], animate);
+        const animate = (this.vname != "Dark");
+        this.$refs.basegame.play(compMove[0], animate);
         if (compMove.length == 2)
-          setTimeout( () => { this.play(compMove[1], animate); }, 750);
+          setTimeout( () => { this.$refs.basegame.play(compMove[1], animate); }, 750);
         else //250 == length of animation (TODO: should be a constant somewhere)
           setTimeout( () => this.lockCompThink = false, 250);
       }, delay);
@@ -99,6 +100,17 @@ export default {
     playComputerMove: function() {
       this.timeStart = Date.now();
       this.compWorker.postMessage(["askmove"]);
+    },
+    // TODO: do not process if game is over (check score ?)
+    processMove: function(move) {
+      // Send the move to web worker (including his own moves)
+      this.compWorker.postMessage(["newmove",move]);
+      // subTurn condition for Marseille (and Avalanche) rules
+      if ((!this.vr.subTurn || this.vr.subTurn <= 1)
+        && (this.mode == "auto" || this.vr.turn != this.mycolor))
+      {
+        this.playComputerMove();
+      }
     },
   },
 };

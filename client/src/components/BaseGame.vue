@@ -185,8 +185,6 @@ export default {
         move.fen = this.vr.getFen();
       if (this.st.settings.sound == 2)
         new Audio("/sounds/move.mp3").play().catch(err => {});
-      // Send the move to web worker (including his own moves) //TODO: doesn't work here --> need to send an event instead
-      this.compWorker.postMessage(["newmove",move]);
       if (!navigate && (this.score == "*" || this.analyze))
       {
         // Stack move on movesList at current cursor
@@ -205,15 +203,7 @@ export default {
         else //just show score on screen (allow undo)
           this.showScoreMsg(score);
       }
-      // subTurn condition for Marseille (and Avalanche) rules
-      else if ((this.mode == "computer" && (!this.vr.subTurn || this.vr.subTurn <= 1))
-        && (this.subMode == "auto" || this.vr.turn != this.mycolor))
-      {
-        this.playComputerMove();
-      }
-      // https://vuejs.org/v2/guide/list.html#Caveats (also for undo)
-      //if (navigate)
-      //  this.$children[0].$forceUpdate(); //TODO!?
+      this.$emit("newmove", move); //post-processing (e.g. computer play)
     },
     undo: function(move) {
       let navigate = !move;
@@ -229,9 +219,7 @@ export default {
       if (this.st.settings.sound == 2)
         new Audio("/sounds/undo.mp3").play().catch(err => {});
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      if (navigate)
-        this.$children[0].$forceUpdate(); //TODO!?
-      else if (this.analyze) //TODO: can this happen?
+      if (this.analyze) //TODO: can this happen?
         this.moves.pop();
     },
     gotoMove: function(index) {
