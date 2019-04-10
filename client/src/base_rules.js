@@ -409,8 +409,13 @@ export const ChessRules = class ChessRules
   //////////////////
   // INITIALIZATION
 
-  // Fen string fully describes the game state
   constructor(fen)
+  {
+    this.re_init(fen);
+  }
+
+  // Fen string fully describes the game state
+  re_init(fen)
   {
     const fenParsed = V.ParseFen(fen);
     this.board = V.GetBoard(fenParsed.position);

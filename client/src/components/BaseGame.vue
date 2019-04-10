@@ -9,8 +9,8 @@
     Board(:vr="vr" :last-move="lastMove" :analyze="analyze" :user-color="mycolor"
       :orientation="orientation" :vname="vname" @play-move="play")
     .button-group
-      button(@click="play") Play
-      button(@click="undo") Undo
+      button(@click="() => play()") Play
+      button(@click="() => undo()") Undo
       button(@click="flip") Flip
       button(@click="gotoBegin") GotoBegin
       button(@click="gotoEnd") GotoEnd
@@ -50,6 +50,18 @@ export default {
       cursor: -1, //index of the move just played
       lastMove: null,
     };
+  },
+  watch: {
+    // fenStart changes when a new game starts
+    fenStart: function() {
+      // Reset all variables
+      this.endgameMessage = "";
+      this.orientation = this.mycolor;
+      this.score = "*";
+      this.moves = [];
+      this.cursor = -1;
+      this.lastMove = null;
+    },
   },
   computed: {
     showMoves: function() {
@@ -223,12 +235,12 @@ export default {
         this.moves.pop();
     },
     gotoMove: function(index) {
-      this.vr = new V(this.moves[index].fen);
+      this.vr.re_init(this.moves[index].fen);
       this.cursor = index;
       this.lastMove = this.moves[index];
     },
     gotoBegin: function() {
-      this.vr = new V(this.fenStart);
+      this.vr.re_init(this.fenStart);
       this.cursor = -1;
       this.lastMove = null;
     },

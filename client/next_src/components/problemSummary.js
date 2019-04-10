@@ -32,3 +32,8 @@ Vue.component('my-problem-summary', {
 		},
 	},
 })
+      if (this.mode == "analyze")
+      {
+        this.mycolor = V.ParseFen(fen).turn;
+        this.orientation = this.mycolor;
+      }

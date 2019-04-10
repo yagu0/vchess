@@ -80,23 +80,15 @@ export default {
     },
     newGameFromFen: function(fen) {
       this.vr = new V(fen);
-      this.moves = [];
-      this.cursor = -1;
       this.fenStart = fen;
-      this.score = "*";
-      if (this.mode == "analyze")
-      {
-        this.mycolor = V.ParseFen(fen).turn;
-        this.orientation = this.mycolor;
-      }
-      else if (this.mode == "computer") //only other alternative (HH with gameId)
-      {
-        this.mycolor = (Math.random() < 0.5 ? "w" : "b");
-        this.orientation = this.mycolor;
-        this.compWorker.postMessage(["init",fen]);
-        if (this.mycolor != "w" || this.mode == "auto")
-          this.playComputerMove();
-      }
+      this.mycolor = (Math.random() < 0.5 ? "w" : "b");
+      console.log(this.mycolor);
+      this.players = ["Myself","Computer"];
+      if (this.mycolor == "b")
+        this.players = this.players.reverse();
+      this.compWorker.postMessage(["init",fen]);
+      if (this.mycolor != "w" || this.mode == "auto")
+        this.playComputerMove();
     },
     playComputerMove: function() {
       this.timeStart = Date.now();
