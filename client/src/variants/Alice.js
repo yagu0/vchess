@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun} from "@/utils/array";
 
 // NOTE: alternative implementation, probably cleaner = use only 1 board
+// TODO? atLeastOneMove() would be more efficient if rewritten here (less sideBoard computations)
 export const VariantRules = class AliceRules extends ChessRules
 {
 	static get ALICE_PIECES()
@@ -98,12 +99,14 @@ export const VariantRules = class AliceRules extends ChessRules
 		const pieces = Object.keys(V.ALICE_CODES);
 		const codes = Object.keys(V.ALICE_PIECES);
 		const mirrorSide = (pieces.includes(this.getPiece(x,y)) ? 1 : 2);
+    if (!sideBoard)
+	    sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
 		const color = this.getColor(x,y);
 
 		// Search valid moves on sideBoard
-		let saveBoard = this.board;
-		this.board = sideBoard || this.getSideBoard(mirrorSide);
-		let moves = super.getPotentialMovesFrom([x,y])
+		const saveBoard = this.board;
+		this.board = sideBoard[mirrorSide-1];
+		const moves = super.getPotentialMovesFrom([x,y])
 			.filter(m => {
 				// Filter out king moves which result in under-check position on
 				// current board (before mirror traversing)
@@ -111,7 +114,7 @@ export const VariantRules = class AliceRules extends ChessRules
 				if (m.appear[0].p == V.KING)
 				{
 					this.play(m);
-					if (this.underCheck(color))
+					if (this.underCheck(color, sideBoard))
 						aprioriValid = false;
 					this.undo(m);
 				}
@@ -120,7 +123,7 @@ export const VariantRules = class AliceRules extends ChessRules
 		this.board = saveBoard;
 
 		// Finally filter impossible moves
-		let res = moves.filter(m => {
+		const res = moves.filter(m => {
 			if (m.appear.length == 2) //castle
 			{
 				// appear[i] must be an empty square on the other board
@@ -172,11 +175,12 @@ export const VariantRules = class AliceRules extends ChessRules
 		return res;
 	}
 
-	filterValid(moves)
+	filterValid(moves, sideBoard)
 	{
 		if (moves.length == 0)
 			return [];
-		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
+		if (!sideBoard)
+      sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
 		const color = this.turn;
 		return moves.filter(m => {
 			this.playSide(m, sideBoard); //no need to track flags
@@ -190,20 +194,16 @@ export const VariantRules = class AliceRules extends ChessRules
 	{
 		const color = this.turn;
 		const oppCol = V.GetOppCol(color);
-		var potentialMoves = [];
-		let sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
+		let potentialMoves = [];
+		const sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
 		for (var i=0; i<V.size.x; i++)
 		{
 			for (var j=0; j<V.size.y; j++)
 			{
 				if (this.board[i][j] != V.EMPTY && this.getColor(i,j) == color)
 				{
-					const mirrorSide =
-						Object.keys(V.ALICE_CODES).includes(this.getPiece(i,j))
-							? 1
-							: 2;
 					Array.prototype.push.apply(potentialMoves,
-						this.getPotentialMovesFrom([i,j], sideBoard[mirrorSide-1]));
+						this.getPotentialMovesFrom([i,j], sideBoard));
 				}
 			}
 		}
@@ -244,7 +244,8 @@ export const VariantRules = class AliceRules extends ChessRules
 		});
 	}
 
-	underCheck(color, sideBoard) //sideBoard arg always provided
+  // sideBoard: arg containing both boards (see getAllValidMoves())
+	underCheck(color, sideBoard)
 	{
 		const kp = this.kingPos[color];
 		const mirrorSide = (sideBoard[0][kp[0]][kp[1]] != V.EMPTY ? 1 : 2);

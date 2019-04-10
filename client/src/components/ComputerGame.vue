@@ -75,6 +75,7 @@ export default {
       const vModule = await import("@/variants/" + this.vname + ".js");
       window.V = vModule.VariantRules;
       this.compWorker.postMessage(["scripts",this.vname]);
+      this.compWorker.postMessage(["init",this.fen]);
       this.newGameFromFen(this.fen);
     },
     newGameFromFen: function(fen) {
@@ -93,7 +94,7 @@ export default {
         this.mycolor = (Math.random() < 0.5 ? "w" : "b");
         this.orientation = this.mycolor;
         this.compWorker.postMessage(["init",fen]);
-        if (this.mycolor != "w" || this.subMode == "auto")
+        if (this.mycolor != "w" || this.mode == "auto")
           this.playComputerMove();
       }
     },
