@@ -11,7 +11,7 @@ function loadView(view) {
 import { ajax } from "@/utils/ajax";
 import { store } from "@/store";
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: "/",
@@ -67,3 +67,11 @@ export default new Router({
     // TODO: gameRef, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
   ]
 });
+
+router.beforeEach((to, from, next) => {
+  window.scrollTo(0, 0); //TODO: check if a live game is running; if yes, call next('/game')
+  //https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
+  next();
+});
+
+export default router;
