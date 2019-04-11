@@ -62,6 +62,13 @@ export default {
       this.cursor = -1;
       this.lastMove = null;
     },
+    analyze: function() {
+      if (this.analyze)
+      {
+        // Switched to analyze mode: game is over
+        this.endGame("*");
+      }
+    },
   },
   computed: {
     showMoves: function() {
@@ -127,7 +134,7 @@ export default {
     },
     showScoreMsg: function(score) {
       this.setEndgameMessage(score);
-      let modalBox = document.getElementById("modal-eog");
+      let modalBox = document.getElementById("modalEog");
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
     },
@@ -215,7 +222,8 @@ export default {
         else //just show score on screen (allow undo)
           this.showScoreMsg(score);
       }
-      this.$emit("newmove", move); //post-processing (e.g. computer play)
+      if (!this.analyze)
+        this.$emit("newmove", move); //post-processing (e.g. computer play)
     },
     undo: function(move) {
       let navigate = !move;
@@ -231,7 +239,7 @@ export default {
       if (this.st.settings.sound == 2)
         new Audio("/sounds/undo.mp3").play().catch(err => {});
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      if (this.analyze) //TODO: can this happen?
+      if (!navigate)
         this.moves.pop();
     },
     gotoMove: function(index) {
