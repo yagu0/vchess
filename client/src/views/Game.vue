@@ -1,21 +1,24 @@
 <!-- TODO: component Game, + handle players + observers connect/disconnect
   event = "gameconnect" ...etc
   connect/disconnect with sid+name (ID not required); name slightly redundant but easier
-
 quand on arrive dans la partie, on poll les sids pour savoir qui est en ligne (ping)
 (éventuel échange lastate avec les connectés, pong ...etc)
 ensuite quand qqun se deco il suffit d'écouter "disconnect"
 pareil quand quelqu'un reco.
 (c'est assez rudimentaire et écoute trop de messages, mais dans un premier temps...)
       // TODO: [in game] send move + elapsed time (in milliseconds); in case of "lastate" message too
+// TODO: if I'm an observer and player(s) disconnect/reconnect, how to find me ?
+//      onClick :: ask full game to remote player, and register as an observer in game
+//      (use gameId to communicate)
+//      on landing on game :: if gameId not found locally, check remotely
+//      ==> il manque un param dans game : "remoteId"
 -->
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    //BaseGame(:variant="variant.name" @game-over=".....TODO")
-    //localStorage["score"] = score;
-
-
+    BaseGame(:vname="variant.name" :analyze="analyze"
+      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor"
+      ref="basegame" @newmove="processMove")
     .button-group(v-if="mode!='analyze'")
       button(@click="offerDraw") Draw
       button(@click="abortGame") Abort
@@ -26,11 +29,6 @@ pareil quand quelqu'un reco.
 </template>
 
 <script>
-// TODO: if I'm an observer and player(s) disconnect/reconnect, how to find me ?
-//      onClick :: ask full game to remote player, and register as an observer in game
-//      (use gameId to communicate)
-//      on landing on game :: if gameId not found locally, check remotely
-//      ==> il manque un param dans game : "remoteId"
 import Board from "@/components/Board.vue";
 //import Chat from "@/components/Chat.vue";
 //import MoveList from "@/components/MoveList.vue";
@@ -44,25 +42,39 @@ export default {
   // gameId: to find the game in storage (assumption: it exists)
   // mode: "live" or "corr" (correspondance game), or "analyze"
   // gameRef in URL hash (listen for changes)
-  props: ["gid","mode","variant"],
   data: function() {
     return {
       st: store.state,
+      // variables passed to BaseGame:
+      fenStart: "",
+      vr: null,
+      players: ["Myself","Computer"], //always playing white for now
+      mycolor: "w",
+      ////////////
+      gid: "", //given in URL
+      mode: "live", //or "corr"
+      variant: {}, //TODO
       myname: store.state.user.name, //may be anonymous (thus no name)
-      opponents: {}, //filled later (potentially 2 or 3 opponents)
       drawOfferSent: false, //did I just ask for draw?
+      opponents: [], //filled later (potentially 2 or 3 opponents)
       people: [], //observers
     };
   },
+  computed: {
+    analyze: function() {
+      return this.mode == "analyze";
+    },
+  },
   watch: {
+    // TODO: watch URL instead
     gid: function() {
       this.launchGame();
     },
   },
   // Modal end of game, and then sub-components
   created: function() {
-    if (!!this.gid)
-      this.launchGame();
+    // TODO: look for game in storage, if found then:
+    //this.launchGame();
     // TODO: if I'm one of the players in game, then:
     // Send ping to server (answer pong if opponent[s] is connected)
     if (true && !!this.conn && !!this.gameRef)
