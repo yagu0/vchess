@@ -39,9 +39,8 @@ export default {
   components: {
     BaseGame,
   },
-  // gameId: to find the game in storage (assumption: it exists)
+  // gameRef: to find the game in (potentially remote) storage
   // mode: "live" or "corr" (correspondance game), or "analyze"
-  // gameRef in URL hash (listen for changes)
   data: function() {
     return {
       st: store.state,
@@ -51,13 +50,12 @@ export default {
       players: ["Myself","Computer"], //always playing white for now
       mycolor: "w",
       ////////////
-      gid: "", //given in URL
+      gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID, if applicable)
       mode: "live", //or "corr"
-      variant: {}, //TODO
-      myname: store.state.user.name, //may be anonymous (thus no name)
+      variant: {}, //filled when game is retrieved
       drawOfferSent: false, //did I just ask for draw?
-      opponents: [], //filled later (potentially 2 or 3 opponents)
-      people: [], //observers
+      players: [], //filled later (2 to 4 players)
+      people: [], //potential observers
     };
   },
   computed: {
@@ -66,24 +64,31 @@ export default {
     },
   },
   watch: {
-    // TODO: watch URL instead
-    gid: function() {
+    '$route' (to, from) {
+      this.gameRef.id = to.params["id"];
+      this.gameRef.rid = to.query["rid"];
       this.launchGame();
     },
   },
-  // Modal end of game, and then sub-components
   created: function() {
-    // TODO: look for game in storage, if found then:
-    //this.launchGame();
-    // TODO: if I'm one of the players in game, then:
-    // Send ping to server (answer pong if opponent[s] is connected)
-    if (true && !!this.conn && !!this.gameRef)
+    if (!!this.$route.params["id"])
     {
-      this.conn.onopen = () => {
-        this.conn.send(JSON.stringify({
-          code:"ping",oppid:this.oppid,gameId:this.gameRef.id}));
-      };
+      this.gameRef.id = this.$route.params["id"];
+      this.gameRef.rid = this.$route.query["rid"];
+      this.launchGame();
     }
+    // Poll all players except me (if I'm playing) to know online status.
+    // --> Send ping to server (answer pong if players[s] are connected)
+    if (!!this.gameRef.id)
+    {
+      this.players.forEach(p => {
+        if (p.sid != this.st.user.sid)
+          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
+      });
+    }
+    // TODO: how to know who is observing ? Send message to everyone with game ID ?
+    // and then just listen to (dis)connect events
+
     // TODO: also handle "draw accepted" (use opponents array?)
     // --> must give this info also when sending lastState...
     // and, if all players agree then OK draw (end game ...etc)
@@ -92,12 +97,15 @@ export default {
       let L = undefined;
       switch (data.code)
       {
-        case "newmove": //..he played!
-          this.play(data.move, this.variant.name!="Dark" ? "animate" : null);
+        case "newmove":
+          // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
+          // ...or just see nothing as on buho21
+          this.$refs["baseGame"].play(
+            data.move, this.variant.name!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
-            break; //games IDs don't match: definitely over...
+            break; //games IDs don't match: the game is definitely over...
           this.oppConnected = true;
           // Send our "last state" informations to opponent(s)
           L = this.vr.moves.length;
@@ -111,7 +119,7 @@ export default {
             }));
           });
           break;
-        // TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves (not just one)
+        // TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves
         case "lastate": //got opponent infos about last move
           L = this.vr.moves.length;
           if (this.gameRef.id != data.gameId)
@@ -246,6 +254,7 @@ export default {
       this.moves = game.moves;
       this.cursor = game.moves.length-1;
       this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
+      // TODO: fill players array
     },
     oppConnected: function(uid) {
       return this.opponents.any(o => o.id == uidi && o.online);

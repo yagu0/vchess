@@ -53,6 +53,11 @@ const router = new Router({
       component: Hall,
       //redirect: "/", //problem: redirection before end of AJAX request
     },
+    {
+      path: "/game/:id",
+      name: "game",
+      component: loadView("Game"),
+    },
 //    {
 //      path: "/about",
 //      name: "about",
