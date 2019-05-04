@@ -77,6 +77,11 @@ router.beforeEach((to, from, next) => {
   window.scrollTo(0, 0); //TODO: check if a live game is running; if yes, call next('/game')
   //https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
   next();
+    //TODO: si une partie en cours dans storage, rediriger vers cette partie
+    //(à condition que l'URL n'y corresponde pas déjà !)
+    // (l'identifiant de l'utilisateur si connecté)
+//    if (!!localStorage["variant"])
+//      location.hash = "#game?id=" + localStorage["gameId"];
 });
 
 export default router;

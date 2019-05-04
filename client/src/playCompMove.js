@@ -1,8 +1,4 @@
-// TODO: https://github.com/webpack-contrib/worker-loader
-// https://stackoverflow.com/questions/48713072/how-to-get-js-function-into-webworker-via-importscripts
-// For asynchronous computer move search
-
-//self.addEventListener('message', (e) =>
+// Logic to play a computer move in a web worker
 onmessage = async function(e)
 {
   switch (e.data[0])

@@ -2,6 +2,7 @@ import { ajax } from "./utils/ajax";
 import { getRandString } from "./utils/alea";
 import params from "./parameters"; //for socket connection
 
+// Global store: see https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
 export const store =
 {
   state: {
