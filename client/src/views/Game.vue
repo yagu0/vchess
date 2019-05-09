@@ -29,7 +29,7 @@ pareil quand quelqu'un reco.
 </template>
 
 <script>
-import Board from "@/components/Board.vue";
+import BaseGame from "@/components/BaseGame.vue";
 //import Chat from "@/components/Chat.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
@@ -52,7 +52,7 @@ export default {
       ////////////
       gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID, if applicable)
       mode: "live", //or "corr"
-      variant: {}, //filled when game is retrieved
+      vname: "", //filled when game is retrieved
       drawOfferSent: false, //did I just ask for draw?
       players: [], //filled later (2 to 4 players)
       people: [], //potential observers
@@ -101,7 +101,7 @@ export default {
           // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
           // ...or just see nothing as on buho21
           this.$refs["baseGame"].play(
-            data.move, this.variant.name!="Dark" ? "animate" : null);
+            data.move, this.vname!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
@@ -236,8 +236,9 @@ export default {
       }
       this.endGame(this.mycolor=="w"?"0-1":"1-0");
     },
+    // TODO: vname is unknown before game is loaded (vname is a field in memory)
     launchGame: async function() {
-      const vModule = await import("@/variants/" + this.variant.name + ".js");
+      const vModule = await import("@/variants/" + this.vname + ".js");
       window.V = vModule.VariantRules;
       this.loadGame(this.gid);
     },
