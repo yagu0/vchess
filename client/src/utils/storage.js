@@ -34,6 +34,8 @@ function clearStorage()
 
 function getGameFromStorage(gameId)
 {
+  const gid = this.gameRef.id;
+  const rid = this.gameRef.rid; //may be blank
 	let game = {};
 	if (localStorage.getItem("gameId") === gameId)
 	{

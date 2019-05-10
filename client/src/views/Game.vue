@@ -67,7 +67,7 @@ export default {
     '$route' (to, from) {
       this.gameRef.id = to.params["id"];
       this.gameRef.rid = to.query["rid"];
-      this.launchGame();
+      this.loadGame();
     },
   },
   created: function() {
@@ -75,7 +75,7 @@ export default {
     {
       this.gameRef.id = this.$route.params["id"];
       this.gameRef.rid = this.$route.query["rid"];
-      this.launchGame();
+      this.loadGame();
     }
     // Poll all players except me (if I'm playing) to know online status.
     // --> Send ping to server (answer pong if players[s] are connected)
@@ -236,29 +236,25 @@ export default {
       }
       this.endGame(this.mycolor=="w"?"0-1":"1-0");
     },
-    // TODO: vname is unknown before game is loaded (vname is a field in memory)
-    launchGame: async function() {
-      const vModule = await import("@/variants/" + this.vname + ".js");
-      window.V = vModule.VariantRules;
-      this.loadGame(this.gid);
-    },
-    loadGame: function(gid) {
-      // TODO: ask game to remote peer if this.remoteId is set
-      // (or just if game not found locally)
-      // NOTE: if it's a corr game, ask it from server
-      const game = getGameFromStorage(gid); //, this.gameRef.uid); //uid may be blank
-      this.opponent.id = game.oppid; //opponent ID in case of running HH game
-      this.opponent.name = game.oppname; //maye be blank (if anonymous)
+    // 4 cases for loading a game:
+    //  - from localStorage (one running game I play)
+    //  - from indexedDB (one completed live game)
+    //  - from server (one correspondance game I play[ed] or not)
+    //  - from remote peer (one live game I don't play, finished or not)
+    loadGame: async function() {
+      const game = getGameFromStorage(this.gameRef);
+      this.players = game.players;
       this.score = game.score;
-      this.mycolor = game.mycolor;
+      this.mycolor = game.mycolor; //may be irrelevant (if I don't play it)
       this.fenStart = game.fenStart;
       this.moves = game.moves;
       this.cursor = game.moves.length-1;
       this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
-      // TODO: fill players array
+      const vModule = await import("@/variants/" + game.vname + ".js");
+      window.V = vModule.VariantRules;
     },
     oppConnected: function(uid) {
-      return this.opponents.any(o => o.id == uidi && o.online);
+      return this.opponents.some(o => o.id == uid && o.online);
     },
   },
 };
