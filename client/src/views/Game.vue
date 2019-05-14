@@ -16,7 +16,7 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:vname="variant.name" :analyze="analyze"
+    BaseGame(:game="game" :analyze="analyze"
       :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor"
       ref="basegame" @newmove="processMove")
     .button-group(v-if="mode!='analyze'")
@@ -33,6 +33,7 @@ import BaseGame from "@/components/BaseGame.vue";
 //import Chat from "@/components/Chat.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
+import { GameStorage } from "@/utils/storage";
 
 export default {
   name: 'my-game',
@@ -44,18 +45,10 @@ export default {
   data: function() {
     return {
       st: store.state,
-      // variables passed to BaseGame:
-      fenStart: "",
-      vr: null,
-      players: ["Myself","Computer"], //always playing white for now
-      mycolor: "w",
-      ////////////
-      gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID, if applicable)
-      mode: "live", //or "corr"
-      vname: "", //filled when game is retrieved
-      drawOfferSent: false, //did I just ask for draw?
-      players: [], //filled later (2 to 4 players)
-      people: [], //potential observers
+      gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID)
+      game: null, //passed to BaseGame
+      drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
+      people: [], //potential observers (TODO)
     };
   },
   computed: {
@@ -242,13 +235,10 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: async function() {
-      const game = getGameFromStorage(this.gameRef);
-      this.players = game.players;
-      this.score = game.score;
-      this.mycolor = game.mycolor; //may be irrelevant (if I don't play it)
-      this.fenStart = game.fenStart;
-      this.moves = game.moves;
+      const game = GameStorage.get(this.gameRef);
+      this.game = game;
       this.cursor = game.moves.length-1;
+      // TODO: lastMove must be in BaseGame, not here
       this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
       const vModule = await import("@/variants/" + game.vname + ".js");
       window.V = vModule.VariantRules;
