@@ -38,13 +38,15 @@ export default {
     //MoveList,
   },
   // "vr": VariantRules object, describing the game state + rules
-  props: ["vname","analyze","vr","fenStart","players","mycolor"],
+  // fenStart, players, mycolor
+  props: ["vname","analyze","vr","gameInfo"],
   data: function() {
     return {
       st: store.state,
       // NOTE: all following variables must be reset at the beginning of a game
       endgameMessage: "",
       orientation: "w",
+      // TODO: score and moves could be also in gameInfo (when resuming)
       score: "*", //'*' means 'unfinished'
       moves: [],
       cursor: -1, //index of the move just played
@@ -56,7 +58,7 @@ export default {
     fenStart: function() {
       // Reset all variables
       this.endgameMessage = "";
-      this.orientation = this.mycolor;
+      this.orientation = this.gameInfo.mycolor || "w";
       this.score = "*";
       this.moves = [];
       this.cursor = -1;
@@ -112,8 +114,8 @@ export default {
       pgn += '[Site "vchess.club"]\n';
       pgn += '[Variant "' + this.vname + '"]\n';
       pgn += '[Date "' + getDate(new Date()) + '"]\n';
-      pgn += '[White "' + this.players[0] + '"]\n';
-      pgn += '[Black "' + this.players[1] + '"]\n';
+      pgn += '[White "' + this.game.players[0] + '"]\n';
+      pgn += '[Black "' + this.game.players[1] + '"]\n';
       pgn += '[Fen "' + this.fenStart + '"]\n';
       pgn += '[Result "' + this.score + '"]\n\n';
       let counter = 1;

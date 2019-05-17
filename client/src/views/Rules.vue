@@ -19,6 +19,7 @@
 import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
 import { getDiagram } from "@/utils/printDiagram";
+
 export default {
   name: 'my-rules',
   components: {
@@ -32,7 +33,6 @@ export default {
       display: "rules",
       mode: "versus",
       gameInProgress: false,
-      mycolor: "w",
       fen: "",
     };
   },

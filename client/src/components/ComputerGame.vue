@@ -1,9 +1,8 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:vname="vname" :analyze="analyze"
-      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor"
-      ref="basegame" @newmove="processMove")
+    BaseGame(:vname="vname" :analyze="analyze" :vr="vr"
+      :game-info="gameInfo" ref="basegame" @newmove="processMove")
 </template>
 
 <script>
@@ -22,10 +21,12 @@ export default {
     return {
       st: store.state,
       // variables passed to BaseGame:
-      fenStart: "",
+      gameInfo: {
+        fenStart: "",
+        players: ["Myself","Computer"], //playing as white
+        mycolor: "w",
+      },
       vr: null,
-      players: ["Myself","Computer"], //always playing white for now
-      mycolor: "w",
       // Web worker to play computer moves without freezing interface:
       timeStart: undefined, //time when computer starts thinking
       lockCompThink: false, //to avoid some ghost moves
@@ -80,14 +81,13 @@ export default {
     },
     newGameFromFen: function(fen) {
       this.vr = new V(fen);
-      this.fenStart = fen;
-      this.mycolor = (Math.random() < 0.5 ? "w" : "b");
-      console.log(this.mycolor);
-      this.players = ["Myself","Computer"];
-      if (this.mycolor == "b")
-        this.players = this.players.reverse();
+      this.gameInfo.fenStart = fen;
+      this.gameInfo.mycolor = (Math.random() < 0.5 ? "w" : "b");
+      this.gameInfo.players = ["Myself","Computer"];
+      if (this.gameInfo.mycolor == "b")
+        this.gameInfo.players = this.gameInfo.players.reverse();
       this.compWorker.postMessage(["init",fen]);
-      if (this.mycolor != "w" || this.mode == "auto")
+      if (this.gameInfo.mycolor != "w" || this.mode == "auto")
         this.playComputerMove();
     },
     playComputerMove: function() {
