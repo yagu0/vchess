@@ -100,7 +100,7 @@ export default {
       this.compWorker.postMessage(["newmove",move]);
       // subTurn condition for Marseille (and Avalanche) rules
       if ((!this.vr.subTurn || this.vr.subTurn <= 1)
-        && (this.mode == "auto" || this.vr.turn != this.mycolor))
+        && (this.mode == "auto" || this.vr.turn != this.gameInfo.mycolor))
       {
         this.playComputerMove();
       }

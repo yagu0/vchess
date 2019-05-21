@@ -6,8 +6,9 @@
       .card.smallpad.small-modal.text-center
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
-    Board(:vr="vr" :last-move="lastMove" :analyze="analyze" :user-color="mycolor"
-      :orientation="orientation" :vname="vname" @play-move="play")
+    Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
+      :user-color="gameInfo.mycolor" :orientation="orientation"
+      :vname="vname" @play-move="play")
     .button-group
       button(@click="() => play()") Play
       button(@click="() => undo()") Undo
@@ -55,7 +56,7 @@ export default {
   },
   watch: {
     // fenStart changes when a new game starts
-    fenStart: function() {
+    "gameInfo.fenStart": function() {
       // Reset all variables
       this.endgameMessage = "";
       this.orientation = this.gameInfo.mycolor || "w";
