@@ -70,17 +70,19 @@ export default {
       this.gameRef.rid = this.$route.query["rid"];
       this.loadGame();
     }
-    // Poll all players except me (if I'm playing) to know online status.
-    // --> Send ping to server (answer pong if players[s] are connected)
-    if (!!this.gameRef.id)
-    {
-      this.players.forEach(p => {
-        if (p.sid != this.st.user.sid)
-          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
-      });
-    }
     // TODO: how to know who is observing ? Send message to everyone with game ID ?
     // and then just listen to (dis)connect events
+
+
+    // server always send "connect on " + URL ; then add to observers if game...
+    // detect multiple tabs connected (when connect ask server if my SID is already in use)
+// router when access a game page tell to server I joined + game ID (no need rid)
+// and ask server for current joined (= observers)
+// when send to chat (or a move), reach only this group (send gid along)
+
+    // --> doivent être enregistrés comme observers au niveau du serveur...
+    // non: poll users + events startObserving / stopObserving
+
 
     // TODO: also handle "draw accepted" (use opponents array?)
     // --> must give this info also when sending lastState...
@@ -242,6 +244,25 @@ export default {
       this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
       const vModule = await import("@/variants/" + game.vname + ".js");
       window.V = vModule.VariantRules;
+    
+
+
+
+    // Poll all players except me (if I'm playing) to know online status.
+    // --> Send ping to server (answer pong if players[s] are connected)
+    if (!!this.gameRef.id)
+    {
+      this.game.players.forEach(p => {
+        if (p.sid != this.st.user.sid)
+          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
+      });
+    }
+
+
+
+
+
+
     },
     oppConnected: function(uid) {
       return this.opponents.some(o => o.id == uid && o.online);
