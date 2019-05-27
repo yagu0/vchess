@@ -2,9 +2,11 @@
 // https://developer.mozilla.org/fr/docs/Web/API/API_IndexedDB
 // https://dexie.org/
 
+import { storageState } from "@/store";
+
 export const GameStorage =
 {
-  init: function(myid, oppid, gameId, variant, mycolor, fenStart)
+  init: function(myid, oppid, gameId, variant, mycolor, fenStart, mode)
   {
     localStorage.setItem("myid", myid);
     localStorage.setItem("gameId", gameId);
@@ -12,6 +14,21 @@ export const GameStorage =
     localStorage.setItem("mycolor", mycolor);
     localStorage.setItem("fenStart", fenStart);
     localStorage.setItem("moves", []);
+      
+
+
+    game.score = localStorage.getItem("score");
+      game.mycolor = localStorage.getItem("mycolor");
+      game.fenStart = localStorage.getItem("fenStart");
+      game.fen = localStorage.getItem("fen");
+      game.moves = JSON.parse(localStorage.getItem("moves"));
+      game.players = JSON.parse(localStorage.getItem("players"));
+      game.started = JSON.parse(localStorage.getItem("started"));
+      game.clocks = JSON.parse(localStorage.getItem("clocks"));
+      game.timeControl = localStorage.getItem("timeControl");
+      game.increment = localStorage.getItem("increment");
+      game.vname = localStorage.getItem("vname");
+      game.mode = "live";
   },
 
   // TODO: also option to takeback a move ?

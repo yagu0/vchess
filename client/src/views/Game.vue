@@ -48,6 +48,7 @@ export default {
       gameInfo: {}, //passed to BaseGame
       vr: null, //TODO
       vname: "", //obtained from gameInfo (slightly redundant..)
+      mode: "analyze", //mutable
       drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
       people: [], //potential observers (TODO)
     };
@@ -242,7 +243,11 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: async function() {
       this.gameInfo = GameStorage.get(this.gameRef);
+
+console.log(GameStorage.get(this.gameRef));
+
       this.vname = this.gameInfo.vname;
+      this.mode = this.gameInfo.mode;
       const vModule = await import("@/variants/" + this.vname + ".js");
       window.V = vModule.VariantRules;
       this.vr = new V(this.gameInfo.fen);
@@ -259,6 +264,9 @@ export default {
     },
     oppConnected: function(uid) {
       return this.opponents.some(o => o.id == uid && o.online);
+    },
+    processMove: function(move) {
+      // TODO: process some opponent's move
     },
   },
 };

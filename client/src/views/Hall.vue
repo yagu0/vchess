@@ -584,6 +584,8 @@ export default {
     },
     // NOTE: for live games only (corr games are launched on server)
     newGame: function(gameInfo) {
+      GameStorage.init(); //TODO here
+
       localStorage["gid"] = getRandString();
       // Extract times (in [milli]seconds), set clocks, store in localStorage
       const tc = extractTime(gameInfo.timeControl);
