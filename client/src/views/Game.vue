@@ -16,8 +16,7 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:game="game" :analyze="analyze"
-      :vr="vr" :fen-start="fenStart" :players="players" :mycolor="mycolor"
+    BaseGame(:vname="vname" :game-info="gameInfo" :analyze="analyze" :vr="vr"
       ref="basegame" @newmove="processMove")
     .button-group(v-if="mode!='analyze'")
       button(@click="offerDraw") Draw
@@ -46,7 +45,9 @@ export default {
     return {
       st: store.state,
       gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID)
-      game: null, //passed to BaseGame
+      gameInfo: {}, //passed to BaseGame
+      vr: null, //TODO
+      vname: "", //obtained from gameInfo (slightly redundant..)
       drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
       people: [], //potential observers (TODO)
     };
@@ -58,9 +59,12 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      this.gameRef.id = to.params["id"];
-      this.gameRef.rid = to.query["rid"];
-      this.loadGame();
+      if (!!to.params["id"])
+      {
+        this.gameRef.id = to.params["id"];
+        this.gameRef.rid = to.query["rid"];
+        this.loadGame();
+      }
     },
   },
   created: function() {
@@ -95,7 +99,7 @@ export default {
         case "newmove":
           // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
           // ...or just see nothing as on buho21
-          this.$refs["baseGame"].play(
+          this.$refs["basegame"].play(
             data.move, this.vname!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
@@ -237,32 +241,21 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: async function() {
-      const game = GameStorage.get(this.gameRef);
-      this.game = game;
-      this.cursor = game.moves.length-1;
-      // TODO: lastMove must be in BaseGame, not here
-      this.lastMove = (game.moves.length > 0 ? game.moves[this.cursor] : null);
-      const vModule = await import("@/variants/" + game.vname + ".js");
+      this.gameInfo = GameStorage.get(this.gameRef);
+      this.vname = this.gameInfo.vname;
+      const vModule = await import("@/variants/" + this.vname + ".js");
       window.V = vModule.VariantRules;
-    
+      this.vr = new V(this.gameInfo.fen);
 
-
-
-    // Poll all players except me (if I'm playing) to know online status.
-    // --> Send ping to server (answer pong if players[s] are connected)
-    if (!!this.gameRef.id)
-    {
-      this.game.players.forEach(p => {
-        if (p.sid != this.st.user.sid)
-          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
-      });
-    }
-
-
-
-
-
-
+//    // Poll all players except me (if I'm playing) to know online status.
+//    // --> Send ping to server (answer pong if players[s] are connected)
+//    if (this.gameInfo.players.some(p => p.sid == this.st.user.sid))
+//    {
+//      this.game.players.forEach(p => {
+//        if (p.sid != this.st.user.sid)
+//          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
+//      });
+//    }
     },
     oppConnected: function(uid) {
       return this.opponents.some(o => o.id == uid && o.online);

@@ -35,6 +35,7 @@ export const GameStorage =
     delete localStorage["moves"];
   },
 
+  // TODO: game or gameInfo ?!
   get: function(gameRef)
   {
     const gid = gameRef.id;
@@ -53,6 +54,7 @@ export const GameStorage =
       game.clocks = JSON.parse(localStorage.getItem("clocks"));
       game.timeControl = localStorage.getItem("timeControl");
       game.increment = localStorage.getItem("increment");
+      game.vname = localStorage.getItem("vname");
       game.mode = "live";
     }
     else

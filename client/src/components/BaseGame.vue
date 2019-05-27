@@ -47,7 +47,6 @@ export default {
       // NOTE: all following variables must be reset at the beginning of a game
       endgameMessage: "",
       orientation: "w",
-      // TODO: score and moves could be also in gameInfo (when resuming)
       score: "*", //'*' means 'unfinished'
       moves: [],
       cursor: -1, //index of the move just played
@@ -55,15 +54,16 @@ export default {
     };
   },
   watch: {
-    // fenStart changes when a new game starts
-    "gameInfo.fenStart": function() {
+    // gameInfo (immutable once set) changes when a new game starts
+    "gameInfo": function() {
       // Reset all variables
       this.endgameMessage = "";
-      this.orientation = this.gameInfo.mycolor || "w";
-      this.score = "*";
-      this.moves = [];
-      this.cursor = -1;
-      this.lastMove = null;
+      this.orientation = this.gameInfo.mycolor || "w"; //default orientation for observed games
+      this.score = this.gameInfo.score; //mutable (if initially "*")
+      this.moves = this.gameInfo.moves; //TODO: this is mutable; make a copy instead
+      const L = this.moves.length;
+      this.cursor = L-1;
+      this.lastMove = (L > 0 ? this.moves[L-1]  : null);
     },
     analyze: function() {
       if (this.analyze)
@@ -115,9 +115,9 @@ export default {
       pgn += '[Site "vchess.club"]\n';
       pgn += '[Variant "' + this.vname + '"]\n';
       pgn += '[Date "' + getDate(new Date()) + '"]\n';
-      pgn += '[White "' + this.game.players[0] + '"]\n';
-      pgn += '[Black "' + this.game.players[1] + '"]\n';
-      pgn += '[Fen "' + this.fenStart + '"]\n';
+      pgn += '[White "' + this.gameInfo.players[0] + '"]\n';
+      pgn += '[Black "' + this.gameInfo.players[1] + '"]\n';
+      pgn += '[Fen "' + this.gameInfo.fenStart + '"]\n';
       pgn += '[Result "' + this.score + '"]\n\n';
       let counter = 1;
       let i = 0;
