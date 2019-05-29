@@ -2,37 +2,39 @@
 // https://developer.mozilla.org/fr/docs/Web/API/API_IndexedDB
 // https://dexie.org/
 
-import { storageState } from "@/store";
+import { extractTime } from "@/utils/timeControl";
+import { shuffle } from "@/utils/alea";
 
 export const GameStorage =
 {
-  init: function(myid, oppid, gameId, variant, mycolor, fenStart, mode)
+  init: function(o)
   {
-    localStorage.setItem("myid", myid);
-    localStorage.setItem("gameId", gameId);
-    localStorage.setItem("vname", variant);
-    localStorage.setItem("mycolor", mycolor);
-    localStorage.setItem("fenStart", fenStart);
-    localStorage.setItem("moves", []);
-      
-
-
-    game.score = localStorage.getItem("score");
-      game.mycolor = localStorage.getItem("mycolor");
-      game.fenStart = localStorage.getItem("fenStart");
-      game.fen = localStorage.getItem("fen");
-      game.moves = JSON.parse(localStorage.getItem("moves"));
-      game.players = JSON.parse(localStorage.getItem("players"));
-      game.started = JSON.parse(localStorage.getItem("started"));
-      game.clocks = JSON.parse(localStorage.getItem("clocks"));
-      game.timeControl = localStorage.getItem("timeControl");
-      game.increment = localStorage.getItem("increment");
-      game.vname = localStorage.getItem("vname");
-      game.mode = "live";
+    localStorage.setItem("gameId", o.gameId);
+    localStorage.setItem("vname", o.vname);
+    localStorage.setItem("mycolor", mycolor); //TODO: shuffle ["w","b"]
+    localStorage.setItem("fenStart", o.fenStart);
+    localStorage.setItem("fen", o.fenStart);
+    localStorage.setItem("moves", JSON.stringify([]));
+    // Shuffle players order (white then black then other colors).
+    localStorage.setItem("players", JSON.stringify(shuffle(players));
+    // Extract times (in [milli]seconds), set clocks, store in localStorage
+    const tc = extractTime(o.timeControl);
+    localStorage.setItem("timeControl", o.timeControl);
+    localStorage.setItem("clocks", JSON.stringify(
+      [...Array(o.players.length)].fill(tc.mainTime));
+    localStorage.setItem("increment", tc.increment;
+    localStorage.setItem("started", JSON.stringify(
+      [...Array(o.players.length)].fill(false));
+    localStorage.setItem("score", "*");
+    localStorage.setItem("started", JSON.stringify(
+      [...Array(o.players.length)].fill(false)));
+    localStorage.setItem("clocks", JSON.stringify(
+      [...Array(o.players.length)].fill(0)));
+    localStorage.SetItem("mode", "live"); //function for live games only
   },
 
   // TODO: also option to takeback a move ?
-  update: function(move)
+  update: function(move) //TODO: take game ID also, and update according to mode?
   {
     let moves = JSON.parse(localStorage.getItem("moves"));
     moves.push(move);
@@ -52,7 +54,7 @@ export const GameStorage =
     delete localStorage["moves"];
   },
 
-  // TODO: game or gameInfo ?!
+  // TODO: game or gameInfo ?! --> when moves are played, it's a game, otherwise info
   get: function(gameRef)
   {
     const gid = gameRef.id;

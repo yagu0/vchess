@@ -78,8 +78,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
-import { getRandString, shuffle } from "@/utils/alea";
-import { extractTime } from "@/utils/timeControl";
+import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 export default {
@@ -567,9 +566,8 @@ export default {
       let gameInfo =
       {
         fen: c.fen || V.GenRandInitFen(),
-        // Shuffle players order (white then black then other colors).
         // Players' names may be required if game start when a player is offline
-        players: shuffle(players).map(p => { return {name:p.name, sid:p.sid} }),
+        players: players.map(p => { return {name:p.name, sid:p.sid} }),
         vid: c.vid,
         timeControl: c.timeControl,
       };
@@ -584,20 +582,13 @@ export default {
     },
     // NOTE: for live games only (corr games are launched on server)
     newGame: function(gameInfo) {
-      GameStorage.init(); //TODO here
-
-      localStorage["gid"] = getRandString();
-      // Extract times (in [milli]seconds), set clocks, store in localStorage
-      const tc = extractTime(gameInfo.timeControl);
-      localStorage["timeControl"] = gameInfo.timeControl;
-      localStorage["clocks"] = JSON.stringify(
-        [...Array(gameInfo.players.length)].fill(tc.mainTime));
-      localStorage["increment"] = tc.increment;
-      localStorage["started"] = JSON.stringify(
-        [...Array(gameInfo.players.length)].fill(false));
-      localStorage["vname"] = this.getVname(gameInfo.vid);
-      localStorage["fenInit"] = gameInfo.fen;
-      localStorage["players"] = JSON.stringify(gameInfo.players);
+      GameStorage.init({
+        gameId: getRandString(),
+        vname: this.getVname(gameInfo.vid),
+        fenStart: gameInfo.fen,
+        players: gameInfo.players,
+        timeControl: gameInfo.timeControl,
+      });
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});
       // TODO: redirect to game
