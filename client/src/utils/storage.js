@@ -11,42 +11,81 @@ export const GameStorage =
   {
     localStorage.setItem("gameId", o.gameId);
     localStorage.setItem("vname", o.vname);
-    localStorage.setItem("mycolor", mycolor); //TODO: shuffle ["w","b"]
+    // NOTE: when >= 3 players, better use an array + shuffle for mycolor
+    const mycolor = (Math.random() < 0.5 ? "w" : "b");
+    localStorage.setItem("mycolor", mycolor);
     localStorage.setItem("fenStart", o.fenStart);
     localStorage.setItem("fen", o.fenStart);
     localStorage.setItem("moves", JSON.stringify([]));
     // Shuffle players order (white then black then other colors).
-    localStorage.setItem("players", JSON.stringify(shuffle(players));
+    localStorage.setItem("players", JSON.stringify(shuffle(o.players)));
     // Extract times (in [milli]seconds), set clocks, store in localStorage
     const tc = extractTime(o.timeControl);
     localStorage.setItem("timeControl", o.timeControl);
     localStorage.setItem("clocks", JSON.stringify(
-      [...Array(o.players.length)].fill(tc.mainTime));
-    localStorage.setItem("increment", tc.increment;
+      [...Array(o.players.length)].fill(tc.mainTime)));
+    localStorage.setItem("increment", tc.increment);
     localStorage.setItem("started", JSON.stringify(
-      [...Array(o.players.length)].fill(false));
+      [...Array(o.players.length)].fill(false)));
     localStorage.setItem("score", "*");
     localStorage.setItem("started", JSON.stringify(
       [...Array(o.players.length)].fill(false)));
     localStorage.setItem("clocks", JSON.stringify(
       [...Array(o.players.length)].fill(0)));
-    localStorage.SetItem("mode", "live"); //function for live games only
+    localStorage.setItem("mode", "live"); //function for live games only
   },
 
   // TODO: also option to takeback a move ?
-  update: function(move) //TODO: take game ID also, and update according to mode?
+  // NOTE: for live games only (all on server for corr)
+  update: function(move, score) //game ID is not required
   {
-    let moves = JSON.parse(localStorage.getItem("moves"));
-    moves.push(move);
-    localStorage.setItem("moves", JSON.stringify(moves));
+    if (!!move)
+    {
+      let moves = JSON.parse(localStorage.getItem("moves"));
+      moves.push(move);
+      localStorage.setItem("moves", JSON.stringify(moves));
+    }
+    if (!!score)
+      localStorage.setItem("score", score);
+  },
+
+  transferToDb: function()
+  {
+    // TODO: take finished game on localStorage and transfer it to indexedDB
   },
 
   // "computer mode" clearing is done through the menu
   clear: function()
   {
+    localStorage.setItem("gameId", o.gameId);
+    localStorage.setItem("vname", o.vname);
+    // NOTE: when >= 3 players, better use an array + shuffle for mycolor
+    const mycolor = (Math.random() < 0.5 ? "w" : "b");
+    localStorage.setItem("mycolor", mycolor);
+    localStorage.setItem("fenStart", o.fenStart);
+    localStorage.setItem("fen", o.fenStart);
+    localStorage.setItem("moves", JSON.stringify([]));
+    // Shuffle players order (white then black then other colors).
+    localStorage.setItem("players", JSON.stringify(shuffle(o.players)));
+    // Extract times (in [milli]seconds), set clocks, store in localStorage
+    const tc = extractTime(o.timeControl);
+    localStorage.setItem("timeControl", o.timeControl);
+    localStorage.setItem("clocks", JSON.stringify(
+      [...Array(o.players.length)].fill(tc.mainTime)));
+    localStorage.setItem("increment", tc.increment);
+    localStorage.setItem("started", JSON.stringify(
+      [...Array(o.players.length)].fill(false)));
+    localStorage.setItem("score", "*");
+    localStorage.setItem("started", JSON.stringify(
+      [...Array(o.players.length)].fill(false)));
+    localStorage.setItem("clocks", JSON.stringify(
+      [...Array(o.players.length)].fill(0)));
+    localStorage.setItem("mode", "live"); //function for live games only
+    
+
     // TODO: refresh, and implement "transfert" function (to indexedDB)
-    delete localStorage["myid"];
-    delete localStorage["oppid"];
+    localStorage["myid"];
+    localStorage["oppid"];
     delete localStorage["gameId"];
     delete localStorage["variant"];
     delete localStorage["mycolor"];
