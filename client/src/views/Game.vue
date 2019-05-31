@@ -16,7 +16,7 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:vname="vname" :game-info="gameInfo" :analyze="analyze" :vr="vr"
+    BaseGame(:vname="game.vname" :game="game" :analyze="analyze" :vr="vr"
       ref="basegame" @newmove="processMove")
     .button-group(v-if="mode!='analyze'")
       button(@click="offerDraw") Draw
@@ -45,9 +45,8 @@ export default {
     return {
       st: store.state,
       gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID)
-      gameInfo: {}, //passed to BaseGame
+      game: {}, //passed to BaseGame
       vr: null, //TODO
-      vname: "", //obtained from gameInfo (slightly redundant..)
       mode: "analyze", //mutable
       drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
       people: [], //potential observers (TODO)
@@ -101,7 +100,7 @@ export default {
           // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
           // ...or just see nothing as on buho21
           this.$refs["basegame"].play(
-            data.move, this.vname!="Dark" ? "animate" : null);
+            data.move, this.game.vname!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
@@ -242,16 +241,14 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: async function() {
-      this.gameInfo = GameStorage.get(this.gameRef);
-
-console.log(GameStorage.get(this.gameRef));
-
-      this.vname = this.gameInfo.vname;
-      this.mode = this.gameInfo.mode;
-      const vModule = await import("@/variants/" + this.vname + ".js");
-      window.V = vModule.VariantRules;
-      this.vr = new V(this.gameInfo.fen);
-
+      GameStorage.get(this.gameRef, (game) => {
+        this.gameInfo = 
+        this.vname = game.vname;
+        this.mode = game.mode;
+        const vModule = await import("@/variants/" + this.vname + ".js");
+        window.V = vModule.VariantRules;
+        this.vr = new V(this.gameInfo.fen);
+      });
 //    // Poll all players except me (if I'm playing) to know online status.
 //    // --> Send ping to server (answer pong if players[s] are connected)
 //    if (this.gameInfo.players.some(p => p.sid == this.st.user.sid))

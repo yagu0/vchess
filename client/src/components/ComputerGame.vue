@@ -10,6 +10,10 @@ import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import Worker from 'worker-loader!@/playCompMove';
 
+
+// TODO: simplify, just "game" and "gameInfo" prop (fen+mode+vname may change at the same time)
+
+
 export default {
   name: 'my-computer-game',
   components: {

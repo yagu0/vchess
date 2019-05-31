@@ -137,7 +137,7 @@ export const GameStorage =
   // indexedDB:
   // Since DB requests are asynchronous, require a callback using the result
   // TODO: option for remote retrieval (third arg, or just "gameRef")
-  getLocal: function(callback, gameId)
+  getLocal: function(gameId, callback)
   {
     let games = [];
     dbOperation((db) => {
@@ -200,6 +200,6 @@ export const GameStorage =
     }
 
     // Game is local and not running
-    getLocal(callback, gid);
+    GameStorage.getLocal(gid, callback);
   },
 };
