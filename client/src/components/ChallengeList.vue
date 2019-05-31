@@ -10,7 +10,7 @@ table
     td {{ c.from.name }}
     td(v-if="!!c.to[0]")
       span(v-for="pname in c.to") {{ pname }}
-    td(v-else) {{ c.to.length - 1 }} player{{ c.to.length >= 3 ? 's' : '' }}
+    td(v-else) {{ c.to.length }} player{{ c.to.length >= 2 ? 's' : '' }}
     td {{ c.timeControl }}
 </template>
 

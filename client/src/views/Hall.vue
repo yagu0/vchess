@@ -81,6 +81,7 @@ import { ajax } from "@/utils/ajax";
 import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
+import { GameStorage } from "@/utils/storage";
 export default {
   name: "my-hall",
   components: {

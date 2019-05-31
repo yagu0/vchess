@@ -1,5 +1,8 @@
 import params from "../parameters"; //for server URL
 
+// TODO: replace by fetch API ?
+// https://www.sitepoint.com/xmlhttprequest-vs-the-fetch-api-whats-best-for-ajax-in-2019/
+
 // From JSON (encoded string values!) to "arg1=...&arg2=..."
 function toQueryString(data)
 {

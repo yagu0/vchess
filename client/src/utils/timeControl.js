@@ -22,8 +22,11 @@ function isLargerUnit(unit1, unit2)
 
 export function extractTime(timeControl)
 {
-  const tcParts = timeControl.replace(/ /g,"").split('+');
-	const mainTimeArray = tcParts[0].match(/([0-9]+)([smhd])/);
+  let tcParts = timeControl.replace(/ /g,"").split('+');
+  // Concatenate usual time control suffixes, in case of none is provided
+  tcParts[0] += "m";
+  tcParts[1] += "s";
+	const mainTimeArray = tcParts[0].match(/([0-9]+)([smhd]+)/);
   if (!mainTimeArray)
     return null;
   const mainTimeValue = parseInt(mainTimeArray[1]);
@@ -32,7 +35,7 @@ export function extractTime(timeControl)
   let increment = 0;
   if (tcParts.length >= 2)
   {
-    const incrementArray = tcParts[1].match(/([0-9]+)([smhd])/);
+    const incrementArray = tcParts[1].match(/([0-9]+)([smhd]+)/);
     if (!incrementArray)
       return null;
     const incrementValue = parseInt(incrementArray[1]);
