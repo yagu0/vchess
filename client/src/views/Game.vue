@@ -16,13 +16,12 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:vname="game.vname" :game="game" :analyze="analyze" :vr="vr"
-      ref="basegame" @newmove="processMove")
-    .button-group(v-if="mode!='analyze'")
+    BaseGame(:game="game" :vr="vr" ref="basegame" @newmove="processMove")
+    .button-group(v-if="game.mode!='analyze'")
       button(@click="offerDraw") Draw
       button(@click="abortGame") Abort
       button(@click="resign") Resign
-    div(v-if="mode=='corr'")
+    div(v-if="game.mode=='corr'")
       textarea(v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg")
       div(v-show="cursor>=0") {{ moves[cursor].message }}
 </template>
@@ -40,22 +39,15 @@ export default {
     BaseGame,
   },
   // gameRef: to find the game in (potentially remote) storage
-  // mode: "live" or "corr" (correspondance game), or "analyze"
   data: function() {
     return {
       st: store.state,
       gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID)
       game: {}, //passed to BaseGame
-      vr: null, //TODO
-      mode: "analyze", //mutable
+      vr: null, //"variant rules" object initialized from FEN
       drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
       people: [], //potential observers (TODO)
     };
-  },
-  computed: {
-    analyze: function() {
-      return this.mode == "analyze";
-    },
   },
   watch: {
     '$route' (to, from) {
@@ -240,14 +232,12 @@ export default {
     //  - from indexedDB (one completed live game)
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
-    loadGame: async function() {
-      GameStorage.get(this.gameRef, (game) => {
-        this.gameInfo = 
-        this.vname = game.vname;
-        this.mode = game.mode;
-        const vModule = await import("@/variants/" + this.vname + ".js");
+    loadGame: function() {
+      GameStorage.get(this.gameRef, async (game) => {
+        this.game = game;
+        const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
-        this.vr = new V(this.gameInfo.fen);
+        this.vr = new V(game.fen);
       });
 //    // Poll all players except me (if I'm playing) to know online status.
 //    // --> Send ping to server (answer pong if players[s] are connected)

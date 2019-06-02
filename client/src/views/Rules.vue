@@ -10,8 +10,7 @@
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
     .section-content(v-show="display=='rules'" v-html="content")
-    ComputerGame(v-show="display=='computer'"
-      :fen="fen" :mode="mode" :vname="variant.name"
+    ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
       @computer-think="gameInProgress=false" @game-over="stopGame")
 </template>
 
@@ -28,13 +27,23 @@ export default {
   data: function() {
     return {
       st: store.state,
-      variant: {id: 0, name: "_unknown"}, //...yet
       content: "",
       display: "rules",
-      mode: "versus",
       gameInProgress: false,
+      // variables passed to ComputerGame:
+      vname: "_unknown",
+      mode: "versus",
       fen: "",
     };
+  },
+  computed: {
+    gameInfo: function() {
+      return {
+        fen: this.fen,
+        mode: this.mode,
+        vname: this.vname,
+      };
+    },
   },
   watch: {
     "$route": function(newRoute) {
@@ -58,13 +67,7 @@ export default {
     tryChangeVariant: async function(vname) {
       if (!vname || vname == "_unknown")
         return;
-      if (this.st.variants.length > 0)
-      {
-        const idxOfVar = this.st.variants.findIndex(e => e.name == vname);
-        this.variant = this.st.variants[idxOfVar];
-      }
-      else
-        this.variant.name = vname;
+      this.vname = vname;
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
       // Method to replace diagrams in loaded HTML

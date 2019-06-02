@@ -1,8 +1,7 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:vname="vname" :analyze="analyze" :vr="vr"
-      :game-info="gameInfo" ref="basegame" @newmove="processMove")
+    BaseGame(:game="game" :vr="vr" ref="basegame" @newmove="processMove")
 </template>
 
 <script>
@@ -10,26 +9,21 @@ import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import Worker from 'worker-loader!@/playCompMove';
 
-
-// TODO: simplify, just "game" and "gameInfo" prop (fen+mode+vname may change at the same time)
-
-
 export default {
   name: 'my-computer-game',
   components: {
     BaseGame,
   },
+  // gameInfo: fen + mode + vname
   // mode: "auto" (game comp vs comp), "versus" (normal) or "analyze"
-  props: ["fen","mode","vname"],
+  props: ["gameInfo"],
   data: function() {
     return {
       st: store.state,
       // variables passed to BaseGame:
-      gameInfo: {
-        fenStart: "",
-        players: ["Myself","Computer"], //playing as white
-        mycolor: "w",
-      },
+      fenStart: "",
+      players: ["Myself","Computer"], //playing as white
+      mycolor: "w",
       vr: null,
       // Web worker to play computer moves without freezing interface:
       timeStart: undefined, //time when computer starts thinking
@@ -38,12 +32,18 @@ export default {
     };
   },
   computed: {
-    analyze: function() {
-      return this.mode == "analyze";
+    game: function() {
+      return Object.assign({},
+        this.gameInfo,
+        {
+          fenStart: this.fenStart,
+          players: this.players,
+          mycolor: this.mycolor,
+        });
     },
   },
   watch: {
-    fen: function() {
+    gameInfo: function() {
       // (Security) No effect if a computer move is in progress:
       if (this.lockCompThink)
         return this.$emit("computer-think");
@@ -62,7 +62,7 @@ export default {
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500-(Date.now()-this.timeStart), 0);
       setTimeout(() => {
-        const animate = (this.vname != "Dark");
+        const animate = (this.gameInfo.vname != "Dark");
         this.$refs.basegame.play(compMove[0], animate);
         if (compMove.length == 2)
           setTimeout( () => { this.$refs.basegame.play(compMove[1], animate); }, 750);
@@ -77,21 +77,20 @@ export default {
   // et les chats dans chat.js. Puis en webRTC, repenser tout ça.
   methods: {
     launchGame: async function() {
-      const vModule = await import("@/variants/" + this.vname + ".js");
+      const vModule = await import("@/variants/" + this.gameInfo.vname + ".js");
       window.V = vModule.VariantRules;
-      this.compWorker.postMessage(["scripts",this.vname]);
-      this.compWorker.postMessage(["init",this.fen]);
-      this.newGameFromFen(this.fen);
+      this.compWorker.postMessage(["scripts",this.gameInfo.vname]);
+      this.compWorker.postMessage(["init",this.gameInfo.fenStart]);
+      this.newGameFromFen(this.gameInfo.fenStart);
     },
     newGameFromFen: function(fen) {
       this.vr = new V(fen);
-      this.gameInfo.fenStart = fen;
-      this.gameInfo.mycolor = (Math.random() < 0.5 ? "w" : "b");
-      this.gameInfo.players = ["Myself","Computer"];
-      if (this.gameInfo.mycolor == "b")
-        this.gameInfo.players = this.gameInfo.players.reverse();
+      this.mycolor = (Math.random() < 0.5 ? "w" : "b");
+      this.players = ["Myself","Computer"];
+      if (this.mycolor == "b")
+        this.players = this.players.reverse();
       this.compWorker.postMessage(["init",fen]);
-      if (this.gameInfo.mycolor != "w" || this.mode == "auto")
+      if (this.mycolor != "w" || this.gameInfo.mode == "auto")
         this.playComputerMove();
     },
     playComputerMove: function() {
@@ -104,7 +103,7 @@ export default {
       this.compWorker.postMessage(["newmove",move]);
       // subTurn condition for Marseille (and Avalanche) rules
       if ((!this.vr.subTurn || this.vr.subTurn <= 1)
-        && (this.mode == "auto" || this.vr.turn != this.gameInfo.mycolor))
+        && (this.mode == "auto" || this.vr.turn != this.mycolor))
       {
         this.playComputerMove();
       }
