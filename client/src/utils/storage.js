@@ -1,5 +1,4 @@
 import { extractTime } from "@/utils/timeControl";
-import { shuffle } from "@/utils/alea";
 
 // TODO: show game structure
 //const newItem = [
@@ -79,10 +78,6 @@ export const GameStorage =
   // localStorage:
   init: function(o)
   {
-    // NOTE: when >= 3 players, better use an array + shuffle for mycolor
-    const mycolor = (Math.random() < 0.5 ? "w" : "b");
-    // Shuffle players order (white then black then other colors).
-    const players = shuffle(o.players);
     // Extract times (in [milli]seconds), set clocks, store in localStorage
     const tc = extractTime(o.timeControl);
 
@@ -91,9 +86,8 @@ export const GameStorage =
     {
       gameId: o.gameId,
       vname: o.vname,
-      mycolor: mycolor,
       fenStart: o.fenStart,
-      players: players,
+      players: o.players,
       timeControl: o.timeControl,
       increment: tc.increment,
       mode: "live", //function for live games only

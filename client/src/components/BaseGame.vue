@@ -55,14 +55,7 @@ export default {
   watch: {
     // game initial FEN changes when a new game starts
     "game.fenStart": function() {
-      // Reset all variables
-      this.endgameMessage = "";
-      this.orientation = this.game.mycolor || "w"; //default orientation for observed games
-      this.score = this.game.score || "*"; //mutable (if initially "*")
-      this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
-      const L = this.moves.length;
-      this.cursor = L-1;
-      this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+      this.re_setVariables();
     },
   },
   computed: {
@@ -77,7 +70,20 @@ export default {
       return this.game.mode == "analyze";
     },
   },
+  created: function() {
+    if (!!this.game.fenStart)
+      this.re_setVariables();
+  },
   methods: {
+    re_setVariables: function() {
+      this.endgameMessage = "";
+      this.orientation = this.game.mycolor || "w"; //default orientation for observed games
+      this.score = this.game.score || "*"; //mutable (if initially "*")
+      this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
+      const L = this.moves.length;
+      this.cursor = L-1;
+      this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+    },
     setEndgameMessage: function(score) {
       let eogMessage = "Undefined";
       switch (score)

@@ -78,7 +78,7 @@ import { NbPlayers } from "@/data/nbPlayers";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
-import { getRandString } from "@/utils/alea";
+import { getRandString, shuffle } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 import { GameStorage } from "@/utils/storage";
@@ -564,11 +564,14 @@ export default {
       window.V = vModule.VariantRules;
       let players = [c.from];
       Array.prototype.push.apply(players, c.seats);
-      let gameInfo =
+      // These game informations will be sent to other players
+      const gameInfo =
       {
+        gameId: getRandString(),
         fen: c.fen || V.GenRandInitFen(),
         // Players' names may be required if game start when a player is offline
-        players: players.map(p => { return {name:p.name, sid:p.sid} }),
+        // Shuffle players order (white then black then other colors).
+        players: shuffle(players.map(p => { return {name:p.name, sid:p.sid} })),
         vid: c.vid,
         timeControl: c.timeControl,
       };
@@ -584,7 +587,7 @@ export default {
     // NOTE: for live games only (corr games are launched on server)
     newGame: function(gameInfo) {
       GameStorage.init({
-        gameId: getRandString(),
+        gameId: gameInfo.gameId,
         vname: this.getVname(gameInfo.vid),
         fenStart: gameInfo.fen,
         players: gameInfo.players,

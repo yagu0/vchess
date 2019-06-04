@@ -22,7 +22,7 @@ pareil quand quelqu'un reco.
       button(@click="abortGame") Abort
       button(@click="resign") Resign
     div(v-if="game.mode=='corr'")
-      textarea(v-show="score=='*' && vr.turn==mycolor" v-model="corrMsg")
+      textarea(v-show="score=='*' && vr.turn==game.mycolor" v-model="corrMsg")
       div(v-show="cursor>=0") {{ moves[cursor].message }}
 </template>
 
@@ -42,11 +42,14 @@ export default {
   data: function() {
     return {
       st: store.state,
-      gameRef: {id: "", rid: ""}, //given in URL (rid = remote ID)
-      game: {}, //passed to BaseGame
+      gameRef: { //given in URL (rid = remote ID)
+        id: "",
+        rid: ""
+      },
+      game: { }, //passed to BaseGame
       vr: null, //"variant rules" object initialized from FEN
       drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
-      people: [], //potential observers (TODO)
+      people: [ ], //potential observers (TODO)
     };
   },
   watch: {
@@ -101,7 +104,7 @@ export default {
           // Send our "last state" informations to opponent(s)
           L = this.vr.moves.length;
           Object.keys(this.opponents).forEach(oid => {
-            this.conn.send(JSON.stringify({
+            this.st.conn.send(JSON.stringify({
               code: "lastate",
               oppid: oid,
               gameId: this.gameRef.id,
@@ -119,7 +122,7 @@ export default {
           if (this.score != "*")
           {
             // We finished the game (any result possible)
-            this.conn.send(JSON.stringify({
+            this.st.conn.send(JSON.stringify({
               code: "lastate",
               oppid: data.oppid,
               gameId: this.gameRef.id,
@@ -131,7 +134,7 @@ export default {
           else if (data.movesCount < L)
           {
             // We must tell last move to opponent
-            this.conn.send(JSON.stringify({
+            this.st.conn.send(JSON.stringify({
               code: "lastate",
               oppid: this.opponent.id,
               gameId: this.gameRef.id,
@@ -143,7 +146,7 @@ export default {
             this.play(data.lastMove, "animate");
           break;
         case "resign": //..you won!
-          this.endGame(this.mycolor=="w"?"1-0":"0-1");
+          this.endGame(this.game.mycolor=="w"?"1-0":"0-1");
           break;
         // TODO: also use (dis)connect info to count online players?
         case "gameconnect":
@@ -167,14 +170,11 @@ export default {
       }
     };
     const socketCloseListener = () => {
-      this.conn.addEventListener('message', socketMessageListener);
-      this.conn.addEventListener('close', socketCloseListener);
+      this.st.conn.addEventListener('message', socketMessageListener);
+      this.st.conn.addEventListener('close', socketCloseListener);
     };
-    if (!!this.conn)
-    {
-      this.conn.onmessage = socketMessageListener;
-      this.conn.onclose = socketCloseListener;
-    }
+    this.st.conn.onmessage = socketMessageListener;
+    this.st.conn.onclose = socketCloseListener;
   },
   // dans variant.js (plutôt room.js) conn gère aussi les challenges
   // et les chats dans chat.js. Puis en webRTC, repenser tout ça.
@@ -194,7 +194,7 @@ export default {
           if (!!o.online)
           {
             try {
-              this.conn.send(JSON.stringify({code: "draw", oppid: o.id}));
+              this.st.conn.send(JSON.stringify({code: "draw", oppid: o.id}));
             } catch (INVALID_STATE_ERR) {
               return;
             }
@@ -213,6 +213,7 @@ export default {
         return;
       //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
       //send message: "gameOver" avec score "?"
+      // ==> BaseGame must listen to game.score change, and call "endgame(score)" in this case
     },
     resign: function(e) {
       if (!confirm("Resign the game?"))
@@ -220,7 +221,7 @@ export default {
       if (this.mode == "human" && this.oppConnected(this.oppid))
       {
         try {
-          this.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
+          this.st.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
         } catch (INVALID_STATE_ERR) {
           return;
         }
@@ -234,7 +235,11 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function() {
       GameStorage.get(this.gameRef, async (game) => {
-        this.game = game;
+        this.game = Object.assign({},
+          game,
+          // NOTE: assign mycolor here, since BaseGame could also bs VS computer
+          {mycolor: ["w","b"][game.players.findIndex(p => p.sid == this.st.user.sid)]},
+        );
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
