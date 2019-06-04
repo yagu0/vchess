@@ -259,6 +259,9 @@ export default {
     },
     processMove: function(move) {
       // TODO: process some opponent's move
+      
+      // update storage (corr or live), send move to opponent (if ours) /
+      // notify BaseGame if opponents move (how ?) --> need a game.newmove field ?
     },
   },
 };
