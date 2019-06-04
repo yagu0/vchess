@@ -1,7 +1,8 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:game="game" :vr="vr" ref="basegame" @newmove="processMove")
+    BaseGame(:game="game" :vr="vr" ref="basegame"
+      @newmove="processMove" @gameover="gameOver")
 </template>
 
 <script>
@@ -20,10 +21,7 @@ export default {
   data: function() {
     return {
       st: store.state,
-      // variables passed to BaseGame:
-      fenStart: "",
-      players: ["Myself","Computer"], //playing as white
-      mycolor: "w",
+      game: { },
       vr: null,
       // Web worker to play computer moves without freezing interface:
       timeStart: undefined, //time when computer starts thinking
@@ -31,23 +29,19 @@ export default {
       compWorker: null,
     };
   },
-  computed: {
-    game: function() {
-      return Object.assign({},
-        this.gameInfo,
-        {
-          fenStart: this.fenStart,
-          players: this.players,
-          mycolor: this.mycolor,
-        });
-    },
-  },
   watch: {
-    gameInfo: function() {
+    "gameInfo.fen": function() {
       // (Security) No effect if a computer move is in progress:
       if (this.lockCompThink)
         return this.$emit("computer-think");
       this.launchGame();
+    },
+    "gameInfo.userStop": function() {
+      if (this.gameInfo.userStop)
+      {
+        // User stopped the game: unknown result
+        this.game.mode = "analyze";
+      }
     },
   },
   // Modal end of game, and then sub-components
@@ -70,7 +64,7 @@ export default {
           setTimeout( () => this.lockCompThink = false, 250);
       }, delay);
     }
-    if (!!this.fen)
+    if (!!this.gameInfo.fen)
       this.launchGame();
   },
   // dans variant.js (plutôt room.js) conn gère aussi les challenges
@@ -80,17 +74,22 @@ export default {
       const vModule = await import("@/variants/" + this.gameInfo.vname + ".js");
       window.V = vModule.VariantRules;
       this.compWorker.postMessage(["scripts",this.gameInfo.vname]);
-      this.compWorker.postMessage(["init",this.gameInfo.fenStart]);
-      this.newGameFromFen(this.gameInfo.fenStart);
-    },
-    newGameFromFen: function(fen) {
-      this.vr = new V(fen);
-      this.mycolor = (Math.random() < 0.5 ? "w" : "b");
-      this.players = ["Myself","Computer"];
-      if (this.mycolor == "b")
-        this.players = this.players.reverse();
-      this.compWorker.postMessage(["init",fen]);
-      if (this.mycolor != "w" || this.gameInfo.mode == "auto")
+      this.compWorker.postMessage(["init",this.gameInfo.fen]);
+      this.vr = new V(this.gameInfo.fen);
+      const mycolor = (Math.random() < 0.5 ? "w" : "b");
+      let players = ["Myself","Computer"];
+      if (mycolor == "b")
+        players = players.reverse();
+      // NOTE: (TODO?) fen and fenStart are redundant in game object
+      this.game = Object.assign({},
+        this.gameInfo,
+        {
+          fenStart: this.gameInfo.fen,
+          players: players,
+          mycolor: mycolor,
+        });
+      this.compWorker.postMessage(["init",this.gameInfo.fen]);
+      if (mycolor != "w" || this.gameInfo.mode == "auto")
         this.playComputerMove();
     },
     playComputerMove: function() {
@@ -103,10 +102,14 @@ export default {
       this.compWorker.postMessage(["newmove",move]);
       // subTurn condition for Marseille (and Avalanche) rules
       if ((!this.vr.subTurn || this.vr.subTurn <= 1)
-        && (this.mode == "auto" || this.vr.turn != this.mycolor))
+        && (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor))
       {
         this.playComputerMove();
       }
+    },
+    // When game ends normally, just switch to analyze mode
+    gameOver: function() {
+      this.game.mode = "analyze";
     },
   },
 };

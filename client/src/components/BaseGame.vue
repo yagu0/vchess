@@ -6,9 +6,9 @@
       .card.smallpad.small-modal.text-center
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
-    Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
-      :user-color="gameInfo.mycolor" :orientation="orientation"
-      :vname="vname" @play-move="play")
+    Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
+      :user-color="game.mycolor" :orientation="orientation"
+      :vname="game.vname" @play-move="play")
     .button-group
       button(@click="() => play()") Play
       button(@click="() => undo()") Undo
@@ -39,8 +39,7 @@ export default {
     //MoveList,
   },
   // "vr": VariantRules object, describing the game state + rules
-  // fenStart, players, mycolor
-  props: ["vname","analyze","vr","gameInfo"],
+  props: ["vr","game"],
   data: function() {
     return {
       st: store.state,
@@ -54,23 +53,16 @@ export default {
     };
   },
   watch: {
-    // gameInfo (immutable once set) changes when a new game starts
-    "gameInfo": function() {
+    // game initial FEN changes when a new game starts
+    "game.fenStart": function() {
       // Reset all variables
       this.endgameMessage = "";
-      this.orientation = this.gameInfo.mycolor || "w"; //default orientation for observed games
-      this.score = this.gameInfo.score; //mutable (if initially "*")
-      this.moves = this.gameInfo.moves; //TODO: this is mutable; make a copy instead
+      this.orientation = this.game.mycolor || "w"; //default orientation for observed games
+      this.score = this.game.score || "*"; //mutable (if initially "*")
+      this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
-    },
-    analyze: function() {
-      if (this.analyze)
-      {
-        // Switched to analyze mode: game is over
-        this.endGame("*");
-      }
     },
   },
   computed: {
@@ -79,7 +71,10 @@ export default {
       //return window.innerWidth >= 768;
     },
     showFen: function() {
-      return this.vname != "Dark" || this.score != "*";
+      return this.game.vname != "Dark" || this.score != "*";
+    },
+    analyze: function() {
+      return this.game.mode == "analyze";
     },
   },
   methods: {
@@ -113,11 +108,11 @@ export default {
     getPgn: function() {
       let pgn = "";
       pgn += '[Site "vchess.club"]\n';
-      pgn += '[Variant "' + this.vname + '"]\n';
+      pgn += '[Variant "' + this.game.vname + '"]\n';
       pgn += '[Date "' + getDate(new Date()) + '"]\n';
-      pgn += '[White "' + this.gameInfo.players[0] + '"]\n';
-      pgn += '[Black "' + this.gameInfo.players[1] + '"]\n';
-      pgn += '[Fen "' + this.gameInfo.fenStart + '"]\n';
+      pgn += '[White "' + this.game.players[0] + '"]\n';
+      pgn += '[Black "' + this.game.players[1] + '"]\n';
+      pgn += '[Fen "' + this.game.fenStart + '"]\n';
       pgn += '[Result "' + this.score + '"]\n\n';
       let counter = 1;
       let i = 0;
@@ -144,7 +139,7 @@ export default {
     endGame: function(score) {
       this.score = score;
       this.showScoreMsg(score);
-      this.$emit("game-over");
+      this.$emit("gameover"); //score not required (TODO?)
     },
     animateMove: function(move) {
       let startSquare = document.getElementById(getSquareId(move.start));
@@ -251,7 +246,7 @@ export default {
       this.lastMove = this.moves[index];
     },
     gotoBegin: function() {
-      this.vr.re_init(this.fenStart);
+      this.vr.re_init(this.game.fenStart);
       this.cursor = -1;
       this.lastMove = null;
     },

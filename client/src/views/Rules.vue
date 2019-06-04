@@ -3,9 +3,9 @@
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
     .button-group
       button(@click="display='rules'") Read the rules
-      button(v-show="!gameInProgress" @click="watchComputerGame")
+      button(v-show="!gameInProgress" @click="() => startGame('auto')")
         | Observe a sample game
-      button(v-show="!gameInProgress" @click="playAgainstComputer")
+      button(v-show="!gameInProgress" @click="() => startGame('versus')")
         | Beat the computer!
       button(v-show="gameInProgress" @click="stopGame")
         | Stop game
@@ -31,19 +31,13 @@ export default {
       display: "rules",
       gameInProgress: false,
       // variables passed to ComputerGame:
-      vname: "_unknown",
-      mode: "versus",
-      fen: "",
+      gameInfo: {
+        vname: "_unknown",
+        mode: "versus",
+        fen: "",
+        userStop: false,
+      }
     };
-  },
-  computed: {
-    gameInfo: function() {
-      return {
-        fen: this.fen,
-        mode: this.mode,
-        vname: this.vname,
-      };
-    },
   },
   watch: {
     "$route": function(newRoute) {
@@ -67,7 +61,7 @@ export default {
     tryChangeVariant: async function(vname) {
       if (!vname || vname == "_unknown")
         return;
-      this.vname = vname;
+      this.gameInfo.vname = vname;
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
       // Method to replace diagrams in loaded HTML
@@ -80,24 +74,19 @@ export default {
         require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")
         .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
-    startGame: function() {
+    startGame: function(mode) {
       if (this.gameInProgress)
         return;
       this.gameInProgress = true;
       this.display = "computer";
-      this.fen = V.GenRandInitFen();
+      this.gameInfo.mode = mode;
+      this.gameInfo.userStop = false;
+      this.gameInfo.fen = V.GenRandInitFen();
     },
     stopGame: function() {
       this.gameInProgress = false;
-      this.mode = "analyze";
-    },
-    playAgainstComputer: function() {
-      this.mode = "versus";
-      this.startGame();
-    },
-    watchComputerGame: function() {
-      this.mode = "auto";
-      this.startGame();
+      this.gameInfo.userStop = true;
+      this.gameInfo.mode = "analyze";
     },
   },
 };
