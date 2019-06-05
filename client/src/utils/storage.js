@@ -110,12 +110,12 @@ export const GameStorage =
   // localStorage:
   // TODO: also option to takeback a move ? Is fen included in move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(fen, moves, clocks, started, score)
+  update: function(fen, move, clocks, started, score)
   {
     let gameState = JSON.parse(localStorage.getItem("gameState"));
     if (!!fen)
     {
-      gameState.moves = moves;
+      gameState.moves.push(move);
       gameState.fen = fen;
       gameState.clocks = clocks;
     }

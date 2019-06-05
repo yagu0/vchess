@@ -145,7 +145,7 @@ export default {
     endGame: function(score) {
       this.score = score;
       this.showScoreMsg(score);
-      this.$emit("gameover"); //score not required (TODO?)
+      this.$emit("gameover", score);
     },
     animateMove: function(move) {
       let startSquare = document.getElementById(getSquareId(move.start));

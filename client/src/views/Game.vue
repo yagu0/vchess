@@ -16,7 +16,8 @@ pareil quand quelqu'un reco.
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:game="game" :vr="vr" ref="basegame" @newmove="processMove")
+    BaseGame(:game="game" :vr="vr" ref="basegame"
+      @newmove="processMove" @gameover="gameOver")
     .button-group(v-if="game.mode!='analyze'")
       button(@click="offerDraw") Draw
       button(@click="abortGame") Abort
@@ -81,6 +82,7 @@ export default {
 
     // --> doivent être enregistrés comme observers au niveau du serveur...
     // non: poll users + events startObserving / stopObserving
+    // (à faire au niveau du routeur ?)
 
 
     // TODO: also handle "draw accepted" (use opponents array?)
@@ -238,7 +240,8 @@ export default {
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
-          {mycolor: ["w","b"][game.players.findIndex(p => p.sid == this.st.user.sid)]},
+          {mycolor: [undefined,"w","b"][1 + game.players.findIndex(
+            p => p.sid == this.st.user.sid)]},
         );
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
@@ -254,14 +257,29 @@ export default {
 //      });
 //    }
     },
+    // TODO: refactor this old "oppConnected" logic
     oppConnected: function(uid) {
       return this.opponents.some(o => o.id == uid && o.online);
     },
     processMove: function(move) {
-      // TODO: process some opponent's move
-      
-      // update storage (corr or live), send move to opponent (if ours) /
-      // notify BaseGame if opponents move (how ?) --> need a game.newmove field ?
+      if (!this.game.mycolor)
+        return; //I'm just an observer
+      // TODO: update storage (corr or live),
+      GameStorage.update({
+        fen: move: clocks: ................ // TODO
+      });
+      // Send move ("newmove" event) to opponent(s) (if ours)
+      if (move.disappear[0].c == this.game.mycolor)
+      {
+        this.game.players.forEach(p => {
+          if (p.sid != this.st.user.sid)
+            this.st.conn.send("newmove", {target:p.sid, move:move});
+        });
+      }
+    },
+    gameOver: function(score) {
+      // TODO: GameStorage.update with score
+      // NOTE: this update function should also work for corr games
     },
   },
 };
