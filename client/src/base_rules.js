@@ -50,13 +50,13 @@ export const ChessRules = class ChessRules
   // Turn "wb" into "B" (for FEN)
   static board2fen(b)
   {
-    return b[0]=='w' ? b[1].toUpperCase() : b[1];
+    return (b[0]=='w' ? b[1].toUpperCase() : b[1]);
   }
 
   // Turn "p" into "bp" (for board)
   static fen2board(f)
   {
-    return f.charCodeAt()<=90 ? "w"+f.toLowerCase() : "b"+f;
+    return (f.charCodeAt()<=90 ? "w"+f.toLowerCase() : "b"+f);
   }
 
   // Check if FEN describe a position

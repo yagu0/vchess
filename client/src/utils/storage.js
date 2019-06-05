@@ -108,23 +108,33 @@ export const GameStorage =
   },
 
   // localStorage:
-  // TODO: also option to takeback a move ? Is fen included in move ?
+  // TODO: also option to takeback a move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(fen, move, clocks, started, score)
+  update: function(o) //move, clock, initime, score, colorIdx
   {
+    // TODO: finish this --> colorIdx must be computed before entering the function
     let gameState = JSON.parse(localStorage.getItem("gameState"));
-    if (!!fen)
+    if (!!o.move)
     {
-      gameState.moves.push(move);
-      gameState.fen = fen;
-      gameState.clocks = clocks;
+      // https://stackoverflow.com/a/38750895
+      const allowed = ['appear', 'vanish', 'start', 'end'];
+      const filtered_move = Object.keys(o.move)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = raw[key];
+          return obj;
+        }, {});
+      gameState.moves.push(filtered_move);
+      gameState.fen = o.move.fen;
+      const colorIdx = ["w","b","g","r"][o.move.color];
+      gameState.clocks[colorIdx] = o.move.clock;
     }
-    if (!!started)
-      gameState.started = started;
-    if (!!score)
-      gameState.score = score;
+    if (!!o.initime) //just a flag (true)
+      gameState.initime = Date.now();
+    if (!!o.score)
+      gameState.score = o.score;
     localStorage.setItem("gameState", JSON.stringify(gameState));
-    if (!!score && score != "*")
+    if (!!o.score && o.score != "*")
       transferToDb(); //game is over
   },
 

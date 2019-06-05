@@ -246,6 +246,12 @@ export default {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
+        // Post-processing: decorate each move with current FEN:
+        // (to be able to jump to any position quickly)
+        game.moves.forEach(move => {
+          vr.play(move); //side-effect: set move.fen
+        });
+        this.vr.re_init(game.fen);
       });
 //    // Poll all players except me (if I'm playing) to know online status.
 //    // --> Send ping to server (answer pong if players[s] are connected)
@@ -284,3 +290,15 @@ export default {
   },
 };
 </script>
+
+// TODO: utiliser "started" (renommer) pour se souvenir du timestamp où un user a commencé à réfléchir à un coup. Le sauvegarder dans update aussi...
+
+// variable initime à récupérer de game aussi (et pas "started")
+// si initime à -1 ou undefined alors pas commencé. Abort possible à tout moment avec message
+// Sorry I have to go / Game seems over / Game is not interesting
+
+move.clock à màj avec (current) clock - temps de réflexion (now() - initime) + increment
+après chaque coup dans une partie live ou corr non terminée.
+--> donc à Game.update on passe directement clock
+
+code "T" pour score "perte au temps" ?
