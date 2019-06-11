@@ -1062,8 +1062,6 @@ export const ChessRules = class ChessRules
       move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
     if (V.HasEnpassant)
       this.epSquares.push( this.getEpSquare(move) );
-    if (!move.color)
-      move.color = this.turn; //for interface
     V.PlayOnBoard(this.board, move);
     this.turn = V.GetOppCol(this.turn);
     this.movesCount++;

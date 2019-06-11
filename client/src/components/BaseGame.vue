@@ -176,7 +176,7 @@ export default {
       }, 250);
     },
     play: function(move, programmatic) {
-      let navigate = !move;
+      const navigate = !move;
       // Forbid playing outside analyze mode when cursor isn't at moves.length-1
       // (except if we receive opponent's move, human or computer)
       if (!navigate && !this.analyze && !programmatic
@@ -190,6 +190,11 @@ export default {
           return; //no more moves
         move = this.moves[this.cursor+1];
       }
+      else
+      {
+        move.color = this.vr.turn;
+        move.notation = this.vr.getNotation(move);
+      }
       if (!!programmatic) //computer or (remote) human opponent
       {
         if (this.cursor < this.moves.length-1)
@@ -197,24 +202,22 @@ export default {
         return this.animateMove(move);
       }
       // Not programmatic, or animation is over
-      if (!move.notation)
-        move.notation = this.vr.getNotation(move);
-      if (!move.color)
-        move.color = this.vr.turn;
       this.vr.play(move);
       this.cursor++;
       this.lastMove = move;
-      if (!move.fen)
-        move.fen = this.vr.getFen();
       if (this.st.settings.sound == 2)
         new Audio("/sounds/move.mp3").play().catch(err => {});
-      if (!navigate && (this.score == "*" || this.analyze))
+      if (!navigate)
       {
-        // Stack move on movesList at current cursor
-        if (this.cursor == this.moves.length)
-          this.moves.push(move);
-        else
-          this.moves = this.moves.slice(0,this.cursor).concat([move]);
+        move.fen = this.vr.getFen();
+        if (this.score == "*" || this.analyze)
+        {
+          // Stack move on movesList at current cursor
+          if (this.cursor == this.moves.length)
+            this.moves.push(move);
+          else
+            this.moves = this.moves.slice(0,this.cursor).concat([move]);
+        }
       }
       // Is opponent in check?
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
@@ -230,7 +233,7 @@ export default {
         this.$emit("newmove", move); //post-processing (e.g. computer play)
     },
     undo: function(move) {
-      let navigate = !move;
+      const navigate = !move;
       if (navigate)
       {
         if (this.cursor < 0)

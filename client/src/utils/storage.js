@@ -107,27 +107,23 @@ export const GameStorage =
     localStorage.setItem("gameState", JSON.stringify(gameState));
   },
 
+  getInitime: function()
+  {
+    const gameState = JSON.parse(localStorage.getItem("gameState"));
+    return gameState.initime;
+  },
+
   // localStorage:
   // TODO: also option to takeback a move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(o) //move, clock, initime, score, colorIdx
+  update: function(o) //colorIdx, move, fen, elapsed, increment, initime, score
   {
-    // TODO: finish this --> colorIdx must be computed before entering the function
     let gameState = JSON.parse(localStorage.getItem("gameState"));
     if (!!o.move)
     {
-      // https://stackoverflow.com/a/38750895
-      const allowed = ['appear', 'vanish', 'start', 'end'];
-      const filtered_move = Object.keys(o.move)
-        .filter(key => allowed.includes(key))
-        .reduce((obj, key) => {
-          obj[key] = raw[key];
-          return obj;
-        }, {});
-      gameState.moves.push(filtered_move);
-      gameState.fen = o.move.fen;
-      const colorIdx = ["w","b","g","r"][o.move.color];
-      gameState.clocks[colorIdx] = o.move.clock;
+      gameState.moves.push(o.move);
+      gameState.fen = o.fen;
+      gameState.clocks[o.colorIdx] += (o.increment - o.elapsed);
     }
     if (!!o.initime) //just a flag (true)
       gameState.initime = Date.now();
@@ -149,7 +145,7 @@ export const GameStorage =
       let objectStore = db.transaction('games').objectStore('games');
       objectStore.openCursor().onsuccess = function(event) {
         var cursor = event.target.result;
-        // if there is still another cursor to go, keep runing this code
+        // if there is still another cursor to go, keep running this code
         if (cursor)
         {
           games.push(cursor.value);

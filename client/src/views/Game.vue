@@ -98,6 +98,18 @@ export default {
           // ...or just see nothing as on buho21
           this.$refs["basegame"].play(
             data.move, this.game.vname!="Dark" ? "animate" : null);
+          this.processMove(data.move);
+
+
+
+// TODO:
+// send filtered_move + elapsed time
+// receive same. (update clock) + update (our) initime if it's my turn
+// + update fen (using vr.getFen())
+
+
+
+
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
@@ -249,7 +261,9 @@ export default {
         // Post-processing: decorate each move with current FEN:
         // (to be able to jump to any position quickly)
         game.moves.forEach(move => {
-          vr.play(move); //side-effect: set move.fen
+          move.color = this.vr.turn;
+          vr.play(move);
+          move.fen = this.vr.getFen();
         });
         this.vr.re_init(game.fen);
       });
@@ -267,38 +281,56 @@ export default {
     oppConnected: function(uid) {
       return this.opponents.some(o => o.id == uid && o.online);
     },
+    // Post-process a move (which was just played)
     processMove: function(move) {
       if (!this.game.mycolor)
         return; //I'm just an observer
-      // TODO: update storage (corr or live),
-      GameStorage.update({
-        fen: move: clocks: ................ // TODO
-      });
+      // Update storage (corr or live)
+      const colorIdx = ["w","b","g","r"][move.color];
+      // https://stackoverflow.com/a/38750895
+      const allowed_fields = ["appear", "vanish", "start", "end"];
+      const filtered_move = Object.keys(move)
+        .filter(key => allowed_fields.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = raw[key];
+          return obj;
+        }, {});
       // Send move ("newmove" event) to opponent(s) (if ours)
-      if (move.disappear[0].c == this.game.mycolor)
+      // (otherwise move.elapsed is supposed to be already transmitted)
+      if (move.color == this.game.mycolor)
       {
+        const elapsed = Date.now() - GameStorage.getInitime();
         this.game.players.forEach(p => {
           if (p.sid != this.st.user.sid)
-            this.st.conn.send("newmove", {target:p.sid, move:move});
+            this.st.conn.send("newmove",
+            {
+              target: p.sid,
+              move: Object.assign({}, filtered_move, {elapsed: elapsed}),
+            });
         });
+        move.elapsed = elapsed;
       }
+      GameStorage.update({
+        colorIdx: colorIdx,
+        move: filtered_move,
+        fen: move.fen,
+        elapsed: move.elapsed,
+        increment: this.game.increment, //redundant but faster
+        initime: (this.vr.turn == this.game.mycolor), //it's my turn
+      });
     },
+    // NOTE: this update function should also work for corr games
     gameOver: function(score) {
-      // TODO: GameStorage.update with score
-      // NOTE: this update function should also work for corr games
+      GameStorage.update({
+        score: score,
+      });
     },
   },
 };
 </script>
 
-// TODO: utiliser "started" (renommer) pour se souvenir du timestamp où un user a commencé à réfléchir à un coup. Le sauvegarder dans update aussi...
-
-// variable initime à récupérer de game aussi (et pas "started")
-// si initime à -1 ou undefined alors pas commencé. Abort possible à tout moment avec message
+<!-- TODO:
+// Abort possible à tout moment avec message
 // Sorry I have to go / Game seems over / Game is not interesting
-
-move.clock à màj avec (current) clock - temps de réflexion (now() - initime) + increment
-après chaque coup dans une partie live ou corr non terminée.
---> donc à Game.update on passe directement clock
-
-code "T" pour score "perte au temps" ?
+// code "T" pour score "perte au temps" ?
+-->
