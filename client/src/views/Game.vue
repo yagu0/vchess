@@ -250,8 +250,9 @@ export default {
         // Post-processing: decorate each move with current FEN:
         // (to be able to jump to any position quickly)
         game.moves.forEach(move => {
+          // TODO: this is doing manually what BaseGame.play() achieve...
           move.color = this.vr.turn;
-          vr.play(move);
+          this.vr.play(move);
           move.fen = this.vr.getFen();
         });
         this.vr.re_init(game.fen);
@@ -281,7 +282,7 @@ export default {
       const filtered_move = Object.keys(move)
         .filter(key => allowed_fields.includes(key))
         .reduce((obj, key) => {
-          obj[key] = raw[key];
+          obj[key] = move[key];
           return obj;
         }, {});
       // Send move ("newmove" event) to opponent(s) (if ours)
@@ -291,11 +292,11 @@ export default {
         const elapsed = Date.now() - GameStorage.getInitime();
         this.game.players.forEach(p => {
           if (p.sid != this.st.user.sid)
-            this.st.conn.send("newmove",
-            {
+            this.st.conn.send(JSON.stringify({
+              code: "newmove",
               target: p.sid,
               move: Object.assign({}, filtered_move, {elapsed: elapsed}),
-            });
+            }));
         });
         move.elapsed = elapsed;
       }

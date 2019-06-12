@@ -592,6 +592,7 @@ export default {
         fenStart: gameInfo.fen,
         players: gameInfo.players,
         timeControl: gameInfo.timeControl,
+        initime: (gameInfo.players[0].sid == this.st.user.sid),
       });
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});

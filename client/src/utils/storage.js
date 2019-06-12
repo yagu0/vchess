@@ -99,7 +99,7 @@ export const GameStorage =
       fen: o.fenStart,
       moves: [],
       clocks: [...Array(o.players.length)].fill(tc.mainTime),
-      initime: undefined,
+      initime: (o.initime ? Date.now() : undefined),
       score: "*",
     };
 
