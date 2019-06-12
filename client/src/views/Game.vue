@@ -97,19 +97,8 @@ export default {
           // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
           // ...or just see nothing as on buho21
           this.$refs["basegame"].play(
-            data.move, this.game.vname!="Dark" ? "animate" : null);
+            data.move, this.game.vname!="Dark" ? "animate" : null); //TODO: arg to know if opponent move (or comp) in case of dark variant...
           this.processMove(data.move);
-
-
-
-// TODO:
-// send filtered_move + elapsed time
-// receive same. (update clock) + update (our) initime if it's my turn
-// + update fen (using vr.getFen())
-
-
-
-
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
@@ -278,9 +267,9 @@ export default {
 //    }
     },
     // TODO: refactor this old "oppConnected" logic
-    oppConnected: function(uid) {
-      return this.opponents.some(o => o.id == uid && o.online);
-    },
+//    oppConnected: function(uid) {
+//      return this.opponents.some(o => o.id == uid && o.online);
+//    },
     // Post-process a move (which was just played)
     processMove: function(move) {
       if (!this.game.mycolor)
@@ -316,7 +305,7 @@ export default {
         fen: move.fen,
         elapsed: move.elapsed,
         increment: this.game.increment, //redundant but faster
-        initime: (this.vr.turn == this.game.mycolor), //it's my turn
+        initime: (this.vr.turn == this.game.mycolor), //is it my turn?
       });
     },
     // NOTE: this update function should also work for corr games

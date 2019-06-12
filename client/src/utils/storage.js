@@ -99,7 +99,7 @@ export const GameStorage =
       fen: o.fenStart,
       moves: [],
       clocks: [...Array(o.players.length)].fill(tc.mainTime),
-      started: [...Array(o.players.length)].fill(false),
+      initime: undefined,
       score: "*",
     };
 
@@ -123,7 +123,8 @@ export const GameStorage =
     {
       gameState.moves.push(o.move);
       gameState.fen = o.fen;
-      gameState.clocks[o.colorIdx] += (o.increment - o.elapsed);
+      if (!!o.elapsed) //NaN if first move in game
+        gameState.clocks[o.colorIdx] += (o.increment - o.elapsed);
     }
     if (!!o.initime) //just a flag (true)
       gameState.initime = Date.now();
@@ -168,7 +169,7 @@ export const GameStorage =
           callback({}); //everything's fine
         }
         transaction.onerror = function() {
-          callback({errmsg: "deleteGame failed: " + transaction.error});
+          callback({errmsg: "game removal failed: " + transaction.error});
         };
       }
       transaction.objectStore("games").delete(gameId);
