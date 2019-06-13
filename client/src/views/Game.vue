@@ -96,9 +96,9 @@ export default {
         case "newmove":
           // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
           // ...or just see nothing as on buho21
-          this.$refs["basegame"].play(
-            data.move, this.game.vname!="Dark" ? "animate" : null); //TODO: arg to know if opponent move (or comp) in case of dark variant...
-          this.processMove(data.move);
+          // NOTE: next call will trigger processMove()
+          this.$refs["basegame"].play(data.move,
+            "receive", this.game.vname!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
           if (this.gameRef.id != data.gameId)
@@ -146,7 +146,7 @@ export default {
             }));
           }
           else if (data.movesCount > L) //just got last move from him
-            this.play(data.lastMove, "animate");
+            this.play(data.lastMove, "animate"); //TODO: wrong call (3 args)
           break;
         case "resign": //..you won!
           this.endGame(this.game.mycolor=="w"?"1-0":"0-1");
@@ -250,7 +250,8 @@ export default {
         // Post-processing: decorate each move with current FEN:
         // (to be able to jump to any position quickly)
         game.moves.forEach(move => {
-          // TODO: this is doing manually what BaseGame.play() achieve...
+          // NOTE: this is doing manually what BaseGame.play() achieve...
+          // but in a lighter "fast-forward" way
           move.color = this.vr.turn;
           this.vr.play(move);
           move.fen = this.vr.getFen();
@@ -276,7 +277,7 @@ export default {
       if (!this.game.mycolor)
         return; //I'm just an observer
       // Update storage (corr or live)
-      const colorIdx = ["w","b","g","r"][move.color];
+      const colorIdx = ["w","b","g","r"].indexOf(move.color);
       // https://stackoverflow.com/a/38750895
       const allowed_fields = ["appear", "vanish", "start", "end"];
       const filtered_move = Object.keys(move)
@@ -287,6 +288,7 @@ export default {
         }, {});
       // Send move ("newmove" event) to opponent(s) (if ours)
       // (otherwise move.elapsed is supposed to be already transmitted)
+      let addTime = undefined;
       if (move.color == this.game.mycolor)
       {
         const elapsed = Date.now() - GameStorage.getInitime();
@@ -299,14 +301,15 @@ export default {
             }));
         });
         move.elapsed = elapsed;
+        // elapsed time is measured in milliseconds
+        addTime = this.game.increment - elapsed/1000;
       }
       GameStorage.update({
         colorIdx: colorIdx,
         move: filtered_move,
         fen: move.fen,
-        elapsed: move.elapsed,
-        increment: this.game.increment, //redundant but faster
-        initime: (this.vr.turn == this.game.mycolor), //is it my turn?
+        addTime: addTime,
+        initime: (this.vr.turn == this.game.mycolor), //my turn now?
       });
     },
     // NOTE: this update function should also work for corr games

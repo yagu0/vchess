@@ -175,11 +175,11 @@ export default {
         this.play(move);
       }, 250);
     },
-    play: function(move, programmatic) {
+    play: function(move, receive, noanimate) {
       const navigate = !move;
       // Forbid playing outside analyze mode when cursor isn't at moves.length-1
       // (except if we receive opponent's move, human or computer)
-      if (!navigate && !this.analyze && !programmatic
+      if (!navigate && !this.analyze && !receive
         && this.cursor < this.moves.length-1)
       {
         return;
@@ -190,16 +190,16 @@ export default {
           return; //no more moves
         move = this.moves[this.cursor+1];
       }
-      else
-      {
-        move.color = this.vr.turn;
-        move.notation = this.vr.getNotation(move);
-      }
-      if (!!programmatic) //computer or (remote) human opponent
+      if (!!receive && !noanimate) //opponent move, variant != "Dark"
       {
         if (this.cursor < this.moves.length-1)
           this.gotoEnd(); //required to play the move
         return this.animateMove(move);
+      }
+      if (!navigate)
+      {
+        move.color = this.vr.turn;
+        move.notation = this.vr.getNotation(move);
       }
       // Not programmatic, or animation is over
       this.vr.play(move);

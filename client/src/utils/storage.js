@@ -116,15 +116,15 @@ export const GameStorage =
   // localStorage:
   // TODO: also option to takeback a move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(o) //colorIdx, move, fen, elapsed, increment, initime, score
+  update: function(o) //colorIdx, move, fen, addTime, initime, score
   {
     let gameState = JSON.parse(localStorage.getItem("gameState"));
     if (!!o.move)
     {
       gameState.moves.push(o.move);
       gameState.fen = o.fen;
-      if (!!o.elapsed) //NaN if first move in game
-        gameState.clocks[o.colorIdx] += (o.increment - o.elapsed);
+      if (!!o.addTime) //NaN if first move in game
+        gameState.clocks[o.colorIdx] += o.addTime;
     }
     if (!!o.initime) //just a flag (true)
       gameState.initime = Date.now();
