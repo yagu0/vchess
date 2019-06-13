@@ -6,6 +6,7 @@
       .card.smallpad.small-modal.text-center
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
+    // TODO: or "BoardHex" if this.game.vname in "Hexagonal..."
     Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
       :user-color="game.mycolor" :orientation="orientation"
       :vname="game.vname" @play-move="play")
@@ -142,6 +143,9 @@ export default {
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
     },
+
+// TODO: second arg == message
+
     endGame: function(score) {
       this.score = score;
       this.showScoreMsg(score);
@@ -219,10 +223,10 @@ export default {
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
       }
-      // Is opponent in check?
+      // Is opponent in check? (TODO: generalize, find all check squares)
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
       const score = this.vr.getCurrentScore();
-      if (score != "*")
+      if (score != "*") //TODO: generalize score for 3 or 4 players
       {
         if (!this.analyze)
           this.endGame(score);

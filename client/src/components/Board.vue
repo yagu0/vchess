@@ -1,5 +1,5 @@
 <script>
-// TODO: for 3 or 4 players, write a "board3.js" (board4.js)
+// TODO: BoardHex for hexagonal variants (2 players)
 
 import { getSquareId, getSquareFromId } from "@/utils/squareId";
 import { ArrayFun } from "@/utils/array";
@@ -8,7 +8,7 @@ export default {
   name: 'my-board',
   // Last move cannot be guessed from here, and is required to highlight squares
   // vr: object to check moves, print board...
-  // userColor: for mode HH or HC
+  // userColor is left undefined for an external observer
   props: ["vr","lastMove","analyze","orientation","userColor","vname"],
   data: function () {
     return {
@@ -38,7 +38,7 @@ export default {
         attrs: { "id": "choices" },
         'class': { 'row': true },
         style: {
-          "display": this.choices.length>0?"block":"none",
+          "display": (this.choices.length > 0 ? "block" : "none"),
           "top": "-" + ((sizeY/2)*squareWidth+squareWidth/2) + "px",
           "width": (this.choices.length * squareWidth) + "px",
           "height": squareWidth + "px",
@@ -96,8 +96,8 @@ export default {
             let cj = (this.orientation=='w' ? j : sizeY-j-1);
             let elems = [];
             if (this.vr.board[ci][cj] != V.EMPTY && (this.vname!="Dark"
-              || this.gameOver || this.analyze
-              || this.vr.enlightened[this.userColor][ci][cj]))
+              || this.analyze || (!!this.userColor
+                && this.vr.enlightened[this.userColor][ci][cj])))
             {
               elems.push(
                 h(
@@ -141,8 +141,9 @@ export default {
                   'light-square': (i+j)%2==0,
                   'dark-square': (i+j)%2==1,
                   [this.bcolor]: true,
-                  'in-shadow': this.vname=="Dark" && !this.gameOver
-                    && !this.analyze && !this.vr.enlightened[this.userColor][ci][cj],
+                  'in-shadow': this.vname=="Dark" && !this.analyze
+                    && (!this.userColor
+                      || !this.vr.enlightened[this.userColor][ci][cj]),
                   'highlight': showLight && !!lm && lm.end.x == ci && lm.end.y == cj,
                   'incheck': showLight && incheckSq[ci][cj],
                 },
@@ -156,10 +157,11 @@ export default {
         );
       })
     );
+    const playingColor = userColor || "w"; //default for an observer
     let elementArray = [choices, gameDiv];
     if (!!this.vr.reserve)
     {
-      const shiftIdx = (this.userColor=="w" ? 0 : 1);
+      const shiftIdx = (playingColor=="w" ? 0 : 1);
       let myReservePiecesArray = [];
       for (let i=0; i<V.RESERVE_PIECES.length; i++)
       {
@@ -174,17 +176,17 @@ export default {
             'class': {"piece":true, "reserve":true},
             attrs: {
               "src": "/images/pieces/" +
-                this.vr.getReservePpath(this.userColor,i) + ".svg",
+                this.vr.getReservePpath(playingColor,i) + ".svg",
             }
           }),
           h('sup',
             {"class": { "reserve-count": true } },
-            [ this.vr.reserve[this.userColor][V.RESERVE_PIECES[i]] ]
+            [ this.vr.reserve[playingColor][V.RESERVE_PIECES[i]] ]
           )
         ]));
       }
       let oppReservePiecesArray = [];
-      const oppCol = V.GetOppCol(this.userColor);
+      const oppCol = V.GetOppCol(playingColor);
       for (let i=0; i<V.RESERVE_PIECES.length; i++)
       {
         oppReservePiecesArray.push(h('div',
@@ -288,7 +290,7 @@ export default {
         this.selectedPiece.style.zIndex = 3000;
         const startSquare = getSquareFromId(e.target.parentNode.id);
         this.possibleMoves = [];
-        const color = (this.analyze || this.gameOver ? this.vr.turn : this.userColor);
+        const color = (this.analyze ? this.vr.turn : this.userColor);
         if (this.vr.canIplay(color,startSquare))
           this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
         // Next line add moving piece just after current image

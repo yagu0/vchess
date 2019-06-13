@@ -1,18 +1,3 @@
-<!-- TODO: component Game, + handle players + observers connect/disconnect
-  event = "gameconnect" ...etc
-  connect/disconnect with sid+name (ID not required); name slightly redundant but easier
-quand on arrive dans la partie, on poll les sids pour savoir qui est en ligne (ping)
-(éventuel échange lastate avec les connectés, pong ...etc)
-ensuite quand qqun se deco il suffit d'écouter "disconnect"
-pareil quand quelqu'un reco.
-(c'est assez rudimentaire et écoute trop de messages, mais dans un premier temps...)
-      // TODO: [in game] send move + elapsed time (in milliseconds); in case of "lastate" message too
-// TODO: if I'm an observer and player(s) disconnect/reconnect, how to find me ?
-//      onClick :: ask full game to remote player, and register as an observer in game
-//      (use gameId to communicate)
-//      on landing on game :: if gameId not found locally, check remotely
-//      ==> il manque un param dans game : "remoteId"
--->
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -49,7 +34,7 @@ export default {
       },
       game: { }, //passed to BaseGame
       vr: null, //"variant rules" object initialized from FEN
-      drawOfferSent: false, //did I just ask for draw? (TODO: draw variables?)
+      drawOfferSent: false, //did I just ask for draw? (TODO: use for button style)
       people: [ ], //potential observers (TODO)
     };
   },
@@ -72,18 +57,14 @@ export default {
     }
     // TODO: how to know who is observing ? Send message to everyone with game ID ?
     // and then just listen to (dis)connect events
-
-
     // server always send "connect on " + URL ; then add to observers if game...
     // detect multiple tabs connected (when connect ask server if my SID is already in use)
 // router when access a game page tell to server I joined + game ID (no need rid)
 // and ask server for current joined (= observers)
 // when send to chat (or a move), reach only this group (send gid along)
-
     // --> doivent être enregistrés comme observers au niveau du serveur...
     // non: poll users + events startObserving / stopObserving
     // (à faire au niveau du routeur ?)
-
 
     // TODO: also handle "draw accepted" (use opponents array?)
     // --> must give this info also when sending lastState...
@@ -117,6 +98,7 @@ export default {
           });
           break;
         // TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves
+        // TODO: need to send along clock state (my current time) with my last move
         case "lastate": //got opponent infos about last move
           L = this.vr.moves.length;
           if (this.gameRef.id != data.gameId)
@@ -148,9 +130,19 @@ export default {
           else if (data.movesCount > L) //just got last move from him
             this.play(data.lastMove, "animate"); //TODO: wrong call (3 args)
           break;
-        case "resign": //..you won!
-          this.endGame(this.game.mycolor=="w"?"1-0":"0-1");
+        case "resign":
+          this.$refs["basegame"].endGame(
+            this.game.mycolor=="w" ? "1-0" : "0-1", "Resign");
           break;
+        case "timeover":
+          this.$refs["basegame"].endGame(
+            this.game.mycolor=="w" ? "1-0" : "0-1", "Time");
+          break;
+        case "abort":
+          this.$refs["basegame"].endGame("?", "Abort: " + data.msg);
+          break;
+        // TODO: drawaccepted (click draw button before sending move ==> draw offer in move)
+          // ==> on "newmove", check "drawOffer" field
         // TODO: also use (dis)connect info to count online players?
         case "gameconnect":
         case "gamedisconnect":
@@ -214,6 +206,10 @@ export default {
     abortGame: function() {
       if (!confirm("Abort the game?"))
         return;
+      
+// Abort possible à tout moment avec message
+// Sorry I have to go / Game seems over / Game is not interesting
+
       //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
       //send message: "gameOver" avec score "?"
       // ==> BaseGame must listen to game.score change, and call "endgame(score)" in this case
@@ -221,15 +217,17 @@ export default {
     resign: function(e) {
       if (!confirm("Resign the game?"))
         return;
-      if (this.mode == "human" && this.oppConnected(this.oppid))
-      {
-        try {
-          this.st.conn.send(JSON.stringify({code: "resign", oppid: this.oppid}));
-        } catch (INVALID_STATE_ERR) {
-          return;
+      this.game.players.forEach(p => {
+        if (!!p.sid && p.sid != this.st.user.sid)
+        {
+          this.st.conn.send(JSON.stringify({
+            code: "resign",
+            target: p.sid,
+          }));
         }
-      }
-      this.endGame(this.mycolor=="w"?"0-1":"1-0");
+      });
+      // Next line will trigger a "gameover" event, bubbling up till here
+      this.$refs["basegame"].endGame(this.game.mycolor=="w" ? "0-1" : "1-0");
     },
     // 4 cases for loading a game:
     //  - from localStorage (one running game I play)
@@ -294,11 +292,13 @@ export default {
         const elapsed = Date.now() - GameStorage.getInitime();
         this.game.players.forEach(p => {
           if (p.sid != this.st.user.sid)
+          {
             this.st.conn.send(JSON.stringify({
               code: "newmove",
               target: p.sid,
               move: Object.assign({}, filtered_move, {elapsed: elapsed}),
             }));
+          }
         });
         move.elapsed = elapsed;
         // elapsed time is measured in milliseconds
@@ -312,8 +312,9 @@ export default {
         initime: (this.vr.turn == this.game.mycolor), //my turn now?
       });
     },
-    // NOTE: this update function should also work for corr games
+    // TODO: this update function should also work for corr games
     gameOver: function(score) {
+      this.game.mode = "analyze";
       GameStorage.update({
         score: score,
       });
@@ -321,9 +322,3 @@ export default {
   },
 };
 </script>
-
-<!-- TODO:
-// Abort possible à tout moment avec message
-// Sorry I have to go / Game seems over / Game is not interesting
-// code "T" pour score "perte au temps" ?
--->

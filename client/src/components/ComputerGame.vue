@@ -107,8 +107,8 @@ export default {
         this.playComputerMove();
       }
     },
-    // When game ends normally, just switch to analyze mode
-    gameOver: function() {
+    gameOver: function(score) {
+      // Just switch to analyze mode: no user action can set score
       this.game.mode = "analyze";
     },
   },
