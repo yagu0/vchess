@@ -85,25 +85,6 @@ export default {
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
     },
-    setEndgameMessage: function(score) {
-      let eogMessage = "Undefined";
-      switch (score)
-      {
-        case "1-0":
-          eogMessage = translations["White win"];
-          break;
-        case "0-1":
-          eogMessage = translations["Black win"];
-          break;
-        case "1/2":
-          eogMessage = translations["Draw"];
-          break;
-        case "?":
-          eogMessage = "Unfinished";
-          break;
-      }
-      this.endgameMessage = eogMessage;
-    },
     download: function() {
       const content = this.getPgn();
       // Prepare and trigger download link
@@ -137,18 +118,36 @@ export default {
       }
       return pgn + "\n";
     },
-    showScoreMsg: function(score) {
-      this.setEndgameMessage(score);
+    getScoreMessage: function(score) {
+      let eogMessage = "Undefined";
+      switch (score)
+      {
+        case "1-0":
+          eogMessage = this.st.tr["White win"];
+          break;
+        case "0-1":
+          eogMessage = this.st.tr["Black win"];
+          break;
+        case "1/2":
+          eogMessage = this.st.tr["Draw"];
+          break;
+        case "?":
+          eogMessage = this.st.tr["Unfinished"];
+          break;
+      }
+      return eogMessage;
+    },
+    showEndgameMsg: function(message) {
+      this.endgameMessage = message;
       let modalBox = document.getElementById("modalEog");
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
     },
-
-// TODO: second arg == message
-
-    endGame: function(score) {
+    endGame: function(score, message) {
       this.score = score;
-      this.showScoreMsg(score);
+      if (!message)
+        message = this.getScoreMessage(score);
+      this.showEndgameMsg(score + " . " + message);
       this.$emit("gameover", score);
     },
     animateMove: function(move) {
@@ -230,8 +229,12 @@ export default {
       {
         if (!this.analyze)
           this.endGame(score);
-        else //just show score on screen (allow undo)
-          this.showScoreMsg(score);
+        else
+        {
+          // Just show score on screen (allow undo)
+          const message = this.getScoreMessage(score);
+          this.showEndgameMsg(score + " . " + message);
+        }
       }
       if (!this.analyze)
         this.$emit("newmove", move); //post-processing (e.g. computer play)

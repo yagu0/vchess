@@ -1,11 +1,19 @@
 <template lang="pug">
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+    input#modalAbort.modal(type="checkbox")
+    div(role="dialog" aria-labelledby="abortBoxTitle")
+      .card.smallpad.small-modal.text-center
+        label.modal-close(for="modalAbort")
+        h3#abortBoxTitle.section {{ st.tr["Terminate game?"] }}
+        button(@click="abortGame") {{ st.tr["Sorry I have to go"] }}
+        button(@click="abortGame") {{ st.tr["Game seems over"] }}
+        button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
     .button-group(v-if="game.mode!='analyze'")
       button(@click="offerDraw") Draw
-      button(@click="abortGame") Abort
+      button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
     div(v-if="game.mode=='corr'")
       textarea(v-show="score=='*' && vr.turn==game.mycolor" v-model="corrMsg")
@@ -75,8 +83,6 @@ export default {
       switch (data.code)
       {
         case "newmove":
-          // TODO: observer on dark games must see all board ? Or alternate ? (seems better)
-          // ...or just see nothing as on buho21
           // NOTE: next call will trigger processMove()
           this.$refs["basegame"].play(data.move,
             "receive", this.game.vname!="Dark" ? "animate" : null);
@@ -203,16 +209,29 @@ export default {
       // TODO: ignore if preventDrawOffer is set; otherwise show modal box with option "prevent future offers"
       // if accept: send message "draw"
     },
-    abortGame: function() {
-      if (!confirm("Abort the game?"))
-        return;
-      
-// Abort possible à tout moment avec message
-// Sorry I have to go / Game seems over / Game is not interesting
-
-      //+ bouton "abort" avec score == "?" + demander confirmation pour toutes ces actions,
-      //send message: "gameOver" avec score "?"
-      // ==> BaseGame must listen to game.score change, and call "endgame(score)" in this case
+    abortGame: function(event) {
+      if (!event)
+      {
+        // First call show options:
+        let modalBox = document.getElementById("modalAbort");
+        modalBox.checked = true;
+      }
+      else
+      {
+        console.log(event);
+        //const message = event.
+        this.gameOver("?");
+        this.game.players.forEach(p => {
+          if (!!p.sid && p.sid != this.st.user.sid)
+          {
+            this.st.conn.send(JSON.stringify({
+              code: "abort",
+              msg: message,
+              target: p.sid,
+            }));
+          }
+        });
+      }
     },
     resign: function(e) {
       if (!confirm("Resign the game?"))

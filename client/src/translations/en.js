@@ -98,4 +98,9 @@ export const translations =
     ": unfinished computer game will be erased",
   ": current analysis will be erased":
     ": current analysis will be erased",
+
+  "Terminate game?": "Terminate game?",
+  "Sorry I have to go": "Sorry I have to go",
+  "Game seems over": "Game seems over",
+  "Game is too boring": "Game is too boring",
 };
