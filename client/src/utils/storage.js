@@ -51,8 +51,8 @@ function addGame(game, callback)
 
 // Clear current live game from localStorage
 function clear() {
-  localStorage.deleteItem("gameInfo");
-  localStorage.deleteItem("gameState");
+  localStorage.removeItem("gameInfo");
+  localStorage.removeItem("gameState");
 }
 
 // Current live game:
@@ -140,20 +140,28 @@ export const GameStorage =
   // TODO: option for remote retrieval (third arg, or just "gameRef")
   getLocal: function(gameId, callback)
   {
-    let games = [];
     dbOperation((db) => {
-      // TODO: if gameId is provided, limit search to gameId (just .get(gameId). ...)
       let objectStore = db.transaction('games').objectStore('games');
-      objectStore.openCursor().onsuccess = function(event) {
-        var cursor = event.target.result;
-        // if there is still another cursor to go, keep running this code
-        if (cursor)
-        {
-          games.push(cursor.value);
-          cursor.continue();
+      if (!gameId) //retrieve all
+      {
+        let games = [];
+        objectStore.openCursor().onsuccess = function(event) {
+          let cursor = event.target.result;
+          // if there is still another cursor to go, keep running this code
+          if (cursor)
+          {
+            games.push(cursor.value);
+            cursor.continue();
+          }
+          else
+            callback(games);
         }
-        else
-          callback(games);
+      }
+      else //just one game
+      {
+        objectStore.get(gameId).onsuccess = function(event) {
+          callback(event.target.result);
+        }
       }
     });
   },

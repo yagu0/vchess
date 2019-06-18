@@ -7,7 +7,7 @@
         label.modal-close(for="modalEog")
         h3#eogMessage.section {{ endgameMessage }}
     // TODO: or "BoardHex" if this.game.vname in "Hexagonal..."
-    Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
+    Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
       :user-color="game.mycolor" :orientation="orientation"
       :vname="game.vname" @play-move="play")
     .button-group
@@ -22,7 +22,17 @@
       a#download(href="#")
       .button-group
         button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
-        button Import game
+        
+        // TODO: Import game button copy game locally in IndexedDB
+        //button Import game
+
+
+// TODO: do not use localStorage for current game, but directly indexedDB
+// update function is similar
+// ==> retrieval functions must filter on score, and potential "imported" tag
+// ==> this should allow several simultaneous games
+
+
     //MoveList(v-if="showMoves"
       :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
@@ -32,6 +42,7 @@ import Board from "@/components/Board.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
 import { getSquareId } from "@/utils/squareId";
+import { getDate } from "@/utils/datetime";
 
 export default {
   name: 'my-base-game',
@@ -68,7 +79,7 @@ export default {
       return this.game.vname != "Dark" || this.score != "*";
     },
     analyze: function() {
-      return this.game.mode == "analyze";
+      return this.game.mode == "analyze" || this.game.score != "*";
     },
   },
   created: function() {
@@ -81,6 +92,16 @@ export default {
       this.orientation = this.game.mycolor || "w"; //default orientation for observed games
       this.score = this.game.score || "*"; //mutable (if initially "*")
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
+      // Post-processing: decorate each move with color + current FEN:
+      // (to be able to jump to any position quickly)
+      this.moves.forEach(move => {
+        // NOTE: this is doing manually what play() function below achieve,
+        // but in a lighter "fast-forward" way
+        move.color = this.vr.turn;
+        move.notation = this.vr.getNotation(move);
+        this.vr.play(move);
+        move.fen = this.vr.getFen();
+      });
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
@@ -98,8 +119,8 @@ export default {
       pgn += '[Site "vchess.club"]\n';
       pgn += '[Variant "' + this.game.vname + '"]\n';
       pgn += '[Date "' + getDate(new Date()) + '"]\n';
-      pgn += '[White "' + this.game.players[0] + '"]\n';
-      pgn += '[Black "' + this.game.players[1] + '"]\n';
+      pgn += '[White "' + this.game.players[0].name + '"]\n';
+      pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
       pgn += '[Result "' + this.score + '"]\n\n';
       let counter = 1;
@@ -111,9 +132,9 @@ export default {
         {
           let move = "";
           while (i < this.moves.length && this.moves[i].color == color)
-            move += this.moves[i++].notation[0] + ",";
+            move += this.moves[i++].notation + ",";
           move = move.slice(0,-1); //remove last comma
-          pgn += move + (i < this.moves.length-1 ? " " : "");
+          pgn += move + (i < this.moves.length ? " " : "");
         }
       }
       return pgn + "\n";

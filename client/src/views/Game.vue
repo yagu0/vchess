@@ -11,7 +11,7 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
-    .button-group(v-if="game.mode!='analyze'")
+    .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
@@ -219,8 +219,10 @@ export default {
       else
       {
         console.log(event);
+        return;
         //const message = event.
-        this.gameOver("?");
+        // Next line will trigger a "gameover" event, bubbling up till here
+        this.$refs["basegame"].endGame("?");
         this.game.players.forEach(p => {
           if (!!p.sid && p.sid != this.st.user.sid)
           {
@@ -255,25 +257,15 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function() {
       GameStorage.get(this.gameRef, async (game) => {
+        const vModule = await import("@/variants/" + game.vname + ".js");
+        window.V = vModule.VariantRules;
+        this.vr = new V(game.fenStart);
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
           {mycolor: [undefined,"w","b"][1 + game.players.findIndex(
             p => p.sid == this.st.user.sid)]},
         );
-        const vModule = await import("@/variants/" + game.vname + ".js");
-        window.V = vModule.VariantRules;
-        this.vr = new V(game.fen);
-        // Post-processing: decorate each move with current FEN:
-        // (to be able to jump to any position quickly)
-        game.moves.forEach(move => {
-          // NOTE: this is doing manually what BaseGame.play() achieve...
-          // but in a lighter "fast-forward" way
-          move.color = this.vr.turn;
-          this.vr.play(move);
-          move.fen = this.vr.getFen();
-        });
-        this.vr.re_init(game.fen);
       });
 //    // Poll all players except me (if I'm playing) to know online status.
 //    // --> Send ping to server (answer pong if players[s] are connected)

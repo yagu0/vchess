@@ -157,7 +157,7 @@ export default {
         );
       })
     );
-    const playingColor = userColor || "w"; //default for an observer
+    const playingColor = this.userColor || "w"; //default for an observer
     let elementArray = [choices, gameDiv];
     if (!!this.vr.reserve)
     {
