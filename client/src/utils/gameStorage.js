@@ -1,0 +1,136 @@
+// Game object: {
+//   // Static informations:
+//   gameId: string
+//   vname: string,
+//   fenStart: string,
+//   players: array of sid+id+name,
+//   timeControl: string,
+//   increment: integer (seconds),
+//   mode: string ("live" or "corr")
+//   imported: boolean (optional, default false)
+//   // Game (dynamic) state:
+//   fen: string,
+//   moves: array of Move objects,
+//   clocks: array of integers,
+//   initime: integer (when clock start running),
+//   score: string (several options; '*' == running),
+// }
+
+function dbOperation(callback)
+{
+  let db = null;
+  let DBOpenRequest = window.indexedDB.open("vchess", 4);
+
+  DBOpenRequest.onerror = function(event) {
+    alert("Database error: " + event.target.errorCode);
+  };
+
+  DBOpenRequest.onsuccess = function(event) {
+    db = DBOpenRequest.result;
+    callback(db);
+    db.close();
+  };
+
+  DBOpenRequest.onupgradeneeded = function(event) {
+    let db = event.target.result;
+    db.onerror = function(event) {
+      alert("Error while loading database: " + event.target.errorCode);
+    };
+    // Create objectStore for vchess->games
+    db.createObjectStore("games", { keyPath: "gameId" });
+  }
+}
+
+export const GameStorage =
+{
+  // Optional callback to get error status
+  add: function(game, callback)
+  {
+    dbOperation((db) => {
+      let transaction = db.transaction("games", "readwrite");
+      if (callback)
+      {
+        transaction.oncomplete = function() {
+          callback({}); //everything's fine
+        }
+        transaction.onerror = function() {
+          callback({errmsg: "addGame failed: " + transaction.error});
+        };
+      }
+      let objectStore = transaction.objectStore("games");
+      objectStore.add(game);
+    });
+  },
+
+  // TODO: also option to takeback a move ?
+  // NOTE: for live games only (all on server for corr)
+  update: function(gameId, obj) //colorIdx, move, fen, addTime, initime, score
+  {
+    dbOperation((db) => {
+      let objectStore = db.transaction("games", "readwrite").objectStore("games");
+      objectStore.get(gameId).onsuccess = function(event) {
+        const game = event.target.result;
+        if (!!obj.move)
+        {
+          game.moves.push(obj.move);
+          game.fen = obj.fen;
+          if (!!obj.addTime) //NaN if first move in game
+            game.clocks[obj.colorIdx] += obj.addTime;
+        }
+        if (!!obj.initime) //just a flag (true)
+          game.initime = Date.now();
+        if (!!obj.score)
+          game.score = obj.score;
+        objectStore.put(game); //save updated data
+      }
+    });
+  },
+
+  // Retrieve any live game from its identifiers (locally, running or not)
+  // NOTE: need callback because result is obtained asynchronously
+  get: function(gameId, callback)
+  {
+    dbOperation((db) => {
+      let objectStore = db.transaction('games').objectStore('games');
+      if (!gameId) //retrieve all
+      {
+        let games = [];
+        objectStore.openCursor().onsuccess = function(event) {
+          let cursor = event.target.result;
+          // if there is still another cursor to go, keep running this code
+          if (cursor)
+          {
+            games.push(cursor.value);
+            cursor.continue();
+          }
+          else
+            callback(games);
+        }
+      }
+      else //just one game
+      {
+        objectStore.get(gameId).onsuccess = function(event) {
+          callback(event.target.result);
+        }
+      }
+    });
+  },
+
+  // Delete a game in indexedDB
+  remove: function(gameId, callback)
+  {
+    dbOperation((db) => {
+      let transaction = db.transaction(["games"], "readwrite");
+      if (callback)
+      {
+        transaction.oncomplete = function() {
+          callback({}); //everything's fine
+        }
+        transaction.onerror = function() {
+          callback({errmsg: "removeGame failed: " + transaction.error});
+        };
+      }
+      transaction.objectStore("games").delete(gameId);
+    });
+  },
+};

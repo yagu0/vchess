@@ -81,7 +81,8 @@ import { ajax } from "@/utils/ajax";
 import { getRandString, shuffle } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
-import { GameStorage } from "@/utils/storage";
+import { GameStorage } from "@/utils/gameStorage";
+import { extractTime } from "@/utils/timeControl";
 export default {
   name: "my-hall",
   components: {
@@ -292,20 +293,21 @@ export default {
         }
         case "askgame":
         {
-          // Send my current live game (if any)
-          if (!!localStorage["gid"])
-          {
-            const myGame =
-            {
-              // Minimal game informations: (fen+clock not required)
-              id: localStorage["gid"],
-              players: JSON.parse(localStorage["players"]), //array sid+id+name
-              vname: localStorage["vname"],
-              timeControl: localStorage["timeControl"],
-            };
-            this.st.conn.send(JSON.stringify({code:"game",
-              game:myGame, target:data.from}));
-          }
+          // Send my current live games (if any)
+          // TODO: from indexedDB, through GameStorage.
+//          if (!!localStorage["gid"])
+//          {
+//            const myGame =
+//            {
+//              // Minimal game informations: (fen+clock not required)
+//              id: localStorage["gid"],
+//              players: JSON.parse(localStorage["players"]), //array sid+id+name
+//              vname: localStorage["vname"],
+//              timeControl: localStorage["timeControl"],
+//            };
+//            this.st.conn.send(JSON.stringify({code:"game",
+//              game:myGame, target:data.from}));
+//          }
           break;
         }
         case "identity":
@@ -331,6 +333,7 @@ export default {
         {
           // Receive game from some player (+sid)
           // NOTE: it may be correspondance (if newgame while we are connected)
+          // TODO: ambiguous naming "newGame" ==> rename function ?
           let newGame = data.game;
           newGame.type = this.classifyObject(data.game);
           newGame.vname = newGame.vname;
@@ -586,14 +589,27 @@ export default {
     },
     // NOTE: for live games only (corr games are launched on server)
     newGame: function(gameInfo) {
-      GameStorage.init({
+      // Extract times (in [milli]seconds), set clocks
+      const tc = extractTime(gameInfo.timeControl);
+      const IPlayFirst = (gameInfo.players[0].sid == this.st.user.sid);
+      const game =
+      {
+        // Game infos: constant
         gameId: gameInfo.gameId,
         vname: this.getVname(gameInfo.vid),
         fenStart: gameInfo.fen,
         players: gameInfo.players,
         timeControl: gameInfo.timeControl,
-        initime: (gameInfo.players[0].sid == this.st.user.sid),
-      });
+        increment: tc.increment,
+        mode: "live", //function for live games only
+        // Game state: will be updated
+        fen: gameInfo.fen,
+        moves: [],
+        clocks: [...Array(gameInfo.players.length)].fill(tc.mainTime),
+        initime: (IPlayFirst ? Date.now() : undefined),
+        score: "*",
+      };
+      GameStorage.add(game);
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});
       // TODO: redirect to game
@@ -605,3 +621,9 @@ export default {
 <style lang="sass">
 // TODO
 </style>
+
+<!--
+// TODO:
+// Remove duplicates if several players of one game send their game info (Hall)
+// When click on it, assign a random rid among online players (max. 4).
+-->

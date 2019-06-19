@@ -22,17 +22,8 @@
       a#download(href="#")
       .button-group
         button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
-        
         // TODO: Import game button copy game locally in IndexedDB
         //button Import game
-
-
-// TODO: do not use localStorage for current game, but directly indexedDB
-// update function is similar
-// ==> retrieval functions must filter on score, and potential "imported" tag
-// ==> this should allow several simultaneous games
-
-
     //MoveList(v-if="showMoves"
       :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>

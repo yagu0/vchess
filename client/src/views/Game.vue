@@ -25,7 +25,7 @@ import BaseGame from "@/components/BaseGame.vue";
 //import Chat from "@/components/Chat.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
-import { GameStorage } from "@/utils/storage";
+import { GameStorage } from "@/utils/gameStorage";
 
 export default {
   name: 'my-game',
@@ -250,13 +250,12 @@ export default {
       // Next line will trigger a "gameover" event, bubbling up till here
       this.$refs["basegame"].endGame(this.game.mycolor=="w" ? "0-1" : "1-0");
     },
-    // 4 cases for loading a game:
-    //  - from localStorage (one running game I play)
-    //  - from indexedDB (one completed live game)
+    // 3 cases for loading a game:
+    //  - from indexedDB (running or completed live game I play)
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
-    loadGame: function() {
-      GameStorage.get(this.gameRef, async (game) => {
+    loadGame: function(game) {
+      const afterRetrieval = async (game) => {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fenStart);
@@ -266,7 +265,23 @@ export default {
           {mycolor: [undefined,"w","b"][1 + game.players.findIndex(
             p => p.sid == this.st.user.sid)]},
         );
-      });
+      };
+      if (!!game)
+        return afterRetrival(game);
+      if (!!this.gameRef.rid)
+      {
+        // TODO: just send a game request message to the remote player,
+        // and when receiving answer just call loadGame(received_game)
+        // + remote peer should have registered us as an observer
+        // (send moves updates + resign/abort/draw actions)
+        return;
+      }
+      else
+      {
+        GameStorage.get(this.gameRef.id, async (game) => {
+          afterRetrieval(game);
+        });
+      }
 //    // Poll all players except me (if I'm playing) to know online status.
 //    // --> Send ping to server (answer pong if players[s] are connected)
 //    if (this.gameInfo.players.some(p => p.sid == this.st.user.sid))
@@ -300,7 +315,7 @@ export default {
       let addTime = undefined;
       if (move.color == this.game.mycolor)
       {
-        const elapsed = Date.now() - GameStorage.getInitime();
+        const elapsed = Date.now() - this.game.initime;
         this.game.players.forEach(p => {
           if (p.sid != this.st.user.sid)
           {
@@ -315,13 +330,20 @@ export default {
         // elapsed time is measured in milliseconds
         addTime = this.game.increment - elapsed/1000;
       }
-      GameStorage.update({
+      const myTurnNow = (this.vr.turn == this.game.mycolor);
+      GameStorage.update(this.gameRef.id,
+      {
         colorIdx: colorIdx,
         move: filtered_move,
         fen: move.fen,
         addTime: addTime,
-        initime: (this.vr.turn == this.game.mycolor), //my turn now?
+        initime: myTurnNow,
       });
+      // Also update current game object:
+      this.game.moves.push(move);
+      this.game.fen = move.fen;
+      this.game.clocks[colorIdx] += (!!addTime ? addTime : 0);
+      this.game.initime = (myTurnNow ? Date.now() : undefined);
     },
     // TODO: this update function should also work for corr games
     gameOver: function(score) {
