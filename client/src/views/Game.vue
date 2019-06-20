@@ -11,6 +11,8 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
+    // TODO: virtualClocks[...], not "clockState"
+    div Time: {{ clockState }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
@@ -26,6 +28,7 @@ import BaseGame from "@/components/BaseGame.vue";
 //import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
+import { ppt } from "@/utils/datetime";
 
 export default {
   name: 'my-game',
@@ -41,11 +44,23 @@ export default {
         rid: ""
       },
       game: { }, //passed to BaseGame
+      virtualClocks: [ ], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOfferSent: false, //did I just ask for draw? (TODO: use for button style)
       people: [ ], //potential observers (TODO)
     };
   },
+
+  // TODO: this method should disappear and virtualClocks already be "prettified":
+  // all computations are done when game.clocks are updated (see below)
+  computed: {
+    clockState: function() {
+      if (this.virtualClocks.length == 0)
+        return; //nothing to display for now
+      return ppt(this.virtualClocks[0]) + " - " + ppt(this.virtualClocks[1]);
+    },
+  },
+
   watch: {
     '$route' (to, from) {
       if (!!to.params["id"])
@@ -54,6 +69,18 @@ export default {
         this.gameRef.rid = to.query["rid"];
         this.loadGame();
       }
+    },
+    "game.clocks": function(newState) {
+      this.virtualClocks = newState;
+      setInterval(function() {
+
+        // TODO: run clock of current turn, stop at 0, clearInterval in the end
+        // https://www.geeksforgeeks.org/create-countdown-timer-using-javascript/
+        // if it was my turn, call gameOver. Otherwise just stay at 0 and wait.
+        if ( ...........)
+//à 0, bloquer puis si mon temps : perte au temps. Sinon attendre message adversaire (il peut être offline).
+
+      });
     },
   },
   created: function() {
@@ -311,25 +338,25 @@ export default {
           return obj;
         }, {});
       // Send move ("newmove" event) to opponent(s) (if ours)
-      // (otherwise move.elapsed is supposed to be already transmitted)
       let addTime = undefined;
       if (move.color == this.game.mycolor)
       {
         const elapsed = Date.now() - this.game.initime;
+        // elapsed time is measured in milliseconds
+        addTime = this.game.increment - elapsed/1000;
         this.game.players.forEach(p => {
           if (p.sid != this.st.user.sid)
           {
             this.st.conn.send(JSON.stringify({
               code: "newmove",
               target: p.sid,
-              move: Object.assign({}, filtered_move, {elapsed: elapsed}),
+              move: Object.assign({}, filtered_move, {addTime: addTime}),
             }));
           }
         });
-        move.elapsed = elapsed;
-        // elapsed time is measured in milliseconds
-        addTime = this.game.increment - elapsed/1000;
       }
+      else
+        addTime = move.addTime; //supposed transmitted
       const myTurnNow = (this.vr.turn == this.game.mycolor);
       GameStorage.update(this.gameRef.id,
       {
@@ -348,7 +375,8 @@ export default {
     // TODO: this update function should also work for corr games
     gameOver: function(score) {
       this.game.mode = "analyze";
-      GameStorage.update({
+      GameStorage.update(this.gameRef.id,
+      {
         score: score,
       });
     },
