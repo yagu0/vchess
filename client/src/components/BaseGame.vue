@@ -85,13 +85,14 @@ export default {
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
       // Post-processing: decorate each move with color + current FEN:
       // (to be able to jump to any position quickly)
+      let vr_tmp = new V(this.game.fenStart); //vr is already at end of game
       this.moves.forEach(move => {
         // NOTE: this is doing manually what play() function below achieve,
         // but in a lighter "fast-forward" way
-        move.color = this.vr.turn;
-        move.notation = this.vr.getNotation(move);
-        this.vr.play(move);
-        move.fen = this.vr.getFen();
+        move.color = vr_tmp.turn;
+        move.notation = vr_tmp.getNotation(move);
+        vr_tmp.play(move);
+        move.fen = vr_tmp.getFen();
       });
       const L = this.moves.length;
       this.cursor = L-1;

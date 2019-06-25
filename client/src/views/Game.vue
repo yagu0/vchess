@@ -66,22 +66,7 @@ export default {
       let countdown = newState[colorIdx] -
         (Date.now() - this.game.initime[colorIdx])/1000;
       const myTurn = (currentTurn == this.game.mycolor);
-
-console.log(this.vr.turn + " " + currentTurn + " " + this.vr.getFen());
-
       let clockUpdate = setInterval(() => {
-
-
-
-
-console.log(countdown);
-        console.log(this.vr.turn +" " + currentTurn + " " + this.vr.getFen());
-
-// TODO: incoherent state because vr is altered in BaseGame to replay game
-        // ==> should use a temporary vr ?
-
-
-
         if (countdown <= 0 || this.vr.turn != currentTurn)
         {
           clearInterval(clockUpdate);
@@ -392,7 +377,9 @@ console.log(countdown);
       // Also update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
-      this.game.clocks[colorIdx] += (!!addTime ? addTime : 0);
+      //TODO: just this.game.clocks[colorIdx] += (!!addTime ? addTime : 0);
+      this.$set(this.game.clocks, colorIdx,
+        this.game.clocks[colorIdx] + (!!addTime ? addTime : 0));
       this.game.initime[nextIdx] = Date.now();
     },
     // TODO: this update function should also work for corr games
