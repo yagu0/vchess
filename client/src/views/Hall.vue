@@ -591,7 +591,8 @@ export default {
     newGame: function(gameInfo) {
       // Extract times (in [milli]seconds), set clocks
       const tc = extractTime(gameInfo.timeControl);
-      const IPlayFirst = (gameInfo.players[0].sid == this.st.user.sid);
+      let initime = [...Array(gameInfo.players.length)];
+      initime[0] = Date.now();
       const game =
       {
         // Game infos: constant
@@ -606,7 +607,7 @@ export default {
         fen: gameInfo.fen,
         moves: [],
         clocks: [...Array(gameInfo.players.length)].fill(tc.mainTime),
-        initime: (IPlayFirst ? Date.now() : undefined),
+        initime: initime,
         score: "*",
       };
       GameStorage.add(game);

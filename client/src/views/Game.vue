@@ -11,8 +11,8 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
-    // TODO: virtualClocks[...], not "clockState"
-    div Time: {{ clockState }}
+    // TODO: show players names + clocks state
+    div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
@@ -44,23 +44,12 @@ export default {
         rid: ""
       },
       game: { }, //passed to BaseGame
-      virtualClocks: [ ], //initialized with true game.clocks
+      virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOfferSent: false, //did I just ask for draw? (TODO: use for button style)
       people: [ ], //potential observers (TODO)
     };
   },
-
-  // TODO: this method should disappear and virtualClocks already be "prettified":
-  // all computations are done when game.clocks are updated (see below)
-  computed: {
-    clockState: function() {
-      if (this.virtualClocks.length == 0)
-        return; //nothing to display for now
-      return ppt(this.virtualClocks[0]) + " - " + ppt(this.virtualClocks[1]);
-    },
-  },
-
   watch: {
     '$route' (to, from) {
       if (!!to.params["id"])
@@ -71,16 +60,49 @@ export default {
       }
     },
     "game.clocks": function(newState) {
-      this.virtualClocks = newState;
-      setInterval(function() {
+      this.virtualClocks = newState.map(s => ppt(s));
+      const currentTurn = this.vr.turn;
+      const colorIdx = ["w","b","g","r"].indexOf(currentTurn);
+      let countdown = newState[colorIdx] -
+        (Date.now() - this.game.initime[colorIdx])/1000;
+      const myTurn = (currentTurn == this.game.mycolor);
 
-        // TODO: run clock of current turn, stop at 0, clearInterval in the end
-        // https://www.geeksforgeeks.org/create-countdown-timer-using-javascript/
-        // if it was my turn, call gameOver. Otherwise just stay at 0 and wait.
-        if ( ...........)
-//à 0, bloquer puis si mon temps : perte au temps. Sinon attendre message adversaire (il peut être offline).
+console.log(this.vr.turn + " " + currentTurn + " " + this.vr.getFen());
 
-      });
+      let clockUpdate = setInterval(() => {
+
+
+
+
+console.log(countdown);
+        console.log(this.vr.turn +" " + currentTurn + " " + this.vr.getFen());
+
+// TODO: incoherent state because vr is altered in BaseGame to replay game
+        // ==> should use a temporary vr ?
+
+
+
+        if (countdown <= 0 || this.vr.turn != currentTurn)
+        {
+          clearInterval(clockUpdate);
+          if (countdown <= 0 && myTurn)
+          {
+            this.$refs["basegame"].endGame(
+              this.game.mycolor=="w" ? "0-1" : "1-0", "Time");
+            this.game.players.forEach(p => {
+              if (p.sid != this.st.user.sid)
+              {
+                this.st.conn.send(JSON.stringify({
+                  code: "timeover",
+                  target: p.sid,
+                }));
+              }
+            });
+          }
+        }
+        // TODO: with Vue 3, just do this.virtualClocks[colorIdx] = ppt(--countdown)
+        this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
+      }, 1000);
     },
   },
   created: function() {
@@ -249,7 +271,7 @@ export default {
         return;
         //const message = event.
         // Next line will trigger a "gameover" event, bubbling up till here
-        this.$refs["basegame"].endGame("?");
+        this.$refs["basegame"].endGame("?", "Abort: " + event.msg); //TODO
         this.game.players.forEach(p => {
           if (!!p.sid && p.sid != this.st.user.sid)
           {
@@ -275,7 +297,8 @@ export default {
         }
       });
       // Next line will trigger a "gameover" event, bubbling up till here
-      this.$refs["basegame"].endGame(this.game.mycolor=="w" ? "0-1" : "1-0");
+      this.$refs["basegame"].endGame(
+        this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -285,7 +308,7 @@ export default {
       const afterRetrieval = async (game) => {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
-        this.vr = new V(game.fenStart);
+        this.vr = new V(game.fen);
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
@@ -341,7 +364,7 @@ export default {
       let addTime = undefined;
       if (move.color == this.game.mycolor)
       {
-        const elapsed = Date.now() - this.game.initime;
+        const elapsed = Date.now() - this.game.initime[colorIdx];
         // elapsed time is measured in milliseconds
         addTime = this.game.increment - elapsed/1000;
         this.game.players.forEach(p => {
@@ -357,20 +380,20 @@ export default {
       }
       else
         addTime = move.addTime; //supposed transmitted
-      const myTurnNow = (this.vr.turn == this.game.mycolor);
+      const nextIdx = ["w","b","g","r"].indexOf(this.vr.turn);
       GameStorage.update(this.gameRef.id,
       {
         colorIdx: colorIdx,
+        nextIdx: nextIdx,
         move: filtered_move,
         fen: move.fen,
         addTime: addTime,
-        initime: myTurnNow,
       });
       // Also update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
       this.game.clocks[colorIdx] += (!!addTime ? addTime : 0);
-      this.game.initime = (myTurnNow ? Date.now() : undefined);
+      this.game.initime[nextIdx] = Date.now();
     },
     // TODO: this update function should also work for corr games
     gameOver: function(score) {

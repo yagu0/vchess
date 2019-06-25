@@ -12,7 +12,7 @@
 //   fen: string,
 //   moves: array of Move objects,
 //   clocks: array of integers,
-//   initime: integer (when clock start running),
+//   initime: array of integers (when clock start running),
 //   score: string (several options; '*' == running),
 // }
 
@@ -64,7 +64,7 @@ export const GameStorage =
 
   // TODO: also option to takeback a move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(gameId, obj) //colorIdx, move, fen, addTime, initime, score
+  update: function(gameId, obj) //colorIdx, nextIdx, move, fen, addTime, score
   {
     dbOperation((db) => {
       let objectStore = db.transaction("games", "readwrite").objectStore("games");
@@ -76,9 +76,8 @@ export const GameStorage =
           game.fen = obj.fen;
           if (!!obj.addTime) //NaN if first move in game
             game.clocks[obj.colorIdx] += obj.addTime;
+          game.initime[obj.nextIdx] = Date.now();
         }
-        if (!!obj.initime) //just a flag (true)
-          game.initime = Date.now();
         if (!!obj.score)
           game.score = obj.score;
         objectStore.put(game); //save updated data
