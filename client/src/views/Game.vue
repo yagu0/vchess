@@ -22,6 +22,16 @@
       div(v-show="cursor>=0") {{ moves[cursor].message }}
 </template>
 
+<!--
+// TODO: movelist dans basegame et chat ici
+// se limiter à 2 joueurs pour l'instant au moins tout en restant général
+// ==> après, implémenter/vérifier les passages de challenges + parties en cours
+// observer,
+// + problèmes, habiller et publier. (+ corr...)
+
+// refactor players.forEach(...) into sendTo(opponent, ...)
+-->
+
 <script>
 import BaseGame from "@/components/BaseGame.vue";
 //import Chat from "@/components/Chat.vue";
@@ -85,8 +95,11 @@ export default {
             });
           }
         }
-        // TODO: with Vue 3, just do this.virtualClocks[colorIdx] = ppt(--countdown)
-        this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
+        else
+        {
+          // TODO: with Vue 3, just do this.virtualClocks[colorIdx] = ppt(--countdown)
+          this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
+        }
       }, 1000);
     },
   },
@@ -244,19 +257,18 @@ export default {
       // if accept: send message "draw"
     },
     abortGame: function(event) {
+      let modalBox = document.getElementById("modalAbort");
       if (!event)
       {
         // First call show options:
-        let modalBox = document.getElementById("modalAbort");
         modalBox.checked = true;
       }
       else
       {
-        console.log(event);
-        return;
-        //const message = event.
+        modalBox.checked = false; //decision made: box disappear
+        const message = event.target.innerText;
         // Next line will trigger a "gameover" event, bubbling up till here
-        this.$refs["basegame"].endGame("?", "Abort: " + event.msg); //TODO
+        this.$refs["basegame"].endGame("?", "Abort: " + message);
         this.game.players.forEach(p => {
           if (!!p.sid && p.sid != this.st.user.sid)
           {
