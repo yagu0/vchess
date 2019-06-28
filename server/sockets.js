@@ -12,27 +12,12 @@ function getJsonFromUrl(url)
   return result;
 }
 
-// Removal in array of strings (socket IDs)
-function remInArray(arr, item)
-{
-  const idx = arr.indexOf(item);
-  if (idx >= 0)
-    arr.splice(idx, 1);
-}
-
-// TODO: empêcher multi-log du même user (envoyer le user ID + secret en même temps que name et...)
-// --> si secret ne matche pas celui trouvé en DB, stop
-// TODO: lorsque challenge accepté, seul le dernier joueur à accepter envoi message "please start game"
-// avec les coordonnées des participants. Le serveur renvoit alors les détails de la partie (couleurs, position)
-//TODO: programmatic re-navigation on current game if we receive a move and are not there
-
 module.exports = function(wss) {
   let clients = {}; //associative array sid --> socket
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
     // TODO: later, allow duplicate connections (shouldn't be much more complicated)
-    // Ignore duplicate connections (on the same live game that we play):
     if (!!clients[sid])
       return socket.send(JSON.stringify({code:"duplicate"}));
     clients[sid] = socket;

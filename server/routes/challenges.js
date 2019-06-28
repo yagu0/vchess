@@ -51,21 +51,13 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
 
 // Nothing to do if challenge is refused (just removal)
 router.put("/challenges", access.logged, access.ajax, (req,res) => {
-  switch (req.body.action)
-  {
-    case "withdraw":
-      // turn WillPlay to false (TODO?)
-      break;
-    case "accept":
-      // turn WillPlay to true; if then challenge is full, launch game
-      ChallengeModel.getSeatCount(req.body.id, (scount) => {
-        if (scount == 1)
-          launchGame(req.body.id, req.userId);
-        else
-          ChallengeModel.setSeat(req.body.id, req.userId);
-      })
-      break;
-  }
+  // Accept challenge: turn WillPlay to true; if then challenge is full, launch game
+  ChallengeModel.getSeatCount(req.body.id, (scount) => {
+    if (scount == 1)
+      launchGame(req.body.id, req.userId);
+    else
+      ChallengeModel.setSeat(req.body.id, req.userId);
+  });
   res.json({});
 });
 

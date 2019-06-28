@@ -11,7 +11,7 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
-    // TODO: show players names + clocks state
+    // TODO: also show players names
     div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
@@ -24,12 +24,18 @@
 
 <!--
 // TODO: movelist dans basegame et chat ici
-// se limiter à 2 joueurs pour l'instant au moins tout en restant général
 // ==> après, implémenter/vérifier les passages de challenges + parties en cours
 // observer,
 // + problèmes, habiller et publier. (+ corr...)
-
-// refactor players.forEach(...) into sendTo(opponent, ...)
+    // TODO: how to know who is observing ? Send message to everyone with game ID ?
+    // and then just listen to (dis)connect events
+    // server always send "connect on " + URL ; then add to observers if game...
+// router when access a game page tell to server I joined + game ID (no need rid)
+// and ask server for current joined (= observers)
+// when send to chat (or a move), reach only this group (send gid along)
+// -> doivent être enregistrés comme observers au niveau du serveur...
+    // non: poll users + events startObserving / stopObserving
+    // (à faire au niveau du routeur ?)
 -->
 
 <script>
@@ -54,9 +60,11 @@ export default {
         rid: ""
       },
       game: { }, //passed to BaseGame
+      oppConnected: false,
+      corrMsg: "", //to send offline messages in corr games
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
-      drawOfferSent: false, //did I just ask for draw? (TODO: use for button style)
+      drawOffer: "", //TODO: use for button style
       people: [ ], //potential observers (TODO)
     };
   },
@@ -72,7 +80,7 @@ export default {
     "game.clocks": function(newState) {
       this.virtualClocks = newState.map(s => ppt(s));
       const currentTurn = this.vr.turn;
-      const colorIdx = ["w","b","g","r"].indexOf(currentTurn);
+      const colorIdx = ["w","b"].indexOf(currentTurn);
       let countdown = newState[colorIdx] -
         (Date.now() - this.game.initime[colorIdx])/1000;
       const myTurn = (currentTurn == this.game.mycolor);
@@ -84,15 +92,10 @@ export default {
           {
             this.$refs["basegame"].endGame(
               this.game.mycolor=="w" ? "0-1" : "1-0", "Time");
-            this.game.players.forEach(p => {
-              if (p.sid != this.st.user.sid)
-              {
-                this.st.conn.send(JSON.stringify({
-                  code: "timeover",
-                  target: p.sid,
-                }));
-              }
-            });
+            this.st.conn.send(JSON.stringify({
+              code: "timeover",
+              target: this.game.oppid,
+            }));
           }
         }
         else
@@ -110,23 +113,8 @@ export default {
       this.gameRef.rid = this.$route.query["rid"];
       this.loadGame();
     }
-    // TODO: how to know who is observing ? Send message to everyone with game ID ?
-    // and then just listen to (dis)connect events
-    // server always send "connect on " + URL ; then add to observers if game...
-    // detect multiple tabs connected (when connect ask server if my SID is already in use)
-// router when access a game page tell to server I joined + game ID (no need rid)
-// and ask server for current joined (= observers)
-// when send to chat (or a move), reach only this group (send gid along)
-    // --> doivent être enregistrés comme observers au niveau du serveur...
-    // non: poll users + events startObserving / stopObserving
-    // (à faire au niveau du routeur ?)
-
-    // TODO: also handle "draw accepted" (use opponents array?)
-    // --> must give this info also when sending lastState...
-    // and, if all players agree then OK draw (end game ...etc)
     const socketMessageListener = msg => {
       const data = JSON.parse(msg.data);
-      let L = undefined;
       switch (data.code)
       {
         case "newmove":
@@ -135,54 +123,57 @@ export default {
             "receive", this.game.vname!="Dark" ? "animate" : null);
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
-          if (this.gameRef.id != data.gameId)
-            break; //games IDs don't match: the game is definitely over...
+        {
           this.oppConnected = true;
           // Send our "last state" informations to opponent(s)
-          L = this.vr.moves.length;
-          Object.keys(this.opponents).forEach(oid => {
-            this.st.conn.send(JSON.stringify({
-              code: "lastate",
-              oppid: oid,
-              gameId: this.gameRef.id,
-              lastMove: (L>0?this.vr.moves[L-1]:undefined),
-              movesCount: L,
-            }));
-          });
+          const L = this.game.moves.length;
+          this.st.conn.send(JSON.stringify({
+            code: "lastate",
+            target: this.game.oppid,
+            gameId: this.gameRef.id,
+            lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+            score: this.game.score,
+            movesCount: L,
+            drawOffer: this.drawOffer,
+            clocks: this.game.clocks,
+          }));
           break;
-        // TODO: refactor this, because at 3 or 4 players we may have missed 2 or 3 moves
-        // TODO: need to send along clock state (my current time) with my last move
+        }
         case "lastate": //got opponent infos about last move
-          L = this.vr.moves.length;
+        {
+          const L = this.game.moves.length;
           if (this.gameRef.id != data.gameId)
             break; //games IDs don't match: nothing we can do...
           // OK, opponent still in game (which might be over)
-          if (this.score != "*")
+          if (data.movesCount > L)
           {
-            // We finished the game (any result possible)
-            this.st.conn.send(JSON.stringify({
-              code: "lastate",
-              oppid: data.oppid,
-              gameId: this.gameRef.id,
-              score: this.score,
-            }));
+            // Just got last move from him
+            this.$refs["basegame"].play(data.lastMove, "receive");
+            if (data.score != "*" && this.game.score == "*")
+            {
+              // Opponent resigned or aborted game, or accepted draw offer
+              // (this is not a stalemate or checkmate)
+              this.$refs["basegame"].endGame(data.score, "Opponent action");
+            }
+            this.game.clocks = data.clocks;
+            this.drawOffer = data.drawOffer;
           }
-          else if (!!data.score) //opponent finished the game
-            this.endGame(data.score);
           else if (data.movesCount < L)
           {
             // We must tell last move to opponent
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              oppid: this.opponent.id,
+              target: this.game.oppid,
               gameId: this.gameRef.id,
-              lastMove: this.vr.moves[L-1],
+              lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+              score: this.game.score,
               movesCount: L,
+              drawOffer: this.drawOffer,
+              clocks: this.game.clocks,
             }));
           }
-          else if (data.movesCount > L) //just got last move from him
-            this.play(data.lastMove, "animate"); //TODO: wrong call (3 args)
           break;
+        }
         case "resign":
           this.$refs["basegame"].endGame(
             this.game.mycolor=="w" ? "1-0" : "0-1", "Resign");
@@ -199,20 +190,17 @@ export default {
         // TODO: also use (dis)connect info to count online players?
         case "gameconnect":
         case "gamedisconnect":
-          if (this.mode=="human")
+          const online = (data.code == "gameconnect");
+          // If this is an opponent ?
+          if (this.game.oppid == data.id)
+            this.oppConnected = true;
+          else
           {
-            const online = (data.code == "connect");
-            // If this is an opponent ?
-            if (!!this.opponents[data.id])
-              this.opponents[data.id].online = online;
+            // Or an observer ?
+            if (!online)
+              delete this.people[data.id];
             else
-            {
-              // Or an observer ?
-              if (!online)
-                delete this.people[data.id];
-              else
-                this.people[data.id] = data.name;
-            }
+              this.people[data.id] = data.name;
           }
           break;
       }
@@ -224,12 +212,19 @@ export default {
     this.st.conn.onmessage = socketMessageListener;
     this.st.conn.onclose = socketCloseListener;
   },
-  // dans variant.js (plutôt room.js) conn gère aussi les challenges
-  // et les chats dans chat.js. Puis en webRTC, repenser tout ça.
   methods: {
     offerDraw: function() {
-      if (!confirm("Offer draw?"))
-        return;
+      if (this.drawOffer == "received")
+      {
+        if (!confirm("Offer draw?"))
+          return;
+        this.st.conn.send(JSON.stringify({code:"draw", target:this.game.oppid}));
+      else if (this.drawOffer == "sent")
+        this.drawOffer = "";
+      else
+      {
+        if (!confirm("Offer draw?"))
+          return;
       // Stay in "draw offer sent" state until next move is played
       this.drawOfferSent = true;
       if (this.subMode == "corr")
@@ -242,7 +237,6 @@ export default {
           if (!!o.online)
           {
             try {
-              this.st.conn.send(JSON.stringify({code: "draw", oppid: o.id}));
             } catch (INVALID_STATE_ERR) {
               return;
             }
@@ -269,30 +263,20 @@ export default {
         const message = event.target.innerText;
         // Next line will trigger a "gameover" event, bubbling up till here
         this.$refs["basegame"].endGame("?", "Abort: " + message);
-        this.game.players.forEach(p => {
-          if (!!p.sid && p.sid != this.st.user.sid)
-          {
-            this.st.conn.send(JSON.stringify({
-              code: "abort",
-              msg: message,
-              target: p.sid,
-            }));
-          }
-        });
+        this.st.conn.send(JSON.stringify({
+          code: "abort",
+          msg: message,
+          target: this.game.oppid,
+        }));
       }
     },
     resign: function(e) {
       if (!confirm("Resign the game?"))
         return;
-      this.game.players.forEach(p => {
-        if (!!p.sid && p.sid != this.st.user.sid)
-        {
-          this.st.conn.send(JSON.stringify({
-            code: "resign",
-            target: p.sid,
-          }));
-        }
-      });
+      this.st.conn.send(JSON.stringify({
+        code: "resign",
+        target: this.game.oppid,
+      }));
       // Next line will trigger a "gameover" event, bubbling up till here
       this.$refs["basegame"].endGame(
         this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
@@ -306,12 +290,22 @@ export default {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
+        const myIdx = game.players.findIndex(p => p.sid == this.st.user.sid);
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
-          {mycolor: [undefined,"w","b"][1 + game.players.findIndex(
-            p => p.sid == this.st.user.sid)]},
+          {
+            mycolor: [undefined,"w","b"][myIdx+1],
+            // opponent sid not strictly required, but easier
+            oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
+          }
         );
+        if (!!this.game.oppid)
+        {
+          // Send ping to server (answer pong if players[s] are connected)
+          this.st.conn.send(JSON.stringify({code:"ping",
+            target:this.game.oppid, gameId:this.gameRef.id}));
+        }
       };
       if (!!game)
         return afterRetrival(game);
@@ -321,7 +315,6 @@ export default {
         // and when receiving answer just call loadGame(received_game)
         // + remote peer should have registered us as an observer
         // (send moves updates + resign/abort/draw actions)
-        return;
       }
       else
       {
@@ -329,26 +322,13 @@ export default {
           afterRetrieval(game);
         });
       }
-//    // Poll all players except me (if I'm playing) to know online status.
-//    // --> Send ping to server (answer pong if players[s] are connected)
-//    if (this.gameInfo.players.some(p => p.sid == this.st.user.sid))
-//    {
-//      this.game.players.forEach(p => {
-//        if (p.sid != this.st.user.sid)
-//          this.st.conn.send(JSON.stringify({code:"ping", oppid:p.sid}));
-//      });
-//    }
     },
-    // TODO: refactor this old "oppConnected" logic
-//    oppConnected: function(uid) {
-//      return this.opponents.some(o => o.id == uid && o.online);
-//    },
     // Post-process a move (which was just played)
     processMove: function(move) {
       if (!this.game.mycolor)
         return; //I'm just an observer
       // Update storage (corr or live)
-      const colorIdx = ["w","b","g","r"].indexOf(move.color);
+      const colorIdx = ["w","b"].indexOf(move.color);
       // https://stackoverflow.com/a/38750895
       const allowed_fields = ["appear", "vanish", "start", "end"];
       const filtered_move = Object.keys(move)
@@ -364,20 +344,15 @@ export default {
         const elapsed = Date.now() - this.game.initime[colorIdx];
         // elapsed time is measured in milliseconds
         addTime = this.game.increment - elapsed/1000;
-        this.game.players.forEach(p => {
-          if (p.sid != this.st.user.sid)
-          {
-            this.st.conn.send(JSON.stringify({
-              code: "newmove",
-              target: p.sid,
-              move: Object.assign({}, filtered_move, {addTime: addTime}),
-            }));
-          }
-        });
+        this.st.conn.send(JSON.stringify({
+          code: "newmove",
+          target: this.game.oppid,
+          move: Object.assign({}, filtered_move, {addTime: addTime}),
+        }));
       }
       else
         addTime = move.addTime; //supposed transmitted
-      const nextIdx = ["w","b","g","r"].indexOf(this.vr.turn);
+      const nextIdx = ["w","b"].indexOf(this.vr.turn);
       GameStorage.update(this.gameRef.id,
       {
         colorIdx: colorIdx,
