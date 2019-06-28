@@ -83,14 +83,13 @@ module.exports = function(wss) {
         case "newchat":
           clients[obj.target].send(JSON.stringify({code:"newchat",msg:obj.msg}));
           break;
-        // Transmit chats and moves to current room
         // TODO: WebRTC instead in this case (most demanding?)
         case "newmove":
           clients[obj.target].send(JSON.stringify({code:"newmove",move:obj.move}));
           break;
-        // TODO: generalize that for several opponents
         case "ping":
-          socket.send(JSON.stringify({code:"pong",gameId:obj.gameId}));
+          // If this code is reached, then obj.target is connected
+          socket.send(JSON.stringify({code:"pong"}));
           break;
         case "lastate":
           const oppId = obj.target;

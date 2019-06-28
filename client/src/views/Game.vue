@@ -303,8 +303,7 @@ export default {
         if (!!this.game.oppid)
         {
           // Send ping to server (answer pong if players[s] are connected)
-          this.st.conn.send(JSON.stringify({code:"ping",
-            target:this.game.oppid, gameId:this.gameRef.id}));
+          this.st.conn.send(JSON.stringify({code:"ping", target:this.game.oppid}));
         }
       };
       if (!!game)
