@@ -185,6 +185,12 @@ export default {
         case "abort":
           this.$refs["basegame"].endGame("?", "Abort: " + data.msg);
           break;
+        case "draw":
+          this.$refs["basegame"].endGame("1/2", "Mutual agreement");
+          break;
+        case "drawoffer":
+          this.drawOffer = "received";
+          break;
         // TODO: drawaccepted (click draw button before sending move ==> draw offer in move)
           // ==> on "newmove", check "drawOffer" field
         // TODO: also use (dis)connect info to count online players?
@@ -214,34 +220,21 @@ export default {
   },
   methods: {
     offerDraw: function() {
+      // TODO: also for corr games
       if (this.drawOffer == "received")
       {
-        if (!confirm("Offer draw?"))
+        if (!confirm("Accept draw?"))
           return;
         this.st.conn.send(JSON.stringify({code:"draw", target:this.game.oppid}));
+        this.$refs["basegame"].endGame("1/2", "Mutual agreement");
+      }
       else if (this.drawOffer == "sent")
         this.drawOffer = "";
       else
       {
         if (!confirm("Offer draw?"))
           return;
-      // Stay in "draw offer sent" state until next move is played
-      this.drawOfferSent = true;
-      if (this.subMode == "corr")
-      {
-        // TODO: set drawOffer on in game (how ?)
-      }
-      else //live game
-      {
-        this.opponents.forEach(o => {
-          if (!!o.online)
-          {
-            try {
-            } catch (INVALID_STATE_ERR) {
-              return;
-            }
-          }
-        });
+        this.st.conn.send(JSON.stringify({code:"drawoffer", target:this.game.oppid}));
       }
     },
     // + conn handling: "draw" message ==> agree for draw (if we have "drawOffered" at true)

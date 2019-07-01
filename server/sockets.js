@@ -102,6 +102,12 @@ module.exports = function(wss) {
         case "abort":
           clients[obj.target].send(JSON.stringify({code:"abort",msg:obj.msg}));
           break;
+        case "drawoffer":
+          clients[obj.target].send(JSON.stringify({code:"drawoffer"}));
+          break;
+        case "draw":
+          clients[obj.target].send(JSON.stringify({code:"draw"}));
+          break;
       }
     });
     socket.on("close", () => {

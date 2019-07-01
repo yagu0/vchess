@@ -455,7 +455,7 @@ export default {
       console.log("click challenge");
       console.log(c);
 
-      else if (c.from.sid == this.st.user.sid
+      if (c.from.sid == this.st.user.sid
         || (this.st.user.id > 0 && c.from.id == this.st.user.id))
       {
         // It's my challenge: cancel it
