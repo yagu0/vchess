@@ -199,19 +199,17 @@ export default {
           {target: sid}
         )));
       };
-      if (!!to[0])
+      if (!!to)
       {
-        to.forEach(pname => {
-          // Challenge with targeted players
-          const targetSid = this.getSid(pname);
-          if (!targetSid)
-          {
-            if (!!warnDisconnected)
-              alert("Warning: " + pname + " is not connected");
-          }
-          else
-            doSend(code, obj, targetSid);
-        });
+        // Challenge with targeted players
+        const targetSid = this.getSid(to);
+        if (!targetSid)
+        {
+          if (!!warnDisconnected)
+            alert("Warning: " + pname + " is not connected");
+        }
+        else
+          doSend(code, obj, targetSid);
       }
       else
       {
@@ -403,7 +401,7 @@ export default {
       const finishAddChallenge = (cid,warnDisconnected) => {
         chall.id = cid || "c" + getRandString();
         // Send challenge to peers (if connected)
-        this.sendSomethingTo(cto, "challenge", {chall:chall}, !!warnDisconnected);
+        this.sendSomethingTo(chall.to, "challenge", {chall:chall}, !!warnDisconnected);
         chall.added = Date.now();
         chall.type = ctype;
         chall.vname = vname;

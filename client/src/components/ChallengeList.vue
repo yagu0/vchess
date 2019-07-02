@@ -8,9 +8,7 @@ table
   tr(v-for="c in challenges" @click="$emit('click-challenge',c)")
     td {{ c.vname }}
     td {{ c.from.name }}
-    td(v-if="!!c.to[0]")
-      span(v-for="pname in c.to") {{ pname }}
-    td(v-else) {{ c.to.length }} player{{ c.to.length >= 2 ? 's' : '' }}
+    td {{ c.to }}
     td {{ c.timeControl }}
 </template>
 
