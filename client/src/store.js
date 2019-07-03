@@ -50,7 +50,7 @@ export const store =
     };
     const socketCloseListener = () => {
       this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
-    }
+    };
     this.state.conn.onclose = socketCloseListener;
     const supportedLangs = ["en","es","fr"];
     this.state.lang = localStorage["lang"] ||

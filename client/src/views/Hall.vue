@@ -113,6 +113,15 @@ export default {
   created: function() {
     // Always add myself to players' list
     this.people.push(this.st.user);
+    // Retrieve live challenge (not older than 30 minute) if any:
+    const chall = JSON.parse(localStorage.getItem("challenge") || "false");
+    if (!!chall)
+    {
+      if ((Date.now() - chall.added)/1000 <= 30*60)
+        this.challenges.push(chall);
+      else
+        localStorage.removeItem("challenge");
+    }
     if (this.st.user.id > 0)
     {
     // Ask server for current corr games (all but mines)
@@ -407,6 +416,7 @@ export default {
         chall.vname = vname;
         chall.from = this.st.user;
         this.challenges.push(chall);
+        localStorage.setItem("challenge", JSON.stringify(chall));
         document.getElementById("modalNewgame").checked = false;
       };
       const cIdx = this.challenges.findIndex(
