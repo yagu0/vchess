@@ -37,7 +37,8 @@ function dbOperation(callback)
       alert("Error while loading database: " + event.target.errorCode);
     };
     // Create objectStore for vchess->games
-    db.createObjectStore("games", { keyPath: "gameId" });
+    let objectStore = db.createObjectStore("games", { keyPath: "gameId" });
+    objectStore.createIndex("score", "score"); //to search by game result
   }
 }
 
@@ -112,6 +113,16 @@ export const GameStorage =
           callback(event.target.result);
         }
       }
+    });
+  },
+
+  getCurrent: function(callback)
+  {
+    dbOperation((db) => {
+      let objectStore = db.transaction('games').objectStore('games');
+      objectStore.get("*").onsuccess = function(event) {
+        callback(event.target.result);
+      };
     });
   },
 

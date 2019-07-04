@@ -277,27 +277,28 @@ export default {
               timeControl: c.timeControl
             };
             this.st.conn.send(JSON.stringify({code:"challenge",
-              challenge:myChallenge, target:data.from}));
+              chall:myChallenge, target:data.from}));
           }
           break;
         }
         case "askgame":
         {
-          // Send my current live games (if any)
-          // TODO: from indexedDB, through GameStorage.
-//          if (!!localStorage["gid"])
-//          {
-//            const myGame =
-//            {
-//              // Minimal game informations: (fen+clock not required)
-//              id: localStorage["gid"],
-//              players: JSON.parse(localStorage["players"]), //array sid+id+name
-//              vname: localStorage["vname"],
-//              timeControl: localStorage["timeControl"],
-//            };
-//            this.st.conn.send(JSON.stringify({code:"game",
-//              game:myGame, target:data.from}));
-//          }
+          // Send my current live game (if any)
+          GameStorage.getCurrent((game) => {
+            if (!!game)
+            {
+              const myGame =
+              {
+                // Minimal game informations:
+                id: game.id,
+                players: game.players.map(p => p.name),
+                vname: game.vname,
+                timeControl: game.timeControl,
+              };
+              this.st.conn.send(JSON.stringify({code:"game",
+                game:myGame, target:data.from}));
+            }
+          });
           break;
         }
         case "identity":
@@ -314,8 +315,8 @@ export default {
           newChall.type = this.classifyObject(data.chall);
           const pIdx = this.people.findIndex(p => p.sid == data.from);
           newChall.from = this.people[pIdx]; //may be anonymous
-          newChall.added = Date.now();
-          newChall.vname = this.getVname(newChall.vid);
+          newChall.added = Date.now(); //TODO: this is reception timestamp, not creation
+          newChall.vname = this.getVname(newChall.vid); //TODO: just send vname?
           this.challenges.push(newChall);
           break;
         }
@@ -323,10 +324,10 @@ export default {
         {
           // Receive game from some player (+sid)
           // NOTE: it may be correspondance (if newgame while we are connected)
-          // TODO: ambiguous naming "newGame" ==> rename function ?
           let newGame = data.game;
           newGame.type = this.classifyObject(data.game);
-          newGame.vname = newGame.vname;
+          newGame.rid = data.from;
+          newGame.score = "*";
           this.games.push(newGame);
           break;
         }
@@ -337,7 +338,7 @@ export default {
           // Delete corresponding challenge:
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           // New game just started: data contain all informations
-          this.newGame(data.gameInfo);
+          this.startNewGame(data.gameInfo);
           break;
         }
 // *  - receive "accept/cancel challenge": apply action to challenges list
@@ -534,10 +535,10 @@ export default {
         gameInfo:gameInfo, cid:c.id, target:c.seat.sid}));
       // Delete corresponding challenge:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      this.newGame(gameInfo); //also!
+      this.startNewGame(gameInfo); //also!
     },
     // NOTE: for live games only (corr games are launched on server)
-    newGame: function(gameInfo) {
+    startNewGame: function(gameInfo) {
       // Extract times (in [milli]seconds), set clocks
       const tc = extractTime(gameInfo.timeControl);
       let initime = [...Array(gameInfo.players.length)];

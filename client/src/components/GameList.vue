@@ -2,17 +2,16 @@
 table
   tr
     th Variant
-    th Players names
-    th Cadence
+    th White
+    th Black
+    th Time control
     th(v-if="showResult") Result
-    th(v-else) Moves count
   tr(v-for="g in games" @click="$emit('show-game',g)")
     td {{ g.vname }}
-    td
-      span(v-for="p in g.players") {{ p.name }}
-    td {{ g.mainTime }} + {{ g.increment }}
+    td {{ g.players[0] }}
+    td {{ g.players[1] }}
+    td {{ g.timeControl }}
     td(v-if="showResult") {{ g.score }}
-    td(v-else) {{ g.movesCount }}
 </template>
 
 <script>
