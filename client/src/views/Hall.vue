@@ -178,6 +178,7 @@ export default {
       // ==> Moves sent by connected remote player(s) if live game
       
 // TODO: this doesn't work: choose a SID at random
+      // --> do we have players' names ?
 
       let url = "/" + g.id;
       if (g.type == "live")
