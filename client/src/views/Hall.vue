@@ -361,6 +361,7 @@ export default {
         }
         case "deletechallenge":
         {
+          // NOTE: the challenge may be already removed
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
@@ -482,7 +483,7 @@ export default {
       else //accept (or refuse) a challenge
       {
         c.accepted = true;
-        if (!!c.to[0])
+        if (!!c.to)
         {
           // TODO: if special FEN, show diagram after loading variant
           c.accepted = confirm("Accept challenge?");
@@ -490,17 +491,22 @@ export default {
         this.st.conn.send(JSON.stringify({
           code: (c.accepted ? "accept" : "refuse") + "challenge",
           cid: c.id, target: c.from.sid}));
-        if (c.type == "corr" && c.accepted)
+        if (c.accepted)
         {
-          ajax(
-            "/challenges",
-            "PUT",
-            {id: this.challenges[cIdx].id}
-          );
+          if (c.type == "corr")
+          {
+            ajax(
+              "/challenges",
+              "PUT",
+              {id: this.challenges[cIdx].id}
+            );
+          }
         }
-        if (!c.accepted)
+        else
         {
           ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+          if (!c.to) //TODO: send to everyone except me and opponent ?
+            this.sendSomethingTo("", "deletechallenge", {cid: this.challenges[cIdx].id});
           if (c.type == "corr")
           {
             ajax(
