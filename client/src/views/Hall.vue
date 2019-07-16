@@ -141,7 +141,7 @@ export default {
         response => {
           console.log(response.challenges);
           // TODO: post-treatment on challenges ?
-          this.challenges = this.challenges.concat(response.challenges);
+          Array.prototype.push.apply(this.challenges, response.challenges);
         }
       );
     }
@@ -466,12 +466,14 @@ export default {
       console.log("click challenge");
       console.log(c);
 
-      if (c.from.sid == this.st.user.sid
-        || (this.st.user.id > 0 && c.from.id == this.st.user.id))
+      // In all cases, the challenge is consumed:
+      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+
+      if (c.from.sid == this.st.user.sid //live
+        || (this.st.user.id > 0 && c.from.id == this.st.user.id)) //corr
       {
         // It's my challenge: cancel it
         this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
-        ArrayFun.remove(this.challenges, ch => ch.id == c.id);
         if (c.type == "corr")
         {
           ajax(
@@ -492,30 +494,13 @@ export default {
         this.st.conn.send(JSON.stringify({
           code: (c.accepted ? "accept" : "refuse") + "challenge",
           cid: c.id, target: c.from.sid}));
-        if (c.accepted)
+        if (c.type == "corr")
         {
-          if (c.type == "corr")
-          {
-            ajax(
-              "/challenges",
-              "PUT",
-              {id: this.challenges[cIdx].id}
-            );
-          }
-        }
-        else
-        {
-          ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-          if (!c.to) //TODO: send to everyone except me and opponent ?
-            this.sendSomethingTo("", "deletechallenge", {cid: this.challenges[cIdx].id});
-          if (c.type == "corr")
-          {
-            ajax(
-              "/challenges",
-              "DELETE",
-              {id: this.challenges[cIdx].id}
-            );
-          }
+          ajax(
+            "/challenges",
+            accepted ? "PUT" : "DELETE",
+            {id: this.challenges[cIdx].id}
+          );
         }
       }
     },

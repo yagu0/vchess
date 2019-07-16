@@ -211,6 +211,7 @@ export default {
           break;
       }
     };
+    // TODO: onopen, ask lastState informations + update observers and players status
     const socketCloseListener = () => {
       this.st.conn.addEventListener('message', socketMessageListener);
       this.st.conn.addEventListener('close', socketCloseListener);
