@@ -176,15 +176,12 @@ export default {
     showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
       // ==> Moves sent by connected remote player(s) if live game
-      
-// TODO: this doesn't work: choose a SID at random
-      // --> do we have players' names ?
-
-      let url = "/" + g.id;
+      let url = "/game/" + g.id;
       if (g.type == "live")
       {
-        const sids = g.players.map(p => p.sid).join(",");
-        url += "?sids=" + sids;
+        const remotes = g.players.filter(p => this.people.some(pl => pl.sid == p.sid));
+        const rIdx = (remotes.length == 1 ? 0 : Math.floor(Math.random()*2));
+        url += "?rid=" + remotes[rIdx].sid;
       }
       this.$router.push(url);
     },
@@ -325,11 +322,14 @@ export default {
         {
           // Receive game from some player (+sid)
           // NOTE: it may be correspondance (if newgame while we are connected)
-          let newGame = data.game;
-          newGame.type = this.classifyObject(data.game);
-          newGame.rid = data.from;
-          newGame.score = "*";
-          this.games.push(newGame);
+          if (!this.games.some(g => g.id == data.game.id)) //ignore duplicates
+          {
+            let newGame = data.game;
+            newGame.type = this.classifyObject(data.game);
+            newGame.rid = data.from;
+            newGame.score = "*";
+            this.games.push(newGame);
+          }
           break;
         }
         case "newgame":
@@ -542,9 +542,3 @@ export default {
 <style lang="sass">
 // TODO
 </style>
-
-<!--
-// TODO:
-// Remove duplicates if several players of one game send their game info (Hall)
-// When click on it, assign a random rid among online players (max. 4).
--->
