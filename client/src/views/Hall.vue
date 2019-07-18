@@ -332,31 +332,17 @@ export default {
           this.games.push(newGame);
           break;
         }
-// *  - receive "new game": if live, store locally + redirect to game
-// *    If corr: notify "new game has started", give link, but do not redirect
         case "newgame":
         {
-          // Delete corresponding challenge:
-          ArrayFun.remove(this.challenges, c => c.id == data.cid);
           // New game just started: data contain all informations
           this.startNewGame(data.gameInfo);
-          break;
-        }
-// *  - receive "accept/cancel challenge": apply action to challenges list
-        // NOTE: challenge "socket" actions accept+withdraw only for live challenges
-        case "acceptchallenge":
-        {
-          // Someone accept an open (or targeted) challenge
-          const cIdx = this.challenges.findIndex(c => c.id == data.cid);
-          let c = this.challenges[cIdx];
-          const pIdx = this.people.findIndex(p => p.sid == data.from);
-          c.seat = this.people[pIdx];
-          this.launchGame(c);
+          // TODO: if live, redirect to game
+          // if corr, notify with link but do not redirect
           break;
         }
         case "refusechallenge":
         {
-          alert(this.getPname(data.from) + " refused your challenge");
+          alert(this.getPname(data.from) + " declined your challenge");
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           break;
         }
@@ -455,58 +441,44 @@ export default {
         );
       }
     },
-// *  - accept challenge (corr or live) --> send info to challenge creator
-// *  - cancel challenge (click on sent challenge) --> send info to all concerned players
-// *    --> send info to challenge creator
-// *  - refuse challenge: send "refuse" to challenge sender, and "delete" to others
-// *  - prepare and start new game (if challenge is full after acceptation)
-// *    --> include challenge ID (so that opponents can delete the challenge too)
     clickChallenge: function(c) {
-
-      console.log("click challenge");
-      console.log(c);
-
-      // In all cases, the challenge is consumed:
-      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-
-      if (c.from.sid == this.st.user.sid //live
-        || (this.st.user.id > 0 && c.from.id == this.st.user.id)) //corr
-      {
-        // It's my challenge: cancel it
-        this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
-        if (c.type == "corr")
-        {
-          ajax(
-            "/challenges",
-            "DELETE",
-            {id: this.challenges[cIdx].id}
-          );
-        }
-      }
-      else //accept (or refuse) a challenge
+      const myChallenge = (c.from.sid == this.st.user.sid //live
+        || (this.st.user.id > 0 && c.from.id == this.st.user.id)); //corr
+      if (!myChallenge)
       {
         c.accepted = true;
-        if (!!c.to)
+        if (!!c.to) //c.to == this.st.user.name (connected)
         {
           // TODO: if special FEN, show diagram after loading variant
           c.accepted = confirm("Accept challenge?");
         }
-        this.st.conn.send(JSON.stringify({
-          code: (c.accepted ? "accept" : "refuse") + "challenge",
-          cid: c.id, target: c.from.sid}));
-        if (c.type == "corr")
+        if (c.accepted)
         {
-          ajax(
-            "/challenges",
-            accepted ? "PUT" : "DELETE",
-            {id: this.challenges[cIdx].id}
-          );
+          c.seat = this.st.user;
+          this.launchGame(c);
+        }
+        else
+        {
+          this.st.conn.send(JSON.stringify({
+            code: "refusechallenge",
+            cid: c.id, target: c.from.sid}));
         }
       }
+      // In all cases, the challenge is consumed:
+      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+      // NOTE: deletechallenge event might be redundant (but it's easier this way)
+      this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
+      if (c.type == "corr")
+      {
+        ajax(
+          "/challenges",
+          "DELETE",
+          {id: this.challenges[cIdx].id}
+        );
+      }
     },
-    // NOTE: for live games only (corr games are launched on server)
+    // NOTE: when launching game, the challenge is already deleted
     launchGame: async function(c) {
-      // Just assign colors and pass the message
       const vname = this.getVname(c.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
@@ -517,17 +489,23 @@ export default {
         gameId: getRandString(),
         fen: c.fen || V.GenRandInitFen(),
         // Players' names may be required if game start when a player is offline
-        // Shuffle players order (white then black then other colors).
+        // Shuffle players order (white then black).
         players: shuffle(players.map(p => { return {name:p.name, sid:p.sid} })),
         vid: c.vid,
         timeControl: c.timeControl,
       };
-      // NOTE: cid required to remove challenge
       this.st.conn.send(JSON.stringify({code:"newgame",
-        gameInfo:gameInfo, cid:c.id, target:c.seat.sid}));
-      // Delete corresponding challenge:
-      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      this.startNewGame(gameInfo); //also!
+        gameInfo:gameInfo, target:c.seat.sid}));
+      if (c.type == "live")
+        this.startNewGame(gameInfo);
+      else //corr: game only on server
+      {
+        ajax(
+          "/games",
+          "POST",
+          {gameInfo: gameInfo}
+        );
+      }
     },
     // NOTE: for live games only (corr games are launched on server)
     startNewGame: function(gameInfo) {

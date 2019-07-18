@@ -53,14 +53,6 @@ module.exports = function(wss) {
           clients[obj.target].send(
             JSON.stringify({code:"identity",user:obj.user}));
           break;
-        case "acceptchallenge":
-          clients[obj.target].send(
-            JSON.stringify({code:"acceptchallenge", cid:obj.cid, from:sid}));
-          break;
-        case "withdrawchallenge":
-          clients[obj.target].send(
-            JSON.stringify({code:"withdrawchallenge", cid:obj.cid, from:sid}));
-          break;
         case "refusechallenge":
           clients[obj.target].send(
             JSON.stringify({code:"refusechallenge", cid:obj.cid, from:sid}));
