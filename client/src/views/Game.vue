@@ -191,6 +191,10 @@ export default {
         case "drawoffer":
           this.drawOffer = "received";
           break;
+        case "askfullgame":
+          // TODO: just give game; observers are listed here anyway:
+          // gameconnect?
+          break;
         // TODO: drawaccepted (click draw button before sending move ==> draw offer in move)
           // ==> on "newmove", check "drawOffer" field
         // TODO: also use (dis)connect info to count online players?
@@ -304,6 +308,7 @@ export default {
         return afterRetrival(game);
       if (!!this.gameRef.rid)
       {
+        this.st.conn.send(JSON.stringify({code:"askfullgame", target:this.gameRef.rid}));
         // TODO: just send a game request message to the remote player,
         // and when receiving answer just call loadGame(received_game)
         // + remote peer should have registered us as an observer
@@ -373,3 +378,7 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+// TODO
+</style>
