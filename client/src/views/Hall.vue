@@ -146,10 +146,16 @@ export default {
       );
     }
     // 0.1] Ask server for room composition:
-    const socketOpenListener = () => {
+    const funcPollClients = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
     };
-    this.st.conn.onopen = socketOpenListener;
+    if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
+      funcPollClients();
+    else //socket not ready yet (initial loading)
+    {
+      const socketOpenListener = funcPollClients;
+      this.st.conn.onopen = socketOpenListener;
+    }
     // TODO: is this required here?
     this.oldOnmessage = this.st.conn.onmessage || Function.prototype;
     this.st.conn.onmessage = this.socketMessageListener;
@@ -274,6 +280,10 @@ export default {
               vid: c.vid,
               timeControl: c.timeControl
             };
+
+            // TODO: understand multiple (increasing) "send challenge" events.... (when potential opponent navigate Hall --> variants --> Hall)
+console.log("send challenge to " + data.from);
+
             this.st.conn.send(JSON.stringify({code:"challenge",
               chall:myChallenge, target:data.from}));
           }
@@ -308,6 +318,9 @@ export default {
         }
         case "challenge":
         {
+
+console.log(data.chall);
+
           // Receive challenge from some player (+sid)
           let newChall = data.chall;
           newChall.type = this.classifyObject(data.chall);
