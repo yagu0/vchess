@@ -113,7 +113,17 @@ export default {
       this.gameRef.rid = this.$route.query["rid"];
       this.loadGame();
     }
-    const socketMessageListener = msg => {
+    // TODO: onopen, ask lastState informations + update observers and players status
+    const socketCloseListener = () => {
+      store.socketCloseListener(); //reinitialize connexion (in store.js)
+      this.st.conn.addEventListener('message', socketMessageListener);
+      this.st.conn.addEventListener('close', socketCloseListener);
+    };
+    this.st.conn.onmessage = this.socketMessageListener;
+    this.st.conn.onclose = socketCloseListener;
+  },
+  methods: {
+    socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
@@ -214,16 +224,7 @@ export default {
           }
           break;
       }
-    };
-    // TODO: onopen, ask lastState informations + update observers and players status
-    const socketCloseListener = () => {
-      this.st.conn.addEventListener('message', socketMessageListener);
-      this.st.conn.addEventListener('close', socketCloseListener);
-    };
-    this.st.conn.onmessage = socketMessageListener;
-    this.st.conn.onclose = socketCloseListener;
-  },
-  methods: {
+    },
     offerDraw: function() {
       // TODO: also for corr games
       if (this.drawOffer == "received")

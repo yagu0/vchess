@@ -13,6 +13,7 @@ export const store =
     settings: {},
     lang: "",
   },
+  socketCloseListener: null,
   initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
     let mysid = localStorage["mysid"];
@@ -48,10 +49,10 @@ export const store =
       highlight: !!eval(localStorage["highlight"]),
       sqSize: parseInt(localStorage["sqSize"]),
     };
-    const socketCloseListener = () => {
+    this.socketCloseListener = () => {
       this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
     };
-    this.state.conn.onclose = socketCloseListener;
+    this.state.conn.onclose = this.socketCloseListener;
     const supportedLangs = ["en","es","fr"];
     this.state.lang = localStorage["lang"] ||
       supportedLangs.includes(navigator.language)

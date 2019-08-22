@@ -154,9 +154,8 @@ export default {
     else //socket not ready yet (initial loading)
       this.st.conn.onopen = funcPollClients;
     this.st.conn.onmessage = this.socketMessageListener;
-    const oldOnclose = this.st.conn.onclose;
     const socketCloseListener = () => {
-      oldOnclose(); //reinitialize connexion (in store.js)
+      store.socketCloseListener(); //reinitialize connexion (in store.js)
       this.st.conn.addEventListener('message', this.socketMessageListener);
       this.st.conn.addEventListener('close', socketCloseListener);
     };
