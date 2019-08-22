@@ -152,12 +152,7 @@ export default {
     if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
       funcPollClients();
     else //socket not ready yet (initial loading)
-    {
-      const socketOpenListener = funcPollClients;
-      this.st.conn.onopen = socketOpenListener;
-    }
-    // TODO: is this required here?
-    this.oldOnmessage = this.st.conn.onmessage || Function.prototype;
+      this.st.conn.onopen = funcPollClients;
     this.st.conn.onmessage = this.socketMessageListener;
     const oldOnclose = this.st.conn.onclose;
     const socketCloseListener = () => {
@@ -235,9 +230,6 @@ export default {
     },
     // Messaging center:
     socketMessageListener: function(msg) {
-      // Save and call current st.conn.onmessage if one was already defined
-      // --> also needed in future Game.vue (also in Chat.vue component)
-      this.oldOnmessage(msg);
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
@@ -280,10 +272,6 @@ export default {
               vid: c.vid,
               timeControl: c.timeControl
             };
-
-            // TODO: understand multiple (increasing) "send challenge" events.... (when potential opponent navigate Hall --> variants --> Hall)
-console.log("send challenge to " + data.from);
-
             this.st.conn.send(JSON.stringify({code:"challenge",
               chall:myChallenge, target:data.from}));
           }
@@ -318,9 +306,6 @@ console.log("send challenge to " + data.from);
         }
         case "challenge":
         {
-
-console.log(data.chall);
-
           // Receive challenge from some player (+sid)
           let newChall = data.chall;
           newChall.type = this.classifyObject(data.chall);
@@ -477,6 +462,8 @@ console.log(data.chall);
             cid: c.id, target: c.from.sid}));
         }
       }
+      else
+        localStorage.removeItem("challenge");
       // In all cases, the challenge is consumed:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
       // NOTE: deletechallenge event might be redundant (but it's easier this way)
