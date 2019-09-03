@@ -94,14 +94,14 @@ const GameModel =
 		});
 	},
 
-	getByUser: function(uid, cb)
+	getByUser: function(uid, excluded, cb)
 	{
 		db.serialize(function() {
 			// Next query is fine because a player appear at most once in a game
 			const query =
 				"SELECT gid " +
 				"FROM Players " +
-				"WHERE uid = " + uid;
+				"WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
 			db.run(query, (err,gameIds) => {
 				if (!!err)
 					return cb(err);

@@ -2,14 +2,13 @@ router.get("/games", access.logged, access.ajax, (req,res) => {
   const excluded = req.query["excluded"]; //TODO: think about query params here
 });
 
-// TODO: adapt for correspondance play
-
 var router = require("express").Router();
 var UserModel = require("../models/User");
+var sendEmail = require('../utils/mailer');
 var GameModel = require('../models/Game');
 var VariantModel = require('../models/Variant');
-var ObjectId = require("bson-objectid");
 var access = require("../utils/access");
+var params = require("../config/parameters");
 
 // Notify about a game (start, new move)
 function tryNotify(uid, gid, vname, subject)
@@ -17,36 +16,28 @@ function tryNotify(uid, gid, vname, subject)
 	UserModel.getOne("id", uid, (err,user) => {
 		if (!!err && user.notify)
 		{
-			maild.send({
-				from: params.mailFrom,
-				to: user.email,
-				subject: subject,
-				body: params.siteURL + "?v=" + vname + "&g=" + gid
-			}, err => {
-				// TODO: log error somewhere.
-			});
+			sendEmail(params.mailFrom, user.email, subject,
+				params.siteURL + "?v=" + vname + "&g=" + gid, err => {
+				  res.json(err || {}); // TODO: log error somewhere.
+			  }
+      );
 		}
 	)};
 }
 
-// From variant page, start game between player 0 and 1
+// From main hall, start game between player 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
-	let variant = JSON.parse(req.body.variant);
-	let players = JSON.parse(req.body.players);
-	if (!players.includes(req.user._id.toString())) //TODO: should also check challenge...
+	const gameInfo = JSON.parse(req.body.gameInfo);
+	if (!gameInfo.players.some(p => p.id == req.user.id))
 		return res.json({errmsg: "Cannot start someone else's game"});
 	let fen = req.body.fen;
-	// Randomly shuffle colors white/black
-	if (Math.random() < 0.5)
-		players = [players[1],players[0]];
-	GameModel.create(
-		ObjectId(variant._id), [ObjectId(players[0]),ObjectId(players[1])], fen,
+	GameModel.create(gameInfo.vid,
+    gameInfo.fen, gameInfo.mainTime, gameInfo.increment, gameInfo.players,
 		(err,game) => {
 			access.checkRequest(res, err, game, "Cannot create game", () => {
 				if (!!req.body.offlineOpp)
-					UserModel.tryNotify(ObjectId(req.body.offlineOpp), game._id, variant.name, "New game");
-				game.movesLength = game.moves.length; //no need for all moves here
-				delete game["moves"];
+					UserModel.tryNotify(req.body.offlineOpp, game.id, variant.name,
+            "New game: " + "game link"); //TODO: give game link
 				res.json({game: game});
 			});
 		}
@@ -55,14 +46,29 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
 
 // game page
 router.get("/games", access.ajax, (req,res) => {
-	let gameID = req.query["gid"];
-	GameModel.getById(ObjectId(gameID), (err,game) => {
-		access.checkRequest(res, err, game, "Game not found", () => {
-			res.json({game: game});
-		});
-	});
+	const gameId = req.query["gid"];
+	if (!!gameId)
+  {
+    GameModel.getOne(gameId, (err,game) => {
+		  access.checkRequest(res, err, game, "Game not found", () => {
+			  res.json({game: game});
+		  });
+	  });
+  }
+  else
+  {
+    // Get by (non-)user ID:
+    const userId = req.query["uid"];
+    const excluded = !!req.query["excluded"];
+    GameModel.getByUser(userId, excluded, (err,games) => {
+		  access.checkRequest(res, err, games, "Games not found", () => {
+			  res.json({games: games});
+		  });
+	  });
+  }
 });
 
+// TODO:
 router.put("/games", access.logged, access.ajax, (req,res) => {
 	let gid = ObjectId(req.body.gid);
 	let result = req.body.result;

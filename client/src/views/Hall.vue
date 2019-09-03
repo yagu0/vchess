@@ -124,16 +124,16 @@ export default {
     }
     if (this.st.user.id > 0)
     {
-    // Ask server for current corr games (all but mines)
-//    ajax(
-//      "/games",
-//      "GET",
-//      {excluded: this.st.user.id},
-//      response => {
-//        this.games = this.games.concat(response.games);
-//      }
-//    );
-    // Also ask for corr challenges (open + sent to me)
+      // Ask server for current corr games (all but mines)
+      ajax(
+        "/games",
+        "GET",
+        {uid: this.st.user.id, excluded: true},
+        response => {
+          this.games = this.games.concat(response.games);
+        }
+      );
+      // Also ask for corr challenges (open + sent to me)
       ajax(
         "/challenges",
         "GET",
@@ -288,6 +288,15 @@ export default {
                 id: game.id,
                 players: game.players.map(p => p.name),
                 vname: game.vname,
+                
+
+
+
+// TODO: timeControl only in challenge - no need in game (info in mainTime + increment)
+
+
+
+
                 timeControl: game.timeControl,
               };
               this.st.conn.send(JSON.stringify({code:"game",
@@ -331,10 +340,16 @@ export default {
         }
         case "newgame":
         {
-          // New game just started: data contain all informations
-          this.startNewGame(data.gameInfo);
-          // TODO: if live, redirect to game
-          // if corr, notify with link but do not redirect
+          // New game just started: data contain all information
+          if (data.gameInfo.type == "live")
+          {
+            this.startNewGame(data.gameInfo);
+            // TODO: redirect to game
+          }
+          else
+          {
+            // TODO: notify with game link but do not redirect
+          }
           break;
         }
         case "refusechallenge":
@@ -481,17 +496,15 @@ export default {
       const vname = this.getVname(c.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
-      let players = [c.from, c.seat];
       // These game informations will be sent to other players
       const gameInfo =
       {
         gameId: getRandString(),
         fen: c.fen || V.GenRandInitFen(),
-        // Players' names may be required if game start when a player is offline
-        // Shuffle players order (white then black).
-        players: shuffle(players.map(p => { return {name:p.name, sid:p.sid} })),
+        players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
         timeControl: c.timeControl,
+        type: c.type,
       };
       this.st.conn.send(JSON.stringify({code:"newgame",
         gameInfo:gameInfo, target:c.seat.sid}));
@@ -519,7 +532,7 @@ export default {
         vname: this.getVname(gameInfo.vid),
         fenStart: gameInfo.fen,
         players: gameInfo.players,
-        timeControl: gameInfo.timeControl,
+        mainTime: tc.mainTime,
         increment: tc.increment,
         mode: "live", //function for live games only
         // Game state: will be updated

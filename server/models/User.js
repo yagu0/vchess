@@ -124,6 +124,15 @@ const UserModel =
 			db.run(query, cb);
 		});
 	},
+
+  /////////////////
+  // NOTIFICATIONS
+
+  tryNotify: function(oppId, gid, vname, message)
+  {
+    // TODO: send email to oppId (request...) with title
+    // "vchess.club - vname" and content "message"
+  }
 }
 
 module.exports = UserModel;
