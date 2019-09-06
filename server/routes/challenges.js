@@ -15,56 +15,37 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
   const error = ChallengeModel.checkChallenge(req.body.chall);
   if (!!error)
     return res.json({errmsg:error});
-  const challenge =
+  let challenge =
   {
     fen: req.body.chall.fen,
     timeControl: req.body.chall.timeControl,
     vid: req.body.chall.vid,
     uid: req.userId,
-    nbPlayers: req.body.chall.to.length,
+    to: req.body.chall.to, //string: user name (may be empty)
   };
-  ChallengeModel.create(challenge, (err,lastId) => {
-    if (!!err)
-      return res.json(err);
-    if (!!req.body.chall.to[0])
-    {
-      UserModel.getByName(req.body.chall.to, (err,users) => {
-        if (!!err)
-          return res.json(err);
-        if (users.length < req.body.chall.to.length)
-          return res.json({errmsg: "Typo in player(s) name(s)"});
-        ChallengeModel.initializeWillPlay(
-          users.map(u => u.id),
-          lastId["rowid"],
-          (err) => {
-            if (!!err)
-              return res.json(err);
-            res.json({cid: lastId["rowid"]});
-          }
-        );
-      });
-    }
-    else
-      res.json({cid: lastId["rowid"]});
-  });
-});
-
-// Nothing to do if challenge is refused (just removal)
-router.put("/challenges", access.logged, access.ajax, (req,res) => {
-  // Accept challenge: turn WillPlay to true; if then challenge is full, launch game
-  ChallengeModel.getSeatCount(req.body.id, (scount) => {
-    if (scount == 1)
-      launchGame(req.body.id, req.userId);
-    else
-      ChallengeModel.setSeat(req.body.id, req.userId);
-  });
-  res.json({});
+  const insertChallenge = () => {
+    ChallengeModel.create(challenge, (err) => {
+      if (!!err)
+        return res.json(err);
+    });
+  };
+  if (!!req.body.chall.to)
+  {
+    UserModel.getOne("name", challenge.to, (err,user) => {
+      if (!!err || !user)
+        return res.json(err | {errmsg: "Typo in player name"});
+      challenge.to = user.id; //ready now to insert challenge
+    });
+    insertChallenge();
+  }
+  else
+    insertChallenge();
 });
 
 function launchGame(cid, uid)
 {
-  // TODO: gather challenge infos + WillPlay
-  // Then create game, and remove challenge + WillPlay
+  // TODO: gather challenge infos
+  // Then create game, and remove challenge
 }
 
 //// index
