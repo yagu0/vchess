@@ -42,37 +42,20 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
     insertChallenge();
 });
 
-function launchGame(cid, uid)
-{
+// "Challenge update" --> someone accepted a challenge
+router.put("/challenges", access.logged, access.ajax, (req,res) => {
+  // launchGame(cid, uid)
   // TODO: gather challenge infos
-  // Then create game, and remove challenge
-}
-
-//// index
-//router.get("/challenges", access.logged, access.ajax, (req,res) => {
-//  if (req.query["uid"] != req.user._id)
-//    return res.json({errmsg: "Not your challenges"});
-//  let uid = ObjectID(req.query["uid"]);
-//  ChallengeModel.getByPlayer(uid, (err, challengeArray) => {
-//    res.json(err || {challenges: challengeArray});
-//  });
-//});
-//
-//function createChallenge(vid, from, to, res)
-//{
-//  ChallengeModel.create(vid, from, to, (err, chall) => {
-//    res.json(err || {
-//      // A challenge can be sent using only name, thus 'to' is returned
-//      to: chall.to,
-//      cid: chall._id
-//    });
-//  });
-//}
+  // Then create game, and remove challenge:
+  ChallengeModel.remove(cid, req.userId, err => {
+    res.json(err || {});
+  });
+});
 
 router.delete("/challenges", access.logged, access.ajax, (req,res) => {
   const cid = req.query.id;
   ChallengeModel.remove(cid, req.userId, err => {
-    res.json(err || {});
+    res.json(err || {}); //TODO: just "return err" because is empty if no errors
   });
 });
 
