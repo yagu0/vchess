@@ -185,6 +185,7 @@ export default {
       }
       this.$router.push(url);
     },
+    // TODO: ...filter(...)[0].name, one-line, just remove this function
     getVname: function(vid) {
       const vIdx = this.st.variants.findIndex(v => v.id == vid);
       return this.st.variants[vIdx].name;
@@ -288,15 +289,6 @@ export default {
                 id: game.id,
                 players: game.players.map(p => p.name),
                 vname: game.vname,
-                
-
-
-
-// TODO: timeControl only in challenge - no need in game (info in mainTime + increment)
-
-
-
-
                 timeControl: game.timeControl,
               };
               this.st.conn.send(JSON.stringify({code:"game",
@@ -389,7 +381,7 @@ export default {
     tryChallenge: function(player) {
       if (player.id == 0)
         return; //anonymous players cannot be challenged
-      this.newchallenge.to[0] = player.name;
+      this.newchallenge.to = player.name;
       doClick("modalNewgame");
     },
     newChallenge: async function() {
@@ -401,13 +393,7 @@ export default {
         return alert(error);
       const ctype = this.classifyObject(this.newchallenge);
       // NOTE: "from" information is not required here
-      let chall =
-      {
-        fen: this.newchallenge.fen,
-        to: this.newchallenge.to,
-        timeControl: this.newchallenge.timeControl,
-        vid: this.newchallenge.vid,
-      };
+      let chall = Object.assign({}, this.newchallenge);
       const finishAddChallenge = (cid,warnDisconnected) => {
         chall.id = cid || "c" + getRandString();
         // Send challenge to peers (if connected)
@@ -496,6 +482,8 @@ export default {
       const vname = this.getVname(c.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
+      // Extract times (in [milli]seconds), set clocks
+      const tc = extractTime(c.timeControl);
       // These game informations will be sent to other players
       const gameInfo =
       {
@@ -503,7 +491,9 @@ export default {
         fen: c.fen || V.GenRandInitFen(),
         players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
-        timeControl: c.timeControl,
+        timeControl: tc.timeControl,
+        mainTime: tc.mainTime,
+        increment: tc.increment,
         type: c.type,
       };
       this.st.conn.send(JSON.stringify({code:"newgame",
@@ -521,27 +511,17 @@ export default {
     },
     // NOTE: for live games only (corr games are launched on server)
     startNewGame: function(gameInfo) {
-      // Extract times (in [milli]seconds), set clocks
-      const tc = extractTime(gameInfo.timeControl);
-      let initime = [...Array(gameInfo.players.length)];
-      initime[0] = Date.now();
-      const game =
-      {
-        // Game infos: constant
-        gameId: gameInfo.gameId,
+      const game = Object.assign(gameInfo, {
+        // More game infos: constant
         vname: this.getVname(gameInfo.vid),
         fenStart: gameInfo.fen,
-        players: gameInfo.players,
-        mainTime: tc.mainTime,
-        increment: tc.increment,
         mode: "live", //function for live games only
         // Game state: will be updated
-        fen: gameInfo.fen,
         moves: [],
-        clocks: [...Array(gameInfo.players.length)].fill(tc.mainTime),
-        initime: initime,
+        clocks: [tc.mainTime, tc.mainTime],
+        initime: [Date.now(), 0],
         score: "*",
-      };
+      });
       GameStorage.add(game);
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});

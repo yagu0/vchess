@@ -42,9 +42,10 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
     insertChallenge();
 });
 
+// TODO: either like that, or remove challenge in /games POST ?
 // "Challenge update" --> someone accepted a challenge
 router.put("/challenges", access.logged, access.ajax, (req,res) => {
-  // launchGame(cid, uid)
+  // launchGame(cid, uid) //req.body.chall
   // TODO: gather challenge infos
   // Then create game, and remove challenge:
   ChallengeModel.remove(cid, req.userId, err => {
