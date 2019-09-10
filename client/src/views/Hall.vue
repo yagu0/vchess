@@ -130,7 +130,10 @@ export default {
         "GET",
         {uid: this.st.user.id, excluded: true},
         response => {
-          this.games = this.games.concat(response.games);
+          this.games = this.games.concat(response.games.map(g => {
+            const tc = 
+            return Object.assign({}, g, {mainT
+          });
         }
       );
       // Also ask for corr challenges (open + sent to me)
@@ -312,7 +315,7 @@ export default {
           const pIdx = this.people.findIndex(p => p.sid == data.from);
           newChall.from = this.people[pIdx]; //may be anonymous
           newChall.added = Date.now(); //TODO: this is reception timestamp, not creation
-          newChall.vname = this.getVname(newChall.vid); //TODO: just send vname?
+          newChall.vname = this.getVname(newChall.vid);
           this.challenges.push(newChall);
           break;
         }
@@ -401,6 +404,15 @@ export default {
         chall.added = Date.now();
         chall.type = ctype;
         chall.vname = vname;
+
+
+
+
+// TODO: vname and type are redundant (can be deduced from timeControl + vid)
+
+
+
+
         chall.from = this.st.user;
         this.challenges.push(chall);
         localStorage.setItem("challenge", JSON.stringify(chall));
@@ -482,8 +494,6 @@ export default {
       const vname = this.getVname(c.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
-      // Extract times (in [milli]seconds), set clocks
-      const tc = extractTime(c.timeControl);
       // These game informations will be sent to other players
       const gameInfo =
       {
@@ -492,9 +502,6 @@ export default {
         players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
         timeControl: tc.timeControl,
-        mainTime: tc.mainTime,
-        increment: tc.increment,
-        type: c.type,
       };
       this.st.conn.send(JSON.stringify({code:"newgame",
         gameInfo:gameInfo, target:c.seat.sid}));
@@ -511,12 +518,12 @@ export default {
     },
     // NOTE: for live games only (corr games are launched on server)
     startNewGame: function(gameInfo) {
-      const game = Object.assign(gameInfo, {
-        // More game infos: constant
-        vname: this.getVname(gameInfo.vid),
+      // Extract times (in [milli]seconds), set clocks
+      const tc = extractTime(c.timeControl);
+      const game = Object.assign({}, gameInfo, {
+        // (other) Game infos: constant
         fenStart: gameInfo.fen,
-        mode: "live", //function for live games only
-        // Game state: will be updated
+        // Game state (including FEN): will be updated
         moves: [],
         clocks: [tc.mainTime, tc.mainTime],
         initime: [Date.now(), 0],

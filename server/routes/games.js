@@ -1,7 +1,3 @@
-router.get("/games", access.logged, access.ajax, (req,res) => {
-  const excluded = req.query["excluded"]; //TODO: think about query params here
-});
-
 var router = require("express").Router();
 var UserModel = require("../models/User");
 var sendEmail = require('../utils/mailer');
@@ -25,14 +21,14 @@ function tryNotify(uid, gid, vname, subject)
 	)};
 }
 
-// From main hall, start game between player 0 and 1
+// From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
 	const gameInfo = JSON.parse(req.body.gameInfo);
 	if (!gameInfo.players.some(p => p.id == req.user.id))
 		return res.json({errmsg: "Cannot start someone else's game"});
 	let fen = req.body.fen;
-	GameModel.create(gameInfo.vid,
-    gameInfo.fen, gameInfo.mainTime, gameInfo.increment, gameInfo.players,
+	GameModel.create(
+    gameInfo.vid, gameInfo.fen, gameInfo.timeControl, gameInfo.players,
 		(err,game) => {
 			access.checkRequest(res, err, game, "Cannot create game", () => {
 				if (!!req.body.offlineOpp)
