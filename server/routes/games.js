@@ -18,7 +18,7 @@ function tryNotify(uid, gid, vname, subject)
 			  }
       );
 		}
-	)};
+	});
 }
 
 // From main hall, start game between players 0 and 1

@@ -30,7 +30,7 @@ const GameModel =
 	// mainTime and increment in milliseconds
 	create: function(vid, fen, mainTime, increment, players, cb)
 	{
-		db.serialize({
+		db.serialize(function() {
 			let query =
 				"INSERT INTO Games (vid, fen, mainTime, addTime) " +
 				"VALUES (" + vid + ",'" + fen + "'," + mainTime + "," + increment + ")";
