@@ -40,7 +40,6 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
 	);
 });
 
-// game page
 router.get("/games", access.ajax, (req,res) => {
 	const gameId = req.query["gid"];
 	if (!!gameId)
@@ -76,31 +75,9 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
 	});
 });
 
-// variant page
-router.get("/gamesbyvariant", access.logged, access.ajax, (req,res) => {
-	if (req.query["uid"] != req.user._id)
-		return res.json({errmsg: "Not your games"});
-	let uid = ObjectId(req.query["uid"]);
-	let vid = ObjectId(req.query["vid"]);
-	GameModel.getByVariant(uid, vid, (err,gameArray) => {
-		// NOTE: res.json already stringify, no need to do it manually
-		res.json(err || {games: gameArray});
-	});
-});
-
-// For index: only moves count + myColor
-router.get("/gamesbyplayer", access.logged, access.ajax, (req,res) => {
-	if (req.query["uid"] != req.user._id)
-		return res.json({errmsg: "Not your games"});
-	let uid = ObjectId(req.query["uid"]);
-	GameModel.getByPlayer(uid, (err,games) => {
-		res.json(err || {games: games});
-	});
-});
-
 // TODO: if newmove fail, takeback in GUI
 // TODO: check move structure
-// TODO: for corr games, move should contain an optional "message" field ("corr chat" !)
+// TODO: move should contain an optional "message" field ("corr chat" !)
 router.post("/moves", access.logged, access.ajax, (req,res) => {
 	let gid = ObjectId(req.body.gid);
 	let fen = req.body.fen;

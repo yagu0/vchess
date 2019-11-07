@@ -6,8 +6,7 @@ var db = require("../utils/database");
  *   vid: integer (variant id)
  *   fenStart: varchar (initial position)
  *   fen: varchar (current position)
- *   mainTime: integer
- *   addTime: integer (increment)
+ *   timeControl: string
  *   score: varchar (result)
  *
  * Structure table Players:
@@ -27,13 +26,12 @@ var db = require("../utils/database");
 
 const GameModel =
 {
-	// mainTime and increment in milliseconds
-	create: function(vid, fen, mainTime, increment, players, cb)
+	create: function(vid, fen, timeControl, players, cb)
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Games (vid, fen, mainTime, addTime) " +
-				"VALUES (" + vid + ",'" + fen + "'," + mainTime + "," + increment + ")";
+				"INSERT INTO Games (vid, fen, timeControl) " +
+				"VALUES (" + vid + ",'" + fen + "'," + timeControl + ")";
 			db.run(insertQuery, err => {
 				if (!!err)
 					return cb(err);
@@ -41,7 +39,8 @@ const GameModel =
 					players.forEach(p => {
 						query =
 							"INSERT INTO Players VALUES " +
-							"(" + lastId["rowid"] + "," + p.id + "," + p.color + "," + mainTime + ")";
+              // Remaining time = -1 means "unstarted"
+							"(" + lastId["rowid"] + "," + p.id + "," + p.color + ", -1)";
 						db.run(query, cb);
 					});
 				});

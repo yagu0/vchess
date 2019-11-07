@@ -131,9 +131,10 @@ export default {
         {uid: this.st.user.id, excluded: true},
         response => {
           this.games = this.games.concat(response.games.map(g => {
-            const tc = 
-            return Object.assign({}, g, {mainT
-          });
+            const type = this.classifyObject(g);
+            const vname = this.getVname(g.vid);
+            return Object.assign({}, g, {type: type, vname: vname});
+          }));
         }
       );
       // Also ask for corr challenges (open + sent to me)
@@ -170,7 +171,7 @@ export default {
       return this.challenges.filter(c => c.type == type);
     },
     filterGames: function(type) {
-      return this.games.filter(c => c.type == type);
+      return this.games.filter(g => g.type == type);
     },
     classifyObject: function(o) { //challenge or game
       // Heuristic: should work for most cases... (TODO)
@@ -291,7 +292,7 @@ export default {
                 // Minimal game informations:
                 id: game.id,
                 players: game.players.map(p => p.name),
-                vname: game.vname,
+                vid: game.vid,
                 timeControl: game.timeControl,
               };
               this.st.conn.send(JSON.stringify({code:"game",
@@ -327,6 +328,7 @@ export default {
           {
             let newGame = data.game;
             newGame.type = this.classifyObject(data.game);
+            newGame.vname = this.getVname(data.game.vid);
             newGame.rid = data.from;
             newGame.score = "*";
             this.games.push(newGame);
@@ -337,10 +339,7 @@ export default {
         {
           // New game just started: data contain all information
           if (data.gameInfo.type == "live")
-          {
             this.startNewGame(data.gameInfo);
-            // TODO: redirect to game
-          }
           else
           {
             // TODO: notify with game link but do not redirect
@@ -402,17 +401,9 @@ export default {
         // Send challenge to peers (if connected)
         this.sendSomethingTo(chall.to, "challenge", {chall:chall}, !!warnDisconnected);
         chall.added = Date.now();
+        // NOTE: vname and type are redundant (can be deduced from timeControl + vid)
         chall.type = ctype;
         chall.vname = vname;
-
-
-
-
-// TODO: vname and type are redundant (can be deduced from timeControl + vid)
-
-
-
-
         chall.from = this.st.user;
         this.challenges.push(chall);
         localStorage.setItem("challenge", JSON.stringify(chall));
@@ -491,8 +482,7 @@ export default {
     },
     // NOTE: when launching game, the challenge is already deleted
     launchGame: async function(c) {
-      const vname = this.getVname(c.vid);
-      const vModule = await import("@/variants/" + vname + ".js");
+      const vModule = await import("@/variants/" + c.vname + ".js");
       window.V = vModule.VariantRules;
       // These game informations will be sent to other players
       const gameInfo =
@@ -501,7 +491,7 @@ export default {
         fen: c.fen || V.GenRandInitFen(),
         players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
-        timeControl: tc.timeControl,
+        timeControl: c.timeControl,
       };
       this.st.conn.send(JSON.stringify({code:"newgame",
         gameInfo:gameInfo, target:c.seat.sid}));
@@ -516,17 +506,15 @@ export default {
         );
       }
     },
-    // NOTE: for live games only (corr games are launched on server)
+    // NOTE: for live games only (corr games start on the server)
     startNewGame: function(gameInfo) {
-      // Extract times (in [milli]seconds), set clocks
-      const tc = extractTime(c.timeControl);
       const game = Object.assign({}, gameInfo, {
         // (other) Game infos: constant
         fenStart: gameInfo.fen,
         // Game state (including FEN): will be updated
         moves: [],
-        clocks: [tc.mainTime, tc.mainTime],
-        initime: [Date.now(), 0],
+        clocks: [-1, -1], //-1 = unstarted
+        initime: [0, 0], //timer starts after first 2 half-moves
         score: "*",
       });
       GameStorage.add(game);

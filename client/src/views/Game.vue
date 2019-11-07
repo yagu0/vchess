@@ -116,7 +116,7 @@ export default {
     // TODO: onopen, ask lastState informations + update observers and players status
     const socketCloseListener = () => {
       store.socketCloseListener(); //reinitialize connexion (in store.js)
-      this.st.conn.addEventListener('message', socketMessageListener);
+      this.st.conn.addEventListener('message', this.socketMessageListener);
       this.st.conn.addEventListener('close', socketCloseListener);
     };
     this.st.conn.onmessage = this.socketMessageListener;
@@ -286,7 +286,8 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game) {
       const afterRetrieval = async (game) => {
-        const vModule = await import("@/variants/" + game.vname + ".js");
+        const vname = this.st.variants.filter(v => v.id == game.vid)[0].name;
+        const vModule = await import("@/variants/" + vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
         const myIdx = game.players.findIndex(p => p.sid == this.st.user.sid);
@@ -294,6 +295,7 @@ export default {
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
           {
+            vname: vname,
             mycolor: [undefined,"w","b"][myIdx+1],
             // opponent sid not strictly required, but easier
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
