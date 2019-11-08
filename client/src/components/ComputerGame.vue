@@ -93,17 +93,25 @@ export default {
         this.playComputerMove();
     },
     playComputerMove: function() {
+
+console.log("call comp move");
+
       this.timeStart = Date.now();
       this.compWorker.postMessage(["askmove"]);
     },
     // TODO: do not process if game is over (check score ?)
     processMove: function(move) {
+console.log("play move");
+      console.log(move);
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove",move]);
       // subTurn condition for Marseille (and Avalanche) rules
       if ((!this.vr.subTurn || this.vr.subTurn <= 1)
         && (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor))
       {
+
+console.log("ask new comp move");
+
         this.playComputerMove();
       }
     },
