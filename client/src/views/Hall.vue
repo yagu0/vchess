@@ -70,7 +70,6 @@ import { getRandString, shuffle } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 import { GameStorage } from "@/utils/gameStorage";
-import { extractTime } from "@/utils/timeControl";
 export default {
   name: "my-hall",
   components: {
@@ -112,7 +111,8 @@ export default {
   },
   created: function() {
     // Always add myself to players' list
-    this.people.push(this.st.user);
+    const my = this.st.user;
+    this.people.push({sid:my.sid, id:my.id, name:my.name});
     // Retrieve live challenge (not older than 30 minute) if any:
     const chall = JSON.parse(localStorage.getItem("challenge") || "false");
     if (!!chall)
@@ -255,7 +255,8 @@ export default {
           if (this.st.user.id > 0)
           {
             this.st.conn.send(JSON.stringify(
-              {code:"identity", user:this.st.user, target:data.from}));
+              // people[0] instead of st.user to avoid sending email
+              {code:"identity", user:this.people[0], target:data.from}));
           }
           break;
         }
@@ -337,8 +338,10 @@ export default {
         }
         case "newgame":
         {
+          // TODO: next line required ?!
+          //ArrayFun.remove(this.challenges, c => c.id == data.cid);
           // New game just started: data contain all information
-          if (data.gameInfo.type == "live")
+          if (this.classifyObject(data.gameInfo) == "live")
             this.startNewGame(data.gameInfo);
           else
           {
@@ -356,6 +359,7 @@ export default {
         {
           // NOTE: the challenge may be already removed
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
+          localStorage.removeItem("challenge"); //in case of
           break;
         }
         case "connect":
@@ -404,7 +408,7 @@ export default {
         // NOTE: vname and type are redundant (can be deduced from timeControl + vid)
         chall.type = ctype;
         chall.vname = vname;
-        chall.from = this.st.user;
+        chall.from = this.people[0]; //avoid sending email
         this.challenges.push(chall);
         localStorage.setItem("challenge", JSON.stringify(chall));
         document.getElementById("modalNewgame").checked = false;
@@ -443,6 +447,10 @@ export default {
       }
     },
     clickChallenge: function(c) {
+      // In all cases, the challenge is consumed:
+      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+      // NOTE: deletechallenge event might be redundant (but it's easier this way)
+      this.sendSomethingTo((!!c.to ? c.from : null), "deletechallenge", {cid:c.id});
       const myChallenge = (c.from.sid == this.st.user.sid //live
         || (this.st.user.id > 0 && c.from.id == this.st.user.id)); //corr
       if (!myChallenge)
@@ -455,7 +463,7 @@ export default {
         }
         if (c.accepted)
         {
-          c.seat = this.st.user;
+          c.seat = this.people[0]; //avoid sending email
           this.launchGame(c);
         }
         else
@@ -467,16 +475,12 @@ export default {
       }
       else
         localStorage.removeItem("challenge");
-      // In all cases, the challenge is consumed:
-      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      // NOTE: deletechallenge event might be redundant (but it's easier this way)
-      this.sendSomethingTo(c.to, "deletechallenge", {cid:c.id});
       if (c.type == "corr")
       {
         ajax(
           "/challenges",
           "DELETE",
-          {id: this.challenges[cIdx].id}
+          {id: c.id}
         );
       }
     },
@@ -494,7 +498,7 @@ export default {
         timeControl: c.timeControl,
       };
       this.st.conn.send(JSON.stringify({code:"newgame",
-        gameInfo:gameInfo, target:c.seat.sid}));
+        gameInfo:gameInfo, target:c.from.sid, cid:c.id}));
       if (c.type == "live")
         this.startNewGame(gameInfo);
       else //corr: game only on server
@@ -504,6 +508,7 @@ export default {
           "POST",
           {gameInfo: gameInfo}
         );
+        // TODO: redirection here
       }
     },
     // NOTE: for live games only (corr games start on the server)
@@ -514,13 +519,13 @@ export default {
         // Game state (including FEN): will be updated
         moves: [],
         clocks: [-1, -1], //-1 = unstarted
-        initime: [0, 0], //timer starts after first 2 half-moves
+        initime: [0, 0], //initialized later
         score: "*",
       });
       GameStorage.add(game);
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});
-      // TODO: redirect to game
+      this.$router.push("/game/" + gameInfo.gameId);
     },
   },
 };

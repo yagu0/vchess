@@ -45,6 +45,7 @@ import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
+import { extractTime } from "@/utils/timeControl";
 
 export default {
   name: 'my-game',
@@ -287,6 +288,12 @@ export default {
     loadGame: function(game) {
       const afterRetrieval = async (game) => {
         const vname = this.st.variants.filter(v => v.id == game.vid)[0].name;
+        const tc = extractTime(game.timeControl);
+        if (game.clocks[0] < 0) //game unstarted
+        {
+          game.clocks = [tc.mainTime, tc.mainTime];
+          game.initime[0] = Date.now();
+        }
         const vModule = await import("@/variants/" + vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
@@ -295,6 +302,7 @@ export default {
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
           {
+            increment: tc.increment,
             vname: vname,
             mycolor: [undefined,"w","b"][myIdx+1],
             // opponent sid not strictly required, but easier
@@ -365,9 +373,8 @@ export default {
       // Also update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
-      //TODO: just this.game.clocks[colorIdx] += (!!addTime ? addTime : 0);
-      this.$set(this.game.clocks, colorIdx,
-        this.game.clocks[colorIdx] + (!!addTime ? addTime : 0));
+      //TODO: just this.game.clocks[colorIdx] += addTime;
+      this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
     },
     // TODO: this update function should also work for corr games

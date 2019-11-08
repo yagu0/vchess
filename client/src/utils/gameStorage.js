@@ -75,8 +75,7 @@ export const GameStorage =
         {
           game.moves.push(obj.move);
           game.fen = obj.fen;
-          if (!!obj.addTime) //NaN if first move in game
-            game.clocks[obj.colorIdx] += obj.addTime;
+          game.clocks[obj.colorIdx] += obj.addTime;
           game.initime[obj.nextIdx] = Date.now();
         }
         if (!!obj.score)

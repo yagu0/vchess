@@ -39,7 +39,7 @@ export const store =
         this.state.user.notify = res.notify;
       });
     }
-    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + this.state.user.sid);
+    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
     // Settings initialized with values from localStorage
     this.state.settings = {
       bcolor: localStorage["bcolor"] || "lichess",
@@ -50,6 +50,7 @@ export const store =
       sqSize: parseInt(localStorage["sqSize"]),
     };
     this.socketCloseListener = () => {
+      // Next line may fail at first, but should retry and eventually success (TODO?)
       this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
     };
     this.state.conn.onclose = this.socketCloseListener;
