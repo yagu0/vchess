@@ -72,6 +72,9 @@ export default {
       // (AJAX) Request to get rules content (plain text, HTML)
       this.content =
         require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\[n"]/g, " ")
+        .replace('module.exports = "', '').replace(/"$/, "")
         .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     startGame: function(mode) {

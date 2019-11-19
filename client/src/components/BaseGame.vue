@@ -249,9 +249,8 @@ export default {
           this.showEndgameMsg(score + " . " + message);
         }
       }
-      if (!this.analyze) { console.log("EMIT NEWMOVE");
+      if (!this.analyze)
         this.$emit("newmove", move); //post-processing (e.g. computer play)
-      }
     },
     undo: function(move) {
       const navigate = !move;
