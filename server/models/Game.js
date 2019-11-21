@@ -104,6 +104,7 @@ const GameModel =
 			db.run(query, (err,gameIds) => {
 				if (!!err)
 					return cb(err);
+        gameIds = gameIds || []; //might be empty
 				let gameArray = [];
 				gameIds.forEach(gidRow => {
 					GameModel.getOne(gidRow["gid"], (err2,game) => {

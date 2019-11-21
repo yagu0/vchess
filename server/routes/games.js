@@ -56,9 +56,9 @@ router.get("/games", access.ajax, (req,res) => {
     const userId = req.query["uid"];
     const excluded = !!req.query["excluded"];
     GameModel.getByUser(userId, excluded, (err,games) => {
-		  access.checkRequest(res, err, games, "Games not found", () => {
-			  res.json({games: games});
-		  });
+		  if (!!err)
+        return res.json({errmsg: err.errmsg || err.toString()});
+			res.json({games: games});
 	  });
   }
 });

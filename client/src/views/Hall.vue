@@ -398,6 +398,8 @@ export default {
       if (!!error)
         return alert(error);
       const ctype = this.classifyObject(this.newchallenge);
+      if (ctype == "corr" && this.st.user.id <= 0)
+        return alert("Please log in to play correspondance games");
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
       const finishAddChallenge = (cid,warnDisconnected) => {
