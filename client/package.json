@@ -15,6 +15,7 @@
     "@vue/cli-plugin-eslint": "^3.12.1",
     "@vue/cli-service": "^3.12.1",
     "@vue/eslint-config-prettier": "^4.0.1",
+    "ajv": "^6.10.2",
     "apply-loader": "^2.0.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^5.16.0",
