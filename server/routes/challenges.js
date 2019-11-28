@@ -35,8 +35,8 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
       if (!!err || !user)
         return res.json(err | {errmsg: "Typo in player name"});
       challenge.to = user.id; //ready now to insert challenge
+      insertChallenge();
     });
-    insertChallenge();
   }
   else
     insertChallenge();

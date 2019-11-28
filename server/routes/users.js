@@ -27,6 +27,10 @@ router.get("/whoami", access.ajax, (req,res) => {
   });
 });
 
+router.get("/users", access.ajax, (req,res) => {
+  // TODO: list all names + id for users of given ID (query "ids")
+});
+
 // to: object user (to who we send an email)
 function setAndSendLoginToken(subject, to, res)
 {

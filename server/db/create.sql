@@ -29,7 +29,7 @@ create table Problems (
 );
 
 -- All the following tables are for correspondance play only
--- (Live games are stored only in browsers)
+-- (Live games are stored in browser)
 
 create table Challenges (
   id integer primary key,
@@ -49,8 +49,7 @@ create table Games (
   fenStart varchar, --initial state
   fen varchar, --current state
   score varchar,
-  mainTime integer,
-  addTime integer,
+  timeControl varchar,
   foreign key (vid) references Variants(id)
 );
 

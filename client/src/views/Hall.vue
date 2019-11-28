@@ -143,9 +143,24 @@ export default {
         "GET",
         {uid: this.st.user.id},
         response => {
-          console.log(response.challenges);
-          // TODO: post-treatment on challenges ?
-          Array.prototype.push.apply(this.challenges, response.challenges);
+          // Gather all senders names, and then retrieve full identity:
+          // (TODO [perf]: some might be online...)
+          const uids = response.challenges.map(c => { return c.uid });
+          ajax("/users",
+            "GET",
+            { ids: uids },
+            names => {
+              this.challenges = this.challenges.concat(
+                response.challenges.map(c => {
+                  // (just players names in fact)
+                  const from = {name: names[c.uid], id: c.uid};
+                  const type = this.classifyObject(c);
+                  const vname = this.getVname(c.vid);
+                  return Object.assign({}, c, {type: type, vname: vname, from: from});
+                })
+              )
+            }
+          );
         }
       );
     }
@@ -443,7 +458,7 @@ export default {
         ajax(
           "/challenges",
           "POST",
-          chall,
+          { chall: chall },
           response => { finishAddChallenge(response.cid); }
         );
       }
