@@ -1,6 +1,7 @@
 var router = require("express").Router();
 var UserModel = require("../models/User");
 var sendEmail = require('../utils/mailer');
+var ChallengeModel = require('../models/Challenge');
 var GameModel = require('../models/Game');
 var VariantModel = require('../models/Variant');
 var access = require("../utils/access");
@@ -26,15 +27,18 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
 	const gameInfo = JSON.parse(req.body.gameInfo);
 	if (!gameInfo.players.some(p => p.id == req.user.id))
 		return res.json({errmsg: "Cannot start someone else's game"});
-	let fen = req.body.fen;
+	const cid = req.body.cid;
+  ChallengeModel.remove(cid);
+	const fen = req.body.fen;
 	GameModel.create(
     gameInfo.vid, gameInfo.fen, gameInfo.timeControl, gameInfo.players,
-		(err,game) => {
+		(err,ret) => {
 			access.checkRequest(res, err, game, "Cannot create game", () => {
-				if (!!req.body.offlineOpp)
-					UserModel.tryNotify(req.body.offlineOpp, game.id, variant.name,
-            "New game: " + "game link"); //TODO: give game link
-				res.json({game: game});
+        const oppIdx = gameInfo.players[0].id == req.user.id ? 1 : 0;
+        const oppId = gameInfo.players[oppIdx].id;
+        UserModel.tryNotify(oppId,
+          "New game: " + params.siteURL + "/game/" + gid);
+				res.json({gameId: ret.gid});
 			});
 		}
 	);

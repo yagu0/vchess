@@ -67,20 +67,27 @@ const ChallengeModel =
     });
   },
 
-  remove: function(id, uid, cb)
+  remove: function(id)
   {
     db.serialize(function() {
-      let query =
+      const query =
+        "DELETE FROM Challenges " +
+        "WHERE id = " + id;
+      db.run(query);
+    });
+  },
+
+  safeRemove: function(id, uid, cb)
+  {
+    db.serialize(function() {
+      const query =
         "SELECT 1 " +
         "FROM Challenges " +
         "WHERE id = " + id + " AND uid = " + uid;
       db.get(query, (err,chall) => {
         if (!chall)
           return cb({errmsg: "Not your challenge"});
-        query =
-          "DELETE FROM Challenges " +
-          "WHERE id = " + id;
-        db.run(query);
+        ChallengeModel.remove(id);
         cb(null);
       });
     });

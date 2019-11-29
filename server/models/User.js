@@ -1,7 +1,7 @@
 var db = require("../utils/database");
-var maild = require("../utils/mailer.js");
 var genToken = require("../utils/tokenGenerator");
 var params = require("../config/parameters");
+var sendEmail = require('../utils/mailer');
 
 /*
  * Structure:
@@ -128,10 +128,17 @@ const UserModel =
   /////////////////
   // NOTIFICATIONS
 
-  tryNotify: function(oppId, gid, vname, message)
+  tryNotify: function(oppId, message)
   {
-    // TODO: send email to oppId (request...) with title
-    // "vchess.club - vname" and content "message"
+		UserModel.getOne("id", oppId, (err,opp) => {
+      if (!err || !opp.notify)
+        return; //error is ignored here (TODO: should be logged)
+      const subject = "vchess.club - notification";
+      const body = "Hello " + opp.name + "!\n" + message;
+      sendEmail(params.mail.noreply, opp.email, subject, body, err => {
+        res.json(err || {});
+      });
+    });
   }
 }
 

@@ -35,15 +35,14 @@ const GameModel =
 			db.run(insertQuery, err => {
 				if (!!err)
 					return cb(err);
-				db.get("SELECT last_insert_rowid() AS rowid", (err2,lastId) => {
-					players.forEach(p => {
-						query =
-							"INSERT INTO Players VALUES " +
-              // Remaining time = -1 means "unstarted"
-							"(" + lastId["rowid"] + "," + p.id + "," + p.color + ", -1)";
-						db.run(query, cb);
-					});
-				});
+        players.forEach(p => {
+          query =
+            "INSERT INTO Players VALUES " +
+            // Remaining time = -1 means "unstarted"
+            "(" + this.lastID + "," + p.id + "," + p.color + ", -1)";
+          db.run(query);
+        });
+        cb(null, {gid: this.lastID});
 			});
 		});
 	},

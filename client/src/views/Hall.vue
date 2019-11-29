@@ -509,15 +509,17 @@ export default {
             cid: c.id, target: c.from.sid}));
         }
       }
-      else
-        localStorage.removeItem("challenge");
-      if (c.type == "corr")
+      else //my challenge
       {
-        ajax(
-          "/challenges",
-          "DELETE",
-          {id: c.id}
-        );
+        localStorage.removeItem("challenge");
+        if (c.type == "corr")
+        {
+          ajax(
+            "/challenges",
+            "DELETE",
+            {id: c.id}
+          );
+        }
       }
     },
     // NOTE: when launching game, the challenge is already deleted
@@ -542,9 +544,9 @@ export default {
         ajax(
           "/games",
           "POST",
-          {gameInfo: gameInfo}
+          {gameInfo: gameInfo, cid: c.id}, //cid useful to delete challenge
+          response => { this.$router.push("/game/" + response.gameId); }
         );
-        // TODO: redirection here
       }
     },
     // NOTE: for live games only (corr games start on the server)

@@ -43,7 +43,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
 
 router.delete("/challenges", access.logged, access.ajax, (req,res) => {
   const cid = req.query.id;
-  ChallengeModel.remove(cid, req.userId, err => {
+  ChallengeModel.safeRemove(cid, req.userId, err => {
     res.json(err || {}); //TODO: just "return err" because is empty if no errors
   });
 });
