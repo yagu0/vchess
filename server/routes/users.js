@@ -28,7 +28,12 @@ router.get("/whoami", access.ajax, (req,res) => {
 });
 
 router.get("/users", access.ajax, (req,res) => {
-  // TODO: list all names + id for users of given ID (query "ids")
+  const ids = req.query["ids"];
+  UserModel.getByIds(ids, (err,users) => {
+    if (!!err)
+      return res.json({errmsg: err.toString()});
+    return res.json({users:users});
+  });
 });
 
 // to: object user (to who we send an email)

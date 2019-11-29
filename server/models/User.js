@@ -63,14 +63,14 @@ const UserModel =
 		});
 	},
 
-  getByName: function(names, cb) {
-		db.serialize(function() {
-			const query =
-				"SELECT id " +
+  getByIds: function(ids, cb) {
+    db.serialize(function() {
+      const query =
+        "SELECT id, name " +
         "FROM Users " +
-				"WHERE name IN ('" + names.join("','") + "')";
-			db.all(query, cb);
-		});
+        "WHERE id IN (" + ids + ")";
+      db.all(query, cb);
+    });
   },
 
 	/////////

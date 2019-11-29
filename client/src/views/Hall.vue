@@ -148,8 +148,10 @@ export default {
           const uids = response.challenges.map(c => { return c.uid });
           ajax("/users",
             "GET",
-            { ids: uids },
-            names => {
+            { ids: uids.join(",") },
+            response2 => {
+              let names = {};
+              response2.users.forEach(u => {names[u.id] = u.name});
               this.challenges = this.challenges.concat(
                 response.challenges.map(c => {
                   // (just players names in fact)
@@ -163,6 +165,23 @@ export default {
           );
         }
       );
+      // TODO: I don't like this code below; improvement?
+      let retryForVnames = setInterval(() => {
+        if (this.st.variants.length > 0) //variants array is loaded
+        {
+          if (this.games.length > 0 && this.games[0].vname == "")
+          {
+            // Fix games' vnames:
+            this.games.forEach(g => { g.vname = this.getVname(g.vid); });
+          }
+          if (this.challenges.length > 0 && this.challenges[0].vname == "")
+          {
+            // Fix challenges' vnames:
+            this.challenges.forEach(c => { c.vname = this.getVname(c.vid); });
+          }
+          clearInterval(retryForVnames);
+        }
+      }, 50);
     }
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {
@@ -207,7 +226,7 @@ export default {
     // TODO: ...filter(...)[0].name, one-line, just remove this function
     getVname: function(vid) {
       const vIdx = this.st.variants.findIndex(v => v.id == vid);
-      return this.st.variants[vIdx].name;
+      return vIdx >= 0 ? this.st.variants[vIdx].name : "";
     },
     getSid: function(pname) {
       const pIdx = this.people.findIndex(pl => pl.name == pname);
