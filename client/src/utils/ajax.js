@@ -37,10 +37,15 @@ export function ajax(url, method, data, success, error)
 				// Plain text (e.g. for rules retrieval)
 				return success(xhr.responseText);
       }
-      if (!res_json.errmsg)
+      if (!res_json.errmsg && !res_json.errno)
         success(res_json);
 			else
-				error(res_json.errmsg);
+      {
+        if (!!res_json.errmsg)
+				  error(res_json.errmsg);
+        else
+          error(res_json.code + ". errno = " + res_json.errno);
+      }
 		}
 	};
 
