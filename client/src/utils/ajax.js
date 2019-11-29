@@ -17,15 +17,16 @@ function toQueryString(data)
 export function ajax(url, method, data, success, error)
 {
 	let xhr = new XMLHttpRequest();
-	if (typeof(data) === "function") //no data
+	if (data === undefined || typeof(data) === "function") //no data
 	{
 		error = success;
 		success = data;
 		data = {};
 	}
+  if (!success)
+    success = () => {}; //by default, do nothing
 	if (!error)
 		error = errmsg => { alert(errmsg); };
-
 	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200)
 		{

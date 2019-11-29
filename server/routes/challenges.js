@@ -24,9 +24,8 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
     to: req.body.chall.to, //string: user name (may be empty)
   };
   const insertChallenge = () => {
-    ChallengeModel.create(challenge, (err) => {
-      if (!!err)
-        return res.json(err);
+    ChallengeModel.create(challenge, (err,ret) => {
+      return res.json(err || {cid:ret.cid});
     });
   };
   if (!!req.body.chall.to)

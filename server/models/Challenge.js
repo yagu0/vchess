@@ -35,7 +35,7 @@ const ChallengeModel =
         "(" + Date.now() + "," + c.uid + "," + (!!c.to ? c.to + "," : "") +
           c.vid + ",'" + c.fen + "','" + c.timeControl + "')";
       db.run(query, err => {
-        return cb(err);
+        return cb(err, {cid: this.lastID});
       });
     });
   },
