@@ -31,15 +31,16 @@ const GameModel =
 		db.serialize(function() {
 			let query =
 				"INSERT INTO Games (vid, fen, timeControl) " +
-				"VALUES (" + vid + ",'" + fen + "'," + timeControl + ")";
-			db.run(insertQuery, err => {
+				"VALUES (" + vid + ",'" + fen + "','" + timeControl + "')";
+      db.run(query, function(err) {
 				if (!!err)
 					return cb(err);
-        players.forEach(p => {
+        players.forEach((p,idx) => {
+          const color = (idx==0 ? "w" : "b");
           query =
             "INSERT INTO Players VALUES " +
             // Remaining time = -1 means "unstarted"
-            "(" + this.lastID + "," + p.id + "," + p.color + ", -1)";
+            "(" + this.lastID + "," + p.id + ",'" + color + "', -1)";
           db.run(query);
         });
         cb(null, {gid: this.lastID});

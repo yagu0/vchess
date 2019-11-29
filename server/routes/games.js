@@ -1,43 +1,27 @@
 var router = require("express").Router();
 var UserModel = require("../models/User");
-var sendEmail = require('../utils/mailer');
 var ChallengeModel = require('../models/Challenge');
 var GameModel = require('../models/Game');
 var VariantModel = require('../models/Variant');
 var access = require("../utils/access");
 var params = require("../config/parameters");
 
-// Notify about a game (start, new move)
-function tryNotify(uid, gid, vname, subject)
-{
-	UserModel.getOne("id", uid, (err,user) => {
-		if (!!err && user.notify)
-		{
-			sendEmail(params.mailFrom, user.email, subject,
-				params.siteURL + "?v=" + vname + "&g=" + gid, err => {
-				  res.json(err || {}); // TODO: log error somewhere.
-			  }
-      );
-		}
-	});
-}
-
 // From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
-	const gameInfo = JSON.parse(req.body.gameInfo);
-	if (!gameInfo.players.some(p => p.id == req.user.id))
+  const gameInfo = req.body.gameInfo;
+	if (!gameInfo.players.some(p => p.id == req.userId))
 		return res.json({errmsg: "Cannot start someone else's game"});
-	const cid = req.body.cid;
+  const cid = req.body.cid;
   ChallengeModel.remove(cid);
 	const fen = req.body.fen;
 	GameModel.create(
     gameInfo.vid, gameInfo.fen, gameInfo.timeControl, gameInfo.players,
 		(err,ret) => {
-			access.checkRequest(res, err, game, "Cannot create game", () => {
-        const oppIdx = gameInfo.players[0].id == req.user.id ? 1 : 0;
+			access.checkRequest(res, err, ret, "Cannot create game", () => {
+        const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
         const oppId = gameInfo.players[oppIdx].id;
         UserModel.tryNotify(oppId,
-          "New game: " + params.siteURL + "/game/" + gid);
+          "New game: " + params.siteURL + "/game/" + ret.gid);
 				res.json({gameId: ret.gid});
 			});
 		}
@@ -67,12 +51,14 @@ router.get("/games", access.ajax, (req,res) => {
   }
 });
 
-// TODO:
+//////////////////////////////////
+
+// TODO: new move
 router.put("/games", access.logged, access.ajax, (req,res) => {
 	let gid = ObjectId(req.body.gid);
 	let result = req.body.result;
 	// NOTE: only game-level life update is "gameover"
-	GameModel.gameOver(gid, result, ObjectId(req.user._id), (err,game) => {
+	GameModel.gameOver(gid, result, ObjectId(req.userId), (err,game) => {
 		access.checkRequest(res, err, game, "Cannot find game", () => {
 			res.json({});
 		});

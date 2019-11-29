@@ -34,7 +34,7 @@ const ChallengeModel =
           "vid, fen, timeControl) VALUES " +
         "(" + Date.now() + "," + c.uid + "," + (!!c.to ? c.to + "," : "") +
           c.vid + ",'" + c.fen + "','" + c.timeControl + "')";
-      db.run(query, err => {
+      db.run(query, function(err) {
         return cb(err, {cid: this.lastID});
       });
     });

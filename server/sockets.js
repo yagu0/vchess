@@ -30,7 +30,6 @@ module.exports = function(wss) {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
-      //console.log(obj.code);
       switch (obj.code)
       {
         case "pollclients":

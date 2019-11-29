@@ -499,7 +499,7 @@ export default {
         }
         if (c.accepted)
         {
-          c.seat = this.people[0]; //avoid sending email
+          c.seat = this.people[0]; //== this.st.user, avoid revealing email
           this.launchGame(c);
         }
         else
@@ -535,8 +535,18 @@ export default {
         vid: c.vid,
         timeControl: c.timeControl,
       };
-      this.st.conn.send(JSON.stringify({code:"newgame",
-        gameInfo:gameInfo, target:c.from.sid, cid:c.id}));
+      let target = c.from.sid; //may not be defined if corr + offline opp
+      if (!target)
+      {
+        const opponent = this.people.find(p => p.id == c.from.id);
+        if (!!opponent)
+          target = opponent.sid
+      }
+      if (!!target) //opponent is online
+      {
+        this.st.conn.send(JSON.stringify({code:"newgame",
+          gameInfo:gameInfo, target:target, cid:c.id}));
+      }
       if (c.type == "live")
         this.startNewGame(gameInfo);
       else //corr: game only on server
