@@ -31,13 +31,20 @@ export const store =
     };
     if (this.state.user.id > 0)
     {
-      fetch(params.serverUrl + "/whoami", {
-        method: "GET",
-        credentials: params.cors ? "include" : "omit",
-      }).then((res) => {
+      ajax("/whoami", "GET", res => {
         this.state.user.email = res.email;
         this.state.user.notify = res.notify;
       });
+      // TODO: fetch is simpler, but does not set req.xhr (for security check)
+//      fetch(params.serverUrl + "/whoami", {
+//        method: "GET",
+//        credentials: params.cors ? "include" : "omit",
+//      }).then((res) => {
+//        return res.json()
+//      }).then((user) => {
+//        this.state.user.email = user.email;
+//        this.state.user.notify = user.notify;
+//      });
     }
     this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
     // Settings initialized with values from localStorage

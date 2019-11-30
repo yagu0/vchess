@@ -48,7 +48,7 @@ module.exports =
 
 	// Prevent direct access to AJAX results
 	ajax: function(req, res, next) {
-		if (!req.xhr)
+    if (!req.xhr)
 			return res.json({errmsg: "Unauthorized access"});
 		next();
 	},
