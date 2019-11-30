@@ -30,8 +30,8 @@ const GameModel =
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Games (vid, fen, timeControl) " +
-				"VALUES (" + vid + ",'" + fen + "','" + timeControl + "')";
+				"INSERT INTO Games (vid, fenStart, score, timeControl) " +
+				"VALUES (" + vid + ",'" + fen + "','*','" + timeControl + "')";
       db.run(query, function(err) {
 				if (!!err)
 					return cb(err);
@@ -53,39 +53,33 @@ const GameModel =
 	{
 		db.serialize(function() {
 			let query =
-				"SELECT v.name AS vname, g.fen, g.fenStart, g.score " +
-				"FROM Games g " +
-				"JOIN Variants v " +
-				"  ON g.vid = v.id "
+				"SELECT * " +
+				"FROM Games " +
 				"WHERE id = " + id;
 			db.get(query, (err,gameInfo) => {
 				if (!!err)
 					return cb(err);
 				query =
-					"SELECT p.uid AS id, p.color, p.rtime, u.name " +
-					"FROM Players p " +
-					"JOIN Users u " +
-					"  ON p.uid = u.id " +
-					"WHERE p.gid = " + id;
-				db.run(query, (err2,players) => {
+					"SELECT uid, color, rtime " +
+					"FROM Players " +
+					"WHERE gid = " + id;
+				db.all(query, (err2,players) => {
 					if (!!err2)
 						return cb(err2);
 					query =
-						"SELECT move AS desc, message, played, idx, color " +
+						"SELECT move, message, played, idx, color " +
 						"FROM Moves " +
 						"WHERE gid = " + id;
-					db.run(query, (err3,moves) => {
+					db.all(query, (err3,moves) => {
 						if (!!err3)
 							return cb(err3);
-						const game = {
-							id: id,
-							vname: gameInfo.vname,
-							fenStart: gameInfo.fenStart,
-							fen: gameInfo.fen,
-							score: gameInfo.score,
-							players: players,
-							moves: moves,
-						};
+						const game = Object.assign({},
+              gameInfo,
+						  {
+							  players: players,
+							  moves: moves
+              }
+            );
 						return cb(null, game);
 					});
 				});

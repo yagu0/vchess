@@ -93,6 +93,20 @@ export default {
       },
     };
   },
+  watch: {
+    // st.variants changes only once, at loading from [] to [...]
+    "st.variants": function(variantArray) {
+      // Set potential challenges and games variant names:
+      this.challenges.forEach(c => {
+        if (c.vname == "")
+          c.vname = this.getVname(c.vid);
+      });
+      this.games.forEach(g => {
+        if (g.vname == "")
+          g.vname = this.getVname(g.vid)
+      });
+    },
+  },
   computed: {
     uniquePlayers: function() {
       // Show e.g. "@nonymous (5)", and do nothing on click on anonymous
@@ -165,23 +179,6 @@ export default {
           );
         }
       );
-      // TODO: I don't like this code below; improvement?
-      let retryForVnames = setInterval(() => {
-        if (this.st.variants.length > 0) //variants array is loaded
-        {
-          if (this.games.length > 0 && this.games[0].vname == "")
-          {
-            // Fix games' vnames:
-            this.games.forEach(g => { g.vname = this.getVname(g.vid); });
-          }
-          if (this.challenges.length > 0 && this.challenges[0].vname == "")
-          {
-            // Fix challenges' vnames:
-            this.challenges.forEach(c => { c.vname = this.getVname(c.vid); });
-          }
-          clearInterval(retryForVnames);
-        }
-      }, 50);
     }
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {

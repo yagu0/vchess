@@ -16,6 +16,8 @@
 //   score: string (several options; '*' == running),
 // }
 
+import { ajax } from "@/utils/ajax";
+
 function dbOperation(callback)
 {
   let db = null;
@@ -85,34 +87,46 @@ export const GameStorage =
     });
   },
 
-  // Retrieve any live game from its identifiers (locally, running or not)
-  // NOTE: need callback because result is obtained asynchronously
-  get: function(gameId, callback)
+  // Retrieve all local games (running, completed, imported...)
+  getAll: function(callback)
   {
     dbOperation((db) => {
       let objectStore = db.transaction('games').objectStore('games');
-      if (!gameId) //retrieve all
-      {
-        let games = [];
-        objectStore.openCursor().onsuccess = function(event) {
-          let cursor = event.target.result;
-          // if there is still another cursor to go, keep running this code
-          if (cursor)
-          {
-            games.push(cursor.value);
-            cursor.continue();
-          }
-          else
-            callback(games);
+      let games = [];
+      objectStore.openCursor().onsuccess = function(event) {
+        let cursor = event.target.result;
+        // if there is still another cursor to go, keep running this code
+        if (cursor)
+        {
+          games.push(cursor.value);
+          cursor.continue();
         }
+        else
+          callback(games);
       }
-      else //just one game
-      {
+    });
+  },
+
+  // Retrieve any game from its identifiers (locally or on server)
+  // NOTE: need callback because result is obtained asynchronously
+  get: function(gameId, callback)
+  {
+    // corr games identifiers are integers
+    if (Number.isInteger(gameId) || !isNaN(parseInt(gameId)))
+    {
+      ajax("/games", "GET", {gid:gameId}, res => {
+        callback(res.game);
+      });
+    }
+    else //local game
+    {
+      dbOperation((db) => {
+        let objectStore = db.transaction('games').objectStore('games');
         objectStore.get(gameId).onsuccess = function(event) {
           callback(event.target.result);
         }
-      }
-    });
+      });
+    }
   },
 
   getCurrent: function(callback)

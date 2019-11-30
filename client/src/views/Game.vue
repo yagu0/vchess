@@ -106,6 +106,11 @@ export default {
         }
       }, 1000);
     },
+    // In case variants array was't loaded when game was retrieved
+    "st.variants": function(variantArray) {
+      if (!!this.game.vname && this.game.vname == "")
+        this.game.vname = variantArray.filter(v => v.id == this.game.vid)[0].name;
+    },
   },
   created: function() {
     if (!!this.$route.params["id"])
@@ -287,7 +292,16 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game) {
       const afterRetrieval = async (game) => {
-        const vname = this.st.variants.filter(v => v.id == game.vid)[0].name;
+        // NOTE: variants array might not be available yet, thus the two next lines
+        const variantCell = this.st.variants.filter(v => v.id == game.vid);
+        const vname = (variantCell.length > 0 ? variantCell[0].name : "");
+        if (!game.fen)
+          game.fen = game.fenStart; //game wasn't started
+
+
+        // TODO: process rtime, clocks............ game.clocks doesn't exist anymore
+console.log(game);
+
         const tc = extractTime(game.timeControl);
         if (game.clocks[0] < 0) //game unstarted
         {
