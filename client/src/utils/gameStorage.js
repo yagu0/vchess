@@ -68,21 +68,18 @@ export const GameStorage =
 
   // TODO: also option to takeback a move ?
   // NOTE: for live games only (all on server for corr)
-  update: function(gameId, obj) //colorIdx, nextIdx, move, fen, addTime, score
+  update: function(gameId, obj) //move, fen, clocks, score, initime, ...
   {
     dbOperation((db) => {
       let objectStore = db.transaction("games", "readwrite").objectStore("games");
       objectStore.get(gameId).onsuccess = function(event) {
         const game = event.target.result;
-        if (!!obj.move)
-        {
-          game.moves.push(obj.move);
-          game.fen = obj.fen;
-          game.clocks[obj.colorIdx] += obj.addTime;
-          game.initime[obj.nextIdx] = Date.now();
-        }
-        if (!!obj.score)
-          game.score = obj.score;
+        Object.keys(obj).forEach(k => {
+          if (k == "move")
+            game.moves.push(obj[k]);
+          else
+            game[k] = obj[k];
+        });
         objectStore.put(game); //save updated data
       }
     });

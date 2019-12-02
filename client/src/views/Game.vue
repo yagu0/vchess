@@ -310,17 +310,26 @@ export default {
           //also using move.played fields
           game.clocks = [-1, -1];
           game.initime = [0, 0];
+          // TODO: compute clocks + initime
         }
         const tc = extractTime(game.timeControl);
+        const myIdx = game.players.findIndex(p => p.sid == this.st.user.sid);
         if (game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
           game.initime[0] = Date.now();
+          if (myIdx >= 0) //I play in this game
+          {
+            GameStorage.update(game.gameId,
+            {
+              clocks: game.clocks,
+              initime: game.initime,
+            });
+          }
         }
         const vModule = await import("@/variants/" + vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
-        const myIdx = game.players.findIndex(p => p.sid == this.st.user.sid);
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
@@ -388,11 +397,14 @@ export default {
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
       GameStorage.update(this.gameRef.id,
       {
-        colorIdx: colorIdx,
-        nextIdx: nextIdx,
         move: filtered_move,
         fen: move.fen,
-        addTime: addTime,
+        clocks: this.game.clocks.map((t,i) => i==colorIdx
+          ? this.game.clocks[i] + addTime
+          : this.game.clocks[i]),
+        initime: this.game.initime.map((t,i) => i==nextIdx
+          ? Date.now()
+          : this.game.initime[i]),
       });
       // Also update current game object:
       this.game.moves.push(move);
@@ -404,10 +416,7 @@ export default {
     // TODO: this update function should also work for corr games
     gameOver: function(score) {
       this.game.mode = "analyze";
-      GameStorage.update(this.gameRef.id,
-      {
-        score: score,
-      });
+      GameStorage.update(this.gameRef.id, { score: score });
     },
   },
 };
