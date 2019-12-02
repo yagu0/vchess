@@ -26,11 +26,11 @@ export function extractTime(timeControl)
   // Concatenate usual time control suffixes, in case of none is provided
   tcParts[0] += "m";
   tcParts[1] += "s";
-	const mainTimeArray = tcParts[0].match(/([0-9]+)([smhd]+)/);
+  const mainTimeArray = tcParts[0].match(/([0-9]+)([smhd]+)/);
   if (!mainTimeArray)
     return null;
   const mainTimeValue = parseInt(mainTimeArray[1]);
-  const mainTimeUnit = mainTimeArray[2];
+  const mainTimeUnit = mainTimeArray[2][0];
   const mainTime = timeUnitToSeconds(mainTimeValue, mainTimeUnit);
   let increment = 0;
   if (tcParts.length >= 2)
@@ -39,7 +39,7 @@ export function extractTime(timeControl)
     if (!incrementArray)
       return null;
     const incrementValue = parseInt(incrementArray[1]);
-    const incrementUnit = incrementArray[2];
+    const incrementUnit = incrementArray[2][0];
     // Increment unit cannot be larger than main unit:
     if (isLargerUnit(incrementUnit, mainTimeUnit))
       return null;
