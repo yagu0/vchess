@@ -79,6 +79,12 @@ export default {
       }
     },
     "game.clocks": function(newState) {
+      if (this.game.moves.length < 2)
+      {
+        // 1st move not completed yet: freeze time
+        this.virtualClocks = newState.map(s => ppt(s));
+        return;
+      }
       const currentTurn = this.vr.turn;
       const colorIdx = ["w","b"].indexOf(currentTurn);
       let countdown = newState[colorIdx] -
@@ -380,12 +386,15 @@ export default {
           return obj;
         }, {});
       // Send move ("newmove" event) to opponent(s) (if ours)
-      let addTime = undefined;
+      let addTime = 0;
       if (move.color == this.game.mycolor)
       {
-        const elapsed = Date.now() - this.game.initime[colorIdx];
-        // elapsed time is measured in milliseconds
-        addTime = this.game.increment - elapsed/1000;
+        if (this.game.moves.length >= 2) //after first move
+        {
+          const elapsed = Date.now() - this.game.initime[colorIdx];
+          // elapsed time is measured in milliseconds
+          addTime = this.game.increment - elapsed/1000;
+        }
         this.st.conn.send(JSON.stringify({
           code: "newmove",
           target: this.game.oppid,

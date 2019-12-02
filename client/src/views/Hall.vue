@@ -1,5 +1,11 @@
 <template lang="pug">
 main
+  input#modalInfo.modal(type="checkbox")
+  div(role="dialog" aria-labelledby="infoMessage")
+    .card.smallpad.small-modal.text-center
+      label.modal-close(for="modalInfo")
+      h3#infoMessage.section
+        p New game started: #[a(href="/game/" + {{ newGameId }})]
   input#modalNewgame.modal(type="checkbox")
   div(role="dialog" aria-labelledby="titleFenedit")
     .card.smallpad
@@ -85,6 +91,7 @@ export default {
       games: [],
       challenges: [],
       people: [], //(all) online players
+      newGameId: 0,
       newchallenge: {
         fen: "",
         vid: 0,
@@ -376,7 +383,10 @@ export default {
             this.startNewGame(data.gameInfo);
           else
           {
-            // TODO: notify with game link but do not redirect
+            this.newGameId = data.gameInfo.gameId;
+            let modalBox = document.getElementById("modalInfo");
+            modalBox.checked = true;
+            setTimeout(() => { modalBox.checked = false; }, 2500);
           }
           break;
         }
