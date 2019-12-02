@@ -79,11 +79,16 @@ export default {
       }
     },
     "game.clocks": function(newState) {
-      this.virtualClocks = newState.map(s => ppt(s));
       const currentTurn = this.vr.turn;
       const colorIdx = ["w","b"].indexOf(currentTurn);
       let countdown = newState[colorIdx] -
         (Date.now() - this.game.initime[colorIdx])/1000;
+      this.virtualClocks = [0,1].map(i => {
+        const removeTime = i == colorIdx
+          ? (Date.now() - this.game.initime[colorIdx])/1000
+          : 0;
+        return ppt(newState[i] - removeTime);
+      });
       const myTurn = (currentTurn == this.game.mycolor);
       let clockUpdate = setInterval(() => {
         if (countdown <= 0 || this.vr.turn != currentTurn)
@@ -297,11 +302,15 @@ export default {
         const vname = (variantCell.length > 0 ? variantCell[0].name : "");
         if (!game.fen)
           game.fen = game.fenStart; //game wasn't started
-
-
-        // TODO: process rtime, clocks............ game.clocks doesn't exist anymore
-console.log(game);
-
+        const gtype = (game.timeControl.indexOf('d') >= 0 ? "corr" : "live");
+        if (gtype == "corr")
+        {
+          // corr game: needs to compute the clocks + initime
+          //if (game.players[i].rtime < 0) initime = Date.now(), else compute,
+          //also using move.played fields
+          game.clocks = [-1, -1];
+          game.initime = [0, 0];
+        }
         const tc = extractTime(game.timeControl);
         if (game.clocks[0] < 0) //game unstarted
         {
@@ -316,6 +325,7 @@ console.log(game);
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
           {
+            type: gtype,
             increment: tc.increment,
             vname: vname,
             mycolor: [undefined,"w","b"][myIdx+1],
