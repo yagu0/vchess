@@ -5,7 +5,7 @@ main
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalInfo")
       h3#infoMessage.section
-        p New game started: #[a(href="/game/" + {{ newGameId }})]
+        p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
   div(role="dialog" aria-labelledby="titleFenedit")
     .card.smallpad
@@ -91,7 +91,7 @@ export default {
       games: [],
       challenges: [],
       people: [], //(all) online players
-      newGameId: 0,
+      infoMessage: "",
       newchallenge: {
         fen: "",
         vid: 0,
@@ -143,50 +143,47 @@ export default {
       else
         localStorage.removeItem("challenge");
     }
-    if (this.st.user.id > 0)
-    {
-      // Ask server for current corr games (all but mines)
-      ajax(
-        "/games",
-        "GET",
-        {uid: this.st.user.id, excluded: true},
-        response => {
-          this.games = this.games.concat(response.games.map(g => {
-            const type = this.classifyObject(g);
-            const vname = this.getVname(g.vid);
-            return Object.assign({}, g, {type: type, vname: vname});
-          }));
-        }
-      );
-      // Also ask for corr challenges (open + sent to me)
-      ajax(
-        "/challenges",
-        "GET",
-        {uid: this.st.user.id},
-        response => {
-          // Gather all senders names, and then retrieve full identity:
-          // (TODO [perf]: some might be online...)
-          const uids = response.challenges.map(c => { return c.uid });
-          ajax("/users",
-            "GET",
-            { ids: uids.join(",") },
-            response2 => {
-              let names = {};
-              response2.users.forEach(u => {names[u.id] = u.name});
-              this.challenges = this.challenges.concat(
-                response.challenges.map(c => {
-                  // (just players names in fact)
-                  const from = {name: names[c.uid], id: c.uid};
-                  const type = this.classifyObject(c);
-                  const vname = this.getVname(c.vid);
-                  return Object.assign({}, c, {type: type, vname: vname, from: from});
-                })
-              )
-            }
-          );
-        }
-      );
-    }
+    // Ask server for current corr games (all but mines)
+    ajax(
+      "/games",
+      "GET",
+      {uid: this.st.user.id, excluded: true},
+      response => {
+        this.games = this.games.concat(response.games.map(g => {
+          const type = this.classifyObject(g);
+          const vname = this.getVname(g.vid);
+          return Object.assign({}, g, {type: type, vname: vname});
+        }));
+      }
+    );
+    // Also ask for corr challenges (open + sent to me)
+    ajax(
+      "/challenges",
+      "GET",
+      {uid: this.st.user.id},
+      response => {
+        // Gather all senders names, and then retrieve full identity:
+        // (TODO [perf]: some might be online...)
+        const uids = response.challenges.map(c => { return c.uid });
+        ajax("/users",
+          "GET",
+          { ids: uids.join(",") },
+          response2 => {
+            let names = {};
+            response2.users.forEach(u => {names[u.id] = u.name});
+            this.challenges = this.challenges.concat(
+              response.challenges.map(c => {
+                // (just players names in fact)
+                const from = {name: names[c.uid], id: c.uid};
+                const type = this.classifyObject(c);
+                const vname = this.getVname(c.vid);
+                return Object.assign({}, c, {type: type, vname: vname, from: from});
+              })
+            )
+          }
+        );
+      }
+    );
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
@@ -383,10 +380,12 @@ export default {
             this.startNewGame(data.gameInfo);
           else
           {
-            this.newGameId = data.gameInfo.gameId;
+            this.infoMessage = "New game started: " +
+              "<a href='/game/" + data.gameInfo.gameId + "'>" +
+              "/game/" + data.gameInfo.gameId + "</a>";
             let modalBox = document.getElementById("modalInfo");
             modalBox.checked = true;
-            setTimeout(() => { modalBox.checked = false; }, 2500);
+            setTimeout(() => { modalBox.checked = false; }, 3000);
           }
           break;
         }
@@ -490,14 +489,12 @@ export default {
       }
     },
     clickChallenge: function(c) {
-      // In all cases, the challenge is consumed:
-      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
-      // NOTE: deletechallenge event might be redundant (but it's easier this way)
-      this.sendSomethingTo((!!c.to ? c.from : null), "deletechallenge", {cid:c.id});
       const myChallenge = (c.from.sid == this.st.user.sid //live
         || (this.st.user.id > 0 && c.from.id == this.st.user.id)); //corr
       if (!myChallenge)
       {
+        if (c.type == "corr" && this.st.user.id <= 0)
+          return alert("Please log in to accept corr challenges");
         c.accepted = true;
         if (!!c.to) //c.to == this.st.user.name (connected)
         {
@@ -528,6 +525,10 @@ export default {
           );
         }
       }
+      // In (almost) all cases, the challenge is consumed:
+      ArrayFun.remove(this.challenges, ch => ch.id == c.id);
+      // NOTE: deletechallenge event might be redundant (but it's easier this way)
+      this.sendSomethingTo((!!c.to ? c.from : null), "deletechallenge", {cid:c.id});
     },
     // NOTE: when launching game, the challenge is already deleted
     launchGame: async function(c) {

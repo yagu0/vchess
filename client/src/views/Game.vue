@@ -319,7 +319,12 @@ export default {
           // TODO: compute clocks + initime
         }
         const tc = extractTime(game.timeControl);
-        const myIdx = game.players.findIndex(p => p.sid == this.st.user.sid);
+        // TODO: this is not really beautiful (uid on corr players...)
+        if (gtype == "corr" && game.players[0].color == "b")
+          [ game.players[0], game.players[1] ] = [ game.players[1], game.players[0] ];
+        const myIdx = game.players.findIndex(p => {
+          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+        });
         if (game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];

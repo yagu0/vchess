@@ -112,6 +112,27 @@ const GameModel =
 		});
 	},
 
+  // obj can have fields move, fen and/or score
+  update: function(id, obj, cb)
+  {
+		db.serialize(function() {
+      let query =
+        "UPDATE Games " +
+        "SET ";
+      if (!!obj.move)
+        query += "move = " + obj.move + ","; //TODO: already stringified?!
+      if (!!obj.fen)
+        query += "fen = " + obj.fen + ",";
+      if (!!obj.score)
+        query += "score = " + obj.score + ",";
+      query = query.slice(0,-1); //remove last comma
+      query += " WHERE gameId = " + id;
+      db.run(query, (err) => {
+        cb(err);
+      });
+    });
+  },
+
 	remove: function(id)
 	{
 		db.parallelize(function() {

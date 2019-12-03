@@ -67,22 +67,43 @@ export const GameStorage =
   },
 
   // TODO: also option to takeback a move ?
-  // NOTE: for live games only (all on server for corr)
   update: function(gameId, obj) //move, fen, clocks, score, initime, ...
   {
-    dbOperation((db) => {
-      let objectStore = db.transaction("games", "readwrite").objectStore("games");
-      objectStore.get(gameId).onsuccess = function(event) {
-        const game = event.target.result;
-        Object.keys(obj).forEach(k => {
-          if (k == "move")
-            game.moves.push(obj[k]);
-          else
-            game[k] = obj[k];
-        });
-        objectStore.put(game); //save updated data
-      }
-    });
+    if (Number.isInteger(gameId) || !isNaN(parseInt(gameId)))
+    {
+      // corr: only move, fen and score
+      ajax(
+        "/games",
+        "PUT",
+        {
+          gid: gameId,
+          newObj:
+          {
+            // TODO: I think stringify isn't requuired here (see ajax() )
+            move: JSON.stringify(obj.move), //may be undefined...
+            fen: obj.fen,
+            score: obj.score,
+          }
+        }
+      );
+    }
+    else
+    {
+      // live
+      dbOperation((db) => {
+        let objectStore = db.transaction("games", "readwrite").objectStore("games");
+        objectStore.get(gameId).onsuccess = function(event) {
+          const game = event.target.result;
+          Object.keys(obj).forEach(k => {
+            if (k == "move")
+              game.moves.push(obj[k]);
+            else
+              game[k] = obj[k];
+          });
+          objectStore.put(game); //save updated data
+        }
+      });
+    }
   },
 
   // Retrieve all local games (running, completed, imported...)

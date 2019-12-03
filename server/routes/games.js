@@ -51,35 +51,17 @@ router.get("/games", access.ajax, (req,res) => {
   }
 });
 
-//////////////////////////////////
-
-// TODO: new move
-router.put("/games", access.logged, access.ajax, (req,res) => {
-	let gid = ObjectId(req.body.gid);
-	let result = req.body.result;
-	// NOTE: only game-level life update is "gameover"
-	GameModel.gameOver(gid, result, ObjectId(req.userId), (err,game) => {
-		access.checkRequest(res, err, game, "Cannot find game", () => {
-			res.json({});
-		});
-	});
-});
-
+// New move + fen update + score, potentially
 // TODO: if newmove fail, takeback in GUI
-// TODO: check move structure
-// TODO: move should contain an optional "message" field ("corr chat" !)
-router.post("/moves", access.logged, access.ajax, (req,res) => {
-	let gid = ObjectId(req.body.gid);
-	let fen = req.body.fen;
-	let vname = req.body.vname; //defined only if !!offlineOpp
-	// NOTE: storing the moves encoded lead to double stringify --> error at parsing
-	let move = JSON.parse(req.body.move);
-	GameModel.addMove(gid, move, fen, req._user._id, (err,game) => {
-		access.checkRequest(res, err, game, "Cannot find game", () => {
-			if (!!req.body.offlineOpp)
-				UserModel.tryNotify(ObjectId(req.body.offlineOpp), gid, vname, "New move");
-			res.json({});
-		});
+router.put("/games", access.logged, access.ajax, (req,res) => {
+	const gid = req.body.gid;
+	const obj = req.body.newObj;
+	GameModel.update(gid, obj, (err) => {
+		if (!!err)
+      return res.json(err);
+    if (!!req.body.offlineOpp) //TODO: refresh this...
+      UserModel.tryNotify(req.body.offlineOpp, "New move in game " + gid);
+    res.json({});
 	});
 });
 
