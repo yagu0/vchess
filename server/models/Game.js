@@ -112,6 +112,19 @@ const GameModel =
 		});
 	},
 
+  getPlayers: function(id, cb)
+  {
+    db.serialize(function() {
+      const query =
+        "SELECT id " +
+        "FROM Players " +
+        "WHERE gid = " + id;
+      db.all(query, (err,players) => {
+        return cb(err, players);
+      });
+    });
+  },
+
   // obj can have fields move, fen and/or score
   update: function(id, obj, cb)
   {

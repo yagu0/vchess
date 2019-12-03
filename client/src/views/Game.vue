@@ -61,7 +61,7 @@ export default {
         rid: ""
       },
       game: { }, //passed to BaseGame
-      oppConnected: false,
+      oppConnected: false, //TODO: use for styling
       corrMsg: "", //to send offline messages in corr games
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
@@ -152,18 +152,21 @@ export default {
         case "pong": //received if we sent a ping (game still alive on our side)
         {
           this.oppConnected = true;
-          // Send our "last state" informations to opponent(s)
-          const L = this.game.moves.length;
-          this.st.conn.send(JSON.stringify({
-            code: "lastate",
-            target: this.game.oppid,
-            gameId: this.gameRef.id,
-            lastMove: (L>0 ? this.game.moves[L-1] : undefined),
-            score: this.game.score,
-            movesCount: L,
-            drawOffer: this.drawOffer,
-            clocks: this.game.clocks,
-          }));
+          if (this.game.type == "live") //corr games are always complete
+          {
+            // Send our "last state" informations to opponent(s)
+            const L = this.game.moves.length;
+            this.st.conn.send(JSON.stringify({
+              code: "lastate",
+              target: this.game.oppid,
+              gameId: this.gameRef.id,
+              lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+              score: this.game.score,
+              movesCount: L,
+              drawOffer: this.drawOffer,
+              clocks: this.game.clocks,
+            }));
+          }
           break;
         }
         case "lastate": //got opponent infos about last move

@@ -550,20 +550,29 @@ export default {
         if (!!opponent)
           target = opponent.sid
       }
-      if (!!target) //opponent is online
-      {
-        this.st.conn.send(JSON.stringify({code:"newgame",
-          gameInfo:gameInfo, target:target, cid:c.id}));
-      }
+      const tryNotifyOpponent = () => {
+        if (!!target) //opponent is online
+        {
+          this.st.conn.send(JSON.stringify({code:"newgame",
+            gameInfo:gameInfo, target:target, cid:c.id}));
+        }
+      };
       if (c.type == "live")
+      {
+        tryNotifyOpponent();
         this.startNewGame(gameInfo);
+      }
       else //corr: game only on server
       {
         ajax(
           "/games",
           "POST",
           {gameInfo: gameInfo, cid: c.id}, //cid useful to delete challenge
-          response => { this.$router.push("/game/" + response.gameId); }
+          response => {
+            gameInfo.gameId = response.gameId;
+            tryNotifyOpponent();
+            this.$router.push("/game/" + response.gameId);
+          }
         );
       }
     },

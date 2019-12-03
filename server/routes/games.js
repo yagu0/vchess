@@ -55,12 +55,19 @@ router.get("/games", access.ajax, (req,res) => {
 // TODO: if newmove fail, takeback in GUI
 router.put("/games", access.logged, access.ajax, (req,res) => {
 	const gid = req.body.gid;
+	const oppId = req.body.oppId;
 	const obj = req.body.newObj;
 	GameModel.update(gid, obj, (err) => {
 		if (!!err)
       return res.json(err);
-    if (!!req.body.offlineOpp) //TODO: refresh this...
-      UserModel.tryNotify(req.body.offlineOpp, "New move in game " + gid);
+    // Notify opponent if he enabled notifications:
+    GameModel.getPlayers(gid, (err2,players) => {
+      if (!!err2)
+        return res.json(err);
+      const oppid = (players[0].id == req.userId ? players[1].id : players[0].id);
+      UserModel.tryNotify(oppid,
+        "New move in game: " + params.siteURL + "/game/" + gid);
+    });
     res.json({});
 	});
 });
