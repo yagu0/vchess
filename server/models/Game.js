@@ -33,8 +33,8 @@ const GameModel =
 				"INSERT INTO Games (vid, fenStart, score, timeControl) " +
 				"VALUES (" + vid + ",'" + fen + "','*','" + timeControl + "')";
       db.run(query, function(err) {
-				if (!!err)
-					return cb(err);
+        if (!!err)
+          return cb(err);
         players.forEach((p,idx) => {
           const color = (idx==0 ? "w" : "b");
           query =

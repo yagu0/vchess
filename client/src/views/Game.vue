@@ -332,8 +332,9 @@ export default {
         {
           game.clocks = [tc.mainTime, tc.mainTime];
           game.initime[0] = Date.now();
-          if (myIdx >= 0) //I play in this game
+          if (myIdx >= 0 && gtype == "live")
           {
+            // I play in this live game; corr games don't have clocks+initime
             GameStorage.update(game.id,
             {
               clocks: game.clocks,
@@ -354,7 +355,7 @@ console.log(myIdx + " " + game.players[1-myIdx].sid); //otherwise this is undefi
 
         this.game = Object.assign({},
           game,
-          // NOTE: assign mycolor here, since BaseGame could also bs VS computer
+          // NOTE: assign mycolor here, since BaseGame could also be VS computer
           {
             type: gtype,
             increment: tc.increment,
