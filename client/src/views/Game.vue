@@ -97,7 +97,7 @@ export default {
       });
       const myTurn = (currentTurn == this.game.mycolor);
       let clockUpdate = setInterval(() => {
-        if (countdown <= 0 || this.vr.turn != currentTurn)
+        if (countdown <= 0 || this.vr.turn != currentTurn || this.game.score != "*")
         {
           clearInterval(clockUpdate);
           if (countdown <= 0 && myTurn)
@@ -334,7 +334,7 @@ export default {
           game.initime[0] = Date.now();
           if (myIdx >= 0) //I play in this game
           {
-            GameStorage.update(game.gameId,
+            GameStorage.update(game.id,
             {
               clocks: game.clocks,
               initime: game.initime,
@@ -344,6 +344,14 @@ export default {
         const vModule = await import("@/variants/" + vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
+        
+
+
+//TODO: people, on connect, search for opponent.......
+console.log(myIdx + " " + game.players[1-myIdx].sid); //otherwise this is undefined:
+
+
+
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also bs VS computer
@@ -433,6 +441,7 @@ export default {
     // TODO: this update function should also work for corr games
     gameOver: function(score) {
       this.game.mode = "analyze";
+      this.game.score = score;
       GameStorage.update(this.gameRef.id, { score: score });
     },
   },

@@ -381,8 +381,8 @@ export default {
           else
           {
             this.infoMessage = "New game started: " +
-              "<a href='/game/" + data.gameInfo.gameId + "'>" +
-              "/game/" + data.gameInfo.gameId + "</a>";
+              "<a href='#/game/" + data.gameInfo.gameId + "'>" +
+              "#/game/" + data.gameInfo.gameId + "</a>";
             let modalBox = document.getElementById("modalInfo");
             modalBox.checked = true;
             setTimeout(() => { modalBox.checked = false; }, 3000);
