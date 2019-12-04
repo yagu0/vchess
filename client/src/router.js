@@ -46,7 +46,7 @@ const router = new Router({
               localStorage["myname"] = res.name;
               localStorage["myid"] = res.id;
             }
-            next();
+            next("/");
           }
         );
       },
@@ -58,30 +58,26 @@ const router = new Router({
       name: "game",
       component: loadView("Game"),
     },
-//    {
-//      path: "/about",
-//      name: "about",
-//      // route level code-splitting
-//      // this generates a separate chunk (about.[hash].js) for this route
-//      // which is lazy-loaded when the route is visited.
-//      component: loadView('About'),
-//				//function() {
-//        //	return import(/* webpackChunkName: "about" */ "./views/About.vue");
-//				//}
-//    },
-    // TODO: gameRef, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
+    {
+      path: "/about",
+      name: "about",
+      component: loadView("About"),
+    },
+    // TODO: myGames, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  window.scrollTo(0, 0); //TODO: check if a live game is running; if yes, call next('/game')
-  //https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
+  window.scrollTo(0, 0);
+  if (!!store.state.conn) //uninitialized at first page
+  {
+    // Notify WebSockets server (TODO: path or fullPath?)
+    store.state.conn.send(JSON.stringify({code: "pagechange", page: to.path}));
+  }
   next();
-    //TODO: si une partie en cours dans storage, rediriger vers cette partie
-    //(à condition que l'URL n'y corresponde pas déjà !)
-    // (l'identifiant de l'utilisateur si connecté)
-//    if (!!localStorage["variant"])
-//      location.hash = "#game?id=" + localStorage["gameId"];
+  // TODO?: redirect to current game (through GameStorage.getCurrent()) if any?
+  // (and if the URL doesn't already match it) (use next("/game/GID"))
+  //https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
 });
 
 export default router;

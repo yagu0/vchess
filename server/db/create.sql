@@ -43,7 +43,7 @@ create table Challenges (
   foreign key (vid) references Variants(id)
 );
 
--- NOTE: no need for a "created" field, it's deduce from first move playing time
+-- NOTE: no need for a "created" field, it's deduced from first move playing time
 create table Games (
   id integer primary key,
   vid integer,
@@ -59,7 +59,6 @@ create table Players (
   gid integer,
   uid integer,
   color character,
-  rtime integer, --remaining time in milliseconds
   foreign key (gid) references Games(id),
   foreign key (uid) references Users(id)
 );

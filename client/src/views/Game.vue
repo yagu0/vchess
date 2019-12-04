@@ -27,15 +27,7 @@
 // ==> après, implémenter/vérifier les passages de challenges + parties en cours
 // observer,
 // + problèmes, habiller et publier. (+ corr...)
-    // TODO: how to know who is observing ? Send message to everyone with game ID ?
-    // and then just listen to (dis)connect events
-    // server always send "connect on " + URL ; then add to observers if game...
-// router when access a game page tell to server I joined + game ID (no need rid)
-// and ask server for current joined (= observers)
 // when send to chat (or a move), reach only this group (send gid along)
-// -> doivent être enregistrés comme observers au niveau du serveur...
-    // non: poll users + events startObserving / stopObserving
-    // (à faire au niveau du routeur ?)
 -->
 
 <script>
@@ -60,13 +52,12 @@ export default {
         id: "",
         rid: ""
       },
-      game: { }, //passed to BaseGame
-      oppConnected: false, //TODO: use for styling
+      game: {}, //passed to BaseGame
       corrMsg: "", //to send offline messages in corr games
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "", //TODO: use for button style
-      people: [ ], //potential observers (TODO)
+      people: [], //players + observers
     };
   },
   watch: {
@@ -121,6 +112,11 @@ export default {
     "st.variants": function(variantArray) {
       if (!!this.game.vname && this.game.vname == "")
         this.game.vname = variantArray.filter(v => v.id == this.game.vid)[0].name;
+    },
+  },
+  computed: {
+    oppConnected: function() {
+      return this.people.indexOf(p => p.id == this.game.oppid) >= 0;
     },
   },
   created: function() {
@@ -312,27 +308,34 @@ export default {
         if (!game.fen)
           game.fen = game.fenStart; //game wasn't started
         const gtype = (game.timeControl.indexOf('d') >= 0 ? "corr" : "live");
+        const tc = extractTime(game.timeControl);
         if (gtype == "corr")
         {
           // corr game: needs to compute the clocks + initime
-          //if (game.players[i].rtime < 0) initime = Date.now(), else compute,
-          //also using move.played fields
-          game.clocks = [-1, -1];
+          game.clocks = [tc.mainTime, tc.mainTime];
           game.initime = [0, 0];
-          // TODO: compute clocks + initime
+          let addTime = [0, 0];
+          for (let i=2; i<game.moves.length; i++)
+          {
+            addTime[i%2] += tc.increment -
+              (game.moves[i].played - game.moves[i-1].played);
+          }
+          for (let i=0; i<=1; i++)
+            game.clocks[i] += addTime[i];
+          const L = game.moves.length;
+          game.initime[L%2] = game.moves[L-1].played;
         }
-        const tc = extractTime(game.timeControl);
         // TODO: this is not really beautiful (uid on corr players...)
         if (gtype == "corr" && game.players[0].color == "b")
           [ game.players[0], game.players[1] ] = [ game.players[1], game.players[0] ];
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;
         });
-        if (game.clocks[0] < 0) //game unstarted
+        if (gtype == "live" && game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
           game.initime[0] = Date.now();
-          if (myIdx >= 0 && gtype == "live")
+          if (myIdx >= 0)
           {
             // I play in this live game; corr games don't have clocks+initime
             GameStorage.update(game.id,

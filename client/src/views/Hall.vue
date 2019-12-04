@@ -90,7 +90,7 @@ export default {
       gdisplay: "live",
       games: [],
       challenges: [],
-      people: [], //(all) online players
+      people: [], //people in main hall
       infoMessage: "",
       newchallenge: {
         fen: "",
@@ -581,7 +581,7 @@ export default {
       const game = Object.assign({}, gameInfo, {
         // (other) Game infos: constant
         fenStart: gameInfo.fen,
-        created: Date.now(),
+        added: Date.now(),
         // Game state (including FEN): will be updated
         moves: [],
         clocks: [-1, -1], //-1 = unstarted

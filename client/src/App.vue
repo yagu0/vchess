@@ -35,11 +35,10 @@
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         footer
-          a(href="https://github.com/yagu0/vchess") {{ st.tr["Source code"] }}
+          router-link.menuitem(to="/about") {{ st.tr["About"] }}
           p.clickable(onClick="doClick('modalContact')")
-            | {{ st.tr["Contact form"] }}
-  //my-game(:game-ref="gameRef" :mode="mode" :settings="settings" @game-over="archiveGame")
-  //// TODO: add only the necessary icons to mini-css custom build
+            | {{ st.tr["Contact"] }}
+  // TODO: add only the necessary icons to mini-css custom build
   //script(src="//unpkg.com/feather-icons")
 </template>
 
@@ -62,10 +61,6 @@ export default {
       st: store.state,
     };
   },
-//    // TODO: $route: ...
-//    gameRef: function() {
-//      this.loadGame();
-//    },
   computed: {
     flagImage: function() {
       return `/images/flags/${this.st.lang}.svg`;
@@ -151,7 +146,7 @@ footer
   display: inline-flex
   align-items: center
   justify-content: center
-  & > a
+  & > .menuitem
     display: inline-block
     margin: 0 10px 0 0
     &:link

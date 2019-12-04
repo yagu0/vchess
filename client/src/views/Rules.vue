@@ -132,34 +132,34 @@ figure.diagram-container
     padding-top: 5px
     font-size: 0.8em
 
-  p.boxed
-    background-color: #FFCC66
-    padding: 5px
+p.boxed
+  background-color: #FFCC66
+  padding: 5px
 
-  .stageDelimiter
-    color: purple
+.stageDelimiter
+  color: purple
 
-  // To show (new) pieces, and/or there values...
-  figure.showPieces > img
-    width: 50px
+// To show (new) pieces, and/or there values...
+figure.showPieces > img
+  width: 50px
 
-  figure.showPieces > figcaption
-    color: #6C6C6C
+figure.showPieces > figcaption
+  color: #6C6C6C
 
-  .section-title
-    padding: 0
+.section-title
+  padding: 0
 
-  .section-title > h4
-    padding: 5px
+.section-title > h4
+  padding: 5px
 
-  ol, ul:not(.browser-default)
-    padding-left: 20px
+ol, ul:not(.browser-default)
+  padding-left: 20px
 
-  ul:not(.browser-default)
-    margin-top: 5px
+ul:not(.browser-default)
+  margin-top: 5px
 
-  ul:not(.browser-default) > li
-    list-style-type: disc
+ul:not(.browser-default) > li
+  list-style-type: disc
 
 .light-square-diag
   background-color: #e5e5ca
