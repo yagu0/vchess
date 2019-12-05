@@ -133,7 +133,10 @@ const GameModel =
         "UPDATE Games " +
         "SET ";
       if (!!obj.move)
+      {
+        move.played = Date.now();
         query += "move = " + obj.move + ","; //TODO: already stringified?!
+      }
       if (!!obj.fen)
         query += "fen = " + obj.fen + ",";
       if (!!obj.score)

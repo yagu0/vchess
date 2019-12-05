@@ -61,13 +61,10 @@ export default {
     };
   },
   watch: {
-    '$route' (to, from) {
-      if (!!to.params["id"])
-      {
-        this.gameRef.id = to.params["id"];
-        this.gameRef.rid = to.query["rid"];
-        this.loadGame();
-      }
+    "$route": function(to, from) {
+      this.gameRef.id = to.params["id"];
+      this.gameRef.rid = to.query["rid"];
+      this.loadGame();
     },
     "game.clocks": function(newState) {
       if (this.game.moves.length < 2)
@@ -95,10 +92,14 @@ export default {
           {
             this.$refs["basegame"].endGame(
               this.game.mycolor=="w" ? "0-1" : "1-0", "Time");
-            this.st.conn.send(JSON.stringify({
-              code: "timeover",
-              target: this.game.oppid,
-            }));
+            const oppsid = this.getOppSid();
+            if (!!oppsid)
+            {
+              this.st.conn.send(JSON.stringify({
+                code: "timeover",
+                target: oppsid,
+              }));
+            }
           }
         }
         else
@@ -111,35 +112,78 @@ export default {
     // In case variants array was't loaded when game was retrieved
     "st.variants": function(variantArray) {
       if (!!this.game.vname && this.game.vname == "")
-        this.game.vname = variantArray.filter(v => v.id == this.game.vid)[0].name;
+      {
+        this.game.vname = variantArray.filter(v =>
+          v.id == this.game.vid)[0].name;
+      }
     },
   },
-  computed: {
-    oppConnected: function() {
-      return this.people.indexOf(p => p.id == this.game.oppid) >= 0;
-    },
-  },
+  // TODO: redundant code with Hall.vue (related to people array)
   created: function() {
+    // Always add myself to players' list
+    const my = this.st.user;
+    this.people.push({sid:my.sid, id:my.id, name:my.name});
     if (!!this.$route.params["id"])
     {
       this.gameRef.id = this.$route.params["id"];
       this.gameRef.rid = this.$route.query["rid"];
       this.loadGame();
     }
-    // TODO: onopen, ask lastState informations + update observers and players status
+    // 0.1] Ask server for room composition:
+    const funcPollClients = () => {
+      this.st.conn.send(JSON.stringify({code:"pollclients"}));
+    };
+    if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
+      funcPollClients();
+    else //socket not ready yet (initial loading)
+      this.st.conn.onopen = funcPollClients;
+    this.st.conn.onmessage = this.socketMessageListener;
     const socketCloseListener = () => {
       store.socketCloseListener(); //reinitialize connexion (in store.js)
       this.st.conn.addEventListener('message', this.socketMessageListener);
       this.st.conn.addEventListener('close', socketCloseListener);
     };
-    this.st.conn.onmessage = this.socketMessageListener;
     this.st.conn.onclose = socketCloseListener;
   },
   methods: {
+    getOppSid: function() {
+      if (!!this.game.oppsid)
+        return this.game.oppsid;
+      const opponent = this.people.find(p => p.id == this.game.oppid);
+      return (!!opponent ? opponent.sid : null);
+    },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+        // 0.2] Receive clients list (just socket IDs)
+        case "pollclients":
+        {
+          data.sockIds.forEach(sid => {
+            this.people.push({sid:sid, id:0, name:""});
+            // Ask only identity
+            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+          });
+          break;
+        }
+        case "askidentity":
+        {
+          // Request for identification: reply if I'm not anonymous
+          if (this.st.user.id > 0)
+          {
+            this.st.conn.send(JSON.stringify(
+              // people[0] instead of st.user to avoid sending email
+              {code:"identity", user:this.people[0], target:data.from}));
+          }
+          break;
+        }
+        case "identity":
+        {
+          const pIdx = this.people.findIndex(p => p.sid == data.user.sid);
+          this.people[pIdx].id = data.user.id;
+          this.people[pIdx].name = data.user.name;
+          break;
+        }
         case "newmove":
           // NOTE: next call will trigger processMove()
           this.$refs["basegame"].play(data.move,
@@ -147,14 +191,13 @@ export default {
           break;
         case "pong": //received if we sent a ping (game still alive on our side)
         {
-          this.oppConnected = true;
           if (this.game.type == "live") //corr games are always complete
           {
             // Send our "last state" informations to opponent(s)
             const L = this.game.moves.length;
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              target: this.game.oppid,
+              target: this.getOppSid(), //he's connected for sure
               gameId: this.gameRef.id,
               lastMove: (L>0 ? this.game.moves[L-1] : undefined),
               score: this.game.score,
@@ -189,7 +232,7 @@ export default {
             // We must tell last move to opponent
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              target: this.game.oppid,
+              target: this.getOppSid(), //we know he is connected
               gameId: this.gameRef.id,
               lastMove: (L>0 ? this.game.moves[L-1] : undefined),
               score: this.game.score,
@@ -219,25 +262,25 @@ export default {
           break;
         case "askfullgame":
           // TODO: just give game; observers are listed here anyway:
-          // gameconnect?
+          // ==> mark request SID as someone to send moves to
+          // NOT to all people array: our opponent can send moves too!
           break;
-        // TODO: drawaccepted (click draw button before sending move ==> draw offer in move)
-          // ==> on "newmove", check "drawOffer" field
-        // TODO: also use (dis)connect info to count online players?
-        case "gameconnect":
-        case "gamedisconnect":
-          const online = (data.code == "gameconnect");
-          // If this is an opponent ?
-          if (this.game.oppid == data.id)
-            this.oppConnected = true;
-          else
-          {
-            // Or an observer ?
-            if (!online)
-              delete this.people[data.id];
-            else
-              this.people[data.id] = data.name;
-          }
+        case "fullgame":
+          // and when receiving answer just call loadGame(received_game)
+          this.loadGame(data.game);
+          break;
+        // TODO: drawaccepted (click draw button before sending move
+        // ==> draw offer in move)
+        // ==> on "newmove", check "drawOffer" field
+        case "connect":
+        {
+          // TODO: if opponent connect, trigger lastate chain of events...
+          this.people.push({name:"", id:0, sid:data.sid});
+          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
+          break;
+        }
+        case "disconnect":
+          ArrayFun.remove(this.people, p => p.sid == data.sid);
           break;
       }
     },
@@ -247,7 +290,9 @@ export default {
       {
         if (!confirm("Accept draw?"))
           return;
-        this.st.conn.send(JSON.stringify({code:"draw", target:this.game.oppid}));
+        const oppsid = this.getOppSid();
+        if (!!oppsid)
+          this.st.conn.send(JSON.stringify({code:"draw", target:oppsid}));
         this.$refs["basegame"].endGame("1/2", "Mutual agreement");
       }
       else if (this.drawOffer == "sent")
@@ -256,7 +301,9 @@ export default {
       {
         if (!confirm("Offer draw?"))
           return;
-        this.st.conn.send(JSON.stringify({code:"drawoffer", target:this.game.oppid}));
+        const oppsid = this.getOppSid();
+        if (!!oppsid)
+          this.st.conn.send(JSON.stringify({code:"drawoffer", target:oppsid}));
       }
     },
     // + conn handling: "draw" message ==> agree for draw (if we have "drawOffered" at true)
@@ -278,20 +325,28 @@ export default {
         const message = event.target.innerText;
         // Next line will trigger a "gameover" event, bubbling up till here
         this.$refs["basegame"].endGame("?", "Abort: " + message);
-        this.st.conn.send(JSON.stringify({
-          code: "abort",
-          msg: message,
-          target: this.game.oppid,
-        }));
+        const oppsid = this.getOppSid();
+        if (!!oppsid)
+        {
+          this.st.conn.send(JSON.stringify({
+            code: "abort",
+            msg: message,
+            target: oppsid,
+          }));
+        }
       }
     },
     resign: function(e) {
       if (!confirm("Resign the game?"))
         return;
-      this.st.conn.send(JSON.stringify({
-        code: "resign",
-        target: this.game.oppid,
-      }));
+      const oppsid = this.getOppSid();
+      if (!!oppsid)
+      {
+        this.st.conn.send(JSON.stringify({
+          code: "resign",
+          target: oppsid,
+        }));
+      }
       // Next line will trigger a "gameover" event, bubbling up till here
       this.$refs["basegame"].endGame(
         this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
@@ -308,29 +363,33 @@ export default {
         if (!game.fen)
           game.fen = game.fenStart; //game wasn't started
         const gtype = (game.timeControl.indexOf('d') >= 0 ? "corr" : "live");
-        const tc = extractTime(game.timeControl);
-        if (gtype == "corr")
-        {
-          // corr game: needs to compute the clocks + initime
-          game.clocks = [tc.mainTime, tc.mainTime];
-          game.initime = [0, 0];
-          let addTime = [0, 0];
-          for (let i=2; i<game.moves.length; i++)
-          {
-            addTime[i%2] += tc.increment -
-              (game.moves[i].played - game.moves[i-1].played);
-          }
-          for (let i=0; i<=1; i++)
-            game.clocks[i] += addTime[i];
-          const L = game.moves.length;
-          game.initime[L%2] = game.moves[L-1].played;
-        }
         // TODO: this is not really beautiful (uid on corr players...)
         if (gtype == "corr" && game.players[0].color == "b")
           [ game.players[0], game.players[1] ] = [ game.players[1], game.players[0] ];
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;
         });
+        const tc = extractTime(game.timeControl);
+        if (gtype == "corr")
+        {
+          // corr game: needs to compute the clocks + initime
+          game.clocks = [tc.mainTime, tc.mainTime];
+          game.initime = [0, 0];
+          const L = game.moves.length;
+          if (L >= 3)
+          {
+            let addTime = [0, 0];
+            for (let i=2; i<L; i++)
+            {
+              addTime[i%2] += tc.increment -
+                (game.moves[i].played - game.moves[i-1].played);
+            }
+            for (let i=0; i<=1; i++)
+              game.clocks[i] += addTime[i];
+          }
+          if (L >= 1)
+            game.initime[L%2] = game.moves[L-1].played;
+        }
         if (gtype == "live" && game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
@@ -348,14 +407,6 @@ export default {
         const vModule = await import("@/variants/" + vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
-        
-
-
-//TODO: people, on connect, search for opponent.......
-console.log(myIdx + " " + game.players[1-myIdx].sid); //otherwise this is undefined:
-
-
-
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer
@@ -364,8 +415,10 @@ console.log(myIdx + " " + game.players[1-myIdx].sid); //otherwise this is undefi
             increment: tc.increment,
             vname: vname,
             mycolor: [undefined,"w","b"][myIdx+1],
-            // opponent sid not strictly required, but easier
-            oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
+            // opponent sid not strictly required (or available), but easier
+            // at least oppsid or oppid is available anyway:
+            oppsid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
+            oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
         if (!!this.game.oppid)
@@ -378,10 +431,8 @@ console.log(myIdx + " " + game.players[1-myIdx].sid); //otherwise this is undefi
         return afterRetrival(game);
       if (!!this.gameRef.rid)
       {
-        this.st.conn.send(JSON.stringify({code:"askfullgame", target:this.gameRef.rid}));
-        // TODO: just send a game request message to the remote player,
-        // and when receiving answer just call loadGame(received_game)
-        // + remote peer should have registered us as an observer
+        this.st.conn.send(JSON.stringify(
+          {code:"askfullgame", target:this.gameRef.rid}));
         // (send moves updates + resign/abort/draw actions)
       }
       else

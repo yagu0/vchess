@@ -14,7 +14,7 @@ export const store =
     lang: "",
   },
   socketCloseListener: null,
-  initialize() {
+  initialize(page) {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
     let mysid = localStorage["mysid"];
     if (!mysid)
@@ -35,18 +35,9 @@ export const store =
         this.state.user.email = res.email;
         this.state.user.notify = res.notify;
       });
-      // TODO: fetch is simpler, but does not set req.xhr (for security check)
-//      fetch(params.serverUrl + "/whoami", {
-//        method: "GET",
-//        credentials: params.cors ? "include" : "omit",
-//      }).then((res) => {
-//        return res.json()
-//      }).then((user) => {
-//        this.state.user.email = user.email;
-//        this.state.user.notify = user.notify;
-//      });
     }
-    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
+    this.state.conn = new WebSocket(
+      params.socketUrl + "/?sid=" + mysid + "&page=" + page);
     // Settings initialized with values from localStorage
     this.state.settings = {
       bcolor: localStorage["bcolor"] || "lichess",
