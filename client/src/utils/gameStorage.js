@@ -133,7 +133,11 @@ export const GameStorage =
     if (Number.isInteger(gameId) || !isNaN(parseInt(gameId)))
     {
       ajax("/games", "GET", {gid:gameId}, res => {
-        callback(res.game);
+        let game = res.game;
+        game.moves.forEach(m => {
+          m.squares = JSON.parse(m.squares);
+        });
+        callback(game);
       });
     }
     else //local game

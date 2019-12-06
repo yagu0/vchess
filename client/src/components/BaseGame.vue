@@ -16,6 +16,7 @@
       button(@click="flip") Flip
       button(@click="gotoBegin") GotoBegin
       button(@click="gotoEnd") GotoEnd
+    #messageDiv.section-content {{ curMoveMessage() }}
     #fenDiv.section-content(v-if="showFen && !!vr")
       p#fenString.text-center {{ vr.getFen() }}
     #pgnDiv.section-content
@@ -97,6 +98,12 @@ export default {
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+    },
+    // For corr games, potential message with each move sent
+    curMoveMessage: function() {
+      if (this.cursor < 0)
+        return "";
+      return this.game.moves[this.cursor].message || "";
     },
     download: function() {
       const content = this.getPgn();

@@ -69,7 +69,6 @@ create table Moves (
   message varchar,
   played datetime, --when was this move played?
   idx integer, --index of the move in the game
-  color character, --required for e.g. Marseillais Chess
   foreign key (gid) references Games(id)
 );
 

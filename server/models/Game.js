@@ -20,7 +20,6 @@ var db = require("../utils/database");
  *   message: text
  *   played: datetime
  *   idx: integer
- *   color: character
  */
 
 const GameModel =
@@ -71,7 +70,7 @@ const GameModel =
 					if (!!err2)
 						return cb(err2);
 					query =
-						"SELECT squares, message, played, idx, color " +
+						"SELECT squares, message, played, idx " +
 						"FROM Moves " +
 						"WHERE gid = " + id;
 					db.all(query, (err3,moves) => {
@@ -147,9 +146,9 @@ const GameModel =
       {
         const m = obj.move;
         query =
-          "INSERT INTO Moves (gid,squares,message,played,idx,color) VALUES " +
+          "INSERT INTO Moves (gid, squares, message, played, idx) VALUES " +
           "(" + id + ",'" + JSON.stringify(m.squares) + "','" + m.message +
-            "'," + m.played + "," + m.idx + ",'" + m.color + "')";
+            "'," + m.played + "," + m.idx + ")";
         db.run(query);
       }
     });

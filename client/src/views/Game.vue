@@ -349,6 +349,7 @@ export default {
           game.clocks = [tc.mainTime, tc.mainTime];
           game.initime = [0, 0];
           const L = game.moves.length;
+          game.moves.sort((m1,m2) => m1.idx - m2.idx); //in case of
           if (L >= 3)
           {
             let addTime = [0, 0];
@@ -362,6 +363,18 @@ export default {
           }
           if (L >= 1)
             game.initime[L%2] = game.moves[L-1].played;
+          // Now that we used idx and played, re-format moves as for live games
+          game.moves = game.moves.map(m => {
+            const s = m.squares;
+            return
+            {
+              appear: s.appear,
+              vanish: s.vanish,
+              start: s.start,
+              end: s.end,
+              message: m.message,
+            };
+          });
         }
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;
@@ -453,7 +466,6 @@ export default {
           message: this.corrMsg, //TODO
           played: Date.now(), //TODO: on server?
           idx: this.game.moves.length,
-          color: move.color,
         },
         clocks: this.game.clocks.map((t,i) => i==colorIdx
           ? this.game.clocks[i] + addTime

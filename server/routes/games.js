@@ -34,7 +34,7 @@ router.get("/games", access.ajax, (req,res) => {
   {
     GameModel.getOne(gameId, (err,game) => {
 		  access.checkRequest(res, err, game, "Game not found", () => {
-			  res.json({game: game});
+        res.json({game: game});
 		  });
 	  });
   }
