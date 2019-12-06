@@ -11,6 +11,7 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
+    textarea#mvMessage(v-if="game.type=='corr'" v-model="corrMsg")
     div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
     div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
@@ -364,10 +365,9 @@ export default {
           if (L >= 1)
             game.initime[L%2] = game.moves[L-1].played;
           // Now that we used idx and played, re-format moves as for live games
-          game.moves = game.moves.map(m => {
+          game.moves = game.moves.map( (m) => {
             const s = m.squares;
-            return
-            {
+            return {
               appear: s.appear,
               vanish: s.vanish,
               start: s.start,
@@ -448,40 +448,50 @@ export default {
           // elapsed time is measured in milliseconds
           addTime = this.game.increment - elapsed/1000;
         }
+        let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
+        if (this.game.type == "corr")
+          sendMove.message = this.corrMsg;
         this.st.conn.send(JSON.stringify({
           code: "newmove",
-          target: this.game.oppid,
-          move: Object.assign({}, filtered_move, {addTime: addTime}),
+          target: this.getOppSid(),
+          move: sendMove,
         }));
       }
       else
         addTime = move.addTime; //supposed transmitted
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
-      GameStorage.update(this.gameRef.id,
+      // Since corr games are stored at only one location, update should be
+      // done only by one player for each move:
+      if (this.game.type == "live" || move.color == this.game.mycolor)
       {
-        fen: move.fen,
-        move:
+        GameStorage.update(this.gameRef.id,
         {
-          squares: filtered_move,
-          message: this.corrMsg, //TODO
-          played: Date.now(), //TODO: on server?
-          idx: this.game.moves.length,
-        },
-        clocks: this.game.clocks.map((t,i) => i==colorIdx
-          ? this.game.clocks[i] + addTime
-          : this.game.clocks[i]),
-        initime: this.game.initime.map((t,i) => i==nextIdx
-          ? Date.now()
-          : this.game.initime[i]),
-      });
+          fen: move.fen,
+          move:
+          {
+            squares: filtered_move,
+            message: this.corrMsg,
+            played: Date.now(), //TODO: on server?
+            idx: this.game.moves.length,
+          },
+          clocks: this.game.clocks.map((t,i) => i==colorIdx
+            ? this.game.clocks[i] + addTime
+            : this.game.clocks[i]),
+          initime: this.game.initime.map((t,i) => i==nextIdx
+            ? Date.now()
+            : this.game.initime[i]),
+        });
+      }
       // Also update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
       //TODO: just this.game.clocks[colorIdx] += addTime;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
+      // Finally reset curMoveMessage if needed
+      if (this.game.type == "corr" && move.color == this.game.mycolor)
+        this.corrMsg = "";
     },
-    // TODO: this update function should also work for corr games
     gameOver: function(score) {
       this.game.mode = "analyze";
       this.game.score = score;

@@ -16,7 +16,7 @@
       button(@click="flip") Flip
       button(@click="gotoBegin") GotoBegin
       button(@click="gotoEnd") GotoEnd
-    #messageDiv.section-content {{ curMoveMessage() }}
+    #messageDiv.section-content(v-if="game.type=='corr'") {{ curMoveMessage() }}
     #fenDiv.section-content(v-if="showFen && !!vr")
       p#fenString.text-center {{ vr.getFen() }}
     #pgnDiv.section-content
