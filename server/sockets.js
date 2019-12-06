@@ -35,9 +35,10 @@ module.exports = function(wss) {
       switch (obj.code)
       {
         case "pollclients":
+          const curPage = clients[sid].page;
           socket.send(JSON.stringify({code:"pollclients",
             sockIds: Object.keys(clients).filter(k =>
-              k != sid && clients[k].page == obj.page)}));
+              k != sid && clients[k].page == curPage)}));
           break;
         case "pagechange":
           notifyRoom(clients[sid].page, "disconnect");
@@ -45,28 +46,28 @@ module.exports = function(wss) {
           notifyRoom(obj.page, "connect");
           break;
         case "askidentity":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"askidentity",from:sid}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"askidentity",from:sid}));
           break;
         case "askchallenge":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"askchallenge",from:sid}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"askchallenge",from:sid}));
           break;
         case "askgame":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"askgame",from:sid}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"askgame",from:sid}));
           break;
         case "identity":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"identity",user:obj.user}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"identity",user:obj.user}));
           break;
         case "refusechallenge":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"refusechallenge", cid:obj.cid, from:sid}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"refusechallenge", cid:obj.cid, from:sid}));
           break;
         case "deletechallenge":
-          clients[obj.target].sock.send(
-            JSON.stringify({code:"deletechallenge", cid:obj.cid, from:sid}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"deletechallenge", cid:obj.cid, from:sid}));
           break;
         case "newgame":
           clients[obj.target].sock.send(JSON.stringify(
@@ -81,32 +82,33 @@ module.exports = function(wss) {
             {code:"game", game:obj.game, from:sid}));
           break;
         case "newchat":
-          clients[obj.target].sock.send(JSON.stringify({code:"newchat",msg:obj.msg}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"newchat",msg:obj.msg}));
           break;
         // TODO: WebRTC instead in this case (most demanding?)
         case "newmove":
-          clients[obj.target].sock.send(JSON.stringify({code:"newmove",move:obj.move}));
-          break;
-        case "ping":
-          // If this code is reached, then obj.target is connected
-          socket.send(JSON.stringify({code:"pong"}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"newmove",move:obj.move}));
           break;
         case "lastate":
-          const oppId = obj.target;
-          obj.oppid = sid; //I'm the opponent of my opponent
-          clients[oppId].sock.send(JSON.stringify(obj));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"lastate", state:obj.state}));
           break;
         case "resign":
-          clients[obj.target].sock.send(JSON.stringify({code:"resign"}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"resign"}));
           break;
         case "abort":
-          clients[obj.target].sock.send(JSON.stringify({code:"abort",msg:obj.msg}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"abort",msg:obj.msg}));
           break;
         case "drawoffer":
-          clients[obj.target].sock.send(JSON.stringify({code:"drawoffer"}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"drawoffer"}));
           break;
         case "draw":
-          clients[obj.target].sock.send(JSON.stringify({code:"draw"}));
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"draw"}));
           break;
       }
     });

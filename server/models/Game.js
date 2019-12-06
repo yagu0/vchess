@@ -13,11 +13,10 @@ var db = require("../utils/database");
  *   gid: ref game id
  *   uid: ref user id
  *   color: character
- *   rtime: real (remaining time)
  *
  * Structure table Moves:
  *   gid: ref game id
- *   move: varchar (description)
+ *   squares: varchar (description)
  *   message: text
  *   played: datetime
  *   idx: integer
@@ -30,8 +29,8 @@ const GameModel =
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Games (vid, fenStart, score, timeControl) " +
-				"VALUES (" + vid + ",'" + fen + "','*','" + timeControl + "')";
+				"INSERT INTO Games (vid, fenStart, fen, score, timeControl) VALUES " +
+        "(" + vid + ",'" + fen + "','" + fen + "','*','" + timeControl + "')";
       db.run(query, function(err) {
         if (!!err)
           return cb(err);
@@ -39,8 +38,7 @@ const GameModel =
           const color = (idx==0 ? "w" : "b");
           query =
             "INSERT INTO Players VALUES " +
-            // Remaining time = -1 means "unstarted"
-            "(" + this.lastID + "," + p.id + ",'" + color + "', -1)";
+            "(" + this.lastID + "," + p.id + ",'" + color + "')";
           db.run(query);
         });
         cb(null, {gid: this.lastID});
@@ -52,22 +50,28 @@ const GameModel =
 	getOne: function(id, cb)
 	{
 		db.serialize(function() {
+      // TODO: optimize queries?
 			let query =
-				"SELECT * " +
-				"FROM Games " +
-				"WHERE id = " + id;
+				"SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
+          "v.name AS vname " +
+				"FROM Games g " +
+        "JOIN Variants v " +
+        "  ON g.vid = v.id " +
+				"WHERE g.id = " + id;
 			db.get(query, (err,gameInfo) => {
 				if (!!err)
 					return cb(err);
 				query =
-					"SELECT uid, color, rtime " +
-					"FROM Players " +
-					"WHERE gid = " + id;
+					"SELECT p.uid, p.color, u.name " +
+					"FROM Players p " +
+          "JOIN Users u " +
+          "  ON p.uid = u.id " +
+					"WHERE p.gid = " + id;
 				db.all(query, (err2,players) => {
 					if (!!err2)
 						return cb(err2);
 					query =
-						"SELECT move, message, played, idx, color " +
+						"SELECT squares, message, played, idx, color " +
 						"FROM Moves " +
 						"WHERE gid = " + id;
 					db.all(query, (err3,moves) => {
@@ -126,26 +130,35 @@ const GameModel =
   },
 
   // obj can have fields move, fen and/or score
-  update: function(id, obj, cb)
+  update: function(id, obj)
   {
-		db.serialize(function() {
+
+
+
+console.log(id);
+    console.log(obj);
+
+
+		db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
-      if (!!obj.move)
-      {
-        move.played = Date.now();
-        query += "move = " + obj.move + ","; //TODO: already stringified?!
-      }
       if (!!obj.fen)
         query += "fen = " + obj.fen + ",";
       if (!!obj.score)
         query += "score = " + obj.score + ",";
       query = query.slice(0,-1); //remove last comma
       query += " WHERE gameId = " + id;
-      db.run(query, (err) => {
-        cb(err);
-      });
+      db.run(query);
+      if (!!obj.move)
+      {
+        const m  =obj.move;
+        query =
+          "INSERT INTO Moves (gid,squares,message,played,idx,color) VALUES " +
+          "(" + id + ",'" + JSON.stringify(m.squares) + "','" + m.message +
+            "'" + m.played + "," + m.idx + ",'" + m.color + "')";
+        db.run(query);
+      }
     });
   },
 

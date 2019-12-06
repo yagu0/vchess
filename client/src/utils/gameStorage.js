@@ -79,8 +79,7 @@ export const GameStorage =
           gid: gameId,
           newObj:
           {
-            // TODO: I think stringify isn't requuired here (see ajax() )
-            move: JSON.stringify(obj.move), //may be undefined...
+            move: obj.move, //may be undefined...
             fen: obj.fen,
             score: obj.score,
           }

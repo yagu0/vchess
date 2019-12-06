@@ -36,8 +36,8 @@ export const store =
         this.state.user.notify = res.notify;
       });
     }
-    this.state.conn = new WebSocket(
-      params.socketUrl + "/?sid=" + mysid + "&page=" + page);
+    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
+      "&page=" + encodeURIComponent(page));
     // Settings initialized with values from localStorage
     this.state.settings = {
       bcolor: localStorage["bcolor"] || "lichess",

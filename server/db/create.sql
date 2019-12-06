@@ -65,7 +65,7 @@ create table Players (
 
 create table Moves (
   gid integer,
-  move varchar,
+  squares varchar, --description, appear/vanish/from/to
   message varchar,
   played datetime, --when was this move played?
   idx integer, --index of the move in the game

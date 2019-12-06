@@ -11,7 +11,7 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
-    // TODO: also show players names
+    div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
     div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
@@ -38,6 +38,7 @@ import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
+import { ArrayFun } from "@/utils/array";
 
 export default {
   name: 'my-game',
@@ -52,7 +53,7 @@ export default {
         id: "",
         rid: ""
       },
-      game: {}, //passed to BaseGame
+      game: {players:[{name:""},{name:""}]}, //passed to BaseGame
       corrMsg: "", //to send offline messages in corr games
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
@@ -108,14 +109,6 @@ export default {
           this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
         }
       }, 1000);
-    },
-    // In case variants array was't loaded when game was retrieved
-    "st.variants": function(variantArray) {
-      if (!!this.game.vname && this.game.vname == "")
-      {
-        this.game.vname = variantArray.filter(v =>
-          v.id == this.game.vid)[0].name;
-      }
     },
   },
   // TODO: redundant code with Hall.vue (related to people array)
@@ -179,67 +172,50 @@ export default {
         }
         case "identity":
         {
-          const pIdx = this.people.findIndex(p => p.sid == data.user.sid);
-          this.people[pIdx].id = data.user.id;
-          this.people[pIdx].name = data.user.name;
-          break;
-        }
-        case "newmove":
-          // NOTE: next call will trigger processMove()
-          this.$refs["basegame"].play(data.move,
-            "receive", this.game.vname!="Dark" ? "animate" : null);
-          break;
-        case "pong": //received if we sent a ping (game still alive on our side)
-        {
-          if (this.game.type == "live") //corr games are always complete
+          let player = this.people.find(p => p.sid == data.user.sid);
+          player.id = data.user.id;
+          player.name = data.user.name;
+          // Sending last state only for live games: corr games are complete
+          if (this.game.type == "live" && this.game.oppsid == player.sid)
           {
-            // Send our "last state" informations to opponent(s)
+            // Send our "last state" informations to opponent
             const L = this.game.moves.length;
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              target: this.getOppSid(), //he's connected for sure
-              gameId: this.gameRef.id,
-              lastMove: (L>0 ? this.game.moves[L-1] : undefined),
-              score: this.game.score,
-              movesCount: L,
-              drawOffer: this.drawOffer,
-              clocks: this.game.clocks,
+              target: player.sid,
+              state:
+              {
+                lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+                score: this.game.score,
+                movesCount: L,
+                drawOffer: this.drawOffer,
+                clocks: this.game.clocks,
+              }
             }));
           }
           break;
         }
+        case "newmove":
+          // NOTE: this call to play() will trigger processMove()
+          this.$refs["basegame"].play(data.move,
+            "receive", this.game.vname!="Dark" ? "animate" : null);
+          break;
         case "lastate": //got opponent infos about last move
         {
           const L = this.game.moves.length;
-          if (this.gameRef.id != data.gameId)
-            break; //games IDs don't match: nothing we can do...
-          // OK, opponent still in game (which might be over)
           if (data.movesCount > L)
           {
             // Just got last move from him
-            this.$refs["basegame"].play(data.lastMove, "receive");
+            this.$refs["basegame"].play(data.lastMove,
+              "receive", this.game.vname!="Dark" ? "animate" : null);
             if (data.score != "*" && this.game.score == "*")
             {
               // Opponent resigned or aborted game, or accepted draw offer
               // (this is not a stalemate or checkmate)
               this.$refs["basegame"].endGame(data.score, "Opponent action");
             }
-            this.game.clocks = data.clocks;
-            this.drawOffer = data.drawOffer;
-          }
-          else if (data.movesCount < L)
-          {
-            // We must tell last move to opponent
-            this.st.conn.send(JSON.stringify({
-              code: "lastate",
-              target: this.getOppSid(), //we know he is connected
-              gameId: this.gameRef.id,
-              lastMove: (L>0 ? this.game.moves[L-1] : undefined),
-              score: this.game.score,
-              movesCount: L,
-              drawOffer: this.drawOffer,
-              clocks: this.game.clocks,
-            }));
+            this.game.clocks = data.clocks; //TODO: check this?
+            this.drawOffer = data.drawOffer; //does opponent offer draw?
           }
           break;
         }
@@ -274,7 +250,6 @@ export default {
         // ==> on "newmove", check "drawOffer" field
         case "connect":
         {
-          // TODO: if opponent connect, trigger lastate chain of events...
           this.people.push({name:"", id:0, sid:data.sid});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
           break;
@@ -357,21 +332,19 @@ export default {
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game) {
       const afterRetrieval = async (game) => {
-        // NOTE: variants array might not be available yet, thus the two next lines
-        const variantCell = this.st.variants.filter(v => v.id == game.vid);
-        const vname = (variantCell.length > 0 ? variantCell[0].name : "");
-        if (!game.fen)
-          game.fen = game.fenStart; //game wasn't started
+        const vModule = await import("@/variants/" + game.vname + ".js");
+        window.V = vModule.VariantRules;
+        this.vr = new V(game.fen);
         const gtype = (game.timeControl.indexOf('d') >= 0 ? "corr" : "live");
-        // TODO: this is not really beautiful (uid on corr players...)
-        if (gtype == "corr" && game.players[0].color == "b")
-          [ game.players[0], game.players[1] ] = [ game.players[1], game.players[0] ];
-        const myIdx = game.players.findIndex(p => {
-          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
-        });
         const tc = extractTime(game.timeControl);
         if (gtype == "corr")
         {
+          if (game.players[0].color == "b")
+          {
+            // Adopt the same convention for live and corr games: [0] = white
+            [ game.players[0], game.players[1] ] =
+              [ game.players[1], game.players[0] ];
+          }
           // corr game: needs to compute the clocks + initime
           game.clocks = [tc.mainTime, tc.mainTime];
           game.initime = [0, 0];
@@ -390,6 +363,9 @@ export default {
           if (L >= 1)
             game.initime[L%2] = game.moves[L-1].played;
         }
+        const myIdx = game.players.findIndex(p => {
+          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+        });
         if (gtype == "live" && game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
@@ -404,16 +380,12 @@ export default {
             });
           }
         }
-        const vModule = await import("@/variants/" + vname + ".js");
-        window.V = vModule.VariantRules;
-        this.vr = new V(game.fen);
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer
           {
             type: gtype,
             increment: tc.increment,
-            vname: vname,
             mycolor: [undefined,"w","b"][myIdx+1],
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
@@ -421,23 +393,20 @@ export default {
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
-        if (!!this.game.oppid)
-        {
-          // Send ping to server (answer pong if players[s] are connected)
-          this.st.conn.send(JSON.stringify({code:"ping", target:this.game.oppid}));
-        }
       };
       if (!!game)
         return afterRetrival(game);
       if (!!this.gameRef.rid)
       {
+        // Remote live game
         this.st.conn.send(JSON.stringify(
           {code:"askfullgame", target:this.gameRef.rid}));
         // (send moves updates + resign/abort/draw actions)
       }
       else
       {
-        GameStorage.get(this.gameRef.id, async (game) => {
+        // Local or corr game
+        GameStorage.get(this.gameRef.id, (game) => {
           afterRetrieval(game);
         });
       }
@@ -477,8 +446,15 @@ export default {
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
       GameStorage.update(this.gameRef.id,
       {
-        move: filtered_move,
         fen: move.fen,
+        move:
+        {
+          squares: filtered_move,
+          message: this.corrMsg, //TODO
+          played: Date.now(), //TODO: on server?
+          idx: this.game.moves.length - 1,
+          color: move.color,
+        },
         clocks: this.game.clocks.map((t,i) => i==colorIdx
           ? this.game.clocks[i] + addTime
           : this.game.clocks[i]),

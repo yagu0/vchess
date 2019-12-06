@@ -223,8 +223,6 @@ export default {
       this.lastMove = move;
       if (this.st.settings.sound == 2)
         new Audio("/sounds/move.mp3").play().catch(err => {});
-      if (!this.analyze)
-        this.$emit("newmove", move); //post-processing (e.g. computer play)
       if (!navigate)
       {
         move.fen = this.vr.getFen();
@@ -237,6 +235,8 @@ export default {
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
       }
+      if (!this.analyze)
+        this.$emit("newmove", move); //post-processing (e.g. computer play)
       // Is opponent in check?
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
       const score = this.vr.getCurrentScore();

@@ -110,7 +110,7 @@ export default {
       });
       this.games.forEach(g => {
         if (g.vname == "")
-          g.vname = this.getVname(g.vid)
+          g.vname = this.getVname(g.vid);
       });
     },
   },
@@ -224,10 +224,10 @@ export default {
       }
       this.$router.push(url);
     },
-    // TODO: ...filter(...)[0].name, one-line, just remove this function
     getVname: function(vid) {
-      const vIdx = this.st.variants.findIndex(v => v.id == vid);
-      return vIdx >= 0 ? this.st.variants[vIdx].name : "";
+      const variant = this.st.variants.find(v => v.id == vid);
+      // this.st.variants might be uninitialized (variant == null)
+      return (!!variant ? variant.name : "");
     },
     getSid: function(pname) {
       const pIdx = this.people.findIndex(pl => pl.name == pname);
@@ -452,7 +452,8 @@ export default {
         chall.vname = vname;
         chall.from = this.people[0]; //avoid sending email
         this.challenges.push(chall);
-        localStorage.setItem("challenge", JSON.stringify(chall));
+        if (ctype == "live")
+          localStorage.setItem("challenge", JSON.stringify(chall));
         document.getElementById("modalNewgame").checked = false;
       };
       const cIdx = this.challenges.findIndex(
@@ -515,7 +516,6 @@ export default {
       }
       else //my challenge
       {
-        localStorage.removeItem("challenge");
         if (c.type == "corr")
         {
           ajax(
@@ -524,6 +524,8 @@ export default {
             {id: c.id}
           );
         }
+        else //live
+          localStorage.removeItem("challenge");
       }
       // In (almost) all cases, the challenge is consumed:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
@@ -541,6 +543,7 @@ export default {
         fen: c.fen || V.GenRandInitFen(),
         players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
+        vname: c.vname, //theoretically vid is enough, but much easier with vname
         timeControl: c.timeControl,
       };
       let target = c.from.sid; //may not be defined if corr + offline opp

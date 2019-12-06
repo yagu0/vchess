@@ -54,8 +54,7 @@ router.get("/games", access.ajax, (req,res) => {
 // New move + fen update + score, potentially
 // TODO: if newmove fail, takeback in GUI
 router.put("/games", access.logged, access.ajax, (req,res) => {
-	const gid = req.body.gid;
-	const oppId = req.body.oppId;
+  const gid = req.body.gid;
 	const obj = req.body.newObj;
 	GameModel.update(gid, obj, (err) => {
 		if (!!err)
