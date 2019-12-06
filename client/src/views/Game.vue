@@ -452,7 +452,7 @@ export default {
           squares: filtered_move,
           message: this.corrMsg, //TODO
           played: Date.now(), //TODO: on server?
-          idx: this.game.moves.length - 1,
+          idx: this.game.moves.length,
           color: move.color,
         },
         clocks: this.game.clocks.map((t,i) => i==colorIdx

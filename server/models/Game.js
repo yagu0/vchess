@@ -132,31 +132,24 @@ const GameModel =
   // obj can have fields move, fen and/or score
   update: function(id, obj)
   {
-
-
-
-console.log(id);
-    console.log(obj);
-
-
 		db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
       if (!!obj.fen)
-        query += "fen = " + obj.fen + ",";
+        query += "fen = '" + obj.fen + "',";
       if (!!obj.score)
-        query += "score = " + obj.score + ",";
+        query += "score = '" + obj.score + "',";
       query = query.slice(0,-1); //remove last comma
-      query += " WHERE gameId = " + id;
+      query += " WHERE id = " + id;
       db.run(query);
       if (!!obj.move)
       {
-        const m  =obj.move;
+        const m = obj.move;
         query =
           "INSERT INTO Moves (gid,squares,message,played,idx,color) VALUES " +
           "(" + id + ",'" + JSON.stringify(m.squares) + "','" + m.message +
-            "'" + m.played + "," + m.idx + ",'" + m.color + "')";
+            "'," + m.played + "," + m.idx + ",'" + m.color + "')";
         db.run(query);
       }
     });
