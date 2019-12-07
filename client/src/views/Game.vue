@@ -451,11 +451,21 @@ export default {
         let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
         if (this.game.type == "corr")
           sendMove.message = this.corrMsg;
-        this.st.conn.send(JSON.stringify({
-          code: "newmove",
-          target: this.getOppSid(),
-          move: sendMove,
-        }));
+        const oppsid = this.getOppSid();
+        if (!!oppsid)
+        {
+          this.st.conn.send(JSON.stringify({
+            code: "newmove",
+            target: oppsid,
+            move: sendMove,
+          }));
+        }
+        if (this.game.type == "corr" && this.corrMsg != "")
+        {
+          // Add message to last move in BaseGame:
+          // TODO: not very good style...
+          this.$refs["basegame"].setCurrentMessage(this.corrMsg);
+        }
       }
       else
         addTime = move.addTime; //supposed transmitted

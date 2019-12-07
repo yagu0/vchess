@@ -105,6 +105,9 @@ export default {
         return "";
       return this.game.moves[this.cursor].message || "";
     },
+    setCurrentMessage: function(message) {
+      this.game.moves[this.game.moves.length-1].message = message;
+    },
     download: function() {
       const content = this.getPgn();
       // Prepare and trigger download link
