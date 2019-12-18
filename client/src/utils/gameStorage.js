@@ -1,6 +1,6 @@
 // Game object: {
 //   // Static informations:
-//   gameId: string
+//   id: string
 //   vname: string,
 //   fenStart: string,
 //   players: array of sid+id+name,
@@ -39,7 +39,7 @@ function dbOperation(callback)
       alert("Error while loading database: " + event.target.errorCode);
     };
     // Create objectStore for vchess->games
-    let objectStore = db.createObjectStore("games", { keyPath: "gameId" });
+    let objectStore = db.createObjectStore("games", { keyPath: "id" });
     objectStore.createIndex("score", "score"); //to search by game result
   }
 }

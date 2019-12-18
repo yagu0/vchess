@@ -419,9 +419,7 @@ export default {
       else
       {
         // Local or corr game
-        GameStorage.get(this.gameRef.id, (game) => {
-          afterRetrieval(game);
-        });
+        GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
     // Post-process a move (which was just played)

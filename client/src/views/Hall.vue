@@ -381,8 +381,8 @@ export default {
           else
           {
             this.infoMessage = "New game started: " +
-              "<a href='#/game/" + data.gameInfo.gameId + "'>" +
-              "#/game/" + data.gameInfo.gameId + "</a>";
+              "<a href='#/game/" + data.gameInfo.id + "'>" +
+              "#/game/" + data.gameInfo.id + "</a>";
             let modalBox = document.getElementById("modalInfo");
             modalBox.checked = true;
             setTimeout(() => { modalBox.checked = false; }, 3000);
@@ -539,7 +539,7 @@ export default {
       // These game informations will be sent to other players
       const gameInfo =
       {
-        gameId: getRandString(),
+        id: getRandString(),
         fen: c.fen || V.GenRandInitFen(),
         players: shuffle([c.from, c.seat]), //white then black
         vid: c.vid,
@@ -572,7 +572,7 @@ export default {
           "POST",
           {gameInfo: gameInfo, cid: c.id}, //cid useful to delete challenge
           response => {
-            gameInfo.gameId = response.gameId;
+            gameInfo.id = response.gameId;
             tryNotifyOpponent();
             this.$router.push("/game/" + response.gameId);
           }
@@ -594,7 +594,7 @@ export default {
       GameStorage.add(game);
       if (this.st.settings.sound >= 1)
         new Audio("/sounds/newgame.mp3").play().catch(err => {});
-      this.$router.push("/game/" + gameInfo.gameId);
+      this.$router.push("/game/" + gameInfo.id);
     },
   },
 };
