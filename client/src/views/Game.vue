@@ -18,7 +18,7 @@
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
-    div(v-if="game.mode=='corr'")
+    div(v-if="game.type=='corr'")
       textarea(v-show="score=='*' && vr.turn==game.mycolor" v-model="corrMsg")
       div(v-show="cursor>=0") {{ moves[cursor].message }}
 </template>
@@ -85,23 +85,14 @@ export default {
           : 0;
         return ppt(newState[i] - removeTime);
       });
-      const myTurn = (currentTurn == this.game.mycolor);
       let clockUpdate = setInterval(() => {
-        if (countdown <= 0 || this.vr.turn != currentTurn || this.game.score != "*")
+        if (countdown < 0 || this.vr.turn != currentTurn || this.game.score != "*")
         {
           clearInterval(clockUpdate);
-          if (countdown <= 0 && myTurn)
+          if (countdown < 0)
           {
             this.$refs["basegame"].endGame(
-              this.game.mycolor=="w" ? "0-1" : "1-0", "Time");
-            const oppsid = this.getOppSid();
-            if (!!oppsid)
-            {
-              this.st.conn.send(JSON.stringify({
-                code: "timeover",
-                target: oppsid,
-              }));
-            }
+              this.vr.turn=="w" ? "0-1" : "1-0", "Time");
           }
         }
         else
@@ -223,10 +214,6 @@ export default {
         case "resign":
           this.$refs["basegame"].endGame(
             this.game.mycolor=="w" ? "1-0" : "0-1", "Resign");
-          break;
-        case "timeover":
-          this.$refs["basegame"].endGame(
-            this.game.mycolor=="w" ? "1-0" : "0-1", "Time");
           break;
         case "abort":
           this.$refs["basegame"].endGame("?", "Abort: " + data.msg);
@@ -472,23 +459,34 @@ export default {
       // done only by one player for each move:
       if (this.game.type == "live" || move.color == this.game.mycolor)
       {
-        GameStorage.update(this.gameRef.id,
+        if (this.game.type == "corr")
         {
-          fen: move.fen,
-          move:
+          GameStorage.update(this.gameRef.id,
           {
-            squares: filtered_move,
-            message: this.corrMsg,
-            played: Date.now(), //TODO: on server?
-            idx: this.game.moves.length,
-          },
-          clocks: this.game.clocks.map((t,i) => i==colorIdx
-            ? this.game.clocks[i] + addTime
-            : this.game.clocks[i]),
-          initime: this.game.initime.map((t,i) => i==nextIdx
-            ? Date.now()
-            : this.game.initime[i]),
-        });
+            fen: move.fen,
+            move:
+            {
+              squares: filtered_move,
+              message: this.corrMsg,
+              played: Date.now(), //TODO: on server?
+              idx: this.game.moves.length,
+            },
+          });
+        }
+        else //live
+        {
+          GameStorage.update(this.gameRef.id,
+          {
+            fen: move.fen,
+            move: filtered_move,
+            clocks: this.game.clocks.map((t,i) => i==colorIdx
+              ? this.game.clocks[i] + addTime
+              : this.game.clocks[i]),
+            initime: this.game.initime.map((t,i) => i==nextIdx
+              ? Date.now()
+              : this.game.initime[i]),
+          });
+        }
       }
       // Also update current game object:
       this.game.moves.push(move);
