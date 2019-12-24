@@ -7,7 +7,7 @@ const Parameters =
 	serverUrl: "http://localhost:3000",
 
   // true if the server is at a different address
-  cors: false,
+  cors: true,
 };
 
 export default Parameters;

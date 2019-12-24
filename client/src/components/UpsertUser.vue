@@ -46,6 +46,20 @@ export default {
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
     };
   },
+	watch: {
+		nameOrEmail: function(newValue) {
+			if (newValue.indexOf('@') >= 0)
+			{
+				this.user.email = newValue;
+				this.user.name = "";
+			}
+			else
+			{
+				this.user.name = newValue;
+				this.user.email = "";
+			}
+		},
+	},
   computed: {
     submitMessage: function() {
       switch (this.stage)

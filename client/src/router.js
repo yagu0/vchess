@@ -46,7 +46,9 @@ const router = new Router({
               localStorage["myname"] = res.name;
               localStorage["myid"] = res.id;
             }
-            next("/");
+						// TODO: I don't like these 2 lines, "next('/')" should be enough
+						window.location = "/";
+            next();
           }
         );
       },

@@ -11,16 +11,13 @@
         button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
-    textarea#mvMessage(v-if="game.type=='corr'" v-model="corrMsg")
     div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
     div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
-    div(v-if="game.type=='corr'")
-      textarea(v-show="score=='*' && vr.turn==game.mycolor" v-model="corrMsg")
-      div(v-show="cursor>=0") {{ moves[cursor].message }}
+    textarea(v-if="game.score=='*'" v-model="corrMsg")
 </template>
 
 <!--
