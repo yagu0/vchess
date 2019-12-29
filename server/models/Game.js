@@ -98,19 +98,22 @@ const GameModel =
 				"SELECT gid " +
 				"FROM Players " +
 				"WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
-			db.run(query, (err,gameIds) => {
+			db.all(query, (err,gameIds) => {
 				if (!!err)
 					return cb(err);
         gameIds = gameIds || []; //might be empty
 				let gameArray = [];
-				gameIds.forEach(gidRow => {
-					GameModel.getOne(gidRow["gid"], (err2,game) => {
+				for (let i=0; i<gameIds.length; i++)
+				{
+					GameModel.getOne(gameIds[i]["gid"], (err2,game) => {
 						if (!!err2)
 							return cb(err2);
 						gameArray.push(game);
+						// Call callback function only when gameArray is complete:
+						if (i == gameIds.length - 1)
+							return cb(null, gameArray);
 					});
-				});
-				return cb(null, gameArray);
+				}
 			});
 		});
 	},

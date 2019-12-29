@@ -56,8 +56,18 @@ const router = new Router({
       //redirect: "/", //problem: redirection before end of AJAX request
     },
     {
+      path: "/mygames",
+      name: "mygames",
+      component: loadView("MyGames"),
+    },
+    {
       path: "/game/:id",
       name: "game",
+      component: loadView("Game"),
+    },
+    {
+      path: "/analyze/:vname([a-zA-Z0-9]+)",
+      name: "analyze",
       component: loadView("Game"),
     },
     {
@@ -65,7 +75,6 @@ const router = new Router({
       name: "about",
       component: loadView("About"),
     },
-    // TODO: myGames, problemId: https://router.vuejs.org/guide/essentials/dynamic-matching.html
   ]
 });
 

@@ -8,8 +8,8 @@ table
     th(v-if="showResult") Result
   tr(v-for="g in games" @click="$emit('show-game',g)")
     td {{ g.vname }}
-    td {{ g.players[0] }}
-    td {{ g.players[1] }}
+    td {{ g.players[0].name || "@nonymous" }}
+    td {{ g.players[1].name || "@nonymous" }}
     td {{ g.timeControl }}
     td(v-if="showResult") {{ g.score }}
 </template>
@@ -20,7 +20,7 @@ export default {
 	props: ["games"],
 	computed: {
 		showResult: function() {
-			return this.games.length > 0 && this.games[0].score != "*";
+			return this.games.some(g => g.score != "*");
 		},
 	},
 };

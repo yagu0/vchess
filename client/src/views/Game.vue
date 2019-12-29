@@ -12,7 +12,7 @@
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
     div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
-    div Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
+    div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
     .button-group(v-if="game.mode!='analyze' && game.score=='*'")
       button(@click="offerDraw") Draw
       button(@click="() => abortGame()") Abort
@@ -24,7 +24,6 @@
 // TODO: movelist dans basegame et chat ici
 // ==> après, implémenter/vérifier les passages de challenges + parties en cours
 // observer,
-// + problèmes, habiller et publier. (+ corr...)
 // when send to chat (or a move), reach only this group (send gid along)
 -->
 
@@ -111,6 +110,8 @@ export default {
       this.gameRef.rid = this.$route.query["rid"];
       this.loadGame();
     }
+    // TODO: mode analyse (/analyze/Atomic/rn
+    // ... fen = query[], vname=params[] ...
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));

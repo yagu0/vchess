@@ -8,7 +8,7 @@
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         // Menu (top of page):
-        // Left: hall, variants, mygames, problems
+        // Left: hall, variants, mygames, forum (ext. link)
         // Right: usermenu, settings, flag
         nav
           label.drawer-toggle(for="drawerControl")
@@ -22,8 +22,9 @@
                 | {{ st.tr["Variants"] }}
               router-link(to="/mygames")
                 | {{ st.tr["My games"] }}
-              router-link(to="/problems")
-                | {{ st.tr["Problems"] }}
+              // TODO: parametric URL, "forumURL"
+              a(href="https://forum.vchess.club")
+                | {{ st.tr["Forum"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
                 | {{ st.user.id > 0 ? "Update" : "Login" }}
