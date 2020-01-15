@@ -142,4 +142,23 @@ const UserModel =
   }
 }
 
+// TODO: adapt
+//exports.cleanUsersDb = function()
+//{
+//	var tsNow = new Date().getTime();
+//	// 86400000 = 24 hours in milliseconds
+//	var day = 86400000;
+//
+//	db.users.find({}, (err,userArray) => {
+//		userArray.forEach( u => {
+//			if ((u.sessionTokens.length==0 &&
+//					u._id.getTimestamp().getTime() + day < tsNow) //unlogged
+//				|| u.updated + 365*day < tsNow) //inactive for one year
+//			{
+//				db.users.remove({"_id": u._id});
+//			}
+//		});
+//	});
+//}
+
 module.exports = UserModel;

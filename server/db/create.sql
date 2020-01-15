@@ -16,18 +16,6 @@ create table Users (
   notify boolean
 );
 
-create table Problems (
-  id integer primary key,
-  added datetime,
-  uid integer,
-  vid integer,
-  fen varchar,
-  instructions text,
-  solution text,
-  foreign key (uid) references Users(id),
-  foreign key (vid) references Variants(id)
-);
-
 -- All the following tables are for correspondance play only
 -- (Live games are stored in browser)
 
@@ -51,6 +39,7 @@ create table Games (
   fen varchar, --current state
   score varchar,
   timeControl varchar,
+  created datetime, --used only for DB cleaning
   foreign key (vid) references Variants(id)
 );
 

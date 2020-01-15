@@ -94,4 +94,22 @@ const ChallengeModel =
   },
 }
 
+// TODO: adapt
+// Remove challenges older than 1 month, and 1to1 older than 36h
+//exports.removeOld = function()
+//{
+//	var tsNow = new Date().getTime();
+//	// 86400000 = 24 hours in milliseconds
+//	var day = 86400000;
+//	db.challenges.find({}, (err,challengeArray) => {
+//		challengeArray.forEach( c => {
+//			if (c._id.getTimestamp() + 30*day < tsNow //automatch
+//				|| (!!c.to && c._id.getTimestamp() + 1.5*day < tsNow)) //1 to 1
+//			{
+//				db.challenges.remove({"_id": c._id});
+//			}
+//		});
+//	});
+//}
+
 module.exports = ChallengeModel;

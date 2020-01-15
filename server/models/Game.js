@@ -28,8 +28,9 @@ const GameModel =
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Games (vid, fenStart, fen, score, timeControl) VALUES " +
-        "(" + vid + ",'" + fen + "','" + fen + "','*','" + timeControl + "')";
+				"INSERT INTO Games (vid, fenStart, fen, score, timeControl, created)"
+        + " VALUES (" + vid + ",'" + fen + "','" + fen + "','*','"
+        + timeControl + "'," + Date.now() + ")";
       db.run(query, function(err) {
         if (!!err)
           return cb(err);
@@ -174,6 +175,36 @@ const GameModel =
 			db.run(query);
 		});
 	},
+
+  cleanGamesDb: function()
+  {
+    const tsNow = Date.now();
+    // 86400000 = 24 hours in milliseconds
+    const day = 86400000;
+    db.serialize(function() {
+      let query =
+        "SELECT id,score " +
+        "FROM Games ";
+      db.all(query, (err,games) => {
+        games.forEach(g => {
+          query =
+            "SELECT max(played) AS lastMaj " +
+            "FROM Moves " +
+            "WHERE gid = " + g.id;
+          db.get(query, (err2,updated) {
+            if (!updated && tsNow - g.created > 7*day)
+              return GameModel.remove(g.id);
+            const lastMaj = updated.lastMaj;
+            if (g.score != "*" && tsNow - lastMaj > 7*day ||
+              g.score == "*" && tsNow - lastMaj > 91*day)
+            {
+              GameModel.remove(g.id);
+            }
+          });
+        });
+      });
+    });
+  },
 }
 
 module.exports = GameModel;

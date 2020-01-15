@@ -21,6 +21,21 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+/*
+ * CRON tasks
+ */
+
+var cron = require('node-cron');
+var UserModel = require("../models/User");
+var ChallengeModel = require("../models/Challenge");
+var GameModel = require("../models/Game");
+cron.schedule('0 0 0 * * *', function() {
+	// Remove some old users, challenges and games every 24h
+	UserModel.cleanUsersDb(); //TODO: write this
+	ChallengeModel.removeOld(); //TODO: this too
+	GameModel.cleanGamesDb();
+});
+
 /**
  * Listen on provided port, on all network interfaces.
  */
