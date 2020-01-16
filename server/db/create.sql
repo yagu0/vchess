@@ -13,6 +13,7 @@ create table Users (
   loginToken varchar,
   loginTime datetime,
   sessionToken varchar,
+  created datetime,
   notify boolean
 );
 

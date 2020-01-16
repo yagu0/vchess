@@ -8,6 +8,7 @@ var db = require("../utils/database");
  *   fen: varchar (current position)
  *   timeControl: string
  *   score: varchar (result)
+ *   created: datetime
  *
  * Structure table Players:
  *   gid: ref game id

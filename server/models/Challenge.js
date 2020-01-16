@@ -92,24 +92,28 @@ const ChallengeModel =
       });
     });
   },
-}
 
-// TODO: adapt
-// Remove challenges older than 1 month, and 1to1 older than 36h
-//exports.removeOld = function()
-//{
-//	var tsNow = new Date().getTime();
-//	// 86400000 = 24 hours in milliseconds
-//	var day = 86400000;
-//	db.challenges.find({}, (err,challengeArray) => {
-//		challengeArray.forEach( c => {
-//			if (c._id.getTimestamp() + 30*day < tsNow //automatch
-//				|| (!!c.to && c._id.getTimestamp() + 1.5*day < tsNow)) //1 to 1
-//			{
-//				db.challenges.remove({"_id": c._id});
-//			}
-//		});
-//	});
-//}
+  // Remove challenges older than 1 month, and 1to1 older than 2 days
+  removeOld: function()
+  {
+    const tsNow = Date.now();
+    // 86400000 = 24 hours in milliseconds
+    const day = 86400000;
+    db.serialize(function() {
+      const query =
+        "SELECT id, target " +
+        "FROM Challenges";
+      db.all(query, (err, challenges) => {
+        challenges.forEach(c => {
+          if ((!c.target && tsNow - c.added > 30*day) ||
+            (!!c.target && tsNow - c.added > 2*day))
+          {
+            db.run("DELETE FROM CHallenges WHERE id = " + c.id);
+          }
+        });
+      });
+    });
+  },
+}
 
 module.exports = ChallengeModel;

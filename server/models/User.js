@@ -12,6 +12,7 @@ var sendEmail = require('../utils/mailer');
  *   loginTime: datetime (validity)
  *   sessionToken: token in cookies for authentication
  *   notify: boolean (send email notifications for corr games)
+ *   created: datetime
  */
 
 const UserModel =
@@ -40,8 +41,8 @@ const UserModel =
 		db.serialize(function() {
 			const insertQuery =
 				"INSERT INTO Users " +
-				"(name, email, notify) VALUES " +
-				"('" + name + "', '" + email + "', " + notify + ")";
+				"(name, email, notify, created) VALUES " +
+				"('" + name + "', '" + email + "', " + notify + "," + Date.now() + ")";
 			db.run(insertQuery, err => {
 				if (!!err)
 					return callback(err);
@@ -139,26 +140,29 @@ const UserModel =
         res.json(err || {});
       });
     });
-  }
-}
+  },
 
-// TODO: adapt
-//exports.cleanUsersDb = function()
-//{
-//	var tsNow = new Date().getTime();
-//	// 86400000 = 24 hours in milliseconds
-//	var day = 86400000;
-//
-//	db.users.find({}, (err,userArray) => {
-//		userArray.forEach( u => {
-//			if ((u.sessionTokens.length==0 &&
-//					u._id.getTimestamp().getTime() + day < tsNow) //unlogged
-//				|| u.updated + 365*day < tsNow) //inactive for one year
-//			{
-//				db.users.remove({"_id": u._id});
-//			}
-//		});
-//	});
-//}
+  ////////////
+  // CLEANING
+
+  cleanUsersDb: function()
+  {
+    const tsNow = Date.now();
+    // 86400000 = 24 hours in milliseconds
+    const day = 86400000;
+    db.serialize(function() {
+      const query =
+        "SELECT id, sessionToken, created " +
+        "FROM Users";
+      db.all(query, (err, users) => {
+        users.forEach(u => {
+          // Remove unlogged users for >1 day
+          if (!u.sessionToken && tsNow - u.created > day)
+            db.run("DELETE FROM Users WHERE id = " + u.id);
+        });
+      });
+    });
+  },
+}
 
 module.exports = UserModel;
