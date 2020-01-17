@@ -22,7 +22,7 @@ router.get("/whoami", access.ajax, (req,res) => {
   UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {
     if (!!err || !user)
       callback(anonymous);
-    else (!!user)
+    else
       callback(user);
   });
 });

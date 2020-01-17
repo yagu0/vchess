@@ -192,7 +192,7 @@ const GameModel =
             "SELECT max(played) AS lastMaj " +
             "FROM Moves " +
             "WHERE gid = " + g.id;
-          db.get(query, (err2,updated) {
+          db.get(query, (err2,updated) => {
             if (!updated && tsNow - g.created > 7*day)
               return GameModel.remove(g.id);
             const lastMaj = updated.lastMaj;

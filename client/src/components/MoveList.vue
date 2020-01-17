@@ -1,22 +1,16 @@
-<!-- TODO: merge Game.vue and MoveList.vue (one logic entity, no ?) -->
 <script>
 // Component for moves list on the right
 export default {
   name: 'my-move-list',
-	props: ["moves","cursor"], //TODO: other props for e.g. players names + connected indicator
-	// --> we could also add turn indicator here
+	props: ["moves","cursor"],
 	data: function() {
 		return {
 			something: "", //TODO?
 		};
 	},
-	// TODO: extend rendering for more than 2 colors: would be a parameter
-	// in that case some moves for some colors could be just skipped (if a player lost)
 	render(h) {
 		if (this.moves.length == 0)
 			return;
-		const nbColors = 2;
-		// TODO: name colors "white", "black", "red", "yellow" ?
 		if (this.moves[0].color == "b")
 			this.moves.unshift({color: "w", notation: "..."});
 		let tableContent = [];
@@ -67,18 +61,14 @@ export default {
 			}
 		}
 		// Complete last row, which might not be full:
-		if (moveCells.length-1 < nbColors)
+		if (moveCells.length-1 == 1)
 		{
-			const delta = nbColors - (moveCells.length-1);
-			for (let i=0; i<delta; i++)
-			{
-				moveCells.push(
-					h(
-						"td",
-						{ domProps: { innerHTML: "" } }
-					)
-				);
-			}
+      moveCells.push(
+        h(
+          "td",
+          { domProps: { innerHTML: "" } }
+        )
+      );
 		}
 		tableRow.children = moveCells;
 		tableContent.push(tableRow);

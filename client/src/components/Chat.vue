@@ -1,9 +1,8 @@
 <template lang="pug">
 div
-  input#modalChat.modal(type="checkbox")
-  div(role="dialog")
+  div
     .card.smallpad
-      label#closeChat.modal-close(for="modalChat")
+      h4 Chat
       p(v-for="chat in chats" :class={
         "my-chatmsg": "chat.uid==user.id",
         "opp-chatmsg": "opponents.any(o => o.id == chat.uid)"}
@@ -14,9 +13,8 @@ div
 </template>
 
 <script>
-// TODO: myname, opppnents (optional, different style), people
-// --> also show messages like "X offers draw ?" (probably not)
-// myname: localStorage["username"] || "anonymous",
+// TODO: myname, opponents (optional, different style), people
+// --> also show messages like "X offers draw" ?
 export default {
   name: "my-chat",
   props: ["opponents","people"],

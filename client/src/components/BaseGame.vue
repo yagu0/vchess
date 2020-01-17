@@ -21,17 +21,15 @@
       p#fenString.text-center {{ vr.getFen() }}
     #pgnDiv.section-content
       a#download(href="#")
-      .button-group
-        button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
-        // TODO: Import game button copy game locally in IndexedDB
-        //button Import game
-    //MoveList(v-if="showMoves"
-      :moves="moves" :cursor="cursor" @goto-move="gotoMove")
+      button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
+    div#movesList
+      MoveList(v-if="showMoves"
+        :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
 
 <script>
 import Board from "@/components/Board.vue";
-//import MoveList from "@/components/MoveList.vue";
+import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
 import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
@@ -40,7 +38,7 @@ export default {
   name: 'my-base-game',
   components: {
     Board,
-    //MoveList,
+    MoveList,
   },
   // "vr": VariantRules object, describing the game state + rules
   props: ["vr","game"],

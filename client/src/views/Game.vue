@@ -18,10 +18,10 @@
       button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
     textarea(v-if="game.score=='*'" v-model="corrMsg")
+    Chat(
 </template>
 
 <!--
-// TODO: movelist dans basegame et chat ici
 // ==> après, implémenter/vérifier les passages de challenges + parties en cours
 // observer,
 // when send to chat (or a move), reach only this group (send gid along)
@@ -29,8 +29,7 @@
 
 <script>
 import BaseGame from "@/components/BaseGame.vue";
-//import Chat from "@/components/Chat.vue";
-//import MoveList from "@/components/MoveList.vue";
+import Chat from "@/components/Chat.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
