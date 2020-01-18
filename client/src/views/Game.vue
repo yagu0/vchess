@@ -184,6 +184,19 @@ export default {
           }
           break;
         }
+        case "askgame":
+          // Send current (live) game
+          const myGame =
+          {
+            // Minimal game informations:
+            id: this.game.id,
+            players: this.game.players.map(p => p.name),
+            vid: this.game.vid,
+            timeControl: this.game.timeControl,
+          };
+          this.st.conn.send(JSON.stringify({code:"game",
+            game:myGame, target:data.from}));
+          break;
         case "newmove":
           // NOTE: this call to play() will trigger processMove()
           this.$refs["basegame"].play(data.move,
@@ -235,12 +248,12 @@ export default {
         // ==> on "newmove", check "drawOffer" field
         case "connect":
         {
-          this.people.push({name:"", id:0, sid:data.sid});
-          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
+          this.people.push({name:"", id:0, sid:data.from});
+          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           break;
         }
         case "disconnect":
-          ArrayFun.remove(this.people, p => p.sid == data.sid);
+          ArrayFun.remove(this.people, p => p.sid == data.from);
           break;
       }
     },

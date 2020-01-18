@@ -28,7 +28,7 @@ export default {
       if (data.code == "newchat") //only event at this level
       {
         this.chats.push({msg:data.msg,
-          name:data.name || "@nonymous", sid:data.sid});
+          name:data.name || "@nonymous", sid:data.from});
       }
     };
     const socketCloseListener = () => {

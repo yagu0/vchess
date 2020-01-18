@@ -317,26 +317,6 @@ export default {
           }
           break;
         }
-        case "askgame":
-        {
-          // Send my current live game (if any)
-          GameStorage.getCurrent((game) => {
-            if (!!game)
-            {
-              const myGame =
-              {
-                // Minimal game informations:
-                id: game.id,
-                players: game.players.map(p => p.name),
-                vid: game.vid,
-                timeControl: game.timeControl,
-              };
-              this.st.conn.send(JSON.stringify({code:"game",
-                game:myGame, target:data.from}));
-            }
-          });
-          break;
-        }
         case "identity":
         {
           const pIdx = this.people.findIndex(p => p.sid == data.user.sid);
@@ -404,20 +384,20 @@ export default {
         }
         case "connect":
         {
-          this.people.push({name:"", id:0, sid:data.sid});
-          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.sid}));
-          this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.sid}));
-          this.st.conn.send(JSON.stringify({code:"askgame", target:data.sid}));
+          this.people.push({name:"", id:0, sid:data.from});
+          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
+          this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.from}));
+          this.st.conn.send(JSON.stringify({code:"askgame", target:data.from}));
           break;
         }
         case "disconnect":
         {
-          ArrayFun.remove(this.people, p => p.sid == data.sid);
+          ArrayFun.remove(this.people, p => p.sid == data.from);
           // Also remove all challenges sent by this player:
-          ArrayFun.remove(this.challenges, c => c.from.sid == data.sid);
+          ArrayFun.remove(this.challenges, c => c.from.sid == data.from);
           // And all live games where he plays and no other opponent is online
           ArrayFun.remove(this.games, g =>
-            g.type == "live" && (g.players.every(p => p.sid == data.sid
+            g.type == "live" && (g.players.every(p => p.sid == data.from
               || !this.people.some(pl => pl.sid == p.sid))), "all");
           break;
         }
@@ -578,6 +558,15 @@ export default {
           }
         );
       }
+      // Send game info to everyone except opponent (and me)
+      this.st.conn.send(JSON.stringify({code:"game",
+        game: { //minimal game info:
+          id: gameInfo.id,
+          players: gameInfo.players.map(p => p.name),
+          vid: gameInfo.vid,
+          timeControl: gameInfo.timeControl,
+        },
+        oppsid: target}));
     },
     // NOTE: for live games only (corr games start on the server)
     startNewGame: function(gameInfo) {

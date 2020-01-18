@@ -3,9 +3,10 @@ const url = require('url');
 // Node version in Ubuntu 16.04 does not know about URL class
 function getJsonFromUrl(url)
 {
-  const query = url.substr(2); //starts with "/?"
-  let result = {};
-  query.split("&").forEach((part) => {
+  // url: /game/XYZ/?sid=XYZ
+  const queryParts = url.split("?");
+  let result = {page: queryParts[0]};
+  queryParts[1].split("&").forEach((part) => {
     const item = part.split("=");
     result[item[0]] = decodeURIComponent(item[1]);
   });
@@ -21,32 +22,41 @@ module.exports = function(wss) {
     if (!!clients[sid])
       return socket.send(JSON.stringify({code:"duplicate"}));
     clients[sid] = {sock: socket, page: query["page"]};
-    const notifyRoom = (page,code,obj) => {
+    const notifyRoom = (page,code,obj={},excluded=[]) => {
       Object.keys(clients).forEach(k => {
+        if (k in excluded)
+          return;
         if (k != sid && clients[k].page == page)
         {
           clients[k].sock.send(JSON.stringify(Object.assign(
-            {code:code}, obj)));
+            {code:code, from:sid}, obj)));
         }
       });
     };
-    notifyRoom(query["page"],"connect",{sid:sid});
+    notifyRoom(query["page"], "connect"); //Hall or Game
     socket.on("message", objtxt => {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
+
+console.log(obj.code);
+console.log(clients);
+
       switch (obj.code)
       {
         case "pollclients":
           const curPage = clients[sid].page;
           socket.send(JSON.stringify({code:"pollclients",
-            sockIds: Object.keys(clients).filter(k =>
-              k != sid && clients[k].page == curPage)}));
+            sockIds: Object.keys(clients).filter(k => k != sid &&
+              (clients[k].page == curPage ||
+              // Consider that people playing are in Hall too:
+              (curPage == "/" && clients[k].page.indexOf("/game/") >= 0))
+            )}));
           break;
         case "pagechange":
-          notifyRoom(clients[sid].page, "disconnect", {sid:sid});
+          notifyRoom(clients[sid].page, "disconnect");
           clients[sid].page = obj.page;
-          notifyRoom(obj.page, "connect", {sid:sid});
+          notifyRoom(obj.page, "connect");
           break;
         case "askidentity":
           clients[obj.target].sock.send(JSON.stringify(
@@ -57,6 +67,14 @@ module.exports = function(wss) {
             {code:"askchallenge",from:sid}));
           break;
         case "askgame":
+          // Check all clients playing, and send them a "askgame" message
+          Object.keys(clients).forEach(k => {
+            if (k != sid && clients[k].page.indexOf("/game/") >= 0)
+            {
+              clients[k].sock.send(JSON.stringify(
+                {code:"askgame", from: sid}));
+            }
+          });
           clients[obj.target].sock.send(JSON.stringify(
             {code:"askgame",from:sid}));
           break;
@@ -81,17 +99,24 @@ module.exports = function(wss) {
             {code:"challenge", chall:obj.chall, from:sid}));
           break;
         case "game":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"game", game:obj.game, from:sid}));
+          if (!!obj.target)
+          {
+            clients[obj.target].sock.send(JSON.stringify(
+              {code:"game", game:data.game, from:sid}));
+          }
+          else
+          {
+            // Notify all room except opponent and me:
+            notifyRoom("/", "game", {game:data.game}, [data.oppsid]);
+          }
           break;
         case "newchat":
-          notifyRoom(query["page"], "newchat",
-            {msg:obj.msg, name:obj.name, sid:sid})
+          notifyRoom(query["page"], "newchat", {msg:obj.msg, name:obj.name});
           break;
         // TODO: WebRTC instead in this case (most demanding?)
         case "newmove":
           clients[obj.target].sock.send(JSON.stringify(
-            {code:"newmove",move:obj.move}));
+            {code:"newmove", move:obj.move}));
           break;
         case "lastate":
           clients[obj.target].sock.send(JSON.stringify(
