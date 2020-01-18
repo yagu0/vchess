@@ -18,13 +18,12 @@
       button(@click="() => abortGame()") Abort
       button(@click="resign") Resign
     textarea(v-if="game.score=='*'" v-model="corrMsg")
-    Chat(
+    Chat(:players="game.players")
 </template>
 
 <!--
 // ==> après, implémenter/vérifier les passages de challenges + parties en cours
 // observer,
-// when send to chat (or a move), reach only this group (send gid along)
 -->
 
 <script>
@@ -40,6 +39,7 @@ export default {
   name: 'my-game',
   components: {
     BaseGame,
+    Chat,
   },
   // gameRef: to find the game in (potentially remote) storage
   data: function() {

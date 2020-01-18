@@ -1,69 +1,69 @@
 <template lang="pug">
-div
-  div
+.row
+  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+    // TODO: Chat modal sur petit écran, dans la page pour grand écran
     .card.smallpad
       h4 Chat
-      p(v-for="chat in chats" :class={
-        "my-chatmsg": "chat.uid==user.id",
-        "opp-chatmsg": "opponents.any(o => o.id == chat.uid)"}
-        v-html="chat.msg")
-      input#inputChat(type="text" placeholder="st.tr['Type here']"
+      p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
+      input#inputChat(type="text" :placeholder="st.tr['Type here']"
         @keyup.enter="sendChat")
       button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
 </template>
 
 <script>
-// TODO: myname, opponents (optional, different style), people
-// --> also show messages like "X offers draw" ?
+import { store } from "@/store";
+
 export default {
   name: "my-chat",
-  props: ["opponents","people"],
+  props: ["players"],
   data: function() {
     return {
+      st: store.state,
       chats: [], //chat messages after human game
     };
   },
-//  // TODO: Chat modal sur petit écran, dans la page pour grand écran
-//  created: function() {
-//    const socketMessageListener = msg => {
-//      const data = JSON.parse(msg.data);
-//      switch (data.code)
-//      {
-//        case "newchat":
-//          // TODO: new chat just arrived: data contain all informations
-//          // (uid, name, message; no need for timestamp, we can use local time here)
-//          this.chats.push({msg:data.msg, author:this.oppid});
-//          break;
-//        // TODO: distinguish these (dis)connect events from their analogs in game.js
-//        // TODO: implement and harmonize: opponents and people are arrays, not objects ?!
-//        case "connect":
-//          this.players.push({name:data.name, id:data.uid});
-//          break;
-//        case "disconnect":
-//          const pIdx = this.players.findIndex(p => p.id == data.uid);
-//          this.players.splice(pIdx);
-//          break;
-//      }
-//    };
-//    const socketCloseListener = () => {
-//      this.conn.addEventListener('message', socketMessageListener);
-//      this.conn.addEventListener('close', socketCloseListener);
-//    };
-//    this.conn.onmessage = socketMessageListener;
-//    this.conn.onclose = socketCloseListener;
-//  },
-//  methods: {
-//    // TODO: complete this component
-//    sendChat: function() {
-//      let chatInput = document.getElementById("input-chat");
-//      const chatTxt = chatInput.value;
-//      chatInput.value = "";
-//      this.chats.push({msg:chatTxt, author:this.myid});
-//      this.conn.send(JSON.stringify({
-//        code:"newchat", oppid: this.oppid, msg: chatTxt}));
-//    },
-////    startChat: function(e) {
-////      document.getElementById("modal-chat").checked = true;
-////    },
+  created: function() {
+    const socketMessageListener = msg => {
+      const data = JSON.parse(msg.data);
+      if (data.code == "newchat") //only event at this level
+      {
+        this.chats.push({msg:data.msg,
+          name:data.name || "@nonymous", sid:data.sid});
+      }
+    };
+    const socketCloseListener = () => {
+      store.socketCloseListener(); //reinitialize connexion (in store.js)
+      this.st.conn.addEventListener('message', socketMessageListener);
+      this.st.conn.addEventListener('close', socketCloseListener);
+    };
+    this.st.conn.onmessage = socketMessageListener;
+    this.st.conn.onclose = socketCloseListener;
   },
-});
+  methods: {
+    classObject: function(chat) {
+      return {
+        "my-chatmsg": chat.sid == this.st.user.sid,
+        "opp-chatmsg": this.players.some(
+          p => p.sid == chat.sid && p.sid != this.st.user.sid)
+      };
+    },
+    sendChat: function() {
+      let chatInput = document.getElementById("inputChat");
+      const chatTxt = chatInput.value;
+      chatInput.value = "";
+      const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous",
+        sid:this.st.user.sid};
+      this.chats.push(chat);
+      this.st.conn.send(JSON.stringify({
+        code:"newchat", msg:chatTxt, name:chat.name}));
+    },
+  },
+};
+</script>
+
+<style lang="sass">
+.my-chatmsg
+  color: grey
+.opp-chatmsg
+  color: black
+</style>

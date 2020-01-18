@@ -21,13 +21,16 @@ module.exports = function(wss) {
     if (!!clients[sid])
       return socket.send(JSON.stringify({code:"duplicate"}));
     clients[sid] = {sock: socket, page: query["page"]};
-    const notifyRoom = (page,code) => {
+    const notifyRoom = (page,code,obj) => {
       Object.keys(clients).forEach(k => {
         if (k != sid && clients[k].page == page)
-          clients[k].sock.send(JSON.stringify({code:code,sid:sid}));
+        {
+          clients[k].sock.send(JSON.stringify(Object.assign(
+            {code:code}, obj)));
+        }
       });
     };
-    notifyRoom(query["page"],"connect");
+    notifyRoom(query["page"],"connect",{sid:sid});
     socket.on("message", objtxt => {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
@@ -41,9 +44,9 @@ module.exports = function(wss) {
               k != sid && clients[k].page == curPage)}));
           break;
         case "pagechange":
-          notifyRoom(clients[sid].page, "disconnect");
+          notifyRoom(clients[sid].page, "disconnect", {sid:sid});
           clients[sid].page = obj.page;
-          notifyRoom(obj.page, "connect");
+          notifyRoom(obj.page, "connect", {sid:sid});
           break;
         case "askidentity":
           clients[obj.target].sock.send(JSON.stringify(
@@ -82,8 +85,8 @@ module.exports = function(wss) {
             {code:"game", game:obj.game, from:sid}));
           break;
         case "newchat":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"newchat",msg:obj.msg}));
+          notifyRoom(query["page"], "newchat",
+            {msg:obj.msg, name:obj.name, sid:sid})
           break;
         // TODO: WebRTC instead in this case (most demanding?)
         case "newmove":
