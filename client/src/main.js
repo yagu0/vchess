@@ -12,7 +12,9 @@ new Vue({
   },
   created: function() {
     window.doClick = (elemId) => { document.getElementById(elemId).click() };
-    store.initialize(this.$route.path);
+    // TODO: why is this wrong?
+    //store.initialize(this.$route.path);
+    store.initialize(window.location.href.split("#")[1]);
     // NOTE: at this point, variants and tr(anslations) might be uninitialized
   },
 }).$mount("#app");

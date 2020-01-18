@@ -3,10 +3,9 @@ const url = require('url');
 // Node version in Ubuntu 16.04 does not know about URL class
 function getJsonFromUrl(url)
 {
-  // url: /game/XYZ/?sid=XYZ
-  const queryParts = url.split("?");
-  let result = {page: queryParts[0]};
-  queryParts[1].split("&").forEach((part) => {
+  const query = url.substr(2); //starts with "/?"
+  let result = {};
+  query.split("&").forEach((part) => {
     const item = part.split("=");
     result[item[0]] = decodeURIComponent(item[1]);
   });
@@ -102,12 +101,12 @@ console.log(clients);
           if (!!obj.target)
           {
             clients[obj.target].sock.send(JSON.stringify(
-              {code:"game", game:data.game, from:sid}));
+              {code:"game", game:obj.game, from:sid}));
           }
           else
           {
             // Notify all room except opponent and me:
-            notifyRoom("/", "game", {game:data.game}, [data.oppsid]);
+            notifyRoom("/", "game", {game:obj.game}, [obj.oppsid]);
           }
           break;
         case "newchat":

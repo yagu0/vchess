@@ -49,7 +49,8 @@ export const store =
     };
     this.socketCloseListener = () => {
       // Next line may fail at first, but should retry and eventually success (TODO?)
-      this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid);
+      this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
+        "&page=" + encodeURIComponent(page));
     };
     this.state.conn.onclose = this.socketCloseListener;
     const supportedLangs = ["en","es","fr"];
