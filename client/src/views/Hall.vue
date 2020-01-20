@@ -117,17 +117,21 @@ export default {
   computed: {
     uniquePlayers: function() {
       // Show e.g. "@nonymous (5)", and do nothing on click on anonymous
-      let anonymous = {id:0, name:"@nonymous", count:0};
-      let playerList = [];
+      let anonymous = {name:"@nonymous", count:0};
+      let playerList = {};
       this.people.forEach(p => {
         if (p.id > 0)
-          playerList.push(p);
+        {
+          // We don't count registered users connections: either they are here or not.
+          if (!playerList[p.id])
+            playerList[p.id] = {name: p.name, count: 0};
+        }
         else
           anonymous.count++;
       });
       if (anonymous.count > 0)
-        playerList.push(anonymous);
-      return playerList;
+        playerList[0] = anonymous;
+      return Object.values(playerList);
     },
   },
   created: function() {

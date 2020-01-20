@@ -33,13 +33,14 @@ module.exports = function(wss) {
       });
     };
     notifyRoom(query["page"], "connect"); //Hall or Game
+    if (query["page"].indexOf("/game/") >= 0)
+      notifyRoom("/", "connect"); //notify main hall
     socket.on("message", objtxt => {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
 
 console.log(obj.code);
-console.log(clients);
 
       switch (obj.code)
       {
@@ -54,8 +55,12 @@ console.log(clients);
           break;
         case "pagechange":
           notifyRoom(clients[sid].page, "disconnect");
+          if (clients[sid].page.indexOf("/game/") >= 0)
+            notifyRoom("/", "disconnect");
           clients[sid].page = obj.page;
           notifyRoom(obj.page, "connect");
+          if (obj.page.indexOf("/game/") >= 0)
+            notifyRoom("/", "connect");
           break;
         case "askidentity":
           clients[obj.target].sock.send(JSON.stringify(
@@ -143,6 +148,8 @@ console.log(clients);
       const page = clients[sid].page;
       delete clients[sid];
       notifyRoom(page, "disconnect");
+      if (page.indexOf("/game/") >= 0)
+        notifyRoom("/", "disconnect"); //notify main hall
     });
   });
 }
