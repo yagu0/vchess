@@ -162,6 +162,10 @@ export default {
         case "identity":
         {
           let player = this.people.find(p => p.sid == data.user.sid);
+          // NOTE: sometimes player.id fails because player is undefined...
+          // Probably because the event was meant for Hall?
+          if (!player)
+            return;
           player.id = data.user.id;
           player.name = data.user.name;
           // Sending last state only for live games: corr games are complete

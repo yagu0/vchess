@@ -284,8 +284,9 @@ export default {
             // Ask identity, challenges and game(s)
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
             this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
-            this.st.conn.send(JSON.stringify({code:"askgame", target:sid}));
           });
+          // Also ask current games to all playing peers (TODO: some design issue)
+          this.st.conn.send(JSON.stringify({code:"askgames"}));
           break;
         }
         case "askidentity":

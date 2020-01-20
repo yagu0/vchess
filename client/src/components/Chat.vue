@@ -23,7 +23,9 @@ export default {
     };
   },
   created: function() {
+    const curMsgListener = this.st.conn.onmessage; //from Game or Hall
     const socketMessageListener = msg => {
+      curMsgListener(msg);
       const data = JSON.parse(msg.data);
       if (data.code == "newchat") //only event at this level
       {

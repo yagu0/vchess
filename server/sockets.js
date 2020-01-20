@@ -39,9 +39,6 @@ module.exports = function(wss) {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
-
-console.log(obj.code);
-
       switch (obj.code)
       {
         case "pollclients":
@@ -70,7 +67,7 @@ console.log(obj.code);
           clients[obj.target].sock.send(JSON.stringify(
             {code:"askchallenge",from:sid}));
           break;
-        case "askgame":
+        case "askgames":
           // Check all clients playing, and send them a "askgame" message
           Object.keys(clients).forEach(k => {
             if (k != sid && clients[k].page.indexOf("/game/") >= 0)
@@ -79,8 +76,6 @@ console.log(obj.code);
                 {code:"askgame", from: sid}));
             }
           });
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"askgame",from:sid}));
           break;
         case "identity":
           clients[obj.target].sock.send(JSON.stringify(
