@@ -189,7 +189,7 @@ export default {
           {
             // Minimal game informations:
             id: this.game.id,
-            players: this.game.players.map(p => p.name),
+            players: this.game.players.map(p => { return {name:p.name}; }),
             vid: this.game.vid,
             timeControl: this.game.timeControl,
           };
@@ -512,7 +512,11 @@ export default {
     gameOver: function(score) {
       this.game.mode = "analyze";
       this.game.score = score;
-      GameStorage.update(this.gameRef.id, { score: score });
+      const myIdx = this.game.players.findIndex(p => {
+        return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+      });
+      if (myIdx >= 0) //OK, I play in this game
+        GameStorage.update(this.gameRef.id, { score: score });
     },
   },
 };

@@ -91,7 +91,7 @@ module.exports = function(wss) {
               : 0;
             const rid = gameSids[gid][idx];
             clients[rid].sock.send(JSON.stringify(
-              {code:"askgame", from: rid}));
+              {code:"askgame", from: sid}));
           });
           break;
         }
