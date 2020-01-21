@@ -1,0 +1,6 @@
+1) abort / draw / resign: pass to opponent if online, store in game if corr
+2) styling: connection indicator, names, put movesList + chat in better positions
+3) complete translations, stylesheets, variants rules ...
+--> publish
+Later: implement analyze from position, multiple connections per SID ("double" games, simul games...)
+       (to allow problems links in forum)
