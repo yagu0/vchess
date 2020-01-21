@@ -8,7 +8,7 @@ main
         p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
   div(role="dialog" aria-labelledby="titleFenedit")
-    .card.smallpad
+    .card.smallpad(@keyup.enter="newChallenge")
       label#closeNewgame.modal-close(for="modalNewgame")
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }}

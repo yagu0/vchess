@@ -110,7 +110,9 @@ module.exports = function(wss) {
           }
           break;
         case "newchat":
-          notifyRoom(query["page"], "newchat", {msg:obj.msg, name:obj.name});
+          // WARNING: do not use query["page"], because the page may change
+          notifyRoom(clients[sid].page, "newchat",
+            {msg: obj.msg, name: obj.name});
           break;
         // TODO: WebRTC instead in this case (most demanding?)
         case "newmove":
