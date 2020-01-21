@@ -8,7 +8,6 @@
         h3#abortBoxTitle.section {{ st.tr["Terminate game?"] }}
         button(@click="abortGame") {{ st.tr["Sorry I have to go"] }}
         button(@click="abortGame") {{ st.tr["Game seems over"] }}
-        button(@click="abortGame") {{ st.tr["Game is too boring"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
     div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
@@ -20,11 +19,6 @@
     textarea(v-if="game.score=='*'" v-model="corrMsg")
     Chat(:players="game.players")
 </template>
-
-<!--
-// ==> après, implémenter/vérifier les passages de challenges + parties en cours
-// observer,
--->
 
 <script>
 import BaseGame from "@/components/BaseGame.vue";
@@ -103,22 +97,23 @@ export default {
     // Always add myself to players' list
     const my = this.st.user;
     this.people.push({sid:my.sid, id:my.id, name:my.name});
-    if (!!this.$route.params["id"])
-    {
-      this.gameRef.id = this.$route.params["id"];
-      this.gameRef.rid = this.$route.query["rid"];
-      this.loadGame();
-    }
+    this.gameRef.id = this.$route.params["id"];
+    this.gameRef.rid = this.$route.query["rid"]; //may be undefined
+    if (!this.gameRef.rid)
+      this.loadGame(); //local or corr: can load from now
     // TODO: mode analyse (/analyze/Atomic/rn
     // ... fen = query[], vname=params[] ...
     // 0.1] Ask server for room composition:
-    const funcPollClients = () => {
+    const initialize = () => {
+      // Poll clients + load game if stored remotely
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
+      if (!!this.gameRef.rid)
+        this.loadGame();
     };
     if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
-      funcPollClients();
+      initialize();
     else //socket not ready yet (initial loading)
-      this.st.conn.onopen = funcPollClients;
+      this.st.conn.onopen = initialize;
     this.st.conn.onmessage = this.socketMessageListener;
     const socketCloseListener = () => {
       store.socketCloseListener(); //reinitialize connexion (in store.js)
@@ -239,12 +234,10 @@ export default {
           this.drawOffer = "received";
           break;
         case "askfullgame":
-          // TODO: just give game; observers are listed here anyway:
-          // ==> mark request SID as someone to send moves to
-          // NOT to all people array: our opponent can send moves too!
+          // TODO: use data.id to retrieve game in indexedDB (but for now only one running game so OK)
+          this.st.conn.send(JSON.stringify({code:"fullgame", game:this.game, target:data.from}));
           break;
         case "fullgame":
-          // and when receiving answer just call loadGame(received_game)
           this.loadGame(data.game);
           break;
         // TODO: drawaccepted (click draw button before sending move
@@ -409,10 +402,12 @@ export default {
         );
       };
       if (!!game)
-        return afterRetrival(game);
+        return afterRetrieval(game);
       if (!!this.gameRef.rid)
       {
         // Remote live game
+        // (TODO: send game ID as well, and receiver would pick the corresponding
+        // game in his current games; if allowed to play several)
         this.st.conn.send(JSON.stringify(
           {code:"askfullgame", target:this.gameRef.rid}));
         // (send moves updates + resign/abort/draw actions)
@@ -437,7 +432,7 @@ export default {
           obj[key] = move[key];
           return obj;
         }, {});
-      // Send move ("newmove" event) to opponent(s) (if ours)
+      // Send move ("newmove" event) to people in the room (if our turn)
       let addTime = 0;
       if (move.color == this.game.mycolor)
       {
@@ -451,14 +446,16 @@ export default {
         if (this.game.type == "corr")
           sendMove.message = this.corrMsg;
         const oppsid = this.getOppSid();
-        if (!!oppsid)
-        {
-          this.st.conn.send(JSON.stringify({
-            code: "newmove",
-            target: oppsid,
-            move: sendMove,
-          }));
-        }
+        this.people.forEach(p => {
+          if (p.sid != this.st.user.sid)
+          {
+            this.st.conn.send(JSON.stringify({
+              code: "newmove",
+              target: p.sid,
+              move: sendMove,
+            }));
+          }
+        });
         if (this.game.type == "corr" && this.corrMsg != "")
         {
           // Add message to last move in BaseGame:

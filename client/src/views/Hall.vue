@@ -221,11 +221,7 @@ export default {
       // ==> Moves sent by connected remote player(s) if live game
       let url = "/game/" + g.id;
       if (g.type == "live")
-      {
-        const remotes = g.players.filter(p => this.people.some(pl => pl.sid == p.sid));
-        const rIdx = (remotes.length == 1 ? 0 : Math.floor(Math.random()*2));
-        url += "?rid=" + remotes[rIdx].sid;
-      }
+        url += "?rid=" + g.rid;
       this.$router.push(url);
     },
     getVname: function(vid) {

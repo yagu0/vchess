@@ -68,14 +68,40 @@ module.exports = function(wss) {
             {code:"askchallenge",from:sid}));
           break;
         case "askgames":
+        {
           // Check all clients playing, and send them a "askgame" message
+          let gameSids = {}; //game ID --> [sid1, sid2]
+          const regexpGid = /\/[a-zA-Z0-9]+$/;
           Object.keys(clients).forEach(k => {
             if (k != sid && clients[k].page.indexOf("/game/") >= 0)
             {
-              clients[k].sock.send(JSON.stringify(
-                {code:"askgame", from: sid}));
+              const gid = clients[k].page.match(regexpGid)[0];
+              if (!gameSids[gid])
+                gameSids[gid] = [k];
+              else
+                gameSids[gid].push(k);
             }
           });
+          // Request only one client out of 2 (TODO: this is a bit heavy)
+          // Alt: ask game to all, and filter later?
+          Object.keys(gameSids).forEach(gid => {
+            const L = gameSids[gid].length;
+            const idx = L > 1
+              ? Math.floor(Math.random() * Math.floor(L))
+              : 0;
+            const rid = gameSids[gid][idx];
+            clients[rid].sock.send(JSON.stringify(
+              {code:"askgame", from: rid}));
+          });
+          break;
+        }
+        case "askfullgame":
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"askfullgame", from:sid}));
+          break;
+        case "fullgame":
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"fullgame", game:obj.game}));
           break;
         case "identity":
           clients[obj.target].sock.send(JSON.stringify(

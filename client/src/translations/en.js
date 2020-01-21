@@ -86,5 +86,4 @@ export const translations =
   "Terminate game?": "Terminate game?",
   "Sorry I have to go": "Sorry I have to go",
   "Game seems over": "Game seems over",
-  "Game is too boring": "Game is too boring",
 };
