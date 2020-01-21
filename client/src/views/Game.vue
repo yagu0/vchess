@@ -8,6 +8,7 @@
         h3#abortBoxTitle.section {{ st.tr["Terminate game?"] }}
         button(@click="abortGame") {{ st.tr["Sorry I have to go"] }}
         button(@click="abortGame") {{ st.tr["Game seems over"] }}
+        button(@click="abortGame") {{ st.tr["Opponent is gone"] }}
     BaseGame(:game="game" :vr="vr" ref="basegame"
       @newmove="processMove" @gameover="gameOver")
     div Names: {{ game.players[0].name }} - {{ game.players[1].name }}

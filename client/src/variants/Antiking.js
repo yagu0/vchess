@@ -154,21 +154,21 @@ class AntikingRules extends ChessRules
 
 			// Get random squares for bishops, but avoid corners; because,
 			// if an antiking blocks a cornered bishop, it can never be checkmated
-			let randIndex = 2 * random(1,4);
+			let randIndex = 2 * randInt(1,4);
 			const bishop1Pos = positions[randIndex];
-			let randIndex_tmp = 2 * random(3) + 1;
+			let randIndex_tmp = 2 * randInt(3) + 1;
 			const bishop2Pos = positions[randIndex_tmp];
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
-			randIndex = random(6);
+			randIndex = randInt(6);
 			const knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = random(5);
+			randIndex = randInt(5);
 			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(4);
+			randIndex = randInt(4);
 			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
@@ -177,7 +177,7 @@ class AntikingRules extends ChessRules
 			const rook2Pos = positions[2];
 
 			// Random squares for antikings
-			antikingPos[c] = random(8);
+			antikingPos[c] = randInt(8);
 
 			pieces[c][rook1Pos] = 'r';
 			pieces[c][knight1Pos] = 'n';

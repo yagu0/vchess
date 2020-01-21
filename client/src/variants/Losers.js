@@ -136,30 +136,30 @@ class LosersRules extends ChessRules
 			let positions = range(8);
 
 			// Get random squares for bishops
-			let randIndex = 2 * random(4);
+			let randIndex = 2 * randInt(4);
 			let bishop1Pos = positions[randIndex];
 			// The second bishop must be on a square of different color
-			let randIndex_tmp = 2 * random(4) + 1;
+			let randIndex_tmp = 2 * randInt(4) + 1;
 			let bishop2Pos = positions[randIndex_tmp];
 			// Remove chosen squares
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
 			// Get random squares for knights
-			randIndex = random(6);
+			randIndex = randInt(6);
 			let knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = random(5);
+			randIndex = randInt(5);
 			let knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Get random square for queen
-			randIndex = random(4);
+			randIndex = randInt(4);
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Random square for king (no castle)
-			randIndex = random(3);
+			randIndex = randInt(3);
 			let kingPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 

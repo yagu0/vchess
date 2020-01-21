@@ -5,7 +5,7 @@ export function getRandString()
     .toUpperCase();
 }
 
-export function random (min, max)
+export function randInt(min, max)
 {
   if (!max)
   {
@@ -22,7 +22,7 @@ export function sample (arr, n)
   let cpArr = arr.map(e => e);
   for (let index = 0; index < n; index++)
   {
-    const rand = random(index, n);
+    const rand = randInt(index, arr.length);
     const temp = cpArr[index];
     cpArr[index] = cpArr[rand];
     cpArr[rand] = temp;

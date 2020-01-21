@@ -2,7 +2,7 @@
 // Variants generally inherit from it, and modify some parts.
 
 import { ArrayFun } from "@/utils/array";
-import { random, sample, shuffle } from "@/utils/alea";
+import { randInt, sample, shuffle } from "@/utils/alea";
 
 export const PiPo = class PiPo //Piece+Position
 {
@@ -243,25 +243,25 @@ export const ChessRules = class ChessRules
       let positions = ArrayFun.range(8);
 
       // Get random squares for bishops
-      let randIndex = 2 * random(4);
+      let randIndex = 2 * randInt(4);
       const bishop1Pos = positions[randIndex];
       // The second bishop must be on a square of different color
-      let randIndex_tmp = 2 * random(4) + 1;
+      let randIndex_tmp = 2 * randInt(4) + 1;
       const bishop2Pos = positions[randIndex_tmp];
       // Remove chosen squares
       positions.splice(Math.max(randIndex,randIndex_tmp), 1);
       positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
       // Get random squares for knights
-      randIndex = random(6);
+      randIndex = randInt(6);
       const knight1Pos = positions[randIndex];
       positions.splice(randIndex, 1);
-      randIndex = random(5);
+      randIndex = randInt(5);
       const knight2Pos = positions[randIndex];
       positions.splice(randIndex, 1);
 
       // Get random square for queen
-      randIndex = random(4);
+      randIndex = randInt(4);
       const queenPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
@@ -1199,12 +1199,11 @@ export const ChessRules = class ChessRules
       candidates.push(j);
     let currentBest = moves1[sample(candidates)];
 
-    // From here, depth >= 3: may take a while, so we control time
-    const timeStart = Date.now();
-
     // Skip depth 3+ if we found a checkmate (or if we are checkmated in 1...)
     if (V.SEARCH_DEPTH >= 3 && Math.abs(moves1[0].eval) < V.THRESHOLD_MATE)
     {
+      // From here, depth >= 3: may take a while, so we control time
+      const timeStart = Date.now();
       for (let i=0; i<moves1.length; i++)
       {
         if (Date.now()-timeStart >= 5000) //more than 5 seconds
@@ -1225,7 +1224,7 @@ export const ChessRules = class ChessRules
     candidates = [0];
     for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
       candidates.push(j);
-    return moves1[sample(candidates)];
+    return moves1[candidates[randInt(candidates.length)]];
   }
 
   alphabeta(depth, alpha, beta)

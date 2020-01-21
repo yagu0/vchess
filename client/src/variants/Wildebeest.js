@@ -247,19 +247,19 @@ class WildebeestRules extends ChessRules
 				positions.splice(idx, 1);
 			}
 
-			let randIndex = random(7);
+			let randIndex = randInt(7);
 			let knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
-			randIndex = random(6);
+			randIndex = randInt(6);
 			let knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(5);
+			randIndex = randInt(5);
 			let queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
 			// Random square for wildebeest
-			randIndex = random(4);
+			randIndex = randInt(4);
 			let wildebeestPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 

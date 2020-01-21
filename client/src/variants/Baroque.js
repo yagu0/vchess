@@ -551,31 +551,31 @@ class BaroqueRules extends ChessRules
 			let positions = range(8);
 			// Get random squares for every piece, totally freely
 
-			let randIndex = random(8);
+			let randIndex = randInt(8);
 			const bishop1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(7);
+			randIndex = randInt(7);
 			const bishop2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(6);
+			randIndex = randInt(6);
 			const knight1Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(5);
+			randIndex = randInt(5);
 			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(4);
+			randIndex = randInt(4);
 			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(3);
+			randIndex = randInt(3);
 			const kingPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(2);
+			randIndex = randInt(2);
 			const rookPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 			const immobilizerPos = positions[0];

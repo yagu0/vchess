@@ -18,7 +18,7 @@ class UpsidedownRules extends ChessRules
 		{
 			let positions = range(8);
 
-			let randIndex = random(8);
+			let randIndex = randInt(8);
 			const kingPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
@@ -29,24 +29,24 @@ class UpsidedownRules extends ChessRules
 			else if (kingPos == V.size.y-1)
 				knight1Pos = V.size.y-2;
 			else
-				knight1Pos = kingPos + (Math.random() < 0.5 ? 1 : -1);
+				knight1Pos = kingPos + (Math.randInt() < 0.5 ? 1 : -1);
 			// Search for knight1Pos index in positions and remove it
 			const knight1Index = positions.indexOf(knight1Pos);
 			positions.splice(knight1Index, 1);
 
 			// King+knight1 are on two consecutive squares: one light, one dark
-			randIndex = 2 * random(3);
+			randIndex = 2 * randInt(3);
 			const bishop1Pos = positions[randIndex];
-			let randIndex_tmp = 2 * random(3) + 1;
+			let randIndex_tmp = 2 * randInt(3) + 1;
 			const bishop2Pos = positions[randIndex_tmp];
 			positions.splice(Math.max(randIndex,randIndex_tmp), 1);
 			positions.splice(Math.min(randIndex,randIndex_tmp), 1);
 
-			randIndex = random(4);
+			randIndex = randInt(4);
 			const knight2Pos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
-			randIndex = random(3);
+			randIndex = randInt(3);
 			const queenPos = positions[randIndex];
 			positions.splice(randIndex, 1);
 
