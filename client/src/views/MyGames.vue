@@ -12,14 +12,11 @@ main
 </template>
 
 <script>
-// TODO: background orange si à moi de jouer
-// (helper: static fonction "GetNextCol()" dans base_rules.js)
-// use GameStorage.getAll()
-
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ajax } from "@/utils/ajax";
 import GameList from "@/components/GameList.vue";
+
 export default {
   name: "my-games",
   components: {
@@ -55,14 +52,12 @@ export default {
       return this.games.filter(g => g.type == type);
     },
     showGame: function(g) {
-      // NOTE: we play in this game, since this is "MyGames" page
       this.$router.push("/game/" + g.id);
     },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
 /* TODO */
 </style>
