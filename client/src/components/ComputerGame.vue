@@ -54,31 +54,24 @@ export default {
       if (!Array.isArray(compMove))
         compMove = [compMove]; //to deal with MarseilleRules
       // Small delay for the bot to appear "more human"
-// TODO: debug delay, 2000 --> 0
-      const delay = 2000 + Math.max(500-(Date.now()-this.timeStart), 0);
-console.log("GOT MOVE: " + this.compThink);
+      const delay = Math.max(500-(Date.now()-this.timeStart), 0);
       setTimeout(() => {
         // NOTE: Dark and 2-moves are incompatible
         const animate = (this.gameInfo.vname != "Dark");
-        this.$refs.basegame.play(compMove[0], animate);
-        const waitEndOfAnimation = () => {
-          // 250ms = length of animation (TODO: some constant somewhere)
-          setTimeout( () => {
-console.log("RESET: " + this.compThink);
-            this.compThink = false;
-            if (this.game.score != "*") //user action
-              this.$emit("game-stopped");
-          }, animate ? 250 : 0);
-        };
-        if (compMove.length == 2)
-        {
-          setTimeout( () => {
-            this.$refs.basegame.play(compMove[1], animate);
-            waitEndOfAnimation();
-          }, 750);
-        }
-        else
-          waitEndOfAnimation();
+        const animDelay = (animate ? 250 : 0);
+        let moveIdx = 0;
+        let self = this;
+        (function executeMove() {
+          self.$refs.basegame.play(compMove[moveIdx++], animate);
+          if (moveIdx >= compMove.length)
+          {
+            self.compThink = false;
+            if (self.game.score != "*") //user action
+              self.$emit("game-stopped");
+          }
+          else
+            setTimeout(executeMove, 500 + animDelay);
+        })();
       }, delay);
     }
     if (!!this.gameInfo.fen)
@@ -113,7 +106,6 @@ console.log("RESET: " + this.compThink);
     playComputerMove: function() {
       this.timeStart = Date.now();
       this.compThink = true;
-console.log("ASK MOVE (SET TRUE): " + this.compThink);
       this.compWorker.postMessage(["askmove"]);
     },
     processMove: function(move) {

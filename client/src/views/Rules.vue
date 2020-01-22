@@ -11,8 +11,7 @@
         | Stop game
     .section-content(v-show="display=='rules'" v-html="content")
     ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
-      @computer-think="gameInProgress=false" @game-over="stopGame"
-      @game-stopped="gameStopped")
+      @game-over="stopGame" @game-stopped="gameStopped")
 </template>
 
 <script>
