@@ -59,6 +59,9 @@ export default {
     "game.fenStart": function() {
       this.re_setVariables();
     },
+    "game.score": function() {
+      this.score = this.game.score;
+    },
   },
   computed: {
     showMoves: function() {
@@ -69,7 +72,7 @@ export default {
       return this.game.vname != "Dark" || this.score != "*";
     },
     analyze: function() {
-      return this.game.mode == "analyze" || this.game.score != "*";
+      return this.game.mode == "analyze" || this.score != "*";
     },
   },
   created: function() {

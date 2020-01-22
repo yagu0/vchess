@@ -2,16 +2,17 @@
 .row
   .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
     .button-group
-      button(@click="display='rules'") Read the rules
+      button(@click="clickReadRules") Read the rules
       button(v-show="!gameInProgress" @click="() => startGame('auto')")
         | Observe a sample game
       button(v-show="!gameInProgress" @click="() => startGame('versus')")
         | Beat the computer!
-      button(v-show="gameInProgress" @click="stopGame")
+      button(v-show="gameInProgress" @click="() => stopGame()")
         | Stop game
     .section-content(v-show="display=='rules'" v-html="content")
     ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
-      @computer-think="gameInProgress=false" @game-over="stopGame")
+      @computer-think="gameInProgress=false" @game-over="stopGame"
+      @game-stopped="gameStopped")
 </template>
 
 <script>
@@ -35,7 +36,7 @@ export default {
         vname: "_unknown",
         mode: "versus",
         fen: "",
-        userStop: false,
+        score: "*",
       }
     };
   },
@@ -49,6 +50,12 @@ export default {
     this.tryChangeVariant(this.$route.params["vname"]);
   },
   methods: {
+    clickReadRules: function() {
+      if (this.display != "rules")
+        this.display = "rules";
+      else if (this.gameInProgress)
+        this.display = "computer";
+    },
     parseFen(fen) {
       const fenParts = fen.split(" ");
       return {
@@ -83,13 +90,17 @@ export default {
       this.gameInProgress = true;
       this.display = "computer";
       this.gameInfo.mode = mode;
-      this.gameInfo.userStop = false;
+      this.gameInfo.score = "*";
       this.gameInfo.fen = V.GenRandInitFen();
     },
-    stopGame: function() {
-      this.gameInProgress = false;
-      this.gameInfo.userStop = true;
+    // user is willing to stop the game:
+    stopGame: function(score) {
+      this.gameInfo.score = score || "?";
       this.gameInfo.mode = "analyze";
+    },
+    // The game is effectively stopped:
+    gameStopped: function() {
+      this.gameInProgress = false;
     },
   },
 };

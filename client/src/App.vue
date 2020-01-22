@@ -22,8 +22,7 @@
                 | {{ st.tr["Variants"] }}
               router-link(to="/mygames")
                 | {{ st.tr["My games"] }}
-              // TODO: parametric URL, "forumURL"
-              a(href="https://forum.vchess.club")
+              a(href="https://groups.google.com/forum/#!forum/vchess-club")
                 | {{ st.tr["Forum"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")

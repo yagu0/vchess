@@ -370,6 +370,8 @@ export default {
 .reserve-row-1
   margin-bottom: 15px
 
+// NOTE: no variants with reserve of size != 8
+
 div.board
   float: left
   height: 0
@@ -387,8 +389,6 @@ div.board10
 div.board11
   width: 9.09%
   padding-bottom: 9.1%
-
-// NOTE: no variants with reserve of size != 8
 
 .game
   width: 80vh

@@ -192,7 +192,7 @@ export const ChessRules = class ChessRules
     // Argument is a move:
     const move = moveOrSquare;
     const [sx,sy,ex] = [move.start.x,move.start.y,move.end.x];
-    // TODO: next conditions are first for Atomic, and last for Checkered
+    // NOTE: next conditions are first for Atomic, and last for Checkered
     if (move.appear.length > 0 && Math.abs(sx - ex) == 2
       && move.appear[0].p == V.PAWN && ["w","b"].includes(move.appear[0].c))
     {
@@ -1128,7 +1128,6 @@ export const ChessRules = class ChessRules
   // Search depth: 2 for high branching factor, 4 for small (Loser chess, eg.)
   static get SEARCH_DEPTH() { return 3; }
 
-  // Assumption: at least one legal move
   // NOTE: works also for extinction chess because depth is 3...
   getComputerMove()
   {
@@ -1137,6 +1136,8 @@ export const ChessRules = class ChessRules
     // Some variants may show a bigger moves list to the human (Switching),
     // thus the argument "computer" below (which is generally ignored)
     let moves1 = this.getAllValidMoves("computer");
+    if (moves1.length == 0) //TODO: this situation should not happen
+      return null;
 
     // Can I mate in 1 ? (for Magnetic & Extinction)
     for (let i of shuffle(ArrayFun.range(moves1.length)))

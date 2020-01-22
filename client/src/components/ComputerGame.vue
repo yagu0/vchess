@@ -8,10 +8,10 @@
 <script>
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
-import Worker from 'worker-loader!@/playCompMove';
+import Worker from "worker-loader!@/playCompMove";
 
 export default {
-  name: 'my-computer-game',
+  name: "my-computer-game",
   components: {
     BaseGame,
   },
@@ -21,47 +21,64 @@ export default {
   data: function() {
     return {
       st: store.state,
-      game: { },
+      game: {},
       vr: null,
       // Web worker to play computer moves without freezing interface:
       timeStart: undefined, //time when computer starts thinking
-      lockCompThink: false, //to avoid some ghost moves
+      compThink: false, //avoid asking a new move while one is being searched
       compWorker: null,
     };
   },
   watch: {
     "gameInfo.fen": function() {
-      // (Security) No effect if a computer move is in progress:
-      if (this.lockCompThink)
-        return this.$emit("computer-think");
       this.launchGame();
     },
-    "gameInfo.userStop": function() {
-      if (this.gameInfo.userStop)
+    "gameInfo.score": function(newScore) {
+      if (newScore != "*")
       {
-        // User stopped the game: unknown result
+        this.game.score = newScore; //user action
         this.game.mode = "analyze";
+        if (!this.compThink)
+          this.$emit("game-stopped"); //otherwise wait for comp
       }
     },
   },
   // Modal end of game, and then sub-components
   created: function() {
-    // Computer moves web worker logic: (TODO: also for observers in HH games ?)
-    this.compWorker = new Worker(); //'/javascripts/playCompMove.js'),
+    // Computer moves web worker logic:
+    this.compWorker = new Worker();
     this.compWorker.onmessage = e => {
-      this.lockCompThink = true; //to avoid some ghost moves
       let compMove = e.data;
+      if (!compMove)
+        return; //after game ends, no more moves, nothing to do
       if (!Array.isArray(compMove))
         compMove = [compMove]; //to deal with MarseilleRules
       // Small delay for the bot to appear "more human"
-      const delay = Math.max(500-(Date.now()-this.timeStart), 0);
+// TODO: debug delay, 2000 --> 0
+      const delay = 2000 + Math.max(500-(Date.now()-this.timeStart), 0);
+console.log("GOT MOVE: " + this.compThink);
       setTimeout(() => {
+        // NOTE: Dark and 2-moves are incompatible
         const animate = (this.gameInfo.vname != "Dark");
         this.$refs.basegame.play(compMove[0], animate);
+        const waitEndOfAnimation = () => {
+          // 250ms = length of animation (TODO: some constant somewhere)
+          setTimeout( () => {
+console.log("RESET: " + this.compThink);
+            this.compThink = false;
+            if (this.game.score != "*") //user action
+              this.$emit("game-stopped");
+          }, animate ? 250 : 0);
+        };
         if (compMove.length == 2)
-          setTimeout( () => { this.$refs.basegame.play(compMove[1], animate); }, 750);
-        else //250 == length of animation (TODO: should be a constant somewhere)
-          setTimeout( () => this.lockCompThink = false, 250);
+        {
+          setTimeout( () => {
+            this.$refs.basegame.play(compMove[1], animate);
+            waitEndOfAnimation();
+          }, 750);
+        }
+        else
+          waitEndOfAnimation();
       }, delay);
     }
     if (!!this.gameInfo.fen)
@@ -77,10 +94,10 @@ export default {
       this.compWorker.postMessage(["init",this.gameInfo.fen]);
       this.vr = new V(this.gameInfo.fen);
       const mycolor = (Math.random() < 0.5 ? "w" : "b");
-      let players = ["Myself","Computer"];
+      let players = [{name:"Myself"},{name:"Computer"}];
       if (mycolor == "b")
         players = players.reverse();
-      // NOTE: (TODO?) fen and fenStart are redundant in game object
+      // NOTE: fen and fenStart are redundant in game object
       this.game = Object.assign({},
         this.gameInfo,
         {
@@ -95,9 +112,10 @@ export default {
     },
     playComputerMove: function() {
       this.timeStart = Date.now();
+      this.compThink = true;
+console.log("ASK MOVE (SET TRUE): " + this.compThink);
       this.compWorker.postMessage(["askmove"]);
     },
-    // TODO: do not process if game is over (check score ?)
     processMove: function(move) {
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove",move]);
@@ -109,8 +127,9 @@ export default {
       }
     },
     gameOver: function(score) {
-      // Just switch to analyze mode: no user action can set score
+      this.game.score = score;
       this.game.mode = "analyze";
+      this.$emit("game-over", score); //bubble up to Rules.vue
     },
   },
 };

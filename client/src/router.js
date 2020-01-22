@@ -86,9 +86,6 @@ router.beforeEach((to, from, next) => {
     store.state.conn.send(JSON.stringify({code: "pagechange", page: to.path}));
   }
   next();
-  // TODO?: redirect to current game (through GameStorage.getCurrent()) if any?
-  // (and if the URL doesn't already match it) (use next("/game/GID"))
-  //https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
 });
 
 export default router;

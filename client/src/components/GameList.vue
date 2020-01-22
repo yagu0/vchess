@@ -6,6 +6,7 @@ table
     th Black
     th Time control
     th(v-if="showResult") Result
+  // TODO: show my games first (st.user.id or sid)
   tr(v-for="g in games" @click="$emit('show-game',g)")
     td {{ g.vname }}
     td {{ g.players[0].name || "@nonymous" }}
