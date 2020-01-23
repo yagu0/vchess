@@ -17,7 +17,6 @@ module.exports = function(wss) {
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
-    // TODO: later, allow duplicate connections (shouldn't be much more complicated)
     if (!!clients[sid])
       return socket.send(JSON.stringify({code:"duplicate"}));
     clients[sid] = {sock: socket, page: query["page"]};

@@ -272,6 +272,9 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+        case "duplicate":
+          alert("Warning: duplicate 'offline' connection");
+          break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
         {

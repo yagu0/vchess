@@ -124,6 +124,9 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
+        case "duplicate":
+          alert("Warning: duplicate 'offline' connection");
+          break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
         {
@@ -159,15 +162,17 @@ export default {
           {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
+            let lastMove = (L>0 ? this.game.moves[L-1] : undefined);
+            if (!!lastMove && this.drawOffer == "sent")
+              lastMove.draw = true;
             this.st.conn.send(JSON.stringify({
               code: "lastate",
               target: player.sid,
               state:
               {
-                lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+                lastMove: lastMove,
                 score: this.game.score,
                 movesCount: L,
-                drawOffer: this.drawOffer,
                 clocks: this.game.clocks,
               }
             }));
@@ -207,7 +212,8 @@ export default {
               this.$refs["basegame"].endGame(data.score, "Opponent action");
             }
             this.game.clocks = data.clocks; //TODO: check this?
-            this.drawOffer = data.drawOffer; //does opponent offer draw?
+            if (!!data.lastMove.draw)
+              this.drawOffer = "received";
           }
           break;
         }
@@ -224,16 +230,15 @@ export default {
         case "drawoffer":
           this.drawOffer = "received";
           break;
+        case "drawaccepted":
+          this.gameOver("1/2");
+          break;
         case "askfullgame":
-          // TODO: use data.id to retrieve game in indexedDB (but for now only one running game so OK)
           this.st.conn.send(JSON.stringify({code:"fullgame", game:this.game, target:data.from}));
           break;
         case "fullgame":
           this.loadGame(data.game);
           break;
-        // TODO: drawaccepted (click draw button before sending move
-        // ==> draw offer in move)
-        // ==> on "newmove", check "drawOffer" field
         case "connect":
         {
           this.people.push({name:"", id:0, sid:data.from});
@@ -251,7 +256,7 @@ export default {
       {
         if (!confirm("Accept draw?"))
           return;
-        const oppsid = this.getOppSid();
+        const oppsid = this.getOppSid(); //TODO: to all people...
         if (!!oppsid)
           this.st.conn.send(JSON.stringify({code:"draw", target:oppsid}));
         this.$refs["basegame"].endGame("1/2", "Mutual agreement");
@@ -266,12 +271,6 @@ export default {
         if (!!oppsid)
           this.st.conn.send(JSON.stringify({code:"drawoffer", target:oppsid}));
       }
-    },
-    // + conn handling: "draw" message ==> agree for draw (if we have "drawOffered" at true)
-    receiveDrawOffer: function() {
-      //if (...)
-      // TODO: ignore if preventDrawOffer is set; otherwise show modal box with option "prevent future offers"
-      // if accept: send message "draw"
     },
     abortGame: function() {
       if (!confirm(this.st.tr["Terminate game?"]))
