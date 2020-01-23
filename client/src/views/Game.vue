@@ -42,6 +42,7 @@ export default {
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "", //TODO: use for button style
       people: [], //players + observers
+      lastate: undefined, //used if opponent send lastate before game is ready
     };
   },
   watch: {
@@ -92,19 +93,7 @@ export default {
     this.people.push({sid:my.sid, id:my.id, name:my.name});
     this.gameRef.id = this.$route.params["id"];
     this.gameRef.rid = this.$route.query["rid"]; //may be undefined
-    if (!this.gameRef.rid)
-      this.loadGame(); //local or corr: can load from now
-    // 0.1] Ask server for room composition:
-    const initialize = () => {
-      // Poll clients + load game if stored remotely
-      this.st.conn.send(JSON.stringify({code:"pollclients"}));
-      if (!!this.gameRef.rid)
-        this.loadGame();
-    };
-    if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
-      initialize();
-    else //socket not ready yet (initial loading)
-      this.st.conn.onopen = initialize;
+    // Define socket .onmessage() and .onclose() events:
     this.st.conn.onmessage = this.socketMessageListener;
     const socketCloseListener = () => {
       store.socketCloseListener(); //reinitialize connexion (in store.js)
@@ -112,13 +101,27 @@ export default {
       this.st.conn.addEventListener('close', socketCloseListener);
     };
     this.st.conn.onclose = socketCloseListener;
+    // Socket init required before loading remote game:
+    const socketInit = (callback) => {
+      if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
+        callback();
+      else //socket not ready yet (initial loading)
+        this.st.conn.onopen = callback;
+    };
+    if (!this.gameRef.rid) //game stored locally or on server
+      this.loadGame(null, () => socketInit(this.roomInit));
+    else //game stored remotely: need socket to retrieve it
+    {
+      // NOTE: the callback "roomInit" will be lost, so we don't provide it.
+      // --> It will be given when receiving "fullgame" socket event.
+      // A more general approach would be to store it somewhere.
+      socketInit(this.loadGame);
+    }
   },
   methods: {
-    getOppSid: function() {
-      if (!!this.game.oppsid)
-        return this.game.oppsid;
-      const opponent = this.people.find(p => p.id == this.game.oppid);
-      return (!!opponent ? opponent.sid : null);
+    // O.1] Ask server for room composition:
+    roomInit: function() {
+      this.st.conn.send(JSON.stringify({code:"pollclients"}));
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
@@ -199,27 +202,15 @@ export default {
           break;
         case "lastate": //got opponent infos about last move
         {
-          const L = this.game.moves.length;
-          if (data.movesCount > L)
-          {
-            // Just got last move from him
-            this.$refs["basegame"].play(data.lastMove,
-              "receive", this.game.vname!="Dark" ? "animate" : null);
-            if (data.score != "*" && this.game.score == "*")
-            {
-              // Opponent resigned or aborted game, or accepted draw offer
-              // (this is not a stalemate or checkmate)
-              this.$refs["basegame"].endGame(data.score, "Opponent action");
-            }
-            this.game.clocks = data.clocks; //TODO: check this?
-            if (!!data.lastMove.draw)
-              this.drawOffer = "received";
-          }
+          this.lastate = data;
+          if (!!this.game.type) //game is loaded
+            this.processLastate();
+          //else: will be processed when game is ready
           break;
         }
         case "resign":
           this.$refs["basegame"].endGame(
-            this.game.mycolor=="w" ? "1-0" : "0-1", "Resign");
+            (data.side=="b" ? "1-0" : "0-1"), "Resign");
           break;
         case "abort":
           this.$refs["basegame"].endGame("?", "Abort");
@@ -228,16 +219,14 @@ export default {
           this.$refs["basegame"].endGame("1/2", "Mutual agreement");
           break;
         case "drawoffer":
-          this.drawOffer = "received";
-          break;
-        case "drawaccepted":
-          this.gameOver("1/2");
+          this.drawOffer = "received"; //TODO: observers don't know who offered draw
           break;
         case "askfullgame":
           this.st.conn.send(JSON.stringify({code:"fullgame", game:this.game, target:data.from}));
           break;
         case "fullgame":
-          this.loadGame(data.game);
+          // Callback "roomInit" to poll clients only after game is loaded
+          this.loadGame(data.game, this.roomInit);
           break;
         case "connect":
         {
@@ -250,15 +239,37 @@ export default {
           break;
       }
     },
+    // lastate was received, but maybe game wasn't ready yet:
+    processLastate: function() {
+      const data = this.lastate;
+      this.lastate = undefined; //security...
+      const L = this.game.moves.length;
+      if (data.movesCount > L)
+      {
+        // Just got last move from him
+        this.$refs["basegame"].play(data.lastMove,
+          "receive", this.game.vname!="Dark" ? "animate" : null);
+        if (data.score != "*" && this.game.score == "*")
+        {
+          // Opponent resigned or aborted game, or accepted draw offer
+          // (this is not a stalemate or checkmate)
+          this.$refs["basegame"].endGame(data.score, "Opponent action");
+        }
+        this.game.clocks = data.clocks; //TODO: check this?
+        if (!!data.lastMove.draw)
+          this.drawOffer = "received";
+      }
+    },
     offerDraw: function() {
       // TODO: also for corr games
       if (this.drawOffer == "received")
       {
         if (!confirm("Accept draw?"))
           return;
-        const oppsid = this.getOppSid(); //TODO: to all people...
-        if (!!oppsid)
-          this.st.conn.send(JSON.stringify({code:"draw", target:oppsid}));
+        this.people.forEach(p => {
+          if (p.sid != this.st.user.sid)
+            this.st.conn.send(JSON.stringify({code:"draw", target:p.sid}));
+        });
         this.$refs["basegame"].endGame("1/2", "Mutual agreement");
       }
       else if (this.drawOffer == "sent")
@@ -267,9 +278,11 @@ export default {
       {
         if (!confirm("Offer draw?"))
           return;
-        const oppsid = this.getOppSid();
-        if (!!oppsid)
-          this.st.conn.send(JSON.stringify({code:"drawoffer", target:oppsid}));
+        this.drawOffer = "sent";
+        this.people.forEach(p => {
+          if (p.sid != this.st.user.sid)
+            this.st.conn.send(JSON.stringify({code:"drawoffer", target:p.sid}));
+        });
       }
     },
     abortGame: function() {
@@ -290,14 +303,13 @@ export default {
     resign: function(e) {
       if (!confirm("Resign the game?"))
         return;
-      const oppsid = this.getOppSid();
-      if (!!oppsid)
-      {
-        this.st.conn.send(JSON.stringify({
-          code: "resign",
-          target: oppsid,
-        }));
-      }
+      this.people.forEach(p => {
+        if (p.sid != this.st.user.sid)
+        {
+          this.st.conn.send(JSON.stringify({code:"resign",
+            side:this.game.mycolor, target:p.sid}));
+        }
+      });
       // Next line will trigger a "gameover" event, bubbling up till here
       this.$refs["basegame"].endGame(
         this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
@@ -306,7 +318,7 @@ export default {
     //  - from indexedDB (running or completed live game I play)
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
-    loadGame: function(game) {
+    loadGame: function(game, callback) {
       const afterRetrieval = async (game) => {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
@@ -382,17 +394,17 @@ export default {
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
+        if (!!this.lastate) //lastate arrived before game was loaded:
+          this.processLastate();
+        callback();
       };
       if (!!game)
         return afterRetrieval(game);
       if (!!this.gameRef.rid)
       {
-        // Remote live game
-        // (TODO: send game ID as well, and receiver would pick the corresponding
-        // game in his current games; if allowed to play several)
+        // Remote live game: forgetting about callback func... (TODO: design)
         this.st.conn.send(JSON.stringify(
           {code:"askfullgame", target:this.gameRef.rid}));
-        // (send moves updates + resign/abort/draw actions)
       }
       else
       {
@@ -427,7 +439,6 @@ export default {
         let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
         if (this.game.type == "corr")
           sendMove.message = this.corrMsg;
-        const oppsid = this.getOppSid();
         this.people.forEach(p => {
           if (p.sid != this.st.user.sid)
           {
@@ -484,7 +495,7 @@ export default {
       // Also update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
-      //TODO: just this.game.clocks[colorIdx] += addTime;
+      //TODO: (Vue3) just this.game.clocks[colorIdx] += addTime;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
       // Finally reset curMoveMessage if needed
