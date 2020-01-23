@@ -82,6 +82,7 @@ export const GameStorage =
             move: obj.move, //may be undefined...
             fen: obj.fen,
             score: obj.score,
+            drawOffer: obj.drawOffer,
           }
         }
       );

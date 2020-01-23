@@ -52,9 +52,9 @@ export default {
       this.loadGame();
     },
     "game.clocks": function(newState) {
-      if (this.game.moves.length < 2)
+      if (this.game.moves.length < 2 || this.game.score != "*")
       {
-        // 1st move not completed yet: freeze time
+        // 1st move not completed yet, or game over: freeze time
         this.virtualClocks = newState.map(s => ppt(s));
         return;
       }
@@ -261,7 +261,6 @@ export default {
       }
     },
     offerDraw: function() {
-      // TODO: also for corr games
       if (this.drawOffer == "received")
       {
         if (!confirm("Accept draw?"))
@@ -273,7 +272,11 @@ export default {
         this.$refs["basegame"].endGame("1/2", "Mutual agreement");
       }
       else if (this.drawOffer == "sent")
+      {
         this.drawOffer = "";
+        if (this.game.type == "corr")
+          GameStorage.update(this.gameRef.id, {drawOffer: false});
+      }
       else
       {
         if (!confirm("Offer draw?"))
@@ -283,6 +286,8 @@ export default {
           if (p.sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"drawoffer", target:p.sid}));
         });
+        if (this.game.type == "corr")
+          GameStorage.update(this.gameRef.id, {drawOffer: true});
       }
     },
     abortGame: function() {
@@ -336,22 +341,27 @@ export default {
           // corr game: needs to compute the clocks + initime
           // NOTE: clocks in seconds, initime in milliseconds
           game.clocks = [tc.mainTime, tc.mainTime];
-          game.initime = [0, 0];
-          const L = game.moves.length;
           game.moves.sort((m1,m2) => m1.idx - m2.idx); //in case of
-          if (L >= 3)
+          if (game.score == "*") //otherwise no need to bother with time
           {
-            let addTime = [0, 0];
-            for (let i=2; i<L; i++)
+            game.initime = [0, 0];
+            const L = game.moves.length;
+            if (L >= 3)
             {
-              addTime[i%2] += tc.increment -
-                (game.moves[i].played - game.moves[i-1].played) / 1000;
+              let addTime = [0, 0];
+              for (let i=2; i<L; i++)
+              {
+                addTime[i%2] += tc.increment -
+                  (game.moves[i].played - game.moves[i-1].played) / 1000;
+              }
+              for (let i=0; i<=1; i++)
+                game.clocks[i] += addTime[i];
             }
-            for (let i=0; i<=1; i++)
-              game.clocks[i] += addTime[i];
+            if (L >= 1)
+              game.initime[L%2] = game.moves[L-1].played;
+            if (game.drawOffer)
+              this.drawOffer = "received";
           }
-          if (L >= 1)
-            game.initime[L%2] = game.moves[L-1].played;
           // Now that we used idx and played, re-format moves as for live games
           game.moves = game.moves.map( (m) => {
             const s = m.squares;
@@ -370,15 +380,18 @@ export default {
         if (gtype == "live" && game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
-          game.initime[0] = Date.now();
-          if (myIdx >= 0)
+          if (game.score == "*")
           {
-            // I play in this live game; corr games don't have clocks+initime
-            GameStorage.update(game.id,
+            game.initime[0] = Date.now();
+            if (myIdx >= 0)
             {
-              clocks: game.clocks,
-              initime: game.initime,
-            });
+              // I play in this live game; corr games don't have clocks+initime
+              GameStorage.update(game.id,
+              {
+                clocks: game.clocks,
+                initime: game.initime,
+              });
+            }
           }
         }
         this.game = Object.assign({},

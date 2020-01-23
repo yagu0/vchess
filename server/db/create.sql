@@ -41,6 +41,7 @@ create table Games (
   score varchar,
   timeControl varchar,
   created datetime, --used only for DB cleaning
+  drawOffer boolean,
   foreign key (vid) references Variants(id)
 );
 

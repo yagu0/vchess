@@ -29,9 +29,10 @@ const GameModel =
 	{
 		db.serialize(function() {
 			let query =
-				"INSERT INTO Games (vid, fenStart, fen, score, timeControl, created)"
+				"INSERT INTO Games"
+        + " (vid, fenStart, fen, score, timeControl, created, drawOffer)"
         + " VALUES (" + vid + ",'" + fen + "','" + fen + "','*','"
-        + timeControl + "'," + Date.now() + ")";
+        + timeControl + "'," + Date.now() + "," + false + ")";
       db.run(query, function(err) {
         if (!!err)
           return cb(err);
@@ -133,13 +134,15 @@ const GameModel =
     });
   },
 
-  // obj can have fields move, fen and/or score
+  // obj can have fields move, fen, drawOffer and/or score
   update: function(id, obj)
   {
 		db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
+      if (!!obj.drawOffer)
+        query += "drawOffer = " + obj.drawOffer + ",";
       if (!!obj.fen)
         query += "fen = '" + obj.fen + "',";
       if (!!obj.score)
