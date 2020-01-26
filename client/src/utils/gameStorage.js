@@ -81,6 +81,7 @@ export const GameStorage =
           {
             move: obj.move, //may be undefined...
             fen: obj.fen,
+            message: obj.message,
             score: obj.score,
             drawOffer: obj.drawOffer,
           }

@@ -1,12 +1,11 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    input#modalEog.modal(type="checkbox")
-    div(role="dialog" aria-labelledby="eogMessage")
-      .card.smallpad.small-modal.text-center
-        label.modal-close(for="modalEog")
-        h3#eogMessage.section {{ endgameMessage }}
-    // TODO: or "BoardHex" if this.game.vname in "Hexagonal..."
+div
+  input#modalEog.modal(type="checkbox")
+  div(role="dialog" aria-labelledby="eogMessage")
+    .card.smallpad.small-modal.text-center
+      label.modal-close(for="modalEog")
+      h3#eogMessage.section {{ endgameMessage }}
+  .float70 //TODO: use mini-css predefined styles
     Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
       :user-color="game.mycolor" :orientation="orientation"
       :vname="game.vname" @play-move="play")
@@ -16,15 +15,14 @@
       button(@click="flip") Flip
       button(@click="gotoBegin") GotoBegin
       button(@click="gotoEnd") GotoEnd
-    #messageDiv.section-content(v-if="game.type=='corr'") {{ curMoveMessage() }}
-    #fenDiv.section-content(v-if="showFen && !!vr")
-      p#fenString.text-center {{ vr.getFen() }}
-    #pgnDiv.section-content
+    #fenDiv(v-if="showFen && !!vr")
+      p {{ vr.getFen() }}
+    #pgnDiv
       a#download(href="#")
-      button#downloadBtn(@click="download") {{ st.tr["Download PGN"] }}
-    div#movesList
-      MoveList(v-if="showMoves"
-        :moves="moves" :cursor="cursor" @goto-move="gotoMove")
+      button(@click="download") {{ st.tr["Download PGN"] }}
+  .float30 //TODO: should be optional (adjust widths dynamically)
+    MoveList(v-if="showMoves"
+      :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
 
 <script>
@@ -59,8 +57,12 @@ export default {
     "game.fenStart": function() {
       this.re_setVariables();
     },
+    // Received a new move to play:
+    "game.moveToPlay": function() {
+      this.play(this.game.moveToPlay, "receive", this.game.vname=="Dark");
+    },
     "game.score": function() {
-      this.score = this.game.score;
+      this.endGame(this.game.score, this.game.scoreMsg);
     },
   },
   computed: {
@@ -99,15 +101,6 @@ export default {
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
-    },
-    // For corr games, potential message with each move sent
-    curMoveMessage: function() {
-      if (this.cursor < 0)
-        return "";
-      return this.game.moves[this.cursor].message || "";
-    },
-    setCurrentMessage: function(message) {
-      this.game.moves[this.game.moves.length-1].message = message;
     },
     download: function() {
       const content = this.getPgn();

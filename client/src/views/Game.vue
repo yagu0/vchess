@@ -9,6 +9,7 @@
       button(@click="offerDraw") Draw
       button(@click="abortGame") Abort
       button(@click="resign") Resign
+    div(v-if="game.type=='corr'") {{ game.corrMsg }}
     textarea(v-if="game.score=='*'" v-model="corrMsg")
     Chat(:players="game.players")
 </template>
@@ -73,10 +74,7 @@ export default {
         {
           clearInterval(clockUpdate);
           if (countdown < 0)
-          {
-            this.$refs["basegame"].endGame(
-              this.vr.turn=="w" ? "0-1" : "1-0", "Time");
-          }
+            this.setScore(this.vr.turn=="w" ? "0-1" : "1-0", "Time");
         }
         else
         {
@@ -196,9 +194,8 @@ export default {
             game:myGame, target:data.from}));
           break;
         case "newmove":
-          // NOTE: this call to play() will trigger processMove()
-          this.$refs["basegame"].play(data.move,
-            "receive", this.game.vname!="Dark" ? "animate" : null);
+          this.corrMsg = data.move.message; //may be empty
+          this.game.moveToPlay = data.move;
           break;
         case "lastate": //got opponent infos about last move
         {
@@ -209,14 +206,13 @@ export default {
           break;
         }
         case "resign":
-          this.$refs["basegame"].endGame(
-            (data.side=="b" ? "1-0" : "0-1"), "Resign");
+          this.setScore(data.side=="b" ? "1-0" : "0-1", "Resign");
           break;
         case "abort":
-          this.$refs["basegame"].endGame("?", "Abort");
+          this.setScore("?", "Abort");
           break;
         case "draw":
-          this.$refs["basegame"].endGame("1/2", "Mutual agreement");
+          this.setScore("1/2", "Mutual agreement");
           break;
         case "drawoffer":
           this.drawOffer = "received"; //TODO: observers don't know who offered draw
@@ -247,18 +243,21 @@ export default {
       if (data.movesCount > L)
       {
         // Just got last move from him
-        this.$refs["basegame"].play(data.lastMove,
-          "receive", this.game.vname!="Dark" ? "animate" : null);
+        this.game.moveToPlay = data.lastMove;
         if (data.score != "*" && this.game.score == "*")
         {
           // Opponent resigned or aborted game, or accepted draw offer
           // (this is not a stalemate or checkmate)
-          this.$refs["basegame"].endGame(data.score, "Opponent action");
+          this.setScore(data.score, "Opponent action");
         }
         this.game.clocks = data.clocks; //TODO: check this?
         if (!!data.lastMove.draw)
           this.drawOffer = "received";
       }
+    },
+    setScore: function(score, message) {
+      this.game.scoreMsg = message;
+      this.game.score = score;
     },
     offerDraw: function() {
       if (this.drawOffer == "received")
@@ -269,7 +268,7 @@ export default {
           if (p.sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"draw", target:p.sid}));
         });
-        this.$refs["basegame"].endGame("1/2", "Mutual agreement");
+        this.setScore("1/2", "Mutual agreement");
       }
       else if (this.drawOffer == "sent")
       {
@@ -293,8 +292,7 @@ export default {
     abortGame: function() {
       if (!confirm(this.st.tr["Terminate game?"]))
         return;
-      // Next line will trigger a "gameover" event, bubbling up till here
-      this.$refs["basegame"].endGame("?", "Abort");
+      this.setScore("?", "Abort");
       this.people.forEach(p => {
         if (p.sid != this.st.user.sid)
         {
@@ -315,9 +313,7 @@ export default {
             side:this.game.mycolor, target:p.sid}));
         }
       });
-      // Next line will trigger a "gameover" event, bubbling up till here
-      this.$refs["basegame"].endGame(
-        this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
+      this.setScore(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -462,12 +458,6 @@ export default {
             }));
           }
         });
-        if (this.game.type == "corr" && this.corrMsg != "")
-        {
-          // Add message to last move in BaseGame:
-          // TODO: not very good style...
-          this.$refs["basegame"].setCurrentMessage(this.corrMsg);
-        }
       }
       else
         addTime = move.addTime; //supposed transmitted
@@ -481,10 +471,10 @@ export default {
           GameStorage.update(this.gameRef.id,
           {
             fen: move.fen,
+            message: this.corrMsg,
             move:
             {
               squares: filtered_move,
-              message: this.corrMsg,
               played: Date.now(), //TODO: on server?
               idx: this.game.moves.length,
             },
@@ -511,9 +501,6 @@ export default {
       //TODO: (Vue3) just this.game.clocks[colorIdx] += addTime;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
-      // Finally reset curMoveMessage if needed
-      if (this.game.type == "corr" && move.color == this.game.mycolor)
-        this.corrMsg = "";
     },
     gameOver: function(score) {
       this.game.mode = "analyze";

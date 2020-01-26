@@ -3,11 +3,6 @@
 export default {
   name: 'my-move-list',
 	props: ["moves","cursor"],
-	data: function() {
-		return {
-			something: "", //TODO?
-		};
-	},
 	render(h) {
 		if (this.moves.length == 0)
 			return;
@@ -73,10 +68,14 @@ export default {
 		tableRow.children = moveCells;
 		tableContent.push(tableRow);
 		const movesTable = h(
-			"table",
-			{ },
-			tableContent
-		);
+      "div",
+      { },
+      [h(
+			  "table",
+			  { },
+			  tableContent
+		  )]
+    );
 		return movesTable;
 	},
 	methods: {

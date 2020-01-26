@@ -237,13 +237,6 @@ export default {
     return h(
       'div',
       {
-        'class': {
-          "col-sm-12": true,
-          "col-md-10": true,
-          "col-md-offset-1": true,
-          "col-lg-8": true,
-          "col-lg-offset-2": true,
-        },
         // NOTE: click = mousedown + mouseup
         on: {
           mousedown: this.mousedown,
