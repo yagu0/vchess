@@ -47,6 +47,7 @@ export const translations =
   "White win": "White win",
   "Black win": "Black win",
   "Draw": "Draw",
+  "Unfinished": "Unknown",
   "New live game": "New live game",
   "New game versus computer": "New game versus computer",
   "Analysis mode": "Analysis mode",

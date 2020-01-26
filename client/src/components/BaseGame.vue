@@ -62,8 +62,9 @@ export default {
     "game.moveToPlay": function() {
       this.play(this.game.moveToPlay, "receive", this.game.vname=="Dark");
     },
-    "game.score": function() {
-      this.endGame(this.game.score, this.game.scoreMsg);
+    "game.score": function(score) {
+      if (score != "*")
+        this.endGame(score, this.game.scoreMsg);
     },
   },
   computed: {
