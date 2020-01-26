@@ -1,15 +1,16 @@
 <template lang="pug">
-table
-  tr
-    th Variant
-    th From
-    th To
-    th Cadence
-  tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
-    td {{ c.vname }}
-    td {{ c.from.name }}
-    td {{ c.to }}
-    td {{ c.timeControl }}
+div
+  table
+    tr
+      th Variant
+      th From
+      th To
+      th Cadence
+    tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
+      td {{ c.vname }}
+      td {{ c.from.name }}
+      td {{ c.to }}
+      td {{ c.timeControl }}
 </template>
 
 <script>

@@ -1,13 +1,11 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    // TODO: Chat modal sur petit écran, dans la page pour grand écran
-    .card.smallpad
-      h4 Chat
-      p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
-      input#inputChat(type="text" :placeholder="st.tr['Type here']"
-        @keyup.enter="sendChat")
-      button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
+div
+  .card.smallpad
+    h4 Chat
+    p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
+    input#inputChat(type="text" :placeholder="st.tr['Type here']"
+      @keyup.enter="sendChat")
+    button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
 </template>
 
 <script>

@@ -1,6 +1,4 @@
 <script>
-// TODO: BoardHex for hexagonal variants (2 players)
-
 import { getSquareId, getSquareFromId } from "@/utils/squareId";
 import { ArrayFun } from "@/utils/array";
 

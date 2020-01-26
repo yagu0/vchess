@@ -1,8 +1,9 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    p TODO: give github URL, tell website story...
-    a(href="https://github.com/yagu0/vchess") contribute...
+main
+  .row
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      p TODO: give github URL, tell website story...
+      a(href="https://github.com/yagu0/vchess") contribute...
 </template>
 
 <style lang="sass">

@@ -1,17 +1,18 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    .button-group
-      button(@click="clickReadRules") Read the rules
-      button(v-show="!gameInProgress" @click="() => startGame('auto')")
-        | Observe a sample game
-      button(v-show="!gameInProgress" @click="() => startGame('versus')")
-        | Beat the computer!
-      button(v-show="gameInProgress" @click="() => stopGame()")
-        | Stop game
-    .section-content(v-show="display=='rules'" v-html="content")
-    ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
-      @game-over="stopGame" @game-stopped="gameStopped")
+main
+  .row
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      .button-group
+        button(@click="clickReadRules") Read the rules
+        button(v-show="!gameInProgress" @click="() => startGame('auto')")
+          | Observe a sample game
+        button(v-show="!gameInProgress" @click="() => startGame('versus')")
+          | Beat the computer!
+        button(v-show="gameInProgress" @click="() => stopGame()")
+          | Stop game
+      .section-content(v-show="display=='rules'" v-html="content")
+      ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
+        @game-over="stopGame" @game-stopped="gameStopped")
 </template>
 
 <script>

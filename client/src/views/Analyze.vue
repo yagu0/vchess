@@ -1,7 +1,6 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:game="game" :vr="vr" ref="basegame")
+main
+  BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>
 
 <script>

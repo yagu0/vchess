@@ -1,15 +1,16 @@
 <template lang="pug">
-.row
-  .nopadding.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    label(for="prefixFilter") Type first letters...
-    input#prefixFilter(v-model="curPrefix")
-  .variant.col-sm-12.col-md-5.col-lg-4(
-    v-for="(v,idx) in filteredVariants"
-    :class="{'col-md-offset-1': idx%2==0, 'col-lg-offset-2': idx%2==0}"
-  )
-    router-link(:to="getLink(v.name)")
-      h4.boxtitle.text-center {{ v.name }}
-      p.description.text-center {{ st.tr[v.desc] }}
+main
+  .row
+    .nopadding.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      label(for="prefixFilter") Type first letters...
+      input#prefixFilter(v-model="curPrefix")
+    .variant.col-sm-12.col-md-5.col-lg-4(
+      v-for="(v,idx) in filteredVariants"
+      :class="{'col-md-offset-1': idx%2==0, 'col-lg-offset-2': idx%2==0}"
+    )
+      router-link(:to="getLink(v.name)")
+        h4.boxtitle.text-center {{ v.name }}
+        p.description.text-center {{ st.tr[v.desc] }}
 </template>
 
 <script>

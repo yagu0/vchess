@@ -5,24 +5,25 @@ div
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
-  .float70 //TODO: use mini-css predefined styles
-    Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
-      :user-color="game.mycolor" :orientation="orientation"
-      :vname="game.vname" @play-move="play")
-    .button-group
-      button(@click="() => play()") Play
-      button(@click="() => undo()") Undo
-      button(@click="flip") Flip
-      button(@click="gotoBegin") GotoBegin
-      button(@click="gotoEnd") GotoEnd
-    #fenDiv(v-if="showFen && !!vr")
-      p {{ vr.getFen() }}
-    #pgnDiv
-      a#download(href="#")
-      button(@click="download") {{ st.tr["Download PGN"] }}
-  .float30 //TODO: should be optional (adjust widths dynamically)
-    MoveList(v-if="showMoves"
-      :moves="moves" :cursor="cursor" @goto-move="gotoMove")
+  .row
+    .col-sm-12.col-md-9.col-lg-8
+      Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
+        :user-color="game.mycolor" :orientation="orientation"
+        :vname="game.vname" @play-move="play")
+      .button-group
+        button(@click="() => play()") Play
+        button(@click="() => undo()") Undo
+        button(@click="flip") Flip
+        button(@click="gotoBegin") GotoBegin
+        button(@click="gotoEnd") GotoEnd
+      #fenDiv(v-if="showFen && !!vr")
+        p {{ vr.getFen() }}
+      #pgnDiv
+        a#download(href="#")
+        button(@click="download") {{ st.tr["Download PGN"] }}
+    .col-sm-12.col-md-3.col-lg-4
+      MoveList(v-if="showMoves"
+        :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
 
 <script>

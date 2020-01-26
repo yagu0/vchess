@@ -1,18 +1,19 @@
 <template lang="pug">
-table
-  tr
-    th Variant
-    th White
-    th Black
-    th Time control
-    th(v-if="showResult") Result
-  tr(v-for="g in sortedGames" @click="$emit('show-game',g)"
-      :class="{'my-turn': g.myTurn}")
-    td {{ g.vname }}
-    td {{ g.players[0].name || "@nonymous" }}
-    td {{ g.players[1].name || "@nonymous" }}
-    td {{ g.timeControl }}
-    td(v-if="showResult") {{ g.score }}
+div
+  table
+    tr
+      th Variant
+      th White
+      th Black
+      th Time control
+      th(v-if="showResult") Result
+    tr(v-for="g in sortedGames" @click="$emit('show-game',g)"
+        :class="{'my-turn': g.myTurn}")
+      td {{ g.vname }}
+      td {{ g.players[0].name || "@nonymous" }}
+      td {{ g.players[1].name || "@nonymous" }}
+      td {{ g.timeControl }}
+      td(v-if="showResult") {{ g.score }}
 </template>
 
 <script>

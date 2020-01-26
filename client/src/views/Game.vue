@@ -1,17 +1,21 @@
 <template lang="pug">
-.row
-  .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-    BaseGame(:game="game" :vr="vr" ref="basegame"
-      @newmove="processMove" @gameover="gameOver")
-    div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
-    div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
-    .button-group(v-if="game.mode!='analyze' && game.score=='*'")
-      button(@click="offerDraw") Draw
-      button(@click="abortGame") Abort
-      button(@click="resign") Resign
-    div(v-if="game.type=='corr'") {{ game.corrMsg }}
-    textarea(v-if="game.score=='*'" v-model="corrMsg")
-    Chat(:players="game.players")
+main
+  .row
+    .col-sm-12.col-md-3
+      Chat(:players="game.players")
+    .col-sm-12.col-md-9
+      BaseGame(:game="game" :vr="vr" ref="basegame"
+        @newmove="processMove" @gameover="gameOver")
+  .row
+    .col-sm-12.col-md-9.col-md-offset-3
+      .button-group(v-if="game.mode!='analyze' && game.score=='*'")
+        button(@click="offerDraw") Draw
+        button(@click="abortGame") Abort
+        button(@click="resign") Resign
+      div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
+      div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
+      div(v-if="game.type=='corr'") {{ game.corrMsg }}
+      textarea(v-if="game.score=='*'" v-model="corrMsg")
 </template>
 
 <script>
