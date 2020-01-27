@@ -1,16 +1,18 @@
 <template lang="pug">
 div
   table
-    tr
-      th Variant
-      th From
-      th To
-      th Cadence
-    tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
-      td {{ c.vname }}
-      td {{ c.from.name }}
-      td {{ c.to }}
-      td {{ c.timeControl }}
+    thead
+      tr
+        th Variant
+        th From
+        th To
+        th Cadence
+    tbody
+      tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
+        td(data-label="Variant") {{ c.vname }}
+        td(data-label="From") {{ c.from.name }}
+        td(data-label="To") {{ c.to }}
+        td(data-label="Cadence") {{ c.timeControl }}
 </template>
 
 <script>
@@ -40,7 +42,3 @@ export default {
   },
 };
 </script>
-
-<style lang="sass">
-// TODO: affichage bizarre sur petits écrans <=767px
-</style>

@@ -10,12 +10,12 @@ div
   div(role="dialog")
     #language.card
       label.modal-close(for="modalLang")
-      form
+      form(@change="setLanguage")
         fieldset
           label(for="langSelect") {{ st.tr["Language"] }}
           select#langSelect
             each language,langCode in langName
-              option(value=langCode selected=(lang==langCode))
+              option(value=langCode)
                 =language
 </template>
 
@@ -28,7 +28,14 @@ export default {
       st: store.state,
     };
   },
-	methods: {
+  mounted: function() {
+    // TODO: better style would be in pug directly, but how?
+    document.querySelectorAll("#langSelect > option").forEach(opt => {
+      if (opt.value == this.st.lang)
+        opt.selected = true;
+    });
+  },
+  methods: {
     setLanguage: function(e) {
       localStorage["lang"] = e.target.value;
       store.setLanguage(e.target.value);

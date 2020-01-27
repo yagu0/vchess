@@ -67,3 +67,8 @@ export default {
 	},
 };
 </script>
+
+<style lang="sass" scoped>
+#emailSent
+  display: none
+</style>

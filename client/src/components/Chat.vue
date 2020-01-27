@@ -1,11 +1,10 @@
 <template lang="pug">
-div
-  .card.smallpad
-    h4 Chat
-    p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
-    input#inputChat(type="text" :placeholder="st.tr['Type here']"
-      @keyup.enter="sendChat")
-    button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
+#chat.card
+  h4 Chat
+  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
+  input#inputChat(type="text" :placeholder="st.tr['Type here']"
+    @keyup.enter="sendChat")
+  button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
 </template>
 
 <script>
@@ -61,9 +60,11 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .my-chatmsg
   color: grey
 .opp-chatmsg
   color: black
+#chat
+  max-width: 100%
 </style>

@@ -55,9 +55,9 @@ export const store =
     this.state.conn.onclose = this.socketCloseListener;
     const supportedLangs = ["en","es","fr"];
     this.state.lang = localStorage["lang"] ||
-      supportedLangs.includes(navigator.language)
+      (supportedLangs.includes(navigator.language)
         ? navigator.language
-        : "en";
+        : "en");
     this.setTranslations();
   },
   setTranslations: async function() {

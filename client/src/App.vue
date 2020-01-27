@@ -13,7 +13,7 @@
         nav
           label.drawer-toggle(for="drawerControl")
           input#drawerControl.drawer(type="checkbox")
-          #menuBar
+          #menuBar(@click="hideDrawer")
             label.drawer-close(for="drawerControl")
             #leftMenu
               router-link(to="/")
@@ -22,7 +22,7 @@
                 | {{ st.tr["Variants"] }}
               router-link(to="/mygames")
                 | {{ st.tr["My games"] }}
-              a(href="https://groups.google.com/forum/#!forum/vchess-club")
+              a(href="https://forum.vchess.club")
                 | {{ st.tr["Forum"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
@@ -64,6 +64,14 @@ export default {
   computed: {
     flagImage: function() {
       return `/images/flags/${this.st.lang}.svg`;
+    },
+  },
+  methods: {
+    hideDrawer: function(e) {
+      if (e.target.innerText == "Forum")
+        return; //external link
+      e.preventDefault(); //TODO: why is this needed?
+      document.getElementsByClassName("drawer")[0].checked = false;
     },
   },
 };
@@ -131,11 +139,12 @@ nav
           width: 36px
           height: 27px
 
-// TODO: drawer, until 600px wide OK (seemingly)
-// After, zone where left and right just go on top of another
-// Then, on narrow screen put everything on one line
 [type="checkbox"].drawer+*
   right: -767px
+
+#menuBar
+  label.drawer-close
+    top: 50px
 
 footer
   //background-color: #000033
