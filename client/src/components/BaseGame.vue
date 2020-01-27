@@ -17,7 +17,7 @@ div
         button(@click="gotoBegin") GotoBegin
         button(@click="gotoEnd") GotoEnd
       #fenDiv(v-if="showFen && !!vr")
-        p {{ vr.getFen() }}
+        p(@click="gotoFenContent") {{ vr.getFen() }}
       #pgnDiv
         a#download(href="#")
         button(@click="download") {{ st.tr["Download PGN"] }}
@@ -103,6 +103,10 @@ export default {
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+    },
+    gotoFenContent: function(event) {
+      this.$router.push("/analyze/" + this.game.vname +
+        "/?fen=" + event.target.innerText.replace(/ /g, "_"));
     },
     download: function() {
       const content = this.getPgn();

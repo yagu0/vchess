@@ -4,8 +4,8 @@ export const translations =
   "Variants": "Variants",
   "My games": "My games",
   "Forum": "Forum",
-  "Contact form": "Contact form",
-  "Source code": "Source code",
+  "Contact": "Contact",
+  "About": "About",
 
   "Language": "Language",
   "Email": "Email",

@@ -26,10 +26,12 @@ main
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
-    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+    .col-sm-12.col-md-9.col-md-offset-3
       button(onClick="doClick('modalNewgame')") New game
   .row
-    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+    .col-sm-12.col-md-3
+      Chat(:players="[]")
+    .col-sm-12.col-md-9
       .collapse
         input#challengeSection(type="radio" checked aria-hidden="true" name="accordion")
         label(for="challengeSection" aria-hidden="true") Challenges
@@ -73,12 +75,14 @@ import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
 import { getRandString, shuffle } from "@/utils/alea";
+import Chat from "@/components/Chat.vue";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 import { GameStorage } from "@/utils/gameStorage";
 export default {
   name: "my-hall",
   components: {
+    Chat,
     GameList,
     ChallengeList,
   },
