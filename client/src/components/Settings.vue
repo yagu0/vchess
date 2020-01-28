@@ -32,6 +32,10 @@ div
           option(value="0") {{ st.tr["None"] }}
           option(value="1") {{ st.tr["New game"] }}
           option(value="2") {{ st.tr["All"] }}
+      fieldset
+        .slidecontainer
+          input#myRange.slider(type="range" min="1" max="100" value="50"
+            @input="adjustBoard")
 </template>
 
 <script>
@@ -50,6 +54,15 @@ export default {
       localStorage[propName] = ["highlight","coords"].includes(propName)
         ? event.target.checked
         : event.target.value;
+    },
+    adjustBoard: function() {
+      const board = document.querySelector(".game");
+      if (!board)
+        return; //no board on page
+      const multiplier = document.getElementById("myRange").value;
+      const boardSize = 10 * multiplier;
+      localStorage.setItem("boardSize", boardSize);
+      board.style.width = boardSize + "px";
     },
 	},
 };

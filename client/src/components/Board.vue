@@ -21,7 +21,15 @@ export default {
   },
   render(h) {
     if (!this.vr)
-      return;
+    {
+      // Return empty div of class 'game' to avoid error when setting size
+      return h("div",
+        {
+          "class": {
+            "game": true,
+          },
+        });
+    }
     const [sizeX,sizeY] = [V.size.x,V.size.y];
     // Precompute hints squares to facilitate rendering
     let hintSquares = ArrayFun.init(sizeX, sizeY, false);
@@ -30,9 +38,9 @@ export default {
     let incheckSq = ArrayFun.init(sizeX, sizeY, false);
     this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 
-    let firstRow = document.querySelector(".game > .row");
-    const squareWidth = (!!firstRow
-      ? document.querySelector(".game > .row").offsetWidth / sizeY
+    let boardElt = document.querySelector(".game");
+    const squareWidth = (!!boardElt
+      ? boardElt.offsetWidth / sizeY
       : 40); //arbitrary value (not relevant)
     const choices = h(
       'div',
@@ -252,6 +260,12 @@ export default {
       elementArray
     );
   },
+  mounted: function() {
+    // NOTE (TODO?): could also be dependent on page type (game, analyze, variant)
+    const boardSize = localStorage.getItem("boardSize");
+    if (!!boardSize)
+      document.querySelector(".game").style.width = boardSize + "px";
+  },
   methods: {
     mousedown: function(e) {
       e = e || window.event;
@@ -386,7 +400,7 @@ div.board11
   padding-bottom: 9.1%
 
 .game
-  width: #{'min(80vw, 500px)'}
+  //width: #{'min(80vw, 500px)'}
   margin: 0 auto
   .board
     cursor: pointer

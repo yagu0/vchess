@@ -48,7 +48,11 @@ export default {
     this.compWorker.onmessage = e => {
       let compMove = e.data;
       if (!compMove)
+      {
+        this.compThink = false;
+        this.$emit("game-stopped"); //no more moves: mate or stalemate
         return; //after game ends, no more moves, nothing to do
+      }
       if (!Array.isArray(compMove))
         compMove = [compMove]; //to deal with MarseilleRules
       // Small delay for the bot to appear "more human"
