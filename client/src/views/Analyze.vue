@@ -1,6 +1,8 @@
 <template lang="pug">
 main
-  BaseGame(:game="game" :vr="vr" ref="basegame")
+  .row
+    .col-sm-12.col-md-10.col-md-offset-1
+      BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>
 
 <script>
@@ -48,6 +50,9 @@ export default {
       const vModule = await import("@/variants/" + this.game.vname + ".js");
       window.V = vModule.VariantRules;
       this.vr = new V(this.game.fen);
+      // fenStart initialized in the end, after definition of V,
+      // because it triggers a reset on BaseGame component.
+      this.$set(this.game, "fenStart", this.gameRef.fen); //TODO: Vue3...
     },
   },
 };

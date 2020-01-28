@@ -6,8 +6,6 @@ export default {
 	render(h) {
 		if (this.moves.length == 0)
 			return;
-		if (this.moves[0].color == "b")
-			this.moves.unshift({color: "w", notation: "..."});
 		let tableContent = [];
 		let moveCounter = 0;
 		let tableRow = undefined;
