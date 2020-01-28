@@ -29,7 +29,11 @@ export default {
     // Also precompute in-check squares
     let incheckSq = ArrayFun.init(sizeX, sizeY, false);
     this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
-    const squareWidth = 40; //TODO: compute this
+
+    let firstRow = document.querySelector(".game > .row");
+    const squareWidth = (!!firstRow
+      ? document.querySelector(".game > .row").offsetWidth / sizeY
+      : 40); //arbitrary value (not relevant)
     const choices = h(
       'div',
       {
@@ -37,7 +41,7 @@ export default {
         'class': { 'row': true },
         style: {
           "display": (this.choices.length > 0 ? "block" : "none"),
-          "top": "-" + ((sizeY/2)*squareWidth+squareWidth/2) + "px",
+          "top": ((sizeY/2)*squareWidth+squareWidth/2) + "px",
           "width": (this.choices.length * squareWidth) + "px",
           "height": squareWidth + "px",
         },
@@ -382,7 +386,7 @@ div.board11
   padding-bottom: 9.1%
 
 .game
-  width: 80vh
+  width: #{'min(80vw, 500px)'}
   margin: 0 auto
   .board
     cursor: pointer

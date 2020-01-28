@@ -199,7 +199,7 @@ export default {
           break;
         case "newmove":
           this.corrMsg = data.move.message; //may be empty
-          this.game.moveToPlay = data.move;
+          this.$set(this.game, "moveToPlay", data.move); //TODO: Vue3...
           break;
         case "lastate": //got opponent infos about last move
         {
@@ -247,7 +247,7 @@ export default {
       if (data.movesCount > L)
       {
         // Just got last move from him
-        this.game.moveToPlay = data.lastMove;
+        this.$set(this.game, "moveToPlay", data.lastMove);
         if (data.score != "*" && this.game.score == "*")
         {
           // Opponent resigned or aborted game, or accepted draw offer
@@ -261,7 +261,7 @@ export default {
     },
     setScore: function(score, message) {
       this.game.scoreMsg = message;
-      this.game.score = score;
+      this.$set(this.game, "score", score); //TODO: Vue3...
     },
     offerDraw: function() {
       if (this.drawOffer == "received")
@@ -508,7 +508,8 @@ export default {
     },
     gameOver: function(score) {
       this.game.mode = "analyze";
-      this.game.score = score;
+      this.game.score = score; //until Vue3, this property change isn't seen
+                               //by child (and doesn't need to be)
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });

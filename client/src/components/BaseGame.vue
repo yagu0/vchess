@@ -51,6 +51,7 @@ export default {
       moves: [],
       cursor: -1, //index of the move just played
       lastMove: null,
+      gameHasEnded: false, //to avoid showing end message twice
     };
   },
   watch: {
@@ -63,8 +64,11 @@ export default {
       this.play(this.game.moveToPlay, "receive", this.game.vname=="Dark");
     },
     "game.score": function(score) {
-      if (score != "*")
-        this.endGame(score, this.game.scoreMsg);
+      if (!this.gameHasEnded && score != "*")
+      {
+        // "false" says "don't bubble up": the parent already knows
+        this.endGame(score, this.game.scoreMsg, false);
+      }
     },
   },
   computed: {
@@ -88,6 +92,7 @@ export default {
       this.endgameMessage = "";
       this.orientation = this.game.mycolor || "w"; //default orientation for observed games
       this.score = this.game.score || "*"; //mutable (if initially "*")
+      this.gameHasEnded = (this.score != "*");
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
       // Post-processing: decorate each move with color + current FEN:
       // (to be able to jump to any position quickly)
@@ -172,12 +177,14 @@ export default {
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
     },
-    endGame: function(score, message) {
+    endGame: function(score, message, bubbleUp) {
+      this.gameHasEnded = true;
       this.score = score;
       if (!message)
         message = this.getScoreMessage(score);
       this.showEndgameMsg(score + " . " + message);
-      this.$emit("gameover", score);
+      if (bubbleUp)
+        this.$emit("gameover", score);
     },
     animateMove: function(move) {
       let startSquare = document.getElementById(getSquareId(move.start));
@@ -259,7 +266,7 @@ export default {
       if (score != "*")
       {
         if (!this.analyze)
-          this.endGame(score);
+          this.endGame(score, undefined, true);
         else
         {
           // Just show score on screen (allow undo)
