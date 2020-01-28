@@ -70,7 +70,11 @@ export default {
       { },
       [h(
 			  "table",
-			  { },
+			  {
+          "class": {
+            "moves-list": true,
+          },
+        },
 			  tableContent
 		  )]
     );
@@ -83,3 +87,8 @@ export default {
 	},
 };
 </script>
+
+<style lang="sass" scoped>
+.moves-list
+  min-width: 250px
+</style>

@@ -34,7 +34,7 @@ div
           option(value="2") {{ st.tr["All"] }}
       fieldset
         .slidecontainer
-          input#myRange.slider(type="range" min="1" max="100" value="50"
+          input#myRange.slider(type="range" min="10" max="100" value="55"
             @input="adjustBoard")
 </template>
 

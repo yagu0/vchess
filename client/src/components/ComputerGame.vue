@@ -58,6 +58,8 @@ export default {
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500-(Date.now()-this.timeStart), 0);
       setTimeout(() => {
+        if (this.currentUrl != document.location.href)
+          return; //page change
         // NOTE: Dark and 2-moves are incompatible
         const animate = (this.gameInfo.vname != "Dark");
         const animDelay = (animate ? 250 : 0);
@@ -92,6 +94,7 @@ export default {
       let players = [{name:"Myself"},{name:"Computer"}];
       if (mycolor == "b")
         players = players.reverse();
+      this.currentUrl = document.location.href; //to avoid playing outside page
       // NOTE: fen and fenStart are redundant in game object
       this.game = Object.assign({},
         this.gameInfo,
