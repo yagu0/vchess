@@ -93,6 +93,8 @@ export default {
       document.getElementById("baseGame").focus();
     },
     handleKeys: function(e) {
+      if ([32,37,38,39,40].includes(e.keyCode))
+        e.preventDefault();
       switch (e.keyCode)
       {
         case 37:
@@ -101,14 +103,13 @@ export default {
         case 39:
           this.play();
           break;
-        case 28:
+        case 38:
           this.gotoBegin();
           break;
         case 40:
           this.gotoEnd();
           break;
         case 32:
-          e.preventDefault();
           this.flip();
           break;
       }
@@ -324,8 +325,16 @@ export default {
     },
     gotoBegin: function() {
       this.vr.re_init(this.game.fenStart);
-      this.cursor = -1;
-      this.lastMove = null;
+      if (this.moves.length > 0 && this.moves[0].notation == "...")
+      {
+        this.cursor = 0;
+        this.lastMove = this.moves[0];
+      }
+      else
+      {
+        this.cursor = -1;
+        this.lastMove = null;
+      }
     },
     gotoEnd: function() {
       this.gotoMove(this.moves.length-1);

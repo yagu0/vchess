@@ -148,6 +148,7 @@ nav
     top: 50px
 
 footer
+  border: 1px solid #ddd
   //background-color: #000033
   font-size: 1rem
   width: 100%
@@ -161,7 +162,8 @@ footer
     margin: 0 10px 0 0
     &:link
       color: #2c3e50
-    &:hover
+    &:visited, &:hover
+      color: #2c3e50
       text-decoration: none
   & > p
     display: inline-block

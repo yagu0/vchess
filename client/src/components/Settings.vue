@@ -34,7 +34,7 @@ div
           option(value="2") {{ st.tr["All"] }}
       fieldset
         .slidecontainer
-          input#myRange.slider(type="range" min="10" max="100" value="55"
+          input#myRange.slider(type="range" min="20" max="100" value="60"
             @input="adjustBoard")
 </template>
 
@@ -46,6 +46,11 @@ export default {
     return {
       st: store.state,
     };
+  },
+  mounted: function() {
+    const boardSize = localStorage.getItem("boardSize");
+    if (!!boardSize)
+      document.getElementById("myRange").value = Math.floor(boardSize / 10);
   },
 	methods: {
     updateSettings: function(event) {
