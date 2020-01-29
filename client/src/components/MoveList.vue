@@ -91,4 +91,6 @@ export default {
 <style lang="sass" scoped>
 .moves-list
   min-width: 250px
+td.highlight-lm
+  background-color: plum
 </style>

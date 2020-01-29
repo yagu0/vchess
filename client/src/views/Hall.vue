@@ -598,5 +598,9 @@ export default {
 <style lang="sass">
 #newGame
   display: block
-  margin: auto
+  margin: 10px auto 5px auto
+#chat > .card
+  max-width: 100%
+  margin: 0;
+  border: none;
 </style>

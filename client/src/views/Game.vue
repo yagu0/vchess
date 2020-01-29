@@ -48,6 +48,7 @@ export default {
       drawOffer: "", //TODO: use for button style
       people: [], //players + observers
       lastate: undefined, //used if opponent send lastate before game is ready
+      repeat: {}, //detect position repetition
     };
   },
   watch: {
@@ -407,6 +408,7 @@ export default {
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
+        this.repeat = {}; //reset
         if (!!this.lastate) //lastate arrived before game was loaded:
           this.processLastate();
         callback();
@@ -505,6 +507,16 @@ export default {
       //TODO: (Vue3) just this.game.clocks[colorIdx] += addTime;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
+      // If repetition detected, consider that a draw offer was received:
+      const fenObj = V.ParseFen(move.fen);
+      let repIdx = fenObj.position + "_" + fenObj.turn;
+      if (!!fenObj.flags)
+        repIdx += "_" + fenObj.flags;
+      this.repeat[repIdx] = (!!this.repeat[repIdx]
+        ? this.repeat[repIdx]+1
+        : 1);
+      if (this.repeat[repIdx] >= 3)
+        this.drawOffer = "received"; //TODO: will print "mutual agreement"...
     },
     gameOver: function(score) {
       this.game.mode = "analyze";
@@ -521,5 +533,15 @@ export default {
 </script>
 
 <style lang="sass">
-// TODO
+.connected
+  background-color: green
+
+.disconnected
+  background-color: red
+
+.white-turn
+  background-color: white
+
+.black-turn
+  background-color: black
 </style>

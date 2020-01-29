@@ -11,8 +11,8 @@ main
         button(v-show="gameInProgress" @click="() => stopGame()")
           | Stop game
       .section-content(v-show="display=='rules'" v-html="content")
-      ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
-        @game-over="stopGame" @game-stopped="gameStopped")
+  ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
+    @game-over="stopGame" @game-stopped="gameStopped")
 </template>
 
 <script>
@@ -78,7 +78,7 @@ export default {
       };
       // (AJAX) Request to get rules content (plain text, HTML)
       this.content =
-        require("raw-loader!@/rules/" + vname + "/" + this.st.lang + ".pug")
+        require("raw-loader!@/translations/rules/" + vname + "/" + this.st.lang + ".pug")
         // Next two lines fix a weird issue after last update (2019-11)
         .replace(/\\[n"]/g, " ")
         .replace('module.exports = "', '').replace(/"$/, "")

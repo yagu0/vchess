@@ -6,11 +6,11 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
   .row
-    .col-sm-12.col-md-9.col-lg-8
+    #boardContainer.col-sm-12.col-md-9
       Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
         :user-color="game.mycolor" :orientation="orientation"
         :vname="game.vname" @play-move="play")
-      .button-group
+      #controls
         button(@click="gotoBegin") <<
         button(@click="() => undo()") <
         button(@click="flip") &#8645;
@@ -21,7 +21,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
       #pgnDiv
         a#download(href="#")
         button(@click="download") {{ st.tr["Download PGN"] }}
-    .col-sm-12.col-md-3.col-lg-4
+    .col-sm-12.col-md-3
       MoveList(v-if="showMoves"
         :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
@@ -345,3 +345,29 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+#modal-eog+div .card
+  overflow: hidden
+#pgnDiv, #fenDiv
+  text-align: center
+  margin-left: auto
+  margin-right: auto
+@media screen and (min-width: 768px)
+  #controls
+    width: 400px
+@media screen and (max-width: 767px)
+  .game
+    width: 100%
+#controls
+  margin-top: 10px
+  button
+    display: inline-block
+    width: 20%
+    margin: 0
+#boardContainer
+  margin-top: 5px
+  >div
+    margin-left: auto
+    margin-right: auto
+</style>

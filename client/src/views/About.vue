@@ -2,11 +2,7 @@
 main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      p {{ st.tr["about_intro1"] }}
-      p {{ st.tr["about_intro2"] }}
-      p {{ st.tr["about_sitemap"] }}
-      p(v-html="st.tr['about_contrib']")
-      p(v-html="st.tr['about_thanks']")
+      div(v-html="content")
 </template>
 
 <script>
@@ -17,7 +13,15 @@ export default {
   data: function() {
     return {
       st: store.state,
+      content: "",
     };
+  },
+  mounted: function() {
+    this.content =
+      require("raw-loader!@/translations/about/" + this.st.lang + ".pug")
+      // Next two lines fix a weird issue after last update (2019-11)
+      .replace(/\\[n"]/g, " ")
+      .replace('module.exports = "', '').replace(/"$/, "");
   },
 };
 </script>
