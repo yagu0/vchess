@@ -2,9 +2,25 @@
 main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      p TODO: give github URL, tell website story...
-      a(href="https://github.com/yagu0/vchess") contribute...
+      p {{ st.tr["about_intro1"] }}
+      p {{ st.tr["about_intro2"] }}
+      p {{ st.tr["about_sitemap"] }}
+      p(v-html="st.tr['about_contrib']")
+      p(v-html="st.tr['about_thanks']")
 </template>
+
+<script>
+import { store } from "@/store";
+
+export default {
+  name: 'my-about',
+  data: function() {
+    return {
+      st: store.state,
+    };
+  },
+};
+</script>
 
 <style lang="sass">
 .warn
