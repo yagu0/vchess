@@ -38,8 +38,6 @@
           router-link.menuitem(to="/about") {{ st.tr["About"] }}
           p.clickable(onClick="doClick('modalContact')")
             | {{ st.tr["Contact"] }}
-  // TODO: add only the necessary icons to mini-css custom build
-  //script(src="//unpkg.com/feather-icons")
 </template>
 
 <script>
@@ -66,6 +64,9 @@ export default {
       return `/images/flags/${this.st.lang}.svg`;
     },
   },
+//  mounted: function() {
+//    feather.replace();
+//  },
   methods: {
     hideDrawer: function(e) {
       if (e.target.innerText == "Forum")

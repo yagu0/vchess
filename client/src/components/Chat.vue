@@ -1,10 +1,9 @@
 <template lang="pug">
-#chat.card
-  h4 Chat
-  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
+.card
   input#inputChat(type="text" :placeholder="st.tr['Type here']"
     @keyup.enter="sendChat")
   button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
+  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
 </template>
 
 <script>
@@ -26,7 +25,7 @@ export default {
       const data = JSON.parse(msg.data);
       if (data.code == "newchat") //only event at this level
       {
-        this.chats.push({msg:data.msg,
+        this.chats.unshift({msg:data.msg,
           name:data.name || "@nonymous", sid:data.from});
       }
     };
@@ -52,7 +51,7 @@ export default {
       chatInput.value = "";
       const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous",
         sid:this.st.user.sid};
-      this.chats.push(chat);
+      this.chats.unshift(chat);
       this.st.conn.send(JSON.stringify({
         code:"newchat", msg:chatTxt, name:chat.name}));
     },

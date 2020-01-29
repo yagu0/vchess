@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
   input#modalEog.modal(type="checkbox")
   div(role="dialog" aria-labelledby="eogMessage")
     .card.smallpad.small-modal.text-center
@@ -11,11 +11,11 @@ div
         :user-color="game.mycolor" :orientation="orientation"
         :vname="game.vname" @play-move="play")
       .button-group
-        button(@click="() => play()") Play
-        button(@click="() => undo()") Undo
-        button(@click="flip") Flip
-        button(@click="gotoBegin") GotoBegin
-        button(@click="gotoEnd") GotoEnd
+        button(@click="gotoBegin") <<
+        button(@click="() => undo()") <
+        button(@click="flip") &#8645;
+        button(@click="() => play()") >
+        button(@click="gotoEnd") >>
       #fenDiv(v-if="showFen && !!vr")
         p(@click="gotoFenContent") {{ vr.getFen() }}
       #pgnDiv
@@ -88,6 +88,31 @@ export default {
       this.re_setVariables();
   },
   methods: {
+    focusBg: function() {
+      // TODO: small blue border appears...
+      document.getElementById("baseGame").focus();
+    },
+    handleKeys: function(e) {
+      switch (e.keyCode)
+      {
+        case 37:
+          this.undo();
+          break;
+        case 39:
+          this.play();
+          break;
+        case 28:
+          this.gotoBegin();
+          break;
+        case 40:
+          this.gotoEnd();
+          break;
+        case 32:
+          e.preventDefault();
+          this.flip();
+          break;
+      }
+    },
     re_setVariables: function() {
       this.endgameMessage = "";
       this.orientation = this.game.mycolor || "w"; //default orientation for observed games

@@ -26,12 +26,10 @@ main
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
-    .col-sm-12.col-md-9.col-md-offset-3
-      button(onClick="doClick('modalNewgame')") New game
+    .col-sm-12
+      button#newGame(onClick="doClick('modalNewgame')") New game
   .row
-    .col-sm-12.col-md-3
-      Chat(:players="[]")
-    .col-sm-12.col-md-9
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .collapse
         input#challengeSection(type="radio" checked aria-hidden="true" name="accordion")
         label(for="challengeSection" aria-hidden="true") Challenges
@@ -56,7 +54,7 @@ main
             )
               | {{ p.name + (!!p.count ? " ("+p.count+")" : "") }}
           #chat(v-show="pdisplay=='chat'")
-            h3 Chat (TODO)
+            Chat(:players="[]")
         input#gameSection(type="radio" aria-hidden="true" name="accordion")
         label(for="gameSection" aria-hidden="true") Games
         div
@@ -598,5 +596,7 @@ export default {
 </script>
 
 <style lang="sass">
-// TODO
+#newGame
+  display: block
+  margin: auto
 </style>
