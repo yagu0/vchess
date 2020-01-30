@@ -140,6 +140,10 @@ nav
           width: 36px
           height: 27px
 
+@media screen and (max-width: 767px)
+  nav
+    border: none
+
 [type="checkbox"].drawer+*
   right: -767px
 
@@ -168,4 +172,8 @@ footer
   & > p
     display: inline-block
     margin: 0 0 0 10px
+
+@media screen and (max-width: 767px)
+  footer
+    border: none
 </style>

@@ -123,8 +123,9 @@ export default {
         this.playComputerMove();
       }
     },
-    gameOver: function(score) {
+    gameOver: function(score, scoreMsg) {
       this.game.score = score;
+      this.game.scoreMsg = scoreMsg;
       this.game.mode = "analyze";
       this.$emit("game-over", score); //bubble up to Rules.vue
     },

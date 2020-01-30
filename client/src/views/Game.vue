@@ -1,14 +1,11 @@
 <template lang="pug">
 main
   .row
-    .col-sm-12.col-md-3
+    #chat.col-sm-12.col-md-4.col-md-offset-4
       Chat(:players="game.players")
-    .col-sm-12.col-md-9
-      BaseGame(:game="game" :vr="vr" ref="basegame"
-        @newmove="processMove" @gameover="gameOver")
   .row
-    .col-sm-12.col-md-9.col-md-offset-3
-      .button-group(v-if="game.mode!='analyze' && game.score=='*'")
+    .col-sm-12
+      #actions(v-if="game.mode!='analyze' && game.score=='*'")
         button(@click="offerDraw") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
@@ -16,6 +13,8 @@ main
       div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
       div(v-if="game.type=='corr'") {{ game.corrMsg }}
       textarea(v-if="game.score=='*'" v-model="corrMsg")
+  BaseGame(:game="game" :vr="vr" ref="basegame"
+    @newmove="processMove" @gameover="gameOver")
 </template>
 
 <script>
@@ -79,7 +78,7 @@ export default {
         {
           clearInterval(clockUpdate);
           if (countdown < 0)
-            this.setScore(this.vr.turn=="w" ? "0-1" : "1-0", "Time");
+            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", "Time");
         }
         else
         {
@@ -211,13 +210,13 @@ export default {
           break;
         }
         case "resign":
-          this.setScore(data.side=="b" ? "1-0" : "0-1", "Resign");
+          this.gameOver(data.side=="b" ? "1-0" : "0-1", "Resign");
           break;
         case "abort":
-          this.setScore("?", "Abort");
+          this.gameOver("?", "Abort");
           break;
         case "draw":
-          this.setScore("1/2", "Mutual agreement");
+          this.gameOver("1/2", "Mutual agreement");
           break;
         case "drawoffer":
           this.drawOffer = "received"; //TODO: observers don't know who offered draw
@@ -253,16 +252,12 @@ export default {
         {
           // Opponent resigned or aborted game, or accepted draw offer
           // (this is not a stalemate or checkmate)
-          this.setScore(data.score, "Opponent action");
+          this.gameOver(data.score, "Opponent action");
         }
         this.game.clocks = data.clocks; //TODO: check this?
         if (!!data.lastMove.draw)
           this.drawOffer = "received";
       }
-    },
-    setScore: function(score, message) {
-      this.game.scoreMsg = message;
-      this.$set(this.game, "score", score); //TODO: Vue3...
     },
     offerDraw: function() {
       if (this.drawOffer == "received")
@@ -273,7 +268,7 @@ export default {
           if (p.sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"draw", target:p.sid}));
         });
-        this.setScore("1/2", "Mutual agreement");
+        this.gameOver("1/2", "Mutual agreement");
       }
       else if (this.drawOffer == "sent")
       {
@@ -297,7 +292,7 @@ export default {
     abortGame: function() {
       if (!confirm(this.st.tr["Terminate game?"]))
         return;
-      this.setScore("?", "Abort");
+      this.gameOver("?", "Abort");
       this.people.forEach(p => {
         if (p.sid != this.st.user.sid)
         {
@@ -318,7 +313,7 @@ export default {
             side:this.game.mycolor, target:p.sid}));
         }
       });
-      this.setScore(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
+      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -518,10 +513,10 @@ export default {
       if (this.repeat[repIdx] >= 3)
         this.drawOffer = "received"; //TODO: will print "mutual agreement"...
     },
-    gameOver: function(score) {
+    gameOver: function(score, scoreMsg) {
       this.game.mode = "analyze";
-      this.game.score = score; //until Vue3, this property change isn't seen
-                               //by child (and doesn't need to be)
+      this.game.score = score;
+      this.game.scoreMsg = scoreMsg;
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
@@ -535,13 +530,29 @@ export default {
 <style lang="sass">
 .connected
   background-color: green
-
 .disconnected
   background-color: red
 
-.white-turn
-  background-color: white
+@media screen and (min-width: 768px)
+  #actions
+    width: 300px
+@media screen and (max-width: 767px)
+  .game
+    width: 100%
 
-.black-turn
-  background-color: black
+#actions
+  margin-top: 10px
+  margin-left: auto
+  margin-right: auto
+  button
+    display: inline-block
+    width: 33%
+    margin: 0
+#chat
+  margin-top: 5px
+  margin-bottom: 5px
+  >.card
+    max-width: 100%
+    margin: 0;
+  border: none;
 </style>

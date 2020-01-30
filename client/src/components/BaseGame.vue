@@ -22,7 +22,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
         a#download(href="#")
         button(@click="download") {{ st.tr["Download PGN"] }}
     .col-sm-12.col-md-3
-      MoveList(v-if="showMoves"
+      MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :moves="moves" :cursor="cursor" @goto-move="gotoMove")
 </template>
 
@@ -51,7 +51,6 @@ export default {
       moves: [],
       cursor: -1, //index of the move just played
       lastMove: null,
-      gameHasEnded: false, //to avoid showing end message twice
     };
   },
   watch: {
@@ -63,13 +62,6 @@ export default {
     "game.moveToPlay": function() {
       this.play(this.game.moveToPlay, "receive", this.game.vname=="Dark");
     },
-    "game.score": function(score) {
-      if (!this.gameHasEnded && score != "*")
-      {
-        // "false" says "don't bubble up": the parent already knows
-        this.endGame(score, this.game.scoreMsg, false);
-      }
-    },
   },
   computed: {
     showMoves: function() {
@@ -77,10 +69,10 @@ export default {
       //return window.innerWidth >= 768;
     },
     showFen: function() {
-      return this.game.vname != "Dark" || this.score != "*";
+      return this.game.vname != "Dark" || this.game.score != "*";
     },
     analyze: function() {
-      return this.game.mode == "analyze" || this.score != "*";
+      return this.game.mode == "analyze" || this.game.score != "*";
     },
   },
   created: function() {
@@ -117,8 +109,6 @@ export default {
     re_setVariables: function() {
       this.endgameMessage = "";
       this.orientation = this.game.mycolor || "w"; //default orientation for observed games
-      this.score = this.game.score || "*"; //mutable (if initially "*")
-      this.gameHasEnded = (this.score != "*");
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
       // Post-processing: decorate each move with color + current FEN:
       // (to be able to jump to any position quickly)
@@ -142,8 +132,9 @@ export default {
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
     },
     gotoFenContent: function(event) {
-      this.$router.push("/analyze/" + this.game.vname +
-        "/?fen=" + event.target.innerText.replace(/ /g, "_"));
+      const newUrl = "#/analyze/" + this.game.vname +
+        "/?fen=" + event.target.innerText.replace(/ /g, "_");
+      window.open(newUrl); //to open in a new tab
     },
     download: function() {
       const content = this.getPgn();
@@ -161,7 +152,7 @@ export default {
       pgn += '[White "' + this.game.players[0].name + '"]\n';
       pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
-      pgn += '[Result "' + this.score + '"]\n\n';
+      pgn += '[Result "' + this.game.score + '"]\n\n';
       let counter = 1;
       let i = 0;
       while (i < this.moves.length)
@@ -202,15 +193,6 @@ export default {
       let modalBox = document.getElementById("modalEog");
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
-    },
-    endGame: function(score, message, bubbleUp) {
-      this.gameHasEnded = true;
-      this.score = score;
-      if (!message)
-        message = this.getScoreMessage(score);
-      this.showEndgameMsg(score + " . " + message);
-      if (bubbleUp)
-        this.$emit("gameover", score);
     },
     animateMove: function(move) {
       let startSquare = document.getElementById(getSquareId(move.start));
@@ -275,7 +257,7 @@ export default {
       if (!navigate)
       {
         move.fen = this.vr.getFen();
-        if (this.score == "*" || this.analyze)
+        if (this.game.score == "*" || this.analyze)
         {
           // Stack move on movesList at current cursor
           if (this.cursor == this.moves.length)
@@ -291,14 +273,11 @@ export default {
       const score = this.vr.getCurrentScore();
       if (score != "*")
       {
+        const message = this.getScoreMessage(score);
         if (!this.analyze)
-          this.endGame(score, undefined, true);
-        else
-        {
-          // Just show score on screen (allow undo)
-          const message = this.getScoreMessage(score);
+          this.$emit("gameover", score, message);
+        else //just show score on screen (allow undo)
           this.showEndgameMsg(score + " . " + message);
-        }
       }
     },
     undo: function(move) {
@@ -366,7 +345,7 @@ export default {
     width: 20%
     margin: 0
 #boardContainer
-  margin-top: 5px
+  //margin-top: 5px
   >div
     margin-left: auto
     margin-right: auto

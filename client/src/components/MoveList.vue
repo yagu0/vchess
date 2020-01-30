@@ -1,9 +1,65 @@
+<template lang="pug">
+div
+  #scoreInfo(v-if="score!='*'")
+    p {{ score }}
+    p {{ message }}
+  table#movesList
+    tbody
+      tr(v-for="moveIdx in evenNumbers")
+        td {{ moveIdx / 2 + 1 }}
+        td(:class="{'highlight-lm': cursor == moveIdx}"
+            data-label="White move" @click="() => gotoMove(moveIdx)")
+          | {{ moves[moveIdx].notation }}
+        td(v-if="moveIdx < moves.length-1"
+            :class="{'highlight-lm': cursor == moveIdx+1}"
+            data-label="Black move" @click="() => gotoMove(moveIdx+1)")
+          | {{ moves[moveIdx+1].notation }}
+        // Else: just add an empty cell
+        td(v-else)
+</template>
+
 <script>
 // Component for moves list on the right
 export default {
   name: 'my-move-list',
-	props: ["moves","cursor"],
-	render(h) {
+	props: ["moves","cursor","score","message"],
+  watch: {
+    cursor: function(newValue) {
+      // $nextTick to wait for table > tr to be rendered
+      this.$nextTick( () => {
+        let rows = document.querySelectorAll('#movesList tr');
+        if (rows.length > 0)
+        {
+          rows[Math.floor(newValue/2)].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      });
+    },
+  },
+  computed: {
+    evenNumbers: function() {
+      return [...Array(this.moves.length).keys()].filter(i => i%2==0);
+    },
+  },
+  methods: {
+		gotoMove: function(index) {
+			this.$emit("goto-move", index);
+		},
+	},
+};
+</script>
+
+<style lang="sass" scoped>
+.moves-list
+  min-width: 250px
+td.highlight-lm
+  background-color: plum
+</style>
+
+<!-- Old render method:
+  render(h) {
 		if (this.moves.length == 0)
 			return;
 		let tableContent = [];
@@ -65,32 +121,34 @@ export default {
 		}
 		tableRow.children = moveCells;
 		tableContent.push(tableRow);
+    const scoreDiv = h("div",
+      {
+        id: "scoreInfo",
+        style: {
+          display: this.score!="*" ? "block" : "none",
+        },
+      },
+      [
+        h("p", this.score),
+        h("p", this.message),
+      ]
+    );
 		const movesTable = h(
       "div",
       { },
-      [h(
-			  "table",
-			  {
-          "class": {
-            "moves-list": true,
+      [
+        scoreDiv,
+        h(
+          "table",
+          {
+            "class": {
+              "moves-list": true,
+            },
           },
-        },
-			  tableContent
-		  )]
+          tableContent
+		    )
+      ]
     );
 		return movesTable;
 	},
-	methods: {
-		gotoMove: function(index) {
-			this.$emit("goto-move", index);
-		},
-	},
-};
-</script>
-
-<style lang="sass" scoped>
-.moves-list
-  min-width: 250px
-td.highlight-lm
-  background-color: plum
-</style>
+-->
