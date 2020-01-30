@@ -134,13 +134,15 @@ const GameModel =
     });
   },
 
-  // obj can have fields move, fen, drawOffer and/or score
+  // obj can have fields move, message, fen, drawOffer and/or score
   update: function(id, obj)
   {
 		db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
+      if (!!obj.message)
+        query += "message = message || ' ' || '" + obj.message + "',";
       if (!!obj.drawOffer)
         query += "drawOffer = " + obj.drawOffer + ",";
       if (!!obj.fen)
@@ -154,9 +156,9 @@ const GameModel =
       {
         const m = obj.move;
         query =
-          "INSERT INTO Moves (gid, squares, message, played, idx) VALUES " +
-          "(" + id + ",'" + JSON.stringify(m.squares) + "','" + m.message +
-            "'," + m.played + "," + m.idx + ")";
+          "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
+          "(" + id + ",'" + JSON.stringify(m.squares) + "',"
+            + m.played + "," + m.idx + ")";
         db.run(query);
       }
     });

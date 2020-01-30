@@ -12,6 +12,16 @@ new Vue({
   },
   created: function() {
     window.doClick = (elemId) => { document.getElementById(elemId).click() };
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Escape")
+      {
+        let modalBoxes = document.querySelectorAll("[id^='modal']");
+        modalBoxes.forEach(m => {
+          if (m.checked)
+            m.checked = false;
+        });
+      }
+    });
     // TODO: why is this wrong?
     //store.initialize(this.$route.path);
     store.initialize(window.location.href.split("#")[1]);

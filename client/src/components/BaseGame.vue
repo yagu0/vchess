@@ -7,7 +7,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
       h3#eogMessage.section {{ endgameMessage }}
   .row
     #boardContainer.col-sm-12.col-md-9
-      Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
+      Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
         :user-color="game.mycolor" :orientation="orientation"
         :vname="game.vname" @play-move="play")
       #controls
@@ -16,11 +16,11 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
         button(@click="flip") &#8645;
         button(@click="() => play()") >
         button(@click="gotoEnd") >>
-      #fenDiv(v-if="showFen && !!vr")
-        p(@click="gotoFenContent") {{ vr.getFen() }}
       #pgnDiv
         a#download(href="#")
         button(@click="download") {{ st.tr["Download PGN"] }}
+        button(v-if="game.mode!='analyze'" @click="analyzePosition")
+          | {{ st.tr["Analyze"] }}
     .col-sm-12.col-md-3
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :moves="moves" :cursor="cursor" @goto-move="gotoMove")
@@ -59,20 +59,14 @@ export default {
       this.re_setVariables();
     },
     // Received a new move to play:
-    "game.moveToPlay": function() {
-      this.play(this.game.moveToPlay, "receive", this.game.vname=="Dark");
+    "game.moveToPlay": function(newMove) {
+      if (!!newMove) //if stop + launch new game, get undefined move
+        this.play(newMove, "receive");
     },
   },
   computed: {
     showMoves: function() {
-      return true;
-      //return window.innerWidth >= 768;
-    },
-    showFen: function() {
-      return this.game.vname != "Dark" || this.game.score != "*";
-    },
-    analyze: function() {
-      return this.game.mode == "analyze" || this.game.score != "*";
+      return this.game.vname != "Dark" || this.game.mode=="analyze";
     },
   },
   created: function() {
@@ -131,10 +125,11 @@ export default {
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
     },
-    gotoFenContent: function(event) {
-      const newUrl = "#/analyze/" + this.game.vname +
-        "/?fen=" + event.target.innerText.replace(/ /g, "_");
-      window.open(newUrl); //to open in a new tab
+    analyzePosition: function() {
+      const newUrl = "/analyze/" + this.game.vname +
+        "/?fen=" + this.vr.getFen().replace(/ /g, "_");
+      //window.open("#" + newUrl); //to open in a new tab
+      this.$router.push(newUrl); //better
     },
     download: function() {
       const content = this.getPgn();
@@ -194,7 +189,7 @@ export default {
       modalBox.checked = true;
       setTimeout(() => { modalBox.checked = false; }, 2000);
     },
-    animateMove: function(move) {
+    animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
       let endSquare = document.getElementById(getSquareId(move.end));
       let rectStart = startSquare.getBoundingClientRect();
@@ -219,66 +214,65 @@ export default {
         for (let i=0; i<squares.length; i++)
           squares.item(i).style.zIndex = "auto";
         movingPiece.style = {}; //required e.g. for 0-0 with KR swap
-        this.play(move);
+        callback();
       }, 250);
     },
-    play: function(move, receive, noanimate) {
+    play: function(move, receive) {
+      // NOTE: navigate and receive are mutually exclusive
       const navigate = !move;
-      // Forbid playing outside analyze mode when cursor isn't at moves.length-1
-      // (except if we receive opponent's move, human or computer)
-      if (!navigate && !this.analyze && !receive
+      // Forbid playing outside analyze mode, except if move is received.
+      // Sufficient condition because Board already knows which turn it is.
+      if (!navigate && this.game.mode!="analyze" && !receive
         && this.cursor < this.moves.length-1)
       {
         return;
       }
-      if (navigate)
-      {
-        if (this.cursor == this.moves.length-1)
-          return; //no more moves
-        move = this.moves[this.cursor+1];
-      }
-      if (!!receive && !noanimate) //opponent move, variant != "Dark"
-      {
-        if (this.cursor < this.moves.length-1)
+      const doPlayMove = () => {
+        if (!!receive && this.cursor < this.moves.length-1)
           this.gotoEnd(); //required to play the move
-        return this.animateMove(move);
-      }
-      if (!navigate)
-      {
-        move.color = this.vr.turn;
-        move.notation = this.vr.getNotation(move);
-      }
-      // Not programmatic, or animation is over
-      this.vr.play(move);
-      this.cursor++;
-      this.lastMove = move;
-      if (this.st.settings.sound == 2)
-        new Audio("/sounds/move.mp3").play().catch(err => {});
-      if (!navigate)
-      {
-        move.fen = this.vr.getFen();
-        if (this.game.score == "*" || this.analyze)
+        if (navigate)
         {
+          if (this.cursor == this.moves.length-1)
+            return; //no more moves
+          move = this.moves[this.cursor+1];
+        }
+        else
+        {
+          move.color = this.vr.turn;
+          move.notation = this.vr.getNotation(move);
+        }
+        this.vr.play(move);
+        this.cursor++;
+        this.lastMove = move;
+        if (this.st.settings.sound == 2)
+          new Audio("/sounds/move.mp3").play().catch(err => {});
+        if (!navigate)
+        {
+          move.fen = this.vr.getFen();
           // Stack move on movesList at current cursor
           if (this.cursor == this.moves.length)
             this.moves.push(move);
           else
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
-      }
-      if (!this.analyze)
-        this.$emit("newmove", move); //post-processing (e.g. computer play)
-      // Is opponent in check?
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      const score = this.vr.getCurrentScore();
-      if (score != "*")
-      {
-        const message = this.getScoreMessage(score);
-        if (!this.analyze)
-          this.$emit("gameover", score, message);
-        else //just show score on screen (allow undo)
-          this.showEndgameMsg(score + " . " + message);
-      }
+        if (this.game.mode != "analyze")
+          this.$emit("newmove", move); //post-processing (e.g. computer play)
+        // Is opponent in check?
+        this.incheck = this.vr.getCheckSquares(this.vr.turn);
+        const score = this.vr.getCurrentScore();
+        if (score != "*")
+        {
+          const message = this.getScoreMessage(score);
+          if (this.game.mode != "analyze")
+            this.$emit("gameover", score, message);
+          else //just show score on screen (allow undo)
+            this.showEndgameMsg(score + " . " + message);
+        }
+      };
+      if (!!receive && this.game.vname != "Dark")
+        this.animateMove(move, doPlayMove);
+      else
+        doPlayMove();
     },
     undo: function(move) {
       const navigate = !move;
@@ -328,7 +322,7 @@ export default {
 <style lang="sass">
 #modal-eog+div .card
   overflow: hidden
-#pgnDiv, #fenDiv
+#pgnDiv
   text-align: center
   margin-left: auto
   margin-right: auto

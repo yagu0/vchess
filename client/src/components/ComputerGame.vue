@@ -14,7 +14,7 @@ export default {
     BaseGame,
   },
   // gameInfo: fen + mode + vname
-  // mode: "auto" (game comp vs comp), "versus" (normal) or "analyze"
+  // mode: "auto" (game comp vs comp) or "versus" (normal)
   props: ["gameInfo"],
   data: function() {
     return {
@@ -35,7 +35,6 @@ export default {
       if (newScore != "*")
       {
         this.game.score = newScore; //user action
-        this.game.mode = "analyze";
         if (!this.compThink)
           this.$emit("game-stopped"); //otherwise wait for comp
       }
@@ -66,7 +65,7 @@ export default {
         let moveIdx = 0;
         let self = this;
         (function executeMove() {
-          self.$refs.basegame.play(compMove[moveIdx++], animate);
+          self.$set(self.game, "moveToPlay", compMove[moveIdx++]);
           if (moveIdx >= compMove.length)
           {
             self.compThink = false;
@@ -126,7 +125,6 @@ export default {
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
       this.game.scoreMsg = scoreMsg;
-      this.game.mode = "analyze";
       this.$emit("game-over", score); //bubble up to Rules.vue
     },
   },

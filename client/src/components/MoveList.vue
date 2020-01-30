@@ -31,8 +31,8 @@ export default {
         if (rows.length > 0)
         {
           rows[Math.floor(newValue/2)].scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
+            behavior: "auto",
+            block: "nearest",
           });
         }
       });

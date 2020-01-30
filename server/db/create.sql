@@ -45,6 +45,11 @@ create table Games (
   foreign key (vid) references Variants(id)
 );
 
+create table Chats (
+  gid integer,
+  uid integer,
+);
+
 -- Store informations about players in a corr game
 create table Players (
   gid integer,
@@ -57,7 +62,6 @@ create table Players (
 create table Moves (
   gid integer,
   squares varchar, --description, appear/vanish/from/to
-  message varchar,
   played datetime, --when was this move played?
   idx integer, --index of the move in the game
   foreign key (gid) references Games(id)

@@ -67,7 +67,7 @@ export const GameStorage =
   },
 
   // TODO: also option to takeback a move ?
-  update: function(gameId, obj) //move, fen, clocks, score, initime, ...
+  update: function(gameId, obj) //chat, move, fen, clocks, score, initime, ...
   {
     if (Number.isInteger(gameId) || !isNaN(parseInt(gameId)))
     {
@@ -79,9 +79,9 @@ export const GameStorage =
           gid: gameId,
           newObj:
           {
+            chat: obj.chat,
             move: obj.move, //may be undefined...
             fen: obj.fen,
-            message: obj.message,
             score: obj.score,
             drawOffer: obj.drawOffer,
           }

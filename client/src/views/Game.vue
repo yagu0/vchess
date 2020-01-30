@@ -2,7 +2,7 @@
 main
   .row
     #chat.col-sm-12.col-md-4.col-md-offset-4
-      Chat(:players="game.players")
+      Chat(:players="game.players" @newchat="processChat")
   .row
     .col-sm-12
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
@@ -11,8 +11,6 @@ main
         button(@click="resign") Resign
       div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
       div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
-      div(v-if="game.type=='corr'") {{ game.corrMsg }}
-      textarea(v-if="game.score=='*'" v-model="corrMsg")
   BaseGame(:game="game" :vr="vr" ref="basegame"
     @newmove="processMove" @gameover="gameOver")
 </template>
@@ -41,7 +39,6 @@ export default {
         rid: ""
       },
       game: {players:[{name:""},{name:""}]}, //passed to BaseGame
-      corrMsg: "", //to send offline messages in corr games
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "", //TODO: use for button style
@@ -198,7 +195,6 @@ export default {
             game:myGame, target:data.from}));
           break;
         case "newmove":
-          this.corrMsg = data.move.message; //may be empty
           this.$set(this.game, "moveToPlay", data.move); //TODO: Vue3...
           break;
         case "lastate": //got opponent infos about last move
@@ -366,7 +362,6 @@ export default {
               vanish: s.vanish,
               start: s.start,
               end: s.end,
-              message: m.message,
             };
           });
         }
@@ -447,8 +442,6 @@ export default {
           addTime = this.game.increment - elapsed/1000;
         }
         let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
-        if (this.game.type == "corr")
-          sendMove.message = this.corrMsg;
         this.people.forEach(p => {
           if (p.sid != this.st.user.sid)
           {
@@ -472,7 +465,6 @@ export default {
           GameStorage.update(this.gameRef.id,
           {
             fen: move.fen,
-            message: this.corrMsg,
             move:
             {
               squares: filtered_move,
@@ -512,6 +504,10 @@ export default {
         : 1);
       if (this.repeat[repIdx] >= 3)
         this.drawOffer = "received"; //TODO: will print "mutual agreement"...
+    },
+    processChat: function(chat) {
+      if (this.game.type == "corr")
+        GameStorage.update(this.gameRef.id, {chat: chat});
     },
     gameOver: function(score, scoreMsg) {
       this.game.mode = "analyze";

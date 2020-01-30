@@ -61,6 +61,7 @@ export const translations =
   "Type here": "Type here",
   "Send": "Send",
   "Download PGN": "Download PGN",
+  "Analyze": "Analyze",
   "Cancel": "Cancel",
 
   // Game page:

@@ -1,6 +1,9 @@
 <template lang="pug">
 main
   .row
+    .col-sm-12
+      #fenDiv(v-if="!!vr") {{ vr.getFen() }}
+  .row
     .col-sm-12.col-md-10.col-md-offset-1
       BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>

@@ -51,6 +51,7 @@ export default {
       chatInput.value = "";
       const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous",
         sid:this.st.user.sid};
+      this.$emit("newchat", chat); //useful for corr games
       this.chats.unshift(chat);
       this.st.conn.send(JSON.stringify({
         code:"newchat", msg:chatTxt, name:chat.name}));
