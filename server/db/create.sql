@@ -47,7 +47,9 @@ create table Games (
 
 create table Chats (
   gid integer,
-  uid integer,
+  name varchar,
+  msg varchar,
+  added datetime,
 );
 
 -- Store informations about players in a corr game
