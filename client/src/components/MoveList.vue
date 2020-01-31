@@ -8,11 +8,11 @@ div
       tr(v-for="moveIdx in evenNumbers")
         td {{ firstNum + moveIdx / 2 + 1 }}
         td(:class="{'highlight-lm': cursor == moveIdx}"
-            data-label="White move" @click="() => gotoMove(moveIdx)")
+            @click="() => gotoMove(moveIdx)")
           | {{ moves[moveIdx].notation }}
         td(v-if="moveIdx < moves.length-1"
             :class="{'highlight-lm': cursor == moveIdx+1}"
-            data-label="Black move" @click="() => gotoMove(moveIdx+1)")
+            @click="() => gotoMove(moveIdx+1)")
           | {{ moves[moveIdx+1].notation }}
         // Else: just add an empty cell
         td(v-else)

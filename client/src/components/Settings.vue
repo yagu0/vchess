@@ -65,10 +65,11 @@ export default {
       if (!boardContainer)
         return; //no board on page
       const k = document.getElementById("myRange").value;
-      const movesWidth = 280; //TODO: constant somewhere...;
+      const movesWidth = (window.innerWidth >= 768 ? 280 : 0); //TODO: constant somewhere...;
       const minBoardWidth = 240; //TODO: same
-      // Value of 0 is board min size; 100 is screen.width - movesWidth
-      const boardSize = k * (screen.width - (movesWidth+minBoardWidth)) / 100 + minBoardWidth;
+      // Value of 0 is board min size; 100 is window.width [- movesWidth]
+      const boardSize = minBoardWidth +
+        k * (window.innerWidth - (movesWidth+minBoardWidth)) / 100;
       localStorage.setItem("boardSize", boardSize);
       boardContainer.style.width = boardSize + "px";
       document.getElementById("gameContainer").style.width = (boardSize + movesWidth) + "px";

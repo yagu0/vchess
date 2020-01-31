@@ -78,9 +78,32 @@ export default {
       this.re_setVariables();
   },
   mounted: function() {
-    const boardSize = localStorage.getItem("boardSize");
-    if (!!boardSize)
-      document.getElementById("boardContainer").style.width = boardSize + "px";
+    // Take full width on small screens:
+    let boardSize = parseInt(localStorage.getItem("boardSize"));
+    if (!boardSize)
+    {
+      boardSize = (window.innerWidth >= 768
+        ? Math.min(600, 0.5*window.innerWidth) //heuristic...
+        : window.innerWidth);
+    }
+    const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
+    document.getElementById("boardContainer").style.width = boardSize + "px";
+    let gameContainer = document.getElementById("gameContainer");
+    gameContainer.style.width = (boardSize + movesWidth) + "px";
+    
+
+
+
+
+    // TODO: something here........... gameContainer.width increases if from small to larger screen
+    window.onResize = (e) => {
+      console.log(e);
+      //if (window.innerWidth >= 768)
+    };
+
+
+
+
   },
   methods: {
     focusBg: function() {
@@ -366,7 +389,18 @@ export default {
 #movesList
   width: 280px
   float: left
-
+@media screen and (max-width: 767px)
+  #movesList
+    width: 100%
+    float: none
+    clear: both
+    table
+      tr
+        display: flex
+        margin: 0
+        padding: 0
+        td
+          text-align: left
 .clearer
   clear: both
 </style>
