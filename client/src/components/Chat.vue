@@ -1,10 +1,12 @@
 <template lang="pug">
-.card
+div
   input#inputChat(type="text" :placeholder="st.tr['Type here']"
     @keyup.enter="sendChat")
   button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
-  p(v-for="chat in pastChats" :class="classObject(chat)" v-html="chat.name + ': ' + chat.msg")
-  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.name + ': ' + chat.msg")
+  p(v-for="chat in pastChats" :class="classObject(chat)"
+    v-html="chat.name + ': ' + chat.msg")
+  p(v-for="chat in chats" :class="classObject(chat)"
+    v-html="chat.name + ': ' + chat.msg")
 </template>
 
 <script>
@@ -29,6 +31,7 @@ export default {
       {
         this.chats.unshift({msg:data.msg,
           name:data.name || "@nonymous", sid:data.from});
+        this.$emit("newchat-received"); //data not required here
       }
     };
     const socketCloseListener = () => {
@@ -53,7 +56,7 @@ export default {
       chatInput.value = "";
       const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous",
         sid:this.st.user.sid};
-      this.$emit("newchat", chat); //useful for corr games
+      this.$emit("newchat-sent", chat); //useful for corr games
       this.chats.unshift(chat);
       this.st.conn.send(JSON.stringify({
         code:"newchat", msg:chatTxt, name:chat.name}));

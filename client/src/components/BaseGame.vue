@@ -6,21 +6,22 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
   .row
-    #boardContainer.col-sm-12.col-md-9
-      Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
-        :user-color="game.mycolor" :orientation="orientation"
-        :vname="game.vname" @play-move="play")
-      #controls
-        button(@click="gotoBegin") <<
-        button(@click="() => undo()") <
-        button(@click="flip") &#8645;
-        button(@click="() => play()") >
-        button(@click="gotoEnd") >>
-      #pgnDiv
-        a#download(href="#")
-        button(@click="download") {{ st.tr["Download PGN"] }}
-        button(v-if="game.mode!='analyze'" @click="analyzePosition")
-          | {{ st.tr["Analyze"] }}
+    .col-sm-12.col-md-9
+      #boardContainer
+        Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
+          :user-color="game.mycolor" :orientation="orientation"
+          :vname="game.vname" @play-move="play")
+        #controls
+          button(@click="gotoBegin") <<
+          button(@click="() => undo()") <
+          button(@click="flip") &#8645;
+          button(@click="() => play()") >
+          button(@click="gotoEnd") >>
+        #pgnDiv
+          a#download(href="#")
+          button(@click="download") {{ st.tr["Download PGN"] }}
+          button(v-if="game.mode!='analyze'" @click="analyzePosition")
+            | {{ st.tr["Analyze"] }}
     .col-sm-12.col-md-3
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"

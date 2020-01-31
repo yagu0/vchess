@@ -1,15 +1,18 @@
 <template lang="pug">
 main
-  .row
-    #chat.col-sm-12.col-md-4.col-md-offset-4
+  input#modalChat.modal(type="checkbox" @change="toggleChat")
+  div(role="dialog" aria-labelledby="inputChat")
+    #chat.card
+      label.modal-close(for="modalChat")
       Chat(:players="game.players" :pastChats="game.chats"
-        @newchat="processChat")
+        @newchat-sent="finishSendChat" @newchat-received="processChat")
   .row
-    .col-sm-12
+    .col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
         button(@click="offerDraw") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
+      button#chatBtn(onClick="doClick('modalChat')") Chat
       div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
       div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
   BaseGame(:game="game" :vr="vr" ref="basegame"
@@ -257,7 +260,7 @@ export default {
       }
     },
     offerDraw: function() {
-      if (this.drawOffer == "received")
+      if (["received","threerep"].includes(this.drawOffer))
       {
         if (!confirm("Accept draw?"))
           return;
@@ -265,7 +268,10 @@ export default {
           if (p.sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"draw", target:p.sid}));
         });
-        this.gameOver("1/2", "Mutual agreement");
+        const message = (this.drawOffer == "received"
+          ? "Mutual agreement"
+          : "Three repetitions");
+        this.gameOver("1/2", message);
       }
       else if (this.drawOffer == "sent")
       {
@@ -422,18 +428,20 @@ export default {
     },
     // Post-process a move (which was just played)
     processMove: function(move) {
-      if (!this.game.mycolor)
-        return; //I'm just an observer
-      // Update storage (corr or live)
+      // Update storage (corr or live) if I play in the game
       const colorIdx = ["w","b"].indexOf(move.color);
       // https://stackoverflow.com/a/38750895
-      const allowed_fields = ["appear", "vanish", "start", "end"];
-      const filtered_move = Object.keys(move)
-        .filter(key => allowed_fields.includes(key))
-        .reduce((obj, key) => {
-          obj[key] = move[key];
-          return obj;
-        }, {});
+      if (!!this.game.mycolor)
+      {
+        const allowed_fields = ["appear", "vanish", "start", "end"];
+        // NOTE: 'var' to see this variable outside this block
+        var filtered_move = Object.keys(move)
+          .filter(key => allowed_fields.includes(key))
+          .reduce((obj, key) => {
+            obj[key] = move[key];
+            return obj;
+          }, {});
+      }
       // Send move ("newmove" event) to people in the room (if our turn)
       let addTime = 0;
       if (move.color == this.game.mycolor)
@@ -461,7 +469,8 @@ export default {
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
       // Since corr games are stored at only one location, update should be
       // done only by one player for each move:
-      if (this.game.type == "live" || move.color == this.game.mycolor)
+      if (!!this.game.mycolor &&
+        (this.game.type == "live" || move.color == this.game.mycolor))
       {
         if (this.game.type == "corr")
         {
@@ -506,11 +515,18 @@ export default {
         ? this.repeat[repIdx]+1
         : 1);
       if (this.repeat[repIdx] >= 3)
-        this.drawOffer = "received"; //TODO: will print "mutual agreement"...
+        this.drawOffer = "threerep";
     },
-    processChat: function(chat) {
+    toggleChat: function() {
+      document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
+    },
+    finishSendChat: function(chat) {
       if (this.game.type == "corr")
         GameStorage.update(this.gameRef.id, {chat: chat});
+    },
+    processChat: function() {
+      if (!document.getElementById("inputChat").checked)
+        document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
     },
     gameOver: function(score, scoreMsg) {
       this.game.mode = "analyze";
@@ -547,11 +563,9 @@ export default {
     display: inline-block
     width: 33%
     margin: 0
+
 #chat
-  margin-top: 5px
-  margin-bottom: 5px
-  >.card
-    max-width: 100%
-    margin: 0;
+  padding-top: 20px
+  max-width: 600px
   border: none;
 </style>
