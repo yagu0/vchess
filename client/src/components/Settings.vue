@@ -34,7 +34,7 @@ div
           option(value="2") {{ st.tr["All"] }}
       fieldset
         .slidecontainer
-          input#myRange.slider(type="range" min="20" max="100" value="60"
+          input#myRange.slider(type="range" min="0" max="100" value="50"
             @input="adjustBoard")
 </template>
 
@@ -61,13 +61,17 @@ export default {
         : event.target.value;
     },
     adjustBoard: function() {
-      const board = document.querySelector(".game");
-      if (!board)
+      const boardContainer = document.getElementById("boardContainer");
+      if (!boardContainer)
         return; //no board on page
-      const multiplier = document.getElementById("myRange").value;
-      const boardSize = 10 * multiplier;
+      const k = document.getElementById("myRange").value;
+      const movesWidth = 280; //TODO: constant somewhere...;
+      const minBoardWidth = 240; //TODO: same
+      // Value of 0 is board min size; 100 is screen.width - movesWidth
+      const boardSize = k * (screen.width - (movesWidth+minBoardWidth)) / 100 + minBoardWidth;
       localStorage.setItem("boardSize", boardSize);
-      board.style.width = boardSize + "px";
+      boardContainer.style.width = boardSize + "px";
+      document.getElementById("gameContainer").style.width = (boardSize + movesWidth) + "px";
     },
 	},
 };

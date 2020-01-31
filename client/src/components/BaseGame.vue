@@ -5,27 +5,28 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
-  .row
-    .col-sm-12.col-md-9
-      #boardContainer
-        Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
-          :user-color="game.mycolor" :orientation="orientation"
-          :vname="game.vname" @play-move="play")
-        #controls
-          button(@click="gotoBegin") <<
-          button(@click="() => undo()") <
-          button(@click="flip") &#8645;
-          button(@click="() => play()") >
-          button(@click="gotoEnd") >>
-        #pgnDiv
-          a#download(href="#")
-          button(@click="download") {{ st.tr["Download PGN"] }}
-          button(v-if="game.mode!='analyze'" @click="analyzePosition")
-            | {{ st.tr["Analyze"] }}
-    .col-sm-12.col-md-3
+  #gameContainer
+    #boardContainer
+      Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
+        :user-color="game.mycolor" :orientation="orientation"
+        :vname="game.vname" @play-move="play")
+      #controls
+        button(@click="gotoBegin") <<
+        button(@click="() => undo()") <
+        button(@click="flip") &#8645;
+        button(@click="() => play()") >
+        button(@click="gotoEnd") >>
+      #pgnDiv
+        a#download(href="#")
+        button(@click="download") {{ st.tr["Download PGN"] }}
+        button(v-if="game.mode!='analyze'" @click="analyzePosition")
+          | {{ st.tr["Analyze"] }}
+    #movesList
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
         @goto-move="gotoMove")
+  // TODO: clearer required ?!
+  .clearer
 </template>
 
 <script>
@@ -75,6 +76,11 @@ export default {
   created: function() {
     if (!!this.game.fenStart)
       this.re_setVariables();
+  },
+  mounted: function() {
+    const boardSize = localStorage.getItem("boardSize");
+    if (!!boardSize)
+      document.getElementById("boardContainer").style.width = boardSize + "px";
   },
   methods: {
     focusBg: function() {
@@ -329,27 +335,38 @@ export default {
 </script>
 
 <style lang="sass">
-#modal-eog+div .card
-  overflow: hidden
-#pgnDiv
-  text-align: center
+#baseGame
+  width: 100%
+
+#gameContainer
   margin-left: auto
   margin-right: auto
+
+#modal-eog+div .card
+  overflow: hidden
 @media screen and (min-width: 768px)
   #controls
     width: 400px
-@media screen and (max-width: 767px)
-  .game
-    width: 100%
+    margin-left: auto
+    margin-right: auto
 #controls
   margin-top: 10px
+  margin-left: auto
+  margin-right: auto
   button
     display: inline-block
     width: 20%
     margin: 0
+#pgnDiv
+  text-align: center
+  margin-left: auto
+  margin-right: auto
 #boardContainer
-  //margin-top: 5px
-  >div
-    margin-left: auto
-    margin-right: auto
+  float: left
+#movesList
+  width: 280px
+  float: left
+
+.clearer
+  clear: both
 </style>

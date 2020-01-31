@@ -260,12 +260,6 @@ export default {
       elementArray
     );
   },
-  mounted: function() {
-    // NOTE (TODO?): could also be dependent on page type (game, analyze, variant)
-    const boardSize = localStorage.getItem("boardSize");
-    if (!!boardSize)
-      document.querySelector(".game").style.width = boardSize + "px";
-  },
   methods: {
     mousedown: function(e) {
       e = e || window.event;
@@ -400,13 +394,10 @@ div.board11
   padding-bottom: 9.1%
 
 .game
-  //width: #{'min(80vw, 500px)'}
-  margin: 0 auto
+  width: 100%
+  margin: 0
   .board
     cursor: pointer
-  @media screen and (max-width: 767px)
-    width: 100%
-    margin: 0
 
 #choices
   margin: 0 auto 0 auto

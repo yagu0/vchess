@@ -8,11 +8,11 @@ main
         @newchat-sent="finishSendChat" @newchat-received="processChat")
   .row
     .col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
+      button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
         button(@click="offerDraw") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
-      button#chatBtn(onClick="doClick('modalChat')") Chat
       div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
       div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
   BaseGame(:game="game" :vr="vr" ref="basegame"
@@ -556,9 +556,8 @@ export default {
     width: 100%
 
 #actions
+  display: inline-block
   margin-top: 10px
-  margin-left: auto
-  margin-right: auto
   button
     display: inline-block
     width: 33%
@@ -568,4 +567,7 @@ export default {
   padding-top: 20px
   max-width: 600px
   border: none;
+
+#chatBtn
+  margin: 0 10px 0 0
 </style>
