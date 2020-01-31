@@ -2,7 +2,9 @@
 main
   .row
     .col-sm-12
-      #fenDiv(v-if="!!vr") {{ vr.getFen() }}
+      #fenDiv
+        input#fen(v-model="curFen" @input="adjustFenSize")
+        button(@click="gotoFen") Go
   .row
     .col-sm-12.col-md-10.col-md-offset-1
       BaseGame(:game="game" :vr="vr" ref="basegame")
@@ -31,6 +33,7 @@ export default {
         mode: "analyze"
       },
       vr: null, //"variant rules" object initialized from FEN
+      curFen: "",
       //people: [], //players + observers //TODO later: interactive analyze...
     };
   },
@@ -40,27 +43,44 @@ export default {
       this.gameRef.vname = to.params["vname"];
       this.loadGame();
     },
+    "vr.movesCount": function(fen) {
+      this.curFen = this.vr.getFen();
+      this.adjustFenSize();
+    },
   },
   created: function() {
     this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
     this.gameRef.vname = this.$route.params["vname"];
-    this.loadGame();
+    this.initialize(this.loadGame);
   },
   methods: {
-    loadGame: async function() {
+    initialize: async function(callback) {
+      // Obtain VariantRules object
+      const vModule = await import("@/variants/" + this.gameRef.vname + ".js");
+      window.V = vModule.VariantRules;
+      callback();
+    },
+    loadGame: function() {
       this.game.vname = this.gameRef.vname;
       this.game.fen = this.gameRef.fen;
-      const vModule = await import("@/variants/" + this.game.vname + ".js");
-      window.V = vModule.VariantRules;
+      this.curFen = this.game.fen;
+      this.adjustFenSize();
       this.vr = new V(this.game.fen);
-      // fenStart initialized in the end, after definition of V,
-      // because it triggers a reset on BaseGame component.
       this.$set(this.game, "fenStart", this.gameRef.fen); //TODO: Vue3...
+    },
+    adjustFenSize: function() {
+      let fenInput = document.getElementById("fen");
+      fenInput.style.width = this.curFen.length + "ch";
+    },
+    gotoFen: function() {
+      this.gameRef.fen = this.curFen;
+      this.loadGame();
     },
   },
 };
 </script>
 
-<style lang="sass">
-// TODO
+<style lang="sass" scoped>
+#fenDiv
+  text-align: center
 </style>

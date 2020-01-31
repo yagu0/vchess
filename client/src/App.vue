@@ -8,7 +8,7 @@
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         // Menu (top of page):
-        // Left: hall, variants, mygames, forum (ext. link)
+        // Left: hall, variants, mygames
         // Right: usermenu, settings, flag
         nav
           label.drawer-toggle(for="drawerControl")
@@ -22,8 +22,6 @@
                 | {{ st.tr["Variants"] }}
               router-link(to="/mygames")
                 | {{ st.tr["My games"] }}
-              a(href="https://forum.vchess.club")
-                | {{ st.tr["Forum"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
                 | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
@@ -38,6 +36,8 @@
           router-link.menuitem(to="/about") {{ st.tr["About"] }}
           p.clickable(onClick="doClick('modalContact')")
             | {{ st.tr["Contact"] }}
+          a.menuitem(href="https://forum.vchess.club")
+            | {{ st.tr["Forum"] }}
 </template>
 
 <script>
@@ -163,7 +163,7 @@ footer
   justify-content: center
   & > .menuitem
     display: inline-block
-    margin: 0 10px 0 0
+    margin: 0 10px
     &:link
       color: #2c3e50
     &:visited, &:hover
@@ -171,7 +171,7 @@ footer
       text-decoration: none
   & > p
     display: inline-block
-    margin: 0 0 0 10px
+    margin: 0 10px
 
 @media screen and (max-width: 767px)
   footer

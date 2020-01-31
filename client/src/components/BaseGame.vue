@@ -23,7 +23,8 @@ div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
           | {{ st.tr["Analyze"] }}
     .col-sm-12.col-md-3
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
-        :moves="moves" :cursor="cursor" @goto-move="gotoMove")
+        :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
+        @goto-move="gotoMove")
 </template>
 
 <script>
@@ -51,6 +52,7 @@ export default {
       moves: [],
       cursor: -1, //index of the move just played
       lastMove: null,
+      firstMoveNumber: 0, //for printing
     };
   },
   watch: {
@@ -107,6 +109,8 @@ export default {
       // Post-processing: decorate each move with color + current FEN:
       // (to be able to jump to any position quickly)
       let vr_tmp = new V(this.game.fenStart); //vr is already at end of game
+      this.firstMoveNumber =
+        Math.floor(V.ParseFen(this.game.fenStart).movesCount / 2);
       this.moves.forEach(move => {
         // NOTE: this is doing manually what play() function below achieve,
         // but in a lighter "fast-forward" way
@@ -297,6 +301,8 @@ export default {
       this.lastMove = this.moves[index];
     },
     gotoBegin: function() {
+      if (this.cursor == -1)
+        return;
       this.vr.re_init(this.game.fenStart);
       if (this.moves.length > 0 && this.moves[0].notation == "...")
       {
@@ -310,6 +316,8 @@ export default {
       }
     },
     gotoEnd: function() {
+      if (this.cursor == this.moves.length - 1)
+        return;
       this.gotoMove(this.moves.length-1);
     },
     flip: function() {

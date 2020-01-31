@@ -3,13 +3,14 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button(@click="clickReadRules") Read the rules
+        button(@click="clickReadRules") Rules
         button(v-show="!gameInProgress" @click="() => startGame('auto')")
-          | Observe a sample game
+          | Sample game
         button(v-show="!gameInProgress" @click="() => startGame('versus')")
-          | Beat the computer!
+          |  Practice!
         button(v-show="gameInProgress" @click="() => stopGame()")
           | Stop game
+        button(@click="gotoAnalyze") Analyze
       .section-content(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
     @game-over="stopGame" @game-stopped="gameStopped")
@@ -101,6 +102,10 @@ export default {
     // The game is effectively stopped:
     gameStopped: function() {
       this.gameInProgress = false;
+    },
+    gotoAnalyze: function() {
+      this.$router.push("/analyze/" + this.gameInfo.vname
+        + "/?fen=" + V.GenRandInitFen());
     },
   },
 };

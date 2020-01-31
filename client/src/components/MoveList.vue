@@ -6,7 +6,7 @@ div
   table#movesList
     tbody
       tr(v-for="moveIdx in evenNumbers")
-        td {{ moveIdx / 2 + 1 }}
+        td {{ firstNum + moveIdx / 2 + 1 }}
         td(:class="{'highlight-lm': cursor == moveIdx}"
             data-label="White move" @click="() => gotoMove(moveIdx)")
           | {{ moves[moveIdx].notation }}
@@ -22,7 +22,7 @@ div
 // Component for moves list on the right
 export default {
   name: 'my-move-list',
-	props: ["moves","cursor","score","message"],
+	props: ["moves","cursor","score","message","firstNum"],
   watch: {
     cursor: function(newValue) {
       if (newValue < 0)
