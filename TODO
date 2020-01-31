@@ -43,3 +43,9 @@ http://www.quadibloc.com/chess/ch0401.htm
 Inspiration for refactor:
 https://github.com/triestpa/Vue-Chess/blob/master/src/components/chessboard/chessboard.js
 https://github.com/gustaYo/vue-chess
+
+Server:
+Later: use http2
+https://webapplog.com/http2-node/
+https://www.npmjs.com/package/spdy
+Express 5?
