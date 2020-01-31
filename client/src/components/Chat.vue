@@ -3,7 +3,8 @@
   input#inputChat(type="text" :placeholder="st.tr['Type here']"
     @keyup.enter="sendChat")
   button#sendChatBtn(@click="sendChat") {{ st.tr["Send"] }}
-  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.msg")
+  p(v-for="chat in pastChats" :class="classObject(chat)" v-html="chat.name + ': ' + chat.msg")
+  p(v-for="chat in chats" :class="classObject(chat)" v-html="chat.name + ': ' + chat.msg")
 </template>
 
 <script>
@@ -11,7 +12,8 @@ import { store } from "@/store";
 
 export default {
   name: "my-chat",
-  props: ["players"],
+  // Prop 'pastChats' for corr games where chats are on server
+  props: ["players","pastChats"],
   data: function() {
     return {
       st: store.state,

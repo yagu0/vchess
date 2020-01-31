@@ -2,7 +2,8 @@
 main
   .row
     #chat.col-sm-12.col-md-4.col-md-offset-4
-      Chat(:players="game.players" @newchat="processChat")
+      Chat(:players="game.players" :pastChats="game.chats"
+        @newchat="processChat")
   .row
     .col-sm-12
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
@@ -364,6 +365,8 @@ export default {
               end: s.end,
             };
           });
+          // Also sort chat messages (if any)
+          game.chats.sort( (c1,c2) => { return c2.added - c1.added; });
         }
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;

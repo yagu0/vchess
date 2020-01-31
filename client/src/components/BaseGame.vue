@@ -255,7 +255,7 @@ export default {
           else
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
-        if (this.game.mode != "analyze")
+        if (!navigate && this.game.mode != "analyze")
           this.$emit("newmove", move); //post-processing (e.g. computer play)
         // Is opponent in check?
         this.incheck = this.vr.getCheckSquares(this.vr.turn);

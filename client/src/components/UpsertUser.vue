@@ -5,7 +5,7 @@ div
     .card
       label.modal-close(for="modalUser")
       h3 {{ stage }}
-      form#userForm(@submit.prevent="onSubmit()")
+      form#userForm(@submit.prevent="onSubmit()" @keyup.enter="onSubmit")
         div(v-show="stage!='Login'")
           fieldset
             label(for="username") Name

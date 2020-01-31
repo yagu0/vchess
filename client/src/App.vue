@@ -26,7 +26,7 @@
                 | {{ st.tr["Forum"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
-                | {{ st.user.id > 0 ? "Update" : "Login" }}
+                | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
               .clickable(onClick="doClick('modalSettings')")
                 | {{ st.tr["Settings"] }}
               .clickable#flagContainer(onClick="doClick('modalLang')")

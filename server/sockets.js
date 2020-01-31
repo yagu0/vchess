@@ -150,11 +150,11 @@ module.exports = function(wss) {
           break;
         case "resign":
           clients[obj.target].sock.send(JSON.stringify(
-            {code:"resign"}));
+            {code:"resign", side:obj.side}));
           break;
         case "abort":
           clients[obj.target].sock.send(JSON.stringify(
-            {code:"abort",msg:obj.msg}));
+            {code:"abort"}));
           break;
         case "drawoffer":
           clients[obj.target].sock.send(JSON.stringify(

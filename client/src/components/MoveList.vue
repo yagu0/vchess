@@ -25,6 +25,8 @@ export default {
 	props: ["moves","cursor","score","message"],
   watch: {
     cursor: function(newValue) {
+      if (newValue < 0)
+        newValue = 0; //avoid rows[-1] --> error
       // $nextTick to wait for table > tr to be rendered
       this.$nextTick( () => {
         let rows = document.querySelectorAll('#movesList tr');

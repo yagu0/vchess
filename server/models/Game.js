@@ -18,9 +18,15 @@ var db = require("../utils/database");
  * Structure table Moves:
  *   gid: ref game id
  *   squares: varchar (description)
- *   message: text
  *   played: datetime
  *   idx: integer
+ *
+ * Structure table Chats:
+ *   gid: game id (int)
+ *   msg: varchar
+ *   name: varchar
+ *   sid: varchar (socket ID when sending message)
+ *   added: datetime
  */
 
 const GameModel =
@@ -73,20 +79,29 @@ const GameModel =
 					if (!!err2)
 						return cb(err2);
 					query =
-						"SELECT squares, message, played, idx " +
+						"SELECT squares, played, idx " +
 						"FROM Moves " +
 						"WHERE gid = " + id;
 					db.all(query, (err3,moves) => {
 						if (!!err3)
 							return cb(err3);
-						const game = Object.assign({},
-              gameInfo,
-						  {
-							  players: players,
-							  moves: moves
-              }
-            );
-						return cb(null, game);
+			      query =
+              "SELECT msg, name, sid, added " +
+              "FROM Chats " +
+              "WHERE gid = " + id;
+			      db.all(query, (err4,chats) => {
+						  if (!!err4)
+							  return cb(err4);
+						  const game = Object.assign({},
+                gameInfo,
+                {
+                  players: players,
+                  moves: moves,
+                  chats: chats,
+                }
+              );
+						  return cb(null, game);
+            });
 					});
 				});
 			});
@@ -134,24 +149,28 @@ const GameModel =
     });
   },
 
-  // obj can have fields move, message, fen, drawOffer and/or score
+  // obj can have fields move, chat, fen, drawOffer and/or score
   update: function(id, obj)
   {
 		db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
+      let modifs = "";
       if (!!obj.message)
-        query += "message = message || ' ' || '" + obj.message + "',";
+        modifs += "message = message || ' ' || '" + obj.message + "',";
       if (!!obj.drawOffer)
-        query += "drawOffer = " + obj.drawOffer + ",";
+        modifs += "drawOffer = " + obj.drawOffer + ",";
       if (!!obj.fen)
-        query += "fen = '" + obj.fen + "',";
+        modifs += "fen = '" + obj.fen + "',";
       if (!!obj.score)
-        query += "score = '" + obj.score + "',";
-      query = query.slice(0,-1); //remove last comma
-      query += " WHERE id = " + id;
-      db.run(query);
+        modifs += "score = '" + obj.score + "',";
+      modifs = modifs.slice(0,-1); //remove last comma
+      if (modifs.length > 0)
+      {
+        query += modifs + " WHERE id = " + id;
+        db.run(query);
+      }
       if (!!obj.move)
       {
         const m = obj.move;
@@ -159,6 +178,14 @@ const GameModel =
           "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
           "(" + id + ",'" + JSON.stringify(m.squares) + "',"
             + m.played + "," + m.idx + ")";
+        db.run(query);
+      }
+      if (!!obj.chat)
+      {
+			  query =
+	        "INSERT INTO Chats (gid, msg, name, sid, added) VALUES " +
+            "(" + id + ",'" + obj.chat.msg + "','" + obj.chat.name +
+            "','" + obj.chat.sid + "'," + Date.now() + ")";
         db.run(query);
       }
     });
@@ -177,6 +204,10 @@ const GameModel =
 			db.run(query);
 			query =
 				"DELETE FROM Moves " +
+				"WHERE gid = " + id;
+			db.run(query);
+			query =
+				"DELETE FROM Chats " +
 				"WHERE gid = " + id;
 			db.run(query);
 		});
