@@ -51,6 +51,18 @@ export default {
     const boardSize = localStorage.getItem("boardSize");
     if (!!boardSize)
       document.getElementById("myRange").value = Math.floor(boardSize / 10);
+    // timeout to avoid calling too many time the adjust method
+    let timeoutLaunched = false;
+    window.addEventListener("resize", (e) => {
+      if (!timeoutLaunched)
+      {
+        timeoutLaunched = true;
+        setTimeout( () => {
+          this.adjustBoard();
+          timeoutLaunched = false;
+        }, 500);
+      }
+    });
   },
 	methods: {
     updateSettings: function(event) {
@@ -65,14 +77,15 @@ export default {
       if (!boardContainer)
         return; //no board on page
       const k = document.getElementById("myRange").value;
-      const movesWidth = (window.innerWidth >= 768 ? 280 : 0); //TODO: constant somewhere...;
+      const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
       const minBoardWidth = 240; //TODO: same
       // Value of 0 is board min size; 100 is window.width [- movesWidth]
       const boardSize = minBoardWidth +
         k * (window.innerWidth - (movesWidth+minBoardWidth)) / 100;
       localStorage.setItem("boardSize", boardSize);
       boardContainer.style.width = boardSize + "px";
-      document.getElementById("gameContainer").style.width = (boardSize + movesWidth) + "px";
+      document.getElementById("gameContainer").style.width =
+        (boardSize + movesWidth) + "px";
     },
 	},
 };

@@ -3,7 +3,7 @@ div
   #scoreInfo(v-if="score!='*'")
     p {{ score }}
     p {{ message }}
-  table#movesList
+  table.moves-list
     tbody
       tr(v-for="moveIdx in evenNumbers")
         td {{ firstNum + moveIdx / 2 + 1 }}
@@ -25,6 +25,8 @@ export default {
 	props: ["moves","cursor","score","message","firstNum"],
   watch: {
     cursor: function(newValue) {
+      if (window.innerWidth <= 767)
+        return; //moves list is below: scrolling would hide chessboard
       if (newValue < 0)
         newValue = 0; //avoid rows[-1] --> error
       // $nextTick to wait for table > tr to be rendered

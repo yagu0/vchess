@@ -90,20 +90,6 @@ export default {
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
     gameContainer.style.width = (boardSize + movesWidth) + "px";
-    
-
-
-
-
-    // TODO: something here........... gameContainer.width increases if from small to larger screen
-    window.onResize = (e) => {
-      console.log(e);
-      //if (window.innerWidth >= 768)
-    };
-
-
-
-
   },
   methods: {
     focusBg: function() {
