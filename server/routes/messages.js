@@ -8,7 +8,6 @@ const params = require(__dirname.replace("/routes", "/config/parameters"));
 router.post("/messages", (req,res,next) => {
 	if (!req.xhr)
 		return res.json({errmsg: "Unauthorized access"});
-  console.log(req.body);
   const from = req.body["email"];
 	const subject = req.body["subject"];
 	const body = req.body["content"];

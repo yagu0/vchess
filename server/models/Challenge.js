@@ -1,4 +1,5 @@
 var db = require("../utils/database");
+const UserModel = require("./User");
 
 /*
  * Structure:
@@ -21,6 +22,8 @@ const ChallengeModel =
       return "Wrong characters in time control";
     if (!c.fen.match(/^[a-zA-Z0-9, /-]*$/))
       return "Bad FEN string";
+    if (!!c.to)
+      return UserModel.checkNameEmail({name: c.to});
     return "";
   },
 
@@ -53,7 +56,7 @@ const ChallengeModel =
     });
   },
 
-  // all challenges except where target is defined and not me
+  // All challenges except where target is defined and not me
   getByUser: function(uid, cb)
   {
     db.serialize(function() {

@@ -9,11 +9,22 @@ var params = require("../config/parameters");
 // From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
   const gameInfo = req.body.gameInfo;
-	if (!gameInfo.players.some(p => p.id == req.userId))
+	if (!Array.isArray(gameInfo.players) ||
+    !gameInfo.players.some(p => p.id == req.userId))
+  {
 		return res.json({errmsg: "Cannot start someone else's game"});
+  }
   const cid = req.body.cid;
+  // Check all entries of gameInfo + cid:
+  let error = GameModel.checkGameInfo(gameInfo);
+  if (!error)
+  {
+    if (!cid.toString().match(/^[0-9]+$/))
+      error = "Wrong challenge ID";
+  }
+  if (!!error)
+    return res.json({errmsg:error});
   ChallengeModel.remove(cid);
-	const fen = req.body.fen;
 	GameModel.create(
     gameInfo.vid, gameInfo.fen, gameInfo.timeControl, gameInfo.players,
 		(err,ret) => {
@@ -55,7 +66,13 @@ router.get("/games", access.ajax, (req,res) => {
 // TODO: if newmove fail, takeback in GUI
 router.put("/games", access.logged, access.ajax, (req,res) => {
   const gid = req.body.gid;
-	const obj = req.body.newObj;
+  let error = "";
+  if (!gid.toString().match(/^[0-9]+$/))
+    error = "Wrong game ID";
+  const obj = req.body.newObj;
+	error = GameModel.checkGameUpdate(obj);
+  if (!!error)
+    return res.json({errmsg: error});
 	GameModel.update(gid, obj, (err) => {
 		if (!!err)
       return res.json(err);

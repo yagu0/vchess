@@ -26,10 +26,11 @@ module.exports = function(from, to, subject, body, cb)
 
 	// Setup email data with unicode symbols
 	const mailOptions = {
-		from: from, //note: some SMTP serves might forbid this
+		from: params.mail.noreply,
 		to: to,
 		subject: subject,
 		text: body,
+    replyTo: from,
   };
 
 	// Send mail with the defined transport object

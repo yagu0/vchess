@@ -7,6 +7,7 @@ var genToken = require("../utils/tokenGenerator");
 var access = require("../utils/access");
 var params = require("../config/parameters");
 
+// NOTE: this method is safe because the sessionToken must be guessed
 router.get("/whoami", access.ajax, (req,res) => {
   const callback = (user) => {
     return res.json({
@@ -27,6 +28,7 @@ router.get("/whoami", access.ajax, (req,res) => {
   });
 });
 
+// NOTE: this method is safe because only IDs and names are returned
 router.get("/users", access.ajax, (req,res) => {
   const ids = req.query["ids"];
   UserModel.getByIds(ids, (err,users) => {

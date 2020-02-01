@@ -33,6 +33,7 @@ const UserModel =
 			if (!o.email.match(/^[\w.+-]+@[\w.+-]+$/))
 				return "Bad characters in email";
 		}
+    return ""; //NOTE: not required, but more consistent... (?!)
 	},
 
 	// NOTE: parameters are already cleaned (in controller), thus no sanitization here
@@ -89,8 +90,9 @@ const UserModel =
 	},
 
 	// Set session token only if empty (first login)
-	// TODO: weaker security (but avoid to re-login everywhere after each logout)
-	trySetSessionToken: function(uid, cb)
+	// NOTE: weaker security (but avoid to re-login everywhere after each logout)
+	// TODO: option would be to reset all tokens periodically, e.g. every 3 months
+  trySetSessionToken: function(uid, cb)
 	{
 		// Also empty the login token to invalidate future attempts
 		db.serialize(function() {

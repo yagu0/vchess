@@ -1,4 +1,5 @@
 var db = require("../utils/database");
+const UserModel = require("./User");
 
 /*
  * Structure table Games:
@@ -9,6 +10,7 @@ var db = require("../utils/database");
  *   timeControl: string
  *   score: varchar (result)
  *   created: datetime
+ *   drawOffer: boolean
  *
  * Structure table Players:
  *   gid: ref game id
@@ -31,6 +33,24 @@ var db = require("../utils/database");
 
 const GameModel =
 {
+  checkGameInfo: function(g) {
+    if (!g.id.toString().match(/^[0-9]+$/))
+      return "Wrong game ID";
+    if (!g.vid.toString().match(/^[0-9]+$/))
+      return "Wrong variant ID";
+    if (!g.vname.match(/^[a-zA-Z0-9]+$/))
+      return "Wrong variant name";
+    if (!g.timeControl.match(/^[0-9dhms +]+$/))
+      return "Wrong characters in time control";
+    if (!g.fen.match(/^[a-zA-Z0-9, /-]*$/))
+      return "Bad FEN string";
+    if (g.players.length != 2)
+      return "Need exactly 2 players";
+    if (g.players.some(p => !p.id.toString().match(/^[0-9]+$/)))
+      return "Wrong characters in player ID";
+    return "";
+  },
+
 	create: function(vid, fen, timeControl, players, cb)
 	{
 		db.serialize(function() {
@@ -149,6 +169,29 @@ const GameModel =
     });
   },
 
+  checkGameUpdate: function(obj)
+  {
+    // Check all that is possible (required) in obj:
+    if (!!obj.move)
+    {
+      if (!obj.move.played.toString().match(/^[0-9]+$/))
+        return "Wrong move played time";
+      if (!obj.move.idx.toString().match(/^[0-9]+$/))
+        return "Wrong move index";
+    }
+    if (!!obj.fen && !obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
+      return "Wrong FEN string";
+    if (!!obj.score && !obj.score.match(/^[012?*\/-]+$/))
+      return "Wrong characters in score";
+    if (!!obj.chat)
+    {
+      if (!obj.chat.sid.match(/^[a-zA-Z0-9]+$/))
+        return "Wrong user SID";
+      return UserModel.checkNameEmail({name: obj.chat.name});
+    }
+    return "";
+  },
+
   // obj can have fields move, chat, fen, drawOffer and/or score
   update: function(id, obj)
   {
@@ -159,7 +202,7 @@ const GameModel =
       let modifs = "";
       if (!!obj.message)
         modifs += "message = message || ' ' || '" + obj.message + "',";
-      if (!!obj.drawOffer)
+      if ([true,false].includes(obj.drawOffer))
         modifs += "drawOffer = " + obj.drawOffer + ",";
       if (!!obj.fen)
         modifs += "fen = '" + obj.fen + "',";
@@ -176,17 +219,16 @@ const GameModel =
         const m = obj.move;
         query =
           "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
-          "(" + id + ",'" + JSON.stringify(m.squares) + "',"
-            + m.played + "," + m.idx + ")";
-        db.run(query);
+          "(" + id + ",?," + m.played + "," + m.idx + ")";
+        db.run(query, JSON.stringify(m.squares));
       }
       if (!!obj.chat)
       {
 			  query =
 	        "INSERT INTO Chats (gid, msg, name, sid, added) VALUES " +
-            "(" + id + ",'" + obj.chat.msg + "','" + obj.chat.name +
-            "','" + obj.chat.sid + "'," + Date.now() + ")";
-        db.run(query);
+            "(" + id + ",?,'" + obj.chat.name + "','"
+            + obj.chat.sid + "'," + Date.now() + ")";
+        db.run(query, obj.chat.msg);
       }
     });
   },
