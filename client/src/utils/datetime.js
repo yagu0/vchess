@@ -33,11 +33,15 @@ export function ppt(t)
   let res = "";
   if (days > 0)
     res += days + "d ";
-  if (days <= 3 && hours > 0) //TODO: 3 is arbitrary
+  if (days <= 3 && hours > 0) //NOTE: 3 is arbitrary
     res += hours + "h ";
   if (days == 0 && minutes > 0)
     res += (hours > 0 ? padDigits(minutes) + "m " : minutes + ":");
   if (days == 0 && hours == 0)
+  {
     res += padDigits(seconds);
+    if (minutes == 0)
+      res += "s"; //seconds indicator, since this is the only number printed
+  }
   return res.trim(); //remove potential last space
 }

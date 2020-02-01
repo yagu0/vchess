@@ -161,6 +161,9 @@ footer
   display: inline-flex
   align-items: center
   justify-content: center
+  & > .router-link-exact-active
+    color: #42b983 !important
+    text-decoration: none
   & > .menuitem
     display: inline-block
     margin: 0 10px

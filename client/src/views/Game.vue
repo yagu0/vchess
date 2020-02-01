@@ -7,14 +7,19 @@ main
       Chat(:players="game.players" :pastChats="game.chats"
         @newchat-sent="finishSendChat" @newchat-received="processChat")
   .row
-    .col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
+    #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
         button(@click="offerDraw") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
-      div Names: {{ game.players[0].name }} - {{ game.players[1].name }}
-      div(v-if="game.score=='*'") Time: {{ virtualClocks[0] }} - {{ virtualClocks[1] }}
+      #playersInfo
+        p
+          span.name(:class="{connected: isConnected(0)}") {{ game.players[0].name }}
+          span.time(v-if="game.score=='*'") {{ virtualClocks[0] }}
+          span.split-names -
+          span.name(:class="{connected: isConnected(1)}") {{ game.players[1].name }}
+          span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
   BaseGame(:game="game" :vr="vr" ref="basegame"
     @newmove="processMove" @gameover="gameOver")
 </template>
@@ -125,6 +130,12 @@ export default {
     // O.1] Ask server for room composition:
     roomInit: function() {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
+    },
+    isConnected: function(index) {
+      const name = this.game.players[index].name;
+      if (this.st.user.name == name)
+        return true;
+      return this.people.some(p => p.name == name);
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
@@ -544,9 +555,7 @@ export default {
 
 <style lang="sass">
 .connected
-  background-color: green
-.disconnected
-  background-color: red
+  background-color: lightgreen
 
 @media screen and (min-width: 768px)
   #actions
@@ -562,6 +571,23 @@ export default {
     display: inline-block
     width: 33%
     margin: 0
+
+@media screen and (max-width: 767px)
+  #aboveBoard
+    text-align: center
+
+.name
+  font-size: 1.5rem
+  padding: 1px
+
+.time
+  font-size: 2rem
+  display: inline-block
+  margin-left: 10px
+
+.split-names
+  display: inline-block
+  margin: 0 15px
 
 #chat
   padding-top: 20px
