@@ -29,7 +29,7 @@ export default {
     };
   },
   mounted: function() {
-    // TODO: better style would be in pug directly, but how?
+    // NOTE: better style would be in pug directly, but how?
     document.querySelectorAll("#langSelect > option").forEach(opt => {
       if (opt.value == this.st.lang)
         opt.selected = true;

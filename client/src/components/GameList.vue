@@ -50,7 +50,7 @@ export default {
               priority++;
           }
         }
-        return Object.assign({}, g, {priority: priority, myTurn: priority==2});
+        return Object.assign({}, g, {priority: priority, myTurn: priority==3});
       });
       return augmentedGames.sort((g1,g2) => { return g2.priority - g1.priority; });
     },
@@ -58,8 +58,8 @@ export default {
 };
 </script>
 
-<style scoped lang="sass">
-.my-turn
-  // TODO: the style doesn't work... why?
-  background-color: orange
+<style lang="sass" scoped>
+// TODO: understand why the style applied to <tr> element doesn't work
+tr.my-turn > td
+  background-color: #fcd785
 </style>

@@ -81,7 +81,7 @@ export default {
         return; //no board on page
       const k = document.getElementById("myRange").value;
       const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
-      const minBoardWidth = 240; //TODO: same
+      const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...
       // Value of 0 is board min size; 100 is window.width [- movesWidth]
       const boardSize = minBoardWidth +
         k * (window.innerWidth - (movesWidth+minBoardWidth)) / 100;

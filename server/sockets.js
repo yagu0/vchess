@@ -31,15 +31,20 @@ module.exports = function(wss) {
         }
       });
     };
-    notifyRoom(query["page"], "connect"); //Hall or Game
-    if (query["page"].indexOf("/game/") >= 0)
-      notifyRoom("/", "connect"); //notify main hall
+    // Wait for "connect" message to notify connection to the room,
+    // because if game loading is slow the message listener might
+    // not be ready too early.
     socket.on("message", objtxt => {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
       switch (obj.code)
       {
+        case "connect":
+          notifyRoom(query["page"], "connect"); //Hall or Game
+          if (query["page"].indexOf("/game/") >= 0)
+            notifyRoom("/", "connect"); //notify main hall
+          break;
         case "pollclients":
           const curPage = clients[sid].page;
           socket.send(JSON.stringify({code:"pollclients",

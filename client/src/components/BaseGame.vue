@@ -26,8 +26,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
         @goto-move="gotoMove")
-  // TODO: clearer required ?!
-  .clearer
+    .clearer
 </template>
 
 <script>
@@ -94,7 +93,7 @@ export default {
   },
   methods: {
     focusBg: function() {
-      // TODO: small blue border appears...
+      // NOTE: small blue border appears...
       document.getElementById("baseGame").focus();
     },
     handleKeys: function(e) {
@@ -120,10 +119,14 @@ export default {
       }
     },
     handleScroll: function(e) {
-      if (e.deltaY < 0)
-        this.undo();
-      else if (e.deltaY > 0)
-        this.play();
+      if (this.game.mode == "analyze" || this.game.score != "*")
+      {
+        e.preventDefault();
+        if (e.deltaY < 0)
+          this.undo();
+        else if (e.deltaY > 0)
+          this.play();
+      }
     },
     re_setVariables: function() {
       this.endgameMessage = "";
@@ -350,7 +353,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 #baseGame
   width: 100%
 
@@ -360,11 +363,6 @@ export default {
 
 #modal-eog+div .card
   overflow: hidden
-@media screen and (min-width: 768px)
-  #controls
-    width: 400px
-    margin-left: auto
-    margin-right: auto
 #controls
   margin-top: 10px
   margin-left: auto
@@ -373,12 +371,17 @@ export default {
     display: inline-block
     width: 20%
     margin: 0
+@media screen and (min-width: 768px)
+  #controls
+    max-width: 400px
 #pgnDiv
   text-align: center
   margin-left: auto
   margin-right: auto
 #boardContainer
   float: left
+// TODO: later, maybe, allow movesList of variable width
+// or e.g. between 250 and 350px (but more complicated)
 #movesList
   width: 280px
   float: left
@@ -387,11 +390,4 @@ export default {
     width: 100%
     float: none
     clear: both
-    table
-      tr
-        display: flex
-        margin: 0
-        padding: 0
-        td
-          text-align: left
 </style>

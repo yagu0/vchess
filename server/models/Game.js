@@ -34,8 +34,6 @@ const UserModel = require("./User");
 const GameModel =
 {
   checkGameInfo: function(g) {
-    if (!g.id.toString().match(/^[0-9]+$/))
-      return "Wrong game ID";
     if (!g.vid.toString().match(/^[0-9]+$/))
       return "Wrong variant ID";
     if (!g.vname.match(/^[a-zA-Z0-9]+$/))
@@ -228,7 +226,7 @@ const GameModel =
       {
 			  query =
 	        "INSERT INTO Chats (gid, msg, name, added) VALUES ("
-            + id + ",?,'" + obj.chat.name + "'," + "," + Date.now() + ")";
+            + id + ",?,'" + obj.chat.name + "'," + Date.now() + ")";
         db.run(query, obj.chat.msg);
       }
     });

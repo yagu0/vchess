@@ -68,6 +68,4 @@ export default {
   color: grey
 .opp-chatmsg
   color: black
-#chat
-  max-width: 100%
 </style>

@@ -135,6 +135,9 @@ export default {
   methods: {
     // O.1] Ask server for room composition:
     roomInit: function() {
+      // Notify the room only now that I connected, because
+      // messages might be lost otherwise (if game loading is slow)
+      this.st.conn.send(JSON.stringify({code:"connect"}));
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
     },
     isConnected: function(index) {
@@ -182,13 +185,12 @@ export default {
         }
         case "identity":
         {
-          let player = this.people[data.user.sid];
           // NOTE: sometimes player.id fails because player is undefined...
           // Probably because the event was meant for Hall?
-          if (!player)
+          if (!this.people[data.user.sid])
             return;
-          player.id = data.user.id;
-          player.name = data.user.name;
+          this.$set(this.people, data.user.sid,
+            {id: data.user.id, name: data.user.name});
           // Sending last state only for live games: corr games are complete
           if (this.game.type == "live" && this.game.oppsid == data.user.sid)
           {
@@ -225,7 +227,7 @@ export default {
             game:myGame, target:data.from}));
           break;
         case "newmove":
-          this.$set(this.game, "moveToPlay", data.move); //TODO: Vue3...
+          this.$set(this.game, "moveToPlay", data.move);
           break;
         case "lastate": //got opponent infos about last move
         {
@@ -245,10 +247,12 @@ export default {
           this.gameOver("1/2", data.message);
           break;
         case "drawoffer":
-          this.drawOffer = "received"; //TODO: observers don't know who offered draw
+          // NOTE: observers don't know who offered draw
+          this.drawOffer = "received";
           break;
         case "askfullgame":
-          this.st.conn.send(JSON.stringify({code:"fullgame", game:this.game, target:data.from}));
+          this.st.conn.send(JSON.stringify({code:"fullgame",
+            game:this.game, target:data.from}));
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
@@ -306,13 +310,7 @@ export default {
         });
         this.gameOver("1/2", message);
       }
-      else if (this.drawOffer == "sent")
-      {
-        this.drawOffer = "";
-        if (this.game.type == "corr")
-          GameStorage.update(this.gameRef.id, {drawOffer: false});
-      }
-      else
+      else if (this.drawOffer == "") //no effect if drawOffer == "sent"
       {
         if (!confirm("Offer draw?"))
           return;
@@ -321,8 +319,7 @@ export default {
           if (sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"drawoffer", target:sid}));
         });
-        if (this.game.type == "corr")
-          GameStorage.update(this.gameRef.id, {drawOffer: true});
+        GameStorage.update(this.gameRef.id, {drawOffer: true});
       }
     },
     abortGame: function() {
@@ -578,7 +575,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .connected
   background-color: lightgreen
 

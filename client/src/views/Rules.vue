@@ -111,7 +111,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 //.section-content
 //  *
 //    margin-left: auto
@@ -194,7 +194,7 @@ ul:not(.browser-default) > li
 .dark-square-diag
   background-color: #6f8f57
 
-// TODO: following is duplicated
+// TODO: following is duplicated (Board.vue)
 div.board
   float: left
   height: 0

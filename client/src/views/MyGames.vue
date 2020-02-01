@@ -57,7 +57,3 @@ export default {
   },
 };
 </script>
-
-<style scoped lang="sass">
-/* TODO */
-</style>

@@ -50,8 +50,7 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="sass">
+<style lang="sass" scoped>
 // TODO: box-shadow or box-sizing ? https://stackoverflow.com/a/13517809
 .variant
   box-sizing: border-box

@@ -49,10 +49,11 @@ main
             button(@click="pdisplay='players'") Players
             button(@click="pdisplay='chat'") Chat
           #players(v-show="pdisplay=='players'")
-            p.text-center(v-for="p in uniquePlayers")
+            p(v-for="p in uniquePlayers")
               span(:class="{anonymous: !!p.count}")
                 | {{ (p.name || '@nonymous') + (!!p.count ? " ("+p.count+")" : "") }}
-              button.player-action(v-if="!p.count" @click="challOrWatch(p,$event)")
+              button.player-action(v-if="!p.count && p.name != st.user.name"
+                  @click="challOrWatch(p,$event)")
                 | {{ whatPlayerDoes(p) }}
           #chat(v-show="pdisplay=='chat'")
             Chat(:players="[]")
@@ -233,8 +234,11 @@ export default {
       return (!!variant ? variant.name : "");
     },
     whatPlayerDoes: function(p) {
-      if (this.games.some(g => g.players.some(pl => pl.sid == p.sid)))
+      if (this.games.some(g => g.type == "live"
+        && g.players.some(pl => pl.sid == p.sid)))
+      {
         return "Playing";
+      }
       return "Challenge"; //player is available
     },
     sendSomethingTo: function(to, code, obj, warnDisconnected) {
@@ -428,7 +432,7 @@ export default {
         case "Playing":
           // NOTE: this search for game was already done for rendering
           this.showGame(this.games.find(
-            g => g.players.some(pl => pl.sid == p.sid)));
+            g => g.type=="live" && g.players.some(pl => pl.sid == p.sid)));
           break;
       };
     },
@@ -620,7 +624,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 #newGame
   display: block
   margin: 10px auto 5px auto
@@ -628,8 +632,13 @@ export default {
   max-width: 100%
   margin: 0;
   border: none;
+#players > p
+  margin-left: 40%
+@media screen and (max-width: 767px)
+  #players > p
+    margin-left: 5px
 .anonymous
   font-style: italic
 button.player-action
-  margin-left: 20px
+  margin-left: 32px
 </style>

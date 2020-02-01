@@ -363,7 +363,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .game.reserve-div
   margin-bottom: 18px
 
