@@ -1,7 +1,8 @@
 <template lang="pug">
-div#baseGame(tabindex=-1 @click="() => focusBg()" @keydown="handleKeys")
+div#baseGame(tabindex=-1 @click="() => focusBg()"
+    @keydown="handleKeys" @wheel="handleScroll")
   input#modalEog.modal(type="checkbox")
-  div(role="dialog" aria-labelledby="eogMessage")
+  div(role="dialog" data-checkbox="modalEog" aria-labelledby="eogMessage")
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
@@ -117,6 +118,12 @@ export default {
           this.flip();
           break;
       }
+    },
+    handleScroll: function(e) {
+      if (e.deltaY < 0)
+        this.undo();
+      else if (e.deltaY > 0)
+        this.play();
     },
     re_setVariables: function() {
       this.endgameMessage = "";
@@ -387,6 +394,4 @@ export default {
         padding: 0
         td
           text-align: left
-.clearer
-  clear: both
 </style>

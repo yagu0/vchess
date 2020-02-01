@@ -41,12 +41,12 @@
 </template>
 
 <script>
-// See https://stackoverflow.com/a/35417159
 import ContactForm from "@/components/ContactForm.vue";
 import Language from "@/components/Language.vue";
 import Settings from "@/components/Settings.vue";
 import UpsertUser from "@/components/UpsertUser.vue";
 import { store } from "./store.js";
+import { processModalClick } from "./utils/modalClick.js";
 export default {
   components: {
     ContactForm,
@@ -64,9 +64,12 @@ export default {
       return `/images/flags/${this.st.lang}.svg`;
     },
   },
-//  mounted: function() {
-//    feather.replace();
-//  },
+  mounted: function() {
+    let dialogs = document.querySelectorAll("div[role='dialog']");
+    dialogs.forEach(d => {
+      d.addEventListener("click", processModalClick);
+    });
+  },
   methods: {
     hideDrawer: function(e) {
       if (e.target.innerText == "Forum")
@@ -79,12 +82,23 @@ export default {
 </script>
 
 <style lang="sass">
+//html, *
+//  font-family: "Open Sans", Arial, sans-serif
+//  --back-color: #f2f2f2
+//  --a-link-color: black
+//  --a-visited-color: black
+
+body
+  padding: 0
+  min-width: 320px
+
 #app
   font-family: "Avenir", Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
 .container
+  overflow: hidden
   @media screen and (max-width: 767px)
     padding: 0
 
@@ -106,6 +120,27 @@ header
 
 .clickable
   cursor: pointer
+
+.text-center
+  text-align: center
+
+.smallpad
+  padding: 5px
+
+.emphasis
+  font-style: italic
+
+.clearer
+  clear: both
+
+.smallfont
+  font-size: 0.8em
+
+.bigfont
+  font-size: 1.2em
+
+.bold
+  font-weight: bold
 
 nav
   width: 100%
@@ -151,6 +186,13 @@ nav
   label.drawer-close
     top: 50px
 
+@media screen and (max-width: 767px)
+  .button-group
+    flex-direction: row
+    button:not(:first-child)
+      border-left: 1px solid var(--button-group-border-color)
+      border-top: 0
+
 footer
   border: 1px solid #ddd
   //background-color: #000033
@@ -179,4 +221,16 @@ footer
 @media screen and (max-width: 767px)
   footer
     border: none
+
+//#settings, #contactForm
+//  max-width: 767px
+//  @media screen and (max-width: 767px)
+//    max-width: 100vw
+//[type="checkbox"].modal+div .card
+//  max-width: 767px
+//  max-height: 100vh
+//[type="checkbox"].modal+div .card.small-modal
+//  max-width: 320px
+//[type="checkbox"].modal+div .card.big-modal
+//  max-width: 90vw
 </style>

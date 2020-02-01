@@ -7,7 +7,7 @@ main
         button(v-show="!gameInProgress" @click="() => startGame('auto')")
           | Sample game
         button(v-show="!gameInProgress" @click="() => startGame('versus')")
-          |  Practice!
+          | Practice
         button(v-show="gameInProgress" @click="() => stopGame()")
           | Stop game
         button(@click="gotoAnalyze") Analyze
@@ -112,6 +112,17 @@ export default {
 </script>
 
 <style lang="sass">
+//.section-content
+//  *
+//    margin-left: auto
+//    margin-right: auto
+//    max-width: 767px
+//  figure.diagram-container
+//    max-width: 1000px
+//  @media screen and (max-width: 767px)
+//    max-width: 100%
+//    padding: 0 5px
+
 .warn
   padding: 3px
   color: red

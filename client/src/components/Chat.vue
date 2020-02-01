@@ -29,8 +29,7 @@ export default {
       const data = JSON.parse(msg.data);
       if (data.code == "newchat") //only event at this level
       {
-        this.chats.unshift({msg:data.msg,
-          name:data.name || "@nonymous", sid:data.from});
+        this.chats.unshift({msg:data.msg, name:data.name || "@nonymous"});
         this.$emit("newchat-received"); //data not required here
       }
     };
@@ -45,17 +44,16 @@ export default {
   methods: {
     classObject: function(chat) {
       return {
-        "my-chatmsg": chat.sid == this.st.user.sid,
+        "my-chatmsg": chat.name == this.st.user.name,
         "opp-chatmsg": this.players.some(
-          p => p.sid == chat.sid && p.sid != this.st.user.sid)
+          p => p.name == chat.name && p.name != this.st.user.name)
       };
     },
     sendChat: function() {
       let chatInput = document.getElementById("inputChat");
       const chatTxt = chatInput.value;
       chatInput.value = "";
-      const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous",
-        sid:this.st.user.sid};
+      const chat = {msg:chatTxt, name: this.st.user.name || "@nonymous"};
       this.$emit("newchat-sent", chat); //useful for corr games
       this.chats.unshift(chat);
       this.st.conn.send(JSON.stringify({

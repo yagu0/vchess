@@ -1,7 +1,8 @@
 <template lang="pug">
 div
   input#modalContact.modal(type="checkbox")
-  div(role="dialog" aria-labelledby="contactTitle")
+  div(role="dialog" data-checkbox="modalContact"
+      aria-labelledby="contactTitle")
     form.card.smallpad
       label.modal-close(for="modalContact")
       h3#contactTitle.section {{ st.tr["Contact form"] }}
@@ -70,5 +71,6 @@ export default {
 
 <style lang="sass" scoped>
 #emailSent
+  color: blue
   display: none
 </style>

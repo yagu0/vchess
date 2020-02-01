@@ -1,7 +1,8 @@
 <template lang="pug">
 main
   input#modalChat.modal(type="checkbox" @change="toggleChat")
-  div(role="dialog" aria-labelledby="inputChat")
+  div#chatWrap(role="dialog" data-checkbox="modalChat"
+      aria-labelledby="inputChat")
     #chat.card
       label.modal-close(for="modalChat")
       Chat(:players="game.players" :pastChats="game.chats"
@@ -10,7 +11,7 @@ main
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.mode!='analyze' && game.score=='*'")
-        button(@click="offerDraw") Draw
+        button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
       #playersInfo
@@ -32,6 +33,7 @@ import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
 import { ArrayFun } from "@/utils/array";
+import { processModalClick } from "@/utils/modalClick";
 
 export default {
   name: 'my-game',
@@ -50,8 +52,8 @@ export default {
       game: {players:[{name:""},{name:""}]}, //passed to BaseGame
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
-      drawOffer: "", //TODO: use for button style
-      people: [], //players + observers
+      drawOffer: "",
+      people: {}, //players + observers
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
     };
@@ -94,11 +96,11 @@ export default {
       }, 1000);
     },
   },
-  // TODO: redundant code with Hall.vue (related to people array)
+  // NOTE: some redundant code with Hall.vue (related to people array)
   created: function() {
     // Always add myself to players' list
     const my = this.st.user;
-    this.people.push({sid:my.sid, id:my.id, name:my.name});
+    this.$set(this.people, my.sid, {id:my.id, name:my.name});
     this.gameRef.id = this.$route.params["id"];
     this.gameRef.rid = this.$route.query["rid"]; //may be undefined
     // Define socket .onmessage() and .onclose() events:
@@ -126,6 +128,10 @@ export default {
       socketInit(this.loadGame);
     }
   },
+  mounted: function() {
+    document.getElementById("chatWrap").addEventListener(
+      "click", processModalClick);
+  },
   methods: {
     // O.1] Ask server for room composition:
     roomInit: function() {
@@ -135,7 +141,7 @@ export default {
       const name = this.game.players[index].name;
       if (this.st.user.name == name)
         return true;
-      return this.people.some(p => p.name == name);
+      return Object.values(this.people).some(p => p.name == name);
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
@@ -148,7 +154,11 @@ export default {
         case "pollclients":
         {
           data.sockIds.forEach(sid => {
-            this.people.push({sid:sid, id:0, name:""});
+            // TODO: understand clearly what happens here, problems when a
+            // game is quit, and then launch a new game from hall.
+            if (!!this.people[sid])
+              return;
+            this.$set(this.people, sid, {id:0, name:""});
             // Ask only identity
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
           });
@@ -159,15 +169,20 @@ export default {
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
-            this.st.conn.send(JSON.stringify(
-              // people[0] instead of st.user to avoid sending email
-              {code:"identity", user:this.people[0], target:data.from}));
+            this.st.conn.send(JSON.stringify({code:"identity",
+              user: {
+                // NOTE: decompose to avoid revealing email
+                name: this.st.user.name,
+                sid: this.st.user.sid,
+                id: this.st.user.id,
+              },
+              target:data.from}));
           }
           break;
         }
         case "identity":
         {
-          let player = this.people.find(p => p.sid == data.user.sid);
+          let player = this.people[data.user.sid];
           // NOTE: sometimes player.id fails because player is undefined...
           // Probably because the event was meant for Hall?
           if (!player)
@@ -175,7 +190,7 @@ export default {
           player.id = data.user.id;
           player.name = data.user.name;
           // Sending last state only for live games: corr games are complete
-          if (this.game.type == "live" && this.game.oppsid == player.sid)
+          if (this.game.type == "live" && this.game.oppsid == data.user.sid)
           {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
@@ -184,7 +199,7 @@ export default {
               lastMove.draw = true;
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              target: player.sid,
+              target: data.user.sid,
               state:
               {
                 lastMove: lastMove,
@@ -227,7 +242,7 @@ export default {
           this.gameOver("?", "Abort");
           break;
         case "draw":
-          this.gameOver("1/2", "Mutual agreement");
+          this.gameOver("1/2", data.message);
           break;
         case "drawoffer":
           this.drawOffer = "received"; //TODO: observers don't know who offered draw
@@ -241,12 +256,16 @@ export default {
           break;
         case "connect":
         {
-          this.people.push({name:"", id:0, sid:data.from});
-          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
+          // TODO: next condition is probably not required. See note line 150
+          if (!this.people[data.from])
+          {
+            this.$set(this.people, data.from, {name:"", id:0});
+            this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
+          }
           break;
         }
         case "disconnect":
-          ArrayFun.remove(this.people, p => p.sid == data.from);
+          this.$delete(this.people, data.from);
           break;
       }
     },
@@ -270,18 +289,21 @@ export default {
           this.drawOffer = "received";
       }
     },
-    offerDraw: function() {
+    clickDraw: function() {
       if (["received","threerep"].includes(this.drawOffer))
       {
         if (!confirm("Accept draw?"))
           return;
-        this.people.forEach(p => {
-          if (p.sid != this.st.user.sid)
-            this.st.conn.send(JSON.stringify({code:"draw", target:p.sid}));
-        });
         const message = (this.drawOffer == "received"
           ? "Mutual agreement"
           : "Three repetitions");
+        Object.keys(this.people).forEach(sid => {
+          if (sid != this.st.user.sid)
+          {
+            this.st.conn.send(JSON.stringify({code:"draw",
+              message:message, target:sid}));
+          }
+        });
         this.gameOver("1/2", message);
       }
       else if (this.drawOffer == "sent")
@@ -295,9 +317,9 @@ export default {
         if (!confirm("Offer draw?"))
           return;
         this.drawOffer = "sent";
-        this.people.forEach(p => {
-          if (p.sid != this.st.user.sid)
-            this.st.conn.send(JSON.stringify({code:"drawoffer", target:p.sid}));
+        Object.keys(this.people).forEach(sid => {
+          if (sid != this.st.user.sid)
+            this.st.conn.send(JSON.stringify({code:"drawoffer", target:sid}));
         });
         if (this.game.type == "corr")
           GameStorage.update(this.gameRef.id, {drawOffer: true});
@@ -307,12 +329,12 @@ export default {
       if (!confirm(this.st.tr["Terminate game?"]))
         return;
       this.gameOver("?", "Abort");
-      this.people.forEach(p => {
-        if (p.sid != this.st.user.sid)
+      Object.keys(this.people).forEach(sid => {
+        if (sid != this.st.user.sid)
         {
           this.st.conn.send(JSON.stringify({
             code: "abort",
-            target: p.sid,
+            target: sid,
           }));
         }
       });
@@ -320,11 +342,11 @@ export default {
     resign: function(e) {
       if (!confirm("Resign the game?"))
         return;
-      this.people.forEach(p => {
-        if (p.sid != this.st.user.sid)
+      Object.keys(this.people).forEach(sid => {
+        if (sid != this.st.user.sid)
         {
           this.st.conn.send(JSON.stringify({code:"resign",
-            side:this.game.mycolor, target:p.sid}));
+            side:this.game.mycolor, target:sid}));
         }
       });
       this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
@@ -464,12 +486,12 @@ export default {
           addTime = this.game.increment - elapsed/1000;
         }
         let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
-        this.people.forEach(p => {
-          if (p.sid != this.st.user.sid)
+        Object.keys(this.people).forEach(sid => {
+          if (sid != this.st.user.sid)
           {
             this.st.conn.send(JSON.stringify({
               code: "newmove",
-              target: p.sid,
+              target: sid,
               move: sendMove,
             }));
           }
@@ -547,7 +569,10 @@ export default {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
       if (myIdx >= 0) //OK, I play in this game
-        GameStorage.update(this.gameRef.id, { score: score });
+      {
+        GameStorage.update(this.gameRef.id,
+          {score: score, scoreMsg: scoreMsg});
+      }
     },
   },
 };
@@ -596,4 +621,13 @@ export default {
 
 #chatBtn
   margin: 0 10px 0 0
+
+.draw-sent, .draw-sent:hover
+  background-color: lightyellow
+
+.draw-received, .draw-received:hover
+  background-color: lightgreen
+
+.draw-threerep, .draw-threerep:hover
+  background-color: #e4d1fc
 </style>

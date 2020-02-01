@@ -9,6 +9,7 @@ const UserModel = require("./User");
  *   fen: varchar (current position)
  *   timeControl: string
  *   score: varchar (result)
+ *   scoreMsg: varchar ("Time", "Mutual agreement"...)
  *   created: datetime
  *   drawOffer: boolean
  *
@@ -27,7 +28,6 @@ const UserModel = require("./User");
  *   gid: game id (int)
  *   msg: varchar
  *   name: varchar
- *   sid: varchar (socket ID when sending message)
  *   added: datetime
  */
 
@@ -80,8 +80,10 @@ const GameModel =
 		db.serialize(function() {
       // TODO: optimize queries?
 			let query =
+        // NOTE: g.scoreMsg can be NULL
+        // (in this case score = "*" and no reason to look at it)
 				"SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
-          "v.name AS vname " +
+          "g.scoreMsg, v.name AS vname " +
 				"FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
@@ -106,7 +108,7 @@ const GameModel =
 						if (!!err3)
 							return cb(err3);
 			      query =
-              "SELECT msg, name, sid, added " +
+              "SELECT msg, name, added " +
               "FROM Chats " +
               "WHERE gid = " + id;
 			      db.all(query, (err4,chats) => {
@@ -183,12 +185,10 @@ const GameModel =
       return "Wrong FEN string";
     if (!!obj.score && !obj.score.match(/^[012?*\/-]+$/))
       return "Wrong characters in score";
+    if (!!obj.scoreMsg && !obj.scoreMsg.match(/^[a-zA-Z ]+$/))
+      return "Wrong characters in score message";
     if (!!obj.chat)
-    {
-      if (!obj.chat.sid.match(/^[a-zA-Z0-9]+$/))
-        return "Wrong user SID";
       return UserModel.checkNameEmail({name: obj.chat.name});
-    }
     return "";
   },
 
@@ -208,6 +208,8 @@ const GameModel =
         modifs += "fen = '" + obj.fen + "',";
       if (!!obj.score)
         modifs += "score = '" + obj.score + "',";
+      if (!!obj.scoreMsg)
+        modifs += "scoreMsg = '" + obj.scoreMsg + "',";
       modifs = modifs.slice(0,-1); //remove last comma
       if (modifs.length > 0)
       {
@@ -225,9 +227,8 @@ const GameModel =
       if (!!obj.chat)
       {
 			  query =
-	        "INSERT INTO Chats (gid, msg, name, sid, added) VALUES " +
-            "(" + id + ",?,'" + obj.chat.name + "','"
-            + obj.chat.sid + "'," + Date.now() + ")";
+	        "INSERT INTO Chats (gid, msg, name, added) VALUES ("
+            + id + ",?,'" + obj.chat.name + "'," + "," + Date.now() + ")";
         db.run(query, obj.chat.msg);
       }
     });

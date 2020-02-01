@@ -162,7 +162,7 @@ module.exports = function(wss) {
           break;
         case "draw":
           clients[obj.target].sock.send(JSON.stringify(
-            {code:"draw"}));
+            {code:"draw", message:obj.message}));
           break;
       }
     });

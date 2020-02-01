@@ -1,12 +1,14 @@
 <template lang="pug">
 div
   input#modalSettings.modal(type="checkbox")
-  div(role="dialog" aria-labelledby="settingsTitle")
+  div(role="dialog" data-checkbox="modalSettings"
+      aria-labelledby="settingsTitle")
     .card.smallpad(@change="updateSettings")
       label.modal-close(for="modalSettings")
       h3#settingsTitle.section {{ st.tr["Preferences"] }}
       fieldset
-        label(for="setSqSize") {{ st.tr["Square size (in pixels). 0 for 'adaptative'"] }}
+        label(for="setSqSize")
+          | {{ st.tr["Square size (in pixels). 0 for 'adaptative'"] }}
         input#setSqSize(type="number" v-model="st.settings.sqSize")
       fieldset
         label(for="selectHints") {{ st.tr["Show move hints?"] }}
@@ -15,7 +17,8 @@ div
           option(value="1") {{ st.tr["Moves from a square"] }}
           option(value="2") {{ st.tr["Pieces which can move"] }}
       fieldset
-        label(for="setHighlight") {{ st.tr["Highlight squares? (Last move & checks)"] }}
+        label(for="setHighlight")
+          | {{ st.tr["Highlight squares? (Last move & checks)"] }}
         input#setHighlight(type="checkbox" v-model="st.settings.highlight")
       fieldset
         label(for="setCoords") {{ st.tr["Show board coordinates?"] }}

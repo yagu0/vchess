@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   input#modalUser.modal(type="checkbox" @change="trySetEnterTime")
-  div(role="dialog")
+  div(role="dialog" data-checkbox="modalUser")
     .card
       label.modal-close(for="modalUser")
       h3 {{ stage }}

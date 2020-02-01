@@ -38,6 +38,7 @@ create table Games (
   fenStart varchar, --initial state
   fen varchar, --current state
   score varchar,
+  scoreMsg varchar,
   timeControl varchar,
   created datetime, --used only for DB cleaning
   drawOffer boolean,
@@ -47,7 +48,6 @@ create table Games (
 create table Chats (
   gid integer,
   name varchar,
-  sid varchar,
   msg varchar,
   added datetime
 );
