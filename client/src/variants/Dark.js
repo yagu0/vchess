@@ -1,4 +1,8 @@
-class DarkRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+import { ArrayFun} from "@/utils/array";
+import { randInt } from "@/utils/alea";
+
+export const VariantRules = class DarkRules extends ChessRules
 {
 	// Standard rules, in the shadow
 	setOtherVariables(fen)
@@ -6,8 +10,8 @@ class DarkRules extends ChessRules
 		super.setOtherVariables(fen);
 		const [sizeX,sizeY] = [V.size.x,V.size.y];
 		this.enlightened = {
-			"w": doubleArray(sizeX,sizeY),
-			"b": doubleArray(sizeX,sizeY)
+			"w": ArrayFun.init(sizeX,sizeY),
+			"b": ArrayFun.init(sizeX,sizeY)
 		};
 		// Setup enlightened: squares reachable by each side
 		// (TODO: one side would be enough ?)
@@ -130,10 +134,15 @@ class DarkRules extends ChessRules
 		this.updateEnlightened();
 	}
 
-	checkGameEnd()
-	{
-		// No valid move: our king disappeared
-		return this.turn == "w" ? "0-1" : "1-0";
+  getCurrentScore()
+  {
+		const color = this.turn;
+		const kp = this.kingPos[color];
+		if (kp[0] < 0) //king disappeared
+			return (color == "w" ? "0-1" : "1-0");
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+    return "1/2"; //no moves but kings still there (seems impossible)
 	}
 
 	static get THRESHOLD_MATE()
@@ -282,6 +291,6 @@ class DarkRules extends ChessRules
 		let candidates = [0];
 		for (let j=1; j<moves.length && moves[j].eval == moves[0].eval; j++)
 			candidates.push(j);
-		return moves[sample(candidates)];
+		return moves[candidates[randInt(candidates.length)]];
 	}
 }

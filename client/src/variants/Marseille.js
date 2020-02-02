@@ -205,6 +205,7 @@ class MarseilleRules extends ChessRules
 		};
 	}
 
+  // TODO: this is wrong: revise following base_rules.getComputerMove()
 	// No alpha-beta here, just adapted min-max at depth 2(+1)
 	getComputerMove()
 	{
@@ -221,7 +222,7 @@ class MarseilleRules extends ChessRules
 			let moves = this.getAllValidMoves();
 			if (moves.length == 0)
 			{
-				const score = this.checkGameEnd();
+				const score = this.getCurrentScore();
 				if (score == "1/2")
 					return 0;
 				return maxeval * (score == "1-0" ? 1 : -1);
@@ -234,7 +235,7 @@ class MarseilleRules extends ChessRules
 				// Otherwise it's color,1. In both cases the next test makes sense
 				if (!this.atLeastOneMove())
 				{
-					const score = this.checkGameEnd();
+					const score = this.getCurrentScore();
 					if (score == "1/2")
 						res = (oppCol == "w" ? Math.max(res, 0) : Math.min(res, 0));
 					else

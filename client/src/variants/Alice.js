@@ -293,9 +293,12 @@ export const VariantRules = class AliceRules extends ChessRules
 			this.kingPos[c] = [move.start.x, move.start.y];
 	}
 
-	checkGameEnd()
+	getCurrentScore()
 	{
-		const pieces = Object.keys(V.ALICE_CODES);
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+
+    const pieces = Object.keys(V.ALICE_CODES);
 		const color = this.turn;
 		const kp = this.kingPos[color];
 		const mirrorSide = (pieces.includes(this.getPiece(kp[0],kp[1])) ? 1 : 2);

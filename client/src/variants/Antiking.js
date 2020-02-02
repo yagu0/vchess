@@ -1,4 +1,8 @@
-class AntikingRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+import { ArrayFun} from "@/utils/array";
+import { randInt } from "@/utils/alea";
+
+export const VariantRules = class AntikingRules extends ChessRules
 {
 	static getPpath(b)
 	{
@@ -125,9 +129,12 @@ class AntikingRules extends ChessRules
 			this.antikingPos[c] = [move.start.x, move.start.y];
 	}
 
-	checkGameEnd()
+	getCurrentScore()
 	{
-		const color = this.turn;
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+
+    const color = this.turn;
 		const oppCol = V.GetOppCol(color);
 		if (!this.isAttacked(this.kingPos[color], [oppCol])
 			&& this.isAttacked(this.antikingPos[color], [oppCol]))
@@ -150,7 +157,7 @@ class AntikingRules extends ChessRules
 		let antikingPos = { "w": -1, "b": -1 };
 		for (let c of ["w","b"])
 		{
-			let positions = range(8);
+			let positions = ArrayFun.range(8);
 
 			// Get random squares for bishops, but avoid corners; because,
 			// if an antiking blocks a cornered bishop, it can never be checkmated
@@ -195,6 +202,6 @@ class AntikingRules extends ChessRules
 		return pieces["b"].join("") + "/" + ranks23_black +
 			"/8/8/" +
 			ranks23_white + "/" + pieces["w"].join("").toUpperCase() +
-			" w 1111 -";
+			" w 0 1111 -";
 	}
 }

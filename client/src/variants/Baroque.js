@@ -1,4 +1,8 @@
-class BaroqueRules extends ChessRules
+import { ChessRules, PiPo, Move } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { randInt } from "@/utils/alea";
+
+export const VariantRules = class BaroqueRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
@@ -548,7 +552,7 @@ class BaroqueRules extends ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = range(8);
+			let positions = ArrayFun.range(8);
 			// Get random squares for every piece, totally freely
 
 			let randIndex = randInt(8);
@@ -592,7 +596,7 @@ class BaroqueRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w";
+			" w 0";
 	}
 
 	getNotation(move)

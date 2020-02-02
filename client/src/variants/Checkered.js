@@ -1,4 +1,9 @@
-class CheckeredRules extends ChessRules
+// TODO: to detect oppositeMoves, we need last move --> encoded in FEN
+// + local moves stack (for AlphaBeta) + lastMove (in FEN)
+
+import { ChessRules } from "@/base_rules";
+
+export const VariantRules = class CheckeredRules extends ChessRules
 {
 	static getPpath(b)
 	{
@@ -206,9 +211,12 @@ class CheckeredRules extends ChessRules
 			this.pawnFlags[move.start.x==6 ? "w" : "b"][move.start.y] = false;
 	}
 
-	checkGameEnd()
+	getCurrentScore()
 	{
-		const color = this.turn;
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+
+    const color = this.turn;
 		// Artifically change turn, for checkered pawns
 		this.turn = V.GetOppCol(this.turn);
 		const res = this.isAttacked(this.kingPos[color], [V.GetOppCol(color),'c'])
@@ -241,7 +249,7 @@ class CheckeredRules extends ChessRules
 	{
 		const randFen = ChessRules.GenRandInitFen();
 		// Add 16 pawns flags:
-		return randFen.replace(" w 1111", " w 11111111111111111111");
+		return randFen.replace(" w 0 1111", " w 0 11111111111111111111");
 	}
 
 	getFlagsFen()

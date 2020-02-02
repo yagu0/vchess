@@ -1,4 +1,8 @@
-class LosersRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { randInt } from "@/utils/alea";
+
+export const VariantRules = class LosersRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
@@ -101,10 +105,13 @@ class LosersRules extends ChessRules
 	updateVariables(move) { }
 	unupdateVariables(move) { }
 
-	checkGameEnd()
-	{
-		// No valid move: you win!
-		return this.turn == "w" ? "1-0" : "0-1";
+  getCurrentScore()
+  {
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+
+    // No valid move: the side who cannot move wins
+		return (this.turn == "w" ? "1-0" : "0-1");
 	}
 
 	static get VALUES()
@@ -133,7 +140,7 @@ class LosersRules extends ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = range(8);
+			let positions = ArrayFun.range(8);
 
 			// Get random squares for bishops
 			let randIndex = 2 * randInt(4);
@@ -180,6 +187,6 @@ class LosersRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppp/8/8/8/8/PPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w -"; //no en-passant
+			" w 0 -"; //en-passant allowed, but no flags
 	}
 }

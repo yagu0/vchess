@@ -2,7 +2,7 @@
 // Variants generally inherit from it, and modify some parts.
 
 import { ArrayFun } from "@/utils/array";
-import { randInt, sample, shuffle } from "@/utils/alea";
+import { randInt, shuffle } from "@/utils/alea";
 
 export const PiPo = class PiPo //Piece+Position
 {
@@ -1198,7 +1198,7 @@ export const ChessRules = class ChessRules
     let candidates = [0]; //indices of candidates moves
     for (let j=1; j<moves1.length && moves1[j].eval == moves1[0].eval; j++)
       candidates.push(j);
-    let currentBest = moves1[sample(candidates)];
+    let currentBest = moves1[candidates[randInt(candidates.length)]];
 
     // Skip depth 3+ if we found a checkmate (or if we are checkmated in 1...)
     if (V.SEARCH_DEPTH >= 3 && Math.abs(moves1[0].eval) < V.THRESHOLD_MATE)

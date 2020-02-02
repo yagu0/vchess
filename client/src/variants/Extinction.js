@@ -1,4 +1,6 @@
-class ExtinctionRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+
+export const VariantRules = class  ExtinctionRules extends ChessRules
 {
 	setOtherVariables(fen)
 	{
@@ -99,28 +101,20 @@ class ExtinctionRules extends ChessRules
 			this.material[move.vanish[1].c][move.vanish[1].p]++;
 	}
 
-	checkGameOver()
+	getCurrentScore()
 	{
-		if (this.checkRepetition())
-			return "1/2";
-
 		if (this.atLeastOneMove()) // game not over?
 		{
 			const color = this.turn;
 			if (Object.keys(this.material[color]).some(
 				p => { return this.material[color][p] == 0; }))
 			{
-				return this.checkGameEnd();
+				return (this.turn == "w" ? "0-1" : "1-0");
 			}
 			return "*";
 		}
 
-		return this.checkGameEnd(); //NOTE: currently unreachable...
-	}
-
-	checkGameEnd()
-	{
-		return (this.turn == "w" ? "0-1" : "1-0");
+		return (this.turn == "w" ? "0-1" : "1-0"); //NOTE: currently unreachable...
 	}
 
 	evalPosition()

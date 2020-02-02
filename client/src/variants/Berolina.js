@@ -1,4 +1,6 @@
-class BerolinaRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+
+export const VariantRules = class  BerolinaRules extends ChessRules
 {
 	// En-passant after 2-sq jump
 	getEpSquare(moveOrSquare)

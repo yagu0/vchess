@@ -1,4 +1,6 @@
-class MagneticRules extends ChessRules
+import { ChessRules, PiPo } from "@/base_rules";
+
+export const VariantRules = class  MagneticRules extends ChessRules
 {
 	static get HasEnpassant() { return false; }
 
@@ -191,10 +193,15 @@ class MagneticRules extends ChessRules
 		}
 	}
 
-	checkGameEnd()
+	getCurrentScore()
 	{
-		// No valid move: our king disappeared
-		return this.turn == "w" ? "0-1" : "1-0";
+		const color = this.turn;
+		const kp = this.kingPos[color];
+		if (kp[0] < 0) //king disappeared
+			return (color == "w" ? "0-1" : "1-0");
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+    return "1/2"; //no moves but kings still there
 	}
 
 	static get THRESHOLD_MATE()

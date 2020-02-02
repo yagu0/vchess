@@ -1,4 +1,8 @@
-class WildebeestRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { sample, randInt } from "@/utils/alea";
+
+export const VariantRules = class  WildebeestRules extends ChessRules
 {
 	static getPpath(b)
 	{
@@ -211,10 +215,13 @@ class WildebeestRules extends ChessRules
 			V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), "oneStep");
 	}
 
-	checkGameEnd()
-	{
+  getCurrentScore()
+  {
+    if (this.atLeastOneMove()) // game not over
+      return "*";
+
 		// No valid move: game is lost (stalemate is a win)
-		return this.turn == "w" ? "0-1" : "1-0";
+		return (this.turn == "w" ? "0-1" : "1-0");
 	}
 
 	static get VALUES() {
@@ -231,14 +238,16 @@ class WildebeestRules extends ChessRules
 		let pieces = { "w": new Array(10), "b": new Array(10) };
 		for (let c of ["w","b"])
 		{
-			let positions = range(11);
+			let positions = ArrayFun.range(11);
 
 			// Get random squares for bishops + camels (different colors)
-			let randIndexes = sample(range(6), 2).map(i => { return 2*i; });
+			let randIndexes = sample(ArrayFun.range(6), 2)
+        .map(i => { return 2*i; });
 			let bishop1Pos = positions[randIndexes[0]];
 			let camel1Pos = positions[randIndexes[1]];
 			// The second bishop (camel) must be on a square of different color
-			let randIndexes_tmp = sample(range(5), 2).map(i => { return 2*i+1; });
+			let randIndexes_tmp = sample(ArrayFun.range(5), 2)
+        .map(i => { return 2*i+1; });
 			let bishop2Pos = positions[randIndexes_tmp[0]];
 			let camel2Pos = positions[randIndexes_tmp[1]];
 			for (let idx of randIndexes.concat(randIndexes_tmp)
@@ -282,6 +291,6 @@ class WildebeestRules extends ChessRules
 		return pieces["b"].join("") +
 			"/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w 1111 -";
+			" w 0 1111 -";
 	}
 }

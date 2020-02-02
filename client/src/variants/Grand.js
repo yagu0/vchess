@@ -1,6 +1,10 @@
+import { ChessRules } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { randInt } from "@/utils/alea";
+
 // NOTE: initial setup differs from the original; see
 // https://www.chessvariants.com/large.dir/freeling.html
-class GrandRules extends ChessRules
+export const VariantRules = class GrandRules extends ChessRules
 {
 	static getPpath(b)
 	{
@@ -329,7 +333,7 @@ class GrandRules extends ChessRules
 		// Shuffle pieces on first and last rank
 		for (let c of ["w","b"])
 		{
-			let positions = range(10);
+			let positions = ArrayFun.range(10);
 
 			// Get random squares for bishops
 			let randIndex = 2 * randInt(5);
@@ -384,6 +388,6 @@ class GrandRules extends ChessRules
 		return pieces["b"].join("") +
 			"/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/" +
 			pieces["w"].join("").toUpperCase() +
-			" w 1111 - 00000000000000";
+			" w 0 1111 - 00000000000000";
 	}
 }

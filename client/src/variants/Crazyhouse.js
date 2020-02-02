@@ -1,4 +1,7 @@
-class CrazyhouseRules extends ChessRules
+import { ChessRules, PiPo, Move } from "@/base_rules";
+import { ArrayFun} from "@/utils/array";
+
+export const VariantRules = class CrazyhouseRules extends ChessRules
 {
 	static IsGoodFen(fen)
 	{
@@ -98,7 +101,7 @@ class CrazyhouseRules extends ChessRules
 				[V.QUEEN]: parseInt(fenParsed.reserve[9]),
 			}
 		};
-		this.promoted = doubleArray(V.size.x, V.size.y, false);
+		this.promoted = ArrayFun.init(V.size.x, V.size.y, false);
 		if (fenParsed.promoted != "-")
 		{
 			for (let square of fenParsed.promoted.split(","))

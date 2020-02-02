@@ -1,4 +1,8 @@
-class UpsidedownRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+import { randInt } from "@/utils/alea";
+import { ArrayFun } from "@/utils/array";
+
+export const VariantRules = class UpsidedownRules extends ChessRules
 {
 	static get HasFlags() { return false; }
 
@@ -16,7 +20,7 @@ class UpsidedownRules extends ChessRules
 		let pieces = { "w": new Array(8), "b": new Array(8) };
 		for (let c of ["w","b"])
 		{
-			let positions = range(8);
+			let positions = ArrayFun.range(8);
 
 			let randIndex = randInt(8);
 			const kingPos = positions[randIndex];
@@ -29,7 +33,7 @@ class UpsidedownRules extends ChessRules
 			else if (kingPos == V.size.y-1)
 				knight1Pos = V.size.y-2;
 			else
-				knight1Pos = kingPos + (Math.randInt() < 0.5 ? 1 : -1);
+				knight1Pos = kingPos + (Math.random() < 0.5 ? 1 : -1);
 			// Search for knight1Pos index in positions and remove it
 			const knight1Index = positions.indexOf(knight1Pos);
 			positions.splice(knight1Index, 1);
@@ -65,6 +69,6 @@ class UpsidedownRules extends ChessRules
 		return pieces["w"].join("").toUpperCase() +
 			"/PPPPPPPP/8/8/8/8/pppppppp/" +
 			pieces["b"].join("") +
-			" w"; //no castle, no en-passant
+			" w 0"; //no castle, no en-passant
 	}
 }
