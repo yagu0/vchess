@@ -51,7 +51,13 @@ export default {
   created: function() {
     this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
     this.gameRef.vname = this.$route.params["vname"];
-    this.initialize(this.loadGame);
+    if (this.gameRef.vname != "Dark")
+      this.initialize(this.loadGame);
+    else
+    {
+      alert("Please, analyze in Dark mode makes no sense ~_^");
+      history.back(); //or this.$router.go(-1)
+    }
   },
   methods: {
     initialize: async function(callback) {
@@ -61,6 +67,7 @@ export default {
       callback();
     },
     loadGame: function() {
+      // NOTE: no need to set score (~unused)
       this.game.vname = this.gameRef.vname;
       this.game.fen = this.gameRef.fen;
       this.curFen = this.game.fen;

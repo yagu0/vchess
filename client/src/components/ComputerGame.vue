@@ -113,6 +113,8 @@ export default {
       this.compWorker.postMessage(["askmove"]);
     },
     processMove: function(move) {
+      if (this.game.score != "*")
+        return;
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove",move]);
       // subTurn condition for Marseille (and Avalanche) rules

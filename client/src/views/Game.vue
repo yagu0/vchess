@@ -551,7 +551,8 @@ export default {
       document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
     },
     finishSendChat: function(chat) {
-      if (this.game.type == "corr")
+      // NOTE: anonymous chats in corr games are not stored on server (TODO?)
+      if (this.game.type == "corr" && this.st.user.id > 0)
         GameStorage.update(this.gameRef.id, {chat: chat});
     },
     processChat: function() {

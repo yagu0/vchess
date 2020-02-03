@@ -10,7 +10,8 @@ main
           | Practice
         button(v-show="gameInProgress" @click="() => stopGame()")
           | Stop game
-        button(@click="gotoAnalyze") Analyze
+        button(v-if="gameInfo.vname!='Dark'" @click="gotoAnalyze")
+          | {{ st.tr["Analyze"] }}
       .section-content(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
     @game-over="stopGame" @game-stopped="gameStopped")

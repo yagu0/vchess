@@ -11,6 +11,8 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
         :user-color="game.mycolor" :orientation="orientation"
         :vname="game.vname" @play-move="play")
+      #turnIndicator(v-if="game.vname=='Dark' && game.mode!='analyze'")
+        | {{ turn }}
       #controls
         button(@click="gotoBegin") <<
         button(@click="() => undo()") <
@@ -20,8 +22,10 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       #pgnDiv
         a#download(href="#")
         button(@click="download") {{ st.tr["Download PGN"] }}
-        button(v-if="game.mode!='analyze'" @click="analyzePosition")
+        button(v-if="game.vname!='Dark' && game.mode!='analyze'"
+            @click="analyzePosition")
           | {{ st.tr["Analyze"] }}
+        button(@click="showRules") {{ st.tr["Rules"] }}
     #movesList
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
@@ -71,6 +75,15 @@ export default {
   computed: {
     showMoves: function() {
       return this.game.vname != "Dark" || this.game.mode=="analyze";
+    },
+    turn: function() {
+      let color = "";
+      const L = this.moves.length;
+      if (L == 0 || this.moves[L-1].color == "b")
+        color = "White";
+      else //if (this.moves[L-1].color == "w")
+        color = "Black";
+      return color + " turn";
     },
   },
   created: function() {
@@ -128,6 +141,10 @@ export default {
           this.play();
       }
     },
+    showRules: function() {
+      //this.$router.push("/variants/" + this.game.vname);
+      window.open("#/variants/" + this.game.vname, "_blank"); //better
+    },
     re_setVariables: function() {
       this.endgameMessage = "";
       this.orientation = this.game.mycolor || "w"; //default orientation for observed games
@@ -158,8 +175,10 @@ export default {
     analyzePosition: function() {
       const newUrl = "/analyze/" + this.game.vname +
         "/?fen=" + this.vr.getFen().replace(/ /g, "_");
-      //window.open("#" + newUrl); //to open in a new tab
-      this.$router.push(newUrl); //better
+      if (this.game.type == "live")
+        this.$router.push(newUrl); //open in same tab: against cheating...
+      else
+        window.open("#" + newUrl); //open in a new tab: more comfortable
     },
     download: function() {
       const content = this.getPgn();
@@ -285,7 +304,7 @@ export default {
           else
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
-        if (!navigate && this.game.mode != "analyze")
+        if (!navigate && this.game.mode!="analyze")
           this.$emit("newmove", move); //post-processing (e.g. computer play)
         // Is opponent in check?
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
@@ -347,7 +366,7 @@ export default {
       this.gotoMove(this.moves.length-1);
     },
     flip: function() {
-      this.orientation = V.GetNextCol(this.orientation);
+      this.orientation = V.GetOppCol(this.orientation);
     },
   },
 };
@@ -374,6 +393,8 @@ export default {
 @media screen and (min-width: 768px)
   #controls
     max-width: 400px
+#turnIndicator
+  text-align: center
 #pgnDiv
   text-align: center
   margin-left: auto

@@ -512,12 +512,6 @@ export const ChessRules = class ChessRules
     return (color=="w" ? "b" : "w");
   }
 
-  // Get next color (for compatibility with 3 and 4 players games)
-  static GetNextCol(color)
-  {
-    return V.GetOppCol(color);
-  }
-
   // Pieces codes (for a clearer code)
   static get PAWN() { return 'p'; }
   static get ROOK() { return 'r'; }
