@@ -10,7 +10,8 @@ main
           | Practice
         button(v-show="gameInProgress" @click="() => stopGame()")
           | Stop game
-        button(v-if="gameInfo.vname!='Dark'" @click="gotoAnalyze")
+        button(v-if="display=='rules' && gameInfo.vname!='Dark'"
+            @click="gotoAnalyze")
           | {{ st.tr["Analyze"] }}
       .section-content(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
@@ -98,7 +99,6 @@ export default {
     // user is willing to stop the game:
     stopGame: function(score) {
       this.gameInfo.score = score || "?";
-      this.gameInfo.mode = "analyze";
     },
     // The game is effectively stopped:
     gameStopped: function() {

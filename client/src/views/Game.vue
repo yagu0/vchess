@@ -10,7 +10,7 @@ main
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       button#chatBtn(onClick="doClick('modalChat')") Chat
-      #actions(v-if="game.mode!='analyze' && game.score=='*'")
+      #actions(v-if="game.score=='*'")
         button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}") Draw
         button(@click="abortGame") Abort
         button(@click="resign") Resign
@@ -560,7 +560,6 @@ export default {
         document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
     },
     gameOver: function(score, scoreMsg) {
-      this.game.mode = "analyze";
       this.game.score = score;
       this.game.scoreMsg = scoreMsg;
       const myIdx = this.game.players.findIndex(p => {

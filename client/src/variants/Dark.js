@@ -104,11 +104,11 @@ export const VariantRules = class DarkRules extends ChessRules
 		super.updateVariables(move);
 		if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
 		{
-			// We took opponent king !
+			// We took opponent king ! (because if castle vanish[1] is a rook)
 			this.kingPos[this.turn] = [-1,-1];
 		}
 
-		// Update moves for both colors:
+		// Update lights for both colors:
 		this.updateEnlightened();
 	}
 
@@ -130,7 +130,7 @@ export const VariantRules = class DarkRules extends ChessRules
 			}
 		}
 
-		// Update moves for both colors:
+		// Update lights for both colors:
 		this.updateEnlightened();
 	}
 
@@ -157,7 +157,6 @@ export const VariantRules = class DarkRules extends ChessRules
 		const color = this.turn;
 		const oppCol = V.GetOppCol(color);
 		const pawnShift = (color == "w" ? -1 : 1);
-		const kp = this.kingPos[color];
 
 		// Do not cheat: the current enlightment is all we can see
 		const myLight = JSON.parse(JSON.stringify(this.enlightened[color]));
@@ -165,6 +164,7 @@ export const VariantRules = class DarkRules extends ChessRules
 		// Can a slider on (i,j) apparently take my king?
 		// NOTE: inaccurate because assume yes if some squares are shadowed
 		const sliderTake = ([i,j], piece) => {
+		  const kp = this.kingPos[color];
 			let step = undefined;
 			if (piece == V.BISHOP)
 			{
@@ -189,10 +189,10 @@ export const VariantRules = class DarkRules extends ChessRules
 			// Check for obstacles
 			let obstacle = false;
 			for (
-				let x=kp[0]+step[0], y=kp[1]+step[1];
-				x != i && y != j;
-				x += step[0], y+= step[1])
-			{
+        let x=kp[0]+step[0], y=kp[1]+step[1];
+			  x != i && y != j;
+				x += step[0], y += step[1])
+      {
 				if (myLight[x][y] && this.board[x][y] != V.EMPTY)
 				{
 					obstacle = true;
@@ -206,6 +206,7 @@ export const VariantRules = class DarkRules extends ChessRules
 
 		// Do I see something which can take my king ?
 		const kingThreats = () => {
+		  const kp = this.kingPos[color];
 			for (let i=0; i<V.size.x; i++)
 			{
 				for (let j=0; j<V.size.y; j++)
@@ -259,7 +260,8 @@ export const VariantRules = class DarkRules extends ChessRules
 				move.eval = -maxeval;
 			}
 			this.undo(move);
-			if (!!move.eval)
+
+      if (!!move.eval)
 				continue;
 
 			move.eval = 0; //a priori...

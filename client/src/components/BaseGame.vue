@@ -8,10 +8,10 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       h3#eogMessage.section {{ endgameMessage }}
   #gameContainer
     #boardContainer
-      Board(:vr="vr" :last-move="lastMove" :analyze="game.mode=='analyze'"
+      Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
         :user-color="game.mycolor" :orientation="orientation"
         :vname="game.vname" @play-move="play")
-      #turnIndicator(v-if="game.vname=='Dark' && game.mode!='analyze'")
+      #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'")
         | {{ turn }}
       #controls
         button(@click="gotoBegin") <<
@@ -20,12 +20,15 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
         button(@click="() => play()") >
         button(@click="gotoEnd") >>
       #pgnDiv
-        a#download(href="#")
-        button(@click="download") {{ st.tr["Download PGN"] }}
+        div(v-if="game.vname!='Dark' || game.score!='*'")
+          a#download(href="#")
+          button(@click="download") {{ st.tr["Download PGN"] }}
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
             @click="analyzePosition")
           | {{ st.tr["Analyze"] }}
-        button(@click="showRules") {{ st.tr["Rules"] }}
+        // NOTE: rather ugly hack to avoid showing twice "rules" link...
+        button(v-if="!$route.path.match('/variants/')" @click="showRules")
+          | {{ st.tr["Rules"] }}
     #movesList
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
         :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
@@ -74,7 +77,7 @@ export default {
   },
   computed: {
     showMoves: function() {
-      return this.game.vname != "Dark" || this.game.mode=="analyze";
+      return this.game.vname != "Dark" || this.game.score != "*";
     },
     turn: function() {
       let color = "";
@@ -84,6 +87,11 @@ export default {
       else //if (this.moves[L-1].color == "w")
         color = "Black";
       return color + " turn";
+    },
+    analyze: function() {
+      return this.game.mode=="analyze" ||
+        // From Board viewpoint, a finished Dark game == analyze (TODO: unclear)
+        (this.game.vname == "Dark" && this.game.score != "*");
     },
   },
   created: function() {
@@ -132,7 +140,8 @@ export default {
       }
     },
     handleScroll: function(e) {
-      if (this.game.mode == "analyze" || this.game.score != "*")
+      // NOTE: since game.mode=="analyze" => no score, next condition is enough
+      if (this.game.score != "*")
       {
         e.preventDefault();
         if (e.deltaY < 0)
@@ -272,7 +281,7 @@ export default {
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
       if (!navigate && this.game.mode!="analyze" && !receive
-        && this.cursor < this.moves.length-1)
+        && (this.game.score != "*" || this.cursor < this.moves.length-1))
       {
         return;
       }
@@ -304,8 +313,6 @@ export default {
           else
             this.moves = this.moves.slice(0,this.cursor).concat([move]);
         }
-        if (!navigate && this.game.mode!="analyze")
-          this.$emit("newmove", move); //post-processing (e.g. computer play)
         // Is opponent in check?
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
         const score = this.vr.getCurrentScore();
@@ -317,6 +324,8 @@ export default {
           else //just show score on screen (allow undo)
             this.showEndgameMsg(score + " . " + message);
         }
+        if (!navigate && this.game.mode!="analyze")
+          this.$emit("newmove", move); //post-processing (e.g. computer play)
       };
       if (!!receive && this.game.vname != "Dark")
         this.animateMove(move, doPlayMove);
@@ -375,6 +384,8 @@ export default {
 <style lang="sass" scoped>
 #baseGame
   width: 100%
+  &:focus
+    outline: none
 
 #gameContainer
   margin-left: auto

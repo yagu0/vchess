@@ -32,8 +32,6 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .collapse
-        input#challengeSection(type="radio" checked aria-hidden="true" name="accordion")
-        label(for="challengeSection" aria-hidden="true") Challenges
         div
           .button-group
             button(@click="cdisplay='live'") Live Challenges
@@ -42,8 +40,6 @@ main
             :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
           ChallengeList(v-show="cdisplay=='corr'"
             :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
-        input#peopleSection(type="radio" aria-hidden="true" name="accordion")
-        label(for="peopleSection" aria-hidden="true") People
         div
           .button-group
             button(@click="pdisplay='players'") Players
@@ -57,8 +53,6 @@ main
                 | {{ whatPlayerDoes(p) }}
           #chat(v-show="pdisplay=='chat'")
             Chat(:players="[]")
-        input#gameSection(type="radio" aria-hidden="true" name="accordion")
-        label(for="gameSection" aria-hidden="true") Games
         div
           .button-group
             button(@click="gdisplay='live'") Live games

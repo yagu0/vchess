@@ -22,7 +22,7 @@ new Vue({
         });
       }
     });
-    // TODO: why is this wrong?
+    // TODO: why is this wrong? (Maybe because $route still uninitialized?)
     //store.initialize(this.$route.path);
     store.initialize(window.location.href.split("#")[1]);
     // NOTE: at this point, variants and tr(anslations) might be uninitialized
