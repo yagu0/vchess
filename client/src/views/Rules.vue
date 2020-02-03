@@ -112,7 +112,8 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped>
+<!-- NOTE: not scoped here, because HTML is injected (TODO) -->
+<style lang="sass">
 //.section-content
 //  *
 //    margin-left: auto

@@ -34,16 +34,20 @@ main
       .collapse
         div
           .button-group
-            button(@click="cdisplay='live'") Live Challenges
-            button(@click="cdisplay='corr'") Correspondance challenges
+            button(@click="(e) => setDisplay('c','live',e)" class="active")
+              | Live Challenges
+            button(@click="(e) => setDisplay('c','corr',e)")
+              | Correspondance challenges
           ChallengeList(v-show="cdisplay=='live'"
             :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
           ChallengeList(v-show="cdisplay=='corr'"
             :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
         div
           .button-group
-            button(@click="pdisplay='players'") Players
-            button(@click="pdisplay='chat'") Chat
+            button(@click="(e) => setDisplay('p','players',e)" class="active")
+              | Players
+            button(@click="(e) => setDisplay('p','chat',e)")
+              | Chat
           #players(v-show="pdisplay=='players'")
             p(v-for="p in uniquePlayers")
               span(:class="{anonymous: !!p.count}")
@@ -55,8 +59,10 @@ main
             Chat(:players="[]")
         div
           .button-group
-            button(@click="gdisplay='live'") Live games
-            button(@click="gdisplay='corr'") Correspondance games
+            button(@click="(e) => setDisplay('g','live',e)" class="active")
+              | Live games
+            button(@click="(e) => setDisplay('g','corr',e)")
+              | Correspondance games
           GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
             @show-game="showGame")
           GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
@@ -222,6 +228,14 @@ export default {
         url += "?rid=" + g.rid;
       this.$router.push(url);
     },
+    setDisplay: function(letter, type, e) {
+      this[letter + "display"] = type;
+      e.target.classList.add("active");
+      if (!!e.target.previousElementSibling)
+        e.target.previousElementSibling.classList.remove("active");
+      else
+        e.target.nextElementSibling.classList.remove("active");
+    },
     getVname: function(vid) {
       const variant = this.st.variants.find(v => v.id == vid);
       // this.st.variants might be uninitialized (variant == null)
@@ -347,7 +361,7 @@ export default {
         {
           // Receive game from some player (+sid)
           // NOTE: it may be correspondance (if newgame while we are connected)
-          if (!this.games.some(g => g.id == data.game.id)) //ignore duplicates
+          if (this.games.every(g => g.id != data.game.id)) //ignore duplicates
           {
             let newGame = data.game;
             newGame.type = this.classifyObject(data.game);
@@ -619,6 +633,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.active
+  color: #42a983
 #newGame
   display: block
   margin: 10px auto 5px auto

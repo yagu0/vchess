@@ -16,10 +16,12 @@ main
         button(@click="resign") Resign
       #playersInfo
         p
-          span.name(:class="{connected: isConnected(0)}") {{ game.players[0].name }}
+          span.name(:class="{connected: isConnected(0)}")
+            | {{ game.players[0].name || "@nonymous" }}
           span.time(v-if="game.score=='*'") {{ virtualClocks[0] }}
           span.split-names -
-          span.name(:class="{connected: isConnected(1)}") {{ game.players[1].name }}
+          span.name(:class="{connected: isConnected(1)}")
+            | {{ game.players[1].name || "@nonymous" }}
           span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
   BaseGame(:game="game" :vr="vr" ref="basegame"
     @newmove="processMove" @gameover="gameOver")
@@ -214,7 +216,9 @@ export default {
           break;
         }
         case "askgame":
-          // Send current (live) game
+          // Send current (live) game if not asked by opponent (!)
+          if (this.game.players.some(p => p.sid == data.from))
+            return;
           const myGame =
           {
             // Minimal game informations:

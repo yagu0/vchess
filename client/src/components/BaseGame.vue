@@ -71,6 +71,9 @@ export default {
     },
     // Received a new move to play:
     "game.moveToPlay": function(newMove) {
+
+console.log(newMove);
+
       if (!!newMove) //if stop + launch new game, get undefined move
         this.play(newMove, "receive");
     },
