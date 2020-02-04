@@ -31,42 +31,40 @@ main
       button#newGame(onClick="doClick('modalNewgame')") New game
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      .collapse
-        div
-          .button-group
-            button(@click="(e) => setDisplay('c','live',e)" class="active")
-              | Live Challenges
-            button(@click="(e) => setDisplay('c','corr',e)")
-              | Correspondance challenges
-          ChallengeList(v-show="cdisplay=='live'"
-            :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
-          ChallengeList(v-show="cdisplay=='corr'"
-            :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
-        div
-          .button-group
-            button(@click="(e) => setDisplay('p','players',e)" class="active")
-              | Players
-            button(@click="(e) => setDisplay('p','chat',e)")
-              | Chat
-          #players(v-show="pdisplay=='players'")
-            p(v-for="p in uniquePlayers")
-              span(:class="{anonymous: !!p.count}")
-                | {{ (p.name || '@nonymous') + (!!p.count ? " ("+p.count+")" : "") }}
-              button.player-action(v-if="!p.count && p.name != st.user.name"
-                  @click="challOrWatch(p,$event)")
-                | {{ whatPlayerDoes(p) }}
-          #chat(v-show="pdisplay=='chat'")
-            Chat(:players="[]")
-        div
-          .button-group
-            button(@click="(e) => setDisplay('g','live',e)" class="active")
-              | Live games
-            button(@click="(e) => setDisplay('g','corr',e)")
-              | Correspondance games
-          GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
-            @show-game="showGame")
-          GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
-            @show-game="showGame")
+      div
+        .button-group
+          button(@click="(e) => setDisplay('c','live',e)" class="active")
+            | Live Challenges
+          button(@click="(e) => setDisplay('c','corr',e)")
+            | Correspondance challenges
+        ChallengeList(v-show="cdisplay=='live'"
+          :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
+        ChallengeList(v-show="cdisplay=='corr'"
+          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
+      #people
+        h3.text-center Who's there?
+        #players
+          p(v-for="p in Object.values(people)" v-if="!!p.name")
+            span {{ p.name }}
+            button.player-action(
+              v-if="p.name != st.user.name"
+              @click="challOrWatch(p,$event)"
+            )
+              | {{ whatPlayerDoes(p) }}
+          p.anonymous @nonymous ({{ anonymousCount }})
+        #chat
+          Chat(:players="[]")
+        .clearer
+      div
+        .button-group
+          button(@click="(e) => setDisplay('g','live',e)" class="active")
+            | Live games
+          button(@click="(e) => setDisplay('g','corr',e)")
+            | Correspondance games
+        GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
+          @show-game="showGame")
+        GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
+          @show-game="showGame")
 </template>
 
 <script>
@@ -119,23 +117,10 @@ export default {
     },
   },
   computed: {
-    uniquePlayers: function() {
-      // Show e.g. "@nonymous (5)", and do nothing on click on anonymous
-      let anonymous = {name:"", count:0};
-      let playerList = {};
-      Object.values(this.people).forEach(p => {
-        if (p.id > 0)
-        {
-          // We don't count registered users connections: either they are here or not.
-          if (!playerList[p.id])
-            playerList[p.id] = {name: p.name};
-        }
-        else
-          anonymous.count++;
-      });
-      if (anonymous.count > 0)
-        playerList[0] = anonymous;
-      return Object.values(playerList);
+    anonymousCount: function() {
+      let count = 0;
+      Object.values(this.people).forEach(p => { count += (!p.name ? 1 : 0); });
+      return count;
     },
   },
   created: function() {
@@ -194,6 +179,9 @@ export default {
     );
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {
+      // Same strategy as in Game.vue: send connection
+      // after we're sure WebSocket is initialized
+      this.st.conn.send(JSON.stringify({code:"connect"}));
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
     };
     if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
@@ -638,15 +626,25 @@ export default {
 #newGame
   display: block
   margin: 10px auto 5px auto
+#people
+  width: 100%
+#players
+  width: 50%
+  position: relative
+  float: left
+#chat
+  width: 50%
+  float: left
+  position: relative
+@media screen and (max-width: 767px)
+  #players, #chats
+    width: 100%
 #chat > .card
   max-width: 100%
   margin: 0;
   border: none;
 #players > p
-  margin-left: 40%
-@media screen and (max-width: 767px)
-  #players > p
-    margin-left: 5px
+  margin-left: 5px
 .anonymous
   font-style: italic
 button.player-action

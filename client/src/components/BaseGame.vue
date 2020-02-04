@@ -20,7 +20,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
         button(@click="() => play()") >
         button(@click="gotoEnd") >>
       #pgnDiv
-        div(v-if="game.vname!='Dark' || game.score!='*'")
+        #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
           button(@click="download") {{ st.tr["Download PGN"] }}
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
@@ -393,6 +393,9 @@ console.log(newMove);
 #gameContainer
   margin-left: auto
   margin-right: auto
+
+#downloadDiv
+  display: inline-block
 
 #modal-eog+div .card
   overflow: hidden

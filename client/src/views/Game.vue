@@ -5,6 +5,12 @@ main
       aria-labelledby="inputChat")
     #chat.card
       label.modal-close(for="modalChat")
+      #participants
+        span {{ Object.keys(people).length }} participant(s): 
+        span(v-for="p in Object.values(people)" v-if="!!p.name")
+          | {{ p.name }} 
+        span.anonymous(v-if="Object.values(people).some(p => !p.name)")
+          | + @nonymous
       Chat(:players="game.players" :pastChats="game.chats"
         @newchat-sent="finishSendChat" @newchat-received="processChat")
   .row
@@ -159,8 +165,6 @@ export default {
         case "pollclients":
         {
           data.sockIds.forEach(sid => {
-            // TODO: understand clearly what happens here, problems when a
-            // game is quit, and then launch a new game from hall.
             if (!!this.people[sid])
               return;
             this.$set(this.people, sid, {id:0, name:""});
@@ -552,7 +556,11 @@ export default {
         this.drawOffer = "threerep";
     },
     toggleChat: function() {
-      document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
+      let modalChat = document.getElementById("modalChat");
+      modalChat.style.backgroundColor =
+        (modalChat.style.backgroundColor == "#e2e2e2"
+          ? "#c5fefe"
+          : "#e2e2e2");
     },
     finishSendChat: function(chat) {
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
@@ -560,7 +568,7 @@ export default {
         GameStorage.update(this.gameRef.id, {chat: chat});
     },
     processChat: function() {
-      if (!document.getElementById("inputChat").checked)
+      if (!document.getElementById("modalChat").checked)
         document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
     },
     gameOver: function(score, scoreMsg) {
@@ -582,6 +590,13 @@ export default {
 <style lang="sass" scoped>
 .connected
   background-color: lightgreen
+
+#participants
+  margin-left: 5px
+
+.anonymous
+  color: grey
+  font-style: italic
 
 @media screen and (min-width: 768px)
   #actions
