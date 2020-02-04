@@ -1,6 +1,3 @@
-// TODO: to detect oppositeMoves, we need last move --> encoded in FEN
-// + local moves stack (for AlphaBeta) + lastMove (in FEN)
-
 import { ChessRules } from "@/base_rules";
 
 export const VariantRules = class CheckeredRules extends ChessRules
@@ -49,6 +46,35 @@ export const VariantRules = class CheckeredRules extends ChessRules
 		return ChessRules.PIECES.concat(['s','t','u','c','o']);
 	}
 
+  setOtherVariables(fen)
+  {
+    super.setOtherVariables(fen);
+    // Local stack of non-capturing checkered moves:
+    this.cmoves = [];
+    const cmove = fen.split(" ")[5];
+    if (cmove == "-")
+      this.cmoves.push(null);
+    else
+    {
+      this.cmoves.push({
+        start: ChessRules.SquareToCoords(cmove.substr(0,2)),
+        end: ChessRules.SquareToCoords(cmove.substr(2)),
+      });
+    }
+  }
+
+  static IsGoodFen(fen)
+  {
+	  if (!ChessRules.IsGoodFen(fen))
+      return false;
+    const fenParts = fen.split(" ");
+    if (fenParts.length != 6)
+      return false;
+    if (fenParts[5] != "-" && !fenParts[5].match(/^([a-h][1-8]){2}$/))
+      return false;
+    return true;
+  }
+
 	static IsGoodFlags(flags)
 	{
 		// 4 for castle + 16 for pawns
@@ -83,6 +109,13 @@ export const VariantRules = class CheckeredRules extends ChessRules
 		this.castleFlags = flags[0];
 		this.pawnFlags = flags[1];
 	}
+
+  getCmove(move)
+  {
+    if (move.appear[0].c == 'c' && move.vanish.length == 1)
+      return {start: move.start, end: move.end};
+    return null;
+  }
 
 	canTake([x1,y1], [x2,y2])
 	{
@@ -139,12 +172,10 @@ export const VariantRules = class CheckeredRules extends ChessRules
 	// Does m2 un-do m1 ? (to disallow undoing checkered moves)
 	oppositeMoves(m1, m2)
 	{
-		return m1.appear.length == 1 && m2.appear.length == 1
-			&& m1.vanish.length == 1 && m2.vanish.length == 1
+		return (!!m1 && m2.appear[0].c == 'c'
+      && m2.appear.length == 1 && m2.vanish.length == 1
 			&& m1.start.x == m2.end.x && m1.end.x == m2.start.x
-			&& m1.start.y == m2.end.y && m1.end.y == m2.start.y
-			&& m1.appear[0].c == m2.vanish[0].c && m1.appear[0].p == m2.vanish[0].p
-			&& m1.vanish[0].c == m2.appear[0].c && m1.vanish[0].p == m2.appear[0].p;
+			&& m1.start.y == m2.end.y && m1.end.y == m2.start.y);
 	}
 
 	filterValid(moves)
@@ -153,8 +184,8 @@ export const VariantRules = class CheckeredRules extends ChessRules
 			return [];
 		const color = this.turn;
 		return moves.filter(m => {
-			const L = this.moves.length;
-			if (L > 0 && this.oppositeMoves(this.moves[L-1], m))
+			const L = this.cmoves.length; //at least 1: init from FEN
+			if (this.oppositeMoves(this.cmoves[L-1], m))
 				return false;
 			this.play(m);
 			const res = !this.underCheck(color);
@@ -248,9 +279,27 @@ export const VariantRules = class CheckeredRules extends ChessRules
 	static GenRandInitFen()
 	{
 		const randFen = ChessRules.GenRandInitFen();
-		// Add 16 pawns flags:
-		return randFen.replace(" w 0 1111", " w 0 11111111111111111111");
+		// Add 16 pawns flags + empty cmove:
+		return randFen.replace(" w 0 1111", " w 0 11111111111111111111 -");
 	}
+
+  static ParseFen(fen)
+  {
+    const fenParsed = ChessRules.ParseFen(fen);
+    return Object.assign({},
+      ChessRules.ParseFen(fen),
+      {cmove: fen.split(" ")[5]});
+  }
+
+  getFen()
+  {
+    const L = this.cmoves.length;
+    const cmoveFen = (!this.cmoves[L-1]
+      ? "-"
+      : ChessRules.CoordsToSquare(this.cmoves[L-1].start)
+        + ChessRules.CoordsToSquare(this.cmoves[L-1].end));
+    return super.getFen() + " " + cmoveFen;
+  }
 
 	getFlagsFen()
 	{
@@ -263,6 +312,19 @@ export const VariantRules = class CheckeredRules extends ChessRules
 		}
 		return fen;
 	}
+
+  // TODO (design): this cmove update here or in (un)updateVariables ?
+  play(move)
+  {
+    this.cmoves.push( this.getCmove(move) );
+    super.play(move);
+  }
+
+  undo(move)
+  {
+    this.cmoves.pop();
+    super.undo(move);
+  }
 
 	getNotation(move)
 	{
