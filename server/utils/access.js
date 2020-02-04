@@ -28,8 +28,6 @@ module.exports =
 				{
 					// Token in cookies presumably wrong: erase it
 					res.clearCookie("token");
-					res.clearCookie("id");
-					res.clearCookie("name");
 					loggedIn = false;
 				}
 				callback();

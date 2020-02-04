@@ -26,7 +26,7 @@ div
           i.material-icons send
         button(v-if="stage!='Update'" @click="toggleStage()")
           span {{ stage=="Login" ? "Register" : "Login" }}
-        button(v-else @click="doLogout()")
+        button#logoutBtn(v-else @click="doLogout()")
           span Logout
       #dialog(:style="{display: displayInfo}") {{ infoMsg }}
 </template>
@@ -155,18 +155,24 @@ export default {
       );
     },
     doLogout: function() {
-      ajax(
-        "/logout",
-        "GET",
-        () => {
-          this.user.id = 0;
-          this.user.name = "";
-          this.user.email = "";
-          this.user.notify = false;
-          delete localStorage["myid"];
-          delete localStorage["myname"];
-        }
-      );
+      let logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn.disabled = true;
+      // NOTE: this local cleaning would logically happen when we're sure
+      // that token is erased. But in the case a user clear the cookies,
+      // it would lead to situations where he cannot ("locally") log out.
+      // At worst, if token deletion fails the user can erase cookie manually.
+      this.user.id = 0;
+      this.user.name = "";
+      this.user.email = "";
+      this.user.notify = false;
+      localStorage.removeItem("myid");
+      localStorage.removeItem("myname");
+      ajax("/logout", "GET", () => {
+        logoutBtn.disabled = false; //for symmetry, but not very useful...
+        document.getElementById("modalUser").checked = false;
+        // this.$router.push("/") will fail if logout from Hall, so:
+        document.location.reload(true);
+      });
     },
   },
 };

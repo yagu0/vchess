@@ -22,6 +22,7 @@ export const store =
       mysid = getRandString();
       localStorage["mysid"] = mysid; //done only once (unless user clear browser data)
     }
+    // Quick user setup using local storage:
     this.state.user = {
       id: localStorage["myid"] || 0,
       name: localStorage["myname"] || "", //"" for "anonymous"
@@ -29,13 +30,14 @@ export const store =
       notify: false, //email notifications
       sid: mysid,
     };
-    if (this.state.user.id > 0)
-    {
-      ajax("/whoami", "GET", res => {
-        this.state.user.email = res.email;
-        this.state.user.notify = res.notify;
-      });
-    }
+    // Slow verification through the server:
+    // NOTE: still superficial identity usurpation possible, but difficult.
+    ajax("/whoami", "GET", res => {
+      this.state.user.id = res.id;
+      this.state.user.name = res.name;
+      this.state.user.email = res.email;
+      this.state.user.notify = res.notify;
+    });
     this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
       "&page=" + encodeURIComponent(page));
     // Settings initialized with values from localStorage
