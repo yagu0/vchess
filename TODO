@@ -1,10 +1,4 @@
-Afficher les observers sur page Game ? Où ?
-
 au moins l'échange des coups en P2P ? et game chat ?
-surligner "hall" (menu) si nouveau défi perso (reçu) et pas affichage courant
-de même surligner "my games" si c'est à nous de jouer dans une partie (corr)
-
-Click elsewhere make modal disappear (for now: Esc key works...)
 
 Use better-sqlite3 instead of node-sqlite3:
 https://www.npmjs.com/package/better-sqlite3
@@ -16,35 +10,16 @@ custom directives ?
 Desktop notifications:
 https://developer.mozilla.org/fr/docs/Web/API/notification
 
-Think about this:
-https://alligator.io/vuejs/component-communication/
-https://alligator.io/vuejs/global-event-bus/
-
 Dans variant page, "mes parties" peut toujours contenir corr + importées (deux onglets)
 En fin de partie (observée ou non), bouton "import game" en + de "download game" ==> directement dans indexedDB
-les parties par correspondance survivent 7 jours après la fin de partie
+Import game : en local dans indexedDb, affichage dans "Games --> Imported"
+Importer des parties : nécessite de parser le PGN produit (possible, un peu pénible)
 
 mat en 2 échiqueté : brnkr3/pppp1p1p/4ps2/8/2P2P2/P1qP4/2c1s1PP/R1K5
 (Bb3+ Kb1 Ba2#)
 
-Importer des parties : nécessite de parser le PGN produit (possible, un peu pénible)
-
 espagnol : jugada ou movimiento ?
 fin de la partida au lieu de final de partida ?
-
-Mode new game contre un ami comme sur lichess ?
-
-Coordonnées sur échiquier: sur cases, à gauche (verticale) ou en bas (horizontale)
-
-Import game : en local dans indexedDb, affichage dans "Games --> Imported"
-
-Hexachess: McCooey et Shafran (deux tailles, randomisation OK)
-http://www.math.bas.bg/~iad/tyalie/shegra/shegrax.html
-http://www.quadibloc.com/chess/ch0401.htm
-
-Inspiration for refactor:
-https://github.com/triestpa/Vue-Chess/blob/master/src/components/chessboard/chessboard.js
-https://github.com/gustaYo/vue-chess
 
 Server:
 Later: use http2
