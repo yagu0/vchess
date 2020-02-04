@@ -1,0 +1,7 @@
+Nouvelle partie en cours s'affiche pas pour les autres personnes restées dans le Hall
+myGames initial loading: live games aren't shown
+Checkered chess: need another FEN element, last non-capturing checkered move (if applicable)
+  + need to stack these indicators for alpha beta search
+MarseilleChess: revise bot and test
+Cadences: uniformiser, tout en minutes + secondes (par défaut) ou days [corr, checkbox?]
+Translations (including About page), refresh rules
