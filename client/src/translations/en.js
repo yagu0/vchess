@@ -1,5 +1,8 @@
 export const translations =
 {
+  //jugada ou movimiento ?
+  //fin de la partida au lieu de final de partida ?
+
   "Hall": "Hall",
   "Variants": "Variants",
   "My games": "My games",
