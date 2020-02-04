@@ -1,4 +1,5 @@
 import { ChessRules } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export const VariantRules = class MarseilleRules extends ChessRules
 {
@@ -208,7 +209,6 @@ export const VariantRules = class MarseilleRules extends ChessRules
 		};
 	}
 
-  // TODO: this is wrong: revise following base_rules.getComputerMove()
 	// No alpha-beta here, just adapted min-max at depth 2(+1)
 	getComputerMove()
 	{
@@ -222,23 +222,23 @@ export const VariantRules = class MarseilleRules extends ChessRules
 		// Search best (half) move for opponent turn
 		const getBestMoveEval = () => {
 			const turnBefore = this.turn + this.subTurn;
-			let moves = this.getAllValidMoves();
-			if (moves.length == 0)
+			let score = this.getCurrentScore();
+			if (score != "*")
 			{
-				const score = this.getCurrentScore();
 				if (score == "1/2")
 					return 0;
 				return maxeval * (score == "1-0" ? 1 : -1);
 			}
+			let moves = this.getAllValidMoves();
 			let res = (oppCol == "w" ? -maxeval : maxeval);
 			for (let m of moves)
 			{
 				this.play(m);
+				score = this.getCurrentScore();
 				// Now turn is oppCol,2 if m doesn't give check
 				// Otherwise it's color,1. In both cases the next test makes sense
-				if (!this.atLeastOneMove())
+				if (score != "*")
 				{
-					const score = this.getCurrentScore();
 					if (score == "1/2")
 						res = (oppCol == "w" ? Math.max(res, 0) : Math.min(res, 0));
 					else
@@ -291,7 +291,7 @@ export const VariantRules = class MarseilleRules extends ChessRules
 			candidates.push(i);
 		}
 
-		const selected = doubleMoves[sample(candidates)].moves;
+		const selected = doubleMoves[randInt(candidates.length)].moves;
 		if (selected.length == 1)
 			return selected[0];
 		return selected;
