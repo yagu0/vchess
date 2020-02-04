@@ -5,8 +5,9 @@ div
     p {{ message }}
   table.moves-list
     tbody
-      tr(v-for="moveIdx in evenNumbers")
-        td {{ firstNum + moveIdx / 2 + 1 }}
+      tr(v-for="gmove,index in groupedMoves")
+        td(v-if="index%2==0")
+          | {{ firstNum + index / 2 + 1 }}
         td(:class="{'highlight-lm': cursor == moveIdx}"
             @click="() => gotoMove(moveIdx)")
           | {{ moves[moveIdx].notation }}
@@ -43,8 +44,24 @@ export default {
     },
   },
   computed: {
-    evenNumbers: function() {
-      return [...Array(this.moves.length).keys()].filter(i => i%2==0);
+    groupedMoves: function() {
+      let groups = [];
+      let curCol = undefined;
+      for (let idx=0; idx < this.moves.length; idx++)
+      {
+        const m = this.moves[idx];
+        if (m.color == curCol)
+        {
+          const gidx = groups.length - 1;
+          groups[gidx].moves.push(m);
+        }
+        else
+        {
+          curCol = m.color;
+          groups.push({moves: [m], idx: groups.length});
+        }
+      }
+      return groups;
     },
   },
   methods: {
