@@ -1,6 +1,6 @@
 <template lang="pug">
 main
-  input#modalChat.modal(type="checkbox" @change="toggleChat")
+  input#modalChat.modal(type="checkbox" @click="resetChatColor")
   div#chatWrap(role="dialog" data-checkbox="modalChat"
       aria-labelledby="inputChat")
     #chat.card
@@ -555,12 +555,9 @@ export default {
       if (this.repeat[repIdx] >= 3)
         this.drawOffer = "threerep";
     },
-    toggleChat: function() {
-      let modalChat = document.getElementById("modalChat");
-      modalChat.style.backgroundColor =
-        (modalChat.style.backgroundColor == "#e2e2e2"
-          ? "#c5fefe"
-          : "#e2e2e2");
+    resetChatColor: function() {
+      // TODO: this is called twice, once on opening an once on closing
+      document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
     },
     finishSendChat: function(chat) {
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
