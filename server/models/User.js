@@ -17,53 +17,53 @@ var sendEmail = require('../utils/mailer');
 
 const UserModel =
 {
-	checkNameEmail: function(o)
-	{
-		if (typeof o.name === "string")
-		{
-			if (o.name.length == 0)
-				return "Empty name";
-			if (!o.name.match(/^[\w]+$/))
-				return "Bad characters in name";
-		}
-		if (typeof o.email === "string")
-		{
-			if (o.email.length == 0)
-				return "Empty email";
-			if (!o.email.match(/^[\w.+-]+@[\w.+-]+$/))
-				return "Bad characters in email";
-		}
+  checkNameEmail: function(o)
+  {
+    if (typeof o.name === "string")
+    {
+      if (o.name.length == 0)
+        return "Empty name";
+      if (!o.name.match(/^[\w]+$/))
+        return "Bad characters in name";
+    }
+    if (typeof o.email === "string")
+    {
+      if (o.email.length == 0)
+        return "Empty email";
+      if (!o.email.match(/^[\w.+-]+@[\w.+-]+$/))
+        return "Bad characters in email";
+    }
     return ""; //NOTE: not required, but more consistent... (?!)
-	},
+  },
 
-	// NOTE: parameters are already cleaned (in controller), thus no sanitization here
-	create: function(name, email, notify, callback)
-	{
-		db.serialize(function() {
-			const insertQuery =
-				"INSERT INTO Users " +
-				"(name, email, notify, created) VALUES " +
-				"('" + name + "', '" + email + "', " + notify + "," + Date.now() + ")";
-			db.run(insertQuery, err => {
-				if (!!err)
-					return callback(err);
-				db.get("SELECT last_insert_rowid() AS rowid", callback);
-			});
-		});
-	},
+  // NOTE: parameters are already cleaned (in controller), thus no sanitization here
+  create: function(name, email, notify, callback)
+  {
+    db.serialize(function() {
+      const insertQuery =
+        "INSERT INTO Users " +
+        "(name, email, notify, created) VALUES " +
+        "('" + name + "', '" + email + "', " + notify + "," + Date.now() + ")";
+      db.run(insertQuery, err => {
+        if (!!err)
+          return callback(err);
+        db.get("SELECT last_insert_rowid() AS rowid", callback);
+      });
+    });
+  },
 
-	// Find one user (by id, name, email, or token)
-	getOne: function(by, value, cb)
-	{
-		const delimiter = (typeof value === "string" ? "'" : "");
-		db.serialize(function() {
-			const query =
-				"SELECT * " +
-				"FROM Users " +
-				"WHERE " + by + " = " + delimiter + value + delimiter;
-			db.get(query, cb);
-		});
-	},
+  // Find one user (by id, name, email, or token)
+  getOne: function(by, value, cb)
+  {
+    const delimiter = (typeof value === "string" ? "'" : "");
+    db.serialize(function() {
+      const query =
+        "SELECT * " +
+        "FROM Users " +
+        "WHERE " + by + " = " + delimiter + value + delimiter;
+      db.get(query, cb);
+    });
+  },
 
   getByIds: function(ids, cb) {
     db.serialize(function() {
@@ -75,65 +75,65 @@ const UserModel =
     });
   },
 
-	/////////
-	// MODIFY
+  /////////
+  // MODIFY
 
-	setLoginToken: function(token, uid, cb)
-	{
-		db.serialize(function() {
-			const query =
-				"UPDATE Users " +
-				"SET loginToken = '" + token + "', loginTime = " + Date.now() + " " +
-				"WHERE id = " + uid;
-			db.run(query, cb);
-		});
-	},
+  setLoginToken: function(token, uid, cb)
+  {
+    db.serialize(function() {
+      const query =
+        "UPDATE Users " +
+        "SET loginToken = '" + token + "', loginTime = " + Date.now() + " " +
+        "WHERE id = " + uid;
+      db.run(query, cb);
+    });
+  },
 
-	// Set session token only if empty (first login)
-	// NOTE: weaker security (but avoid to re-login everywhere after each logout)
-	// TODO: option would be to reset all tokens periodically, e.g. every 3 months
+  // Set session token only if empty (first login)
+  // NOTE: weaker security (but avoid to re-login everywhere after each logout)
+  // TODO: option would be to reset all tokens periodically, e.g. every 3 months
   trySetSessionToken: function(uid, cb)
-	{
-		// Also empty the login token to invalidate future attempts
-		db.serialize(function() {
-			const querySessionToken =
-				"SELECT sessionToken " +
-				"FROM Users " +
-				"WHERE id = " + uid;
-			db.get(querySessionToken, (err,ret) => {
-				if (!!err)
-					return cb(err);
-				const token = ret.sessionToken || genToken(params.token.length);
-				const queryUpdate =
-					"UPDATE Users " +
-					"SET loginToken = NULL" +
-					(!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
-					"WHERE id = " + uid;
-				db.run(queryUpdate);
-				cb(null, token);
-			});
-		});
-	},
+  {
+    // Also empty the login token to invalidate future attempts
+    db.serialize(function() {
+      const querySessionToken =
+        "SELECT sessionToken " +
+        "FROM Users " +
+        "WHERE id = " + uid;
+      db.get(querySessionToken, (err,ret) => {
+        if (!!err)
+          return cb(err);
+        const token = ret.sessionToken || genToken(params.token.length);
+        const queryUpdate =
+          "UPDATE Users " +
+          "SET loginToken = NULL" +
+          (!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
+          "WHERE id = " + uid;
+        db.run(queryUpdate);
+        cb(null, token);
+      });
+    });
+  },
 
-	updateSettings: function(user, cb)
-	{
-		db.serialize(function() {
-			const query =
-				"UPDATE Users " +
-				"SET name = '" + user.name + "'" +
-				", email = '" + user.email + "'" +
-				", notify = " + user.notify + " " +
-				"WHERE id = " + user.id;
-			db.run(query, cb);
-		});
-	},
+  updateSettings: function(user, cb)
+  {
+    db.serialize(function() {
+      const query =
+        "UPDATE Users " +
+        "SET name = '" + user.name + "'" +
+        ", email = '" + user.email + "'" +
+        ", notify = " + user.notify + " " +
+        "WHERE id = " + user.id;
+      db.run(query, cb);
+    });
+  },
 
   /////////////////
   // NOTIFICATIONS
 
   tryNotify: function(oppId, message)
   {
-		UserModel.getOne("id", oppId, (err,opp) => {
+    UserModel.getOne("id", oppId, (err,opp) => {
       if (!err || !opp.notify)
         return; //error is ignored here (TODO: should be logged)
       const subject = "vchess.club - notification";

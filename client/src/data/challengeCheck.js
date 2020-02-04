@@ -2,21 +2,21 @@ import { extractTime } from "@/utils/timeControl";
 
 export function checkChallenge(c)
 {
-	const vid = parseInt(c.vid);
-	if (isNaN(vid) || vid <= 0)
-		return "Please select a variant";
+  const vid = parseInt(c.vid);
+  if (isNaN(vid) || vid <= 0)
+    return "Please select a variant";
 
   const tc = extractTime(c.timeControl);
   if (!tc)
     return "Wrong time control";
 
-	// Basic alphanumeric check for opponent name
-	if (!!c.to)
-	{
+  // Basic alphanumeric check for opponent name
+  if (!!c.to)
+  {
      // TODO: slightly redundant (see data/userCheck.js)
-		if (!c.to.match(/^[\w]+$/))
-			return "Wrong characters in opponent name";
-	}
+    if (!c.to.match(/^[\w]+$/))
+      return "Wrong characters in opponent name";
+  }
 
   // Allow custom FEN (and check it) only for individual challenges
   if (c.fen.length > 0 && !!c.to)

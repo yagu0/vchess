@@ -23,14 +23,14 @@ import { store } from "@/store";
 
 export default {
   name: "my-game-list",
-	props: ["games"],
+  props: ["games"],
   data: function() {
     return {
       st: store.state,
       showResult: false,
     };
   },
-	computed: {
+  computed: {
     sortedGames: function() {
       // Show in order: games where it's my turn, my running games, my games, other games
       this.showResult = this.games.some(g => g.score != "*");

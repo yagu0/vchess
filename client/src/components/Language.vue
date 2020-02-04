@@ -40,6 +40,6 @@ export default {
       localStorage["lang"] = e.target.value;
       store.setLanguage(e.target.value);
     },
-	},
+  },
 };
 </script>

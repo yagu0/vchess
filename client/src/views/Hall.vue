@@ -466,7 +466,7 @@ export default {
     },
     newChallenge: async function() {
       if (this.newchallenge.vid == "")
-		    return alert("Please select a variant");
+        return alert("Please select a variant");
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;

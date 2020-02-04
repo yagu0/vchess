@@ -25,7 +25,7 @@ export default {
   data: function() {
     return {
       st: store.state,
-			display: "live",
+      display: "live",
       games: [],
     };
   },

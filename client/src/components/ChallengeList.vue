@@ -20,7 +20,7 @@ import { store } from "@/store";
 
 export default {
   name: "my-challenge-list",
-	props: ["challenges"],
+  props: ["challenges"],
   data: function() {
     return {
       st: store.state,

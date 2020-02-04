@@ -34,7 +34,7 @@ export default {
     };
   },
   methods: {
-		// Note: not using Vue here, but would be possible
+    // Note: not using Vue here, but would be possible
     trySendMessage: function() {
       let email = document.getElementById("userEmail");
       let subject = document.getElementById("mailSubject");
@@ -65,7 +65,7 @@ export default {
         }
       );
     },
-	},
+  },
 };
 </script>
 

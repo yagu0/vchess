@@ -49,11 +49,11 @@ const GameModel =
     return "";
   },
 
-	create: function(vid, fen, timeControl, players, cb)
-	{
-		db.serialize(function() {
-			let query =
-				"INSERT INTO Games"
+  create: function(vid, fen, timeControl, players, cb)
+  {
+    db.serialize(function() {
+      let query =
+        "INSERT INTO Games"
         + " (vid, fenStart, fen, score, timeControl, created, drawOffer)"
         + " VALUES (" + vid + ",'" + fen + "','" + fen + "','*','"
         + timeControl + "'," + Date.now() + "," + false + ")";
@@ -68,51 +68,51 @@ const GameModel =
           db.run(query);
         });
         cb(null, {gid: this.lastID});
-			});
-		});
-	},
+      });
+    });
+  },
 
-	// TODO: queries here could be async, and wait for all to complete
-	getOne: function(id, cb)
-	{
-		db.serialize(function() {
+  // TODO: queries here could be async, and wait for all to complete
+  getOne: function(id, cb)
+  {
+    db.serialize(function() {
       // TODO: optimize queries?
-			let query =
+      let query =
         // NOTE: g.scoreMsg can be NULL
         // (in this case score = "*" and no reason to look at it)
-				"SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
+        "SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
           "g.scoreMsg, v.name AS vname " +
-				"FROM Games g " +
+        "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
-				"WHERE g.id = " + id;
-			db.get(query, (err,gameInfo) => {
-				if (!!err)
-					return cb(err);
-				query =
-					"SELECT p.uid, p.color, u.name " +
-					"FROM Players p " +
+        "WHERE g.id = " + id;
+      db.get(query, (err,gameInfo) => {
+        if (!!err)
+          return cb(err);
+        query =
+          "SELECT p.uid, p.color, u.name " +
+          "FROM Players p " +
           "JOIN Users u " +
           "  ON p.uid = u.id " +
-					"WHERE p.gid = " + id;
-				db.all(query, (err2,players) => {
-					if (!!err2)
-						return cb(err2);
-					query =
-						"SELECT squares, played, idx " +
-						"FROM Moves " +
-						"WHERE gid = " + id;
-					db.all(query, (err3,moves) => {
-						if (!!err3)
-							return cb(err3);
-			      query =
+          "WHERE p.gid = " + id;
+        db.all(query, (err2,players) => {
+          if (!!err2)
+            return cb(err2);
+          query =
+            "SELECT squares, played, idx " +
+            "FROM Moves " +
+            "WHERE gid = " + id;
+          db.all(query, (err3,moves) => {
+            if (!!err3)
+              return cb(err3);
+            query =
               "SELECT msg, name, added " +
               "FROM Chats " +
               "WHERE gid = " + id;
-			      db.all(query, (err4,chats) => {
-						  if (!!err4)
-							  return cb(err4);
-						  const game = Object.assign({},
+            db.all(query, (err4,chats) => {
+              if (!!err4)
+                return cb(err4);
+              const game = Object.assign({},
                 gameInfo,
                 {
                   players: players,
@@ -120,41 +120,41 @@ const GameModel =
                   chats: chats,
                 }
               );
-						  return cb(null, game);
+              return cb(null, game);
             });
-					});
-				});
-			});
-		});
-	},
+          });
+        });
+      });
+    });
+  },
 
-	getByUser: function(uid, excluded, cb)
-	{
-		db.serialize(function() {
-			// Next query is fine because a player appear at most once in a game
-			const query =
-				"SELECT gid " +
-				"FROM Players " +
-				"WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
-			db.all(query, (err,gameIds) => {
-				if (!!err)
-					return cb(err);
+  getByUser: function(uid, excluded, cb)
+  {
+    db.serialize(function() {
+      // Next query is fine because a player appear at most once in a game
+      const query =
+        "SELECT gid " +
+        "FROM Players " +
+        "WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
+      db.all(query, (err,gameIds) => {
+        if (!!err)
+          return cb(err);
         gameIds = gameIds || []; //might be empty
-				let gameArray = [];
-				for (let i=0; i<gameIds.length; i++)
-				{
-					GameModel.getOne(gameIds[i]["gid"], (err2,game) => {
-						if (!!err2)
-							return cb(err2);
-						gameArray.push(game);
-						// Call callback function only when gameArray is complete:
-						if (i == gameIds.length - 1)
-							return cb(null, gameArray);
-					});
-				}
-			});
-		});
-	},
+        let gameArray = [];
+        for (let i=0; i<gameIds.length; i++)
+        {
+          GameModel.getOne(gameIds[i]["gid"], (err2,game) => {
+            if (!!err2)
+              return cb(err2);
+            gameArray.push(game);
+            // Call callback function only when gameArray is complete:
+            if (i == gameIds.length - 1)
+              return cb(null, gameArray);
+          });
+        }
+      });
+    });
+  },
 
   getPlayers: function(id, cb)
   {
@@ -193,7 +193,7 @@ const GameModel =
   // obj can have fields move, chat, fen, drawOffer and/or score
   update: function(id, obj)
   {
-		db.parallelize(function() {
+    db.parallelize(function() {
       let query =
         "UPDATE Games " +
         "SET ";
@@ -224,35 +224,35 @@ const GameModel =
       }
       if (!!obj.chat)
       {
-			  query =
-	        "INSERT INTO Chats (gid, msg, name, added) VALUES ("
+        query =
+          "INSERT INTO Chats (gid, msg, name, added) VALUES ("
             + id + ",?,'" + obj.chat.name + "'," + Date.now() + ")";
         db.run(query, obj.chat.msg);
       }
     });
   },
 
-	remove: function(id)
-	{
-		db.parallelize(function() {
-			let query =
-				"DELETE FROM Games " +
-				"WHERE id = " + id;
-			db.run(query);
-			query =
-				"DELETE FROM Players " +
-				"WHERE gid = " + id;
-			db.run(query);
-			query =
-				"DELETE FROM Moves " +
-				"WHERE gid = " + id;
-			db.run(query);
-			query =
-				"DELETE FROM Chats " +
-				"WHERE gid = " + id;
-			db.run(query);
-		});
-	},
+  remove: function(id)
+  {
+    db.parallelize(function() {
+      let query =
+        "DELETE FROM Games " +
+        "WHERE id = " + id;
+      db.run(query);
+      query =
+        "DELETE FROM Players " +
+        "WHERE gid = " + id;
+      db.run(query);
+      query =
+        "DELETE FROM Moves " +
+        "WHERE gid = " + id;
+      db.run(query);
+      query =
+        "DELETE FROM Chats " +
+        "WHERE gid = " + id;
+      db.run(query);
+    });
+  },
 
   cleanGamesDb: function()
   {

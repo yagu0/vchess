@@ -1,34 +1,34 @@
 module.exports =
 {
-	// For mail sending. NOTE: *no trailing slash*
-	siteURL: "http://localhost:8080",
+  // For mail sending. NOTE: *no trailing slash*
+  siteURL: "http://localhost:8080",
 
-	// To know in which environment the code run
-	env: process.env.NODE_ENV || 'development',
-	
-	// CORS: cross-origin resource sharing options
-	cors: {
-		enable: true,
-		allowedOrigin: "http://localhost:8080",
-	},
+  // To know in which environment the code run
+  env: process.env.NODE_ENV || 'development',
+  
+  // CORS: cross-origin resource sharing options
+  cors: {
+    enable: true,
+    allowedOrigin: "http://localhost:8080",
+  },
 
-	// Lifespan of a (login) cookie
-	cookieExpire: 183*24*60*60*1000, //6 months in milliseconds
+  // Lifespan of a (login) cookie
+  cookieExpire: 183*24*60*60*1000, //6 months in milliseconds
 
-	// Characters in a login token, and period of validity (in milliseconds)
-	token: {
-		length: 16,
-		expire: 30*60*1000, //30 minutes in milliseconds
-	},
+  // Characters in a login token, and period of validity (in milliseconds)
+  token: {
+    length: 16,
+    expire: 30*60*1000, //30 minutes in milliseconds
+  },
 
-	// Email settings
-	mail: {
-		host: "mail_host_address",
-		port: 465, //if secure; otherwise use 587
-		secure: true, //...or false
-		user: "mail_user_name",
-		pass: "mail_password",
-		noreply: "some_noreply_email",
-		contact: "some_contact_email",
-	},
+  // Email settings
+  mail: {
+    host: "mail_host_address",
+    port: 465, //if secure; otherwise use 587
+    secure: true, //...or false
+    user: "mail_user_name",
+    pass: "mail_password",
+    noreply: "some_noreply_email",
+    contact: "some_contact_email",
+  },
 };

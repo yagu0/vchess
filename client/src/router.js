@@ -5,7 +5,7 @@ import Hall from "./views/Hall.vue";
 Vue.use(Router);
 
 function loadView(view) {
-	return () => import(/* webpackChunkName: "view-[request]" */ `@/views/${view}.vue`)
+  return () => import(/* webpackChunkName: "view-[request]" */ `@/views/${view}.vue`)
 }
 
 import { ajax } from "@/utils/ajax";
@@ -46,8 +46,8 @@ const router = new Router({
               localStorage["myname"] = res.name;
               localStorage["myid"] = res.id;
             }
-						// TODO: I don't like these 2 lines, "next('/')" should be enough
-						window.location = "/";
+            // TODO: I don't like these 2 lines, "next('/')" should be enough
+            window.location = "/";
             next();
           }
         );

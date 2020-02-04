@@ -2,7 +2,7 @@
 // Component for moves list on the right
 export default {
   name: 'my-move-list',
-	props: ["moves","cursor","score","message","firstNum"],
+  props: ["moves","cursor","score","message","firstNum"],
   watch: {
     cursor: function(newCursor) {
       if (window.innerWidth <= 767)
@@ -32,75 +32,75 @@ export default {
       });
     },
   },
-	render(h) {
-		if (this.moves.length == 0)
-			return;
-		let tableContent = [];
-		let moveCounter = 0;
-		let tableRow = undefined;
-		let moveCells = undefined;
-		let curCellContent = "";
-		let firstIndex = 0;
+  render(h) {
+    if (this.moves.length == 0)
+      return;
+    let tableContent = [];
+    let moveCounter = 0;
+    let tableRow = undefined;
+    let moveCells = undefined;
+    let curCellContent = "";
+    let firstIndex = 0;
     for (let i=0; i<this.moves.length; i++)
-		{
-			if (this.moves[i].color == "w")
-			{
-				if (i == 0 || i>0 && this.moves[i-1].color=="b")
-				{
-					if (!!tableRow)
-					{
-						tableRow.children = moveCells;
-						tableContent.push(tableRow);
-					}
-					moveCells = [
-						h(
-							"td",
-							{ domProps: { innerHTML: (++moveCounter) + "." } }
-						)
-					];
-					tableRow = h(
-						"tr",
-						{ }
-					);
-					curCellContent = "";
+    {
+      if (this.moves[i].color == "w")
+      {
+        if (i == 0 || i>0 && this.moves[i-1].color=="b")
+        {
+          if (!!tableRow)
+          {
+            tableRow.children = moveCells;
+            tableContent.push(tableRow);
+          }
+          moveCells = [
+            h(
+              "td",
+              { domProps: { innerHTML: (++moveCounter) + "." } }
+            )
+          ];
+          tableRow = h(
+            "tr",
+            { }
+          );
+          curCellContent = "";
           firstIndex = i;
-				}
-			}
+        }
+      }
       // Next condition is fine because even if the first move is black,
       // there will be the "..." which count as white move.
       else if (this.moves[i].color == "b" && this.moves[i-1].color == "w")
         firstIndex = i;
-			curCellContent += this.moves[i].notation;
-			if (i < this.moves.length-1 && this.moves[i+1].color == this.moves[i].color)
-				curCellContent += ",";
-			else //color change
-			{
-				moveCells.push(
-					h(
-						"td",
-						{
-							domProps: { innerHTML: curCellContent },
-							on: { click: () => this.gotoMove(i) },
+      curCellContent += this.moves[i].notation;
+      if (i < this.moves.length-1 && this.moves[i+1].color == this.moves[i].color)
+        curCellContent += ",";
+      else //color change
+      {
+        moveCells.push(
+          h(
+            "td",
+            {
+              domProps: { innerHTML: curCellContent },
+              on: { click: () => this.gotoMove(i) },
               "class": { "highlight-lm":
                 this.cursor >= firstIndex && this.cursor <= i },
-						}
-					)
-				);
-				curCellContent = "";
-			}
-		}
-		// Complete last row, which might not be full:
-		if (moveCells.length-1 == 1)
-		{
+            }
+          )
+        );
+        curCellContent = "";
+      }
+    }
+    // Complete last row, which might not be full:
+    if (moveCells.length-1 == 1)
+    {
       moveCells.push(
         h(
           "td",
           { domProps: { innerHTML: "" } }
         )
       );
-		}
-		tableRow.children = moveCells;
-		tableContent.push(tableRow);
+    }
+    tableRow.children = moveCells;
+    tableContent.push(tableRow);
     let rootElements = [];
     if (this.score != "*")
     {
@@ -127,18 +127,18 @@ export default {
           },
         },
         tableContent
-		  )
+      )
     );
-		return h(
+    return h(
       "div",
       { },
       rootElements);
-	},
+  },
   methods: {
-		gotoMove: function(index) {
-			this.$emit("goto-move", index);
-		},
-	},
+    gotoMove: function(index) {
+      this.$emit("goto-move", index);
+    },
+  },
 };
 </script>
 

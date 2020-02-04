@@ -67,7 +67,7 @@ export default {
       }
     });
   },
-	methods: {
+  methods: {
     updateSettings: function(event) {
       const propName =
         event.target.id.substr(3).replace(/^\w/, c => c.toLowerCase())
@@ -90,6 +90,6 @@ export default {
       document.getElementById("gameContainer").style.width =
         (boardSize + movesWidth) + "px";
     },
-	},
+  },
 };
 </script>
