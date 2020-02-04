@@ -1,4 +1,2 @@
-Checkered chess: need another FEN element, last non-capturing checkered move (if applicable)
-  + need to stack these indicators for alpha beta search
 MarseilleChess: revise bot and test
 Translations (including About page), refresh rules

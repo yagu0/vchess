@@ -1,4 +1,6 @@
-class MarseilleRules extends ChessRules
+import { ChessRules } from "@/base_rules";
+
+export const VariantRules = class MarseilleRules extends ChessRules
 {
 	static IsGoodEnpassant(enpassant)
 	{
@@ -144,12 +146,13 @@ class MarseilleRules extends ChessRules
 	play(move)
 	{
 		move.flags = JSON.stringify(this.aggregateFlags());
-		move.turn = this.turn + this.subturn;
+		move.turn = this.turn + this.subTurn;
 		V.PlayOnBoard(this.board, move);
 		const epSq = this.getEpSquare(move);
 		if (this.subTurn == 0) //first move in game
 		{
 			this.turn = "b";
+      this.subTurn = 1;
 			this.epSquares.push([epSq]);
 		}
 		// Does this move give check on subturn 1? If yes, skip subturn 2
