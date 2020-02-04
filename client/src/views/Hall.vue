@@ -14,15 +14,21 @@ main
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }}
         select#selectVariant(v-model="newchallenge.vid")
-          option(v-for="v in st.variants" :value="v.id") {{ v.name }}
+          option(v-for="v in st.variants" :value="v.id"
+              :selected="newchallenge.vid==v.id")
+            | {{ v.name }}
       fieldset
         label(for="timeControl") {{ st.tr["Time control"] }}
+        div#predefinedTimeControls
+          button 3+2
+          button 5+3
+          button 15+5
         input#timeControl(type="text" v-model="newchallenge.timeControl"
-          placeholder="3m+2s, 1h+30s, 7d+1d ...")
+          placeholder="5+0, 1h+30s, 7d+1d ...")
       fieldset(v-if="st.user.id > 0")
         label(for="selectPlayers") {{ st.tr["Play with? (optional)"] }}
         input#selectPlayers(type="text" v-model="newchallenge.to")
-      fieldset(v-if="st.user.id > 0")
+      fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
         label(for="inputFen") {{ st.tr["FEN (optional)"] }}
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
@@ -96,9 +102,9 @@ export default {
       infoMessage: "",
       newchallenge: {
         fen: "",
-        vid: 0,
+        vid: localStorage.getItem("vid") || "",
         to: "", //name of challenged player (if any)
-        timeControl: "", //"2m+2s" ...etc
+        timeControl: localStorage.getItem("timeControl") || "",
       },
     };
   },
@@ -200,6 +206,13 @@ export default {
       this.st.conn.addEventListener('close', socketCloseListener);
     };
     this.st.conn.onclose = socketCloseListener;
+  },
+  mounted: function() {
+    document.querySelectorAll("#predefinedTimeControls > button").forEach(
+      (b) => { b.addEventListener("click",
+        () => { this.newchallenge.timeControl = b.innerHTML; }
+      )}
+    );
   },
   methods: {
     // Helpers:
@@ -452,6 +465,8 @@ export default {
       };
     },
     newChallenge: async function() {
+      if (this.newchallenge.vid == "")
+		    return alert("Please select a variant");
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
@@ -503,6 +518,9 @@ export default {
         this.challenges.push(chall);
         if (ctype == "live")
           localStorage.setItem("challenge", JSON.stringify(chall));
+        // Also remember timeControl  + vid for quicker further challenges:
+        localStorage.setItem("timeControl", chall.timeControl);
+        localStorage.setItem("vid", chall.vid);
         document.getElementById("modalNewgame").checked = false;
       };
       if (ctype == "live")
