@@ -613,6 +613,9 @@ export default {
 @media screen and (max-width: 767px)
   #aboveBoard
     text-align: center
+@media screen and (min-width: 768px)
+  #aboveBoard
+    margin-left: 30%
 
 .name
   font-size: 1.5rem
