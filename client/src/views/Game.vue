@@ -227,7 +227,7 @@ export default {
           {
             // Minimal game informations:
             id: this.game.id,
-            players: this.game.players.map(p => { return {name:p.name}; }),
+            players: this.game.players,
             vid: this.game.vid,
             timeControl: this.game.timeControl,
           };

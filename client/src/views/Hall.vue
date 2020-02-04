@@ -131,8 +131,13 @@ export default {
     const chall = JSON.parse(localStorage.getItem("challenge") || "false");
     if (!!chall)
     {
-      if ((Date.now() - chall.added)/1000 <= 30*60)
+      // NOTE: a challenge survives 3 minutes, for potential connection issues
+      if ((Date.now() - chall.added)/1000 <= 3*60)
+      {
+        chall.added = Date.now(); //update added time, for next disconnect...
         this.challenges.push(chall);
+        localStorage.setItem("challenge", JSON.stringify(chall));
+      }
       else
         localStorage.removeItem("challenge");
     }
@@ -358,7 +363,11 @@ export default {
         {
           // Receive game from some player (+sid)
           // NOTE: it may be correspondance (if newgame while we are connected)
-          if (this.games.every(g => g.id != data.game.id)) //ignore duplicates
+          // If duplicate found: select rid (remote ID) at random
+          let game = this.games.find(g => g.id == data.game.id);
+          if (!!game && Math.random() < 0.5)
+            game.rid = data.from;
+          else
           {
             let newGame = data.game;
             newGame.type = this.classifyObject(data.game);
@@ -390,6 +399,7 @@ export default {
         case "refusechallenge":
         {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
+          localStorage.removeItem("challenge");
           alert(this.people[data.from].name + " declined your challenge");
           break;
         }
@@ -539,7 +549,14 @@ export default {
             code: "refusechallenge",
             cid: c.id, target: c.from.sid}));
         }
-        this.sendSomethingTo((!!c.to ? c.from : null), "deletechallenge", {cid:c.id});
+        // TODO: refactor the "sendSomethingTo()" function
+        if (!c.to)
+          this.sendSomethingTo(null, "deletechallenge", {cid:c.id});
+        else
+        {
+          this.st.conn.send(JSON.stringify({
+            code:"deletechallenge", target: c.from.sid, cid: c.id}));
+        }
       }
       else //my challenge
       {
@@ -587,6 +604,7 @@ export default {
       };
       if (c.type == "live")
       {
+        // NOTE: in this case we are sure opponent is online
         tryNotifyOpponent();
         this.startNewGame(gameInfo);
       }
@@ -604,14 +622,13 @@ export default {
         );
       }
       // Send game info to everyone except opponent (and me)
-      const playersNames = gameInfo.players.map(p => {name: p.name});
       Object.keys(this.people).forEach(sid => {
-        if (![this.st.user.sid,target].includes(sid))
+        if (![this.st.user.sid,oppsid].includes(sid))
         {
           this.st.conn.send(JSON.stringify({code:"game",
             game: { //minimal game info:
               id: gameInfo.id,
-              players: playersNames,
+              players: gameInfo.players,
               vid: gameInfo.vid,
               timeControl: gameInfo.timeControl,
             },
