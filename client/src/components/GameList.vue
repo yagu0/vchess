@@ -46,6 +46,7 @@ export default {
                 || g.players[0].sid == this.st.user.sid
               ? "w"
               : "b";
+            // I play in this game, so g.fen will be defined
             if (!!g.fen.match(" " + myColor + " "))
               priority++;
           }

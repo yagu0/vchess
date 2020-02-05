@@ -223,19 +223,23 @@ export default {
           break;
         }
         case "askgame":
-          // Send current (live) game if not asked by opponent (!)
-          if (this.game.players.some(p => p.sid == data.from))
-            return;
-          const myGame =
+          // Send current (live) game if I play in (not an observer),
+          // and not asked by opponent (!)
+          if (this.game.type == "live"
+            && this.game.players.some(p => p.sid == this.st.user.sid)
+            && this.game.players.every(p => p.sid != data.from))
           {
-            // Minimal game informations:
-            id: this.game.id,
-            players: this.game.players,
-            vid: this.game.vid,
-            timeControl: this.game.timeControl,
-          };
-          this.st.conn.send(JSON.stringify({code:"game",
-            game:myGame, target:data.from}));
+            const myGame =
+            {
+              // Minimal game informations:
+              id: this.game.id,
+              players: this.game.players,
+              vid: this.game.vid,
+              timeControl: this.game.timeControl,
+            };
+            this.st.conn.send(JSON.stringify({code:"game",
+              game:myGame, target:data.from}));
+          }
           break;
         case "newmove":
           if (!!data.move.cancelDrawOffer) //opponent refuses draw
