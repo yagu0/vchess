@@ -17,7 +17,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
     #boardContainer
       Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
         :user-color="game.mycolor" :orientation="orientation"
-        :vname="game.vname" @play-move="play")
+        :vname="game.vname" :incheck="incheck" @play-move="play")
       #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'")
         | {{ turn }}
       #controls
@@ -71,6 +71,7 @@ export default {
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
+      incheck: [], //for Board
     };
   },
   watch: {

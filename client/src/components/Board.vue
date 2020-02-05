@@ -8,13 +8,12 @@ export default {
   // Last move cannot be guessed from here, and is required to highlight squares
   // vr: object to check moves, print board...
   // userColor is left undefined for an external observer
-  props: ["vr","lastMove","analyze","orientation","userColor","vname"],
+  props: ["vr","lastMove","analyze","incheck","orientation","userColor","vname"],
   data: function () {
     return {
       possibleMoves: [], //filled after each valid click/dragstart
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
-      incheck: [],
       start: {}, //pixels coordinates + id of starting square (click or drag)
       settings: store.state.settings,
     };
