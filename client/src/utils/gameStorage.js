@@ -81,8 +81,9 @@ export const GameStorage =
           gid: gameId,
           newObj:
           {
+            // Some fields may be undefined:
             chat: obj.chat,
-            move: obj.move, //may be undefined...
+            move: obj.move,
             fen: obj.fen,
             score: obj.score,
             scoreMsg: obj.scoreMsg,

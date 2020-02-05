@@ -24,6 +24,7 @@ export const translations =
   "Database error:": "Database error:",
   "Download PGN": "Download PGN",
   "Draw": "Draw",
+  "Draw offer only in your turn": "Draw offer only in your turn",
   "Email": "Email",
   "Email sent!": "Email sent!",
   "Empty message": "Empty message",

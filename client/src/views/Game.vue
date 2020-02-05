@@ -320,6 +320,8 @@ export default {
       }
       else if (this.drawOffer == "") //no effect if drawOffer == "sent"
       {
+        if (this.game.mycolor != this.vr.turn)
+          return alert(this.st.tr["Draw offer only in your turn"]);
         if (!confirm(this.st.tr["Offer draw?"]))
           return;
         this.drawOffer = "sent";
@@ -327,7 +329,7 @@ export default {
           if (sid != this.st.user.sid)
             this.st.conn.send(JSON.stringify({code:"drawoffer", target:sid}));
         });
-        GameStorage.update(this.gameRef.id, {drawOffer: true});
+        GameStorage.update(this.gameRef.id, {drawOffer: this.game.mycolor});
       }
     },
     abortGame: function() {
@@ -396,8 +398,6 @@ export default {
             }
             if (L >= 1)
               game.initime[L%2] = game.moves[L-1].played;
-            if (game.drawOffer)
-              this.drawOffer = "received";
           }
           // Now that we used idx and played, re-format moves as for live games
           game.moves = game.moves.map( (m) => {
@@ -432,6 +432,22 @@ export default {
             }
           }
         }
+
+
+
+        // TODO: (and also when receiving / sending a move ?)
+//        if (!!game.drawOffer)
+//        {
+//          if (game.drawOffer == "w")
+//          {
+//            if (myIdx == 0)
+//            {
+//              this.drawOffer = "sent";
+
+
+
+
+
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer

@@ -42,12 +42,10 @@ export const store =
       "&page=" + encodeURIComponent(page));
     // Settings initialized with values from localStorage
     this.state.settings = {
-      bcolor: localStorage["bcolor"] || "lichess",
-      sound: parseInt(localStorage["sound"]) || 2,
-      hints: parseInt(localStorage["hints"]) || 1,
-      coords: !!eval(localStorage["coords"]),
-      highlight: !!eval(localStorage["highlight"]),
-      sqSize: parseInt(localStorage["sqSize"]),
+      bcolor: localStorage.getItem("bcolor") || "lichess",
+      sound: parseInt(localStorage.getItem("sound")) || 1,
+      hints: localStorage.getItem("hints") == "true",
+      highlight: localStorage.getItem("highlight") == "true",
     };
     this.socketCloseListener = () => {
       // Next line may fail at first, but should retry and eventually success (TODO?)
@@ -61,6 +59,10 @@ export const store =
         ? navigator.language
         : "en");
     this.setTranslations();
+  },
+  updateSetting: function(propName, value) {
+    this.state.settings[propName] = value;
+    localStorage.setItem(propName, value);
   },
   setTranslations: async function() {
     // Import translations from "./translations/$lang.js"

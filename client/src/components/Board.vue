@@ -1,6 +1,7 @@
 <script>
 import { getSquareId, getSquareFromId } from "@/utils/squareId";
 import { ArrayFun } from "@/utils/array";
+import { store } from "@/store";
 
 export default {
   name: 'my-board',
@@ -10,13 +11,12 @@ export default {
   props: ["vr","lastMove","analyze","orientation","userColor","vname"],
   data: function () {
     return {
-      hints: (!localStorage["hints"] ? true : localStorage["hints"] === "1"),
-      bcolor: localStorage["bcolor"] || "lichess", //lichess, chesscom or chesstempo
       possibleMoves: [], //filled after each valid click/dragstart
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
       incheck: [],
       start: {}, //pixels coordinates + id of starting square (click or drag)
+      settings: store.state.settings,
     };
   },
   render(h) {
@@ -83,7 +83,7 @@ export default {
     );
     // Create board element (+ reserves if needed by variant or mode)
     const lm = this.lastMove;
-    const showLight = this.hints && this.vname != "Dark";
+    const showLight = this.settings.highlight && this.vname != "Dark";
     const gameDiv = h(
       'div',
       {
@@ -126,7 +126,7 @@ export default {
                 )
               );
             }
-            if (this.hints && hintSquares[ci][cj])
+            if (this.settings.hints && hintSquares[ci][cj])
             {
               elems.push(
                 h(
@@ -150,7 +150,7 @@ export default {
                   ['board'+sizeY]: true,
                   'light-square': (i+j)%2==0,
                   'dark-square': (i+j)%2==1,
-                  [this.bcolor]: true,
+                  [this.settings.bcolor]: true,
                   'in-shadow': this.vname=="Dark" && !this.analyze
                     && (!this.userColor
                       || !this.vr.enlightened[this.userColor][ci][cj]),

@@ -11,7 +11,7 @@ const UserModel = require("./User");
  *   score: varchar (result)
  *   scoreMsg: varchar ("Time", "Mutual agreement"...)
  *   created: datetime
- *   drawOffer: boolean
+ *   drawOffer: char ('w','b' or '' for none)
  *
  * Structure table Players:
  *   gid: ref game id
@@ -56,7 +56,7 @@ const GameModel =
         "INSERT INTO Games"
         + " (vid, fenStart, fen, score, timeControl, created, drawOffer)"
         + " VALUES (" + vid + ",'" + fen + "','" + fen + "','*','"
-        + timeControl + "'," + Date.now() + "," + false + ")";
+        + timeControl + "'," + Date.now() + ",'')";
       db.run(query, function(err) {
         if (!!err)
           return cb(err);
@@ -200,7 +200,9 @@ const GameModel =
       let modifs = "";
       if (!!obj.message)
         modifs += "message = message || ' ' || '" + obj.message + "',";
-      if ([true,false].includes(obj.drawOffer))
+      // NOTE: if drawOffer is true, we should check that it's player's turn
+      // A bit overcomplicated. Let's trust the client on that for now...
+      if (!!obj.drawOffer)
         modifs += "drawOffer = " + obj.drawOffer + ",";
       if (!!obj.fen)
         modifs += "fen = '" + obj.fen + "',";

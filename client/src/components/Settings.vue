@@ -39,9 +39,12 @@ export default {
     updateSettings: function(event) {
       const propName =
         event.target.id.substr(3).replace(/^\w/, c => c.toLowerCase())
-      localStorage[propName] = ["bcolor","sound"].includes(propName)
+      let value = (["bcolor","sound"].includes(propName)
         ? event.target.value
-        : event.target.checked;
+        : event.target.checked);
+      if (propName == "sound")
+        value = parseInt(value);
+      store.updateSetting(propName, value);
     },
   },
 };
