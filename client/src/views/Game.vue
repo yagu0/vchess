@@ -5,13 +5,13 @@ main
     #chat.card
       label.modal-close(for="modalChat")
       #participants
-        span {{ Object.keys(people).length }} st.tr["participant(s):"] 
+        span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
         span(v-for="p in Object.values(people)" v-if="!!p.name")
           | {{ p.name }} 
         span.anonymous(v-if="Object.values(people).some(p => !p.name)")
           | + @nonymous
       Chat(:players="game.players" :pastChats="game.chats"
-        @newchat-sent="finishSendChat" @newchat-received="processChat")
+        :newChat="newChat" @mychat="processChat")
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       span.variant-info
@@ -68,6 +68,7 @@ export default {
       people: {}, //players + observers
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
+      newChat: "",
     };
   },
   watch: {
@@ -245,6 +246,11 @@ export default {
           if (!!data.move.cancelDrawOffer) //opponent refuses draw
             this.drawOffer = "";
           this.$set(this.game, "moveToPlay", data.move);
+          break;
+        case "newchat":
+          this.newChat = data.chat;
+          if (!document.getElementById("modalChat").checked)
+            document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
           break;
         case "lastate": //got opponent infos about last move
         {
@@ -616,14 +622,11 @@ export default {
       // TODO: this is called twice, once on opening an once on closing
       document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
     },
-    finishSendChat: function(chat) {
+    processChat: function(chat) {
+      this.st.conn.send(JSON.stringify({code:"newchat", chat:chat}));
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
       if (this.game.type == "corr" && this.st.user.id > 0)
         GameStorage.update(this.gameRef.id, {chat: chat});
-    },
-    processChat: function() {
-      if (!document.getElementById("modalChat").checked)
-        document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
@@ -666,7 +669,6 @@ export default {
   margin-top: 10px
   button
     display: inline-block
-    width: 33%
     margin: 0
 
 @media screen and (max-width: 767px)

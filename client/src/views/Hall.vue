@@ -29,7 +29,7 @@ main
         label(for="selectPlayers") {{ st.tr["Play with?"] }}
         input#selectPlayers(type="text" v-model="newchallenge.to")
       fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
-        label(for="inputFen") {{ FEN }}
+        label(for="inputFen") FEN
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
@@ -59,7 +59,7 @@ main
               | {{ whatPlayerDoes(p) }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
-          Chat(:players="[]")
+          Chat(:newChat="newChat" @mychat="processChat")
         .clearer
       div
         .button-group
@@ -108,6 +108,7 @@ export default {
         to: "", //name of challenged player (if any)
         timeControl: localStorage.getItem("timeControl") || "",
       },
+      newChat: "",
     };
   },
   watch: {
@@ -196,6 +197,7 @@ export default {
       // after we're sure WebSocket is initialized
       this.st.conn.send(JSON.stringify({code:"connect"}));
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
+      this.st.conn.send(JSON.stringify({code:"pollgamers"}));
     };
     if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
       funcPollClients();
@@ -251,6 +253,10 @@ export default {
       // this.st.variants might be uninitialized (variant == null)
       return (!!variant ? variant.name : "");
     },
+
+// TODO: now that we can distinguish people from Hall or Game,
+// improve this --> the info is already known
+
     whatPlayerDoes: function(p) {
       if (this.games.some(g => g.type == "live"
         && g.players.some(pl => pl.sid == p.sid)))
@@ -258,6 +264,14 @@ export default {
         return "Playing";
       }
       return "Challenge"; //player is available
+    },
+
+// Also debug: when from game going to Hall, player appears still connected.
+// when reloading a finished (observed) game, some ghost moveToPlay errors
+
+    processChat: function(chat) {
+      // When received on server, this will trigger a "notifyRoom"
+      this.st.conn.send(JSON.stringify({code:"newchat", chat: chat}));
     },
     sendSomethingTo: function(to, code, obj, warnDisconnected) {
       const doSend = (code, obj, sid) => {
@@ -301,17 +315,23 @@ export default {
           break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
-        {
           data.sockIds.forEach(sid => {
             this.$set(this.people, sid, {id:0, name:""});
-            // Ask identity, challenges and game(s)
+            // Ask identity and challenges
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
             this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
+          });
+          break;
+        case "pollgamers":
+          // NOTE: we could make a difference between people in hall
+          // and gamers, but is it necessary?
+          data.sockIds.forEach(sid => {
+            this.$set(this.people, sid, {id:0, name:""});
+            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
           });
           // Also ask current games to all playing peers (TODO: some design issue)
           this.st.conn.send(JSON.stringify({code:"askgames"}));
           break;
-        }
         case "askidentity":
         {
           // Request for identification: reply if I'm not anonymous
@@ -413,6 +433,9 @@ export default {
           }
           break;
         }
+        case "newchat":
+          this.newChat = data.chat;
+          break;
         case "refusechallenge":
         {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
@@ -428,24 +451,29 @@ export default {
           break;
         }
         case "connect":
-        {
+        case "gconnect":
           this.$set(this.people, data.from, {name:"", id:0});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
-          this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.from}));
-          this.st.conn.send(JSON.stringify({code:"askgame", target:data.from}));
+          if (data.code == "connect")
+            this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.from}));
+          else
+            this.st.conn.send(JSON.stringify({code:"askgame", target:data.from}));
           break;
-        }
         case "disconnect":
-        {
           this.$delete(this.people, data.from);
-          // Also remove all challenges sent by this player:
-          ArrayFun.remove(this.challenges, c => c.from.sid == data.from);
-          // And all live games where he plays and no other opponent is online
-          ArrayFun.remove(this.games, g =>
-            g.type == "live" && (g.players.every(p => p.sid == data.from
-              || !this.people[p.sid])), "all");
+          if (data.code == "disconnect")
+          {
+            // Also remove all challenges sent by this player:
+            ArrayFun.remove(this.challenges, c => c.from.sid == data.from);
+          }
+          else
+          {
+            // And all live games where he plays and no other opponent is online
+            ArrayFun.remove(this.games, g =>
+              g.type == "live" && (g.players.every(p => p.sid == data.from
+                || !this.people[p.sid])), "all");
+          }
           break;
-        }
       }
     },
     // Challenge lifecycle:

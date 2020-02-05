@@ -38,30 +38,43 @@ module.exports = function(wss) {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
+
+// TODO: debug
+console.log(obj.code + " " + clients[sid].page);
+
       switch (obj.code)
       {
         case "connect":
           notifyRoom(query["page"], "connect"); //Hall or Game
           if (query["page"].indexOf("/game/") >= 0)
-            notifyRoom("/", "connect"); //notify main hall
+            notifyRoom("/", "gconnect"); //notify main hall
           break;
         case "pollclients":
+        {
           const curPage = clients[sid].page;
           socket.send(JSON.stringify({code:"pollclients",
-            sockIds: Object.keys(clients).filter(k => k != sid &&
-              (clients[k].page == curPage ||
-              // Consider that people playing are in Hall too:
-              (curPage == "/" && clients[k].page.indexOf("/game/") >= 0))
+            sockIds: Object.keys(clients).filter(k =>
+              k != sid && clients[k].page == curPage
             )}));
           break;
+        }
+        case "pollgamers":
+        {
+          const curPage = clients[sid].page;
+          socket.send(JSON.stringify({code:"pollgamers",
+            sockIds: Object.keys(clients).filter(k =>
+              k != sid && clients[k].page.indexOf("/game/") >= 0
+            )}));
+          break;
+        }
         case "pagechange":
           notifyRoom(clients[sid].page, "disconnect");
           if (clients[sid].page.indexOf("/game/") >= 0)
-            notifyRoom("/", "disconnect");
+            notifyRoom("/", "gdisconnect");
           clients[sid].page = obj.page;
           notifyRoom(obj.page, "connect");
           if (obj.page.indexOf("/game/") >= 0)
-            notifyRoom("/", "connect");
+            notifyRoom("/", "gconnect");
           break;
         case "askidentity":
           clients[obj.target].sock.send(JSON.stringify(
@@ -140,11 +153,10 @@ module.exports = function(wss) {
           }
           break;
         case "newchat":
-          // WARNING: do not use query["page"], because the page may change
-          notifyRoom(clients[sid].page, "newchat",
-            {msg: obj.msg, name: obj.name});
+          notifyRoom(clients[sid].page, "newchat", {chat:obj.chat});
           break;
         // TODO: WebRTC instead in this case (most demanding?)
+        // --> At least do a "notifyRoom"
         case "newmove":
           clients[obj.target].sock.send(JSON.stringify(
             {code:"newmove", move:obj.move}));
@@ -176,7 +188,7 @@ module.exports = function(wss) {
       delete clients[sid];
       notifyRoom(page, "disconnect");
       if (page.indexOf("/game/") >= 0)
-        notifyRoom("/", "disconnect"); //notify main hall
+        notifyRoom("/", "gdisconnect"); //notify main hall
     });
   });
 }
