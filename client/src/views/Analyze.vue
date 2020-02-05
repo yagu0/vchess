@@ -71,7 +71,7 @@ export default {
       this.curFen = this.game.fen;
       this.adjustFenSize();
       this.vr = new V(this.game.fen);
-      this.$set(this.game, "fenStart", this.gameRef.fen); //TODO: Vue3...
+      this.$set(this.game, "fenStart", this.gameRef.fen);
     },
     adjustFenSize: function() {
       let fenInput = document.getElementById("fen");

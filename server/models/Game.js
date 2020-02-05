@@ -131,9 +131,8 @@ const GameModel =
   getByUser: function(uid, excluded, cb)
   {
     db.serialize(function() {
-      // Next query is fine because a player appear at most once in a game
       const query =
-        "SELECT gid " +
+        "SELECT DISTINCT gid " +
         "FROM Players " +
         "WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
       db.all(query, (err,gameIds) => {

@@ -32,7 +32,7 @@ export default {
   created: function() {
     GameStorage.getAll((localGames) => {
       localGames.forEach((g) => g.type = this.classifyObject(g));
-      //Array.prototype.push.apply(this.games, localGames); /TODO: Vue3...
+      //Array.prototype.push.apply(this.games, localGames); //TODO: Vue 3
       this.games = this.games.concat(localGames);
     });
     if (this.st.user.id > 0)

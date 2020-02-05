@@ -51,6 +51,7 @@ import { store } from "@/store";
 import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
 import { processModalClick } from "@/utils/modalClick";
+import { getScoreMessage } from "@/utils/scoring";
 
 export default {
   name: 'my-base-game',
@@ -263,25 +264,6 @@ export default {
       }
       return pgn + "\n";
     },
-    getScoreMessage: function(score) {
-      let eogMessage = "Undefined"; //not translated: unused
-      switch (score)
-      {
-        case "1-0":
-          eogMessage = this.st.tr["White win"];
-          break;
-        case "0-1":
-          eogMessage = this.st.tr["Black win"];
-          break;
-        case "1/2":
-          eogMessage = this.st.tr["Draw"];
-          break;
-        case "?":
-          eogMessage = this.st.tr["Unknown"];
-          break;
-      }
-      return eogMessage;
-    },
     showEndgameMsg: function(message) {
       this.endgameMessage = message;
       let modalBox = document.getElementById("modalEog");
@@ -359,7 +341,7 @@ export default {
         const score = this.vr.getCurrentScore();
         if (score != "*")
         {
-          const message = this.getScoreMessage(score);
+          const message = getScoreMessage(score);
           if (this.game.mode != "analyze")
             this.$emit("gameover", score, message);
           else //just show score on screen (allow undo)

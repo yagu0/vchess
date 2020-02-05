@@ -14,12 +14,15 @@ main
         @newchat-sent="finishSendChat" @newchat-received="processChat")
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
+      span.variant-info
+        | {{ st.tr["Variant:"] + " " }}
+        span.vname {{ game.vname }}
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
         button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}")
           | {{ st.tr["Draw"] }}
-        button(@click="abortGame") {{ st.tr["Abort"] }}
-        button(@click="resign") {{ st.tr["Resign"] }}
+        button(v-if="!!game.mycolor" @click="abortGame") {{ st.tr["Abort"] }}
+        button(v-if="!!game.mycolor" @click="resign") {{ st.tr["Resign"] }}
       #playersInfo
         p
           span.name(:class="{connected: isConnected(0)}")
@@ -42,6 +45,7 @@ import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
 import { ArrayFun } from "@/utils/array";
 import { processModalClick } from "@/utils/modalClick";
+import { getScoreMessage } from "@/utils/scoring";
 
 export default {
   name: 'my-game',
@@ -97,10 +101,7 @@ export default {
             this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", this.st.tr["Time"]);
         }
         else
-        {
-          // TODO: with Vue 3, just do this.virtualClocks[colorIdx] = ppt(--countdown)
           this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
-        }
       }, 1000);
     },
   },
@@ -197,20 +198,22 @@ export default {
             return;
           this.$set(this.people, data.user.sid,
             {id: data.user.id, name: data.user.name});
-          // Sending last state only for live games: corr games are complete
-          if (this.game.type == "live" && this.game.oppsid == data.user.sid)
+          // Sending last state only for live games: corr games are complete,
+          // only if I played a move (otherwise opponent has all)
+          if (!!this.game.mycolor && this.game.type == "live"
+            && this.game.oppsid == data.user.sid
+            && this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
           {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
-            let lastMove = (L>0 ? this.game.moves[L-1] : undefined);
-            if (!!lastMove && this.drawOffer == "sent")
-              lastMove.draw = true;
             this.st.conn.send(JSON.stringify({
               code: "lastate",
               target: data.user.sid,
               state:
               {
-                lastMove: lastMove,
+                lastMove: this.game.moves[L-1],
+                // Since we played a move, only drawOffer=="sent" is possible
+                drawSent: this.drawOffer == "sent",
                 score: this.game.score,
                 movesCount: L,
                 clocks: this.game.clocks,
@@ -235,6 +238,8 @@ export default {
             game:myGame, target:data.from}));
           break;
         case "newmove":
+          if (!!data.move.cancelDrawOffer) //opponent refuses draw
+            this.drawOffer = "";
           this.$set(this.game, "moveToPlay", data.move);
           break;
         case "lastate": //got opponent infos about last move
@@ -246,13 +251,13 @@ export default {
           break;
         }
         case "resign":
-          this.gameOver(data.side=="b" ? "1-0" : "0-1", this.st.tr["Resign"]);
+          this.gameOver(data.side=="b" ? "1-0" : "0-1", "Resign");
           break;
         case "abort":
-          this.gameOver("?", this.st.tr["Abort"]);
+          this.gameOver("?", "Abort");
           break;
         case "draw":
-          this.gameOver("1/2", this.st.tr[data.message]);
+          this.gameOver("1/2", data.message);
           break;
         case "drawoffer":
           // NOTE: observers don't know who offered draw
@@ -289,19 +294,17 @@ export default {
       if (data.movesCount > L)
       {
         // Just got last move from him
-        this.$set(this.game, "moveToPlay", data.lastMove);
         if (data.score != "*" && this.game.score == "*")
-        {
-          // Opponent resigned or aborted game, or accepted draw offer
-          // (this is not a stalemate or checkmate)
-          this.gameOver(data.score, "Opponent action");
-        }
+          this.gameOver(data.score);
         this.game.clocks = data.clocks; //TODO: check this?
-        if (!!data.lastMove.draw)
+        if (!!data.drawSent)
           this.drawOffer = "received";
+        this.$set(this.game, "moveToPlay", data.lastMove);
       }
     },
     clickDraw: function() {
+      if (!this.game.mycolor)
+        return; //I'm just spectator
       if (["received","threerep"].includes(this.drawOffer))
       {
         if (!confirm(this.st.tr["Accept draw?"]))
@@ -316,7 +319,7 @@ export default {
               message:message, target:sid}));
           }
         });
-        this.gameOver("1/2", this.st.tr[message]);
+        this.gameOver("1/2", message);
       }
       else if (this.drawOffer == "") //no effect if drawOffer == "sent"
       {
@@ -333,9 +336,9 @@ export default {
       }
     },
     abortGame: function() {
-      if (!confirm(this.st.tr["Terminate game?"]))
+      if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"]))
         return;
-      this.gameOver("?", this.st.tr["Abort"]);
+      this.gameOver("?", "Abort");
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
         {
@@ -347,7 +350,7 @@ export default {
       });
     },
     resign: function(e) {
-      if (!confirm(this.st.tr["Resign the game?"]))
+      if (!this.game.mycolor || !confirm(this.st.tr["Resign the game?"]))
         return;
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
@@ -356,7 +359,7 @@ export default {
             side:this.game.mycolor, target:sid}));
         }
       });
-      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", this.st.tr["Resign"]);
+      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -432,22 +435,26 @@ export default {
             }
           }
         }
-
-
-
-        // TODO: (and also when receiving / sending a move ?)
-//        if (!!game.drawOffer)
-//        {
-//          if (game.drawOffer == "w")
-//          {
-//            if (myIdx == 0)
-//            {
-//              this.drawOffer = "sent";
-
-
-
-
-
+        if (!!game.drawOffer)
+        {
+          if (game.drawOffer == "t") //three repetitions
+            this.drawOffer = "threerep";
+          else
+          {
+            if (myIdx < 0)
+              this.drawOffer = "received"; //by any of the players
+            else
+            {
+              // I play in this game:
+              if ((game.drawOffer == "w" && myIdx==0) || (game.drawOffer=="b" && myIdx==1))
+                this.drawOffer = "sent";
+              else //all other cases
+                this.drawOffer = "received";
+            }
+          }
+        }
+        if (!!game.scoreMsg)
+          game.scoreMsg = this.st.tr[game.scoreMsg]; //stored in english
         this.game = Object.assign({},
           game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer
@@ -461,7 +468,22 @@ export default {
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
-        this.repeat = {}; //reset
+        this.repeat = {}; //reset: scan past moves' FEN:
+        let repIdx = 0;
+        // NOTE: vr_tmp to obtain FEN strings is redundant with BaseGame
+        let vr_tmp = new V(game.fenStart);
+        game.moves.forEach(m => {
+          vr_tmp.play(m);
+          const fenObj = V.ParseFen( vr_tmp.getFen() );
+          repIdx = fenObj.position + "_" + fenObj.turn;
+          if (!!fenObj.flags)
+            repIdx += "_" + fenObj.flags;
+          this.repeat[repIdx] = (!!this.repeat[repIdx]
+            ? this.repeat[repIdx]+1
+            : 1);
+        });
+        if (this.repeat[repIdx] >= 3)
+          this.drawOffer = "threerep";
         if (!!this.lastate) //lastate arrived before game was loaded:
           this.processLastate();
         callback();
@@ -500,6 +522,8 @@ export default {
       let addTime = 0;
       if (move.color == this.game.mycolor)
       {
+        if (this.drawOffer == "received") //I refuse draw
+          this.drawOffer = "";
         if (this.game.moves.length >= 2) //after first move
         {
           const elapsed = Date.now() - this.game.initime[colorIdx];
@@ -514,6 +538,7 @@ export default {
               code: "newmove",
               target: sid,
               move: sendMove,
+              cancelDrawOffer: this.drawOffer=="",
             }));
           }
         });
@@ -521,43 +546,9 @@ export default {
       else
         addTime = move.addTime; //supposed transmitted
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
-      // Since corr games are stored at only one location, update should be
-      // done only by one player for each move:
-      if (!!this.game.mycolor &&
-        (this.game.type == "live" || move.color == this.game.mycolor))
-      {
-        if (this.game.type == "corr")
-        {
-          GameStorage.update(this.gameRef.id,
-          {
-            fen: move.fen,
-            move:
-            {
-              squares: filtered_move,
-              played: Date.now(), //TODO: on server?
-              idx: this.game.moves.length,
-            },
-          });
-        }
-        else //live
-        {
-          GameStorage.update(this.gameRef.id,
-          {
-            fen: move.fen,
-            move: filtered_move,
-            clocks: this.game.clocks.map((t,i) => i==colorIdx
-              ? this.game.clocks[i] + addTime
-              : this.game.clocks[i]),
-            initime: this.game.initime.map((t,i) => i==nextIdx
-              ? Date.now()
-              : this.game.initime[i]),
-          });
-        }
-      }
-      // Also update current game object:
+      // Update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
-      //TODO: (Vue3) just this.game.clocks[colorIdx] += addTime;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
       this.game.initime[nextIdx] = Date.now();
       // If repetition detected, consider that a draw offer was received:
@@ -570,6 +561,52 @@ export default {
         : 1);
       if (this.repeat[repIdx] >= 3)
         this.drawOffer = "threerep";
+      else if (this.drawOffer == "threerep")
+        this.drawOffer = "";
+      // Since corr games are stored at only one location, update should be
+      // done only by one player for each move:
+      if (!!this.game.mycolor &&
+        (this.game.type == "live" || move.color == this.game.mycolor))
+      {
+        let drawCode = "";
+        switch (this.drawOffer)
+        {
+          case "threerep":
+            drawCode = "t";
+            break;
+          case "sent":
+            drawCode = this.game.mycolor;
+            break;
+          case "received":
+            drawCode = this.vr.turn;
+            break;
+        }
+        if (this.game.type == "corr")
+        {
+          GameStorage.update(this.gameRef.id,
+          {
+            fen: move.fen,
+            move:
+            {
+              squares: filtered_move,
+              played: Date.now(), //TODO: on server?
+              idx: this.game.moves.length - 1,
+            },
+            drawOffer: drawCode,
+          });
+        }
+        else //live
+        {
+          GameStorage.update(this.gameRef.id,
+          {
+            fen: move.fen,
+            move: filtered_move,
+            clocks: this.game.clocks,
+            initime: this.game.initime,
+            drawOffer: drawCode,
+          });
+        }
+      }
     },
     resetChatColor: function() {
       // TODO: this is called twice, once on opening an once on closing
@@ -586,7 +623,9 @@ export default {
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
-      this.game.scoreMsg = scoreMsg;
+      this.game.scoreMsg = this.st.tr[(!!scoreMsg
+        ? scoreMsg
+        : getScoreMessage(score))];
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
@@ -632,6 +671,11 @@ export default {
 @media screen and (min-width: 768px)
   #aboveBoard
     margin-left: 30%
+
+.variant-info
+  padding-right: 10px
+  .vname
+    font-weight: bold
 
 .name
   font-size: 1.5rem
