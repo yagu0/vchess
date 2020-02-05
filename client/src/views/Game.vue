@@ -1,12 +1,11 @@
 <template lang="pug">
 main
   input#modalChat.modal(type="checkbox" @click="resetChatColor")
-  div#chatWrap(role="dialog" data-checkbox="modalChat"
-      aria-labelledby="inputChat")
+  div#chatWrap(role="dialog" data-checkbox="modalChat" aria-labelledby="inputChat")
     #chat.card
       label.modal-close(for="modalChat")
       #participants
-        span {{ Object.keys(people).length }} participant(s): 
+        span {{ Object.keys(people).length }} st.tr["participant(s):"] 
         span(v-for="p in Object.values(people)" v-if="!!p.name")
           | {{ p.name }} 
         span.anonymous(v-if="Object.values(people).some(p => !p.name)")
@@ -17,9 +16,10 @@ main
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
-        button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}") Draw
-        button(@click="abortGame") Abort
-        button(@click="resign") Resign
+        button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}")
+          | {{ st.tr["Draw"] }}
+        button(@click="abortGame") {{ st.tr["Abort"] }}
+        button(@click="resign") {{ st.tr["Resign"] }}
       #playersInfo
         p
           span.name(:class="{connected: isConnected(0)}")
@@ -94,7 +94,7 @@ export default {
         {
           clearInterval(clockUpdate);
           if (countdown < 0)
-            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", "Time");
+            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", this.st.tr["Time"]);
         }
         else
         {
@@ -159,7 +159,7 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          alert("Warning: duplicate 'offline' connection");
+          alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
@@ -246,13 +246,13 @@ export default {
           break;
         }
         case "resign":
-          this.gameOver(data.side=="b" ? "1-0" : "0-1", "Resign");
+          this.gameOver(data.side=="b" ? "1-0" : "0-1", this.st.tr["Resign"]);
           break;
         case "abort":
-          this.gameOver("?", "Abort");
+          this.gameOver("?", this.st.tr["Abort"]);
           break;
         case "draw":
-          this.gameOver("1/2", data.message);
+          this.gameOver("1/2", this.st.tr[data.message]);
           break;
         case "drawoffer":
           // NOTE: observers don't know who offered draw
@@ -304,7 +304,7 @@ export default {
     clickDraw: function() {
       if (["received","threerep"].includes(this.drawOffer))
       {
-        if (!confirm("Accept draw?"))
+        if (!confirm(this.st.tr["Accept draw?"]))
           return;
         const message = (this.drawOffer == "received"
           ? "Mutual agreement"
@@ -316,11 +316,11 @@ export default {
               message:message, target:sid}));
           }
         });
-        this.gameOver("1/2", message);
+        this.gameOver("1/2", this.st.tr[message]);
       }
       else if (this.drawOffer == "") //no effect if drawOffer == "sent"
       {
-        if (!confirm("Offer draw?"))
+        if (!confirm(this.st.tr["Offer draw?"]))
           return;
         this.drawOffer = "sent";
         Object.keys(this.people).forEach(sid => {
@@ -333,7 +333,7 @@ export default {
     abortGame: function() {
       if (!confirm(this.st.tr["Terminate game?"]))
         return;
-      this.gameOver("?", "Abort");
+      this.gameOver("?", this.st.tr["Abort"]);
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
         {
@@ -345,7 +345,7 @@ export default {
       });
     },
     resign: function(e) {
-      if (!confirm("Resign the game?"))
+      if (!confirm(this.st.tr["Resign the game?"]))
         return;
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
@@ -354,7 +354,7 @@ export default {
             side:this.game.mycolor, target:sid}));
         }
       });
-      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
+      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", this.st.tr["Resign"]);
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)

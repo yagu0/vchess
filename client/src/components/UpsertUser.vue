@@ -8,27 +8,26 @@ div
       form#userForm(@submit.prevent="onSubmit()" @keyup.enter="onSubmit")
         div(v-show="stage!='Login'")
           fieldset
-            label(for="username") Name
+            label(for="username") {{ st.tr["Name"] }}
             input#username(type="text" v-model="user.name")
           fieldset
-            label(for="useremail") Email
+            label(for="useremail") {{ st.tr["Email"] }}
             input#useremail(type="email" v-model="user.email")
           fieldset
-            label(for="notifyNew") Notify new moves &amp; games
+            label(for="notifyNew") {{ st.tr["Notifications by email"] }}
             input#notifyNew(type="checkbox" v-model="user.notify")
         div(v-show="stage=='Login'")
           fieldset
-            label(for="nameOrEmail") Name or Email
+            label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
             input#nameOrEmail(type="text" v-model="nameOrEmail")
       .button-group
         button#submit(type="button" @click="onSubmit()")
-          span {{ submitMessage }}
-          i.material-icons send
+          span {{ st.tr[submitMessage] }}
         button(v-if="stage!='Update'" @click="toggleStage()")
-          span {{ stage=="Login" ? "Register" : "Login" }}
+          span {{ st.tr[stage=="Login" ? "Register" : "Login"] }}
         button#logoutBtn(v-else @click="doLogout()")
-          span Logout
-      #dialog(:style="{display: displayInfo}") {{ infoMsg }}
+          span {{ st.tr["Logout"] }}
+      #dialog(:style="{display: displayInfo}") {{ st.tr[infoMsg] }}
 </template>
 
 <script>
@@ -44,6 +43,7 @@ export default {
       logStage: "Login", //or Register
       infoMsg: "",
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
+      st: store.state,
     };
   },
   watch: {

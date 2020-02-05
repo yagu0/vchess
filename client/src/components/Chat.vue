@@ -35,8 +35,8 @@ export default {
     };
     const socketCloseListener = () => {
       store.socketCloseListener(); //reinitialize connexion (in store.js)
-      this.st.conn.addEventListener('message', socketMessageListener);
-      this.st.conn.addEventListener('close', socketCloseListener);
+      this.st.conn.addEventListener("message", socketMessageListener);
+      this.st.conn.addEventListener("close", socketCloseListener);
     };
     this.st.conn.onmessage = socketMessageListener;
     this.st.conn.onclose = socketCloseListener;

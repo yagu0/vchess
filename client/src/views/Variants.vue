@@ -2,7 +2,7 @@
 main
   .row
     .nopadding.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      label(for="prefixFilter") Type first letters...
+      label(for="prefixFilter") {{ st.tr["Type first letters..."] }}
       input#prefixFilter(v-model="curPrefix")
     .variant.col-sm-12.col-md-5.col-lg-4(
       v-for="(v,idx) in filteredVariants"

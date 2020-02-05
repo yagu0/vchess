@@ -3,13 +3,13 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button(@click="clickReadRules") Rules
+        button(@click="clickReadRules") {{ st.tr["Rules"] }}
         button(v-show="!gameInProgress" @click="() => startGame('auto')")
-          | Sample game
+          | {{ st.tr["Sample game"] }}
         button(v-show="!gameInProgress" @click="() => startGame('versus')")
-          | Practice
+          | {{ st.tr["Practice"] }}
         button(v-show="gameInProgress" @click="() => stopGame()")
-          | Stop game
+          | {{ st.tr["Stop game"] }}
         button(v-if="display=='rules' && gameInfo.vname!='Dark'"
             @click="gotoAnalyze")
           | {{ st.tr["Analyze"] }}

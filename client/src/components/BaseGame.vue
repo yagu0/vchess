@@ -2,10 +2,17 @@
 div#baseGame(tabindex=-1 @click="() => focusBg()"
     @keydown="handleKeys" @wheel="handleScroll")
   input#modalEog.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalEog" aria-labelledby="eogMessage")
+  div#eogDiv(role="dialog" data-checkbox="modalEog" aria-labelledby="eogMessage")
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalEog")
       h3#eogMessage.section {{ endgameMessage }}
+  input#modalAdjust.modal(type="checkbox")
+  div#adjuster(role="dialog" data-checkbox="modalAdjust" aria-labelledby="labelAdjust")
+    .card.smallpad.small-modal.text-center
+      label.modal-close(for="modalAdjust")
+      label#labelAdjust(for="boardSize") {{ st.tr["Board size"] }}
+      input#boardSize.slider(type="range" min="0" max="100" value="50"
+        @input="adjustBoard")
   #gameContainer
     #boardContainer
       Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
@@ -23,6 +30,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
         #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
           button(@click="download") {{ st.tr["Download PGN"] }}
+        button(onClick="doClick('modalAdjust')") &#10530;
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
             @click="analyzePosition")
           | {{ st.tr["Analyze"] }}
@@ -42,6 +50,7 @@ import MoveList from "@/components/MoveList.vue";
 import { store } from "@/store";
 import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
+import { processModalClick } from "@/utils/modalClick";
 
 export default {
   name: 'my-base-game',
@@ -86,7 +95,7 @@ export default {
         color = "White";
       else //if (this.moves[L-1].color == "w")
         color = "Black";
-      return color + " turn";
+      return this.st.tr[color + " to move"];
     },
     analyze: function() {
       return this.game.mode=="analyze" ||
@@ -99,6 +108,8 @@ export default {
       this.re_setVariables();
   },
   mounted: function() {
+    [document.getElementById("eogDiv"),document.getElementById("adjuster")]
+      .forEach(elt => elt.addEventListener("click", processModalClick));
     // Take full width on small screens:
     let boardSize = parseInt(localStorage.getItem("boardSize"));
     if (!boardSize)
@@ -111,11 +122,40 @@ export default {
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
     gameContainer.style.width = (boardSize + movesWidth) + "px";
+    // TODO: find the right formula here:
+    //document.getElementById("boardSize").value = Math.floor(boardSize / 10);
+    // timeout to avoid calling too many time the adjust method
+    let timeoutLaunched = false;
+    window.addEventListener("resize", (e) => {
+      if (!timeoutLaunched)
+      {
+        timeoutLaunched = true;
+        setTimeout( () => {
+          this.adjustBoard();
+          timeoutLaunched = false;
+        }, 500);
+      }
+    });
   },
   methods: {
     focusBg: function() {
       // NOTE: small blue border appears...
       document.getElementById("baseGame").focus();
+    },
+    adjustBoard: function() {
+      const boardContainer = document.getElementById("boardContainer");
+      if (!boardContainer)
+        return; //no board on page
+      const k = document.getElementById("boardSize").value;
+      const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
+      const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...
+      // Value of 0 is board min size; 100 is window.width [- movesWidth]
+      const boardSize = minBoardWidth +
+        k * (window.innerWidth - (movesWidth+minBoardWidth)) / 100;
+      localStorage.setItem("boardSize", boardSize);
+      boardContainer.style.width = boardSize + "px";
+      document.getElementById("gameContainer").style.width =
+        (boardSize + movesWidth) + "px";
     },
     handleKeys: function(e) {
       if ([32,37,38,39,40].includes(e.keyCode))
@@ -223,7 +263,7 @@ export default {
       return pgn + "\n";
     },
     getScoreMessage: function(score) {
-      let eogMessage = "Undefined";
+      let eogMessage = "Undefined"; //not translated: unused
       switch (score)
       {
         case "1-0":
@@ -236,7 +276,7 @@ export default {
           eogMessage = this.st.tr["Draw"];
           break;
         case "?":
-          eogMessage = this.st.tr["Unfinished"];
+          eogMessage = this.st.tr["Unknown"];
           break;
       }
       return eogMessage;

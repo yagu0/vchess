@@ -17,6 +17,7 @@
 // }
 
 import { ajax } from "@/utils/ajax";
+import { store } from "@/store";
 
 function dbOperation(callback)
 {
@@ -24,7 +25,7 @@ function dbOperation(callback)
   let DBOpenRequest = window.indexedDB.open("vchess", 4);
 
   DBOpenRequest.onerror = function(event) {
-    alert("Database error: " + event.target.errorCode);
+    alert(store.state.tr["Database error:"] + " " + event.target.errorCode);
   };
 
   DBOpenRequest.onsuccess = function(event) {
@@ -36,7 +37,7 @@ function dbOperation(callback)
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
     db.onerror = function(event) {
-      alert("Error while loading database: " + event.target.errorCode);
+      alert(store.state.tr["Error while loading database:"] + " " + event.target.errorCode);
     };
     // Create objectStore for vchess->games
     let objectStore = db.createObjectStore("games", { keyPath: "id" });
@@ -58,7 +59,7 @@ export const GameStorage =
           callback({}); //everything's fine
         }
         transaction.onerror = function() {
-          callback({errmsg: "addGame failed: " + transaction.error});
+          callback({errmsg: store.state.tr["Game retrieval failed:"] + " " + transaction.error});
         };
       }
       let objectStore = transaction.objectStore("games");
@@ -176,7 +177,7 @@ export const GameStorage =
           callback({}); //everything's fine
         }
         transaction.onerror = function() {
-          callback({errmsg: "removeGame failed: " + transaction.error});
+          callback({errmsg: store.state.tr["Game removal failed:"] + " " + transaction.error});
         };
       }
       transaction.objectStore("games").delete(gameId);

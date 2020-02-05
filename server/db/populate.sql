@@ -16,6 +16,6 @@ insert or ignore into Variants (name,description) values
   ('Magnetic', 'Laws of attraction'),
   ('Marseille', 'Move twice'),
   ('Switching', 'Exchange pieces positions'),
-  ('Upsidedown', 'Head upside down'),
+  ('Upsidedown', 'Board upside down'),
   ('Wildebeest', 'Balanced sliders & leapers'),
   ('Zen', 'Reverse captures');

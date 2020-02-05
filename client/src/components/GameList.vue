@@ -3,10 +3,10 @@ div
   table
     thead
       tr
-        th Variant
-        th White
-        th Black
-        th Time control
+        th {{ st.tr["Variant"] }}
+        th {{ st.tr["White"] }}
+        th {{ st.tr["Black"] }}
+        th {{ st.tr["Time control"] }}
         th(v-if="showResult") Result
     tbody
       tr(v-for="g in sortedGames" @click="$emit('show-game',g)"

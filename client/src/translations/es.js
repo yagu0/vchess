@@ -1,5 +1,7 @@
 export const translations =
 {
+  //jugada ou movimiento ?
+  //fin de la partida au lieu de final de partida ?
   "Language": "Idioma",
 
   // Index page:

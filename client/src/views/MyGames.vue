@@ -3,8 +3,8 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button(@click="display='live'") Live games
-        button(@click="display='corr'") Correspondance games
+        button(@click="display='live'") {{ st.tr["Live games"] }}
+        button(@click="display='corr'") {{ st.tr["Correspondance games"] }}
       GameList(v-show="display=='live'" :games="filterGames('live')"
         @show-game="showGame")
       GameList(v-show="display=='corr'" :games="filterGames('corr')"

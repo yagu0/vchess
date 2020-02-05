@@ -4,10 +4,8 @@ main
     .col-sm-12
       #fenDiv
         input#fen(v-model="curFen" @input="adjustFenSize")
-        button(@click="gotoFen") Go
-  .row
-    .col-sm-12.col-md-10.col-md-offset-1
-      BaseGame(:game="game" :vr="vr" ref="basegame")
+        button(@click="gotoFen") {{ st.tr["Go"] }}
+  BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>
 
 <script>
@@ -55,7 +53,7 @@ export default {
       this.initialize(this.loadGame);
     else
     {
-      alert("Please, analyze in Dark mode makes no sense ~_^");
+      alert(this.st.tr["Analyze in Dark mode makes no sense!"]);
       history.back(); //or this.$router.go(-1)
     }
   },

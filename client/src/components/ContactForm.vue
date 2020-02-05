@@ -43,8 +43,8 @@ export default {
       if (!!error)
         return alert(error);
       if (content.value.trim().length == 0)
-        return alert("Empty message");
-      if (subject.value.trim().length == 0 && !confirm("No subject. Send anyway?"))
+        return alert(this.st.tr["Empty message"]);
+      if (subject.value.trim().length == 0 && !confirm(this.st.tr["No subject. Send anyway?"]))
         return;
 
       // Message sending:

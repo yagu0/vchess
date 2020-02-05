@@ -1,24 +1,24 @@
 <template lang="pug">
 main
   input#modalInfo.modal(type="checkbox")
-  div(role="dialog" aria-labelledby="infoMessage")
+  div#infoDiv(role="dialog" data-checkbox="modalInfo" aria-labelledby="infoMessage")
     .card.smallpad.small-modal.text-center
       label.modal-close(for="modalInfo")
       h3#infoMessage.section
         p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalNewgame"
+  div#newgameDiv(role="dialog" data-checkbox="modalNewgame"
       aria-labelledby="titleFenedit")
     .card.smallpad(@keyup.enter="newChallenge")
       label#closeNewgame.modal-close(for="modalNewgame")
       fieldset
-        label(for="selectVariant") {{ st.tr["Variant"] }}
+        label(for="selectVariant") {{ st.tr["Variant"] }} *
         select#selectVariant(v-model="newchallenge.vid")
           option(v-for="v in st.variants" :value="v.id"
               :selected="newchallenge.vid==v.id")
             | {{ v.name }}
       fieldset
-        label(for="timeControl") {{ st.tr["Time control"] }}
+        label(for="timeControl") {{ st.tr["Time control"] }} *
         div#predefinedTimeControls
           button 3+2
           button 5+3
@@ -26,29 +26,29 @@ main
         input#timeControl(type="text" v-model="newchallenge.timeControl"
           placeholder="5+0, 1h+30s, 7d+1d ...")
       fieldset(v-if="st.user.id > 0")
-        label(for="selectPlayers") {{ st.tr["Play with? (optional)"] }}
+        label(for="selectPlayers") {{ st.tr["Play with?"] }}
         input#selectPlayers(type="text" v-model="newchallenge.to")
       fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
-        label(for="inputFen") {{ st.tr["FEN (optional)"] }}
+        label(for="inputFen") {{ FEN }}
         input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge") {{ st.tr["Send challenge"] }}
   .row
     .col-sm-12
-      button#newGame(onClick="doClick('modalNewgame')") New game
+      button#newGame(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div
         .button-group
           button(@click="(e) => setDisplay('c','live',e)" class="active")
-            | Live Challenges
+            | {{ st.tr["Live challenges"] }}
           button(@click="(e) => setDisplay('c','corr',e)")
-            | Correspondance challenges
+            | {{ st.tr["Correspondance challenges"] }}
         ChallengeList(v-show="cdisplay=='live'"
           :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
         ChallengeList(v-show="cdisplay=='corr'"
           :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
       #people
-        h3.text-center Who's there?
+        h3.text-center {{ st.tr["Who's there?"] }}
         #players
           p(v-for="p in Object.values(people)" v-if="!!p.name")
             span {{ p.name }}
@@ -64,9 +64,9 @@ main
       div
         .button-group
           button(@click="(e) => setDisplay('g','live',e)" class="active")
-            | Live games
+            | {{ st.tr["Live games"] }}
           button(@click="(e) => setDisplay('g','corr',e)")
-            | Correspondance games
+            | {{ st.tr["Correspondance games"] }}
         GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
           @show-game="showGame")
         GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
@@ -83,6 +83,8 @@ import Chat from "@/components/Chat.vue";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 import { GameStorage } from "@/utils/gameStorage";
+import { processModalClick } from "@/utils/modalClick";
+
 export default {
   name: "my-hall",
   components: {
@@ -208,6 +210,8 @@ export default {
     this.st.conn.onclose = socketCloseListener;
   },
   mounted: function() {
+    [document.getElementById("infoDiv"),document.getElementById("newgameDiv")]
+      .forEach(elt => elt.addEventListener("click", processModalClick));
     document.querySelectorAll("#predefinedTimeControls > button").forEach(
       (b) => { b.addEventListener("click",
         () => { this.newchallenge.timeControl = b.innerHTML; }
@@ -271,7 +275,7 @@ export default {
         if (!targetSid)
         {
           if (!!warnDisconnected)
-            alert("Warning: " + to + " is not connected");
+            alert(this.st.tr["Warning: target is not connected"]);
           return false;
         }
         else
@@ -293,7 +297,7 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          alert("Warning: duplicate 'offline' connection");
+          alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
@@ -413,7 +417,7 @@ export default {
         {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
           localStorage.removeItem("challenge");
-          alert(this.people[data.from].name + " declined your challenge");
+          alert(this.st.tr["Challenge declined"]);
           break;
         }
         case "deletechallenge":
@@ -466,7 +470,7 @@ export default {
     },
     newChallenge: async function() {
       if (this.newchallenge.vid == "")
-        return alert("Please select a variant");
+        return alert(this.st.tr["Please select a variant"]);
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
@@ -477,7 +481,7 @@ export default {
         return alert(error);
       const ctype = this.classifyObject(this.newchallenge);
       if (ctype == "corr" && this.st.user.id <= 0)
-        return alert("Please log in to play correspondance games");
+        return alert(this.st.tr["Please log in to play correspondance games"]);
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
       const finishAddChallenge = (cid,warnDisconnected) => {
@@ -545,7 +549,7 @@ export default {
       if (!myChallenge)
       {
         if (c.type == "corr" && this.st.user.id <= 0)
-          return alert("Please log in to accept corr challenges");
+          return alert(this.st.tr["Please log in to accept corr challenges"]);
         c.accepted = true;
         if (!!c.to) //c.to == this.st.user.name (connected)
         {

@@ -3,10 +3,10 @@ div
   table
     thead
       tr
-        th Variant
-        th From
-        th To
-        th Cadence
+        th {{ st.tr["Variant"] }}
+        th {{ st.tr["From"] }}
+        th {{ st.tr["To"] }}
+        th {{ st.tr["Time control"] }}
     tbody
       tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
         td(data-label="Variant") {{ c.vname }}
