@@ -41,6 +41,9 @@ export default {
     const squareWidth = (!!boardElt
       ? boardElt.offsetWidth / sizeY
       : 40); //arbitrary value (not relevant)
+    const offset = (!!boardElt
+      ? [boardElt.offsetTop, boardElt.offsetLeft]
+      : [0, 0]);
     const choices = h(
       'div',
       {
@@ -48,7 +51,8 @@ export default {
         'class': { 'row': true },
         style: {
           "display": (this.choices.length > 0 ? "block" : "none"),
-          "top": ((sizeY/2)*squareWidth+squareWidth/2) + "px",
+          "top": (offset[0] + (sizeY/2)*squareWidth-squareWidth/2) + "px",
+          "left": (offset[1] + squareWidth*(sizeY - this.choices.length)/2) + "px",
           "width": (this.choices.length * squareWidth) + "px",
           "height": squareWidth + "px",
         },
@@ -399,8 +403,8 @@ div.board11
     cursor: pointer
 
 #choices
-  margin: 0 auto 0 auto
-  position: relative
+  margin: 0
+  position: absolute
   z-index: 300
   overflow-y: inherit
   background-color: rgba(0,0,0,0)
