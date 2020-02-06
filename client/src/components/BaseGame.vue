@@ -223,6 +223,7 @@ export default {
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+      this.incheck = [];
     },
     analyzePosition: function() {
       const newUrl = "/analyze/" + this.game.vname +
