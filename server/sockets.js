@@ -41,10 +41,13 @@ module.exports = function(wss) {
       switch (obj.code)
       {
         case "connect":
-          notifyRoom(query["page"], "connect"); //Hall or Game
-          if (query["page"].indexOf("/game/") >= 0)
+        {
+          const curPage = clients[sid].page;
+          notifyRoom(curPage, "connect"); //Hall or Game
+          if (curPage.indexOf("/game/") >= 0)
             notifyRoom("/", "gconnect"); //notify main hall
           break;
+        }
         case "pollclients":
         {
           const curPage = clients[sid].page;
@@ -62,7 +65,6 @@ module.exports = function(wss) {
           break;
         case "pagechange":
           // page change clients[sid].page --> obj.page
-console.log(sid + " : page change: " + clients[sid].page + " --> " + obj.page);
           notifyRoom(clients[sid].page, "disconnect");
           if (clients[sid].page.indexOf("/game/") >= 0)
             notifyRoom("/", "gdisconnect");

@@ -447,7 +447,6 @@ export default {
         }
         case "connect":
         case "gconnect":
-console.log(data.code + " " + data.from);
           this.$set(this.people, data.from, {name:"", id:0, gamer:data.code[0]=='g'});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           if (data.code == "connect")
@@ -457,7 +456,6 @@ console.log(data.code + " " + data.from);
           break;
         case "disconnect":
         case "pdisconnect":
-console.log(data.code + " " + data.from);
           this.$delete(this.people, data.from);
           if (data.code == "disconnect")
           {
