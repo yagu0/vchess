@@ -62,7 +62,7 @@ module.exports = function(wss) {
           break;
         case "pagechange":
           // page change clients[sid].page --> obj.page
-console.log("page change: " + clients[sid].page + " " + obj.page + " " + sid);
+console.log(sid + " : page change: " + clients[sid].page + " --> " + obj.page);
           notifyRoom(clients[sid].page, "disconnect");
           if (clients[sid].page.indexOf("/game/") >= 0)
             notifyRoom("/", "gdisconnect");

@@ -1,7 +1,7 @@
 # vchess-client
 
 ## Project setup
-Rename and edit src/socket\_url.js.dist into socket\_url.js
+Rename and edit src/parameters.js.dist into parameters.js
 ```
 npm install
 ```
@@ -27,8 +27,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ## Resources
 
  - Vue.js + Vue router,
- - Underscore.js,
  - mini.css,
- - Google font 'Open Sans' + a few icons,
+ - Google font 'Open Sans'
 
 Sounds and pieces images where found at various locations.
