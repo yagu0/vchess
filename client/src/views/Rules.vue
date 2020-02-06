@@ -83,7 +83,7 @@ export default {
       this.content =
         require("raw-loader!@/translations/rules/" + vname + "/" + this.st.lang + ".pug")
         // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\[n"]/g, " ")
+        .replace(/\\n/g, " ").replace(/\\"/g, '"')
         .replace('module.exports = "', '').replace(/"$/, "")
         .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
