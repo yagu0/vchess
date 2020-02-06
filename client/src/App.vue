@@ -149,31 +149,49 @@ nav
   & > #menuBar
     width: 100%
     padding: 0
-    & > #leftMenu
-      padding: 0
-      width: 50%
-      display: inline-flex
-      align-items: center
-      justify-content: flex-start
-      & > a
-        display: inline-block
-        color: #2c3e50
-        &.router-link-exact-active
-          color: #42b983
-    & > #rightMenu
-      padding: 0
-      width: 50%
-      display: inline-flex
-      align-items: center
-      justify-content: flex-end
-      & > div
-        display: inline-block
-        &#flagContainer
-          display: inline-flex
-        & > img
-          padding: 0
-          width: 36px
-          height: 27px
+    @media screen and (min-width: 768px)
+      & > #leftMenu
+        padding: 0
+        width: 50%
+        display: inline-flex
+        align-items: center
+        justify-content: flex-start
+        & > a
+          display: inline-block
+          color: #2c3e50
+          &.router-link-exact-active
+            color: #42b983
+      & > #rightMenu
+        padding: 0
+        width: 50%
+        display: inline-flex
+        align-items: center
+        justify-content: flex-end
+        & > div
+          display: inline-block
+          &#flagContainer
+            display: inline-flex
+          & > img
+            padding: 0
+            width: 36px
+            height: 27px
+    @media screen and (max-width: 767px)
+      & > #leftMenu
+        padding-bottom: 5px
+        & > a
+          color: #2c3e50
+          &.router-link-exact-active
+            color: #42b983
+      & > #rightMenu
+        padding-top: 5px
+        border-top: 1px solid darkgrey
+        & > div
+          &#flagContainer
+            display: inline-flex
+          & > img
+            padding: 0
+            width: 36px
+            height: 27px
 
 @media screen and (max-width: 767px)
   nav
@@ -181,10 +199,6 @@ nav
 
 [type="checkbox"].drawer+*
   right: -767px
-
-#menuBar
-  label.drawer-close
-    top: 50px
 
 @media screen and (max-width: 767px)
   .button-group

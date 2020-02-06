@@ -84,7 +84,6 @@ export const translations =
   "Type here": "Type here",
   "Unknown": "Unknown",
   "Variant": "Variant",
-  "Variant:": "Variant:",
   "Variants": "Variants",
   "Warning: target is not connected": "Warning: target is not connected",
   "Warning: multi-tabs not supported": "Warning: multi-tabs not supported",

@@ -14,9 +14,7 @@ main
         :newChat="newChat" @mychat="processChat")
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
-      span.variant-info
-        | {{ st.tr["Variant:"] + " " }}
-        span.vname {{ game.vname }}
+      span.variant-info {{ game.vname }}
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
         button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}")
@@ -679,9 +677,8 @@ export default {
     margin-left: 30%
 
 .variant-info
+  font-weight: bold
   padding-right: 10px
-  .vname
-    font-weight: bold
 
 .name
   font-size: 1.5rem
