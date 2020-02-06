@@ -38,10 +38,6 @@ module.exports = function(wss) {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
-
-// TODO: debug
-console.log(obj.code + " " + clients[sid].page);
-
       switch (obj.code)
       {
         case "connect":
@@ -59,15 +55,14 @@ console.log(obj.code + " " + clients[sid].page);
           break;
         }
         case "pollgamers":
-        {
-          const curPage = clients[sid].page;
           socket.send(JSON.stringify({code:"pollgamers",
             sockIds: Object.keys(clients).filter(k =>
               k != sid && clients[k].page.indexOf("/game/") >= 0
             )}));
           break;
-        }
         case "pagechange":
+          // page change clients[sid].page --> obj.page
+console.log("page change: " + clients[sid].page + " " + obj.page + " " + sid);
           notifyRoom(clients[sid].page, "disconnect");
           if (clients[sid].page.indexOf("/game/") >= 0)
             notifyRoom("/", "gdisconnect");

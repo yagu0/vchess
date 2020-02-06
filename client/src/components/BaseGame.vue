@@ -81,6 +81,7 @@ export default {
       this.re_setVariables();
     },
     // Received a new move to play:
+    // TODO: error "flush nextTick callbacks" when observer reloads page
     "game.moveToPlay": function(newMove) {
       if (!!newMove) //if stop + launch new game, get undefined move
         this.play(newMove, "receive");
