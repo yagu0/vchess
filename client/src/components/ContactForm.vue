@@ -13,7 +13,7 @@ div
         label(for="mailSubject") {{ st.tr["Subject"] }}
         input#mailSubject(type="text")
       fieldset
-        label(for="mailContent") {{ st.tr["Content"] }}
+        label(for="mailContent") {{ st.tr["Content"] }} *
         br
         textarea#mailContent
       fieldset
