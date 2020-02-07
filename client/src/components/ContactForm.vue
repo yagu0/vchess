@@ -17,7 +17,7 @@ div
         br
         textarea#mailContent
       fieldset
-        button(type="button" @click="trySendMessage") Send
+        button(type="button" @click="trySendMessage") {{ st.tr["Send"] }}
         p#emailSent {{ st.tr["Email sent!"] }}
 </template>
 
