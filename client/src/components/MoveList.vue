@@ -1,4 +1,5 @@
 <script>
+import { store } from "@/store";
 // Component for moves list on the right
 export default {
   name: 'my-move-list',
@@ -113,7 +114,7 @@ export default {
         },
         [
           h("p", this.score),
-          h("p", this.message),
+          h("p", store.state.tr[this.message]),
         ]
       );
       rootElements.push(scoreDiv);
