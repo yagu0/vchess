@@ -229,7 +229,6 @@ export default {
       return this.games.filter(g => g.type == type);
     },
     classifyObject: function(o) { //challenge or game
-      // Heuristic: should work for most cases... (TODO)
       return (o.timeControl.indexOf('d') === -1 ? "live" : "corr");
     },
     showGame: function(g) {
@@ -357,14 +356,18 @@ export default {
           if (cIdx >= 0)
           {
             const c = this.challenges[cIdx];
-            if (!!c.to)
-            {
-              // Only share targeted challenges to the targets:
-              const toSid = Object.keys(this.people).find(k =>
-                this.people[k].name == c.to);
-              if (toSid != data.from)
-                return;
-            }
+            // TODO: code below requires "c.to" to have given his identity,
+            // but it can happen that the identity arrives later, which
+            // prevent him from receiving the challenge.
+            // ==> Filter later (when receiving challenge)
+//            if (!!c.to)
+//            {
+//              // Only share targeted challenges to the targets:
+//              const toSid = Object.keys(this.people).find(k =>
+//                this.people[k].name == c.to);
+//              if (toSid != data.from)
+//                return;
+//            }
             const myChallenge =
             {
               // Minimal challenge informations: (from not required)
@@ -373,6 +376,7 @@ export default {
               fen: c.fen,
               vid: c.vid,
               timeControl: c.timeControl,
+              added: c.added,
             };
             this.st.conn.send(JSON.stringify({code:"challenge",
               chall:myChallenge, target:data.from}));
@@ -382,13 +386,16 @@ export default {
         case "challenge":
         {
           // Receive challenge from some player (+sid)
-          let newChall = data.chall;
-          newChall.type = this.classifyObject(data.chall);
-          newChall.from =
-            Object.assign({sid:data.from}, this.people[data.from]);
-          newChall.added = Date.now(); //TODO: this is reception timestamp, not creation
-          newChall.vname = this.getVname(newChall.vid);
-          this.challenges.push(newChall);
+          // NOTE about next condition: see "askchallenge" case.
+          if (!data.chall.to || data.chall.to == this.st.user.name)
+          {
+            let newChall = data.chall;
+            newChall.type = this.classifyObject(data.chall);
+            newChall.from =
+              Object.assign({sid:data.from}, this.people[data.from]);
+            newChall.vname = this.getVname(newChall.vid);
+            this.challenges.push(newChall);
+          }
           break;
         }
         case "game":
@@ -397,22 +404,25 @@ export default {
           // NOTE: it may be correspondance (if newgame while we are connected)
           // If duplicate found: select rid (remote ID) at random
           let game = this.games.find(g => g.id == data.game.id);
-          if (!!game && Math.random() < 0.5)
-            game.rid = data.from;
+          if (!!game)
+          {
+            if (Math.random() < 0.5)
+              game.rid = data.from;
+          }
           else
           {
             let newGame = data.game;
             newGame.type = this.classifyObject(data.game);
             newGame.vname = this.getVname(data.game.vid);
             newGame.rid = data.from;
+            if (!data.game.score)
+              newGame.score = "*";
             this.games.push(newGame);
           }
           break;
         }
         case "newgame":
         {
-          // TODO: next line required ?!
-          //ArrayFun.remove(this.challenges, c => c.id == data.cid);
           // New game just started: data contain all information
           if (this.classifyObject(data.gameInfo) == "live")
             this.startNewGame(data.gameInfo);
@@ -494,6 +504,8 @@ export default {
     newChallenge: async function() {
       if (this.newchallenge.vid == "")
         return alert(this.st.tr["Please select a variant"]);
+      if (!!this.newchallenge.to && this.newchallenge.to == this.st.user.name)
+        return alert(this.st.tr["Self-challenge is forbidden"]);
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
@@ -613,7 +625,7 @@ export default {
       // In all cases, the challenge is consumed:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
     },
-    // NOTE: when launching game, the challenge is already deleted
+    // NOTE: when launching game, the challenge is already being deleted
     launchGame: async function(c) {
       const vModule = await import("@/variants/" + c.vname + ".js");
       window.V = vModule.VariantRules;

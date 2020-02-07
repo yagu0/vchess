@@ -72,6 +72,7 @@ export const translations =
   "Sample game": "Sample game",
   "Send": "Send",
   "Show possible moves?": "Show possible moves?",
+  "Self-challenge is forbidden": "Self-challenge is forbidden",
   "Send challenge": "Send challenge",
   "Settings": "Settings",
   "Stop game": "Stop game",
