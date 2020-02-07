@@ -268,7 +268,7 @@ const GameModel =
     const day = 86400000;
     db.serialize(function() {
       let query =
-        "SELECT id,score " +
+        "SELECT id,score,created " +
         "FROM Games ";
       db.all(query, (err,games) => {
         games.forEach(g => {
@@ -277,13 +277,19 @@ const GameModel =
             "FROM Moves " +
             "WHERE gid = " + g.id;
           db.get(query, (err2,updated) => {
-            if (!updated && tsNow - g.created > 7*day)
-              return GameModel.remove(g.id);
-            const lastMaj = updated.lastMaj;
-            if (g.score != "*" && tsNow - lastMaj > 7*day ||
-              g.score == "*" && tsNow - lastMaj > 91*day)
+            if (!updated.lastMaj)
             {
-              GameModel.remove(g.id);
+              if (tsNow - g.created > 7*day)
+                return GameModel.remove(g.id);
+            }
+            else //at least one move
+            {
+              const lastMaj = updated.lastMaj;
+              if (g.score != "*" && tsNow - lastMaj > 7*day ||
+                g.score == "*" && tsNow - lastMaj > 91*day)
+              {
+                GameModel.remove(g.id);
+              }
             }
           });
         });

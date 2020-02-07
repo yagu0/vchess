@@ -104,14 +104,14 @@ const ChallengeModel =
     const day = 86400000;
     db.serialize(function() {
       const query =
-        "SELECT id, target " +
+        "SELECT id, target, added " +
         "FROM Challenges";
       db.all(query, (err, challenges) => {
         challenges.forEach(c => {
           if ((!c.target && tsNow - c.added > 30*day) ||
             (!!c.target && tsNow - c.added > 2*day))
           {
-            db.run("DELETE FROM CHallenges WHERE id = " + c.id);
+            db.run("DELETE FROM Challenges WHERE id = " + c.id);
           }
         });
       });
