@@ -6,7 +6,7 @@ div
         th {{ st.tr["Variant"] }}
         th {{ st.tr["From"] }}
         th {{ st.tr["To"] }}
-        th {{ st.tr["Time control"] }}
+        th {{ st.tr["Cadence"] }}
     tbody
       tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
         td(data-label="Variant") {{ c.vname }}

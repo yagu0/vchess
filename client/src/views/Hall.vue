@@ -18,7 +18,7 @@ main
               :selected="newchallenge.vid==v.id")
             | {{ v.name }}
       fieldset
-        label(for="timeControl") {{ st.tr["Time control"] }} *
+        label(for="timeControl") {{ st.tr["Cadence"] }} *
         div#predefinedTimeControls
           button 3+2
           button 5+3

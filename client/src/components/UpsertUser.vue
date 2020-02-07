@@ -4,7 +4,7 @@ div
   div(role="dialog" data-checkbox="modalUser")
     .card
       label.modal-close(for="modalUser")
-      h3 {{ stage }}
+      h3 {{ st.tr[stage] }}
       form#userForm(@submit.prevent="onSubmit()" @keyup.enter="onSubmit")
         div(v-show="stage!='Login'")
           fieldset

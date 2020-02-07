@@ -29,7 +29,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       #pgnDiv
         #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
-          button(@click="download") {{ st.tr["Download PGN"] }}
+          button(@click="download") {{ st.tr["Download"] }} PGN
         button(onClick="doClick('modalAdjust')") &#10530;
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
             @click="analyzePosition")

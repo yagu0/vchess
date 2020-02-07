@@ -5,7 +5,7 @@ main
       .button-group
         button(@click="clickReadRules") {{ st.tr["Rules"] }}
         button(v-show="!gameInProgress" @click="() => startGame('auto')")
-          | {{ st.tr["Sample game"] }}
+          | {{ st.tr["Example game"] }}
         button(v-show="!gameInProgress" @click="() => startGame('versus')")
           | {{ st.tr["Practice"] }}
         button(v-show="gameInProgress" @click="() => stopGame()")

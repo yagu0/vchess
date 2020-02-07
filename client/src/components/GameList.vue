@@ -6,7 +6,7 @@ div
         th {{ st.tr["Variant"] }}
         th {{ st.tr["White"] }}
         th {{ st.tr["Black"] }}
-        th {{ st.tr["Time control"] }}
+        th {{ st.tr["Cadence"] }}
         th {{ st.tr["Result"] }}
     tbody
       tr(v-for="g in sortedGames" @click="$emit('show-game',g)"
