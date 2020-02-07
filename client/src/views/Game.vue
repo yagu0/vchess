@@ -256,7 +256,8 @@ export default {
           if (!!data.move.cancelDrawOffer) //opponent refuses draw
           {
             this.drawOffer = "";
-            if (this.game.type == "live") //corr games: reset by player who played
+            // NOTE for corr games: drawOffer reset by player in turn
+            if (this.game.type == "live" && !!this.game.mycolor)
               GameStorage.update(this.gameRef.id, {drawOffer: ""});
           }
           this.$set(this.game, "moveToPlay", data.move);
