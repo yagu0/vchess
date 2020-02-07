@@ -532,7 +532,6 @@ export const VariantRules = class BaroqueRules extends ChessRules
 
   static get VALUES()
   {
-    // TODO: totally experimental!
     return {
       'p': 1,
       'r': 2,
@@ -544,7 +543,7 @@ export const VariantRules = class BaroqueRules extends ChessRules
     };
   }
 
-  static get SEARCH_DEPTH() { return 2; } //TODO?
+  static get SEARCH_DEPTH() { return 2; }
 
   static GenRandInitFen()
   {

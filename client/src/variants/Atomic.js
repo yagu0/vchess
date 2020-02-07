@@ -10,7 +10,7 @@ export const VariantRules = class AtomicRules extends ChessRules
     moves.forEach(m => {
       if (m.vanish.length > 1 && m.appear.length <= 1) //avoid castles
       {
-        // Explosion! TODO(?): drop moves which explode our king here
+        // Explosion! OPTION (TODO?): drop moves which explode our king here
         let steps = [ [-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1] ];
         for (let step of steps)
         {

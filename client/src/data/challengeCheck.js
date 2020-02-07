@@ -13,7 +13,7 @@ export function checkChallenge(c)
   // Basic alphanumeric check for opponent name
   if (!!c.to)
   {
-     // TODO: slightly redundant (see data/userCheck.js)
+     // NOTE: slightly redundant (see data/userCheck.js)
     if (!c.to.match(/^[\w]+$/))
       return "Wrong characters in opponent name";
   }

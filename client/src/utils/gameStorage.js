@@ -48,7 +48,6 @@ function dbOperation(callback)
 export const GameStorage =
 {
   // Optional callback to get error status
-  // TODO: this func called from Hall seems to not work now...
   add: function(game, callback)
   {
     dbOperation((db) => {

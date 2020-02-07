@@ -216,7 +216,6 @@ export const VariantRules = class ZenRules extends ChessRules
 
   static get VALUES()
   {
-    // TODO: experimental
     return {
       'p': 1,
       'r': 3,
