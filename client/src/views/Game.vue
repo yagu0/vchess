@@ -246,6 +246,7 @@ export default {
               players: this.game.players,
               vid: this.game.vid,
               timeControl: this.game.timeControl,
+              score: this.game.score,
             };
             this.st.conn.send(JSON.stringify({code:"game",
               game:myGame, target:data.from}));

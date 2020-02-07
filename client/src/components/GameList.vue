@@ -7,7 +7,7 @@ div
         th {{ st.tr["White"] }}
         th {{ st.tr["Black"] }}
         th {{ st.tr["Time control"] }}
-        th(v-if="showResult") Result
+        th {{ st.tr["Result"] }}
     tbody
       tr(v-for="g in sortedGames" @click="$emit('show-game',g)"
           :class="{'my-turn': g.myTurn}")
@@ -15,7 +15,7 @@ div
         td(data-label="White") {{ g.players[0].name || "@nonymous" }}
         td(data-label="Black") {{ g.players[1].name || "@nonymous" }}
         td(data-label="Time control") {{ g.timeControl }}
-        td(v-if="showResult" data-label="Result") {{ g.score }}
+        td(data-label="Result") {{ g.score }}
 </template>
 
 <script>
@@ -27,13 +27,11 @@ export default {
   data: function() {
     return {
       st: store.state,
-      showResult: false,
     };
   },
   computed: {
     sortedGames: function() {
       // Show in order: games where it's my turn, my running games, my games, other games
-      this.showResult = this.games.some(g => g.score != "*");
       let augmentedGames = this.games.map(g => {
         let priority = 0;
         if (g.players.some(p => p.uid == this.st.user.id || p.sid == this.st.user.sid))

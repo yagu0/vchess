@@ -405,7 +405,6 @@ export default {
             newGame.type = this.classifyObject(data.game);
             newGame.vname = this.getVname(data.game.vid);
             newGame.rid = data.from;
-            newGame.score = "*";
             this.games.push(newGame);
           }
           break;
@@ -455,7 +454,7 @@ export default {
             this.st.conn.send(JSON.stringify({code:"askgame", target:data.from}));
           break;
         case "disconnect":
-        case "pdisconnect":
+        case "gdisconnect":
           this.$delete(this.people, data.from);
           if (data.code == "disconnect")
           {

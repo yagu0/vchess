@@ -67,6 +67,7 @@ export const translations =
   "Registration complete! Please check your emails": "Registration complete! Please check your emails",
   "Resign": "Resign",
   "Resign the game?": "Resign the game?",
+  "Result": "Result",
   "Rules": "Rules",
   "Sample game": "Sample game",
   "Send": "Send",

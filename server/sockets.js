@@ -123,6 +123,10 @@ module.exports = function(wss) {
           });
           break;
         }
+        case "askgame":
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"askgame", from:sid}));
+          break;
         case "askfullgame":
           clients[obj.target].sock.send(JSON.stringify(
             {code:"askfullgame", from:sid}));
@@ -167,7 +171,7 @@ module.exports = function(wss) {
           notifyRoom(clients[sid].page, "newchat", {chat:obj.chat});
           break;
         // TODO: WebRTC instead in this case (most demanding?)
-        // --> At least do a "notifyRoom"
+        // --> Or else: at least do a "notifyRoom" (also for draw, resign...)
         case "newmove":
           clients[obj.target].sock.send(JSON.stringify(
             {code:"newmove", move:obj.move}));

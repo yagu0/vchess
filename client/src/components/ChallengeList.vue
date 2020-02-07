@@ -10,7 +10,7 @@ div
     tbody
       tr(v-for="c in sortedChallenges" @click="$emit('click-challenge',c)")
         td(data-label="Variant") {{ c.vname }}
-        td(data-label="From") {{ c.from.name }}
+        td(data-label="From") {{ c.from.name || "@nonymous" }}
         td(data-label="To") {{ c.to }}
         td(data-label="Cadence") {{ c.timeControl }}
 </template>
