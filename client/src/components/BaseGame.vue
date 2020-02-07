@@ -81,7 +81,6 @@ export default {
       this.re_setVariables();
     },
     // Received a new move to play:
-    // TODO: error "flush nextTick callbacks" when observer reloads page
     "game.moveToPlay": function(newMove) {
       if (!!newMove) //if stop + launch new game, get undefined move
         this.play(newMove, "receive");
@@ -274,12 +273,18 @@ export default {
     },
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
+      // TODO: error "flush nextTick callbacks" when observer reloads page:
+      // this late check is not a fix!
+      if (!startSquare)
+        return;
       let endSquare = document.getElementById(getSquareId(move.end));
       let rectStart = startSquare.getBoundingClientRect();
       let rectEnd = endSquare.getBoundingClientRect();
       let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
       let movingPiece =
         document.querySelector("#" + getSquareId(move.start) + " > img.piece");
+      if (!movingPiece) //TODO: shouldn't happen
+        return;
       // HACK for animation (with positive translate, image slides "under background")
       // Possible improvement: just alter squares on the piece's way...
       const squares = document.getElementsByClassName("board");

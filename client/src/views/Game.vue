@@ -59,7 +59,10 @@ export default {
         id: "",
         rid: ""
       },
-      game: {players:[{name:""},{name:""}]}, //passed to BaseGame
+      game: { //passed to BaseGame
+        players:[{name:""},{name:""}],
+        rendered: false,
+      },
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
@@ -191,31 +194,39 @@ export default {
         }
         case "identity":
         {
-          // NOTE: sometimes player.id fails because player is undefined...
-          // Probably because the event was meant for Hall?
-          if (!this.people[data.user.sid])
-            return;
           this.$set(this.people, data.user.sid,
             {id: data.user.id, name: data.user.name});
-          // Sending last state only for live games: corr games are complete,
-          // only if I played a move (otherwise opponent has all)
-          if (!!this.game.mycolor && this.game.type == "live"
-            && this.game.oppsid == data.user.sid
-            && this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
+          // Ask potentially missed last state, if opponent and I play
+          if (!!this.game.mycolor
+            && this.game.type == "live" && this.game.score == "*"
+            && this.game.players.some(p => p.sid == data.user.sid))
+          {
+            this.st.conn.send(JSON.stringify({code:"asklastate", target:data.user.sid}));
+          }
+          break;
+        }
+        case "asklastate":
+        {
+          // Sending last state if I played a move or score != "*"
+          if ((this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
+              || this.game.score != "*")
           {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
+            const myIdx = ["w","b"].indexOf(this.game.mycolor);
             this.st.conn.send(JSON.stringify({
               code: "lastate",
-              target: data.user.sid,
+              target: data.from,
               state:
               {
-                lastMove: this.game.moves[L-1],
-                // Since we played a move, only drawOffer=="sent" is possible
+                // NOTE: lastMove (when defined) includes addTime
+                lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+                // Since we played a move (or abort or resign),
+                // only drawOffer=="sent" is possible
                 drawSent: this.drawOffer == "sent",
                 score: this.game.score,
                 movesCount: L,
-                clocks: this.game.clocks,
+                initime: this.game.initime[1-myIdx], //relevant only if I played
               }
             }));
           }
@@ -252,8 +263,8 @@ export default {
           break;
         case "lastate": //got opponent infos about last move
         {
-          this.lastate = data;
-          if (!!this.game.type) //game is loaded
+          this.lastate = data.state;
+          if (this.game.rendered) //game is rendered (Board component)
             this.processLastate();
           //else: will be processed when game is ready
           break;
@@ -281,12 +292,8 @@ export default {
           break;
         case "connect":
         {
-          // TODO: next condition is probably not required. See note line 150
-          if (!this.people[data.from])
-          {
-            this.$set(this.people, data.from, {name:"", id:0});
-            this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
-          }
+          this.$set(this.people, data.from, {name:"", id:0});
+          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           break;
         }
         case "disconnect":
@@ -302,12 +309,16 @@ export default {
       if (data.movesCount > L)
       {
         // Just got last move from him
-        if (data.score != "*" && this.game.score == "*")
-          this.gameOver(data.score);
-        this.game.clocks = data.clocks; //TODO: check this?
+        const myIdx = ["w","b"].indexOf(this.game.mycolor);
         if (!!data.drawSent)
           this.drawOffer = "received";
-        this.$set(this.game, "moveToPlay", data.lastMove);
+        this.$set(this.game, "moveToPlay", Object.assign({}, data.lastMove, {initime: data.initime}));
+      }
+      if (data.score != "*")
+      {
+        this.drawOffer = "";
+        if (this.game.score == "*")
+          this.gameOver(data.score);
       }
     },
     clickDraw: function() {
@@ -476,6 +487,12 @@ export default {
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
+        this.$nextTick(() => {
+          this.game.rendered = true;
+          // Did lastate arrive before game was rendered?
+          if (!!this.lastate)
+            this.processLastate();
+        });
         this.repeat = {}; //reset: scan past moves' FEN:
         let repIdx = 0;
         // NOTE: vr_tmp to obtain FEN strings is redundant with BaseGame
@@ -492,8 +509,6 @@ export default {
         });
         if (this.repeat[repIdx] >= 3)
           this.drawOffer = "threerep";
-        if (!!this.lastate) //lastate arrived before game was loaded:
-          this.processLastate();
         callback();
       };
       if (!!game)
@@ -514,6 +529,7 @@ export default {
     processMove: function(move) {
       // Update storage (corr or live) if I play in the game
       const colorIdx = ["w","b"].indexOf(move.color);
+      const nextIdx = ["w","b"].indexOf(this.vr.turn);
       // https://stackoverflow.com/a/38750895
       if (!!this.game.mycolor)
       {
@@ -550,15 +566,17 @@ export default {
             }));
           }
         });
+        // (Add)Time indication: useful in case of lastate infos requested
+        move.addTime = addTime;
       }
       else
         addTime = move.addTime; //supposed transmitted
-      const nextIdx = ["w","b"].indexOf(this.vr.turn);
       // Update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
       this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
-      this.game.initime[nextIdx] = Date.now();
+      // move.initime is set only when I receive a "lastate" move from opponent
+      this.game.initime[nextIdx] = move.initime || Date.now();
       // If repetition detected, consider that a draw offer was received:
       const fenObj = V.ParseFen(move.fen);
       let repIdx = fenObj.position + "_" + fenObj.turn;
@@ -597,7 +615,7 @@ export default {
             move:
             {
               squares: filtered_move,
-              played: Date.now(), //TODO: on server?
+              played: Date.now(),
               idx: this.game.moves.length - 1,
             },
             drawOffer: drawCode,

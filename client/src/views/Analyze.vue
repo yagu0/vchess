@@ -36,33 +36,32 @@ export default {
     };
   },
   watch: {
-    "$route": function(to, from) {
-      this.gameRef.fen = to.query["fen"].replace(/_/g, " ");
-      this.gameRef.vname = to.params["vname"];
-      this.loadGame();
-    },
+    // NOTE: no watcher for $route change, because if fenStart doesn't change
+    // then it doesn't trigger BaseGame.re_init() and the result is weird.
     "vr.movesCount": function(fen) {
       this.curFen = this.vr.getFen();
       this.adjustFenSize();
     },
   },
   created: function() {
-    this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
     this.gameRef.vname = this.$route.params["vname"];
-    if (this.gameRef.vname != "Dark")
-      this.initialize(this.loadGame);
-    else
+    if (this.gameRef.vname == "Dark")
     {
       alert(this.st.tr["Analyze in Dark mode makes no sense!"]);
       history.back(); //or this.$router.go(-1)
     }
+    else
+    {
+      this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
+      this.initialize();
+    }
   },
   methods: {
-    initialize: async function(callback) {
+    initialize: async function() {
       // Obtain VariantRules object
       const vModule = await import("@/variants/" + this.gameRef.vname + ".js");
       window.V = vModule.VariantRules;
-      callback();
+      this.loadGame();
     },
     loadGame: function() {
       // NOTE: no need to set score (~unused)

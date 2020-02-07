@@ -1,6 +1,7 @@
 const url = require('url');
 
 // Node version in Ubuntu 16.04 does not know about URL class
+// NOTE: url is already transformed, without ?xxx=yyy... parts
 function getJsonFromUrl(url)
 {
   const query = url.substr(2); //starts with "/?"
@@ -18,7 +19,14 @@ module.exports = function(wss) {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
     if (!!clients[sid])
-      return socket.send(JSON.stringify({code:"duplicate"}));
+    {
+      // Dummy messages listener: just send "duplicate" event on anything
+      // ('connect' events for Hall and Game, 'askfullgame' for observers)
+      return socket.on("message", objtxt => {
+        if (["connect","askfullgame"].includes(JSON.parse(objtxt).code))
+          socket.send(JSON.stringify({code:"duplicate"}));
+      });
+    }
     clients[sid] = {sock: socket, page: query["page"]};
     const notifyRoom = (page,code,obj={},excluded=[]) => {
       Object.keys(clients).forEach(k => {
@@ -65,17 +73,23 @@ module.exports = function(wss) {
           break;
         case "pagechange":
           // page change clients[sid].page --> obj.page
+          // TODO: some offline rooms don't need to receive disconnect event
           notifyRoom(clients[sid].page, "disconnect");
           if (clients[sid].page.indexOf("/game/") >= 0)
             notifyRoom("/", "gdisconnect");
           clients[sid].page = obj.page;
-          notifyRoom(obj.page, "connect");
+          // No need to notify connection: it's self-sent in .vue file
+          //notifyRoom(obj.page, "connect");
           if (obj.page.indexOf("/game/") >= 0)
             notifyRoom("/", "gconnect");
           break;
         case "askidentity":
           clients[obj.target].sock.send(JSON.stringify(
             {code:"askidentity",from:sid}));
+          break;
+        case "asklastate":
+          clients[obj.target].sock.send(JSON.stringify(
+            {code:"asklastate",from:sid}));
           break;
         case "askchallenge":
           clients[obj.target].sock.send(JSON.stringify(

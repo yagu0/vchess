@@ -483,12 +483,12 @@ export default {
     challOrWatch: function(sid, e) {
       switch (e.target.innerHTML)
       {
-        case "Challenge":
+        case "Available":
           this.tryChallenge(sid);
           break;
         case "Playing":
           this.showGame(this.games.find(
-            g => g.type=="live" && g.players.some(pl => pl.sid == sid)));
+            g => g.players.some(pl => pl.sid == sid || pl.uid == this.people[sid].id)));
           break;
       };
     },
