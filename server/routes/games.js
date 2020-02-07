@@ -1,10 +1,10 @@
-var router = require("express").Router();
-var UserModel = require("../models/User");
-var ChallengeModel = require('../models/Challenge');
-var GameModel = require('../models/Game');
-var VariantModel = require('../models/Variant');
-var access = require("../utils/access");
-var params = require("../config/parameters");
+let router = require("express").Router();
+const UserModel = require("../models/User");
+const ChallengeModel = require('../models/Challenge');
+const GameModel = require('../models/Game');
+const VariantModel = require('../models/Variant');
+const access = require("../utils/access");
+const params = require("../config/parameters");
 
 // From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {

@@ -163,7 +163,7 @@ export default {
         }));
       }
     );
-    // Also ask for corr challenges (open + sent to me)
+    // Also ask for corr challenges (open + sent by/to me)
     ajax(
       "/challenges",
       "GET",
@@ -171,24 +171,44 @@ export default {
       response => {
         // Gather all senders names, and then retrieve full identity:
         // (TODO [perf]: some might be online...)
-        const uids = response.challenges.map(c => { return c.uid });
-        ajax("/users",
-          "GET",
-          { ids: uids.join(",") },
-          response2 => {
-            let names = {};
-            response2.users.forEach(u => {names[u.id] = u.name});
-            this.challenges = this.challenges.concat(
-              response.challenges.map(c => {
-                // (just players names in fact)
-                const from = {name: names[c.uid], id: c.uid};
-                const type = this.classifyObject(c);
-                const vname = this.getVname(c.vid);
-                return Object.assign({}, c, {type: type, vname: vname, from: from});
-              })
-            )
-          }
-        );
+        let names = {};
+        response.challenges.forEach(c => {
+          if (c.uid != this.st.user.id)
+            names[c.uid] = ""; //unknwon for now
+          else if (!!c.target && c.target != this.st.user.id)
+            names[c.target] = "";
+        });
+        const addChallenges = (newChalls) => {
+          names[this.st.user.id] = this.st.user.name; //in case of
+          this.challenges = this.challenges.concat(
+            response.challenges.map(c => {
+              const from = {name: names[c.uid], id: c.uid}; //or just name
+              const type = this.classifyObject(c);
+              const vname = this.getVname(c.vid);
+              return Object.assign({},
+                {
+                  type: type,
+                  vname: vname,
+                  from: from,
+                  to: (!!c.target ? names[c.target] : ""),
+                },
+                c);
+            })
+          );
+        };
+        if (names !== {})
+        {
+          ajax("/users",
+            "GET",
+            { ids: Object.keys(names).join(",") },
+            response2 => {
+              response2.users.forEach(u => {names[u.id] = u.name});
+              addChallenges();
+            }
+          );
+        }
+        else
+          addChallenges();
       }
     );
     // 0.1] Ask server for room composition:
@@ -526,9 +546,9 @@ export default {
           {chall:chall}, !!warnDisconnected);
         if (!isSent)
           return;
-        // Remove old challenge if any (only one at a time):
+        // Remove old challenge if any (only one at a time of a given type):
         const cIdx = this.challenges.findIndex(c =>
-          c.from.sid == this.st.user.sid && c.type == ctype);
+          (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id) && c.type == ctype);
         if (cIdx >= 0)
         {
           // Delete current challenge (will be replaced now)

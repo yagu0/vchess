@@ -1,5 +1,5 @@
-var router = require("express").Router();
-var access = require("../utils/access");
+let router = require("express").Router();
+const access = require("../utils/access");
 
 // To avoid a weird preflight AJAX request error in dev mode...
 router.get("/", access.ajax, (req,res) => {

@@ -131,16 +131,19 @@ const UserModel =
   /////////////////
   // NOTIFICATIONS
 
-  tryNotify: function(oppId, message)
+  notify: function(user, message)
   {
-    UserModel.getOne("id", oppId, (err,opp) => {
-      if (!err || !opp.notify)
-        return; //error is ignored here (TODO: should be logged)
-      const subject = "vchess.club - notification";
-      const body = "Hello " + opp.name + "!\n" + message;
-      sendEmail(params.mail.noreply, opp.email, subject, body, err => {
-        res.json(err || {});
-      });
+    const subject = "vchess.club - notification";
+    const body = "Hello " + user.name + "!\n" + message;
+    sendEmail(params.mail.noreply, user.email, subject, body);
+  },
+
+  tryNotify: function(id, message)
+  {
+    UserModel.getOne("id", id, (err,user) => {
+      if (!err || !user.notify)
+        return; //NOTE: error is ignored here
+      UserModel.notify(user, message);
     });
   },
 

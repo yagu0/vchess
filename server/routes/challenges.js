@@ -4,6 +4,7 @@ let router = require("express").Router();
 const access = require("../utils/access");
 const ChallengeModel = require("../models/Challenge");
 const UserModel = require("../models/User"); //for name check
+const params = require("../config/parameters");
 
 router.get("/challenges", (req,res) => {
   ChallengeModel.getByUser(req.query["uid"], (err,challenges) => {
@@ -35,6 +36,8 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
         return res.json(err | {errmsg: "Typo in player name"});
       challenge.to = user.id; //ready now to insert challenge
       insertChallenge();
+      if (user.notify)
+        UserModel.notify(user, "New challenge: " + params.siteURL + "/");
     });
   }
   else

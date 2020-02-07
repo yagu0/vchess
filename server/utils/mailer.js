@@ -10,8 +10,12 @@ module.exports = function(from, to, subject, body, cb)
     console.log("Subject: " + subject);
     let msgText = body.split('\\n');
     msgText.forEach(msg => { console.log(msg); });
+    if (!cb)
+      cb = (err) => { if (!!err) console.log(err); }
     return cb();
   }
+  else if (!cb)
+    cb = () => {}; //default: do nothing (TODO: log somewhere)
 
   // Create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({

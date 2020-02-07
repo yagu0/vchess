@@ -1,11 +1,11 @@
 // AJAX methods to get, create, update or delete a user
 
-var router = require("express").Router();
-var UserModel = require('../models/User');
-var sendEmail = require('../utils/mailer');
-var genToken = require("../utils/tokenGenerator");
-var access = require("../utils/access");
-var params = require("../config/parameters");
+let router = require("express").Router();
+const UserModel = require('../models/User');
+const sendEmail = require('../utils/mailer');
+const genToken = require("../utils/tokenGenerator");
+const access = require("../utils/access");
+const params = require("../config/parameters");
 
 // NOTE: this method is safe because the sessionToken must be guessed
 router.get("/whoami", access.ajax, (req,res) => {

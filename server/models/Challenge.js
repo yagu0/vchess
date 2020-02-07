@@ -56,14 +56,17 @@ const ChallengeModel =
     });
   },
 
-  // All challenges except where target is defined and not me
+  // All challenges except where target is defined and not me,
+  // and I'm not the sender.
   getByUser: function(uid, cb)
   {
     db.serialize(function() {
       const query =
         "SELECT * " +
         "FROM Challenges " +
-        "WHERE target IS NULL OR target = " + uid;
+        "WHERE target IS NULL" +
+          " OR uid = " + uid +
+          " OR target = " + uid;
       db.all(query, (err,challenges) => {
         return cb(err, challenges);
       });
