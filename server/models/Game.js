@@ -81,7 +81,7 @@ const GameModel =
         // NOTE: g.scoreMsg can be NULL
         // (in this case score = "*" and no reason to look at it)
         "SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
-          "g.scoreMsg, v.name AS vname " +
+          "g.scoreMsg, g.drawOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
@@ -178,6 +178,8 @@ const GameModel =
       if (!obj.move.idx.toString().match(/^[0-9]+$/))
         return "Wrong move index";
     }
+    if (!!obj.drawOffer && !obj.drawOffer.match(/^[wbtn]$/))
+      return "Wrong draw offer format";
     if (!!obj.fen && !obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
       return "Wrong FEN string";
     if (!!obj.score && !obj.score.match(/^[012?*\/-]+$/))
@@ -199,10 +201,14 @@ const GameModel =
       let modifs = "";
       if (!!obj.message)
         modifs += "message = message || ' ' || '" + obj.message + "',";
-      // NOTE: if drawOffer is true, we should check that it's player's turn
+      // NOTE: if drawOffer is set, we should check that it's player's turn
       // A bit overcomplicated. Let's trust the client on that for now...
       if (!!obj.drawOffer)
-        modifs += "drawOffer = " + obj.drawOffer + ",";
+      {
+        if (obj.drawOffer == "n") //Special "None" update
+          obj.drawOffer = "";
+        modifs += "drawOffer = '" + obj.drawOffer + "',";
+      }
       if (!!obj.fen)
         modifs += "fen = '" + obj.fen + "',";
       if (!!obj.score)

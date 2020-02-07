@@ -209,7 +209,7 @@ export default {
         {
           // Sending last state if I played a move or score != "*"
           if ((this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
-              || this.game.score != "*")
+              || this.game.score != "*" || this.drawOffer == "sent")
           {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
@@ -254,7 +254,11 @@ export default {
           break;
         case "newmove":
           if (!!data.move.cancelDrawOffer) //opponent refuses draw
+          {
             this.drawOffer = "";
+            if (this.game.type == "live") //corr games: reset by player who played
+              GameStorage.update(this.gameRef.id, {drawOffer: ""});
+          }
           this.$set(this.game, "moveToPlay", data.move);
           break;
         case "newchat":
@@ -310,11 +314,10 @@ export default {
       if (data.movesCount > L)
       {
         // Just got last move from him
-        const myIdx = ["w","b"].indexOf(this.game.mycolor);
-        if (!!data.drawSent)
-          this.drawOffer = "received";
         this.$set(this.game, "moveToPlay", Object.assign({}, data.lastMove, {initime: data.initime}));
       }
+      if (data.drawSent)
+        this.drawOffer = "received";
       if (data.score != "*")
       {
         this.drawOffer = "";
@@ -555,7 +558,12 @@ export default {
           // elapsed time is measured in milliseconds
           addTime = this.game.increment - elapsed/1000;
         }
-        let sendMove = Object.assign({}, filtered_move, {addTime: addTime});
+        const sendMove = Object.assign({},
+          filtered_move,
+          {
+            addTime: addTime,
+            cancelDrawOffer: this.drawOffer=="",
+          });
         Object.keys(this.people).forEach(sid => {
           if (sid != this.st.user.sid)
           {
@@ -563,7 +571,6 @@ export default {
               code: "newmove",
               target: sid,
               move: sendMove,
-              cancelDrawOffer: this.drawOffer=="",
             }));
           }
         });
@@ -619,7 +626,7 @@ export default {
               played: Date.now(),
               idx: this.game.moves.length - 1,
             },
-            drawOffer: drawCode,
+            drawOffer: drawCode || "n", //"n" for "None" to force reset (otherwise it's ignored)
           });
         }
         else //live
