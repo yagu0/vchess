@@ -20,6 +20,8 @@ router.get("/whoami", access.ajax, (req,res) => {
   const anonymous = {name:"", email:"", id:0, notify:false};
   if (!req.cookies.token)
     return callback(anonymous);
+  if (!req.cookies.token.match(/^[a-z0-9]+$/))
+    return res.json({errmsg: "Bad token"});
   UserModel.getOne("sessionToken", req.cookies.token, function(err, user) {
     if (!!err || !user)
       callback(anonymous);
@@ -31,6 +33,8 @@ router.get("/whoami", access.ajax, (req,res) => {
 // NOTE: this method is safe because only IDs and names are returned
 router.get("/users", access.ajax, (req,res) => {
   const ids = req.query["ids"];
+  if (!ids.match(/^([0-9]+,?)+$/)) //NOTE: slightly too permissive
+    return res.json({errmsg: "Bad IDs array"});
   UserModel.getByIds(ids, (err,users) => {
     if (!!err)
       return res.json({errmsg: err.toString()});
@@ -90,6 +94,8 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 });
 
 router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
+  if (!req.query.token.match(/^[a-z0-9]+$/))
+    return res.json({errmsg: "Bad token"});
   UserModel.getOne("loginToken", req.query.token, (err,user) => {
     access.checkRequest(res, err, user, "Invalid token", () => {
       // If token older than params.tokenExpire, do nothing

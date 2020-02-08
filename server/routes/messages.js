@@ -9,10 +9,10 @@ router.post("/messages", (req,res,next) => {
   if (!req.xhr)
     return res.json({errmsg: "Unauthorized access"});
   const from = req.body["email"];
-  const subject = req.body["subject"];
-  const body = req.body["content"];
+  // Replace potential newline characters in subject
+  const subject = req.body["subject"].replace(/\r?\n|\r/g, " ");
+  const body = req.body["content"]; //TODO: sanitize? Why? How?
 
-  // TODO: sanitize ?
   mailer(from, params.mail.contact, subject, body, err => {
     if (!!err)
       return res.json({errmsg:err});

@@ -7,6 +7,8 @@ const UserModel = require("../models/User"); //for name check
 const params = require("../config/parameters");
 
 router.get("/challenges", (req,res) => {
+  if (!req.query["uid"].match(/^[0-9]+$/))
+    res.json({errmsg: "Bad user ID"});
   ChallengeModel.getByUser(req.query["uid"], (err,challenges) => {
     res.json(err || {challenges:challenges});
   });
@@ -46,6 +48,8 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
 
 router.delete("/challenges", access.logged, access.ajax, (req,res) => {
   const cid = req.query.id;
+  if (!cid.match(/^[0-9]+$/))
+    res.json({errmsg: "Bad challenge ID"});
   ChallengeModel.safeRemove(cid, req.userId, err => {
     res.json(err || {}); //TODO: just "return err" because is empty if no errors
   });

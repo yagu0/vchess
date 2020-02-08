@@ -10,7 +10,7 @@ const params = require("../config/parameters");
 router.post("/games", access.logged, access.ajax, (req,res) => {
   const gameInfo = req.body.gameInfo;
   if (!Array.isArray(gameInfo.players) ||
-    !gameInfo.players.some(p => p.id == req.userId))
+    gameInfo.players.every(p => p.id != req.userId))
   {
     return res.json({errmsg: "Cannot start someone else's game"});
   }
@@ -43,6 +43,8 @@ router.get("/games", access.ajax, (req,res) => {
   const gameId = req.query["gid"];
   if (!!gameId)
   {
+    if (!gameId.match(/^[0-9]+$/))
+      return res.json({errmsg: "Wrong game ID"});
     GameModel.getOne(gameId, (err,game) => {
       access.checkRequest(res, err, game, "Game not found", () => {
         res.json({game: game});
@@ -53,6 +55,8 @@ router.get("/games", access.ajax, (req,res) => {
   {
     // Get by (non-)user ID:
     const userId = req.query["uid"];
+    if (!userId.match(/^[0-9]+$/))
+      return res.json({errmsg: "Wrong user ID"});
     const excluded = !!req.query["excluded"];
     GameModel.getByUser(userId, excluded, (err,games) => {
       if (!!err)
