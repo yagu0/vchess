@@ -31,12 +31,11 @@ export default {
   data: function() {
     return {
       st: store.state,
-      content: "",
       display: "rules",
       gameInProgress: false,
       // variables passed to ComputerGame:
       gameInfo: {
-        vname: "_unknown",
+        vname: "",
         mode: "versus",
         fen: "",
         score: "*",
@@ -45,12 +44,25 @@ export default {
   },
   watch: {
     "$route": function(newRoute) {
-      this.tryChangeVariant(newRoute.params["vname"]);
+      this.re_setVariant(newRoute.params["vname"]);
     },
   },
   created: async function() {
     // NOTE: variant cannot be set before store is initialized
-    this.tryChangeVariant(this.$route.params["vname"]);
+    this.re_setVariant(this.$route.params["vname"]);
+  },
+  computed: {
+    content: function() {
+      if (!this.gameInfo.vname)
+        return ""; //variant not set yet
+      // (AJAX) Request to get rules content (plain text, HTML)
+      return require("raw-loader!@/translations/rules/" +
+          this.gameInfo.vname + "/" + this.st.lang + ".pug")
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ").replace(/\\"/g, '"')
+        .replace('module.exports = "', '').replace(/"$/, "")
+        .replace(/(fen:)([^:]*):/g, this.replaceByDiag);
+    },
   },
   methods: {
     clickReadRules: function() {
@@ -68,24 +80,15 @@ export default {
         shadow: fenParts[3],
       };
     },
-    tryChangeVariant: async function(vname) {
-      if (!vname || vname == "_unknown")
-        return;
-      this.gameInfo.vname = vname;
+    // Method to replace diagrams in loaded HTML
+    replaceByDiag: function(match, p1, p2) {
+      const args = this.parseFen(p2);
+      return getDiagram(args);
+    },
+    re_setVariant: async function(vname) {
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
-      // Method to replace diagrams in loaded HTML
-      const replaceByDiag = (match, p1, p2) => {
-        const args = this.parseFen(p2);
-        return getDiagram(args);
-      };
-      // (AJAX) Request to get rules content (plain text, HTML)
-      this.content =
-        require("raw-loader!@/translations/rules/" + vname + "/" + this.st.lang + ".pug")
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ").replace(/\\"/g, '"')
-        .replace('module.exports = "', '').replace(/"$/, "")
-        .replace(/(fen:)([^:]*):/g, replaceByDiag);
+      this.gameInfo.vname = vname;
     },
     startGame: function(mode) {
       if (this.gameInProgress)

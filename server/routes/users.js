@@ -33,7 +33,7 @@ router.get("/whoami", access.ajax, (req,res) => {
 // NOTE: this method is safe because only IDs and names are returned
 router.get("/users", access.ajax, (req,res) => {
   const ids = req.query["ids"];
-  if (!ids.match(/^([0-9]+,?)+$/)) //NOTE: slightly too permissive
+  if (!!ids && !ids.match(/^([0-9]+,?)+$/)) //NOTE: slightly too permissive
     return res.json({errmsg: "Bad IDs array"});
   UserModel.getByIds(ids, (err,users) => {
     if (!!err)

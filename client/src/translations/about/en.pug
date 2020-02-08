@@ -1,57 +1,46 @@
+h3 History
+
 p.
   This website was born after Patrick Bernier told me about
-  a variant he invented, called 'l'Échiqueté', which involves mixed pieces,
-  half-black and half-white. Back then in 2012, I developed a small website
-  allowing to play by correspondance with this variant only. I already had
-  in mind other variants to be added to the website, 'Zen chess' being the
-  first on the list because it changed so much the thinking process that I
-  was very curious to play it.
+  a variant he invented: l'Échiqueté ('Checkered' here), which involves
+  pieces that both sides can play.
+  Back then in 2012, I developed a small website allowing to play this variant
+  by correspondance.
+  A few years later I had a prototype to play in live, then other variants
+  were added and the website was improved to be more attractive.
 
-p.
-  After a long break, a prototype website allowing to play
-  live games was tested in the end of 2017, with only a few players.
-  One year later the first version of the final website was published:
-  it offered three modes, against a human, a computer engine or analyzing,
-  with about twenty variants available. The current website is a more modern
-  rewriting of this initial version: it now has the basic features expected
-  from a chess playing website :)
-
-p.
-  From the main Hall, you can see and talk to online players,
-  send and accept challenges (live or correspondance), and also watch current
-  games. If this is your first contact with chess variants, you probably should
-  start with the 'Variants' page from the top menu: it explains all the rules
-  and allows to observe sample games or play against basic bots. Finally,
-  at any moment in a game you can click on the 'Analyze' button to analyze
-  the position. Try not to do that in live games, your opponent would know ;)
+h3 Contribute
 
 p
-  a(href="https://github.com/yagu0/vchess") The source code 
-  | is freely available on Github: the main ingredients are Express, Node.js,
-  | Vue and Webpack. The chosen DBMS is SQLite for now because of its simplicity.
-  | It can be easily changed if needed later. All contributions are welcome:
+  a(href="https://github.com/yagu0/vchess") The source code
+  | &nbsp;is freely available on Github: the main ingredients are Express, Node.js,
+  | Vue and Webpack. The chosen DBMS is SQLite for now at least.
+  | All contributions are welcome:
   ul
     li Translations: see client/src/translations/ folder
     li.
       Styling: see &lt;style&gt; parts of .vue files
       in client/src/{components,views}
-    li.
-      Back-end and front-end code: a lot can be improved!
-      Feel free to send pull requests :)
+    li The code in general: see section 'Issues' on Github
+
+h3 Acknowledgments
 
 p
-  | A considerable number of people helped for this website,
-  | testing, giving ideas, motivating me to achieve this project. Thanks in
-  | relatively random order to Patrick Bernier, Frédéric Fradet, Olive Martin,
-  | Bevis Martin, Laurent Nouhaud and Christian Poisson for early testing and
-  | advices from 2012; to Yovann Gatineau and Anatole Vlachos for their
-  | enthusiasm about the website; to Jérôme Auclair who told me about the
-  | Dynamo variant; to Nathalie Merlin and lichess players O42, oceansideview,
-  | okei and opperwezen who tested 
-  a(href="https://lichess.org/forum/general-chess-discussion/vchessclub--play-chess-variants?page=10") the 2018/12 version 
-  | ; and of course to the websites 
-  a(href="https://schemingmind.com/") schemingmind.com 
-  | and 
-  a(href="https://www.chessvariants.com/") chessvariants.com 
-  | which are two great resources about variants.
-  | If I forget someone in this list, sorry and please tell me!
+  | Quite many people helped for this website,
+  | testing, giving ideas, motivating me to achieve this project.
+  | To avoid writing a long list I will only mention two groups:
+  | thanks to
+  ul
+    li.
+      Patrick Bernier [*], Frédéric Fradet, Olive Martin, Bevis Martin,
+      Laurent Nouhaud and Christian Poisson (version 2012 [*] and subsequent);
+    li
+      | Nathalie Merlin and lichess players O42, oceansideview, okei and
+      | opperwezen who tried 
+      a(href="https://lichess.org/forum/general-chess-discussion/vchessclub--play-chess-variants?page=10") the 2018/12 version
+      | .
+  | Finally, the websites 
+  a(href="https://www.chessvariants.com/") chessvariants.com
+  | &nbsp;and 
+  a(href="https://schemingmind.com/") schemingmind.com
+  | &nbsp;were very helpful.

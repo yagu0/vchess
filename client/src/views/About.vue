@@ -10,18 +10,13 @@ import { store } from "@/store";
 
 export default {
   name: 'my-about',
-  data: function() {
-    return {
-      st: store.state,
-      content: "",
-    };
-  },
-  mounted: function() {
-    this.content =
-      require("raw-loader!@/translations/about/" + this.st.lang + ".pug")
-      // Next two lines fix a weird issue after last update (2019-11)
-      .replace(/\\[n"]/g, " ")
-      .replace('module.exports = "', '').replace(/"$/, "");
+  computed: {
+    content: function() {
+      return require("raw-loader!@/translations/about/" + store.state.lang + ".pug")
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\[n"]/g, " ")
+        .replace('module.exports = "', '').replace(/"$/, "");
+    },
   },
 };
 </script>
