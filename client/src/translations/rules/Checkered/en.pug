@@ -1,26 +1,16 @@
 p.boxed
-	| The capture of an enemy piece produces a new "checkered" piece belonging
-	| to both players.
+  | The capture of an enemy piece produces a new "checkered" piece belonging
+  | to both players.
 
 figure.showPieces.text-center
-	img(src="/images/pieces/Checkered/cp.svg")
-	img(src="/images/pieces/Checkered/cr.svg")
-	img(src="/images/pieces/Checkered/cn.svg")
-	img(src="/images/pieces/Checkered/cb.svg")
-	img(src="/images/pieces/Checkered/cq.svg")
-	figcaption Checkered pieces, born after captures.
+  img(src="/images/pieces/Checkered/cp.svg")
+  img(src="/images/pieces/Checkered/cr.svg")
+  img(src="/images/pieces/Checkered/cn.svg")
+  img(src="/images/pieces/Checkered/cb.svg")
+  img(src="/images/pieces/Checkered/cq.svg")
+  figcaption Checkered pieces, born after captures.
 
 p Note: the initial French name for this variant is "l'Échiqueté".
-
-h3 Specifications
-
-ul
-	li Chessboard: standard.
-	li Material: additional checkered pieces.
-	li Non-capturing moves: standard; see below.
-	li Special moves: standard; see below.
-	li Captures: standard; see below.
-	li End of game: standard.
 
 p The game potentially evolves in two stages.
 
@@ -29,98 +19,98 @@ h2.stageDelimiter Stage 1
 h3 Basics
 
 ol
-	li
-		| Each capture produces a new piece, taking on nature of
-		| the capturing or captured one.
-	li
-		| The new piece arising from a capture has a new color:
-		| "checkered", as illustrated above.
-	li
-		| All checkered pieces belong to the player in turn and can
-		| capture the opponents pieces.
+  li
+    | Each capture produces a new piece, taking on nature of
+    | the capturing or captured one.
+  li
+    | The new piece arising from a capture has a new color:
+    | "checkered", as illustrated above.
+  li
+    | All checkered pieces belong to the player in turn and can
+    | capture the opponents pieces.
 
 p Remarks:
 ul
-	li.
-		A non-capturing checkered move cannot be "undone" right after since
-		this would repeat the same position.
-	li Checkered pieces cannot be captured.
+  li.
+    A non-capturing checkered move cannot be "undone" right after since
+    this would repeat the same position.
+  li Checkered pieces cannot be captured.
 
 figure.diagram-container
-	.diagram
-		| fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
-	figcaption.
-		Black plays Rxh4=P. (Checkered pawn to) h5 is allowed then,
-		because piece's nature changed.
+  .diagram
+    | fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
+  figcaption.
+    Black plays Rxh4=P. (Checkered pawn to) h5 is allowed then,
+    because piece's nature changed.
 
-h3 Pions
+h3 Pawns
 
 ul
-	li.
-		Pawns can jump two squares only from their initial rank, and only once in the game:
-		a checkered pawn returning on the pawns' start rank cannot jump. However:
-	li.
-		A pawn captured on its starting square (thus becoming "checkered") keeps the
-		right to advance two squares.
-	li.
-		Checkered pawns cannot capture en passant, because while the pawn was "passing"
-		they were of the same color.
+  li.
+    Pawns can jump two squares only from their initial rank, and only once in the game:
+    a checkered pawn returning on the pawns' start rank cannot jump. However:
+  li.
+    A pawn captured on its starting square (thus becoming "checkered") keeps the
+    right to advance two squares.
+  li.
+    Checkered pawns cannot capture en passant, because while the pawn was "passing"
+    they were of the same color.
 
 p.bold.bigfont If you wanna play, you can stop reading here.
 
 h3 Stalemate or checkmate?
 
 p.
-	The following diagram seems to show a mating pattern, but the king if
-	"attacked" by a checkered pawn &ndash; which still belongs to white.
-	Therefore, it can be considered that it's not really a check because
-	white is unable to "give back the turn".
-	Without the black bishop on a7 it would be mate (without debate), because
-	the king could virtually go to g1 before being captured by the pawn-chamaleon.
+  The following diagram seems to show a mating pattern, but the king if
+  "attacked" by a checkered pawn &ndash; which still belongs to white.
+  Therefore, it can be considered that it's not really a check because
+  white is unable to "give back the turn".
+  Without the black bishop on a7 it would be mate (without debate), because
+  the king could virtually go to g1 before being captured by the pawn-chamaleon.
 
 figure.diagram-container
-	.diagram
-		| fen:7k/b5pp/8/8/8/8/6ss/7K:
-	figcaption After 1...g2+(#?)
+  .diagram
+    | fen:7k/b5pp/8/8/8/8/6ss/7K:
+  figcaption After 1...g2+(#?)
 
 p.
-	The interface considers that it's mate in both cases, following the idea
-	"it's checkmate if we cannot move, and the opponent on its turn could
-	take the king" (maybe after an impossible move).
+  The interface considers that it's mate in both cases, following the idea
+  "it's checkmate if we cannot move, and the opponent on its turn could
+  take the king" (maybe after an impossible move).
 
 h2.stageDelimiter Stage 2
 
 p.warn This stage is not (and probably will never be) implemented.
 
 p.
-	During the game one of the two players can decide to take control of the
-	checkered pieces.
-	They thus become autonomous and vulnerable to being captured - stage 2 begins.
-	The other player is in charge of both the white and black pieces, and tries to
-	eliminate checkered pieces.
-	The checkered side wins by checkmating either the white or black king.
+  During the game one of the two players can decide to take control of the
+  checkered pieces.
+  They thus become autonomous and vulnerable to being captured - stage 2 begins.
+  The other player is in charge of both the white and black pieces, and tries to
+  eliminate checkered pieces.
+  The checkered side wins by checkmating either the white or black king.
 
 h4 Variant of stage 2
 p.
-	An observer could decide to join the game by taking the checkered pieces
-	at any moment.
-	It then becomes a chess game with three players, with some subtelties to be resolved.
-	It was tested in some (real life) games organised by the variant creator.
+  An observer could decide to join the game by taking the checkered pieces
+  at any moment.
+  It then becomes a chess game with three players, with some subtelties to be resolved.
+  It was tested in some (real life) games organised by the variant creator.
 
 h3 Special moves
 
 p Checkered pawns can...
 ul
-	li move and capture in either direction;
-	li take en passant,
-	li be promoted on either the first or eighth row.
+  li move and capture in either direction;
+  li take en passant,
+  li be promoted on either the first or eighth row.
 
 h3 Credits
 
 ul
-	li.
-		The rules of Checkered Chess were thought up by Patrick Bernier and developed
-		with the help of Benjamin Auder.
-	li.
-		Thanks also to Olive Martin, Christian Poisson, Bevis Martin, Laurent Nouhaud
-		and Frédéric Fradet.
+  li.
+    The rules of Checkered Chess were thought up by Patrick Bernier and developed
+    with the help of Benjamin Auder.
+  li.
+    Thanks also to Olive Martin, Christian Poisson, Bevis Martin, Laurent Nouhaud
+    and Frédéric Fradet.

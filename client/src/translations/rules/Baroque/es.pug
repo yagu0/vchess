@@ -1,0 +1,170 @@
+p.boxed
+  | La mayoría de las piezas son conocidas pero se mueven de manera diferente ;
+  | generalmente como una dama ortodoxa, pero las capturas son complejas.
+
+p
+  | Nota: el nombre elegido inicialmente por el autor es 'Baroque',
+  | pero 'Ultima' también se usa ampliamente.
+  a(href="https://www.chessvariants.com/people.dir/abbott.html")
+    | Él prefiere 'Baroque'
+  | , y yo también creo.
+
+h4 Nombre de las piezas
+
+p Los nombres de las piezas se relacionan con su modo de captura, que se describe a continuación.
+ul
+  li Peón : peón o p "pinchazo"
+  li Torre : coordinador
+  li Caballo : "saltador largo"
+  li Alfil : camaleón
+  li Dama : "supresor"
+  li Rey : rey (mismo comportamiento que el ajedrez ortodoxo)
+p.
+  Además, se agrega una nueva pieza : el inmovilizador, denotado por el
+  letra 'm' en diagramas FEN y partidas PGN. El esta representado por
+  una torre volcada :
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/4m3/8/8/8/3M4/8:
+  figcaption Inmovilizador en d2 y e6.
+
+h3 Jugadas sin captura
+
+p.
+  Los peones se mueven como torres ortodoxas, y los movimientos del rey
+  son estándar. Todas las otras piezas se mueven como una dama ortodoxa.
+
+p.
+  Cuando una pieza está al lado de un inmovilizador enemigo, no puede moverse
+  a menos que este inmovilizador se encuentre con un amigo inmovilizador o camaleón
+  (cancelando los poderes del inmovilizador contrario).
+
+p
+  | Nota: esto corresponde a las "reglas puras" como se describe en
+  a (href="http://www.inference.org.uk/mackay/ultima/ultima.html") esta página
+  | , que difieren ligeramente de las reglas originales.
+  | El objetivo es deshacerse de la extraña regla del suicidio, debilitando
+  | un poco de la cerradura del inmovilizador.
+  | En particular, de acuerdo con las reglas básicas,
+  | dos inmovilizadores adyacentes no pueden nunca moverse a menos que
+  | uno de ellos sea capturado.
+  | Tenga en cuenta que este es siempre el caso si todos los camaleones desaparecen.
+
+h3 Jugadas con captura
+
+p.
+  El caso fácil primero: el rey captura como siempre, avanzando
+  una casilla adyacente ocupada por el enemigo. Este es el único caso parcial según el
+  reglas ortodoxas, y también el único que se captura al ir a una plaza ocupada.
+  Todas las otras piezas capturan pasivamente: llegan a un cuadrado
+  gratis, y captura una o más piezas según las características
+  del desplazamiento.
+
+p Nota 1 : el inmovilizador no captura.
+
+p.
+  Nota 2 : referente las capturas pasivas, se agrega una 'X' al final del movimiento
+  para indicar que se ha tomado algo (debes volver a jugar el juego para
+  saber qué y dónde).
+
+h4 Peones/Pinchazos
+
+p.
+  Si al final del movimiento un peón termina horizontal o verticalmente
+  adyacente a una habitación enemiga, que está adyacente a una habitación amiga (en
+  la misma dirección), luego se captura la pieza "pellizcada".
+
+figure.diagram-container
+  .diagram
+    | fen:7k/5ppp/2N5/2n5/3rB3/8/PPP5/K7:
+  figcaption 1.Pc2c4 captura tanto al coordinador como al "saltador largo".
+
+h4 Coordinadores (torres)
+
+p.
+  Imagina que la torre y el rey del mismo color son dos esquinas de un rectángulo
+  (funciona si las dos piezas no están alineadas).
+  Si al final de una torre se mueve una pieza opuesta está en una
+  de las dos esquinas restantes, se captura.
+
+figure.diagram-container
+  .diagram
+    | fen:8/2b4K/2q5/3p1N1p/8/8/2R5/k7:
+  figcaption 1.Rc5 captura en c7 y h5.
+
+h4 "Saltadores largos" (caballos)
+
+p.
+  Un caballo captura exactamente como una dama en damas internacionales:
+  saltando sobre las piezas enemigas tantas veces como quiera,
+  pero siempre en la misma dirección. En este sentido, tiene menos poder
+  que una dama en el juego anterior : en el siguiente diagrama c8 y f6 no pueden ser
+  tomada. Sin embargo, el caballo no está obligado a maximizar el número de
+  piezas opuestas capturadas (como es el caso en las damas).
+
+figure.diagram-container
+  .diagram
+    | fen:2n4k/3r4/5b2/3p4/1m6/3b4/3N4/K7 d4,d6,d8,a5:
+  figcaption Todas las capturas marcadas se pueden jugado desde d2.
+
+h4 "Supresor" (dama)
+
+p.
+  La dama captura alejándose de una pieza opuesta adyacente, en la dirección
+  opuesto (sin saltar, el camino debe estar despejado).
+
+figure.diagram-container
+  .diagram
+    | fen:7k/8/8/3Qr3/8/8/8/K7 a5,b5,c5:
+  figcaption 1.Qa5, 1.Qb5 o 1.Qc5 capturan la torre negra.
+
+h4 Camaleones (alfiles)
+
+p.
+  El camaleón captura las piezas enemigas de la forma en que capturan.
+  Entonces ahí él
+  ul
+    li pellizca los peones (si se mueve como un peón),
+    li suprime los supresores,
+    li salta sobre los saltadores largos,
+    li coordina los coordinadores.
+  p ...y estas capturas pueden acumularse.
+
+  p.
+    Nota : en el diagrama, el trazo indicado no corresponde a un desplazamiento de
+    peón, y por lo tanto no captura la pieza negra en e5.
+
+figure.diagram-container
+  .diagram
+    | fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4:
+  figcaption 1.Bd5 captura las dos piezas marcadas.
+
+p.
+  Además, el camaleón inmoviliza los inmovilizadores (pero no puede capturarlos
+  ya que ellos mismos no capturan).
+
+p.
+  Un camaleón captura al rey de la misma manera que el rey captura, lo que significa
+  que un camaleón junto a un rey enemigo derrota.
+
+h3 Fin de la partida
+
+p.
+  Es necesario jaque mate al rey contrario como en el ajedrez ortodoxo (y empatate es tablas).
+  Sin embargo, las jaques pueden ser difíciles de ver debido a las definiciones
+  capturas exóticas. Por ejemplo en el siguiente diagrama, el rey blanco no
+  puede ir a e5 porque sería capturado por el peón negro (que viene en d5).
+
+figure.diagram-container
+  .diagram
+    | fen:7k/8/8/p4r/4K3/8/8/8 e5:
+  figcaption 1.Ke5 es imposible
+
+h3 Más información
+
+p
+  | La 
+  a(href="https://en.wikipedia.org/wiki/Baroque_chess") página Wikipedia
+  | &nbsp;es un buen lugar para comenzar, ya que proporciona enlaces a varias
+  | otras páginas interesantes (como chessvariants.com, como es habitual)

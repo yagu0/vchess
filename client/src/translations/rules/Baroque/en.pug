@@ -1,173 +1,163 @@
 p.boxed
-	| Most pieces look the same but behave very differently.
-	| They generally move like an orthodox queen,
-	| but capturing rules are complex.
+  | Most pieces look the same but behave very differently.
+  | They generally move like an orthodox queen,
+  | but capturing rules are complex.
 
 p
-	| Note: 'Baroque' is the initial name thought by the author,
-	| but 'Ultima' is also largely adopted.
-	a(href="https://www.chessvariants.com/people.dir/abbott.html")
-		| He prefers 'Baroque'
-	| , and I think me too.
-
-h3 Specifications
-
-ul
-	li Chessboard: standard.
-	li Material: "standard".
-	li Non-capturing moves: often like queen.
-	li Special moves: none.
-	li Captures: very special.
-	li End of game: standard; see below.
+  | Note: 'Baroque' is the initial name thought by the author,
+  | but 'Ultima' is also largely adopted.
+  a(href="https://www.chessvariants.com/people.dir/abbott.html")
+    | He prefers 'Baroque'
+  | , and I think me too.
 
 h4 Pieces names
 
 p Pieces names refer to the way they capture, which is described later.
 ul
-	li Pawn : pawn or pincer
-	li Rook : coordinator
-	li Knight : long leaper
-	li Bishop : chameleon
-	li Queen : withdrawer
-	li King : king (same behavior as in standard chess)
+  li Pawn : pawn or pincer
+  li Rook : coordinator
+  li Knight : long leaper
+  li Bishop : chameleon
+  li Queen : withdrawer
+  li King : king (same behavior as in standard chess)
 p.
-	Besides, a new piece is introduced: the immobilizer, written by the letter 'm'
-	in FEN diagrams and PGN games. It is represented by an upside-down rook:
+  Besides, a new piece is introduced: the immobilizer, written by the letter 'm'
+  in FEN diagrams and PGN games. It is represented by an upside-down rook:
 
 figure.diagram-container
-	.diagram
-		| fen:8/8/4m3/8/8/8/3M4/8:
-	figcaption Immobilizers on d2 and e6.
+  .diagram
+    | fen:8/8/4m3/8/8/8/3M4/8:
+  figcaption Immobilizers on d2 and e6.
 
 h3 Non-capturing moves
 
 p.
-	Pawns move as orthodox rooks, and the king moves as usual,
-	one square in any direction.
-	All other pieces move like an orthodox queen.
+  Pawns move as orthodox rooks, and the king moves as usual,
+  one square in any direction.
+  All other pieces move like an orthodox queen.
 
 p.
-	When a piece is adjacent to an enemy immobilizer, it cannot move unless
-	the enemy immobilizer is adjacent to a friendly immobilizer or chameleon
-	(cancelling the powers of the opponent's immobilizer).
+  When a piece is adjacent to an enemy immobilizer, it cannot move unless
+  the enemy immobilizer is adjacent to a friendly immobilizer or chameleon
+  (cancelling the powers of the opponent's immobilizer).
 p
-	| Note : this corresponds to the "pure rules" described on 
-	a(href="http://www.inference.org.uk/mackay/ultima/ultima.html") this page
-	| , which slightly differ from the initial rules.
-	| The aim is to get rid of the weird suicide rule by weakening the immobilizers lock.
-	| In particular, in the original rules two adjacent immobilizer are stuck forever
-	| until one is captured. Note that it's still the case if all chameleons disappeared.
+  | Note : this corresponds to the "pure rules" described on 
+  a(href="http://www.inference.org.uk/mackay/ultima/ultima.html") this page
+  | , which slightly differ from the initial rules.
+  | The aim is to get rid of the weird suicide rule by weakening the immobilizers lock.
+  | In particular, in the original rules two adjacent immobilizer are stuck forever
+  | until one is captured. Note that it's still the case if all chameleons disappeared.
 
 h3 Capturing moves
 
 p.
-	Easy case first: the king captures as usual, by moving onto an adjacent square
-	occupied by an enemy piece. But this is the only piece following orthodox rules,
-	and also the only one which captures by moving onto an occupied square.
-	All other pieces capture passively: they land on a free square and captured
-	units are determined by some characteristics of the movement.
+  Easy case first: the king captures as usual, by moving onto an adjacent square
+  occupied by an enemy piece. But this is the only piece following orthodox rules,
+  and also the only one which captures by moving onto an occupied square.
+  All other pieces capture passively: they land on a free square and captured
+  units are determined by some characteristics of the movement.
 
 p Note 1: the immobilizer does not capture.
 
 p.
-	Note 2: for passive captures, a 'X' is added at the end of the move notation,
-	to indicate that something was taken (replaying the game is necessary to know where).
+  Note 2: for passive captures, a 'X' is added at the end of the move notation,
+  to indicate that something was taken (replaying the game is necessary to know where).
 
 h4 Pawns/Pincers
 
 p.
-	If at the end of its movement a pawn is horizontally or vertically adjacent to an
-	enemy piece, which itself is next to a friendly piece (in the same direction),
-	the "pinced" unit is removed from the board.
+  If at the end of its movement a pawn is horizontally or vertically adjacent to an
+  enemy piece, which itself is next to a friendly piece (in the same direction),
+  the "pinced" unit is removed from the board.
 
 figure.diagram-container
-	.diagram
-		| fen:7k/5ppp/2N5/2n5/3rB3/8/PPP5/K7:
-	figcaption 1.Pc2c4 captures both coordinator and long leaper.
+  .diagram
+    | fen:7k/5ppp/2N5/2n5/3rB3/8/PPP5/K7:
+  figcaption 1.Pc2c4 captures both coordinator and long leaper.
 
 h4 Coordinators (rooks)
 
 p.
-	Imagine that rook and king of the same color are two corners of a rectangle
-	(this works if these two pieces are unaligned).
-	If at the end of a rook move an enemy piece stands in any of the two remaining
-	corners, it is captured.
+  Imagine that rook and king of the same color are two corners of a rectangle
+  (this works if these two pieces are unaligned).
+  If at the end of a rook move an enemy piece stands in any of the two remaining
+  corners, it is captured.
 
 figure.diagram-container
-	.diagram
-		| fen:8/2b4K/2q5/3p1N1p/8/8/2R5/k7:
-	figcaption 1.Rc5 captures on c7 and h5.
+  .diagram
+    | fen:8/2b4K/2q5/3p1N1p/8/8/2R5/k7:
+  figcaption 1.Rc5 captures on c7 and h5.
 
 h4 Long leapers (knights)
 
 p.
-	A knight captures exactly as a queen in international draughts game: by jumping
-	over its enemies, as many times as it can/want but always in the same direction.
-	In this respect it is less powerful than a draughts' queen:
-	on the following diagram c8 or f6 cannot be captured.
-	However, the knight does not have to maximize the number of captured units
-	(as is the case in draughts).
+  A knight captures exactly as a queen in international draughts game: by jumping
+  over its enemies, as many times as it can/want but always in the same direction.
+  In this respect it is less powerful than a draughts' queen:
+  on the following diagram c8 or f6 cannot be captured.
+  However, the knight does not have to maximize the number of captured units
+  (as is the case in draughts).
 
 figure.diagram-container
-	.diagram
-		| fen:2n4k/3r4/5b2/3p4/1m6/3b4/3N4/K7 d4,d6,d8,a5:
-	figcaption All marked squares captures are playable from d2.
+  .diagram
+    | fen:2n4k/3r4/5b2/3p4/1m6/3b4/3N4/K7 d4,d6,d8,a5:
+  figcaption All marked squares captures are playable from d2.
 
 h4 Withdrawer (queen)
 
 p.
-	The queen captures by moving away from an adjacent enemy piece, in the opposite
-	direction (without jumping, the path must be free).
+  The queen captures by moving away from an adjacent enemy piece, in the opposite
+  direction (without jumping, the path must be free).
 
 figure.diagram-container
-	.diagram
-		| fen:7k/8/8/3Qr3/8/8/8/K7 a5,b5,c5:
-	figcaption 1.Qa5, 1.Qb5 or 1.Qc5 captures the black rook.
+  .diagram
+    | fen:7k/8/8/3Qr3/8/8/8/K7 a5,b5,c5:
+  figcaption 1.Qa5, 1.Qb5 or 1.Qc5 captures the black rook.
 
 h4 Chameleon (bishop)
 
 p The chameleon captures pieces in the way they would capture. So, it
 ul
-	li pinces pawns (if moving like a pawn),
-	li withdraws from withdrawers,
-	li leaps over long leapers,
-	li coordinates coordinators.
+  li pinces pawns (if moving like a pawn),
+  li withdraws from withdrawers,
+  li leaps over long leapers,
+  li coordinates coordinators.
 p ...and these captures can be combined.
 
 p.
-	Remark: the move indicated on the diagram doesn't capture the black pincer
-	on e5, since it is a diagonal move (not like a pawn).
+  Remark: the move indicated on the diagram doesn't capture the black pincer
+  on e5, since it is a diagonal move (not like a pawn).
 
 figure.diagram-container
-	.diagram
-		| fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4:
-	figcaption 1.Bd5 captures the two marked pieces.
+  .diagram
+    | fen:7k/8/8/r3pP2/2n5/8/B7/K7 a5,c4:
+  figcaption 1.Bd5 captures the two marked pieces.
 
 p.
-	Besides, chameleon immobilizes immobilizers (but cannot capture them since they
-	do not capture).
+  Besides, chameleon immobilizes immobilizers (but cannot capture them since they
+  do not capture).
 
 p.
-	A chameleon captures the king in the same way the king captures, which means that
-	a chameleon adjacent to a king gives check.
+  A chameleon captures the king in the same way the king captures, which means that
+  a chameleon adjacent to a king gives check.
 
 h3 End of the game
 
 p.
-	Checkmate or stalemate as in standard chess. Note however that checks are more
-	difficult to see, because of the exotic capturing rules. For example, on the
-	following diagram the white king cannot move to e5 because then
-	the black pawn could capture by moving next to it.
+  Checkmate or stalemate as in standard chess. Note however that checks are more
+  difficult to see, because of the exotic capturing rules. For example, on the
+  following diagram the white king cannot move to e5 because then
+  the black pawn could capture by moving next to it.
 
 figure.diagram-container
-	.diagram
-		| fen:7k/8/8/p4r/4K3/8/8/8 e5:
-	figcaption 1.Ke5 is impossible
+  .diagram
+    | fen:7k/8/8/p4r/4K3/8/8/8 e5:
+  figcaption 1.Ke5 is impossible
 
 h3 More information
 
 p
-	| A good starting point is the 
-	a(href="https://en.wikipedia.org/wiki/Baroque_chess") Wikipedia page
-	| , which also gives pointers to other interesting pages (including
-	| chessvariants.com, as usual).
+  | A good starting point is the 
+  a(href="https://en.wikipedia.org/wiki/Baroque_chess") Wikipedia page
+  | , which also gives pointers to other interesting pages (including
+  | chessvariants.com, as usual).

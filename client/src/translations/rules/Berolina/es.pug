@@ -1,0 +1,39 @@
+p.boxed
+  | Los peones avanzan diagonalmente y capturan ascendiendo
+  | una casilla verticalmente.
+
+p.
+  Solo cambian los movimientos de los peones, pero como hay muchos en
+  el tablero es un cambio importante. Se mueven en diagonal
+  (todavía hacia adelante) en lugar de seguir recto, y capturan
+  subiendo de una casilla verticalmente.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/5p2/5P2/P7/8/5P2/8 b5,e3,d4,g3,h4,e6,f6,g6:
+  figcaption Posibles movimientos de peones
+
+p.
+  Se permite el salto inicial de dos casillas, así como la toma en passant :
+  después de 3.d2b4 en el diagrama, 3...Pxc3e.p. es posible.
+
+p.
+  Sobre la notación : ya que las capturas realizadas por los peones
+  no son ambiguos, los notamos por ejemplo "Pxe6" ('P' es redundante pero
+  la escritura es más bonita así) ; por otro lado los desplazamientos simples son
+  generalmente ambiguo y, por lo tanto, anotado por ejemplo "f2g3" (aquí nuevamente,
+  la fila inicial es inútil pero la escritura parece mejor así).
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1Pp2P2/5N2/PPP1PPP1/R1BQKBNR c3:
+  figcaption.
+    Después de 1.Nf3 b7d5 2.h2f4 d5c4 3.d2b4, es posible capturar en passant
+    en la casilla marcada
+
+h3 Otra fuente
+
+p
+  | Visite por ejemplo la página 
+  a(href="https://brainking.com/es/GameRules?tp=59") Ajedrez Berolina
+  | &nbsp;en brainking.com.

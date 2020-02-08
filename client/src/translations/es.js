@@ -114,7 +114,3 @@ export const translations =
   "Shared pieces": "Piezas compartidas",
   "Standard rules": "Reglas estandar",
 };
-
-// TODO:
-// jugada ou movimiento ?
-// fin de la partida au lieu de final de partida ?

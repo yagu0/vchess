@@ -1,51 +1,39 @@
 p.boxed
-	| Les pions avancent en diagonale, et capturent en montant
-	| d'une case verticalement.
-
-h3 Caractéristiques
-
-ul
-	li Échiquier: standard.
-	li Matériel: standard.
-	li Coups non capturants: mouvements de pions différents.
-	li Coups spéciaux: standards (prise en passant adaptée.
-	li Captures: standards (excepté les pions).
-	li Fin de partie: standard.
-
-h3 Bases
+  | Les pions avancent en diagonale, et capturent en montant
+  | d'une case verticalement.
 
 p.
-	Seuls les déplacements de pions changent, mais puisqu'il y en a beaucoup sur
-	l'échiquier c'est un changement important. Ils se déplacent en diagonale
-	(toujours vers l'avant) au lieu d'avancer tout droit, et capturent en
-	montant d'une case verticalement.
+  Seuls les déplacements de pions changent, mais puisqu'il y en a beaucoup sur
+  l'échiquier c'est un changement important. Ils se déplacent en diagonale
+  (toujours vers l'avant) au lieu d'avancer tout droit, et capturent en
+  montant d'une case verticalement.
 
 figure.diagram-container
-	.diagram
-		| fen:8/8/5p2/5P2/P7/8/5P2/8 b5,e3,d4,g3,h4,e6,f6,g6:
-	figcaption Possibles coups de pion
+  .diagram
+    | fen:8/8/5p2/5P2/P7/8/5P2/8 b5,e3,d4,g3,h4,e6,f6,g6:
+  figcaption Possibles coups de pion
 
 p.
-	Le saut initial de deux cases est permis, ainsi que la prise en passant :
-	après 3.d2b4 sur le diagrame, 3...Pxc3 e.p. est possible.
+  Le saut initial de deux cases est permis, ainsi que la prise en passant :
+  après 3.d2b4 sur le diagrame, 3...Pxc3 e.p. est possible.
 
 p.
-	Au sujet de la notation : puisque les captures effectuées par les pions ne
-	sont pas ambigues on les note par exemple "Pxe6" ('P' est redondant mais
-	l'écriture est plus jolie ainsi) ; en revanche les simples déplacements sont
-	en général ambigus, et donc notés par exemple "f2g3" (ici encore,
-	la rangée de départ est inutile mais l'écriture paraît mieux ainsi).
+  Au sujet de la notation : puisque les captures effectuées par les pions ne
+  sont pas ambigues on les note par exemple "Pxe6" ('P' est redondant mais
+  l'écriture est plus jolie ainsi) ; en revanche les simples déplacements sont
+  en général ambigus, et donc notés par exemple "f2g3" (ici encore,
+  la rangée de départ est inutile mais l'écriture paraît mieux ainsi).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/p1pppppp/8/8/1Pp2P2/5N2/PPP1PPP1/R1BQKBNR c3:
-	figcaption.
-		Après 1.Nf3 b7d5 2.h2f4 d5c4 3.d2b4, il est possible de capturer en passant
-		sur la case marquée
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1Pp2P2/5N2/PPP1PPP1/R1BQKBNR c3:
+  figcaption.
+    Après 1.Nf3 b7d5 2.h2f4 d5c4 3.d2b4, il est possible de capturer en passant
+    sur la case marquée
 
 h3 Autre source
 
 p
-	| Visitez par exemple la page 
-	a(href="https://brainking.com/fr/GameRules?tp=59") Échecs Berolina
-	| &nbsp;page sur brainking.com.
+  | Visitez par exemple la page 
+  a(href="https://brainking.com/fr/GameRules?tp=59") Échecs Berolina
+  | &nbsp;sur brainking.com.

@@ -1,29 +1,19 @@
 p.boxed
-	| La capture d'une pièce ennemie donne lieu à la naissance d'une pièce
-	| "échiquetée", qui appartient aux deux camps.
+  | La capture d'une pièce ennemie donne lieu à la naissance d'une pièce
+  | "échiquetée", qui appartient aux deux camps.
 
 figure.showPieces.text-center
-	img(src="/images/pieces/Checkered/cp.svg")
-	img(src="/images/pieces/Checkered/cr.svg")
-	img(src="/images/pieces/Checkered/cn.svg")
-	img(src="/images/pieces/Checkered/cb.svg")
-	img(src="/images/pieces/Checkered/cq.svg")
-	figcaption Pièces échiquetées, nées suite aux captures.
+  img(src="/images/pieces/Checkered/cp.svg")
+  img(src="/images/pieces/Checkered/cr.svg")
+  img(src="/images/pieces/Checkered/cn.svg")
+  img(src="/images/pieces/Checkered/cb.svg")
+  img(src="/images/pieces/Checkered/cq.svg")
+  figcaption Pièces échiquetées, nées suite aux captures.
 
 p.
-	Note : le (vrai) nom initial de cette variante est "l'Échiqueté".
-	"Checkered" en est la traduction anglaise, et ce dernier terme me paraît
-	plus lisible pour des non francophones.
-
-h3 Caractéristiques
-
-ul
-	li Échiquier : standard.
-	li Matériel : standard + pièces échiquetées.
-	li Coups non capturants : standards ; voir ci-dessous.
-	li Coups spéciaux : standards ; voir ci-dessous.
-	li Captures : standards ; voir ci-dessous.
-	li Fin de partie : standard.
+  Note : le (vrai) nom initial de cette variante est "l'Échiqueté".
+  "Checkered" en est la traduction anglaise, et ce dernier terme me paraît
+  plus lisible pour des non francophones.
 
 p La partie évolue potentiellement en deux phases.
 
@@ -32,101 +22,101 @@ h2.stageDelimiter Phase 1
 h3 Bases
 
 ol
-	li.
-		Toute capture produit une nouvelle pièce, prenant soit la nature du
-		capturant, soit celle du capturée.
-	li.
-		La nouvelle pièce issue de ce processus a une nouvelle couleur : "échiqueté",
-		comme illustré ci-dessus.
-	li.
-		Les pièces échiquetées appartiennent au joueur ayant le trait, et
-		peuvent alors capturer les pièces adverses.
+  li.
+    Toute capture produit une nouvelle pièce, prenant soit la nature du
+    capturant, soit celle du capturée.
+  li.
+    La nouvelle pièce issue de ce processus a une nouvelle couleur : "échiqueté",
+    comme illustré ci-dessus.
+  li.
+    Les pièces échiquetées appartiennent au joueur ayant le trait, et
+    peuvent alors capturer les pièces adverses.
 
 p Remarques :
 ul
-	li.
-		Un coup échiqueté non capturant ne peut être défait juste après,
-		car cela répéterait la position.
-	li Les pièces échiquetées ne peuvent pas être capturées.
+  li.
+    Un coup échiqueté non capturant ne peut être défait juste après,
+    car cela répéterait la position.
+  li Les pièces échiquetées ne peuvent pas être capturées.
 
 figure.diagram-container
-	.diagram
-		| fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
-	figcaption.
-		Les noirs jouent Rxh4=P. (Pion échiqueté en) h5 est alors autorisé,
-		car la nature de la pièce a changé.
+  .diagram
+    | fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
+  figcaption.
+    Les noirs jouent Rxh4=P. (Pion échiqueté en) h5 est alors autorisé,
+    car la nature de la pièce a changé.
 
 h3 Pions
 
 ul
-	li.
-		Les pions peuvent avancer de deux cases seulement depuis leur rangée
-		de départ, et ce une seule fois dans la partie : un pion échiqueté
-		revenant sur une rangée de départ ne peut pas avancer de deux cases.
-		Cependant :
-	li.
-		Un pion échiqueté issu d'une capture sur la rangée de départ garde
-		le droit d'avancer de deux cases.
-	li.
-		Les pions échiquetés ne peuvent capturer en passant, puisque pendant que
-		le pion adverse "passait" ils étaient dans le même camp.
+  li.
+    Les pions peuvent avancer de deux cases seulement depuis leur rangée
+    de départ, et ce une seule fois dans la partie : un pion échiqueté
+    revenant sur une rangée de départ ne peut pas avancer de deux cases.
+    Cependant :
+  li.
+    Un pion échiqueté issu d'une capture sur la rangée de départ garde
+    le droit d'avancer de deux cases.
+  li.
+    Les pions échiquetés ne peuvent capturer en passant, puisque pendant que
+    le pion adverse "passait" ils étaient dans le même camp.
 
 p.bold.bigfont Pour jouer, vous pouvez arrêter de lire ici.
 
 h3 Mat ou pat ?
 
 p.
-	La situation du diagramme suivant ressemble à un mat, mais le roi est
-	"attaqué" par un pion échiqueté : celui-ci appartient pour l'instant aux blancs.
-	On peut donc considérer qu'ils ne sont pas vraiment en échec
-	puisqu'incapables de "rendre le trait".
-	Sans le fou noir en a7 ce serait mat (indiscutable), car le roi pourrait
-	virtuellement aller en g1 avant de se faire capturer par le pion caméléon.
+  La situation du diagramme suivant ressemble à un mat, mais le roi est
+  "attaqué" par un pion échiqueté : celui-ci appartient pour l'instant aux blancs.
+  On peut donc considérer qu'ils ne sont pas vraiment en échec
+  puisqu'incapables de "rendre le trait".
+  Sans le fou noir en a7 ce serait mat (indiscutable), car le roi pourrait
+  virtuellement aller en g1 avant de se faire capturer par le pion caméléon.
 
 figure.diagram-container
-	.diagram
-		| fen:7k/b5pp/8/8/8/8/6ss/7K:
-	figcaption Après 1...g2+(#?)
+  .diagram
+    | fen:7k/b5pp/8/8/8/8/6ss/7K:
+  figcaption Après 1...g2+(#?)
 
 p.
-	L'interface considère que c'est mat dans les deux cas, partant
-	du principe que "c'est mat si on ne peut pas bouger et que l'adversaire
-	au trait peut capturer le roi" (éventuellement après un coup interdit).
+  L'interface considère que c'est mat dans les deux cas, partant
+  du principe que "c'est mat si on ne peut pas bouger et que l'adversaire
+  au trait peut capturer le roi" (éventuellement après un coup interdit).
 
 h2.stageDelimiter Phase 2
 
 p.warn Cette étape n'est pas (et ne sera probablement jamais) implémentée ici.
 
 p.
-	Au cours de la partie l'un des deux joueurs peut décider de prendre le
-	contrôle des pièces échiquetées. Celles-ci deviennent alors autonomes
-	et vulnérables aux captures - la phase 2 commence.
-	L'autre joueur déplace alors à la fois les pièces blanches et noires,
-	avec pour but l'élimination du camp échiqueté.
-	Ce dernier peut gagner en matant l'un des deux rois.
+  Au cours de la partie l'un des deux joueurs peut décider de prendre le
+  contrôle des pièces échiquetées. Celles-ci deviennent alors autonomes
+  et vulnérables aux captures - la phase 2 commence.
+  L'autre joueur déplace alors à la fois les pièces blanches et noires,
+  avec pour but l'élimination du camp échiqueté.
+  Ce dernier peut gagner en matant l'un des deux rois.
 
 h4 Variante de la phase 2
 p.
-	Un observateur peut à tout moment décider de se joindre à la partie
-	en contrôlant le camp échiqueté. On se retrouve alors dans un jeu à trois
-	couleurs et trois joueurs, avec quelques subtilités à résoudre.
-	Ceci a été testé dans quelques parties (IRL) organisées par l'auteur de
-	cette règle.
+  Un observateur peut à tout moment décider de se joindre à la partie
+  en contrôlant le camp échiqueté. On se retrouve alors dans un jeu à trois
+  couleurs et trois joueurs, avec quelques subtilités à résoudre.
+  Ceci a été testé dans quelques parties (IRL) organisées par l'auteur de
+  cette règle.
 
 h3 Coups spéciaux
 
 p Les pions échiquetées peuvent...
 ul
-	li se déplacer et capturer dans toutes les directions ;
-	li prendre en passant,
-	li et être promus sur la première ou huitième rangée.
+  li se déplacer et capturer dans toutes les directions ;
+  li prendre en passant,
+  li et être promus sur la première ou huitième rangée.
 
 h3 Remerciements
 
 ul
-	li.
-		Les règles de l'Échiqueté ont été déterminées par Patrick Bernier, puis
-		développées avec l'aide de Benjamin Auder.
-	li.
-		Merci également à Olive Martin, Christian Poisson, Bevis Martin,
-		Laurent Nouhaud et Frédéric Fradet.
+  li.
+    Les règles de l'Échiqueté ont été déterminées par Patrick Bernier, puis
+    développées avec l'aide de Benjamin Auder.
+  li.
+    Merci également à Olive Martin, Christian Poisson, Bevis Martin,
+    Laurent Nouhaud et Frédéric Fradet.

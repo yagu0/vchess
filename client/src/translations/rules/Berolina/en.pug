@@ -1,49 +1,37 @@
 p.boxed
-	| Pawns advance diagonally and capture by moving forward.
-
-h3 Specifications
-
-ul
-	li Chessboard: standard.
-	li Material: standard.
-	li Non-capturing moves: different pawn moves.
-	li Special moves: standard (different en-passant).
-	li Captures: standard (except pawns).
-	li End of game: standard.
-
-h3 Basics
+  | Pawns advance diagonally and capture by moving forward.
 
 p.
-	Only the pawn movements change, but since there are many on the board it's a
-	consequent change. They move forward diagonally instead of moving straight,
-	and capture by advancing to the next square vertically.
+  Only the pawn movements change, but since there are many on the board it's a
+  consequent change. They move forward diagonally instead of moving straight,
+  and capture by advancing to the next square vertically.
 
 figure.diagram-container
-	.diagram
-		| fen:8/8/5p2/5P2/P7/8/5P2/8 b5,e3,d4,g3,h4,e6,f6,g6:
-	figcaption Possible pawn moves
+  .diagram
+    | fen:8/8/5p2/5P2/P7/8/5P2/8 b5,e3,d4,g3,h4,e6,f6,g6:
+  figcaption Possible pawn moves
 
 p.
-	The initial 2-squares jump is allowed, as well as en-passant captures:
-	after 1.d2b4 on the diagram, 1...Pxc3 e.p. is possible.
+  The initial 2-squares jump is allowed, as well as en-passant captures:
+  after 1.d2b4 on the diagram, 1...Pxc3 e.p. is possible.
 
 p.
-	About notation: since pawn captures are non-ambigous they writes e.g.
-	"Pxe6" ('P' is redundant but looks nicer); simple pawn moves are often
-	ambiguous, so they write for example "f2g3" (again, the starting row is
-	redundant but this also looks better).
+  About notation: since pawn captures are non-ambigous they writes e.g.
+  "Pxe6" ('P' is redundant but looks nicer); simple pawn moves are often
+  ambiguous, so they write for example "f2g3" (again, the starting row is
+  redundant but this also looks better).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/p1pppppp/8/8/1Pp2P2/5N2/PPP1PPP1/R1BQKBNR c3:
-	figcaption.
-		After 1.Nf3 b7d5 2.h2f4 d5c4 3.d2b4, en-passant capture on marked square
-		is possible
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1Pp2P2/5N2/PPP1PPP1/R1BQKBNR c3:
+  figcaption.
+    After 1.Nf3 b7d5 2.h2f4 d5c4 3.d2b4, en-passant capture on marked square
+    is possible
 
 h3 Other source
 
 p
-	| See for example the 
-	a(href="https://brainking.com/en/GameRules?tp=59") Berolina chess
-	| &nbsp;page on brainking.com.
+  | See for example the 
+  a(href="https://brainking.com/en/GameRules?tp=59") Berolina chess
+  | &nbsp;page on brainking.com.
 

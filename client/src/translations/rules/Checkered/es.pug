@@ -1,0 +1,120 @@
+p.boxed
+  | La captura de una pieza enemiga da lugar al nacimiento de una pieza
+  | "a cuadros", que pertenece a ambos campos.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Checkered/cp.svg")
+  img(src="/images/pieces/Checkered/cr.svg")
+  img(src="/images/pieces/Checkered/cn.svg")
+  img(src="/images/pieces/Checkered/cb.svg")
+  img(src="/images/pieces/Checkered/cq.svg")
+  figcaption Piezas a cuadros, nacidas después de las capturas.
+
+p Nota : el nombre inicial de esta variante es "l'Échiqueté" en francés.
+
+p El juego potencialmente evoluciona en dos fases.
+
+h2.stageDelimiter Fase 1
+
+ol
+  li.
+    Cualquier captura produce una nueva pieza, ya sea tomando la naturaleza
+    de la capturando, o la de los capturados.
+  li.
+    La nueva pieza resultante de este proceso tiene un nuevo color: "a cuadros",
+    como se muestra arriba.
+  li.
+    Las piezas a cuadros pertenecen al jugador con la línea, y
+    entonces puede capturar piezas opuestas.
+
+p Notas:
+ul
+  li.
+    Un movimiento a cuadros sin captura no se puede deshacer inmediatamente después,
+    ya que esto repetiría la posición.
+  li Las piezas a cuadros no se pueden capturar.
+
+figure.diagram-container
+  .diagram
+    | fen:2kr4/pp6/2p5/4ss1r/1P2ns1P/2Np4/P1P1P1BP/R2o1RK1:
+  figcaption.
+    Les noirs jouent Rxh4=P. (Pion échiqueté en) h5 est alors autorisé,
+    car la nature de la pièce a changé.
+    Las negras juegan Rxh4=P. (Peón a cuadros en) h5 se autoriza,
+    porque la naturaleza de la pieza ha cambiado.
+
+h3 Peones
+
+ul
+  li.
+    Los peones pueden avanzar solo dos espacios desde su fila
+    punto de partida, y solo una vez en el juego : un peón a cuadros
+    volver a una fila inicial no puede avanzar dos espacios.
+    Sin embargo :
+  li.
+    Un peón a cuadros de una captura en la fila inicial mantiene
+    el derecho a avanzar dos espacios.
+  li.
+    Los peones a cuadros no pueden capturar en passant, ya que mientras
+    el peón contrario "pasó" estaban en el mismo campamento.
+
+p.bold.bigfont Para jugar, puedes dejar de leer aquí.
+
+h3 Jaque mate o empate ?
+
+p.
+  La situación en el siguiente diagrama parece un jaque mate, pero el rey es
+  "atacado" por un peón a cuadros : este pertenece por el momento a las blancas.
+  Por lo tanto, podemos considerar que no están realmente en jaque
+  ya que no puede "rendir el turno".
+  Sin el alfil negro en a7 sería jaque mate (indiscutible), porque el rey podría
+  vaya virtualmente a g1 antes de ser capturado por el peón camaleón.
+
+figure.diagram-container
+  .diagram
+    | fen:7k/b5pp/8/8/8/8/6ss/7K:
+  figcaption Después de 1...g2+(#?)
+
+p.
+  La interfaz considera que es jaque mate en ambos casos, por lo tanto
+  el principio de que "es mate si no puedes moverte y el oponente
+  cal turno puede capturar al rey "(posiblemente después de un movimiento prohibido).
+
+h2.stageDelimiter Fase 2
+
+p.warn Este paso no se implementa (y probablemente nunca se implementará) aquí.
+
+p.
+  Durante el juego, uno de los dos jugadores puede decidir tomar
+  las piezas a cuadros. Estos luego se vuelven autónomos
+  y vulnerable a la captura : comienza la fase 2.
+  El otro jugador mueve las piezas blancas y negras,
+  con el objetivo de eliminar el campo a cuadros.
+  Este último puede ganar si jaque mate a uno de los dos reyes.
+
+h4 Variante de la fase 2
+
+p.
+  Un observador puede en cualquier momento decidir unirse a la partida,
+  controlando el campo a cuadros. Terminamos en un juego de tres
+  colores y tres jugadores, con algunas sutilezas por resolver.
+  Esto ha sido probado en algunas partes (IRL) organizado por el autor de
+  esta regla.
+
+h3 Movimientos especiales
+
+p Los peones a cuadros pueden...
+ul
+  li se mueve y capturar en todas las direcciones;
+  li capturar en passant,
+  li y ser promovido a la primera o ultima fila.
+
+h3 Agradecimientos
+
+ul
+  li.
+    Las reglas del Checkered fueron determinadas por Patrick Bernier, entonces
+    desarrollado con la ayuda de Benjamin Auder.
+  li.
+    Gracias también a Olive Martin, Christian Poisson, Bevis Martin,
+    Laurent Nouhaud y Frédéric Fradet.
