@@ -1,49 +1,49 @@
 p.boxed.
-	You have a king and an antiking. King cannot be let in check, but antiking
-	must always stay under check. Antiking captures his own kind.
+  You have a king and an antiking. King cannot be let in check, but antiking
+  must always stay under check. Antiking captures his own kind.
 
 p.
-	A new piece is introduced: the antiking, noted by the letter 'A' in diagrams
-	and PGNs. This piece must always remain under (orthodox) check: it is
-	considered in (anti-)check when not attacked by any enemy piece. In such a
-	situation, the antiking must move immediately to an attacked square.
+  A new piece is introduced: the antiking, noted by the letter 'A' in diagrams
+  and PGNs. This piece must always remain under (orthodox) check: it is
+  considered in (anti-)check when not attacked by any enemy piece. In such a
+  situation, the antiking must move immediately to an attacked square.
 
 p.
-	The antiking is a royal figure, and thus cannot be captured.
-	It captures only the pieces of his color (to help checkmating the opponent's
-	antiking, but this also complicates standard checkmate).
+  The antiking is a royal figure, and thus cannot be captured.
+  It captures only the pieces of his color (to help checkmating the opponent's
+  antiking, but this also complicates standard checkmate).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
-	figcaption Marked squares are not allowed antiking moves.
+  .diagram
+    | fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
+  figcaption Marked squares are not allowed antiking moves.
 
 ul
-	li.
-		Although antiking captures his color, it doesn't check his king - it
-		doesn't check the opponent's king either.
-	li.
-		Since it would allow a basic tactic (keep antiking touching opponent's
-		king), kings do not attack antikings.
+  li.
+    Although antiking captures his color, it doesn't check his king - it
+    doesn't check the opponent's king either.
+  li.
+    Since it would allow a basic tactic (keep antiking touching opponent's
+    king), kings do not attack antikings.
 
 h3 End of the game
 
 p There are two ways to win:
 ol
-	li Checkmate opponent king
-	li Anti-checkmate opponent antiking
+  li Checkmate opponent king
+  li Anti-checkmate opponent antiking
 p.
-	...Or do both at the same time, as on the following diagram after 3.Qxf7#
-	(the black antiking was on g3).
+  ...Or do both at the same time, as on the following diagram after 3.Qxf7#
+  (the black antiking was on g3).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppp1Qpp/1A6/4p3/4P2a/8/PPPP1PPP/RNB1KBNR h4,e8:
-	figcaption After 1.e4 e5 2.Qh5 Ah4?? 3.Qxf7#
+  .diagram
+    | fen:rnbqkbnr/pppp1Qpp/1A6/4p3/4P2a/8/PPPP1PPP/RNB1KBNR h4,e8:
+  figcaption After 1.e4 e5 2.Qh5 Ah4?? 3.Qxf7#
 
 h3 More information
 
 p
-	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
-		| Antiking chess
-	| &nbsp;on chessvariants.com.
+  a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+    | Antiking chess
+  | &nbsp;on chessvariants.com.

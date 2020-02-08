@@ -1,52 +1,52 @@
 p.boxed.
-	Tienes un rey y un "antirey". El rey no puede estar en jaque al final de un
-	turno, pero el antirey siempre debe estar en jaque. Este último captura las
-	piezas de su color.
+  Tienes un rey y un "antirey". El rey no puede estar en jaque al final de un
+  turno, pero el antirey siempre debe estar en jaque. Este último captura las
+  piezas de su color.
 
 p.
-	Se presenta una nueva pieza: el antirey, denotado por la letra 'A' en los
-	diagramas y PGNs. Esta pieza debe estar siempre en jaque (ortodoxo) : se
-	considera en (anti-)jaque cuando no es atacada por ninguna pieza enemiga.
-	En este caso, el antirey debe unirse inmediatamente a una casilla atacada.
+  Se presenta una nueva pieza: el antirey, denotado por la letra 'A' en los
+  diagramas y PGNs. Esta pieza debe estar siempre en jaque (ortodoxo) : se
+  considera en (anti-)jaque cuando no es atacada por ninguna pieza enemiga.
+  En este caso, el antirey debe unirse inmediatamente a una casilla atacada.
 
 p.
-	El antirey es una pieza real, por lo que no puede ser capturado.
-	Ella captura solo las piezas de su color (esto ayuda a mate el anti-rey del
-	oponente, pero complica el mate ortodoxo).
+  El antirey es una pieza real, por lo que no puede ser capturado.
+  Ella captura solo las piezas de su color (esto ayuda a mate el anti-rey del
+  oponente, pero complica el mate ortodoxo).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
-	figcaption Las casillas mostradas no son legales jugadas de antirey.
+  .diagram
+    | fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
+  figcaption Las casillas mostradas no son legales jugadas de antirey.
 
 ul
-	li.
-		Aunque el antirey captura las piezas de su color, no da jaque a su rey,
-		ni tampoco al rey contrario.
-	li.
-		Los reyes no atacan a los antireyes (de color opuesto). De hecho, esto
-		permitiría aplicar un método simple para nunca estar en "anti-jaque" :
-		permanecer pegado al rey contrario.
+  li.
+    Aunque el antirey captura las piezas de su color, no da jaque a su rey,
+    ni tampoco al rey contrario.
+  li.
+    Los reyes no atacan a los antireyes (de color opuesto). De hecho, esto
+    permitiría aplicar un método simple para nunca estar en "anti-jaque" :
+    permanecer pegado al rey contrario.
 
 h3 Final de partida
 
 p Hay dos maneras de ganar :
 ol
-	li Mater el rey contrario
-	li "Anti-mater" el antirey contrario
+  li Mater el rey contrario
+  li "Anti-mater" el antirey contrario
 p.
-	...O haga ambas cosas al mismo tiempo, como se muestra en el siguiente
-	diagrama después de 3.Qxg7# (el antirey negro estaba en g3).
+  ...O haga ambas cosas al mismo tiempo, como se muestra en el siguiente
+  diagrama después de 3.Qxf7# (el antirey negro estaba en g3).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppp1Qpp/1A6/4p3/4P2a/8/PPPP1PPP/RNB1KBNR h4,e8:
-	figcaption Después de 1.e4 e5 2.Qh5 Ah4?? 3.Qxf7#
+  .diagram
+    | fen:rnbqkbnr/pppp1Qpp/1A6/4p3/4P2a/8/PPPP1PPP/RNB1KBNR h4,e8:
+  figcaption Después de 1.e4 e5 2.Qh5 Ah4?? 3.Qxf7#
 
 h3 Más información
 
 p
-	| La 
-	a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
-		| variante Antiking
-	| &nbsp;en chessvariants.com.
+  | La 
+  a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+    | variante Antiking
+  | &nbsp;en chessvariants.com.
