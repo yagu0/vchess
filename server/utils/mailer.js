@@ -8,8 +8,7 @@ module.exports = function(from, to, subject, body, cb)
   {
     console.log("New mail: from " + from + " / to " + to);
     console.log("Subject: " + subject);
-    let msgText = body.split('\\n');
-    msgText.forEach(msg => { console.log(msg); });
+    console.log(body);
     if (!cb)
       cb = (err) => { if (!!err) console.log(err); }
     return cb();

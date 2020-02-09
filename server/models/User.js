@@ -135,7 +135,7 @@ const UserModel =
   {
     const subject = "vchess.club - notification";
     const body = "Hello " + user.name + "!" + `
-    ` + message;
+` + message;
     sendEmail(params.mail.noreply, user.email, subject, body);
   },
 
