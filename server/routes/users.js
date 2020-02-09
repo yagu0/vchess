@@ -51,9 +51,11 @@ function setAndSendLoginToken(subject, to, res)
     if (!!err)
       return res.json({errmsg: err.toString()});
     const body =
-      "Hello " + to.name + "!" + params.lineBreak +
+      "Hello " + to.name + "!" + `
+      ` +
       "Access your account here: " +
-      params.siteURL + "/#/authenticate/" + token + params.lineBreak +
+      params.siteURL + "/#/authenticate/" + token + `
+      ` +
       "Token will expire in " + params.token.expire/(1000*60) + " minutes."
     sendEmail(params.mail.noreply, to.email, subject, body, err => {
       res.json(err || {});
