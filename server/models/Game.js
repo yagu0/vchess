@@ -138,7 +138,8 @@ const GameModel =
       db.all(query, (err,gameIds) => {
         if (!!err)
           return cb(err);
-        gameIds = gameIds || []; //might be empty
+        if (gameIds.length == 0)
+          return cb(null, []);
         let gameArray = [];
         for (let i=0; i<gameIds.length; i++)
         {
