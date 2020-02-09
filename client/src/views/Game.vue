@@ -165,7 +165,8 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          this.st.conn.send(JSON.stringify({code:"duplicate"}));
+          this.st.conn.send(JSON.stringify({code:"duplicate",
+            page:"/game/" + this.game.id}));
           alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;
         // 0.2] Receive clients list (just socket IDs)

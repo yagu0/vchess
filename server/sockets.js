@@ -39,10 +39,11 @@ module.exports = function(wss) {
           // Turn off message listening, and send disconnect if needed:
           socket.removeListener("message", messageListener);
           socket.removeListener("close", closeListener);
+          // From obj.page to clients[sid].page (TODO: unclear)
           if (clients[sid].page != obj.page)
           {
-            notifyRoom(clients[sid].page, "disconnect");
-            if (clients[sid].page.indexOf("/game/") >= 0)
+            notifyRoom(obj.page, "disconnect");
+            if (obj.page.indexOf("/game/") >= 0)
               notifyRoom("/", "gdisconnect");
           }
           break;

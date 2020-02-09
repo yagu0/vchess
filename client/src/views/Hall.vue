@@ -307,7 +307,7 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          this.st.conn.send(JSON.stringify({code:"duplicate"}));
+          this.st.conn.send(JSON.stringify({code:"duplicate", page:"/"}));
           this.st.conn.send = () => {};
           alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;

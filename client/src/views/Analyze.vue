@@ -70,6 +70,7 @@ export default {
       this.curFen = this.game.fen;
       this.adjustFenSize();
       this.vr = new V(this.game.fen);
+      this.game.mycolor = this.vr.turn;
       this.$set(this.game, "fenStart", this.gameRef.fen);
     },
     adjustFenSize: function() {

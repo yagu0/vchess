@@ -38,6 +38,13 @@ export const store =
       this.state.user.email = res.email;
       this.state.user.notify = res.notify;
     });
+    const supportedLangs = ["en","es","fr"];
+    this.state.lang = localStorage["lang"] ||
+      (supportedLangs.includes(navigator.language)
+        ? navigator.language
+        : "en");
+    this.setTranslations();
+    // Initialize connection (even if the current page doesn't need it)
     this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
       "&page=" + encodeURIComponent(page));
     // Settings initialized with values from localStorage
@@ -53,12 +60,6 @@ export const store =
         "&page=" + encodeURIComponent(page));
     };
     this.state.conn.onclose = this.socketCloseListener;
-    const supportedLangs = ["en","es","fr"];
-    this.state.lang = localStorage["lang"] ||
-      (supportedLangs.includes(navigator.language)
-        ? navigator.language
-        : "en");
-    this.setTranslations();
   },
   updateSetting: function(propName, value) {
     this.state.settings[propName] = value;

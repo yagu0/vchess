@@ -22,9 +22,7 @@ new Vue({
         });
       }
     });
-    // TODO: why is this wrong? (Maybe because $route still uninitialized?)
-    //store.initialize(this.$route.path);
+    // NOTE: store.initialize(this.$route.path); doesn't work
     store.initialize(window.location.href.split("#")[1].split("?")[0]);
-    // NOTE: at this point, variants and tr(anslations) might be uninitialized
   },
 }).$mount("#app");
