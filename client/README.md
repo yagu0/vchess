@@ -26,7 +26,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Resources
 
- - Vue.js + Vue router,
+ - Vue.js + Vue router + Webpack,
  - mini.css,
  - Google font 'Open Sans'
 
