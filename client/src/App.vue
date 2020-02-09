@@ -82,18 +82,17 @@ export default {
 </script>
 
 <style lang="sass">
-//html, *
-//  font-family: "Open Sans", Arial, sans-serif
-//  --back-color: #f2f2f2
-//  --a-link-color: black
-//  --a-visited-color: black
+html, *
+  font-family: "Open Sans", Arial, sans-serif
+  --back-color: #f2f2f2
+  --a-link-color: black
+  --a-visited-color: black
 
 body
   padding: 0
   min-width: 320px
 
 #app
-  font-family: "Open Sans", "Avenir", Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
