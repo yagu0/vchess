@@ -1,0 +1,27 @@
+# Various files
+/hooks/post-update
+/server/db/vchess.sqlite
+/server/config/parameters.js
+/client/dist/
+/client/src/parameters.js
+
+# Dependency directories#
+node_modules/
+
+# Log files
+npm-debug.log*
+
+# Temp files
+*.swp
+*~
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache/
+
+# dotenv environment variables file
+.env
+.env.local
+.env.*.local
