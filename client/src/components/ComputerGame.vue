@@ -80,12 +80,8 @@ export default {
     if (!!this.gameInfo.fen)
       this.launchGame();
   },
-  // dans variant.js (plutôt room.js) conn gère aussi les challenges
-  // et les chats dans chat.js. Puis en webRTC, repenser tout ça.
   methods: {
-    launchGame: async function() {
-      const vModule = await import("@/variants/" + this.gameInfo.vname + ".js");
-      window.V = vModule.VariantRules;
+    launchGame: function() {
       this.compWorker.postMessage(["scripts",this.gameInfo.vname]);
       this.compWorker.postMessage(["init",this.gameInfo.fen]);
       this.vr = new V(this.gameInfo.fen);
