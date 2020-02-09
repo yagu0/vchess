@@ -165,11 +165,11 @@ export default {
       switch (data.code)
       {
         case "duplicate":
+          this.st.conn.send(JSON.stringify({code:"duplicate"}));
           alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":
-        {
           data.sockIds.forEach(sid => {
             if (!!this.people[sid])
               return;
@@ -178,9 +178,7 @@ export default {
             this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
           });
           break;
-        }
         case "askidentity":
-        {
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
@@ -194,9 +192,7 @@ export default {
               target:data.from}));
           }
           break;
-        }
         case "identity":
-        {
           this.$set(this.people, data.user.sid,
             {id: data.user.id, name: data.user.name});
           // Ask potentially missed last state, if opponent and I play
@@ -207,9 +203,7 @@ export default {
             this.st.conn.send(JSON.stringify({code:"asklastate", target:data.user.sid}));
           }
           break;
-        }
         case "asklastate":
-        {
           // Sending last state if I played a move or score != "*"
           if ((this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
               || this.game.score != "*" || this.drawOffer == "sent")
@@ -234,7 +228,6 @@ export default {
             }));
           }
           break;
-        }
         case "askgame":
           // Send current (live) game if I play in (not an observer),
           // and not asked by opponent (!)
@@ -271,13 +264,11 @@ export default {
             document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
           break;
         case "lastate": //got opponent infos about last move
-        {
           this.lastate = data.state;
           if (this.game.rendered) //game is rendered (Board component)
             this.processLastate();
           //else: will be processed when game is ready
           break;
-        }
         case "resign":
           this.gameOver(data.side=="b" ? "1-0" : "0-1", "Resign");
           break;
@@ -300,11 +291,9 @@ export default {
           this.loadGame(data.game, this.roomInit);
           break;
         case "connect":
-        {
           this.$set(this.people, data.from, {name:"", id:0});
           this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           break;
-        }
         case "disconnect":
           this.$delete(this.people, data.from);
           break;

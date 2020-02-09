@@ -136,20 +136,6 @@ export default {
     // Always add myself to players' list
     const my = this.st.user;
     this.$set(this.people, my.sid, {id:my.id, name:my.name});
-    // Retrieve live challenge (not older than 30 minute) if any:
-    const chall = JSON.parse(localStorage.getItem("challenge") || "false");
-    if (!!chall)
-    {
-      // NOTE: a challenge survives 3 minutes, for potential connection issues
-      if ((Date.now() - chall.added)/1000 <= 3*60)
-      {
-        chall.added = Date.now(); //update added time, for next disconnect...
-        this.challenges.push(chall);
-        localStorage.setItem("challenge", JSON.stringify(chall));
-      }
-      else
-        localStorage.removeItem("challenge");
-    }
     // Ask server for current corr games (all but mines)
     ajax(
       "/games",
@@ -321,6 +307,8 @@ export default {
       switch (data.code)
       {
         case "duplicate":
+          this.st.conn.send(JSON.stringify({code:"duplicate"}));
+          this.st.conn.send = () => {};
           alert(this.st.tr["Warning: multi-tabs not supported"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
@@ -343,7 +331,6 @@ export default {
           this.st.conn.send(JSON.stringify({code:"askgames"}));
           break;
         case "askidentity":
-        {
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
@@ -357,9 +344,7 @@ export default {
               target:data.from}));
           }
           break;
-        }
         case "identity":
-        {
           this.$set(this.people, data.user.sid,
             {
               id: data.user.id,
@@ -367,7 +352,6 @@ export default {
               gamer: this.people[data.user.sid].gamer,
             });
           break;
-        }
         case "askchallenge":
         {
           // Send my current live challenge (if any)
@@ -404,7 +388,6 @@ export default {
           break;
         }
         case "challenge":
-        {
           // Receive challenge from some player (+sid)
           // NOTE about next condition: see "askchallenge" case.
           if (!data.chall.to || data.chall.to == this.st.user.name)
@@ -417,7 +400,6 @@ export default {
             this.challenges.push(newChall);
           }
           break;
-        }
         case "game":
         {
           // Receive game from some player (+sid)
@@ -442,7 +424,6 @@ export default {
           break;
         }
         case "newgame":
-        {
           // New game just started: data contain all information
           if (this.classifyObject(data.gameInfo) == "live")
             this.startNewGame(data.gameInfo);
@@ -456,24 +437,17 @@ export default {
             setTimeout(() => { modalBox.checked = false; }, 3000);
           }
           break;
-        }
         case "newchat":
           this.newChat = data.chat;
           break;
         case "refusechallenge":
-        {
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
-          localStorage.removeItem("challenge");
           alert(this.st.tr["Challenge declined"]);
           break;
-        }
         case "deletechallenge":
-        {
           // NOTE: the challenge may be already removed
           ArrayFun.remove(this.challenges, c => c.id == data.cid);
-          localStorage.removeItem("challenge"); //in case of
           break;
-        }
         case "connect":
         case "gconnect":
           this.$set(this.people, data.from, {name:"", id:0, gamer:data.code[0]=='g'});
@@ -576,9 +550,7 @@ export default {
           name: this.st.user.name,
         };
         this.challenges.push(chall);
-        if (ctype == "live")
-          localStorage.setItem("challenge", JSON.stringify(chall));
-        // Also remember timeControl  + vid for quicker further challenges:
+        // Remember timeControl  + vid for quicker further challenges:
         localStorage.setItem("timeControl", chall.timeControl);
         localStorage.setItem("vid", chall.vid);
         document.getElementById("modalNewgame").checked = false;
@@ -639,8 +611,6 @@ export default {
             {id: c.id}
           );
         }
-        else //live
-          localStorage.removeItem("challenge");
         this.sendSomethingTo({name:c.to}, "deletechallenge", {cid:c.id});
       }
       // In all cases, the challenge is consumed:

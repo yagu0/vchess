@@ -9,13 +9,13 @@ div
         div(v-show="stage!='Login'")
           fieldset
             label(for="username") {{ st.tr["Name"] }}
-            input#username(type="text" v-model="user.name")
+            input#username(type="text" v-model="st.user.name")
           fieldset
             label(for="useremail") {{ st.tr["Email"] }}
-            input#useremail(type="email" v-model="user.email")
+            input#useremail(type="email" v-model="st.user.email")
           fieldset
             label(for="notifyNew") {{ st.tr["Notifications by email"] }}
-            input#notifyNew(type="checkbox" v-model="user.notify")
+            input#notifyNew(type="checkbox" v-model="st.user.notify")
         div(v-show="stage=='Login'")
           fieldset
             label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
@@ -38,7 +38,6 @@ export default {
   name: 'my-upsert-user',
   data: function() {
     return {
-      user: store.state.user,
       nameOrEmail: "", //for login
       logStage: "Login", //or Register
       infoMsg: "",
@@ -50,13 +49,13 @@ export default {
     nameOrEmail: function(newValue) {
       if (newValue.indexOf('@') >= 0)
       {
-        this.user.email = newValue;
-        this.user.name = "";
+        this.st.user.email = newValue;
+        this.st.user.name = "";
       }
       else
       {
-        this.user.name = newValue;
-        this.user.email = "";
+        this.st.user.name = newValue;
+        this.st.user.email = "";
       }
     },
   },
@@ -76,7 +75,7 @@ export default {
       return (this.infoMsg.length > 0 ? "block" : "none");
     },
     stage: function() {
-      return this.user.id > 0 ? "Update" : this.logStage;
+      return this.st.user.id > 0 ? "Update" : this.logStage;
     },
   },
   methods: {
@@ -133,12 +132,12 @@ export default {
         error = checkNameEmail({[type]: this.nameOrEmail});
       }
       else
-        error = checkNameEmail(this.user);
+        error = checkNameEmail(this.st.user);
       if (!!error)
         return alert(error);
       this.infoMsg = "Processing... Please wait";
       ajax(this.ajaxUrl(), this.ajaxMethod(),
-        this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.user,
+        this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.st.user,
         res => {
           this.infoMsg = this.infoMessage();
           if (this.stage != "Update")
@@ -155,24 +154,8 @@ export default {
       );
     },
     doLogout: function() {
-      let logoutBtn = document.getElementById("logoutBtn");
-      logoutBtn.disabled = true;
-      // NOTE: this local cleaning would logically happen when we're sure
-      // that token is erased. But in the case a user clear the cookies,
-      // it would lead to situations where he cannot ("locally") log out.
-      // At worst, if token deletion fails the user can erase cookie manually.
-      this.user.id = 0;
-      this.user.name = "";
-      this.user.email = "";
-      this.user.notify = false;
-      localStorage.removeItem("myid");
-      localStorage.removeItem("myname");
-      ajax("/logout", "GET", () => {
-        logoutBtn.disabled = false; //for symmetry, but not very useful...
-        document.getElementById("modalUser").checked = false;
-        // this.$router.push("/") will fail if logout from Hall, so:
-        document.location.reload(true);
-      });
+      document.getElementById("modalUser").checked = false;
+      this.$router.push("/logout");
     },
   },
 };

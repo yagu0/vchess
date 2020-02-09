@@ -18,16 +18,6 @@ module.exports = function(wss) {
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
-    if (!!clients[sid])
-    {
-      // Dummy messages listener: just send "duplicate" event on anything
-      // ('connect' events for Hall and Game, 'askfullgame' for observers)
-      return socket.on("message", objtxt => {
-        if (["connect","askfullgame"].includes(JSON.parse(objtxt).code))
-          socket.send(JSON.stringify({code:"duplicate"}));
-      });
-    }
-    clients[sid] = {sock: socket, page: query["page"]};
     const notifyRoom = (page,code,obj={},excluded=[]) => {
       Object.keys(clients).forEach(k => {
         if (k in excluded)
@@ -39,15 +29,26 @@ module.exports = function(wss) {
         }
       });
     };
-    // Wait for "connect" message to notify connection to the room,
-    // because if game loading is slow the message listener might
-    // not be ready too early.
-    socket.on("message", objtxt => {
+    const messageListener = (objtxt) => {
       let obj = JSON.parse(objtxt);
       if (!!obj.target && !clients[obj.target])
         return; //receiver not connected, nothing we can do
       switch (obj.code)
       {
+        case "duplicate":
+          // Turn off message listening, and send disconnect if needed:
+          socket.removeListener("message", messageListener);
+          socket.removeListener("close", closeListener);
+          if (clients[sid].page != obj.page)
+          {
+            notifyRoom(clients[sid].page, "disconnect");
+            if (clients[sid].page.indexOf("/game/") >= 0)
+              notifyRoom("/", "gdisconnect");
+          }
+          break;
+        // Wait for "connect" message to notify connection to the room,
+        // because if game loading is slow the message listener might
+        // not be ready too early.
         case "connect":
         {
           const curPage = clients[sid].page;
@@ -197,13 +198,22 @@ module.exports = function(wss) {
             {code:"draw", message:obj.message}));
           break;
       }
-    });
-    socket.on("close", () => {
+    };
+    const closeListener = () => {
       const page = clients[sid].page;
       delete clients[sid];
       notifyRoom(page, "disconnect");
       if (page.indexOf("/game/") >= 0)
         notifyRoom("/", "gdisconnect"); //notify main hall
-    });
+    };
+    if (!!clients[sid])
+    {
+      // Turn off old sock through current client:
+      clients[sid].sock.send(JSON.stringify({code:"duplicate"}));
+    }
+    // Potentially replace current connection:
+    clients[sid] = {sock: socket, page: query["page"]};
+    socket.on("message", messageListener);
+    socket.on("close", closeListener);
   });
 }

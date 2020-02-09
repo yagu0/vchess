@@ -20,33 +20,3 @@ export default {
   },
 };
 </script>
-
-<style lang="sass">
-.warn
-  padding: 3px
-  color: red
-  background-color: lightgrey
-  font-weight: bold
-
-p.boxed
-  background-color: #FFCC66
-  padding: 5px
-
-.stageDelimiter
-  color: purple
-
-.section-title
-  padding: 0
-
-.section-title > h4
-  padding: 5px
-
-ol, ul:not(.browser-default)
-  padding-left: 20px
-
-ul:not(.browser-default)
-  margin-top: 5px
-
-ul:not(.browser-default) > li
-  list-style-type: disc
-</style>

@@ -31,29 +31,12 @@ const router = new Router({
     {
       path: "/authenticate/:token",
       name: "authenticate",
-      beforeEnter: (to, from, next) => {
-        ajax(
-          "/authenticate",
-          "GET",
-          {token: to.params["token"]},
-          (res) => {
-            if (!res.errmsg) //if not already logged in
-            {
-              store.state.user.id = res.id;
-              store.state.user.name = res.name;
-              store.state.user.email = res.email;
-              store.state.user.notify = res.notify;
-              localStorage["myname"] = res.name;
-              localStorage["myid"] = res.id;
-            }
-            // TODO: I don't like these 2 lines, "next('/')" should be enough
-            window.location = "/";
-            next();
-          }
-        );
-      },
-      component: Hall,
-      //redirect: "/", //problem: redirection before end of AJAX request
+      component: loadView("Auth"),
+    },
+    {
+      path: "/logout",
+      name: "logout",
+      component: loadView("Logout"),
     },
     {
       path: "/mygames",
