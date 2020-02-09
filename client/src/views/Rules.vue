@@ -47,7 +47,7 @@ export default {
       this.re_setVariant(newRoute.params["vname"]);
     },
   },
-  created: async function() {
+  created: function() {
     // NOTE: variant cannot be set before store is initialized
     this.re_setVariant(this.$route.params["vname"]);
   },
