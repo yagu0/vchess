@@ -509,17 +509,18 @@ export default {
       this.newchallenge.to = this.people[sid].name;
       doClick("modalNewgame");
     },
-    challOrWatch: function(sid, e) {
-      switch (e.target.innerHTML)
+    challOrWatch: function(sid) {
+      if (!this.people[sid].gamer)
       {
-        case "Available":
-          this.tryChallenge(sid);
-          break;
-        case "Playing":
-          this.showGame(this.games.find(
-            g => g.players.some(pl => pl.sid == sid || pl.uid == this.people[sid].id)));
-          break;
-      };
+        // Available, in Hall
+        this.tryChallenge(sid);
+      }
+      else
+      {
+        // Playing, in Game
+        this.showGame(this.games.find(
+          g => g.players.some(pl => pl.sid == sid || pl.uid == this.people[sid].id)));
+      }
     },
     newChallenge: async function() {
       if (this.newchallenge.vid == "")

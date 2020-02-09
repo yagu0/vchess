@@ -60,6 +60,7 @@ export const translations =
   "Play with?": "Play with?",
   "Playing": "Playing",
   "Please log in to accept corr challenges": "Please log in to accept corr challenges",
+  "Please log in to play correspondance games": "Please log in to play correspondance games",
   "Please select a variant": "Please select a variant",
   "Practice": "Practice",
   "Processing... Please wait": "Processing... Please wait",

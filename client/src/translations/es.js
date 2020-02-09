@@ -60,6 +60,7 @@ export const translations =
   "Play with?": "¿ Jugar con ?",
   "Playing": "Jugando",
   "Please log in to accept corr challenges": "Inicia sesión para aceptar los desafíos por correspondencia",
+  "Please log in to play correspondance games": "Inicia sesión para jugar partidas por correspondancia",
   "Please select a variant": "Por favor seleccione una variante",
   "Practice": "Práctica",
   "Processing... Please wait": "Procesando... por favor espere",

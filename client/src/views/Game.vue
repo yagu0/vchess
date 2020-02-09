@@ -152,10 +152,13 @@ export default {
       this.st.conn.send(JSON.stringify({code:"pollclients"}));
     },
     isConnected: function(index) {
-      const name = this.game.players[index].name;
-      if (this.st.user.name == name)
+      const player = this.game.players[index];
+      // Is it me ?
+      if (this.st.user.sid == player.sid || this.st.user.id == player.uid)
         return true;
-      return Object.values(this.people).some(p => p.name == name);
+      // Try to find a match in people:
+      return Object.keys(this.people).some(sid => sid == player.sid) ||
+        Object.values(this.people).some(p => p.id == player.uid);
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
