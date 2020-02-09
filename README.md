@@ -1,7 +1,7 @@
 # v[ariant]chess.club
 
 Website to play to many chess variants, including rare ones - some almost
-never seen elsewhere, like "l'Échiqueté" [french], renamed "checkered chess"
+never seen elsewhere, like "l'&Eacute;chiquet&eacute;" [french], renamed "checkered chess"
 in english.
 
 Notes:
