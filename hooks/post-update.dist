@@ -1,2 +1,3 @@
 #!/bin/sh
+# NOTE: the ssh part is not required if git repo and vchess are on the same server
 ssh user@server -t 'cd /path/to/vchess/client && git pull && npm run build'
