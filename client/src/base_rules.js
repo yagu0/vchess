@@ -748,10 +748,11 @@ export const ChessRules = class ChessRules
         continue;
       // If this code is reached, rooks and king are on initial position
 
-      // Nothing on the path of the king ?
-      // (And no checks; OK also if y==finalSquare)
-      let step = finalSquares[castleSide][0] < y ? -1 : 1;
-      for (i=y; i!=finalSquares[castleSide][0]; i+=step)
+      // Nothing on the path of the king ? (and no checks)
+      const finDist = finalSquares[castleSide][0] - y;
+      let step = finDist / Math.max(1, Math.abs(finDist));
+      i = y;
+      do
       {
         if (this.isAttacked([x,i], [oppCol]) || (this.board[x][i] != V.EMPTY &&
           // NOTE: next check is enough, because of chessboard constraints
@@ -760,10 +761,12 @@ export const ChessRules = class ChessRules
         {
           continue castlingCheck;
         }
+        i += step;
       }
+      while (i!=finalSquares[castleSide][0]);
 
       // Nothing on the path to the rook?
-      step = castleSide == 0 ? -1 : 1;
+      step = (castleSide == 0 ? -1 : 1);
       for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step)
       {
         if (this.board[x][i] != V.EMPTY)
