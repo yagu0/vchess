@@ -20,3 +20,10 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+#links
+  margin: var(--universal-margin);
+  & > a
+    display: block
+</style>
