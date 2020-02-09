@@ -33,7 +33,7 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
         button(onClick="doClick('modalAdjust')") &#10530;
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
             @click="analyzePosition")
-          | {{ st.tr["Analyze"] }}
+          | {{ st.tr["Analyse"] }}
         // NOTE: rather ugly hack to avoid showing twice "rules" link...
         button(v-if="!$route.path.match('/variants/')" @click="showRules")
           | {{ st.tr["Rules"] }}
@@ -225,7 +225,7 @@ export default {
       this.incheck = [];
     },
     analyzePosition: function() {
-      const newUrl = "/analyze/" + this.game.vname +
+      const newUrl = "/analyse/" + this.game.vname +
         "/?fen=" + this.vr.getFen().replace(/ /g, "_");
       if (this.game.type == "live")
         this.$router.push(newUrl); //open in same tab: against cheating...

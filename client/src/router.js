@@ -49,9 +49,9 @@ const router = new Router({
       component: loadView("Game"),
     },
     {
-      path: "/analyze/:vname([a-zA-Z0-9]+)",
-      name: "analyze",
-      component: loadView("Analyze"),
+      path: "/analyse/:vname([a-zA-Z0-9]+)",
+      name: "analyse",
+      component: loadView("Analyse"),
     },
     {
       path: "/about",

@@ -14,7 +14,7 @@ import { store } from "@/store";
 import { ArrayFun } from "@/utils/array";
 
 export default {
-  name: 'my-analyze',
+  name: 'my-analyse',
   components: {
     BaseGame,
   },
@@ -27,7 +27,7 @@ export default {
         fen: ""
       },
       game: {
-        players:[{name:"Analyze"},{name:"Analyze"}],
+        players:[{name:"Analyse"},{name:"Analyse"}],
         mode: "analyze"
       },
       vr: null, //"variant rules" object initialized from FEN
@@ -47,7 +47,7 @@ export default {
     this.gameRef.vname = this.$route.params["vname"];
     if (this.gameRef.vname == "Dark")
     {
-      alert(this.st.tr["Analyze in Dark mode makes no sense!"]);
+      alert(this.st.tr["Analyse in Dark mode makes no sense!"]);
       history.back(); //or this.$router.go(-1)
     }
     else

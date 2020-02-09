@@ -12,7 +12,7 @@ main
           | {{ st.tr["Stop game"] }}
         button(v-if="display=='rules' && gameInfo.vname!='Dark'"
             @click="gotoAnalyze")
-          | {{ st.tr["Analyze"] }}
+          | {{ st.tr["Analyse"] }}
       .section-content(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
     @game-over="stopGame" @game-stopped="gameStopped")
@@ -108,7 +108,7 @@ export default {
       this.gameInProgress = false;
     },
     gotoAnalyze: function() {
-      this.$router.push("/analyze/" + this.gameInfo.vname
+      this.$router.push("/analyse/" + this.gameInfo.vname
         + "/?fen=" + V.GenRandInitFen());
     },
   },
