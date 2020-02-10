@@ -2,8 +2,7 @@
 main
   .row
     .nopadding.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      label(for="prefixFilter") {{ st.tr["Type first letters..."] }}
-      input#prefixFilter(v-model="curPrefix")
+      input#prefixFilter(v-model="curPrefix" :placeholder="st.tr['Type first letters...']")
     .variant.col-sm-12.col-md-5.col-lg-4(
       v-for="(v,idx) in filteredVariants"
       :class="{'col-md-offset-1': idx%2==0, 'col-lg-offset-2': idx%2==0}"
