@@ -44,6 +44,7 @@ import { extractTime } from "@/utils/timeControl";
 import { ArrayFun } from "@/utils/array";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
+import params from "@/parameters";
 
 export default {
   name: 'my-game',
@@ -70,6 +71,9 @@ export default {
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
       newChat: "",
+      conn: null,
+      page: "",
+      tempId: "", //to distinguish several tabs
     };
   },
   watch: {
@@ -114,20 +118,26 @@ export default {
     this.$set(this.people, my.sid, {id:my.id, name:my.name});
     this.gameRef.id = this.$route.params["id"];
     this.gameRef.rid = this.$route.query["rid"]; //may be undefined
-    // Define socket .onmessage() and .onclose() events:
-    this.st.conn.onmessage = this.socketMessageListener;
+    // Initialize connection
+    this.page = this.$route.path;
+    const connexionString = params.socketUrl +
+      "/?sid=" + this.st.user.sid +
+      "&tmpId=" + this.tempId +
+      "&page=" + encodeURIComponent(this.page);
+    this.conn = new WebSocket(connexionString);
+    this.conn.onmessage = this.socketMessageListener;
     const socketCloseListener = () => {
-      store.socketCloseListener(); //reinitialize connexion (in store.js)
-      this.st.conn.addEventListener('message', this.socketMessageListener);
-      this.st.conn.addEventListener('close', socketCloseListener);
+      this.conn = new WebSocket(connexionString);
+      this.conn.addEventListener('message', this.socketMessageListener);
+      this.conn.addEventListener('close', socketCloseListener);
     };
-    this.st.conn.onclose = socketCloseListener;
+    this.conn.onclose = socketCloseListener;
     // Socket init required before loading remote game:
     const socketInit = (callback) => {
-      if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
+      if (!!this.conn && this.conn.readyState == 1) //1 == OPEN state
         callback();
       else //socket not ready yet (initial loading)
-        this.st.conn.onopen = callback;
+        this.conn.onopen = callback;
     };
     if (!this.gameRef.rid) //game stored locally or on server
       this.loadGame(null, () => socketInit(this.roomInit));
@@ -143,13 +153,16 @@ export default {
     document.getElementById("chatWrap").addEventListener(
       "click", processModalClick);
   },
+  beforeDestroy: function() {
+    this.conn.send(JSON.stringify({code:"disconnect",page:this.page}));
+  },
   methods: {
     // O.1] Ask server for room composition:
     roomInit: function() {
       // Notify the room only now that I connected, because
       // messages might be lost otherwise (if game loading is slow)
-      this.st.conn.send(JSON.stringify({code:"connect"}));
-      this.st.conn.send(JSON.stringify({code:"pollclients"}));
+      this.conn.send(JSON.stringify({code:"connect"}));
+      this.conn.send(JSON.stringify({code:"pollclients"}));
     },
     isConnected: function(index) {
       const player = this.game.players[index];
@@ -165,7 +178,7 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          this.st.conn.send(JSON.stringify({code:"duplicate",
+          this.conn.send(JSON.stringify({code:"duplicate",
             page:"/game/" + this.game.id}));
           alert(this.st.tr["This tab is now offline"]);
           break;
@@ -176,14 +189,14 @@ export default {
               return;
             this.$set(this.people, sid, {id:0, name:""});
             // Ask only identity
-            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+            this.conn.send(JSON.stringify({code:"askidentity", target:sid}));
           });
           break;
         case "askidentity":
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
-            this.st.conn.send(JSON.stringify({code:"identity",
+            this.conn.send(JSON.stringify({code:"identity",
               user: {
                 // NOTE: decompose to avoid revealing email
                 name: this.st.user.name,
@@ -201,7 +214,7 @@ export default {
             && this.game.type == "live" && this.game.score == "*"
             && this.game.players.some(p => p.sid == data.user.sid))
           {
-            this.st.conn.send(JSON.stringify({code:"asklastate", target:data.user.sid}));
+            this.conn.send(JSON.stringify({code:"asklastate", target:data.user.sid}));
           }
           break;
         case "asklastate":
@@ -212,7 +225,7 @@ export default {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
             const myIdx = ["w","b"].indexOf(this.game.mycolor);
-            this.st.conn.send(JSON.stringify({
+            this.conn.send(JSON.stringify({
               code: "lastate",
               target: data.from,
               state:
@@ -245,7 +258,7 @@ export default {
               timeControl: this.game.timeControl,
               score: this.game.score,
             };
-            this.st.conn.send(JSON.stringify({code:"game",
+            this.conn.send(JSON.stringify({code:"game",
               game:myGame, target:data.from}));
           }
           break;
@@ -284,7 +297,7 @@ export default {
           this.drawOffer = "received";
           break;
         case "askfullgame":
-          this.st.conn.send(JSON.stringify({code:"fullgame",
+          this.conn.send(JSON.stringify({code:"fullgame",
             game:this.game, target:data.from}));
           break;
         case "fullgame":
@@ -293,7 +306,7 @@ export default {
           break;
         case "connect":
           this.$set(this.people, data.from, {name:"", id:0});
-          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
+          this.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           break;
         case "disconnect":
           this.$delete(this.people, data.from);
@@ -332,7 +345,7 @@ export default {
         Object.keys(this.people).forEach(sid => {
           if (sid != this.st.user.sid)
           {
-            this.st.conn.send(JSON.stringify({code:"draw",
+            this.conn.send(JSON.stringify({code:"draw",
               message:message, target:sid}));
           }
         });
@@ -347,7 +360,7 @@ export default {
         this.drawOffer = "sent";
         Object.keys(this.people).forEach(sid => {
           if (sid != this.st.user.sid)
-            this.st.conn.send(JSON.stringify({code:"drawoffer", target:sid}));
+            this.conn.send(JSON.stringify({code:"drawoffer", target:sid}));
         });
         GameStorage.update(this.gameRef.id, {drawOffer: this.game.mycolor});
       }
@@ -359,7 +372,7 @@ export default {
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
         {
-          this.st.conn.send(JSON.stringify({
+          this.conn.send(JSON.stringify({
             code: "abort",
             target: sid,
           }));
@@ -372,7 +385,7 @@ export default {
       Object.keys(this.people).forEach(sid => {
         if (sid != this.st.user.sid)
         {
-          this.st.conn.send(JSON.stringify({code:"resign",
+          this.conn.send(JSON.stringify({code:"resign",
             side:this.game.mycolor, target:sid}));
         }
       });
@@ -514,7 +527,7 @@ export default {
       if (!!this.gameRef.rid)
       {
         // Remote live game: forgetting about callback func... (TODO: design)
-        this.st.conn.send(JSON.stringify(
+        this.conn.send(JSON.stringify(
           {code:"askfullgame", target:this.gameRef.rid}));
       }
       else
@@ -561,7 +574,7 @@ export default {
         Object.keys(this.people).forEach(sid => {
           if (sid != this.st.user.sid)
           {
-            this.st.conn.send(JSON.stringify({
+            this.conn.send(JSON.stringify({
               code: "newmove",
               target: sid,
               move: sendMove,
@@ -641,7 +654,7 @@ export default {
       document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
     },
     processChat: function(chat) {
-      this.st.conn.send(JSON.stringify({code:"newchat", chat:chat}));
+      this.conn.send(JSON.stringify({code:"newchat", chat:chat}));
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
       if (this.game.type == "corr" && this.st.user.id > 0)
         GameStorage.update(this.gameRef.id, {chat: chat});

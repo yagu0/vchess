@@ -1,6 +1,5 @@
 import { ajax } from "./utils/ajax";
 import { getRandString } from "./utils/alea";
-import params from "./parameters"; //for socket connection
 
 // Global store: see https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
 export const store =
@@ -9,12 +8,11 @@ export const store =
     variants: [],
     tr: {},
     user: {},
-    conn: null,
     settings: {},
     lang: "",
   },
   socketCloseListener: null,
-  initialize(page) {
+  initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
     let mysid = localStorage["mysid"];
     if (!mysid)
@@ -38,15 +36,6 @@ export const store =
       this.state.user.email = res.email;
       this.state.user.notify = res.notify;
     });
-    const supportedLangs = ["en","es","fr"];
-    this.state.lang = localStorage["lang"] ||
-      (supportedLangs.includes(navigator.language)
-        ? navigator.language
-        : "en");
-    this.setTranslations();
-    // Initialize connection (even if the current page doesn't need it)
-    this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
-      "&page=" + encodeURIComponent(page));
     // Settings initialized with values from localStorage
     this.state.settings = {
       bcolor: localStorage.getItem("bcolor") || "lichess",
@@ -54,12 +43,12 @@ export const store =
       hints: localStorage.getItem("hints") == "true",
       highlight: localStorage.getItem("highlight") == "true",
     };
-    this.socketCloseListener = () => {
-      // Next line may fail at first, but should retry and eventually success (TODO?)
-      this.state.conn = new WebSocket(params.socketUrl + "/?sid=" + mysid +
-        "&page=" + encodeURIComponent(page));
-    };
-    this.state.conn.onclose = this.socketCloseListener;
+    const supportedLangs = ["en","es","fr"];
+    this.state.lang = localStorage["lang"] ||
+      (supportedLangs.includes(navigator.language)
+        ? navigator.language
+        : "en");
+    this.setTranslations();
   },
   updateSetting: function(propName, value) {
     this.state.settings[propName] = value;

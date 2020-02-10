@@ -14,12 +14,14 @@ function getJsonFromUrl(url)
 }
 
 module.exports = function(wss) {
-  let clients = {}; //associative array sid --> socket
+  // Associative array sid --> tmpId --> {socket, page},
+  // "page" is either "/" for hall or "/game/some_gid" for Game,
+  // tmpId is required if a same user (browser) has different tabs
+  let clients = {};
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
-    if (query["page"] != "/" && query["page"].indexOf("/game/") < 0)
-      return; //other tabs don't need to be connected
     const sid = query["sid"];
+    const tmpId = query["tmpId"];
     const notifyRoom = (page,code,obj={},excluded=[]) => {
       Object.keys(clients).forEach(k => {
         if (k in excluded)
@@ -27,7 +29,7 @@ module.exports = function(wss) {
         if (k != sid && clients[k].page == page)
         {
           clients[k].sock.send(JSON.stringify(Object.assign(
-            {code:code, from:sid}, obj)));
+            {code:code, from:[sid,tmpId]}, obj)));
         }
       });
     };
@@ -37,93 +39,112 @@ module.exports = function(wss) {
         return; //receiver not connected, nothing we can do
       switch (obj.code)
       {
-        case "duplicate":
-          // Turn off message listening, and send disconnect if needed:
-          socket.removeListener("message", messageListener);
-          socket.removeListener("close", closeListener);
-          // From obj.page to clients[sid].page (TODO: unclear)
-          if (clients[sid].page != obj.page)
-          {
-            notifyRoom(obj.page, "disconnect");
-            if (obj.page.indexOf("/game/") >= 0)
-              notifyRoom("/", "gdisconnect");
-          }
-          break;
         // Wait for "connect" message to notify connection to the room,
         // because if game loading is slow the message listener might
         // not be ready too early.
         case "connect":
         {
-          const curPage = clients[sid].page;
+          const curPage = clients[sid][tmpId].page;
           notifyRoom(curPage, "connect"); //Hall or Game
           if (curPage.indexOf("/game/") >= 0)
             notifyRoom("/", "gconnect"); //notify main hall
           break;
         }
+        case "disconnect":
+        {
+          const oldPage = obj.page;
+          notifyRoom(oldPage, "disconnect"); //Hall or Game
+          if (oldPage.indexOf("/game/") >= 0)
+            notifyRoom("/", "gdisconnect"); //notify main hall
+          break;
+        }
         case "pollclients":
         {
-          const curPage = clients[sid].page;
-          socket.send(JSON.stringify({code:"pollclients",
-            sockIds: Object.keys(clients).filter(k =>
-              k != sid && clients[k].page == curPage
-            )}));
+          const curPage = clients[sid][tmpId].page;
+          let sockIds = {}; //result, object sid ==> [tmpIds]
+          Object.keys(clients).forEach(k => {
+            Object.keys(clients[k]).forEach(x => {
+              if ((k != sid || x != tmpId)
+                && clients[k][x].page == curPage)
+              {
+                if (!sockIds[k])
+                  sockIds[k] = [x];
+                else
+                  sockIds[k].push(x);
+              }
+            });
+          });
+          socket.send(JSON.stringify({code:"pollclients", sockIds:sockIds}));
           break;
         }
         case "pollgamers":
-          socket.send(JSON.stringify({code:"pollgamers",
-            sockIds: Object.keys(clients).filter(k =>
-              k != sid && clients[k].page.indexOf("/game/") >= 0
-            )}));
+        {
+          let sockIds = {};
+          Object.keys(clients).forEach(k => {
+            Object.keys(clients[k]).forEach(x => {
+              if ((k != sid || x != tmpId)
+                && clients[k][x].page.indexOf("/game/") >= 0)
+              {
+                if (!sockIds[k])
+                  sockIds[k] = [x];
+                else
+                  sockIds[k].push(x);
+              }
+            });
+          });
+          socket.send(JSON.stringify({code:"pollgamers", sockIds:sockIds}));
           break;
-        case "pagechange":
-          // page change clients[sid].page --> obj.page
-          // TODO: some offline rooms don't need to receive disconnect event
-          notifyRoom(clients[sid].page, "disconnect");
-          if (clients[sid].page.indexOf("/game/") >= 0)
-            notifyRoom("/", "gdisconnect");
-          clients[sid].page = obj.page;
-          // No need to notify connection: it's self-sent in .vue file
-          //notifyRoom(obj.page, "connect");
-          if (obj.page.indexOf("/game/") >= 0)
-            notifyRoom("/", "gconnect");
-          break;
+        }
         case "askidentity":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"askidentity",from:sid}));
+        {
+          // Identity only depends on sid, so select a tmpId at random
+          const tmpIds = Object.keys(clients[obj.target]);
+          const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
+          clients[obj.target][tmpIds[tmpId_idx]].sock.send(JSON.stringify(
+            {code:"askidentity",from:[sid,tmpId]}));
           break;
+        }
         case "asklastate":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"asklastate",from:sid}));
+          clients[obj.target[0]][obj.target[1]].sock.send(JSON.stringify(
+            {code:"asklastate",from:[sid,tmpId]}));
           break;
         case "askchallenge":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"askchallenge",from:sid}));
+          clients[obj.target[0]][obj.target[1]].sock.send(JSON.stringify(
+            {code:"askchallenge",from:[sid,tmpId]}));
           break;
         case "askgames":
         {
           // Check all clients playing, and send them a "askgame" message
-          let gameSids = {}; //game ID --> [sid1, sid2]
+          // game ID --> [ sid1 --> array of tmpIds, sid2 --> array of tmpIds]
+          let gameSids = {};
           const regexpGid = /\/[a-zA-Z0-9]+$/;
           Object.keys(clients).forEach(k => {
-            if (k != sid && clients[k].page.indexOf("/game/") >= 0)
+            Object.keys(clients[k]).forEach(x => {
+              if ((k != sid || x != tmpId)
+                && clients[k][x].page.indexOf("/game/") >= 0)
             {
-              const gid = clients[k].page.match(regexpGid)[0];
+              const gid = clients[k][x].page.match(regexpGid)[0];
               if (!gameSids[gid])
-                gameSids[gid] = [k];
+                gameSids[gid] = [{k: [x]}];
+              else if (k == Object.keys(gameSids[gid][0])[0])
+                gameSids[gid][0][k].push(x);
+              else if (gameSids[gid].length == 1)
+                gameSids[gid].push({k: [x]});
               else
-                gameSids[gid].push(k);
+                Object.values(gameSids[gid][1]).push(x);
             }
           });
           // Request only one client out of 2 (TODO: this is a bit heavy)
           // Alt: ask game to all, and filter later?
           Object.keys(gameSids).forEach(gid => {
             const L = gameSids[gid].length;
-            const idx = L > 1
+            const sidIdx = L > 1
               ? Math.floor(Math.random() * Math.floor(L))
               : 0;
-            const rid = gameSids[gid][idx];
-            clients[rid].sock.send(JSON.stringify(
-              {code:"askgame", from: sid}));
+            const tmpIdx = Object.values(gameSids[gid][sidIdx]
+            const rid = gameSids[gid][sidIdx][tmpIdx];
+            clients[sidIdx][tmpIdx].sock.send(JSON.stringify(
+              {code:"askgame", from: [sid,tmpId]}));
           });
           break;
         }
@@ -203,11 +224,7 @@ module.exports = function(wss) {
       }
     };
     const closeListener = () => {
-      const page = clients[sid].page;
       delete clients[sid];
-      notifyRoom(page, "disconnect");
-      if (page.indexOf("/game/") >= 0)
-        notifyRoom("/", "gdisconnect"); //notify main hall
     };
     if (!!clients[sid])
     {

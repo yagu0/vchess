@@ -22,7 +22,6 @@ new Vue({
         });
       }
     });
-    // NOTE: store.initialize(this.$route.path); doesn't work
-    store.initialize(window.location.href.split("#")[1].split("?")[0]);
+    store.initialize();
   },
 }).$mount("#app");

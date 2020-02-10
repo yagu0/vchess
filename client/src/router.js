@@ -61,14 +61,4 @@ const router = new Router({
   ]
 });
 
-router.beforeEach((to, from, next) => {
-  window.scrollTo(0, 0);
-  if (!!store.state.conn) //uninitialized at first page
-  {
-    // Notify WebSockets server (TODO: path or fullPath?)
-    store.state.conn.send(JSON.stringify({code: "pagechange", page: to.path}));
-  }
-  next();
-});
-
 export default router;

@@ -78,6 +78,7 @@ import { store } from "@/store";
 import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
+import params from "@/parameters";
 import { getRandString, shuffle } from "@/utils/alea";
 import Chat from "@/components/Chat.vue";
 import GameList from "@/components/GameList.vue";
@@ -109,6 +110,9 @@ export default {
         timeControl: localStorage.getItem("timeControl") || "",
       },
       newChat: "",
+      conn: null,
+      page: "",
+      tempId: "", //to distinguish several tabs
     };
   },
   watch: {
@@ -135,7 +139,8 @@ export default {
   created: function() {
     // Always add myself to players' list
     const my = this.st.user;
-    this.$set(this.people, my.sid, {id:my.id, name:my.name});
+    this.tempId = getRandString();
+    this.$set(this.people, my.sid, {id:my.id, name:my.name, tmpId: [this.tempId]});
     // Ask server for current corr games (all but mines)
     ajax(
       "/games",
@@ -199,23 +204,25 @@ export default {
     );
     // 0.1] Ask server for room composition:
     const funcPollClients = () => {
-      // Same strategy as in Game.vue: send connection
-      // after we're sure WebSocket is initialized
-      this.st.conn.send(JSON.stringify({code:"connect"}));
-      this.st.conn.send(JSON.stringify({code:"pollclients"}));
-      this.st.conn.send(JSON.stringify({code:"pollgamers"}));
+      this.conn.send(JSON.stringify({code:"connect"}));
+      this.conn.send(JSON.stringify({code:"pollclients"}));
+      this.conn.send(JSON.stringify({code:"pollgamers"}));
     };
-    if (!!this.st.conn && this.st.conn.readyState == 1) //1 == OPEN state
-      funcPollClients();
-    else //socket not ready yet (initial loading)
-      this.st.conn.onopen = funcPollClients;
-    this.st.conn.onmessage = this.socketMessageListener;
+    // Initialize connection
+    this.page = this.$route.path;
+    const connexionString = params.socketUrl +
+      "/?sid=" + this.st.user.sid +
+      "&tmpId=" + this.tempId +
+      "&page=" + encodeURIComponent(this.page);
+    this.conn = new WebSocket(connexionString);
+    this.conn.onopen = funcPollClients;
+    this.conn.onmessage = this.socketMessageListener;
     const socketCloseListener = () => {
-      store.socketCloseListener(); //reinitialize connexion (in store.js)
-      this.st.conn.addEventListener('message', this.socketMessageListener);
-      this.st.conn.addEventListener('close', socketCloseListener);
+      this.conn = new WebSocket(connexionString);
+      this.conn.addEventListener('message', this.socketMessageListener);
+      this.conn.addEventListener('close', socketCloseListener);
     };
-    this.st.conn.onclose = socketCloseListener;
+    this.conn.onclose = socketCloseListener;
   },
   mounted: function() {
     [document.getElementById("infoDiv"),document.getElementById("newgameDiv")]
@@ -225,6 +232,9 @@ export default {
         () => { this.newchallenge.timeControl = b.innerHTML; }
       )}
     );
+  },
+  beforeDestroy: function() {
+    this.conn.send(JSON.stringify({code:"disconnect",page:this.page}));
   },
   methods: {
     // Helpers:
@@ -260,11 +270,11 @@ export default {
     },
     processChat: function(chat) {
       // When received on server, this will trigger a "notifyRoom"
-      this.st.conn.send(JSON.stringify({code:"newchat", chat: chat}));
+      this.conn.send(JSON.stringify({code:"newchat", chat: chat}));
     },
     sendSomethingTo: function(to, code, obj, warnDisconnected) {
       const doSend = (code, obj, sid) => {
-        this.st.conn.send(JSON.stringify(Object.assign(
+        this.conn.send(JSON.stringify(Object.assign(
           {code: code},
           obj,
           {target: sid}
@@ -307,8 +317,8 @@ export default {
       switch (data.code)
       {
         case "duplicate":
-          this.st.conn.send(JSON.stringify({code:"duplicate", page:"/"}));
-          this.st.conn.send = () => {};
+          this.conn.send(JSON.stringify({code:"duplicate", page:"/"}));
+          this.conn.send = () => {};
           alert(this.st.tr["This tab is now offline"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
@@ -316,8 +326,8 @@ export default {
           data.sockIds.forEach(sid => {
             this.$set(this.people, sid, {id:0, name:""});
             // Ask identity and challenges
-            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
-            this.st.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
+            this.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+            this.conn.send(JSON.stringify({code:"askchallenge", target:sid}));
           });
           break;
         case "pollgamers":
@@ -325,16 +335,16 @@ export default {
           // and gamers, but is it necessary?
           data.sockIds.forEach(sid => {
             this.$set(this.people, sid, {id:0, name:"", gamer:true});
-            this.st.conn.send(JSON.stringify({code:"askidentity", target:sid}));
+            this.conn.send(JSON.stringify({code:"askidentity", target:sid}));
           });
           // Also ask current games to all playing peers (TODO: some design issue)
-          this.st.conn.send(JSON.stringify({code:"askgames"}));
+          this.conn.send(JSON.stringify({code:"askgames"}));
           break;
         case "askidentity":
           // Request for identification: reply if I'm not anonymous
           if (this.st.user.id > 0)
           {
-            this.st.conn.send(JSON.stringify({code:"identity",
+            this.conn.send(JSON.stringify({code:"identity",
               user: {
                 // NOTE: decompose to avoid revealing email
                 name: this.st.user.name,
@@ -382,7 +392,7 @@ export default {
               timeControl: c.timeControl,
               added: c.added,
             };
-            this.st.conn.send(JSON.stringify({code:"challenge",
+            this.conn.send(JSON.stringify({code:"challenge",
               chall:myChallenge, target:data.from}));
           }
           break;
@@ -451,11 +461,11 @@ export default {
         case "connect":
         case "gconnect":
           this.$set(this.people, data.from, {name:"", id:0, gamer:data.code[0]=='g'});
-          this.st.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
+          this.conn.send(JSON.stringify({code:"askidentity", target:data.from}));
           if (data.code == "connect")
-            this.st.conn.send(JSON.stringify({code:"askchallenge", target:data.from}));
+            this.conn.send(JSON.stringify({code:"askchallenge", target:data.from}));
           else
-            this.st.conn.send(JSON.stringify({code:"askgame", target:data.from}));
+            this.conn.send(JSON.stringify({code:"askgame", target:data.from}));
           break;
         case "disconnect":
         case "gdisconnect":
@@ -595,7 +605,7 @@ export default {
         }
         else
         {
-          this.st.conn.send(JSON.stringify({
+          this.conn.send(JSON.stringify({
             code: "refusechallenge",
             cid: c.id, target: c.from.sid}));
         }
@@ -639,7 +649,7 @@ export default {
       const tryNotifyOpponent = () => {
         if (!!oppsid) //opponent is online
         {
-          this.st.conn.send(JSON.stringify({code:"newgame",
+          this.conn.send(JSON.stringify({code:"newgame",
             gameInfo:gameInfo, target:oppsid, cid:c.id}));
         }
       };
@@ -666,7 +676,7 @@ export default {
       Object.keys(this.people).forEach(sid => {
         if (![this.st.user.sid,oppsid].includes(sid))
         {
-          this.st.conn.send(JSON.stringify({code:"game",
+          this.conn.send(JSON.stringify({code:"game",
             game: { //minimal game info:
               id: gameInfo.id,
               players: gameInfo.players,
