@@ -194,9 +194,10 @@ nav
 
 @media screen and (max-width: 767px)
   nav
+    height: 32px
     border: none
     & > label.drawer-toggle
-      font-size: 1.5rem
+      font-size: 1.2rem
       //padding: 0 0 0 10px
 
 [type="checkbox"].drawer+*
