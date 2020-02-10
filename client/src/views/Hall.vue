@@ -293,7 +293,7 @@ export default {
           if (!targetSid)
           {
             if (!!warnDisconnected)
-              alert(this.st.tr["Warning: target is not connected"]);
+              alert(this.st.tr["Target is not connected"]);
             return false;
           }
         }
@@ -309,7 +309,7 @@ export default {
         case "duplicate":
           this.st.conn.send(JSON.stringify({code:"duplicate", page:"/"}));
           this.st.conn.send = () => {};
-          alert(this.st.tr["Warning: multi-tabs not supported"]);
+          alert(this.st.tr["This tab is now offline"]);
           break;
         // 0.2] Receive clients list (just socket IDs)
         case "pollclients":

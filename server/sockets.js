@@ -17,6 +17,8 @@ module.exports = function(wss) {
   let clients = {}; //associative array sid --> socket
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
+    if (query["page"] != "/" && query["page"].indexOf("/game/") < 0)
+      return; //other tabs don't need to be connected
     const sid = query["sid"];
     const notifyRoom = (page,code,obj={},excluded=[]) => {
       Object.keys(clients).forEach(k => {
