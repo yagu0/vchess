@@ -14,7 +14,7 @@ div
         td(data-label="Variant") {{ g.vname }}
         td(data-label="White") {{ g.players[0].name || "@nonymous" }}
         td(data-label="Black") {{ g.players[1].name || "@nonymous" }}
-        td(data-label="Time control") {{ g.timeControl }}
+        td(data-label="Time control") {{ g.cadence }}
         td(data-label="Result") {{ g.score }}
 </template>
 
@@ -30,6 +30,7 @@ export default {
     };
   },
   computed: {
+    // TODO: also sort by g.created
     sortedGames: function() {
       // Show in order: games where it's my turn, my running games, my games, other games
       let augmentedGames = this.games.map(g => {

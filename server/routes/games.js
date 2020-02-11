@@ -26,7 +26,7 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
     return res.json({errmsg:error});
   ChallengeModel.remove(cid);
   GameModel.create(
-    gameInfo.vid, gameInfo.fen, gameInfo.timeControl, gameInfo.players,
+    gameInfo.vid, gameInfo.fen, gameInfo.cadence, gameInfo.players,
     (err,ret) => {
       access.checkRequest(res, err, ret, "Cannot create game", () => {
         const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
@@ -45,7 +45,7 @@ router.get("/games", access.ajax, (req,res) => {
   {
     if (!gameId.match(/^[0-9]+$/))
       return res.json({errmsg: "Wrong game ID"});
-    GameModel.getOne(gameId, (err,game) => {
+    GameModel.getOne(gameId, false, (err,game) => {
       access.checkRequest(res, err, game, "Game not found", () => {
         res.json({game: game});
       });

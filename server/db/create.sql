@@ -27,7 +27,7 @@ create table Challenges (
   target integer,
   vid integer,
   fen varchar,
-  timeControl varchar,
+  cadence varchar,
   foreign key (uid) references Users(id),
   foreign key (vid) references Variants(id)
 );
@@ -39,8 +39,8 @@ create table Games (
   fen varchar, --current state
   score varchar,
   scoreMsg varchar,
-  timeControl varchar,
-  created datetime, --used only for DB cleaning
+  cadence varchar,
+  created datetime,
   drawOffer character,
   foreign key (vid) references Variants(id)
 );

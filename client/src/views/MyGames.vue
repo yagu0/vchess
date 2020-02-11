@@ -47,7 +47,7 @@ export default {
   methods: {
     // TODO: classifyObject and filterGames are redundant (see Hall.vue)
     classifyObject: function(o) {
-      return (o.timeControl.indexOf('d') === -1 ? "live" : "corr");
+      return (o.cadence.indexOf('d') === -1 ? "live" : "corr");
     },
     filterGames: function(type) {
       return this.games.filter(g => g.type == type);

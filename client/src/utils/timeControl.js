@@ -20,9 +20,9 @@ function isLargerUnit(unit1, unit2)
     || (unit1 == 'm' && unit2 == 's');
 }
 
-export function extractTime(timeControl)
+export function extractTime(cadence)
 {
-  let tcParts = timeControl.replace(/ /g,"").split('+');
+  let tcParts = cadence.replace(/ /g,"").split('+');
   // Concatenate usual time control suffixes, in case of none is provided
   tcParts[0] += "m";
   tcParts[1] += "s";

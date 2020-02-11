@@ -7,7 +7,7 @@ const UserModel = require("./User");
  *   vid: integer (variant id)
  *   fenStart: varchar (initial position)
  *   fen: varchar (current position)
- *   timeControl: string
+ *   cadence: string
  *   score: varchar (result)
  *   scoreMsg: varchar ("Time", "Mutual agreement"...)
  *   created: datetime
@@ -38,7 +38,7 @@ const GameModel =
       return "Wrong variant ID";
     if (!g.vname.match(/^[a-zA-Z0-9]+$/))
       return "Wrong variant name";
-    if (!g.timeControl.match(/^[0-9dhms +]+$/))
+    if (!g.cadence.match(/^[0-9dhms +]+$/))
       return "Wrong characters in time control";
     if (!g.fen.match(/^[a-zA-Z0-9, /-]*$/))
       return "Bad FEN string";
@@ -49,14 +49,14 @@ const GameModel =
     return "";
   },
 
-  create: function(vid, fen, timeControl, players, cb)
+  create: function(vid, fen, cadence, players, cb)
   {
     db.serialize(function() {
       let query =
-        "INSERT INTO Games"
-        + " (vid, fenStart, fen, score, timeControl, created, drawOffer)"
-        + " VALUES (" + vid + ",'" + fen + "','" + fen + "','*','"
-        + timeControl + "'," + Date.now() + ",'')";
+        "INSERT INTO Games " +
+        "(vid, fenStart, fen, score, cadence, created, drawOffer) " +
+        "VALUES " +
+        "(" + vid + ",'" + fen + "','" + fen + "','*','" + cadence + "'," + Date.now() + ",'')";
       db.run(query, function(err) {
         if (!!err)
           return cb(err);
@@ -72,15 +72,14 @@ const GameModel =
     });
   },
 
-  // TODO: queries here could be async, and wait for all to complete
-  getOne: function(id, cb)
+  // TODO: some queries here could be async
+  getOne: function(id, light, cb)
   {
     db.serialize(function() {
-      // TODO: optimize queries?
       let query =
         // NOTE: g.scoreMsg can be NULL
         // (in this case score = "*" and no reason to look at it)
-        "SELECT g.id, g.vid, g.fen, g.fenStart, g.timeControl, g.score, " +
+        "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.score, " +
           "g.scoreMsg, g.drawOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
@@ -98,6 +97,14 @@ const GameModel =
         db.all(query, (err2,players) => {
           if (!!err2)
             return cb(err2);
+          if (light)
+          {
+            const game = Object.assign({},
+              gameInfo,
+              {players: players}
+            );
+            return cb(null, game);
+          }
           query =
             "SELECT squares, played, idx " +
             "FROM Moves " +
@@ -128,6 +135,7 @@ const GameModel =
     });
   },
 
+  // For display on MyGames or Hall: no need for moves or chats
   getByUser: function(uid, excluded, cb)
   {
     db.serialize(function() {
@@ -143,7 +151,7 @@ const GameModel =
         let gameArray = [];
         for (let i=0; i<gameIds.length; i++)
         {
-          GameModel.getOne(gameIds[i]["gid"], (err2,game) => {
+          GameModel.getOne(gameIds[i]["gid"], true, (err2,game) => {
             if (!!err2)
               return cb(err2);
             gameArray.push(game);

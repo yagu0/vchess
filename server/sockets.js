@@ -14,7 +14,7 @@ function getJsonFromUrl(url)
 }
 
 module.exports = function(wss) {
-  // Associative array sid --> tmpId --> {socket, page},
+  // Associative array page --> sid --> tmpId --> socket
   // "page" is either "/" for hall or "/game/some_gid" for Game,
   // tmpId is required if a same user (browser) has different tabs
   let clients = {};
@@ -22,21 +22,45 @@ module.exports = function(wss) {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
     const tmpId = query["tmpId"];
-    const notifyRoom = (page,code,obj={},excluded=[]) => {
-      Object.keys(clients).forEach(k => {
-        if (k in excluded)
-          return;
-        if (k != sid && clients[k].page == page)
-        {
-          clients[k].sock.send(JSON.stringify(Object.assign(
-            {code:code, from:[sid,tmpId]}, obj)));
-        }
+    const page = query["page"];
+    const notifyRoom = (page,code,obj={}) => {
+      Object.keys(clients[page]).forEach(k => {
+        Object.keys(clients[page][k]).forEach(x => {
+          if (k == sid && x == tmpId)
+            return;
+          clients[page][k][x].send(JSON.stringify(Object.assign(
+            {code:code, from:sid}, obj)));
+        });
       });
+    };
+    const deleteConnexion = () => {
+      if (!clients[page] || !clients[page][sid] || !clients[page][sid][tmpId])
+        return; //job already done
+      delete clients[page][sid][tmpId];
+      if (Object.keys(clients[page][sid]).length == 0)
+      {
+        delete clients[page][sid];
+        if (Object.keys(clients[page]) == 0)
+          delete clients[page];
+      }
     };
     const messageListener = (objtxt) => {
       let obj = JSON.parse(objtxt);
-      if (!!obj.target && !clients[obj.target])
-        return; //receiver not connected, nothing we can do
+      if (!!obj.target)
+      {
+        // Check if receiver is connected, because there may be some lag
+        // between a client disconnects and another notice.
+        if (Array.isArray(obj.target))
+        {
+          if (!clients[page][obj.target[0]] ||
+            !clients[page][obj.target[0]][obj.target[1]])
+          {
+            return;
+          }
+        }
+        else if (!clients[page][obj.target])
+          return;
+      }
       switch (obj.code)
       {
         // Wait for "connect" message to notify connection to the room,
@@ -44,195 +68,124 @@ module.exports = function(wss) {
         // not be ready too early.
         case "connect":
         {
-          const curPage = clients[sid][tmpId].page;
-          notifyRoom(curPage, "connect"); //Hall or Game
-          if (curPage.indexOf("/game/") >= 0)
-            notifyRoom("/", "gconnect"); //notify main hall
+          notifyRoom(page, "connect");
+          if (page.indexOf("/game/") >= 0)
+            notifyRoom("/", "gconnect", {page:page});
           break;
         }
         case "disconnect":
-        {
-          const oldPage = obj.page;
-          notifyRoom(oldPage, "disconnect"); //Hall or Game
-          if (oldPage.indexOf("/game/") >= 0)
-            notifyRoom("/", "gdisconnect"); //notify main hall
+          // When page changes:
+          deleteConnexion();
+          if (!clients[page][sid])
+          {
+            // I effectively disconnected from this page:
+            notifyRoom(page, "disconnect");
+            if (page.indexOf("/game/") >= 0)
+              notifyRoom("/", "gdisconnect", {page:page});
+          }
           break;
-        }
-        case "pollclients":
+        case "pollclients": //from Hall or Game
         {
-          const curPage = clients[sid][tmpId].page;
-          let sockIds = {}; //result, object sid ==> [tmpIds]
-          Object.keys(clients).forEach(k => {
-            Object.keys(clients[k]).forEach(x => {
-              if ((k != sid || x != tmpId)
-                && clients[k][x].page == curPage)
-              {
-                if (!sockIds[k])
-                  sockIds[k] = [x];
-                else
-                  sockIds[k].push(x);
-              }
-            });
+          let sockIds = [];
+          Object.keys(clients[page]).forEach(k => {
+            // Poll myself if I'm on at least another tab (same page)
+            if (k != sid || Object.keys(clients["/"][k]).length >= 2)
+              sockIds.push(k);
           });
           socket.send(JSON.stringify({code:"pollclients", sockIds:sockIds}));
           break;
         }
-        case "pollgamers":
+        case "pollclientsandgamers": //from Hall
         {
-          let sockIds = {};
-          Object.keys(clients).forEach(k => {
-            Object.keys(clients[k]).forEach(x => {
-              if ((k != sid || x != tmpId)
-                && clients[k][x].page.indexOf("/game/") >= 0)
-              {
-                if (!sockIds[k])
-                  sockIds[k] = [x];
-                else
-                  sockIds[k].push(x);
-              }
-            });
+          let sockIds = [];
+          Object.keys(clients["/"]).forEach(k => {
+            // Poll myself if I'm on at least another tab (same page)
+            if (k != sid || Object.keys(clients["/"][k]).length >= 2)
+              sockIds.push({sid:k});
           });
-          socket.send(JSON.stringify({code:"pollgamers", sockIds:sockIds}));
-          break;
-        }
-        case "askidentity":
-        {
-          // Identity only depends on sid, so select a tmpId at random
-          const tmpIds = Object.keys(clients[obj.target]);
-          const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
-          clients[obj.target][tmpIds[tmpId_idx]].sock.send(JSON.stringify(
-            {code:"askidentity",from:[sid,tmpId]}));
-          break;
-        }
-        case "asklastate":
-          clients[obj.target[0]][obj.target[1]].sock.send(JSON.stringify(
-            {code:"asklastate",from:[sid,tmpId]}));
-          break;
-        case "askchallenge":
-          clients[obj.target[0]][obj.target[1]].sock.send(JSON.stringify(
-            {code:"askchallenge",from:[sid,tmpId]}));
-          break;
-        case "askgames":
-        {
-          // Check all clients playing, and send them a "askgame" message
-          // game ID --> [ sid1 --> array of tmpIds, sid2 --> array of tmpIds]
-          let gameSids = {};
-          const regexpGid = /\/[a-zA-Z0-9]+$/;
-          Object.keys(clients).forEach(k => {
-            Object.keys(clients[k]).forEach(x => {
-              if ((k != sid || x != tmpId)
-                && clients[k][x].page.indexOf("/game/") >= 0)
+          // NOTE: a "gamer" could also just be an observer
+          Object.keys(clients).forEach(p => {
+            if (p != "/")
             {
-              const gid = clients[k][x].page.match(regexpGid)[0];
-              if (!gameSids[gid])
-                gameSids[gid] = [{k: [x]}];
-              else if (k == Object.keys(gameSids[gid][0])[0])
-                gameSids[gid][0][k].push(x);
-              else if (gameSids[gid].length == 1)
-                gameSids[gid].push({k: [x]});
-              else
-                Object.values(gameSids[gid][1]).push(x);
+              Object.keys(clients[p]).forEach(k => {
+                if (k != sid)
+                  sockIds.push({sid:k, page:p}); //page needed for gamers
+              });
             }
           });
-          // Request only one client out of 2 (TODO: this is a bit heavy)
-          // Alt: ask game to all, and filter later?
-          Object.keys(gameSids).forEach(gid => {
-            const L = gameSids[gid].length;
-            const sidIdx = L > 1
-              ? Math.floor(Math.random() * Math.floor(L))
-              : 0;
-            const tmpIdx = Object.values(gameSids[gid][sidIdx]
-            const rid = gameSids[gid][sidIdx][tmpIdx];
-            clients[sidIdx][tmpIdx].sock.send(JSON.stringify(
-              {code:"askgame", from: [sid,tmpId]}));
-          });
+          socket.send(JSON.stringify({code:"pollclientsandgamers", sockIds:sockIds}));
           break;
         }
+
+        // Asking something: from is fully identified,
+        // but the requested resource can be from any tmpId (except current!)
+        case "askidentity":
+        case "asklastate":
+        case "askchallenge":
         case "askgame":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"askgame", from:sid}));
-          break;
         case "askfullgame":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"askfullgame", from:sid}));
+        {
+          const tmpIds = Object.keys(clients[page][obj.target]);
+          if (obj.target == sid) //targetting myself
+          {
+            const idx_myTmpid = tmpIds.findIndex(x => x == tmpId);
+            if (idx_myTmpid >= 0)
+              tmpIds.splice(idx_myTmpid, 1);
+          }
+          const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
+          clients[page][obj.target][tmpIds[tmpId_idx]].send(
+            JSON.stringify({code:obj.code, from:[sid,tmpId]}));
           break;
-        case "fullgame":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"fullgame", game:obj.game}));
-          break;
-        case "identity":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"identity",user:obj.user}));
-          break;
+        }
+
+        // Some Hall events: target all tmpId's (except mine),
         case "refusechallenge":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"refusechallenge", cid:obj.cid, from:sid}));
+        case "startgame":
+          Object.keys(clients[page][obj.target]).forEach(x => {
+            if (obj.target != sid || x != tmpId)
+            {
+              clients[page][obj.target][x].send(JSON.stringify(
+                {code:obj.code, data:obj.data}));
+            }
+          });
           break;
-        case "deletechallenge":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"deletechallenge", cid:obj.cid, from:sid}));
-          break;
-        case "newgame":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"newgame", gameInfo:obj.gameInfo, cid:obj.cid}));
-          break;
-        case "challenge":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"challenge", chall:obj.chall, from:sid}));
-          break;
-        case "game":
-          if (!!obj.target)
-          {
-            clients[obj.target].sock.send(JSON.stringify(
-              {code:"game", game:obj.game, from:sid}));
-          }
-          else
-          {
-            // Notify all room except opponent and me:
-            notifyRoom("/", "game", {game:obj.game}, [obj.oppsid]);
-          }
-          break;
+
+        // Notify all room: mostly game events
         case "newchat":
-          notifyRoom(clients[sid].page, "newchat", {chat:obj.chat});
-          break;
-        // TODO: WebRTC instead in this case (most demanding?)
-        // --> Or else: at least do a "notifyRoom" (also for draw, resign...)
+        case "newchallenge":
+        case "newgame":
+        case "deletechallenge":
         case "newmove":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"newmove", move:obj.move}));
-          break;
-        case "lastate":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"lastate", state:obj.state}));
-          break;
         case "resign":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"resign", side:obj.side}));
-          break;
         case "abort":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"abort"}));
-          break;
         case "drawoffer":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"drawoffer"}));
-          break;
         case "draw":
-          clients[obj.target].sock.send(JSON.stringify(
-            {code:"draw", message:obj.message}));
+          notifyRoom(page, obj.code, {data:obj.data});
+          break;
+
+        // Passing, relaying something: from isn't needed,
+        // but target is fully identified (sid + tmpId)
+        case "challenge":
+        case "fullgame":
+        case "game":
+        case "identity":
+        case "lastate":
+          clients[page][obj.target[0]][obj.target[1]].send(JSON.stringify(
+            {code:obj.code, data:obj.data}));
           break;
       }
     };
     const closeListener = () => {
-      delete clients[sid];
+      // For tab or browser closing:
+      deleteConnexion();
     };
-    if (!!clients[sid])
-    {
-      // Turn off old sock through current client:
-      clients[sid].sock.send(JSON.stringify({code:"duplicate"}));
-    }
-    // Potentially replace current connection:
-    clients[sid] = {sock: socket, page: query["page"]};
+    // Update clients object: add new connexion
+    if (!clients[page])
+      clients[page] = {[sid]: {[tmpId]: socket}};
+    else if (!clients[page][sid])
+      clients[page][sid] = {[tmpId]: socket};
+    else
+      clients[page][sid][tmpId] = socket;
     socket.on("message", messageListener);
     socket.on("close", closeListener);
   });

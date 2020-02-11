@@ -4,7 +4,7 @@
 //   vname: string,
 //   fenStart: string,
 //   players: array of sid+id+name,
-//   timeControl: string,
+//   cadence: string,
 //   increment: integer (seconds),
 //   mode: string ("live" or "corr")
 //   imported: boolean (optional, default false)

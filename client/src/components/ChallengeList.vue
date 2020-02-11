@@ -12,7 +12,7 @@ div
         td(data-label="Variant") {{ c.vname }}
         td(data-label="From") {{ c.from.name || "@nonymous" }}
         td(data-label="To") {{ c.to }}
-        td(data-label="Cadence") {{ c.timeControl }}
+        td(data-label="Cadence") {{ c.cadence }}
 </template>
 
 <script>

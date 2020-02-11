@@ -21,7 +21,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
   let challenge =
   {
     fen: req.body.chall.fen,
-    timeControl: req.body.chall.timeControl,
+    cadence: req.body.chall.cadence,
     vid: req.body.chall.vid,
     uid: req.userId,
     to: req.body.chall.to, //string: user name (may be empty)

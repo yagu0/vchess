@@ -9,7 +9,7 @@ const UserModel = require("./User");
  *   target: recipient id (optional)
  *   vid: variant id (int)
  *   fen: varchar (optional)
- *   timeControl: string (3m+2s, 7d+1d ...)
+ *   cadence: string (3m+2s, 7d+1d ...)
  */
 
 const ChallengeModel =
@@ -18,7 +18,7 @@ const ChallengeModel =
   {
     if (!c.vid.toString().match(/^[0-9]+$/))
       return "Wrong variant ID";
-    if (!c.timeControl.match(/^[0-9dhms +]+$/))
+    if (!c.cadence.match(/^[0-9dhms +]+$/))
       return "Wrong characters in time control";
     if (!c.fen.match(/^[a-zA-Z0-9, /-]*$/))
       return "Bad FEN string";
@@ -33,10 +33,10 @@ const ChallengeModel =
     db.serialize(function() {
       const query =
         "INSERT INTO Challenges " +
-        "(added, uid, " + (!!c.to ? "target, " : "") +
-          "vid, fen, timeControl) VALUES " +
+        "(added, uid, " + (!!c.to ? "target, " : "") + "vid, fen, cadence) " +
+          "VALUES " +
         "(" + Date.now() + "," + c.uid + "," + (!!c.to ? c.to + "," : "") +
-          c.vid + ",'" + c.fen + "','" + c.timeControl + "')";
+          c.vid + ",'" + c.fen + "','" + c.cadence + "')";
       db.run(query, function(err) {
         return cb(err, {cid: this.lastID});
       });

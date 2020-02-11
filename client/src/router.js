@@ -44,7 +44,7 @@ const router = new Router({
       component: loadView("MyGames"),
     },
     {
-      path: "/game/:id",
+      path: "/game/:id([a-zA-Z0-9]+)",
       name: "game",
       component: loadView("Game"),
     },

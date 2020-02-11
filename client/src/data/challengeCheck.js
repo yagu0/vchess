@@ -6,7 +6,7 @@ export function checkChallenge(c)
   if (isNaN(vid) || vid <= 0)
     return "Please select a variant";
 
-  const tc = extractTime(c.timeControl);
+  const tc = extractTime(c.cadence);
   if (!tc)
     return "Wrong time control";
 
