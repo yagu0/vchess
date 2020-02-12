@@ -277,28 +277,21 @@ const GameModel =
     const day = 86400000;
     db.serialize(function() {
       let query =
-        "SELECT id,score,created " +
+        "SELECT id,created " +
         "FROM Games ";
       db.all(query, (err,games) => {
         games.forEach(g => {
           query =
-            "SELECT max(played) AS lastMaj " +
+            "SELECT count(*) as nbMoves, max(played) AS lastMaj " +
             "FROM Moves " +
             "WHERE gid = " + g.id;
-          db.get(query, (err2,updated) => {
-            if (!updated.lastMaj)
+          db.get(query, (err2,mstats) => {
+            // Remove games still not really started,
+            // with no action in the last 3 months:
+            if ((mstats.nbMoves == 0 && tsNow - g.created > 91*day) ||
+              (mstats.nbMoves == 1 && tsNow - mstats.lastMaj > 91*day))
             {
-              if (tsNow - g.created > 7*day)
-                return GameModel.remove(g.id);
-            }
-            else //at least one move
-            {
-              const lastMaj = updated.lastMaj;
-              if (g.score != "*" && tsNow - lastMaj > 7*day ||
-                g.score == "*" && tsNow - lastMaj > 91*day)
-              {
-                GameModel.remove(g.id);
-              }
+              return GameModel.remove(g.id);
             }
           });
         });

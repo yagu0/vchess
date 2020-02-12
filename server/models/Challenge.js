@@ -98,28 +98,6 @@ const ChallengeModel =
       });
     });
   },
-
-  // Remove challenges older than 1 month, and 1to1 older than 2 days
-  removeOld: function()
-  {
-    const tsNow = Date.now();
-    // 86400000 = 24 hours in milliseconds
-    const day = 86400000;
-    db.serialize(function() {
-      const query =
-        "SELECT id, target, added " +
-        "FROM Challenges";
-      db.all(query, (err, challenges) => {
-        challenges.forEach(c => {
-          if ((!c.target && tsNow - c.added > 30*day) ||
-            (!!c.target && tsNow - c.added > 2*day))
-          {
-            db.run("DELETE FROM Challenges WHERE id = " + c.id);
-          }
-        });
-      });
-    });
-  },
 }
 
 module.exports = ChallengeModel;

@@ -27,12 +27,10 @@ var server = http.createServer(app);
 
 var cron = require('node-cron');
 var UserModel = require("../models/User");
-var ChallengeModel = require("../models/Challenge");
 var GameModel = require("../models/Game");
 cron.schedule('0 0 0 * * *', function() {
-  // Remove some old users, challenges and games every 24h
+  // Remove unlogged users and unstarted games every 24h
   UserModel.cleanUsersDb();
-  ChallengeModel.removeOld();
   GameModel.cleanGamesDb();
 });
 
