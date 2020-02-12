@@ -1,66 +1,66 @@
 p.boxed
-	| Move twice at every turn.
+  | Move twice at every turn.
 
 h3 Specifications
 
 ul
-	li Chessboard: standard.
-	li Material: standard.
-	li Non-capturing moves: standard.
-	li Special moves: standard.
-	li Captures: standard.
-	li End of game: standard.
+  li Chessboard: standard.
+  li Material: standard.
+  li Non-capturing moves: standard.
+  li Special moves: standard.
+  li Captures: standard.
+  li End of game: standard.
 
 p.
-	The only difference with orthodox chess is the double-move rule,
-	but this affects the game a lot.
+  The only difference with orthodox chess is the double-move rule,
+  but this affects the game a lot.
 
 h3 Basics
 
 p.
-	At the very first move of the game, white make only one move - as usual.
-	However, after that and for all the game each side must play twice at
-	every turn. There are two exceptions:
+  At the very first move of the game, white make only one move - as usual.
+  However, after that and for all the game each side must play twice at
+  every turn. There are two exceptions:
 
 ul
-	li.
-		If the first move gives check (maybe checkmate),
-		then a second move isn't played.
-	li.
-		If no move is available after the first move, then it's stalemate
-		and again, there is no second move.
+  li.
+    If the first move gives check (maybe checkmate),
+    then a second move isn't played.
+  li.
+    If no move is available after the first move, then it's stalemate
+    and again, there is no second move.
 
 p.
-	About the PGN game notation: when a side plays two moves in a row,
-	they are separated (in order) by a comma in the PGN.
-	Example: 3.Na5,Bd3 e6,f4 (the two first are white moves,
-	the two others are black moves).
+  About the PGN game notation: when a side plays two moves in a row,
+  they are separated (in order) by a comma in the PGN.
+  Example: 3.Na5,Bd3 e6,f4 (the two first are white moves,
+  the two others are black moves).
 
 figure.diagram-container
-	.diagram
-		| fen:r1bqkbnr/pppp1p1p/2n5/4p2p/4P3/5N2/PPPP1PPP/RNB1KB1R:
-	figcaption After the moves 1.e4 e5,Nc6 2.Qh5,Nf3 g6,gxh5
+  .diagram
+    | fen:r1bqkbnr/pppp1p1p/2n5/4p2p/4P3/5N2/PPPP1PPP/RNB1KB1R:
+  figcaption After the moves 1.e4 e5,Nc6 2.Qh5,Nf3 g6,gxh5
 
 h3 En-passant capture
 
 p.
-	Capturing en-passant is allowed under certain conditions.
-	If the opponent moved a pawn allowing such a capture (once or twice),
-	then (to take it) you must capture en-passant at the first move of your turn.
-	After that, if (and only if) there is another en-passant capture available
-	you can play it on the second move.
+  Capturing en-passant is allowed under certain conditions.
+  If the opponent moved a pawn allowing such a capture (once or twice),
+  then (to take it) you must capture en-passant at the first move of your turn.
+  After that, if (and only if) there is another en-passant capture available
+  you can play it on the second move.
 
 p.
-	Note: if a pawn 2-squares jump was made and then a piece landed at the
-	en-passant square at the second move, a pawn capture on this square
-	takes only the piece.
-	And, if a pawn advanced twice then en-passant capture
-	on its first movement is impossible (the pawn is now "too far").
+  Note: if a pawn 2-squares jump was made and then a piece landed at the
+  en-passant square at the second move, a pawn capture on this square
+  takes only the piece.
+  And, if a pawn advanced twice then en-passant capture
+  on its first movement is impossible (the pawn is now "too far").
 
 h3 More information
 
 p
-	| See for example the 
-	a(href="https://www.chessvariants.com/multimove.dir/marseill.html")
-		|	Marseillais Chess
-	| &nbsp;page on chessvariants.com.
+  | See for example the 
+  a(href="https://www.chessvariants.com/multimove.dir/marseill.html")
+    |  Marseillais Chess
+  | &nbsp;page on chessvariants.com.

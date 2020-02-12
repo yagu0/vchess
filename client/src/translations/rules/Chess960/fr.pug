@@ -1,193 +1,193 @@
 p.boxed
-	| Jeu orthodoxe (avec une position de départ aléatoire).
+  | Jeu orthodoxe (avec une position de départ aléatoire).
 
 p.
-	Les échecs sont un jeu entre deux joueurs, l'un déplaçant les pièces blanches
-	et l'autre les pièces noires. Un "coup" consiste en un tel mouvement sur
-	l'échiquier. Les pièces blanches et noires sont déplacées alternativement,
-	jusqu'à l'appartition d'une situation spécifique (mat, pat, ou autre critère
-	de nullité ; ceci est détaillé plus loin). Le joueur des pièces blanches
-	commence toujours.
+  Les échecs sont un jeu entre deux joueurs, l'un déplaçant les pièces blanches
+  et l'autre les pièces noires. Un "coup" consiste en un tel mouvement sur
+  l'échiquier. Les pièces blanches et noires sont déplacées alternativement,
+  jusqu'à l'appartition d'une situation spécifique (mat, pat, ou autre critère
+  de nullité ; ceci est détaillé plus loin). Le joueur des pièces blanches
+  commence toujours.
 
 p.
-	Chaque pièce a un mode de déplacement particulier, mais capture généralement
-	en arrivant sur une case occupée (avec une seule exception, détaillée plus bas).
+  Chaque pièce a un mode de déplacement particulier, mais capture généralement
+  en arrivant sur une case occupée (avec une seule exception, détaillée plus bas).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
-	figcaption Position de départ habituelle.
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Position de départ habituelle.
 
 p.
-	Coordonnées sur l'échiquier : les cases sont identifiées par un couple
-	(lettre, nombre). La lettre démarre à 'a' et indique la colonne, tandis que
-	le nombre démarre à 1 et indique la rangée.
-	Puisque l'échiquier comporte 64 cases, 8x8, ce système de coordonnées
-	démarre en a1 et s'achève en h8. 'a1' désigne le coin inférieur gauche, et
-	'h8' le coin supérieur droit du point de vue du joueur des pièces blanches.
+  Coordonnées sur l'échiquier : les cases sont identifiées par un couple
+  (lettre, nombre). La lettre démarre à 'a' et indique la colonne, tandis que
+  le nombre démarre à 1 et indique la rangée.
+  Puisque l'échiquier comporte 64 cases, 8x8, ce système de coordonnées
+  démarre en a1 et s'achève en h8. 'a1' désigne le coin inférieur gauche, et
+  'h8' le coin supérieur droit du point de vue du joueur des pièces blanches.
 
 h3 Coups non capturants
 
 h4 Pions
 
 p.
-	Ils forment l'unité la plus faible du jeu, mais aussi celle au déplacement
-	le plus complexe. Depuis leur rangée initiale les pions peuvent avancer de
-	deux cases (verticalement), ou d'une case seulement dans cette même direction.
-	Après ce premier coup, ils ne peuvent avancer que d'une case à la fois,
-	toujours vers l'avant.
+  Ils forment l'unité la plus faible du jeu, mais aussi celle au déplacement
+  le plus complexe. Depuis leur rangée initiale les pions peuvent avancer de
+  deux cases (verticalement), ou d'une case seulement dans cette même direction.
+  Après ce premier coup, ils ne peuvent avancer que d'une case à la fois,
+  toujours vers l'avant.
 
 p.
-	Les pions capturent en se déplaçant d'une case en avant en diagonale,
-	quand une pièce adverse s'y trouve.
+  Les pions capturent en se déplaçant d'une case en avant en diagonale,
+  quand une pièce adverse s'y trouve.
 
 p.
-	Quand ils atteignent la dernière rangée, les pions doivent se transformer en
-	n'importe quelle pièce non royale (de même couleur) : dame, tour, cavalier
-	ou fou. On parle de "promotion".
+  Quand ils atteignent la dernière rangée, les pions doivent se transformer en
+  n'importe quelle pièce non royale (de même couleur) : dame, tour, cavalier
+  ou fou. On parle de "promotion".
 
 p.
-	Notation des coups : "pion" est implicite, donc pour un simple déplacement de
-	pion on se contente de noter la case d'arrivée (puisqu'il n'y a pas
-	d'ambiguité). Ainsi, 1.e5 veut dire "pion de e4 en e5". Cependant, dans le cas
-	d'une capture il peut y avoir une ambiguité (deux pions sur la même rangée),
-	donc la colonne est indiquée aussi : "fxe6" (par exemple).
-	Comme vous le constatez une capture est notée par une croix : "x".
+  Notation des coups : "pion" est implicite, donc pour un simple déplacement de
+  pion on se contente de noter la case d'arrivée (puisqu'il n'y a pas
+  d'ambiguité). Ainsi, 1.e5 veut dire "pion de e4 en e5". Cependant, dans le cas
+  d'une capture il peut y avoir une ambiguité (deux pions sur la même rangée),
+  donc la colonne est indiquée aussi : "fxe6" (par exemple).
+  Comme vous le constatez une capture est notée par une croix : "x".
 
 figure.diagram-container
-	.diagram
-		| fen:k7/8/8/1prp4/1P1P4/8/6P1/7K:
-	figcaption Possibles coups de pion : g3, g4, dxc5, bxc5
+  .diagram
+    | fen:k7/8/8/1prp4/1P1P4/8/6P1/7K:
+  figcaption Possibles coups de pion : g3, g4, dxc5, bxc5
 
 p
-	| Pour un coup de pièce, on applique le même principe mais en préfixant par
-	| l'initiale de la pièce (en anglais).
-	| Une tour prenant quelque chose en f3 se note : Rxf3.
-	| Il existe des règles pour lever les ambiguités potentielles, mais elles
-	| vont trop loin pour cette courte présentation.
-	| Vous pouvez consulter à ce sujet par exemple la 
-	a(href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)")
-		| page Wikipedia
-	| .
+  | Pour un coup de pièce, on applique le même principe mais en préfixant par
+  | l'initiale de la pièce (en anglais).
+  | Une tour prenant quelque chose en f3 se note : Rxf3.
+  | Il existe des règles pour lever les ambiguités potentielles, mais elles
+  | vont trop loin pour cette courte présentation.
+  | Vous pouvez consulter à ce sujet par exemple la 
+  a(href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)")
+    | page Wikipedia
+  | .
 
 h4 Tours
 
 p.
-	Elles se déplacent horizontalement ou verticalement, d'autant de cases qu'elles
-	le souhaitent du moment que la voie est libre.
-	Si leur chemin s'arrête sur une pièce adverses, celle-ci peut être capturée
-	a priori. (A priori car le roi ne doit pas être en échec à la suite de ce coup).
+  Elles se déplacent horizontalement ou verticalement, d'autant de cases qu'elles
+  le souhaitent du moment que la voie est libre.
+  Si leur chemin s'arrête sur une pièce adverses, celle-ci peut être capturée
+  a priori. (A priori car le roi ne doit pas être en échec à la suite de ce coup).
 
 h4 Cavaliers
 
 p.
-	C'est la seule pièce capable de sauter par dessus les autres (sans les capturer).
-	Ils effectuent des déplacements en "L" : deux cases dans une direction
-	(horizontale ou verticale), puis une dans une direction orthogonale.
+  C'est la seule pièce capable de sauter par dessus les autres (sans les capturer).
+  Ils effectuent des déplacements en "L" : deux cases dans une direction
+  (horizontale ou verticale), puis une dans une direction orthogonale.
 
 figure.diagram-container
-	.diagram
-		| fen:k7/2p5/5q2/2b5/4N3/2R3r1/3P4/7K f6,d6,c5,f2,g3,g5:
-	figcaption Possibles coups de cavalier depuis e4.
+  .diagram
+    | fen:k7/2p5/5q2/2b5/4N3/2R3r1/3P4/7K f6,d6,c5,f2,g3,g5:
+  figcaption Possibles coups de cavalier depuis e4.
 
 h4 Fous
 
 p.
-	Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la voie
-	est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
-	a priori être capturée.
+  Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la voie
+  est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
+  a priori être capturée.
 
 h4 Dame
 
 p.
-	Cette pièce combine les modes de déplacement du fou et de la tour,
-	avec les même conditions.
+  Cette pièce combine les modes de déplacement du fou et de la tour,
+  avec les même conditions.
 
 h4 Roi
 
 p.
-	Le roi se déplace comme une dame, mais d'une seule case à la fois.
-	La case d'arrivée doit être vacante ou bien occupée par une pièce adverse
-	(qui se retrouve capturée).
+  Le roi se déplace comme une dame, mais d'une seule case à la fois.
+  La case d'arrivée doit être vacante ou bien occupée par une pièce adverse
+  (qui se retrouve capturée).
 
 p.
-	Le roi ne peut être capturé, mais un coup peut s'achever en menaçant le roi
-	adverse. Ce dernier est alors "en échec", et l'adversaire doit :
+  Le roi ne peut être capturé, mais un coup peut s'achever en menaçant le roi
+  adverse. Ce dernier est alors "en échec", et l'adversaire doit :
 ul
-	li déplacer son roi en lieu sûr, ou
-	li capturer l'attaquant, ou
-	li intercepter la ligne d'attaque.
+  li déplacer son roi en lieu sûr, ou
+  li capturer l'attaquant, ou
+  li intercepter la ligne d'attaque.
 p Selon la situation une ou plus de ces contre-mesures peuvent être inapplicables.
 
 p Il est interdit de laisser son roi en échec à la fin d'un coup.
 
 figure.diagram-container
-	.diagram
-		| fen:r6k/4q3/8/8/8/B7/8/K7:
-	figcaption Bxe7 est illégal (cela permet Rxa1).
+  .diagram
+    | fen:r6k/4q3/8/8/8/B7/8/K7:
+  figcaption Bxe7 est illégal (cela permet Rxa1).
 
 h3 Coups spéciaux
 
 p.
-	En plus de la promotion des pions précédemment introduite, deux coups spéciaux
-	sont à signaler :
+  En plus de la promotion des pions précédemment introduite, deux coups spéciaux
+  sont à signaler :
 ul
-	li.
-		le roque : si le roi et la tour la plus à droite du point de vue des blancs
-		n'ont pas encore bougé, et si rien ne se trouve sur le chemin du roi à la
-		tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou éventuellement
-		par les pièces impliquées dans le roque), alors le roi peut aller en g1 et la
-		tour en f1.
-		Note : puisque les pièces sont disposées aléatoirement, le roi ou la tour
-		peut sembler rester immobile pendant ce coup.
-		La même chose peut être effectué côté noir, et du "côté gauche" de
-		l'échiquier avec l'autre tour ; on arrive alors sur les cases c1 (roi) et d1
-		(tour). Ce dernier coup est appelé "grand roque", et l'autre "petit roque".
-		Notation : le petit roque (resp. grand roque) se note 0-0 (resp. 0-0-0).
-	li.
-		en passant : après qu'un pion a avancé de deux cases, si un pion adverse se
-		trouve juste à côté (horizontalement) il peut alors être capturé
-		"en passant", comme s'il n'avait avancé que d'une case.
-		Ce coup est noté comme les autres captures, mais avec "e.p." à la fin pour
-		indiquer ce coup spécial.
-		La capture n'est possible qu'immédiatement après le saut de deux cases :
-		elle ne pourra plus s'effectuer plus tard dans la partie.
+  li.
+    le roque : si le roi et la tour la plus à droite du point de vue des blancs
+    n'ont pas encore bougé, et si rien ne se trouve sur le chemin du roi à la
+    tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou éventuellement
+    par les pièces impliquées dans le roque), alors le roi peut aller en g1 et la
+    tour en f1.
+    Note : puisque les pièces sont disposées aléatoirement, le roi ou la tour
+    peut sembler rester immobile pendant ce coup.
+    La même chose peut être effectué côté noir, et du "côté gauche" de
+    l'échiquier avec l'autre tour ; on arrive alors sur les cases c1 (roi) et d1
+    (tour). Ce dernier coup est appelé "grand roque", et l'autre "petit roque".
+    Notation : le petit roque (resp. grand roque) se note 0-0 (resp. 0-0-0).
+  li.
+    en passant : après qu'un pion a avancé de deux cases, si un pion adverse se
+    trouve juste à côté (horizontalement) il peut alors être capturé
+    "en passant", comme s'il n'avait avancé que d'une case.
+    Ce coup est noté comme les autres captures, mais avec "e.p." à la fin pour
+    indiquer ce coup spécial.
+    La capture n'est possible qu'immédiatement après le saut de deux cases :
+    elle ne pourra plus s'effectuer plus tard dans la partie.
 
 figure.diagram-container
-	.diagram.diag12
-		| fen:nr1kb1r1/ppp3pp/8/2Pp4/8/7P/PP3PP1/1R3KBR:
-	.diagram.diag22
-		| fen:nr1kb1r1/ppp3pp/3P4/8/8/7P/PP3PP1/2KR2BR:
-	figcaption.
-		Gauche : les noirs viennent de jouer d5 (saut depuis d7).
-		Droite : après cxd6 e.p. et 0-0-0.
+  .diagram.diag12
+    | fen:nr1kb1r1/ppp3pp/8/2Pp4/8/7P/PP3PP1/1R3KBR:
+  .diagram.diag22
+    | fen:nr1kb1r1/ppp3pp/3P4/8/8/7P/PP3PP1/2KR2BR:
+  figcaption.
+    Gauche : les noirs viennent de jouer d5 (saut depuis d7).
+    Droite : après cxd6 e.p. et 0-0-0.
 
-h3 Fin de partie
+h3 Fin de la partie
 
 p.
-	La plus célèbre façon de mettre fin à la partie est l'"échec et mat" (ou
-	simplement "le mat"). Cela signifie terminer son coup en attaquant le roi
-	adverse, qui n'a aucun moyen d'éviter sa capture au coup suivant.
-	Le joueur donnant mat a un point et l'autre zéro, ainsi le score s'écrit
-	"1-0" (resp. "0-1") en cas de victoire blanche (resp. victoire noire).
+  La plus célèbre façon de mettre fin à la partie est l'"échec et mat" (ou
+  simplement "le mat"). Cela signifie terminer son coup en attaquant le roi
+  adverse, qui n'a aucun moyen d'éviter sa capture au coup suivant.
+  Le joueur donnant mat a un point et l'autre zéro, ainsi le score s'écrit
+  "1-0" (resp. "0-1") en cas de victoire blanche (resp. victoire noire).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/ppp2Qpp/2np4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR:
-	figcaption Célèbre motif de mat : 1-0
+  .diagram
+    | fen:rnbqkbnr/ppp2Qpp/2np4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR:
+  figcaption Célèbre motif de mat : 1-0
 
 p.
-	Toutes les autres façons d'achever une partie mènent à une nulle (1/2-1/2) ;
-	personne ne gagne :
+  Toutes les autres façons d'achever une partie mènent à une nulle (1/2-1/2) ;
+  personne ne gagne :
 ul
-	li quant un joueur n'a pas de coup légal à disposition sans être en échec (pat),
-	li.
-		quand une position est répétée trois fois avec les mêmes droits au roque,
-		et le même joueur au trait,
-	li quand 50 coups s'effectuent sans mouvement de pion ni capture.
+  li quant un joueur n'a pas de coup légal à disposition sans être en échec (pat),
+  li.
+    quand une position est répétée trois fois avec les mêmes droits au roque,
+    et le même joueur au trait,
+  li quand 50 coups s'effectuent sans mouvement de pion ni capture.
 p.
-	Note : cette dernière manière de terminer une partie n'est pas implémentée,
-	car elle ne se généralise pas facilement aux variantes (pas à toutes),
-	mais surtout car les parties jouées ici le sont avant tout pour s'amuser.
-	Si vous vous lancez dans des manoeuvres de 200 coups et que votre adversaire
-	n'en a pas marre, pourquoi vous arrêterais-je ? :)
+  Note : cette dernière manière de terminer une partie n'est pas implémentée,
+  car elle ne se généralise pas facilement aux variantes (pas à toutes),
+  mais surtout car les parties jouées ici le sont avant tout pour s'amuser.
+  Si vous vous lancez dans des manoeuvres de 200 coups et que votre adversaire
+  n'en a pas marre, pourquoi vous arrêterais-je ? :)

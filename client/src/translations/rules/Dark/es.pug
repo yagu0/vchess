@@ -1,0 +1,46 @@
+p.boxed
+  | Solo ves lo que tus piezas pueden lograr.
+  | Juego con información incompleta.
+
+p.
+  Versión con información incompleta del juego de ajedrez ortodoxo
+  (con posición inicial aleatoria).
+
+p.
+  Antes de cada movimiento, los jugadores solo ven lo que sus piezas pueden
+  lograr. Es decir: las cajas vacías donde las piezas pueden moverse,
+  pero también los espacios ocupados donde son posibles las capturas.
+  Por ejemplo, en la siguiente ilustración, después de 1.e4 d5 los blancos ven
+  un peón negro en d5, casillas e5, f5, h5, b5, a6 y los primeros cuatro
+  filas. El cuadro f5 es visible (y está vacío) gracias al modo de captura
+  especialmente peones.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR - w 8,7,b6-h6,a5,c5,g5:
+  figcaption Posición inicial habitual después de 1.e4 d5
+
+p.
+  Elija su movimiento con cuidado, en función de lo que se puede adivinar
+  de las últimas jugadas opuestas. Es importante contar bien el equipo.
+  También ten cuidado de cubrir las líneas de ataque del rey.
+  Buena suerte !
+
+p.
+  Nota: el robot no hace trampa, solo usa información
+  descrito anteriormente. Además es muy básico y claramente menos
+  eficiente que un humano. Habiendo dicho eso, puede ser divertido comenzar
+  contra él :)
+
+h3 Fin de la partida
+
+p Gana capturando al rey contrario (sin jaque, sin empate).
+
+h3 Más información
+
+p
+  | Descubrí esta variante en 
+  a(href="https://www.buho21.com/") Buho21
+  | , que tiene una interfaz agradable pero cuyo espíritu es muy diferente
+  | desde aquí (ELO ranking, suscripción VIP o anuncios, etc.).
+  | Parecía ser el único lugar para jugar a esta variante en vivo.

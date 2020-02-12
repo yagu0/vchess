@@ -1,0 +1,33 @@
+p.boxed
+  | Una pieza capturada puede ser reutilizada por el jugador capturador,
+  | colocándolo en cualquier casilla en lugar de moverlo.
+
+p.
+  Se aplican las reglas ortodoxas, con un solo cambio:
+  cada vez que se captura una pieza, la "reserva" de piezas del jugador que
+  captura se incrementa con esta unidad.
+  Con cada movimiento puedes elegir poner una de estas piezas en reserva
+  (en cualquier lugar, excepto las filas 1 y 8 para los peones) en lugar
+  de jugar una jugada habitual.
+
+p.
+  Notación: un signo '@' indica la llegada de una pieza de reserva.
+  Por ejemplo, B@d4 significa que un alfil se mete en d4, y @f3 significa
+  renacimiento de peón en f3.
+
+figure.diagram-container
+  .diagram
+    | fen:qnbrkb1r/ppNppp1p/2p2p2/8/8/5N2/P1PPPPPP/1RNQKBNR:
+  figcaption Después de 1.b3 Nf6 2.Bxf6 gxf6 3.Nf3 c6?? 4.N@c7#
+
+p.
+  Nota: cuando se captura un peón promocionado, esto agrega un peón a la
+  reserva del jugador capturador, no la pieza capturada. Esto promueve
+  sus peones sin temor a darle una dama al oponente.
+
+h3 Más información
+
+p
+  | Esta variante es muy popular; por ejemplo, puedes comenzar con 
+  a(href="https://www.chessvariants.com/other.dir/crazyhouse.html") lichess.org
+  | .

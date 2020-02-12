@@ -1,43 +1,31 @@
 p.boxed
-	| Every captured piece can be re-used by the capturer,
-	| landing it anywhere instead of moving a piece.
-
-h3 Specifications
-
-ul
-	li Chessboard: standard.
-	li Material: standard.
-	li Non-capturing moves: standard.
-	li Special moves: standard + rebirth.
-	li Captures: standard.
-	li End of game: standard.
-
-h3 Basics
+  | Every captured piece can be re-used by the capturer,
+  | landing it anywhere instead of moving a piece.
 
 p
-	| Orthodox rules apply, with only one change:
-	| every time a piece is captured, the capturer "reserve" of waiting pieces is
-	| augmented with this figure. At every move, you may choose to land one of your
-	| reserve pieces anywhere on the board (except first and last ranks for pawns),
-	| instead of playing a regular move.
+  | Orthodox rules apply, with only one change:
+  | every time a piece is captured, the capturer "reserve" of waiting pieces is
+  | augmented with this figure. At every move, you may choose to land one of your
+  | reserve pieces anywhere on the board (except first and last ranks for pawns),
+  | instead of playing a regular move.
 
 p.
-	Move notation: an arobase '@' indicate piece landing. For example B@d4 means
-	a bishop rebirth on d4 square, and @f3 is a pawn landing on f3.
+  Move notation: an arobase '@' indicate piece landing. For example B@d4 means
+  a bishop rebirth on d4 square, and @f3 is a pawn landing on f3.
 
 figure.diagram-container
-	.diagram
-		| fen:qnbrkb1r/ppNppp1p/2p2p2/8/8/5N2/P1PPPPPP/1RNQKBNR:
-	figcaption After 1.b3 Nf6 2.Bxf6 gxf6 3.Nf3 c6?? 4.N@c7#
+  .diagram
+    | fen:qnbrkb1r/ppNppp1p/2p2p2/8/8/5N2/P1PPPPPP/1RNQKBNR:
+  figcaption After 1.b3 Nf6 2.Bxf6 gxf6 3.Nf3 c6?? 4.N@c7#
 
 p.
-	Note: capturing a promoted pawn put a pawn in the reserve,
-	not the promoted piece. This is to allow to gain material on last rank without
-	fear of giving a queen to the opponent.
+  Note: capturing a promoted pawn put a pawn in the reserve,
+  not the promoted piece. This is to allow to gain material on last rank without
+  fear of giving a queen to the opponent.
 
 h3 More information
 
 p
-	| This variant is very popular, a possible starting point is 
-	a(href="https://www.chessvariants.com/other.dir/crazyhouse.html") lichess.org
-	| .
+  | This variant is very popular, a possible starting point is 
+  a(href="https://www.chessvariants.com/other.dir/crazyhouse.html") lichess.org
+  | .

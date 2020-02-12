@@ -1,193 +1,196 @@
 p.boxed
-	| Jeu orthodoxe (avec une position de départ aléatoire).
+  | Juego ortodoxo (con una posición inicial aleatoria).
 
 p.
-	Les échecs sont un jeu entre deux joueurs, l'un déplaçant les pièces blanches
-	et l'autre les pièces noires. Un "coup" consiste en un tel mouvement sur
-	l'échiquier. Les pièces blanches et noires sont déplacées alternativement,
-	jusqu'à l'appartition d'une situation spécifique (mat, pat, ou autre critère
-	de nullité ; ceci est détaillé plus loin). Le joueur des pièces blanches
-	commence toujours.
+  El ajedrez es un juego entre dos jugadores, uno que mueve las piezas blancas
+  y el otro las piezas negras. Una "jugada" consiste en tal movimiento en
+  el tablero (de ajedrez). Las piezas blancas y negras se mueven alternativamente,
+  hasta la aparición de una situación específica (jaque mate, empate u otro criterio
+  de nulidad ; esto se detalla a continuación). El jugador de las piezas blancas
+  siempre comienza.
 
 p.
-	Chaque pièce a un mode de déplacement particulier, mais capture généralement
-	en arrivant sur une case occupée (avec une seule exception, détaillée plus bas).
+  Cada pieza tiene un modo de movimiento específico, pero generalmente captura
+  al llegar a un espacio ocupado (con una excepción, detallada a continuación).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
-	figcaption Position de départ habituelle.
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Posición inicial habitual.
 
 p.
-	Coordonnées sur l'échiquier : les cases sont identifiées par un couple
-	(lettre, nombre). La lettre démarre à 'a' et indique la colonne, tandis que
-	le nombre démarre à 1 et indique la rangée.
-	Puisque l'échiquier comporte 64 cases, 8x8, ce système de coordonnées
-	démarre en a1 et s'achève en h8. 'a1' désigne le coin inférieur gauche, et
-	'h8' le coin supérieur droit du point de vue du joueur des pièces blanches.
+  Coordenadas en el tablero: las casillas son identificadas por una pareja
+  (letra, número). La letra comienza en 'a' e indica la columna, mientras que
+  el número comienza en 1 e indica la fila.
+  Dado que el tablero tiene 64 cuadrados, 8x8, este sistema de coordenadas
+  comienza en a1 y termina en h8. 'a1' designa la esquina inferior izquierda, y
+  'h8' la esquina superior derecha desde el punto de vista del jugador
+  de las piezas blancas.
 
-h3 Coups non capturants
+h3 Jugadas sin captura
 
-h4 Pions
-
-p.
-	Ils forment l'unité la plus faible du jeu, mais aussi celle au déplacement
-	le plus complexe. Depuis leur rangée initiale les pions peuvent avancer de
-	deux cases (verticalement), ou d'une case seulement dans cette même direction.
-	Après ce premier coup, ils ne peuvent avancer que d'une case à la fois,
-	toujours vers l'avant.
+h4 Peones
 
 p.
-	Les pions capturent en se déplaçant d'une case en avant en diagonale,
-	quand une pièce adverse s'y trouve.
+  Son la unidad la más débil del juego, pero también la unidad de desplazamiento
+  el más complejo. Desde su fila inicial, los peones pueden avanzar
+  dos casillas (verticalmente), o una casilla solo en esta misma dirección.
+  Después de este primer movimiento, solo pueden avanzar un espacio a la vez,
+  siempre hacia adelante.
 
 p.
-	Quand ils atteignent la dernière rangée, les pions doivent se transformer en
-	n'importe quelle pièce non royale (de même couleur) : dame, tour, cavalier
-	ou fou. On parle de "promotion".
+  Los peones capturan moviendo un casilla hacia adelante en diagonal,
+  cuando la pieza de un oponente está ahí.
 
 p.
-	Notation des coups : "pion" est implicite, donc pour un simple déplacement de
-	pion on se contente de noter la case d'arrivée (puisqu'il n'y a pas
-	d'ambiguité). Ainsi, 1.e5 veut dire "pion de e4 en e5". Cependant, dans le cas
-	d'une capture il peut y avoir une ambiguité (deux pions sur la même rangée),
-	donc la colonne est indiquée aussi : "fxe6" (par exemple).
-	Comme vous le constatez une capture est notée par une croix : "x".
+  Cuando llegan a la última fila, los peones deben convertirse en
+  cualquier pieza no real (del mismo color): dama, torre, caballo
+  o alfil. Es una "promoción".
+
+p.
+  Notación del movimientos: "peón" está implícito, por lo que para un
+  simple desplazamiento de peón solo notamos la caja de llegada (ya que no hay
+  ambigüedad). Por lo tanto, 1.e5 significa "peón de e4 a e5". Sin embargo,
+  en el caso de una captura puede haber una ambigüedad (dos peones en la misma
+  fila), entonces la columna también se indica: "fxe6" (por ejemplo).
+  Como puede ver, una captura se escribe con una cruz: "x".
 
 figure.diagram-container
-	.diagram
-		| fen:k7/8/8/1prp4/1P1P4/8/6P1/7K:
-	figcaption Possibles coups de pion : g3, g4, dxc5, bxc5
+  .diagram
+    | fen:k7/8/8/1prp4/1P1P4/8/6P1/7K:
+  figcaption Posibles movimientos de peones: g3, g4, dxc5, bxc5
 
 p
-	| Pour un coup de pièce, on applique le même principe mais en préfixant par
-	| l'initiale de la pièce (en anglais).
-	| Une tour prenant quelque chose en f3 se note : Rxf3.
-	| Il existe des règles pour lever les ambiguités potentielles, mais elles
-	| vont trop loin pour cette courte présentation.
-	| Vous pouvez consulter à ce sujet par exemple la 
-	a(href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)")
-		| page Wikipedia
-	| .
+  | Para un movimiento de figura, se aplica el mismo principio pero con el
+  | prefijo la inicial de la pieza (en inglés).
+  | Una torre que toma algo en f3 se escribe: Rxf3.
+  | Existen reglas para resolver ambigüedades potenciales, pero
+  | van demasiado lejos para esta breve presentación.
+  | Puede consultar sobre este tema, por ejemplo, la 
+  a(href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)")
+    | página de Wikipedia
+  | .
 
-h4 Tours
-
-p.
-	Elles se déplacent horizontalement ou verticalement, d'autant de cases qu'elles
-	le souhaitent du moment que la voie est libre.
-	Si leur chemin s'arrête sur une pièce adverses, celle-ci peut être capturée
-	a priori. (A priori car le roi ne doit pas être en échec à la suite de ce coup).
-
-h4 Cavaliers
+h4 Torres
 
 p.
-	C'est la seule pièce capable de sauter par dessus les autres (sans les capturer).
-	Ils effectuent des déplacements en "L" : deux cases dans une direction
-	(horizontale ou verticale), puis une dans une direction orthogonale.
+  Se mueven horizontal o verticalmente, tantas casillas como
+  deseen siempre y cuando el camino esté despejado.
+  Si su camino termina en la pieza de un oponente, puede ser capturado
+  a priori. (A priori porque el rey no debe estar bajo control después de este
+  movimiento).
+
+h4 Caballos
+
+p.
+  Es la única pieza capaz de saltar sobre otros (sin capturarlos).
+  Realizan desplazamientos en "L": dos casillas en una dirección
+  (horizontal o vertical), luego uno en una dirección ortogonal.
 
 figure.diagram-container
-	.diagram
-		| fen:k7/2p5/5q2/2b5/4N3/2R3r1/3P4/7K f6,d6,c5,f2,g3,g5:
-	figcaption Possibles coups de cavalier depuis e4.
+  .diagram
+    | fen:k7/2p5/5q2/2b5/4N3/2R3r1/3P4/7K f6,d6,c5,f2,g3,g5:
+  figcaption Posibles movimientos de caballo desde e4.
 
-h4 Fous
-
-p.
-	Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la voie
-	est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
-	a priori être capturée.
-
-h4 Dame
+h4 Alfiles
 
 p.
-	Cette pièce combine les modes de déplacement du fou et de la tour,
-	avec les même conditions.
+  Se mueven en diagonal, tan lejos como quieran mientras la pista
+  es libre. Si su camino termina en una pieza enemiga, esta puede
+  a priori ser capturado.
 
-h4 Roi
-
-p.
-	Le roi se déplace comme une dame, mais d'une seule case à la fois.
-	La case d'arrivée doit être vacante ou bien occupée par une pièce adverse
-	(qui se retrouve capturée).
+h4 Dama
 
 p.
-	Le roi ne peut être capturé, mais un coup peut s'achever en menaçant le roi
-	adverse. Ce dernier est alors "en échec", et l'adversaire doit :
+  Esta pieza combina los modos de movimiento del alfil y de la torre,
+  con las mismas condiciones.
+
+h4 Rey
+
+p.
+  El rey se mueve como una dama, pero solo un espacio a la vez.
+  La casilla de llegada debe estar vacía u ocupada por una pieza opuesta.
+  (quien se encuentra capturado).
+
+p.
+  El rey no puede ser capturado, pero una jugada puede terminar amenazando al rey
+  oponerse. Este último está entonces "en jaque" y el oponente debe:
 ul
-	li déplacer son roi en lieu sûr, ou
-	li capturer l'attaquant, ou
-	li intercepter la ligne d'attaque.
-p Selon la situation une ou plus de ces contre-mesures peuvent être inapplicables.
+  li mover a su rey a un lugar seguro, o
+  li capturar al atacante, o
+  li intercepto la línea de ataque.
+p Dependiendo de la situación, una o más de estas contramedidas pueden no ser aplicables.
 
-p Il est interdit de laisser son roi en échec à la fin d'un coup.
+p Está prohibido dejar a tu rey en jaque al final de un movimiento.
 
 figure.diagram-container
-	.diagram
-		| fen:r6k/4q3/8/8/8/B7/8/K7:
-	figcaption Bxe7 est illégal (cela permet Rxa1).
+  .diagram
+    | fen:r6k/4q3/8/8/8/B7/8/K7:
+  figcaption Bxe7 es ilegal (esto permite Rxa1).
 
-h3 Coups spéciaux
+h3 Jugadas especiales
 
 p.
-	En plus de la promotion des pions précédemment introduite, deux coups spéciaux
-	sont à signaler :
+  Además de la promoción de peones introducida previamente, dos movimientos especiales
+  son para informar:
 ul
-	li.
-		le roque : si le roi et la tour la plus à droite du point de vue des blancs
-		n'ont pas encore bougé, et si rien ne se trouve sur le chemin du roi à la
-		tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou éventuellement
-		par les pièces impliquées dans le roque), alors le roi peut aller en g1 et la
-		tour en f1.
-		Note : puisque les pièces sont disposées aléatoirement, le roi ou la tour
-		peut sembler rester immobile pendant ce coup.
-		La même chose peut être effectué côté noir, et du "côté gauche" de
-		l'échiquier avec l'autre tour ; on arrive alors sur les cases c1 (roi) et d1
-		(tour). Ce dernier coup est appelé "grand roque", et l'autre "petit roque".
-		Notation : le petit roque (resp. grand roque) se note 0-0 (resp. 0-0-0).
-	li.
-		en passant : après qu'un pion a avancé de deux cases, si un pion adverse se
-		trouve juste à côté (horizontalement) il peut alors être capturé
-		"en passant", comme s'il n'avait avancé que d'une case.
-		Ce coup est noté comme les autres captures, mais avec "e.p." à la fin pour
-		indiquer ce coup spécial.
-		La capture n'est possible qu'immédiatement après le saut de deux cases :
-		elle ne pourra plus s'effectuer plus tard dans la partie.
+  li.
+    el enroque: si el rey y la torre más a la derecha desde el punto de vista
+    de los blancos aún no se ha movido, y si nada se interpone en el camino
+    del rey a la torre, y si finalmente las casillas f1 y g1 no están ocupadas
+    (o posiblemente por las partes involucradas en el enroque), entonces el rey
+    puede ir a g1 y la torre en f1.
+    Nota: dado que las piezas se ordenan al azar, el rey o la torre
+    puede parecer quedarse quieto durante esta jugada.
+    Lo mismo se puede hacer en el lado negro, y en el "lado izquierdo" del
+    tablero con la otra torre ; las piezas llegan a las casillas c1 (rey) y d1
+    (Torre). Este último movimiento se llama "enroque grande" y el otro
+    "enroque pequeño".
+    Nota: el enroque pequeño (resp. Enroque grande) se escribe 0-0 (resp. 0-0-0).
+  li.
+    en passant: después de que un peón ha avanzado dos espacios, si un peón
+    contrario es justo al lado (horizontalmente) se puede capturar
+    "en passant", como si solo hubiera avanzado un espacio.
+    Este movimiento se escribe como las otras capturas, pero con "e.p." al
+    final para indicar esta jugada especial.
+    La captura solo es posible inmediatamente después del salto de dos casillas:
+    no se puede hacer más adelante en el juego.
 
 figure.diagram-container
-	.diagram.diag12
-		| fen:nr1kb1r1/ppp3pp/8/2Pp4/8/7P/PP3PP1/1R3KBR:
-	.diagram.diag22
-		| fen:nr1kb1r1/ppp3pp/3P4/8/8/7P/PP3PP1/2KR2BR:
-	figcaption.
-		Gauche : les noirs viennent de jouer d5 (saut depuis d7).
-		Droite : après cxd6 e.p. et 0-0-0.
+  .diagram.diag12
+    | fen:nr1kb1r1/ppp3pp/8/2Pp4/8/7P/PP3PP1/1R3KBR:
+  .diagram.diag22
+    | fen:nr1kb1r1/ppp3pp/3P4/8/8/7P/PP3PP1/2KR2BR:
+  figcaption.
+    Izquierda: las negras acaban de jugar d5 (saltar desde d7).
+    Derecha: después de cxd6 e.p. y 0-0-0.
 
-h3 Fin de partie
+h3 Fin de la partida
 
 p.
-	La plus célèbre façon de mettre fin à la partie est l'"échec et mat" (ou
-	simplement "le mat"). Cela signifie terminer son coup en attaquant le roi
-	adverse, qui n'a aucun moyen d'éviter sa capture au coup suivant.
-	Le joueur donnant mat a un point et l'autre zéro, ainsi le score s'écrit
-	"1-0" (resp. "0-1") en cas de victoire blanche (resp. victoire noire).
+  La forma más famosa de terminar el juego es "jaque mate" (o
+  simplemente "mate"). Significa terminar su movimiento atacando al rey
+  oponente, que no tiene forma de evitar su captura en el siguiente movimiento.
+  El jugador que da mate tiene un punto y el otro cero, por lo que se escribe
+  el puntaje "1-0" (resp. "0-1") en caso de victoria blanca (resp. victoria negra).
 
 figure.diagram-container
-	.diagram
-		| fen:rnbqkbnr/ppp2Qpp/2np4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR:
-	figcaption Célèbre motif de mat : 1-0
+  .diagram
+    | fen:rnbqkbnr/ppp2Qpp/2np4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR:
+  figcaption Patrón de mate famoso: 1-0
 
 p.
-	Toutes les autres façons d'achever une partie mènent à une nulle (1/2-1/2) ;
-	personne ne gagne :
+  Todas las otras formas de finalizar un juego conducen a las tablas (1/2-1/2) ;
+  nadie gana:
 ul
-	li quant un joueur n'a pas de coup légal à disposition sans être en échec (pat),
-	li.
-		quand une position est répétée trois fois avec les mêmes droits au roque,
-		et le même joueur au trait,
-	li quand 50 coups s'effectuent sans mouvement de pion ni capture.
+  li cuando un jugador no tiene movimiento legal disponible sin estar en jaque (empate),
+  li.
+    cuando una posición se repite tres veces con los mismos derechos de enroque,
+    y el mismo jugador al turno,
+  li cuando se realizan 50 jugadas sin movimiento de peón o captura.
 p.
-	Note : cette dernière manière de terminer une partie n'est pas implémentée,
-	car elle ne se généralise pas facilement aux variantes (pas à toutes),
-	mais surtout car les parties jouées ici le sont avant tout pour s'amuser.
-	Si vous vous lancez dans des manoeuvres de 200 coups et que votre adversaire
-	n'en a pas marre, pourquoi vous arrêterais-je ? :)
+  Nota: esta última forma de finalizar un juego no está implementada,
+  porque no se generaliza fácilmente a variantes (no a todas),
+  pero sobre todo porque las partidas que se juegan aquí son sobre todo por diversión.
+  Si te embarcas en maniobras de 200 movimientos y tu oponente
+  no está harto de eso, ¿por qué debería arrestarte?:)

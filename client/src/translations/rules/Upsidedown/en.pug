@@ -1,36 +1,36 @@
 p.boxed
-	| Pawns start on the 7th rank. Move a knight to promote them.
+  | Pawns start on the 7th rank. Move a knight to promote them.
 
 h3 Divergences
 
 p No castle, no en-passant capture.
 
 p.
-	...Only the initial position changes, but this makes a huge difference.
-	In particular, castling would be rather pointless so it's disabled here.
-	En-passant captures are impossible because all pawns already reached 7th rank.
+  ...Only the initial position changes, but this makes a huge difference.
+  In particular, castling would be rather pointless so it's disabled here.
+  En-passant captures are impossible because all pawns already reached 7th rank.
 
 h3 About the initial position
 
 p.
-	Since truly random start can allow a mate in 3 with a knight,
-	the kings have at least one knight neighbor in the initial position.
-	This allows to move free out of potential check from the very beginning.
+  Since truly random start can allow a mate in 3 with a knight,
+  the kings have at least one knight neighbor in the initial position.
+  This allows to move free out of potential check from the very beginning.
 
 p.
-	A less constraining condition would be to require the two knights to stand on
-	two squares of different colors, but it's not enough as proved by the
-	following diagram.
-	White can mate in 3: 1.Nc6 followed by Nb4 threatening both a2 and d3.
+  A less constraining condition would be to require the two knights to stand on
+  two squares of different colors, but it's not enough as proved by the
+  following diagram.
+  White can mate in 3: 1.Nc6 followed by Nb4 threatening both a2 and d3.
 
 figure.diagram-container
-	.diagram
-		| fen:RBN1BRRQ/PPPPPPP/8/4n3/8/8/Nppppppp/brkbqr1n:
-	figcaption After 1.Nc6 Nf3 2.Nb4 Ne5 (covers d3 but not a2) 3.Nxa2#
+  .diagram
+    | fen:RBN1BRRQ/PPPPPPP/8/4n3/8/8/Nppppppp/brkbqr1n:
+  figcaption After 1.Nc6 Nf3 2.Nb4 Ne5 (covers d3 but not a2) 3.Nxa2#
 
 h3 Source
 
 p
-	| See for example the 
-	a(href="https://www.chessvariants.com/diffsetup.dir/upside.html") Upside down chess
-	| &nbsp;page on chessvariants.com.
+  | See for example the 
+  a(href="https://www.chessvariants.com/diffsetup.dir/upside.html") Upside down chess
+  | &nbsp;page on chessvariants.com.

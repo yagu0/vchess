@@ -1,50 +1,46 @@
 p.boxed
-	| Vous ne voyez que ce que vos pièces peuvent atteindre.
-	| Jeu à information incomplète.
-
-h3 Divergences
+  | Vous ne voyez que ce que vos pièces peuvent atteindre.
+  | Jeu à information incomplète.
 
 p.
-	Version à information incomplète du jeu d'échecs orthodoxe
-	(avec position initiale aléatoire).
-
-h3 Bases
+  Version à information incomplète du jeu d'échecs orthodoxe
+  (avec position initiale aléatoire).
 
 p.
-	Avant chaque coup, les joueurs ne voient que ce que leurs pièces peuvent
-	atteindre. C'est-à-dire : les cases vides où peuvent se déplacer les pièces,
-	mais aussi les cases occupées où des captures sont possibles.
-	Par exemple sur l'illustration suivante, après 1.e4 d5 les blancs voient
-	un pion noir en d5, les cases e5, f5, h5, b5, a6 et les quatre premières
-	rangées. La case f5 est visible (et vide) grâce au mode de capture
-	particulier des pions.
+  Avant chaque coup, les joueurs ne voient que ce que leurs pièces peuvent
+  atteindre. C'est-à-dire : les cases vides où peuvent se déplacer les pièces,
+  mais aussi les cases occupées où des captures sont possibles.
+  Par exemple sur l'illustration suivante, après 1.e4 d5 les blancs voient
+  un pion noir en d5, les cases e5, f5, h5, b5, a6 et les quatre premières
+  rangées. La case f5 est visible (et vide) grâce au mode de capture
+  particulier des pions.
 
 figure.diagram-container
-	.diagram
-		| fen:8/8/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR - w 8,7,b6-h6,a5,c5,g5:
-	figcaption Position de départ habituelle après 1.e4 d5
+  .diagram
+    | fen:8/8/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR - w 8,7,b6-h6,a5,c5,g5:
+  figcaption Position de départ habituelle après 1.e4 d5
 
 p.
-	Choisissez votre coup prudemment, en vous basant sur ce qui est devinable
-	des derniers coups adverses. En particulier, compter le matériel est
-	indispensable. Faites attention aussi à couvrir les lignes d'attaque sur
-	le roi. Bonne chance !
+  Choisissez votre coup prudemment, en vous basant sur ce qui est devinable
+  des derniers coups adverses. Il est important de bien compter le matériel.
+  Faites attention aussi à couvrir les lignes d'attaque sur le roi.
+  Bonne chance !
 
 p.
-	Note : le robot joueur ne triche pas - il n'utilise que l'information
-	décrite plus haut. De plus il est très basique et clairement moins
-	performant qu'un humain. Ceci dit il peut être amusant de commencer
-	contre lui :)
+  Note : le robot joueur ne triche pas - il n'utilise que l'information
+  décrite plus haut. De plus il est très basique et clairement moins
+  performant qu'un humain. Ceci dit il peut être amusant de commencer
+  contre lui :)
 
-h3 Fin de partie
+h3 Fin de la partie
 
 p Gagnez en capturant le roi adverse (pas d'échecs, pas de pat).
 
 h3 Plus d'information
 
 p
-	| J'ai découvert cette variante sur 
-	a(href="https://www.buho21.com/") Buho21
-	| , qui dispose d'une belle interface mais dont l'esprit est très différent
-	| d'ici (système de classement, abonnement VIP ou publicités, etc.).
-	| Il semblait être le seul endroit où jouer en direct à cette variante.
+  | J'ai découvert cette variante sur 
+  a(href="https://www.buho21.com/") Buho21
+  | , qui dispose d'une belle interface mais dont l'esprit est très différent
+  | d'ici (système de classement, abonnement VIP ou publicités, etc.).
+  | Il semblait être le seul endroit où jouer en direct à cette variante.
