@@ -488,6 +488,8 @@ export default {
             newGame.vname = this.getVname(game.vid);
             if (!game.score) //if new game from Hall
               newGame.score = "*";
+            newGame.rids = [game.rid];
+            delete newGame["rid"];
             this.games.push(newGame);
           }
           else

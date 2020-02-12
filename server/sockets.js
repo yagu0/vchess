@@ -52,6 +52,16 @@ module.exports = function(wss) {
           delete clients[page];
       }
     };
+    const doDisconnect = () => {
+      deleteConnexion();
+      if (!clients[page] || !clients[page][sid])
+      {
+        // I effectively disconnected from this page:
+        notifyRoom(page, "disconnect");
+        if (page.indexOf("/game/") >= 0)
+          notifyRoom("/", "gdisconnect", {page:page});
+      }
+    };
     const messageListener = (objtxt) => {
       let obj = JSON.parse(objtxt);
       switch (obj.code)
@@ -68,14 +78,7 @@ module.exports = function(wss) {
         }
         case "disconnect":
           // When page changes:
-          deleteConnexion();
-          if (!clients[page] || !clients[page][sid])
-          {
-            // I effectively disconnected from this page:
-            notifyRoom(page, "disconnect");
-            if (page.indexOf("/game/") >= 0)
-              notifyRoom("/", "gdisconnect", {page:page});
-          }
+          doDisconnect();
           break;
         case "killme":
         {
@@ -148,9 +151,6 @@ module.exports = function(wss) {
         case "askgame":
         case "askfullgame":
         {
-          // DEBUG:
-          //console.log(sid + " " + page + " " + obj.code + " " + obj.target + " " + obj.page);
-          //console.log(clients);
           const pg = obj.page || page; //required for askidentity and askgame
           const tmpIds = Object.keys(clients[pg][obj.target]);
           if (obj.target == sid) //targetting myself
@@ -202,7 +202,7 @@ module.exports = function(wss) {
     };
     const closeListener = () => {
       // For tab or browser closing:
-      deleteConnexion();
+      doDisconnect();
     };
     // Update clients object: add new connexion
     if (!clients[page])
