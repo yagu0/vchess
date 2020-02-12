@@ -4,7 +4,6 @@ main
   div#infoDiv(role="dialog" data-checkbox="modalInfo")
     .card.text-center
       label.modal-close(for="modalInfo")
-      h3.section
       p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
   div#newgameDiv(role="dialog" data-checkbox="modalNewgame")
@@ -512,7 +511,6 @@ export default {
               "#/game/" + gameInfo.id + "</a>";
             let modalBox = document.getElementById("modalInfo");
             modalBox.checked = true;
-            setTimeout(() => { modalBox.checked = false; }, 3000);
           }
           break;
         }
@@ -716,7 +714,8 @@ export default {
   margin: 10px auto 5px auto
 
 #infoDiv > .card
-  max-width: 370px
+  padding: 15px 0
+  max-width: 430px
 
 #newgameDiv > .card
   max-width: 767px

@@ -111,7 +111,7 @@ module.exports = function(wss) {
             {
               doKill(pg);
               disconnectFromOtherConnexion(pg, "disconnect");
-              if (pg.indexOf("/game/") >= 0)
+              if (pg.indexOf("/game/") >= 0 && !!clients["/"])
                 disconnectFromOtherConnexion("/", "gdisconnect", {page:pg});
             }
           });

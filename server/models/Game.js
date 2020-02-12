@@ -36,8 +36,6 @@ const GameModel =
   checkGameInfo: function(g) {
     if (!g.vid.toString().match(/^[0-9]+$/))
       return "Wrong variant ID";
-    if (!g.vname.match(/^[a-zA-Z0-9]+$/))
-      return "Wrong variant name";
     if (!g.cadence.match(/^[0-9dhms +]+$/))
       return "Wrong characters in time control";
     if (!g.fen.match(/^[a-zA-Z0-9, /-]*$/))

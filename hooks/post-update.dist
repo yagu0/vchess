@@ -1,3 +1,17 @@
+## V1:
 #!/bin/sh
 # NOTE: the ssh part is not required if git repo and vchess are on the same server
 ssh user@server -t 'cd /path/to/vchess/client && git pull && npm run build'
+
+## V2:
+#!/bin/sh
+cd /path/to/vchess || exit
+# See https://stackoverflow.com/questions/4043609/getting-fatal-not-a-git-repository-when-using-post-update-hook-to-execut
+unset GIT_DIR
+git pull
+clientLines=`git diff-tree --no-commit-id --name-only -r HEAD | grep client | wc -l`
+if [ $clientLines -ne 0 ]; then
+	cd client
+	npm run build
+fi
+# TOOD: also should restart the service if server code changes
