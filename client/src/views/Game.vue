@@ -1,7 +1,7 @@
 <template lang="pug">
 main
   input#modalChat.modal(type="checkbox" @click="resetChatColor()")
-  div#chatWrap(role="dialog" data-checkbox="modalChat" aria-labelledby="inputChat")
+  div#chatWrap(role="dialog" data-checkbox="modalChat")
     #chat.card
       label.modal-close(for="modalChat")
       #participants
@@ -738,7 +738,7 @@ export default {
 
 #chat
   padding-top: 20px
-  max-width: 600px
+  max-width: 767px
   border: none;
 
 #chatBtn

@@ -4,7 +4,6 @@ div
   div(role="dialog" data-checkbox="modalSettings")
     .card(@change="updateSettings($event)")
       label.modal-close(for="modalSettings")
-      h3.section {{ st.tr["Settings"] }}
       form
         fieldset
           label(for="setHints") {{ st.tr["Show possible moves?"] }}

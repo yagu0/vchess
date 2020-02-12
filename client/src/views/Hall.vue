@@ -1,15 +1,14 @@
 <template lang="pug">
 main
   input#modalInfo.modal(type="checkbox")
-  div#infoDiv(role="dialog" data-checkbox="modalInfo" aria-labelledby="infoMessage")
-    .card.smallpad.small-modal.text-center
+  div#infoDiv(role="dialog" data-checkbox="modalInfo")
+    .card.text-center
       label.modal-close(for="modalInfo")
-      h3#infoMessage.section
-        p(v-html="infoMessage")
+      h3.section
+      p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
-  div#newgameDiv(role="dialog" data-checkbox="modalNewgame"
-      aria-labelledby="titleFenedit")
-    .card.smallpad(@keyup.enter="newChallenge()")
+  div#newgameDiv(role="dialog" data-checkbox="modalNewgame")
+    .card(@keyup.enter="newChallenge()")
       label#closeNewgame.modal-close(for="modalNewgame")
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }} *
@@ -715,6 +714,14 @@ export default {
 #newGame
   display: block
   margin: 10px auto 5px auto
+
+#infoDiv > .card
+  max-width: 370px
+
+#newgameDiv > .card
+  max-width: 767px
+  max-height: 100%
+
 #people
   width: 100%
 #players

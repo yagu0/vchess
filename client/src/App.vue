@@ -4,7 +4,6 @@
   Settings
   ContactForm
   UpsertUser
-  Welcome
   .container
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -46,7 +45,6 @@ import ContactForm from "@/components/ContactForm.vue";
 import Language from "@/components/Language.vue";
 import Settings from "@/components/Settings.vue";
 import UpsertUser from "@/components/UpsertUser.vue";
-import Welcome from "@/components/Welcome.vue";
 import { store } from "./store.js";
 import { processModalClick } from "./utils/modalClick.js";
 export default {
@@ -55,7 +53,6 @@ export default {
     Language,
     Settings,
     UpsertUser,
-    Welcome,
   },
   data: function() {
     return {
@@ -72,8 +69,6 @@ export default {
     dialogs.forEach(d => {
       d.addEventListener("click", processModalClick);
     });
-    if (!localStorage.getItem("welcomed"))
-      setTimeout( () => { doClick("modalWelcome"); }, 2000);
   },
   methods: {
     hideDrawer: function(e) {

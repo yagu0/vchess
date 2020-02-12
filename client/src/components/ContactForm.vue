@@ -4,7 +4,6 @@ div
   div(role="dialog" data-checkbox="modalContact")
     .card
       label.modal-close(for="modalContact")
-      h3.section {{ st.tr["Contact form"] }}
       form(@submit.prevent="trySendMessage()" @keyup.enter="trySendMessage()")
         fieldset
           label(for="userEmail") {{ st.tr["Email"] }}
