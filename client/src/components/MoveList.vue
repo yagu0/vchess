@@ -1,6 +1,5 @@
 <script>
 import { store } from "@/store";
-// Component for moves list on the right
 export default {
   name: 'my-move-list',
   props: ["moves","cursor","score","message","firstNum"],

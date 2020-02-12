@@ -18,6 +18,7 @@ export const translations =
   "Cadence": "Cadence",
   "Challenge": "Défier",
   "Challenge declined": "Défi refusé",
+  "Close and show no more": "Fermer et ne plus montrer",
   "Connection token sent. Check your emails!": "Token de connection envoyé. Allez voir vos emails !",
   "Contact": "Contact",
   "Contact form": "Formulaire de contact",

@@ -31,7 +31,7 @@ main
       fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
         label(for="inputFen") FEN
         input#inputFen(type="text" v-model="newchallenge.fen")
-      button(@click="newChallenge") {{ st.tr["Send challenge"] }}
+      button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
   .row
     .col-sm-12
       button#newGame(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
@@ -39,14 +39,14 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div
         .button-group
-          button(@click="(e) => setDisplay('c','live',e)" class="active")
+          button(@click="setDisplay('c','live',$event)" class="active")
             | {{ st.tr["Live challenges"] }}
-          button(@click="(e) => setDisplay('c','corr',e)")
+          button(@click="setDisplay('c','corr',$event)")
             | {{ st.tr["Correspondance challenges"] }}
         ChallengeList(v-show="cdisplay=='live'"
-          :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
+          :challenges="filterChallenges('live')" @click-challenge="clickChallenge()")
         ChallengeList(v-show="cdisplay=='corr'"
-          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
+          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge()")
       #people
         h3.text-center {{ st.tr["Who's there?"] }}
         #players
@@ -64,9 +64,9 @@ main
         .clearer
       div
         .button-group
-          button(@click="(e) => setDisplay('g','live',e)" class="active")
+          button(@click="setDisplay('g','live',$event)" class="active")
             | {{ st.tr["Live games"] }}
-          button(@click="(e) => setDisplay('g','corr',e)")
+          button(@click="setDisplay('g','corr',$event)")
             | {{ st.tr["Correspondance games"] }}
         GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
           @show-game="showGame")

@@ -3,15 +3,15 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button(@click="clickReadRules") {{ st.tr["Rules"] }}
-        button(v-show="!gameInProgress" @click="() => startGame('auto')")
+        button(@click="clickReadRules()") {{ st.tr["Rules"] }}
+        button(v-show="!gameInProgress" @click="startGame('auto')")
           | {{ st.tr["Example game"] }}
-        button(v-show="!gameInProgress" @click="() => startGame('versus')")
+        button(v-show="!gameInProgress" @click="startGame('versus')")
           | {{ st.tr["Practice"] }}
-        button(v-show="gameInProgress" @click="() => stopGame()")
+        button(v-show="gameInProgress" @click="stopGame()")
           | {{ st.tr["Stop game"] }}
         button(v-if="display=='rules' && gameInfo.vname!='Dark'"
-            @click="gotoAnalyze")
+            @click="gotoAnalyze()")
           | {{ st.tr["Analyse"] }}
       .section-content(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
@@ -22,7 +22,6 @@ main
 import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
 import { getDiagram } from "@/utils/printDiagram";
-
 export default {
   name: 'my-rules',
   components: {

@@ -15,12 +15,14 @@ div
         td(data-label="White") {{ g.players[0].name || "@nonymous" }}
         td(data-label="Black") {{ g.players[1].name || "@nonymous" }}
         td(data-label="Time control") {{ g.cadence }}
-        td(data-label="Result") {{ g.score }}
+        td(data-label="Result" :class="{finished: g.score!='*'}"
+            @click.stop="deleteGame(g)")
+          | {{ g.score }}
 </template>
 
 <script>
 import { store } from "@/store";
-
+import { GameStorage } from "@/utils/gameStorage";
 export default {
   name: "my-game-list",
   props: ["games"],
@@ -55,6 +57,12 @@ export default {
       return augmentedGames.sort((g1,g2) => { return g2.priority - g1.priority; });
     },
   },
+  methods: {
+    deleteGame: function(game) {
+      if (confirm(this.st.tr["Remove game ?"]))
+        GameStorage.remove(game.id);
+    },
+  },
 };
 </script>
 
@@ -62,4 +70,6 @@ export default {
 // TODO: understand why the style applied to <tr> element doesn't work
 tr.my-turn > td
   background-color: #fcd785
+tr td.finished
+  background-color: red
 </style>

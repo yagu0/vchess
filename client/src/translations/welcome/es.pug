@@ -1,6 +1,10 @@
 h3 ¡ Bienvenido a v[ariant]chess.club !
 p Un sitio donde jugar variantes del juego de ajedrez.
 img(src="/images/Hexagonal_chess.svg")
+-
+  var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
+    "List_of_chess_variants#/media/File:Hexagonal_chess.svg";
+p#credits Credito de imagen : #[a(href=wikipediaUrl) Wikipedia]
 p Una variante es un cambio de las reglas habituales :
 ul
   li diferentes desplazamientos de piezas, o
@@ -12,9 +16,3 @@ a(href="https://www.chessvariants.com/why.html") Pero por qué jugar esto ?!
 h3 Notas (no negociables ;) )
 p No hay clasificación ELO en el sitio.
 p Las partidas comienzan con una posición aleatoria asimétrica.
-p#disableMsg.clickable(onClick="localStorage.setItem('welcomed',true)")
-  | Cerrar y no mostrar más
--
-  var wikipediaUrl = "https://en.wikipedia.org/wiki/" +
-    "List_of_chess_variants#/media/File:Hexagonal_chess.svg";
-p.smallfont Credito de imagen : #[a(href=wikipediaUrl) Wikipedia]

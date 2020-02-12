@@ -7,7 +7,6 @@ BaseGame(:game="game" :vr="vr" ref="basegame"
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import Worker from "worker-loader!@/playCompMove";
-
 export default {
   name: "my-computer-game",
   components: {

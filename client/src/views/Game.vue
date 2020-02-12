@@ -1,6 +1,6 @@
 <template lang="pug">
 main
-  input#modalChat.modal(type="checkbox" @click="resetChatColor")
+  input#modalChat.modal(type="checkbox" @click="resetChatColor()")
   div#chatWrap(role="dialog" data-checkbox="modalChat" aria-labelledby="inputChat")
     #chat.card
       label.modal-close(for="modalChat")
@@ -17,10 +17,10 @@ main
       span.variant-info {{ game.vname }}
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
-        button(@click="clickDraw" :class="{['draw-' + drawOffer]: true}")
+        button(@click="clickDraw()" :class="{['draw-' + drawOffer]: true}")
           | {{ st.tr["Draw"] }}
-        button(v-if="!!game.mycolor" @click="abortGame") {{ st.tr["Abort"] }}
-        button(v-if="!!game.mycolor" @click="resign") {{ st.tr["Resign"] }}
+        button(v-if="!!game.mycolor" @click="abortGame()") {{ st.tr["Abort"] }}
+        button(v-if="!!game.mycolor" @click="resign()") {{ st.tr["Resign"] }}
       #playersInfo
         p
           span.name(:class="{connected: isConnected(0)}")

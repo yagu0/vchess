@@ -1,5 +1,5 @@
 <template lang="pug">
-div#baseGame(tabindex=-1 @click="() => focusBg()"
+div#baseGame(tabindex=-1 @click="focusBg()"
     @keydown="handleKeys" @wheel="handleScroll")
   input#modalEog.modal(type="checkbox")
   div#eogDiv(role="dialog" data-checkbox="modalEog" aria-labelledby="eogMessage")
@@ -21,21 +21,21 @@ div#baseGame(tabindex=-1 @click="() => focusBg()"
       #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'")
         | {{ turn }}
       #controls
-        button(@click="gotoBegin") <<
-        button(@click="() => undo()") <
-        button(@click="flip") &#8645;
-        button(@click="() => play()") >
-        button(@click="gotoEnd") >>
+        button(@click="gotoBegin()") <<
+        button(@click="undo()") <
+        button(@click="flip()") &#8645;
+        button(@click="play()") >
+        button(@click="gotoEnd()") >>
       #pgnDiv
         #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
-          button(@click="download") {{ st.tr["Download"] }} PGN
+          button(@click="download()") {{ st.tr["Download"] }} PGN
         button(onClick="doClick('modalAdjust')") &#10530;
         button(v-if="game.vname!='Dark' && game.mode!='analyze'"
-            @click="analyzePosition")
+            @click="analyzePosition()")
           | {{ st.tr["Analyse"] }}
         // NOTE: rather ugly hack to avoid showing twice "rules" link...
-        button(v-if="!$route.path.match('/variants/')" @click="showRules")
+        button(v-if="!$route.path.match('/variants/')" @click="showRules()")
           | {{ st.tr["Rules"] }}
     #movesList
       MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
@@ -52,7 +52,6 @@ import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
-
 export default {
   name: 'my-base-game',
   components: {

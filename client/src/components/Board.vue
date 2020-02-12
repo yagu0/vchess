@@ -2,7 +2,6 @@
 import { getSquareId, getSquareFromId } from "@/utils/squareId";
 import { ArrayFun } from "@/utils/array";
 import { store } from "@/store";
-
 export default {
   name: 'my-board',
   // Last move cannot be guessed from here, and is required to highlight squares

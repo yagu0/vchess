@@ -9,7 +9,6 @@ main
 <script>
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
-
 export default {
   name: 'my-auth',
   data: function() {

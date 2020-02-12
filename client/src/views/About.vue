@@ -7,7 +7,6 @@ main
 
 <script>
 import { store } from "@/store";
-
 export default {
   name: 'my-about',
   computed: {

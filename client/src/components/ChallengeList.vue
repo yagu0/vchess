@@ -17,7 +17,6 @@ div
 
 <script>
 import { store } from "@/store";
-
 export default {
   name: "my-challenge-list",
   props: ["challenges"],

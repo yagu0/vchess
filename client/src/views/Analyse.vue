@@ -4,7 +4,7 @@ main
     .col-sm-12
       #fenDiv
         input#fen(v-model="curFen" @input="adjustFenSize")
-        button(@click="gotoFen") {{ st.tr["Go"] }}
+        button(@click="gotoFen()") {{ st.tr["Go"] }}
   BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>
 
@@ -12,7 +12,6 @@ main
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import { ArrayFun } from "@/utils/array";
-
 export default {
   name: 'my-analyse',
   components: {

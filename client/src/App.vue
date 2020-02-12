@@ -14,7 +14,7 @@
         nav
           label.drawer-toggle(for="drawerControl")
           input#drawerControl.drawer(type="checkbox")
-          #menuBar(@click="hideDrawer")
+          #menuBar(@click="hideDrawer()")
             label.drawer-close(for="drawerControl")
             #leftMenu
               router-link(to="/")
