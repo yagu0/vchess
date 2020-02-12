@@ -110,6 +110,10 @@ export default {
       },
       newChat: "",
       conn: null,
+      connexionString: "",
+      // Related to (killing of) self multi-connects:
+      newConnect: {},
+      killed: {},
     };
   },
   watch: {
@@ -198,19 +202,14 @@ export default {
       this.send("pollclientsandgamers");
     };
     // Initialize connection
-    const connexionString = params.socketUrl +
+    this.connexionString = params.socketUrl +
       "/?sid=" + this.st.user.sid +
       "&tmpId=" + getRandString() +
       "&page=" + encodeURIComponent(this.$route.path);
-    this.conn = new WebSocket(connexionString);
+    this.conn = new WebSocket(this.connexionString);
     this.conn.onopen = connectAndPoll;
     this.conn.onmessage = this.socketMessageListener;
-    const socketCloseListener = () => {
-      this.conn = new WebSocket(connexionString);
-      this.conn.addEventListener('message', this.socketMessageListener);
-      this.conn.addEventListener('close', socketCloseListener);
-    };
-    this.conn.onclose = socketCloseListener;
+    this.conn.onclose = this.socketCloseListener;
   },
   mounted: function() {
     [document.getElementById("infoDiv"),document.getElementById("newgameDiv")]
@@ -227,12 +226,15 @@ export default {
   methods: {
     // Helpers:
     send: function(code, obj) {
-      this.conn.send(JSON.stringify(
-        Object.assign(
-          {code: code},
-          obj,
-        )
-      ));
+      if (!!this.conn)
+      {
+        this.conn.send(JSON.stringify(
+          Object.assign(
+            {code: code},
+            obj,
+          )
+        ));
+      }
     },
     getVname: function(vid) {
       const variant = this.st.variants.find(v => v.id == vid);
@@ -272,26 +274,15 @@ export default {
       {
         // In some game, maybe playing maybe not
         const gid = this.people[sid].page.match(/[a-zA-Z0-9]+$/)[0];
-        this.showGame(this.games.find(g => g.id == gid)), sid;
+        this.showGame(this.games.find(g => g.id == gid));
       }
     },
-    showGame: function(g, obsId) {
+    showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
       // ==> Moves sent by connected remote player(s) if live game
       let url = "/game/" + g.id;
       if (g.type == "live")
-      {
-        let rids = [];
-        for (let i of [0,1])
-        {
-          if (this.people[g.players[i].sid].pages.indexOf(url) >= 0)
-            rids.push(g.players[i].sid);
-        }
-        if (!!obsId)
-          rids.push(obsId); //observer can provide game too
-        const ridIdx = Math.floor(Math.random() * rids.length);
-        url += "?rid=" + rids[ridIdx];
-      }
+        url += "?rid=" + g.rids[Math.floor(Math.random() * g.rids.length)];
       this.$router.push(url);
     },
     processChat: function(chat) {
@@ -299,11 +290,15 @@ export default {
     },
     // Messaging center:
     socketMessageListener: function(msg) {
+      if (!this.conn)
+        return;
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
         case "pollclientsandgamers":
         {
+          // Since people can be both in Hall and Game,
+          // need to track "askIdentity" requests:
           let identityAsked = {};
           data.sockIds.forEach(s => {
             if (s.sid != this.st.user.sid && !identityAsked[s.sid])
@@ -315,9 +310,9 @@ export default {
               this.$set(this.people, s.sid, {id:0, name:"", pages:[s.page || "/"]});
             else if (!!s.page && this.people[s.sid].pages.indexOf(s.page) < 0)
               this.people[s.sid].pages.push(s.page);
-            if (!s.page)
+            if (!s.page) //peer is in Hall
               this.send("askchallenge", {target:s.sid});
-            else
+            else //peer is in Game
               this.send("askgame", {target:s.sid});
           });
           break;
@@ -342,62 +337,86 @@ export default {
               this.people[data.from].pages.push(data.page);
           }
           if (this.people[data.from].id == 0)
+          {
+            this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", {target:data.from});
+          }
           break;
         case "disconnect":
         case "gdisconnect":
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect")
           {
-            this.$delete(this.people, data.from);
-            // Also remove all challenges sent by this player:
+            // Remove the live challenge sent by this player:
             ArrayFun.remove(this.challenges, c => c.from.sid == data.from);
           }
           else
           {
-            const pidx = this.people[data.from].pages.indexOf(data.page);
-            this.people[data.from].pages.splice(pageIdx, 1);
-            if (this.people[data.from].pages.length == 0)
+            // Remove the matching live game if now unreachable
+            const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
+            const gidx = this.games.findIndex(g => g.id == gid);
+            if (gidx >= 0)
             {
-              this.$delete(this.people, data.from);
-              // And all live games where he plays and no other opponent is online
-              ArrayFun.remove(this.games, g =>
-                g.type == "live" && (g.players.every(p => p.sid == data.from
-                  || !this.people[p.sid])), "all");
+              const game = this.games[gidx];
+              if (game.type == "live" &&
+                game.rids.length == 1 && game.rids[0] == data.from)
+              {
+                this.games.splice(gidx, 1);
+              }
             }
           }
+          const page = data.page || "/";
+          ArrayFun.remove(this.people[data.from].pages, p => p == page);
+          if (this.people[data.from].pages.length == 0)
+            this.$delete(this.people, data.from);
+          break;
+        case "killed":
+          // I logged in elsewhere:
+          alert(this.st.tr["New connexion detected: tab now offline"]);
+          // TODO: this fails. See https://github.com/websockets/ws/issues/489
+          //this.conn.removeEventListener("message", this.socketMessageListener);
+          //this.conn.removeEventListener("close", this.socketCloseListener);
+          //this.conn.close();
+          this.conn = null;
           break;
         case "askidentity":
-          // Request for identification: reply if I'm not anonymous
-          if (this.st.user.id > 0)
-          {
-            const me = {
-              // NOTE: decompose to avoid revealing email
-              name: this.st.user.name,
-              sid: this.st.user.sid,
-              id: this.st.user.id,
-            };
-            this.send("identity", {data:me, target:data.from});
-          }
+        {
+          // Request for identification (TODO: anonymous shouldn't need to reply)
+          const me = {
+            // Decompose to avoid revealing email
+            name: this.st.user.name,
+            sid: this.st.user.sid,
+            id: this.st.user.id,
+          };
+          this.send("identity", {data:me, target:data.from});
           break;
+        }
         case "identity":
         {
           const user = data.data;
-          this.$set(this.people, user.sid,
+          if (!!user.name) //otherwise anonymous
+          {
+            // If I multi-connect, kill current connexion if no mark (I'm older)
+            if (this.newConnect[user.sid] && user.id > 0
+              && user.id == this.st.user.id && user.sid != this.st.user.sid)
             {
-              id: user.id,
-              name: user.name,
-              pages: this.people[user.sid].pages,
-            });
-
-//          // TODO: smarter, if multi-connect, send to all instances... (several sid's)
-//          // Or better: just prevent multi-connect.
-//          // Fix anomaly: if registered player multi-connect, should be left only one
-//          const anomalies = Object.keys(this.people).filter(sid => this.people[sid].id == user.id);
-//          if (anomalies.length == 2)
-//            this.$delete(this.people, anomalies[0]);
-//          // --> this isn't good, some sid's are just forgetted
-
+              if (!this.killed[this.st.user.sid])
+              {
+                this.send("killme", {sid:this.st.user.sid});
+                this.killed[this.st.user.sid] = true;
+              }
+            }
+            if (user.sid != this.st.user.sid) //I already know my identity...
+            {
+              this.$set(this.people, user.sid,
+                {
+                  id: user.id,
+                  name: user.name,
+                  pages: this.people[user.sid].pages,
+                });
+            }
+          }
+          delete this.newConnect[user.sid];
           break;
         }
         case "askchallenge":
@@ -463,7 +482,8 @@ export default {
         {
           // NOTE: it may be live or correspondance
           const game = data.data;
-          if (this.games.findIndex(g => g.id == game.id) < 0)
+          let locGame = this.games.find(g => g.id == game.id);
+          if (!locGame)
           {
             let newGame = game;
             newGame.type = this.classifyObject(game);
@@ -471,6 +491,12 @@ export default {
             if (!game.score) //if new game from Hall
               newGame.score = "*";
             this.games.push(newGame);
+          }
+          else
+          {
+            // Append rid (if not already in list)
+            if (!locGame.rids.includes(game.rid))
+              locGame.rids.push(game.rid);
           }
           break;
         }
@@ -495,6 +521,13 @@ export default {
           this.newChat = data.data;
           break;
       }
+    },
+    socketCloseListener: function() {
+      if (!this.conn)
+        return;
+      this.conn = new WebSocket(this.connexionString);
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.conn.addEventListener("close", this.socketCloseListener);
     },
     // Challenge lifecycle:
     newChallenge: async function() {

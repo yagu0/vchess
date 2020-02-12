@@ -41,6 +41,7 @@ import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
+import { getRandString } from "@/utils/alea";
 import { ArrayFun } from "@/utils/array";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
@@ -71,6 +72,10 @@ export default {
       repeat: {}, //detect position repetition
       newChat: "",
       conn: null,
+      connexionString: "",
+      // Related to (killing of) self multi-connects:
+      newConnect: {},
+      killed: {},
     };
   },
   watch: {
@@ -116,18 +121,13 @@ export default {
     this.gameRef.id = this.$route.params["id"];
     this.gameRef.rid = this.$route.query["rid"]; //may be undefined
     // Initialize connection
-    const connexionString = params.socketUrl +
+    this.connexionString = params.socketUrl +
       "/?sid=" + this.st.user.sid +
       "&tmpId=" + getRandString() +
       "&page=" + encodeURIComponent(this.$route.path);
-    this.conn = new WebSocket(connexionString);
+    this.conn = new WebSocket(this.connexionString);
     this.conn.onmessage = this.socketMessageListener;
-    const socketCloseListener = () => {
-      this.conn = new WebSocket(connexionString);
-      this.conn.addEventListener('message', this.socketMessageListener);
-      this.conn.addEventListener('close', socketCloseListener);
-    };
-    this.conn.onclose = socketCloseListener;
+    this.conn.onclose = this.socketCloseListener;
     // Socket init required before loading remote game:
     const socketInit = (callback) => {
       if (!!this.conn && this.conn.readyState == 1) //1 == OPEN state
@@ -160,12 +160,15 @@ export default {
       this.send("pollclients");
     },
     send: function(code, obj) {
-      this.conn.send(JSON.stringify(
-        Object.assign(
-          {code: code},
-          obj,
-        )
-      ));
+      if (!!this.conn)
+      {
+        this.conn.send(JSON.stringify(
+          Object.assign(
+            {code: code},
+            obj,
+          )
+        ));
+      }
     },
     isConnected: function(index) {
       const player = this.game.players[index];
@@ -177,6 +180,8 @@ export default {
         Object.values(this.people).some(p => p.id == player.uid);
     },
     socketMessageListener: function(msg) {
+      if (!this.conn)
+        return;
       const data = JSON.parse(msg.data);
       switch (data.code)
       {
@@ -184,40 +189,76 @@ export default {
           data.sockIds.forEach(sid => {
             this.$set(this.people, sid, {id:0, name:""});
             if (sid != this.st.user.sid)
+            {
               this.send("askidentity", {target:sid});
+              // Ask potentially missed last state, if opponent and I play
+              if (!!this.game.mycolor
+                && this.game.type == "live" && this.game.score == "*"
+                && this.game.players.some(p => p.sid == sid))
+              {
+                this.send("asklastate", {target:sid});
+              }
+            }
           });
           break;
         case "connect":
-          this.$set(this.people, data.from, {name:"", id:0});
-          this.send("askidentity", {target:data.from});
+          if (!this.people[data.from])
+            this.$set(this.people, data.from, {name:"", id:0});
+          if (!this.people[data.from].name)
+          {
+            this.newConnect[data.from] = true; //for self multi-connects tests
+            this.send("askidentity", {target:data.from});
+          }
           break;
         case "disconnect":
           this.$delete(this.people, data.from);
           break;
-        case "askidentity":
-          // Request for identification: reply if I'm not anonymous
-          if (this.st.user.id > 0)
-          {
-            const me = {
-              // NOTE: decompose to avoid revealing email
-              name: this.st.user.name,
-              sid: this.st.user.sid,
-              id: this.st.user.id,
-            };
-            this.send("identity", {data:me, target:data.from});
-          }
+        case "killed":
+          // I logged in elsewhere:
+          alert(this.st.tr["New connexion detected: tab now offline"]);
+          // TODO: this fails. See https://github.com/websockets/ws/issues/489
+          //this.conn.removeEventListener("message", this.socketMessageListener);
+          //this.conn.removeEventListener("close", this.socketCloseListener);
+          //this.conn.close();
+          this.conn = null;
           break;
+        case "askidentity":
+        {
+          // Request for identification (TODO: anonymous shouldn't need to reply)
+          const me = {
+            // Decompose to avoid revealing email
+            name: this.st.user.name,
+            sid: this.st.user.sid,
+            id: this.st.user.id,
+          };
+          this.send("identity", {data:me, target:data.from});
+          break;
+        }
         case "identity":
         {
           const user = data.data;
-          this.$set(this.people, user.sid, {id: user.id, name: user.name});
-          // Ask potentially missed last state, if opponent and I play
-          if (!!this.game.mycolor
-            && this.game.type == "live" && this.game.score == "*"
-            && this.game.players.some(p => p.sid == user.sid))
+          if (!!user.name) //otherwise anonymous
           {
-            this.send("asklastate", {target:user.sid});
+            // If I multi-connect, kill current connexion if no mark (I'm older)
+            if (this.newConnect[user.sid] && user.id > 0
+              && user.id == this.st.user.id && user.sid != this.st.user.sid)
+            {
+              if (!this.killed[this.st.user.sid])
+              {
+                this.send("killme", {sid:this.st.user.sid});
+                this.killed[this.st.user.sid] = true;
+              }
+            }
+            if (user.sid != this.st.user.sid) //I already know my identity...
+            {
+              this.$set(this.people, user.sid,
+                {
+                  id: user.id,
+                  name: user.name,
+                });
+            }
           }
+          delete this.newConnect[user.sid];
           break;
         }
         case "askgame":
@@ -232,6 +273,7 @@ export default {
               vid: this.game.vid,
               cadence: this.game.cadence,
               score: this.game.score,
+              rid: this.st.user.sid, //useful in Hall if I'm an observer
             };
             this.send("game", {data:myGame, target:data.from});
           }
@@ -305,6 +347,11 @@ export default {
           break;
         }
       }
+    },
+    socketCloseListener: function() {
+      this.conn = new WebSocket(this.connexionString);
+      this.conn.addEventListener('message', this.socketMessageListener);
+      this.conn.addEventListener('close', this.socketCloseListener);
     },
     // lastate was received, but maybe game wasn't ready yet:
     processLastate: function() {

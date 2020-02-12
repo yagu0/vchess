@@ -24,6 +24,8 @@ module.exports = function(wss) {
     const tmpId = query["tmpId"];
     const page = query["page"];
     const notifyRoom = (page,code,obj={}) => {
+      if (!clients[page])
+        return;
       Object.keys(clients[page]).forEach(k => {
         Object.keys(clients[page][k]).forEach(x => {
           if (k == sid && x == tmpId)
@@ -76,7 +78,7 @@ module.exports = function(wss) {
         case "disconnect":
           // When page changes:
           deleteConnexion();
-          if (!clients[page][sid])
+          if (!clients[page] || !clients[page][sid])
           {
             // I effectively disconnected from this page:
             notifyRoom(page, "disconnect");
@@ -84,12 +86,43 @@ module.exports = function(wss) {
               notifyRoom("/", "gdisconnect", {page:page});
           }
           break;
+        case "killme":
+        {
+          // Self multi-connect: manual removal + disconnect
+          const doKill = (pg) => {
+            Object.keys(clients[pg][obj.sid]).forEach(x => {
+              clients[pg][obj.sid][x].send(JSON.stringify({code: "killed"}));
+            });
+            delete clients[pg][obj.sid];
+          };
+          const disconnectFromOtherConnexion = (pg,code,o={}) => {
+            Object.keys(clients[pg]).forEach(k => {
+              if (k != obj.sid)
+              {
+                Object.keys(clients[pg][k]).forEach(x => {
+                  clients[pg][k][x].send(JSON.stringify(Object.assign(
+                    {code:code, from:obj.sid}, o)));
+                });
+              }
+            });
+          };
+          Object.keys(clients).forEach(pg => {
+            if (!!clients[pg][obj.sid])
+            {
+              doKill(pg);
+              disconnectFromOtherConnexion(pg, "disconnect");
+              if (pg.indexOf("/game/") >= 0)
+                disconnectFromOtherConnexion("/", "gdisconnect", {page:pg});
+            }
+          });
+          break;
+        }
         case "pollclients": //from Hall or Game
         {
           let sockIds = [];
           Object.keys(clients[page]).forEach(k => {
-            // Poll myself if I'm on at least another tab (same page)
-            if (k != sid || Object.keys(clients["/"][k]).length >= 2)
+            // Avoid polling myself: no new information to get
+            if (k != sid)
               sockIds.push(k);
           });
           socket.send(JSON.stringify({code:"pollclients", sockIds:sockIds}));
@@ -99,8 +132,8 @@ module.exports = function(wss) {
         {
           let sockIds = [];
           Object.keys(clients["/"]).forEach(k => {
-            // Poll myself if I'm on at least another tab (same page)
-            if (k != sid || Object.keys(clients["/"][k]).length >= 2)
+            // Avoid polling myself: no new information to get
+            if (k != sid)
               sockIds.push({sid:k});
           });
           // NOTE: a "gamer" could also just be an observer

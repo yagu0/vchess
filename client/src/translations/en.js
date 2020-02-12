@@ -52,6 +52,7 @@ export const translations =
   "My games": "My games",
   "Name": "Name",
   "Name or Email": "Name or Email",
+  "New connexion detected: tab now offline": "New connexion detected: tab now offline",
   "New correspondance game:": "New correspondance game:",
   "New game": "New game",
   "No subject. Send anyway?": "No subject. Send anyway?",

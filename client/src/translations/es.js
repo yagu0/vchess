@@ -52,6 +52,7 @@ export const translations =
   "My games": "Mis partidas",
   "Name": "Nombre",
   "Name or Email": "Nombre o Email",
+  "New connexion detected: tab now offline": "Nueva conexión detectada : pestaña ahora desconectada",
   "New correspondance game:": "Nueva partida por correspondencia :",
   "New game": "Nueva partida",
   "No subject. Send anyway?": "Sin asunto. ¿ Enviar sin embargo ?",
