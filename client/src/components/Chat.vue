@@ -1,12 +1,11 @@
 <template lang="pug">
 div
   input#inputChat(type="text" :placeholder="st.tr['Type here']"
-    @keyup.enter="sendChat")
-  button#sendChatBtn(@click="sendChat()") {{ st.tr["Send"] }}
-  p(v-for="chat in chats" :class="classObject(chat)"
-    v-html="chat.name + ': ' + chat.msg")
-  p(v-for="chat in pastChats" :class="classObject(chat)"
-    v-html="chat.name + ': ' + chat.msg")
+    @keyup.enter="sendChat()")
+  button(@click="sendChat()") {{ st.tr["Send"] }}
+  p(v-for="chat in chats.concat(pastChats)")
+    span.name {{ chat.name }} :&nbsp;
+    span(:class="classObject(chat)" v-html="chat.msg")
 </template>
 
 <script>
@@ -50,8 +49,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.name
+  color: #abb2b9
 .my-chatmsg
-  color: grey
+  color: #7d3c98
 .opp-chatmsg
-  color: black
+  color: #2471a3
 </style>

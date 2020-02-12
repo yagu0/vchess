@@ -13,7 +13,7 @@ main
         button(v-if="display=='rules' && gameInfo.vname!='Dark'"
             @click="gotoAnalyze()")
           | {{ st.tr["Analyse"] }}
-      .section-content(v-show="display=='rules'" v-html="content")
+      div(v-show="display=='rules'" v-html="content")
   ComputerGame(v-show="display=='computer'" :game-info="gameInfo"
     @game-over="stopGame" @game-stopped="gameStopped")
 </template>
@@ -116,17 +116,6 @@ export default {
 
 <!-- NOTE: not scoped here, because HTML is injected (TODO) -->
 <style lang="sass">
-//.section-content
-//  *
-//    margin-left: auto
-//    margin-right: auto
-//    max-width: 767px
-//  figure.diagram-container
-//    max-width: 1000px
-//  @media screen and (max-width: 767px)
-//    max-width: 100%
-//    padding: 0 5px
-
 .warn
   padding: 3px
   color: red
@@ -166,6 +155,12 @@ figure.diagram-container
 p.boxed
   background-color: #FFCC66
   padding: 5px
+
+.bigfont
+  font-size: 1.2em
+
+.bold
+  font-weight: bold
 
 .stageDelimiter
   color: purple

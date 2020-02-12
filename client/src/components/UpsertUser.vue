@@ -1,11 +1,11 @@
 <template lang="pug">
 div
-  input#modalUser.modal(type="checkbox" @change="trySetEnterTime")
+  input#modalUser.modal(type="checkbox" @change="trySetEnterTime($event)")
   div(role="dialog" data-checkbox="modalUser")
     .card
       label.modal-close(for="modalUser")
-      h3 {{ st.tr[stage] }}
-      form#userForm(@submit.prevent="onSubmit()" @keyup.enter="onSubmit")
+      h3.section {{ st.tr[stage] }}
+      form(@submit.prevent="onSubmit()" @keyup.enter="onSubmit()")
         div(v-show="stage!='Login'")
           fieldset
             label(for="username") {{ st.tr["Name"] }}
@@ -21,13 +21,13 @@ div
             label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
             input#nameOrEmail(type="text" v-model="nameOrEmail")
       .button-group
-        button#submit(type="button" @click="onSubmit()")
+        button(@click="onSubmit()")
           span {{ st.tr[submitMessage] }}
-        button(v-if="stage!='Update'" @click="toggleStage()")
+        button(v-if="stage!='Update'" type="button" @click="toggleStage()")
           span {{ st.tr[stage=="Login" ? "Register" : "Login"] }}
-        button#logoutBtn(v-else @click="doLogout()")
+        button(v-else type="button" @click="doLogout()")
           span {{ st.tr["Logout"] }}
-      #dialog(:style="{display: displayInfo}") {{ st.tr[infoMsg] }}
+      #dialog.text-center {{ st.tr[infoMsg] }}
 </template>
 
 <script>
@@ -71,9 +71,6 @@ export default {
           return "Apply";
       }
     },
-    displayInfo: function() {
-      return (this.infoMsg.length > 0 ? "block" : "none");
-    },
     stage: function() {
       return this.st.user.id > 0 ? "Update" : this.logStage;
     },
@@ -81,7 +78,10 @@ export default {
   methods: {
     trySetEnterTime: function(event) {
       if (!!event.target.checked)
+      {
+        this.infoMsg = "";
         this.enterTime = Date.now();
+      }
     },
     toggleStage: function() {
       // Loop login <--> register (update is for logged-in users)
@@ -124,7 +124,7 @@ export default {
       // Basic anti-bot strategy:
       const exitTime = Date.now();
       if (this.stage == "Register" && exitTime - this.enterTime < 5000)
-        return; //silently return, in (curious) case of it was legitimate
+        return;
       let error = undefined;
       if (this.stage == 'Login')
       {
@@ -142,10 +142,6 @@ export default {
           this.infoMsg = this.infoMessage();
           if (this.stage != "Update")
             this.nameOrEmail = "";
-          setTimeout(() => {
-            this.infoMsg = "";
-            document.getElementById("modalUser").checked = false;
-          }, 2000);
         },
         err => {
           this.infoMsg = "";
@@ -160,3 +156,12 @@ export default {
   },
 };
 </script>
+
+<style lang="sass" scoped>
+[type="checkbox"].modal+div .card
+  max-width: 370px
+  max-height: 100%
+#dialog
+  padding: 5px
+  color: blue
+</style>

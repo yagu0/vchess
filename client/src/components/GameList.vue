@@ -15,8 +15,7 @@ div
         td(data-label="White") {{ g.players[0].name || "@nonymous" }}
         td(data-label="Black") {{ g.players[1].name || "@nonymous" }}
         td(data-label="Time control") {{ g.cadence }}
-        td(data-label="Result" :class="{finished: g.score!='*'}"
-            @click.stop="deleteGame(g)")
+        td(data-label="Result" :class="{finished: g.score!='*'}" @click="deleteGame(g,$event)")
           | {{ g.score }}
 </template>
 
@@ -58,9 +57,13 @@ export default {
     },
   },
   methods: {
-    deleteGame: function(game) {
-      if (confirm(this.st.tr["Remove game ?"]))
-        GameStorage.remove(game.id);
+    deleteGame: function(game, e) {
+      if (game.score != "*")
+      {
+        if (confirm(this.st.tr["Remove game?"]))
+          GameStorage.remove(game.id);
+        e.stopPropagation();
+      }
     },
   },
 };
@@ -71,5 +74,5 @@ export default {
 tr.my-turn > td
   background-color: #fcd785
 tr td.finished
-  background-color: red
+  background-color: #f5b7b1
 </style>

@@ -8,9 +8,9 @@ div
     };
   input#modalLang.modal(type="checkbox")
   div(role="dialog" data-checkbox="modalLang")
-    #language.card
+    .card
       label.modal-close(for="modalLang")
-      form(@change="setLanguage")
+      form(@change="setLanguage($event)")
         fieldset
           label(for="langSelect") {{ st.tr["Language"] }}
           select#langSelect

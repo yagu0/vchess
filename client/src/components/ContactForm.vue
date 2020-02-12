@@ -1,24 +1,23 @@
 <template lang="pug">
 div
-  input#modalContact.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalContact"
-      aria-labelledby="contactTitle")
-    form.card.smallpad
+  input#modalContact.modal(type="checkbox" @change="trySetEnterTime($event)")
+  div(role="dialog" data-checkbox="modalContact")
+    .card
       label.modal-close(for="modalContact")
-      h3#contactTitle.section {{ st.tr["Contact form"] }}
-      fieldset
-        label(for="userEmail") {{ st.tr["Email"] }}
-        input#userEmail(type="email")
-      fieldset
-        label(for="mailSubject") {{ st.tr["Subject"] }}
-        input#mailSubject(type="text")
-      fieldset
-        label(for="mailContent") {{ st.tr["Content"] }} *
-        br
-        textarea#mailContent
-      fieldset
-        button(type="button" @click="trySendMessage()") {{ st.tr["Send"] }}
-        p#emailSent {{ st.tr["Email sent!"] }}
+      h3.section {{ st.tr["Contact form"] }}
+      form(@submit.prevent="trySendMessage()" @keyup.enter="trySendMessage()")
+        fieldset
+          label(for="userEmail") {{ st.tr["Email"] }}
+          input#userEmail(type="email")
+        fieldset
+          label(for="mailSubject") {{ st.tr["Subject"] }}
+          input#mailSubject(type="text")
+        fieldset
+          label(for="mailContent") {{ st.tr["Content"] }} *
+          br
+          textarea#mailContent
+      button(@click="trySendMessage()") {{ st.tr["Send"] }}
+      #dialog.text-center {{ st.tr[infoMsg] }}
 </template>
 
 <script>
@@ -29,12 +28,24 @@ export default {
   name: "my-contact-form",
   data: function() {
     return {
+      enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
       st: store.state,
+      infoMsg: "",
     };
   },
   methods: {
-    // Note: not using Vue here, but would be possible
+    trySetEnterTime: function(event) {
+      if (!!event.target.checked)
+      {
+        this.enterTime = Date.now();
+        this.infoMsg = "";
+      }
+    },
     trySendMessage: function() {
+      // Basic anti-bot strategy:
+      const exitTime = Date.now();
+      if (exitTime - this.enterTime < 5000)
+        return;
       let email = document.getElementById("userEmail");
       let subject = document.getElementById("mailSubject");
       let content = document.getElementById("mailContent");
@@ -56,11 +67,9 @@ export default {
           content: content.value,
         },
         () => {
+          this.infoMsg = "Email sent!";
           subject.value = "";
           content.value = "";
-          let emailSent = document.getElementById("emailSent");
-          emailSent.style.display = "inline-block";
-          setTimeout(() => { emailSent.style.display = "none"; }, 2000);
         }
       );
     },
@@ -69,7 +78,13 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-#emailSent
+[type="checkbox"].modal+div .card
+  max-width: 767px
+  max-height: 100%
+textarea#mailContent
+  width: 100%
+  min-height: 100px
+#dialog
+  padding: 5px
   color: blue
-  display: none
 </style>

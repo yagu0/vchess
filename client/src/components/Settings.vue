@@ -1,29 +1,30 @@
 <template lang="pug">
 div
   input#modalSettings.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalSettings"
-      aria-labelledby="settingsTitle")
-    .card.smallpad(@change="updateSettings")
+  div(role="dialog" data-checkbox="modalSettings")
+    .card(@change="updateSettings($event)")
       label.modal-close(for="modalSettings")
-      fieldset
-        label(for="setHints") {{ st.tr["Show possible moves?"] }}
-        input#setHints(type="checkbox" v-model="st.settings.hints")
-      fieldset
-        label(for="setHighlight")
-          | {{ st.tr["Highlight last move and checks?"] }}
-        input#setHighlight(type="checkbox" v-model="st.settings.highlight")
-      fieldset
-        label(for="setBcolor") {{ st.tr["Board colors"] }}
-        select#setBcolor(v-model="st.settings.bcolor")
-          option(value="lichess") {{ st.tr["brown"] }}
-          option(value="chesscom") {{ st.tr["green"] }}
-          option(value="chesstempo") {{ st.tr["blue"] }}
-      fieldset
-        label(for="setSound") {{ st.tr["Play sounds?"] }}
-        select#setSound(v-model="st.settings.sound")
-          option(value="0") {{ st.tr["None"] }}
-          option(value="1") {{ st.tr["New game"] }}
-          option(value="2") {{ st.tr["All"] }}
+      h3.section {{ st.tr["Settings"] }}
+      form
+        fieldset
+          label(for="setHints") {{ st.tr["Show possible moves?"] }}
+          input#setHints(type="checkbox" v-model="st.settings.hints")
+        fieldset
+          label(for="setHighlight")
+            | {{ st.tr["Highlight last move and checks?"] }}
+          input#setHighlight(type="checkbox" v-model="st.settings.highlight")
+        fieldset
+          label(for="setBcolor") {{ st.tr["Board colors"] }}
+          select#setBcolor(v-model="st.settings.bcolor")
+            option(value="lichess") {{ st.tr["brown"] }}
+            option(value="chesscom") {{ st.tr["green"] }}
+            option(value="chesstempo") {{ st.tr["blue"] }}
+        fieldset
+          label(for="setSound") {{ st.tr["Play sounds?"] }}
+          select#setSound(v-model="st.settings.sound")
+            option(value="0") {{ st.tr["None"] }}
+            option(value="1") {{ st.tr["New game"] }}
+            option(value="2") {{ st.tr["All"] }}
 </template>
 
 <script>
@@ -49,3 +50,9 @@ export default {
   },
 };
 </script>
+
+<style lang="sass" scoped>
+[type="checkbox"].modal+div .card
+  max-width: 767px
+  max-height: 100%
+</style>

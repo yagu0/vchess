@@ -72,6 +72,7 @@ export const translations =
   "participant(s):": "participant(s) :",
   "Register": "S'enregistrer",
   "Registration complete! Please check your emails": "Enregistrement terminé ! Allez voir vos emails",
+  "Remove game?": "Supprimer la partie ?",
   "Resign": "Abandonner",
   "Resign the game?": "Abandonner la partie ?",
   "Result": "Résultat",

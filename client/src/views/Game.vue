@@ -62,6 +62,7 @@ export default {
       },
       game: { //passed to BaseGame
         players:[{name:""},{name:""}],
+        chats: [],
         rendered: false,
       },
       virtualClocks: [0, 0], //initialized with true game.clocks
@@ -419,6 +420,8 @@ export default {
         this.vr = new V(game.fen);
         const gtype = (game.cadence.indexOf('d') >= 0 ? "corr" : "live");
         const tc = extractTime(game.cadence);
+        if (!game.chats)
+          game.chats = []; //live games don't have chat history
         if (gtype == "corr")
         {
           if (game.players[0].color == "b")

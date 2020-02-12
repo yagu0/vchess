@@ -72,6 +72,7 @@ export const translations =
   "participant(s):": "participant(s):",
   "Register": "Register",
   "Registration complete! Please check your emails": "Registration complete! Please check your emails",
+  "Remove game?": "Remove game?",
   "Resign": "Resign",
   "Resign the game?": "Resign the game?",
   "Result": "Result",

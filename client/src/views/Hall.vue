@@ -9,7 +9,7 @@ main
   input#modalNewgame.modal(type="checkbox")
   div#newgameDiv(role="dialog" data-checkbox="modalNewgame"
       aria-labelledby="titleFenedit")
-    .card.smallpad(@keyup.enter="newChallenge")
+    .card.smallpad(@keyup.enter="newChallenge()")
       label#closeNewgame.modal-close(for="modalNewgame")
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }} *
@@ -44,9 +44,9 @@ main
           button(@click="setDisplay('c','corr',$event)")
             | {{ st.tr["Correspondance challenges"] }}
         ChallengeList(v-show="cdisplay=='live'"
-          :challenges="filterChallenges('live')" @click-challenge="clickChallenge()")
+          :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
         ChallengeList(v-show="cdisplay=='corr'"
-          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge()")
+          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
       #people
         h3.text-center {{ st.tr["Who's there?"] }}
         #players
@@ -60,7 +60,7 @@ main
               | {{ getActionLabel(sid) }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
-          Chat(:newChat="newChat" @mychat="processChat")
+          Chat(:newChat="newChat" @mychat="processChat" :pastChats="[]")
         .clearer
       div
         .button-group

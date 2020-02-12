@@ -1,18 +1,18 @@
 <template lang="pug">
 div#baseGame(tabindex=-1 @click="focusBg()"
-    @keydown="handleKeys" @wheel="handleScroll")
+    @keydown="handleKeys($event)" @wheel="handleScroll($event)")
   input#modalEog.modal(type="checkbox")
-  div#eogDiv(role="dialog" data-checkbox="modalEog" aria-labelledby="eogMessage")
-    .card.smallpad.small-modal.text-center
+  div#eogDiv(role="dialog" data-checkbox="modalEog")
+    .card.text-center
       label.modal-close(for="modalEog")
-      h3#eogMessage.section {{ endgameMessage }}
+      h3.section {{ endgameMessage }}
   input#modalAdjust.modal(type="checkbox")
-  div#adjuster(role="dialog" data-checkbox="modalAdjust" aria-labelledby="labelAdjust")
-    .card.smallpad.small-modal.text-center
+  div#adjuster(role="dialog" data-checkbox="modalAdjust")
+    .card.text-center
       label.modal-close(for="modalAdjust")
-      label#labelAdjust(for="boardSize") {{ st.tr["Board size"] }}
+      label(for="boardSize") {{ st.tr["Board size"] }}
       input#boardSize.slider(type="range" min="0" max="100" value="50"
-        @input="adjustBoard")
+        @input="adjustBoard()")
   #gameContainer
     #boardContainer
       Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
@@ -411,6 +411,11 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+[type="checkbox"]#modalEog+div .card
+  min-height: 45px
+[type="checkbox"]#modalAdjust+div .card
+  padding: 5px
+
 #baseGame
   width: 100%
   &:focus
@@ -423,8 +428,6 @@ export default {
 #downloadDiv
   display: inline-block
 
-#modal-eog+div .card
-  overflow: hidden
 #controls
   margin-top: 10px
   margin-left: auto

@@ -2,8 +2,8 @@
 main
   .row
     .col-sm-12
-      #fenDiv
-        input#fen(v-model="curFen" @input="adjustFenSize")
+      .text-center
+        input#fen(v-model="curFen" @input="adjustFenSize()")
         button(@click="gotoFen()") {{ st.tr["Go"] }}
   BaseGame(:game="game" :vr="vr" ref="basegame")
 </template>
@@ -83,8 +83,3 @@ export default {
   },
 };
 </script>
-
-<style lang="sass" scoped>
-#fenDiv
-  text-align: center
-</style>

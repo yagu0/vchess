@@ -36,6 +36,16 @@ export default {
 </script>
 
 <style lang="sass">
+[type="checkbox"].modal+div .card
+  max-width: 767px
+  max-height: 100%
+img
+  display: block
+  margin: 0 auto
+  width: 300px
+@media screen and (max-width: 767px)
+  img
+    width: 75%
 p#credits
   font-size: 0.8rem
   margin-top: -10px

@@ -14,7 +14,7 @@
         nav
           label.drawer-toggle(for="drawerControl")
           input#drawerControl.drawer(type="checkbox")
-          #menuBar(@click="hideDrawer()")
+          #menuBar(@click="hideDrawer($event)")
             label.drawer-close(for="drawerControl")
             #leftMenu
               router-link(to="/")
@@ -109,9 +109,6 @@ body
 .row > div
   padding: 0
 
-.nopadding
-  padding: 0
-
 header
   width: 100%
   display: flex
@@ -128,23 +125,8 @@ header
 .text-center
   text-align: center
 
-.smallpad
-  padding: 5px
-
-.emphasis
-  font-style: italic
-
 .clearer
   clear: both
-
-.smallfont
-  font-size: 0.8em
-
-.bigfont
-  font-size: 1.2em
-
-.bold
-  font-weight: bold
 
 nav
   width: 100%
@@ -243,16 +225,4 @@ footer
 @media screen and (max-width: 767px)
   footer
     border: none
-
-//#settings, #contactForm
-//  max-width: 767px
-//  @media screen and (max-width: 767px)
-//    max-width: 100vw
-//[type="checkbox"].modal+div .card
-//  max-width: 767px
-//  max-height: 100vh
-//[type="checkbox"].modal+div .card.small-modal
-//  max-width: 320px
-//[type="checkbox"].modal+div .card.big-modal
-//  max-width: 90vw
 </style>
