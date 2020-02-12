@@ -1,0 +1,54 @@
+p.boxed
+  | Juega dos jugadas a cada turno.
+
+p.
+  La única diferencia con el juego ortodoxo es la regla del doble movimiento,
+	pero eso afecta mucho el juego
+
+p.
+  Al comienzo del juego, los blancos solo juegan un movimiento, como
+  en general. Sin embargo, después de eso y por el resto del juego,
+  cada lado debe jugar dos jugadas cada turno. Con dos excepciones:
+
+ul
+  li.
+    Si el primer movimiento da jaque (quizás mate),
+    entonces no se realiza un segundo movimiento.
+  li.
+    Si no se permite ningún movimiento después del primero, entonces es
+		empate y una vez más no hay segundo movimiento.
+
+p.
+  Con respecto al formato PGN del juego: cuando un lado juega dos movimientos
+	seguidos, están separados (en orden) por una coma.
+	Ejemplo: 3.Na5, Ad3 e6, f4 (los dos primeros son jugadas blancas,
+	los dos siguientes son jugadas negras).
+
+figure.diagram-container
+  .diagram
+    | fen:r1bqkbnr/pppp1p1p/2n5/4p2p/4P3/5N2/PPPP1PPP/RNB1KB1R:
+  figcaption Después de los movimientos 1.e4 e5, Cc6 2.Qh5, Cf3 g6, gxh5
+
+h3 Captura en passant
+
+p.
+  La captura en passant está permitida bajo ciertas condiciones.
+  Si el oponente ha movido un peón permitiendo tal captura
+  (una o dos veces), entonces para aprovecharlo debes tomar en passant
+  en el primer movimiento de tu turno. Entonces, si (y solo si) hay
+  otra captura en passant disponible, puede ejecutarla en el segundo movimiento.
+
+p.
+  Nota: si un peón mueve dos casillas y después una pieza ocupa el espacio de
+  tomado en passant en el segundo movimiento de un turno, una captura en
+	este espacio solo capturará esa pieza.
+  Y, si un peón ha avanzado dos veces la captura en passant en su primer
+  movimiento es imposible (el peón está "demasiado lejos" ahora).
+
+h3 Más información
+
+p
+  | Ver por ejemplo la página
+  a(href="https://www.chessvariants.com/multimove.dir/marseill.html")
+    | ajedrez Marsellesa
+  | &nbsp;en chessvariants.com.
