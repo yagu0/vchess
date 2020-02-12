@@ -17,7 +17,7 @@ new Vue({
       {
         let modalBoxes = document.querySelectorAll("[id^='modal']");
         modalBoxes.forEach(m => {
-          if (m.checked)
+          if (m.checked && m.id != "modalWelcome")
             m.checked = false;
         });
       }
