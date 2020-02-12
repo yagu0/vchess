@@ -13,6 +13,13 @@ function getJsonFromUrl(url)
   return result;
 }
 
+// Helper to safe-send some message through a (web-)socket:
+function send(socket, message)
+{
+  if (!!socket && socket.readyState == 1)
+    socket.send(JSON.stringify(message));
+}
+
 module.exports = function(wss) {
   // Associative array page --> sid --> tmpId --> socket
   // "page" is either "/" for hall or "/game/some_gid" for Game,
@@ -30,8 +37,7 @@ module.exports = function(wss) {
         Object.keys(clients[page][k]).forEach(x => {
           if (k == sid && x == tmpId)
             return;
-          clients[page][k][x].send(JSON.stringify(Object.assign(
-            {code:code, from:sid}, obj)));
+          send(clients[page][k][x], Object.assign({code:code, from:sid}, obj));
         });
       });
     };
@@ -48,21 +54,6 @@ module.exports = function(wss) {
     };
     const messageListener = (objtxt) => {
       let obj = JSON.parse(objtxt);
-      if (!!obj.target)
-      {
-        // Check if receiver is connected, because there may be some lag
-        // between a client disconnects and another notice.
-        if (Array.isArray(obj.target))
-        {
-          if (!clients[page][obj.target[0]] ||
-            !clients[page][obj.target[0]][obj.target[1]])
-          {
-            return;
-          }
-        }
-        else if (!clients[page][obj.target])
-          return;
-      }
       switch (obj.code)
       {
         // Wait for "connect" message to notify connection to the room,
@@ -91,7 +82,7 @@ module.exports = function(wss) {
           // Self multi-connect: manual removal + disconnect
           const doKill = (pg) => {
             Object.keys(clients[pg][obj.sid]).forEach(x => {
-              clients[pg][obj.sid][x].send(JSON.stringify({code: "killed"}));
+              send(clients[pg][obj.sid][x], {code: "killed"});
             });
             delete clients[pg][obj.sid];
           };
@@ -100,8 +91,7 @@ module.exports = function(wss) {
               if (k != obj.sid)
               {
                 Object.keys(clients[pg][k]).forEach(x => {
-                  clients[pg][k][x].send(JSON.stringify(Object.assign(
-                    {code:code, from:obj.sid}, o)));
+                  send(clients[pg][k][x], Object.assign({code:code, from:obj.sid}, o));
                 });
               }
             });
@@ -125,7 +115,7 @@ module.exports = function(wss) {
             if (k != sid)
               sockIds.push(k);
           });
-          socket.send(JSON.stringify({code:"pollclients", sockIds:sockIds}));
+          send(socket, {code:"pollclients", sockIds:sockIds});
           break;
         }
         case "pollclientsandgamers": //from Hall
@@ -146,7 +136,7 @@ module.exports = function(wss) {
               });
             }
           });
-          socket.send(JSON.stringify({code:"pollclientsandgamers", sockIds:sockIds}));
+          send(socket, {code:"pollclientsandgamers", sockIds:sockIds});
           break;
         }
 
@@ -158,7 +148,11 @@ module.exports = function(wss) {
         case "askgame":
         case "askfullgame":
         {
-          const tmpIds = Object.keys(clients[page][obj.target]);
+          // DEBUG:
+          //console.log(sid + " " + page + " " + obj.code + " " + obj.target + " " + obj.page);
+          //console.log(clients);
+          const pg = obj.page || page; //required for askidentity and askgame
+          const tmpIds = Object.keys(clients[pg][obj.target]);
           if (obj.target == sid) //targetting myself
           {
             const idx_myTmpid = tmpIds.findIndex(x => x == tmpId);
@@ -166,8 +160,7 @@ module.exports = function(wss) {
               tmpIds.splice(idx_myTmpid, 1);
           }
           const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
-          clients[page][obj.target][tmpIds[tmpId_idx]].send(
-            JSON.stringify({code:obj.code, from:[sid,tmpId]}));
+          send(clients[pg][obj.target][tmpIds[tmpId_idx]], {code:obj.code, from:[sid,tmpId,page]});
           break;
         }
 
@@ -176,10 +169,7 @@ module.exports = function(wss) {
         case "startgame":
           Object.keys(clients[page][obj.target]).forEach(x => {
             if (obj.target != sid || x != tmpId)
-            {
-              clients[page][obj.target][x].send(JSON.stringify(
-                {code:obj.code, data:obj.data}));
-            }
+              send(clients[page][obj.target][x], {code:obj.code, data:obj.data});
           });
           break;
 
@@ -203,9 +193,11 @@ module.exports = function(wss) {
         case "game":
         case "identity":
         case "lastate":
-          clients[page][obj.target[0]][obj.target[1]].send(JSON.stringify(
-            {code:obj.code, data:obj.data}));
+        {
+          const pg = obj.target[2] || page; //required for identity and game
+          send(clients[pg][obj.target[0]][obj.target[1]], {code:obj.code, data:obj.data});
           break;
+        }
       }
     };
     const closeListener = () => {

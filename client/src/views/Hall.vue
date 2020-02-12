@@ -302,7 +302,7 @@ export default {
             if (s.sid != this.st.user.sid && !identityAsked[s.sid])
             {
               identityAsked[s.sid] = true;
-              this.send("askidentity", {target:s.sid});
+              this.send("askidentity", {target:s.sid, page:s.page || "/"});
             }
             if (!this.people[s.sid])
               this.$set(this.people, s.sid, {id:0, name:"", pages:[s.page || "/"]});
@@ -311,7 +311,7 @@ export default {
             if (!s.page) //peer is in Hall
               this.send("askchallenge", {target:s.sid});
             else //peer is in Game
-              this.send("askgame", {target:s.sid});
+              this.send("askgame", {target:s.sid, page:s.page});
           });
           break;
         }
@@ -326,7 +326,7 @@ export default {
             if (data.code == "connect")
               this.send("askchallenge", {target:data.from});
             else
-              this.send("askgame", {target:data.from});
+              this.send("askgame", {target:data.from, page:data.page});
           }
           else
           {
@@ -337,7 +337,7 @@ export default {
           if (this.people[data.from].id == 0)
           {
             this.newConnect[data.from] = true; //for self multi-connects tests
-            this.send("askidentity", {target:data.from});
+            this.send("askidentity", {target:data.from, page:data.page || "/"});
           }
           break;
         case "disconnect":
