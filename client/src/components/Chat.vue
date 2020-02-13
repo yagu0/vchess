@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  input#inputChat(type="text" :placeholder="st.tr['Type here']"
+  input#inputChat(type="text" :placeholder="st.tr['Chat here']"
     @keyup.enter="sendChat()")
   button(@click="sendChat()") {{ st.tr["Send"] }}
   p(v-for="chat in chats.concat(pastChats)")
