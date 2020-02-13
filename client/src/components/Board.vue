@@ -14,6 +14,7 @@ export default {
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
       start: {}, //pixels coordinates + id of starting square (click or drag)
+      currentSquare: null,
       settings: store.state.settings,
     };
   },
@@ -281,26 +282,30 @@ export default {
       e.preventDefault(); //disable native drag & drop
       if (!this.selectedPiece && e.target.classList.contains("piece"))
       {
+        let parent = e.target.parentNode;
+        // Mark selected square
+        this.currentSquare = parent;
+        this.currentSquare.classList.add("selected");
         // Next few lines to center the piece on mouse cursor
-        let rect = e.target.parentNode.getBoundingClientRect();
+        let rect = parent.getBoundingClientRect();
         this.start = {
           x: rect.x + rect.width/2,
           y: rect.y + rect.width/2,
-          id: e.target.parentNode.id
+          id: parent.id
         };
         this.selectedPiece = e.target.cloneNode();
         this.selectedPiece.style.position = "absolute";
         this.selectedPiece.style.top = 0;
         this.selectedPiece.style.display = "inline-block";
         this.selectedPiece.style.zIndex = 3000;
-        const startSquare = getSquareFromId(e.target.parentNode.id);
+        const startSquare = getSquareFromId(parent.id);
         this.possibleMoves = [];
         const color = (this.analyze ? this.vr.turn : this.userColor);
         if (this.vr.canIplay(color,startSquare))
           this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
         // Next line add moving piece just after current image
         // (required for Crazyhouse reserve)
-        e.target.parentNode.insertBefore(this.selectedPiece, e.target.nextSibling);
+        parent.insertBefore(this.selectedPiece, e.target.nextSibling);
       }
     },
     mousemove: function(e) {
@@ -310,6 +315,12 @@ export default {
       // If there is an active element, move it around
       if (!!this.selectedPiece)
       {
+        // Mousemove => drag & drop, no need to keep initial square highlighted
+        if (!!this.currentSquare)
+        {
+          this.currentSquare.classList.remove("selected");
+          this.currentSquare = null;
+        }
         const [offsetX,offsetY] = !!e.clientX
           ? [e.clientX,e.clientY] //desktop browser
           : [e.changedTouches[0].pageX, e.changedTouches[0].pageY]; //smartphone
@@ -321,7 +332,7 @@ export default {
       if (!this.selectedPiece)
         return;
       e = e || window.event;
-      // Read drop target (or parentElement, parentNode... if type == "img")
+      // Read drop target (or iterate parentNode if type == "img")
       this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coords
       const [offsetX,offsetY] = !!e.clientX
         ? [e.clientX,e.clientY]
@@ -335,6 +346,12 @@ export default {
       {
         // A click: selectedPiece and possibleMoves are already filled
         return;
+      }
+      // Reset initial square color (if not mousemove: smartphone)
+      if (!!this.currentSquare)
+      {
+        this.currentSquare.classList.remove("selected");
+        this.currentSquare = null;
       }
       // OK: process move attempt
       let endSquare = getSquareFromId(landing.id);
@@ -446,6 +463,9 @@ img.ghost
 
 .incheck
   background-color: #cc3300 !important
+
+.selected
+  background-color: #f7acf7 !important
 
 .light-square.lichess
   background-color: #f0d9b5;

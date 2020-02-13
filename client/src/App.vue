@@ -84,13 +84,15 @@ export default {
 <style lang="sass">
 html, *
   font-family: "Open Sans", Arial, sans-serif
-  --back-color: #f2f2f2
   --a-link-color: black
   --a-visited-color: black
 
 body
   padding: 0
   min-width: 320px
+  --fore-color: #1c1e10 //#2c3e50
+  //--back-color: #f2f2f2
+  background-image: radial-gradient(white, #e6e6ff) //lavender)
 
 #app
   -webkit-font-smoothing: antialiased
