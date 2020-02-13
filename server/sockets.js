@@ -186,6 +186,11 @@ module.exports = function(wss) {
           notifyRoom(page, obj.code, {data:obj.data});
           break;
 
+        case "result":
+          // Special case: notify all, 'transroom': Game --> Hall
+          notifyRoom("/", "result", {gid:obj.gid, score:obj.score});
+          break;
+
         // Passing, relaying something: from isn't needed,
         // but target is fully identified (sid + tmpId)
         case "challenge":

@@ -686,6 +686,8 @@ export default {
       {
         GameStorage.update(this.gameRef.id,
           {score: score, scoreMsg: scoreMsg});
+        // Notify the score to main Hall. TODO: only one player (currently double send)
+        this.send("result", {gid:this.game.id, score:score});
       }
     },
   },

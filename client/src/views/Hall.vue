@@ -548,6 +548,13 @@ export default {
           }
           break;
         }
+        case "result":
+        {
+          let g = this.games.find(g => g.id == data.gid);
+          if (!!g)
+            g.score = data.score;
+          break;
+        }
         case "startgame":
         {
           // New game just started: data contain all information
