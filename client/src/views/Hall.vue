@@ -37,9 +37,9 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div
         .button-group
-          button(@click="setDisplay('c','live',$event)" class="active")
+          button#btnClive(@click="setDisplay('c','live',$event)" class="active")
             | {{ st.tr["Live challenges"] }}
-          button(@click="setDisplay('c','corr',$event)")
+          button#btnCcorr(@click="setDisplay('c','corr',$event)")
             | {{ st.tr["Correspondance challenges"] }}
         ChallengeList(v-show="cdisplay=='live'"
           :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
@@ -50,11 +50,7 @@ main
         #players
           p(v-for="sid in Object.keys(people)" v-if="!!people[sid].name")
             span {{ people[sid].name }}
-            // Check: anonymous players cannot send individual challenges or be challenged individually
-            button.player-action(
-              v-if="sid != st.user.sid && !!st.user.name && people[sid].id > 0"
-              @click="challOrWatch(sid)"
-            )
+            button.player-action(v-if="showPlayerActionBtn(sid)" @click="challOrWatch(sid)")
               | {{ getActionLabel(sid) }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
@@ -62,9 +58,9 @@ main
         .clearer
       div
         .button-group
-          button(@click="setDisplay('g','live',$event)" class="active")
+          button#btnGlive(@click="setDisplay('g','live',$event)" class="active")
             | {{ st.tr["Live games"] }}
-          button(@click="setDisplay('g','corr',$event)")
+          button#btnGcorr(@click="setDisplay('g','corr',$event)")
             | {{ st.tr["Correspondance games"] }}
         GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
           @show-game="showGame")
@@ -140,6 +136,11 @@ export default {
       "GET",
       {uid: this.st.user.id, excluded: true},
       response => {
+        // Show corr tab with timeout, to let enough time for (socket) polling
+        setTimeout( () => {
+          if (this.games.length == response.games.length)
+            this.setDisplay('g', "corr");
+          }, 1000);
         this.games = this.games.concat(response.games.map(g => {
           const type = this.classifyObject(g);
           const vname = this.getVname(g.vid);
@@ -153,6 +154,10 @@ export default {
       "GET",
       {uid: this.st.user.id},
       response => {
+        setTimeout( () => {
+          if (this.challenges.length == response.challenges.length)
+            this.setDisplay('c', "corr");
+          }, 1000);
         // Gather all senders names, and then retrieve full identity:
         // (TODO [perf]: some might be online...)
         let names = {};
@@ -250,11 +255,30 @@ export default {
     },
     setDisplay: function(letter, type, e) {
       this[letter + "display"] = type;
-      e.target.classList.add("active");
-      if (!!e.target.previousElementSibling)
-        e.target.previousElementSibling.classList.remove("active");
+      let elt = !!e
+        ? e.target
+        : document.getElementById("btn" + letter.toUpperCase() + type);
+      elt.classList.add("active");
+      if (!!elt.previousElementSibling)
+        elt.previousElementSibling.classList.remove("active");
       else
-        e.target.nextElementSibling.classList.remove("active");
+        elt.nextElementSibling.classList.remove("active");
+    },
+    isGamer: function(sid) {
+      return this.people[sid].pages.some(p => p.indexOf("/game/") >= 0);
+    },
+    showPlayerActionBtn: function(sid) {
+      // Do not show action btn if I'm anonymous and target isn't playing,
+      // or target is anonymous and not playing,
+      // or target is me and I don't play anywhere.
+      const targetIsGamer = this.isGamer(sid);
+      if ((!this.st.user.name && !targetIsGamer) ||
+        (!this.people[sid].name && !this.isGamer(this.st.user.sid)) ||
+        (sid == this.st.user.sid && !targetIsGamer))
+      {
+        return false;
+      }
+      return true;
     },
     getActionLabel: function(sid) {
       return this.people[sid].pages.some(p => p == "/")
@@ -270,8 +294,14 @@ export default {
       }
       else
       {
-        // In some game, maybe playing maybe not
-        const gid = this.people[sid].page.match(/[a-zA-Z0-9]+$/)[0];
+        // In some game, maybe playing maybe not: show a random one
+        let gids = [];
+        this.people[sid].pages.forEach(p => {
+          const matchGid = p.match(/[a-zA-Z0-9]+$/);
+          if (!!matchGid)
+            gids.push(matchGid[0]);
+        });
+        const gid = gids[Math.floor(Math.random() * gids.length)];
         this.showGame(this.games.find(g => g.id == gid));
       }
     },
@@ -299,49 +329,56 @@ export default {
           // need to track "askIdentity" requests:
           let identityAsked = {};
           data.sockIds.forEach(s => {
+            const page = s.page || "/";
             if (s.sid != this.st.user.sid && !identityAsked[s.sid])
             {
               identityAsked[s.sid] = true;
-              this.send("askidentity", {target:s.sid, page:s.page || "/"});
+              this.send("askidentity", {target:s.sid, page:page});
             }
             if (!this.people[s.sid])
-              this.$set(this.people, s.sid, {id:0, name:"", pages:[s.page || "/"]});
-            else if (!!s.page && this.people[s.sid].pages.indexOf(s.page) < 0)
-              this.people[s.sid].pages.push(s.page);
+              this.$set(this.people, s.sid, {id:0, name:"", pages:[page]});
+            else if (this.people[s.sid].pages.indexOf(page) < 0)
+              this.people[s.sid].pages.push(page);
             if (!s.page) //peer is in Hall
               this.send("askchallenge", {target:s.sid});
             else //peer is in Game
-              this.send("askgame", {target:s.sid, page:s.page});
+              this.send("askgame", {target:s.sid, page:page});
           });
           break;
         }
         case "connect":
         case "gconnect":
+        {
+          const page = data.page || "/";
           // NOTE: player could have been polled earlier, but might have logged in then
           // So it's a good idea to ask identity if he was anonymous.
           // But only ask game / challenge if currently disconnected.
           if (!this.people[data.from])
           {
-            this.$set(this.people, data.from, {name:"", id:0, pages:[data.page]});
+            this.$set(this.people, data.from, {name:"", id:0, pages:[page]});
             if (data.code == "connect")
               this.send("askchallenge", {target:data.from});
             else
-              this.send("askgame", {target:data.from, page:data.page});
+              this.send("askgame", {target:data.from, page:page});
           }
           else
           {
             // append page if not already in list
-            if (this.people[data.from].pages.indexOf(data.page) < 0)
-              this.people[data.from].pages.push(data.page);
+            if (this.people[data.from].pages.indexOf(page) < 0)
+              this.people[data.from].pages.push(page);
           }
           if (this.people[data.from].id == 0)
           {
             this.newConnect[data.from] = true; //for self multi-connects tests
-            this.send("askidentity", {target:data.from, page:data.page || "/"});
+            this.send("askidentity", {target:data.from, page:page});
           }
           break;
+        }
         case "disconnect":
         case "gdisconnect":
+          if (!this.people[data.from])
+            return; //TODO: solve this bug
+                    // (anonymous reloads page, onclose event triggered twice...)
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect")
           {
@@ -458,6 +495,11 @@ export default {
             newChall.from = Object.assign({sid:chall.from}, fromValues);
             newChall.vname = this.getVname(newChall.vid);
             this.challenges.push(newChall);
+            // Adjust visual:
+            if (newChall.type == "live" && this.cdisplay == "corr" && !this.challenges.some(c => c.type == "corr"))
+              this.setDisplay('c', "live");
+            else if (newChall.type == "corr" && this.cdisplay == "live" && !this.challenges.some(c => c.type == "live"))
+              this.setDisplay('c', "corr");
           }
           break;
         }
@@ -491,6 +533,11 @@ export default {
             newGame.rids = [game.rid];
             delete newGame["rid"];
             this.games.push(newGame);
+            // Adjust visual:
+            if (newGame.type == "live" && this.gdisplay == "corr" && !this.games.some(g => g.type == "corr"))
+              this.setDisplay('g', "live");
+            else if (newGame.type == "live" && this.gdisplay == "live" && !this.games.some(g => g.type == "live"))
+              this.setDisplay('g', "corr");
           }
           else
           {

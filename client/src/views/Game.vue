@@ -134,7 +134,11 @@ export default {
       if (!!this.conn && this.conn.readyState == 1) //1 == OPEN state
         callback();
       else //socket not ready yet (initial loading)
-        this.conn.onopen = callback;
+      {
+        // NOTE: it's important to call callback without arguments,
+        // otherwise first arg is Websocket object and loadGame fails.
+        this.conn.onopen = () => { return callback() };
+      }
     };
     if (!this.gameRef.rid) //game stored locally or on server
       this.loadGame(null, () => socketInit(this.roomInit));
@@ -540,7 +544,8 @@ export default {
         });
         if (this.repeat[repIdx] >= 3)
           this.drawOffer = "threerep";
-        callback();
+        if (!!callback)
+          callback();
       };
       if (!!game)
         return afterRetrieval(game);
