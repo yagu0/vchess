@@ -50,7 +50,7 @@ main
         #players
           p(v-for="sid in Object.keys(people)" v-if="!!people[sid].name")
             span {{ people[sid].name }}
-            button.player-action(v-if="showPlayerActionBtn(sid)" @click="challOrWatch(sid)")
+            button.player-action(v-if="sid!=st.user.sid || isGamer(sid)" @click="challOrWatch(sid)")
               | {{ getActionLabel(sid) }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
@@ -137,10 +137,16 @@ export default {
       {uid: this.st.user.id, excluded: true},
       response => {
         // Show corr tab with timeout, to let enough time for (socket) polling
-        setTimeout( () => {
-          if (this.games.length == response.games.length)
-            this.setDisplay('g', "corr");
-          }, 1000);
+        setTimeout(
+          () => {
+            if (response.games.length > 0 &&
+              this.games.length == response.games.length)
+            {
+              this.setDisplay('g', "corr");
+            }
+          },
+          1000
+        );
         this.games = this.games.concat(response.games.map(g => {
           const type = this.classifyObject(g);
           const vname = this.getVname(g.vid);
@@ -154,10 +160,16 @@ export default {
       "GET",
       {uid: this.st.user.id},
       response => {
-        setTimeout( () => {
-          if (this.challenges.length == response.challenges.length)
-            this.setDisplay('c', "corr");
-          }, 1000);
+        setTimeout(
+          () => {
+            if (response.challenges.length > 0 &&
+              this.challenges.length == response.challenges.length)
+            {
+              this.setDisplay('c', "corr");
+            }
+          },
+          1000
+        );
         // Gather all senders names, and then retrieve full identity:
         // (TODO [perf]: some might be online...)
         let names = {};
@@ -267,19 +279,6 @@ export default {
     isGamer: function(sid) {
       return this.people[sid].pages.some(p => p.indexOf("/game/") >= 0);
     },
-    showPlayerActionBtn: function(sid) {
-      // Do not show action btn if I'm anonymous and target isn't playing,
-      // or target is anonymous and not playing,
-      // or target is me and I don't play anywhere.
-      const targetIsGamer = this.isGamer(sid);
-      if ((!this.st.user.name && !targetIsGamer) ||
-        (!this.people[sid].name && !this.isGamer(this.st.user.sid)) ||
-        (sid == this.st.user.sid && !targetIsGamer))
-      {
-        return false;
-      }
-      return true;
-    },
     getActionLabel: function(sid) {
       return this.people[sid].pages.some(p => p == "/")
         ? "Challenge"
@@ -376,9 +375,11 @@ export default {
         }
         case "disconnect":
         case "gdisconnect":
+          // If the user reloads the page twice very quickly (experienced with Firefox),
+          // the first reload won't have time to connect but will trigger a "close" event anyway.
+          // ==> Next check is required.
           if (!this.people[data.from])
-            return; //TODO: solve this bug
-                    // (anonymous reloads page, onclose event triggered twice...)
+            return;
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect")
           {

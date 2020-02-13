@@ -201,9 +201,7 @@ module.exports = function(wss) {
       }
     };
     const closeListener = () => {
-      // TODO: BUG: this is triggered twice when anonymous reloads page
-      // (+ registered users, everyone in Hall).
-      // For tab or browser closing:
+      // For browser or tab closing (including page reload):
       doDisconnect();
     };
     // Update clients object: add new connexion
