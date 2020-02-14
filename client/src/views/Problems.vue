@@ -92,6 +92,7 @@ main
 <script>
 // TODO: si showProblem(p), changer URL (ajouter problem ID)
 // Et si au lancement l'URL comprend un pid, alors showOne=true et curproblem=...
+// TODO: also style problem div (in the list, similar to variants page + clickable)
 
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
