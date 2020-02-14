@@ -7,28 +7,29 @@ main
       p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
   div#newgameDiv(role="dialog" data-checkbox="modalNewgame")
-    .card(@keyup.enter="newChallenge()")
+    .card
       label#closeNewgame.modal-close(for="modalNewgame")
-      fieldset
-        label(for="selectVariant") {{ st.tr["Variant"] }} *
-        select#selectVariant(v-model="newchallenge.vid")
-          option(v-for="v in st.variants" :value="v.id"
-              :selected="newchallenge.vid==v.id")
-            | {{ v.name }}
-      fieldset
-        label(for="cadence") {{ st.tr["Cadence"] }} *
-        div#predefinedCadences
-          button 3+2
-          button 5+3
-          button 15+5
-        input#cadence(type="text" v-model="newchallenge.cadence"
-          placeholder="5+0, 1h+30s, 7d+1d ...")
-      fieldset(v-if="st.user.id > 0")
-        label(for="selectPlayers") {{ st.tr["Play with?"] }}
-        input#selectPlayers(type="text" v-model="newchallenge.to")
-      fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
-        label(for="inputFen") FEN
-        input#inputFen(type="text" v-model="newchallenge.fen")
+      form(@submit.prevent="newChallenge()" @keyup.enter="newChallenge()")
+        fieldset
+          label(for="selectVariant") {{ st.tr["Variant"] }} *
+          select#selectVariant(v-model="newchallenge.vid")
+            option(v-for="v in st.variants" :value="v.id"
+                :selected="newchallenge.vid==v.id")
+              | {{ v.name }}
+        fieldset
+          label(for="cadence") {{ st.tr["Cadence"] }} *
+          div#predefinedCadences
+            button 3+2
+            button 5+3
+            button 15+5
+          input#cadence(type="text" v-model="newchallenge.cadence"
+            placeholder="5+0, 1h+30s, 7d+1d ...")
+        fieldset(v-if="st.user.id > 0")
+          label(for="selectPlayers") {{ st.tr["Play with?"] }}
+          input#selectPlayers(type="text" v-model="newchallenge.to")
+        fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
+          label(for="inputFen") FEN
+          input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
   .row
     .col-sm-12

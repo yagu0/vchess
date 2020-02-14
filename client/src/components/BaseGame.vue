@@ -84,6 +84,11 @@ export default {
       if (!!newMove) //if stop + launch new game, get undefined move
         this.play(newMove, "receive");
     },
+    // ...Or to undo (corr game, move not validated)
+    "game.moveToUndo": function(move) {
+      if (!!move)
+        this.undo(move);
+    },
   },
   computed: {
     showMoves: function() {

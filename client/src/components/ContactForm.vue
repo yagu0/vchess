@@ -12,9 +12,7 @@ div
           label(for="mailSubject") {{ st.tr["Subject"] }}
           input#mailSubject(type="text")
         fieldset
-          label(for="mailContent") {{ st.tr["Content"] }} *
-          br
-          textarea#mailContent
+          textarea#mailContent(:placeholder="st.tr['Your message']")
       button(@click="trySendMessage()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
 </template>

@@ -394,24 +394,6 @@ export default {
 
 // NOTE: no variants with reserve of size != 8
 
-div.board
-  float: left
-  height: 0
-  display: inline-block
-  position: relative
-
-div.board8
-  width: 12.5%
-  padding-bottom: 12.5%
-
-div.board10
-  width: 10%
-  padding-bottom: 10%
-
-div.board11
-  width: 9.09%
-  padding-bottom: 9.1%
-
 .game
   width: 100%
   margin: 0
@@ -434,22 +416,6 @@ div.board11
       height: auto
       display: block
 
-img.piece
-  width: 100%
-
-img.piece, img.mark-square
-  max-width: 100%
-  height: auto
-  display: block
-
-img.mark-square
-  opacity: 0.6
-  width: 76%
-  position: absolute
-  top: 12%
-  left: 12%
-  opacity: .7
-
 img.ghost
   position: absolute
   opacity: 0.4
@@ -457,9 +423,6 @@ img.ghost
 
 .highlight
   background-color: #00cc66 !important
-
-.in-shadow
-  filter: brightness(50%)
 
 .incheck
   background-color: #cc3300 !important

@@ -59,7 +59,7 @@ export const ChessRules = class ChessRules
     return (f.charCodeAt()<=90 ? "w"+f.toLowerCase() : "b"+f);
   }
 
-  // Check if FEN describe a position
+  // Check if FEN describe a board situation correctly
   static IsGoodFen(fen)
   {
     const fenParsed = V.ParseFen(fen);

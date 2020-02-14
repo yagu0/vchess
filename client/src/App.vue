@@ -8,7 +8,7 @@
     .row
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         // Menu (top of page):
-        // Left: hall, variants, mygames
+        // Left: hall, variants, problems, mygames
         // Right: usermenu, settings, flag
         nav
           label.drawer-toggle(for="drawerControl")
@@ -20,6 +20,8 @@
                 | {{ st.tr["Hall"] }}
               router-link(to="/variants")
                 | {{ st.tr["Variants"] }}
+              router-link(to="/problems")
+                | {{ st.tr["Problems"] }}
               router-link(to="/mygames")
                 | {{ st.tr["My games"] }}
             #rightMenu
@@ -36,8 +38,6 @@
           router-link.menuitem(to="/about") {{ st.tr["About"] }}
           p.clickable(onClick="doClick('modalContact')")
             | {{ st.tr["Contact"] }}
-          a.menuitem(href="https://forum.vchess.club")
-            | {{ st.tr["Forum"] }}
 </template>
 
 <script>
@@ -182,7 +182,9 @@ nav
     border: none
     & > label.drawer-toggle
       font-size: 1.2rem
-      //padding: 0 0 0 10px
+      position: absolute
+      top: -12px
+      //padding: -5px 0 0 10px
 
 [type="checkbox"].drawer+*
   right: -767px
@@ -222,4 +224,50 @@ footer
 @media screen and (max-width: 767px)
   footer
     border: none
+
+// Styles for diagrams and board (partial).
+// TODO: where to put that ?
+
+.light-square-diag
+  background-color: #e5e5ca
+
+.dark-square-diag
+  background-color: #6f8f57
+
+div.board
+  float: left
+  height: 0
+  display: inline-block
+  position: relative
+
+div.board8
+  width: 12.5%
+  padding-bottom: 12.5%
+
+div.board10
+  width: 10%
+  padding-bottom: 10%
+
+div.board11
+  width: 9.09%
+  padding-bottom: 9.1%
+
+img.piece
+  width: 100%
+
+img.piece, img.mark-square
+  max-width: 100%
+  height: auto
+  display: block
+
+img.mark-square
+  opacity: 0.6
+  width: 76%
+  position: absolute
+  top: 12%
+  left: 12%
+  opacity: .7
+
+.in-shadow
+  filter: brightness(50%)
 </style>

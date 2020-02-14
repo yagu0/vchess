@@ -17,7 +17,7 @@ import { GameStorage } from "@/utils/gameStorage";
 import { ajax } from "@/utils/ajax";
 import GameList from "@/components/GameList.vue";
 export default {
-  name: "my-games",
+  name: "my-my-games",
   components: {
     GameList,
   },

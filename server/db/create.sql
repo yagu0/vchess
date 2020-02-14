@@ -17,8 +17,16 @@ create table Users (
   notify boolean
 );
 
--- All the following tables are for correspondance play only
--- (Live games are stored in browser)
+create table Problems (
+  id integer primary key,
+  added datetime,
+  uid integer,
+  vid integer,
+  instruction text,
+  solution text,
+  foreign key (uid) references Users(id),
+  foreign key (vid) references Variants(id)
+);
 
 create table Challenges (
   id integer primary key,

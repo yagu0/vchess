@@ -39,6 +39,11 @@ const router = new Router({
       component: loadView("Logout"),
     },
     {
+      path: "/problems",
+      name: "myproblems",
+      component: loadView("Problems"),
+    },
+    {
       path: "/mygames",
       name: "mygames",
       component: loadView("MyGames"),

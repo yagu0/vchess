@@ -560,8 +560,13 @@ export default {
         GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
-    // Post-process a move (which was just played)
+    // Post-process a move (which was just played in BaseGame)
     processMove: function(move) {
+      if (this.game.type == "corr" && move.color == this.game.mycolor)
+      {
+        if (!confirm(this.st.tr["Are you sure?"]))
+          return this.$set(this.game, "moveToUndo", move);
+      }
       // Update storage (corr or live) if I play in the game
       const colorIdx = ["w","b"].indexOf(move.color);
       const nextIdx = ["w","b"].indexOf(this.vr.turn);

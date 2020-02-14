@@ -289,7 +289,7 @@ const GameModel =
             if ((mstats.nbMoves == 0 && tsNow - g.created > 91*day) ||
               (mstats.nbMoves == 1 && tsNow - mstats.lastMaj > 91*day))
             {
-              return GameModel.remove(g.id);
+              GameModel.remove(g.id);
             }
           });
         });
