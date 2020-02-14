@@ -5,7 +5,7 @@ main
       .text-center
         input#fen(v-model="curFen" @input="adjustFenSize()")
         button(@click="gotoFen()") {{ st.tr["Go"] }}
-  BaseGame(:game="game" :vr="vr" ref="basegame")
+  BaseGame(:game="game" :vr="vr")
 </template>
 
 <script>
@@ -27,7 +27,7 @@ export default {
       },
       game: {
         players:[{name:"Analyse"},{name:"Analyse"}],
-        mode: "analyze"
+        mode: "analyze",
       },
       vr: null, //"variant rules" object initialized from FEN
       curFen: "",

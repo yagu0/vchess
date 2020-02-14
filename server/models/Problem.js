@@ -15,6 +15,8 @@ const ProblemModel =
 {
   checkProblem: function(p)
   {
+    if (!p.id.toString().match(/^[0-9]+$/))
+      return "Wrong problem ID";
     if (!p.vid.toString().match(/^[0-9]+$/))
       return "Wrong variant ID";
     if (!p.fen.match(/^[a-zA-Z0-9, /-]*$/))
@@ -29,8 +31,8 @@ const ProblemModel =
         "INSERT INTO Problems " +
         "(added, uid, vid, fen, instruction, solution) " +
           "VALUES " +
-        "(" + Date.now() + "," + p.uid + ",'" + p.fen  + "',?,?)";
-      db.run(query, p.instruction, p.solution, function(err) {
+        "(" + Date.now() + "," + p.uid + "," + p.vid + ",'" + p.fen  + "',?,?)";
+      db.run(query, [p.instruction,p.solution], function(err) {
         return cb(err, {pid: this.lastID});
       });
     });
@@ -61,18 +63,18 @@ const ProblemModel =
     });
   },
 
-  update: function(id, prob)
+  update: function(prob, cb)
   {
     db.serialize(function() {
       let query =
         "UPDATE Problems " +
         "SET " +
           "vid = " + prob.vid + "," +
-          "fen = " + prob.fen + "," +
-          "instruction = " + prob.instruction + "," +
-          "solution = " + prob.solution + " " +
-        "WHERE id = " + id;
-      db.run(query);
+          "fen = '" + prob.fen + "'," +
+          "instruction = ?," +
+          "solution = ? " +
+        "WHERE id = " + prob.id;
+      db.run(query, [prob.instruction,prob.solution], cb);
     });
   },
 
@@ -96,7 +98,7 @@ const ProblemModel =
       db.get(query, (err,prob) => {
         if (!prob)
           return cb({errmsg: "Not your problem"});
-        ProvlemModel.remove(id);
+        ProblemModel.remove(id);
         cb(null);
       });
     });

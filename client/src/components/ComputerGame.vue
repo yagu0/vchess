@@ -1,6 +1,5 @@
 <template lang="pug">
-BaseGame(:game="game" :vr="vr" ref="basegame"
-  @newmove="processMove" @gameover="gameOver")
+BaseGame(:game="game" :vr="vr" @newmove="processMove" @gameover="gameOver")
 </template>
 
 <script>

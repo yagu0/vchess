@@ -43,17 +43,13 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
 });
 
 router.put("/problems", access.logged, access.ajax, (req,res) => {
-  const pid = req.body.pid;
-  let error = "";
-  if (!pid.toString().match(/^[0-9]+$/))
-    error = "Wrong problem ID";
-  let obj = req.body.newProb;
-  error = ProblemModel.checkProblem(obj);
-  obj.instruction = sanitizeHtml(obj.instruction);
-  obj.solution = sanitizeHtml(obj.solution);
+  let obj = req.body.prob;
+  const error = ProblemModel.checkProblem(obj);
   if (!!error)
     return res.json({errmsg: error});
-  ProblemModel.update(pid, obj, (err) => {
+  obj.instruction = sanitizeHtml(obj.instruction);
+  obj.solution = sanitizeHtml(obj.solution);
+  ProblemModel.update(obj, (err) => {
     res.json(err || {});
   });
 });

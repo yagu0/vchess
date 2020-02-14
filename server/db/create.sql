@@ -20,12 +20,21 @@ create table Users (
 create table Problems (
   id integer primary key,
   added datetime,
+  fen varchar,
   uid integer,
   vid integer,
   instruction text,
   solution text,
   foreign key (uid) references Users(id),
   foreign key (vid) references Variants(id)
+);
+
+create table News (
+  id integer primary key,
+  uid integer,
+  added datetime,
+  content text,
+  foreign key (uid) references Users(id)
 );
 
 create table Challenges (

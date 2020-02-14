@@ -32,12 +32,13 @@
               .clickable#flagContainer(onClick="doClick('modalLang')")
                 img(v-if="!!st.lang" :src="flagImage")
     router-view
-    .row
-      .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-        footer
-          router-link.menuitem(to="/about") {{ st.tr["About"] }}
-          p.clickable(onClick="doClick('modalContact')")
-            | {{ st.tr["Contact"] }}
+  .row
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      footer
+        router-link.menuitem(to="/about") {{ st.tr["About"] }}
+        router-link.menuitem(to="/news") {{ st.tr["News"] }}
+        p.clickable(onClick="doClick('modalContact')")
+          | {{ st.tr["Contact"] }}
 </template>
 
 <script>
@@ -99,6 +100,8 @@ body
   -moz-osx-font-smoothing: grayscale
 
 .container
+  // 45px is footer height
+  min-height: calc(100vh - 45px)
   overflow: hidden
   @media screen and (max-width: 767px)
     padding: 0
@@ -197,12 +200,13 @@ nav
       border-top: 0
 
 footer
+  height: 45px
   border: 1px solid #ddd
+  box-sizing: border-box
   //background-color: #000033
   font-size: 1rem
   width: 100%
-  padding-left: 0
-  padding-right: 0
+  padding: 0
   display: inline-flex
   align-items: center
   justify-content: center
@@ -211,7 +215,7 @@ footer
     text-decoration: none
   & > .menuitem
     display: inline-block
-    margin: 0 10px
+    margin: 0 12px
     &:link
       color: #2c3e50
     &:visited, &:hover
@@ -219,7 +223,7 @@ footer
       text-decoration: none
   & > p
     display: inline-block
-    margin: 0 10px
+    margin: 0 12px
 
 @media screen and (max-width: 767px)
   footer

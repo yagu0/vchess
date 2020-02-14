@@ -30,8 +30,7 @@ main
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
           span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
-  BaseGame(:game="game" :vr="vr" ref="basegame"
-    @newmove="processMove" @gameover="gameOver")
+  BaseGame(:game="game" :vr="vr" @newmove="processMove" @gameover="gameOver")
 </template>
 
 <script>
