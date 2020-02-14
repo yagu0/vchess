@@ -52,6 +52,7 @@ export const translations =
   "Logout": "Logout",
   "Logout successful!": "¡Desconexión exitosa!",
   "Modifications applied!": "¡Modificaciones aplicadas!",
+  "Move played:": "Movimiento jugado:",
   "Mutual agreement": "Acuerdo mutuo",
   "My games": "Mis partidas",
   "My problems": "Mis problemas",

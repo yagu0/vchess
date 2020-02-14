@@ -563,7 +563,7 @@ export default {
     processMove: function(move) {
       if (this.game.type == "corr" && move.color == this.game.mycolor)
       {
-        if (!confirm(this.st.tr["Are you sure?"]))
+        if (!confirm(this.st.tr["Move played:"] + " " + move.notation + "\n" + this.st.tr["Are you sure?"]))
           return this.$set(this.game, "moveToUndo", move);
       }
       // Update storage (corr or live) if I play in the game

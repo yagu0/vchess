@@ -52,6 +52,7 @@ export const translations =
   "Logout": "Logout",
   "Logout successful!": "Logout successful!",
   "Modifications applied!": "Modifications applied!",
+  "Move played:": "Move played:",
   "Mutual agreement": "Mutual agreement",
   "My games": "My games",
   "My problems": "My problems",
