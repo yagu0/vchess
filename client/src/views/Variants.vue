@@ -51,6 +51,9 @@ export default {
 
 <style lang="sass" scoped>
 // TODO: box-shadow or box-sizing ? https://stackoverflow.com/a/13517809
+input#prefixFilter
+  display: block
+  margin: 0 auto
 .variant
   box-sizing: border-box
   border: 1px solid brown

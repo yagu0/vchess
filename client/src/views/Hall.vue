@@ -31,9 +31,25 @@ main
           label(for="inputFen") FEN
           input#inputFen(type="text" v-model="newchallenge.fen")
       button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
+  input#modalPeople.modal(type="checkbox" @click="resetChatColor()")
+  div#peopleWrap(role="dialog" data-checkbox="modalPeople")
+    .card
+      label.modal-close(for="modalPeople")
+      #people
+        #players
+          p(v-for="sid in Object.keys(people)" v-if="!!people[sid].name")
+            span {{ people[sid].name }}
+            button.player-action(v-if="sid!=st.user.sid || isGamer(sid)" @click="challOrWatch(sid)")
+              | {{ getActionLabel(sid) }}
+          p.anonymous @nonymous ({{ anonymousCount }})
+        #chat
+          Chat(:newChat="newChat" @mychat="processChat" :pastChats="[]")
+        .clearer
   .row
-    .col-sm-12
-      button#newGame(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      .button-group
+        button#peopleBtn(onClick="doClick('modalPeople')") {{ st.tr["Social"] }}
+        button(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div
@@ -46,17 +62,6 @@ main
           :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
         ChallengeList(v-show="cdisplay=='corr'"
           :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
-      #people
-        h3.text-center {{ st.tr["Who's there?"] }}
-        #players
-          p(v-for="sid in Object.keys(people)" v-if="!!people[sid].name")
-            span {{ people[sid].name }}
-            button.player-action(v-if="sid!=st.user.sid || isGamer(sid)" @click="challOrWatch(sid)")
-              | {{ getActionLabel(sid) }}
-          p.anonymous @nonymous ({{ anonymousCount }})
-        #chat
-          Chat(:newChat="newChat" @mychat="processChat" :pastChats="[]")
-        .clearer
       div
         .button-group
           button#btnGlive(@click="setDisplay('g','live',$event)" class="active")
@@ -64,9 +69,9 @@ main
           button#btnGcorr(@click="setDisplay('g','corr',$event)")
             | {{ st.tr["Correspondance games"] }}
         GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
-          @show-game="showGame")
+          :showBoth="true" @show-game="showGame")
         GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
-          @show-game="showGame")
+          :showBoth="true" @show-game="showGame")
 </template>
 
 <script>
@@ -198,7 +203,7 @@ export default {
             })
           );
         };
-        if (names !== {})
+        if (Object.keys(names).length > 0)
         {
           ajax("/users",
             "GET",
@@ -228,8 +233,10 @@ export default {
     this.conn.onclose = this.socketCloseListener;
   },
   mounted: function() {
-    [document.getElementById("infoDiv"),document.getElementById("newgameDiv")]
-      .forEach(elt => elt.addEventListener("click", processModalClick));
+    ["peopleWrap","infoDiv","newgameDiv"].forEach(eltName => {
+      let elt = document.getElementById(eltName);
+      elt.addEventListener("click", processModalClick);
+    });
     document.querySelectorAll("#predefinedCadences > button").forEach(
       (b) => { b.addEventListener("click",
         () => { this.newchallenge.cadence = b.innerHTML; }
@@ -312,6 +319,10 @@ export default {
       if (g.type == "live")
         url += "?rid=" + g.rids[Math.floor(Math.random() * g.rids.length)];
       this.$router.push(url);
+    },
+    resetChatColor: function() {
+      // TODO: this is called twice, once on opening an once on closing
+      document.getElementById("peopleBtn").style.backgroundColor = "#e2e2e2";
     },
     processChat: function(chat) {
       this.send("newchat", {data:chat});
@@ -574,6 +585,8 @@ export default {
         }
         case "newchat":
           this.newChat = data.data;
+          if (!document.getElementById("modalPeople").checked)
+            document.getElementById("peopleBtn").style.backgroundColor = "#c5fefe";
           break;
       }
     },
@@ -767,9 +780,6 @@ export default {
 <style lang="sass" scoped>
 .active
   color: #42a983
-#newGame
-  display: block
-  margin: 10px auto 5px auto
 
 #infoDiv > .card
   padding: 15px 0
@@ -779,8 +789,21 @@ export default {
   max-width: 767px
   max-height: 100%
 
-#people
-  width: 100%
+div#peopleWrap > .card
+  max-height: 100%
+
+@media screen and (min-width: 1281px)
+  div#peopleWrap > .card
+    max-width: 66.67%
+
+@media screen and (max-width: 1280px)
+  div#peopleWrap > .card
+    max-width: 83.33%
+
+@media screen and (max-width: 767px)
+  div#peopleWrap > .card
+    max-width: 100%
+
 #players
   width: 50%
   position: relative

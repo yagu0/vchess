@@ -18,12 +18,12 @@ main
         @click="showModalNews"
       )
         | {{ st.tr["Write news"] }}
-      .news(v-for="n in sortedNewsList")
-        h4 {{ formatDatetime(n.added) }}
-        p(v-html="parseHtml(n.content)")
+      .news(v-for="n,idx in sortedNewsList" :class="{margintop:idx>0}")
+        span.ndt {{ formatDatetime(n.added) }}
         div(v-if="devs.includes(st.user.id)")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
+        p(v-html="parseHtml(n.content)")
       button(v-if="hasMore" @click="loadMore()")
         | {{ st.tr["Load more"] }}
 </template>
@@ -65,7 +65,9 @@ export default {
   methods: {
     formatDatetime: function(dt) {
       const dtObj = new Date(dt);
-      return getDate(dtObj) + " " + getTime(dtObj);
+      const timePart = getTime(dtObj);
+      // Show minutes but not seconds:
+      return getDate(dtObj) + " " + timePart.substr(0,timePart.lastIndexOf(":"));
     },
     parseHtml: function(txt) {
       return !txt.match(/<[/a-zA-Z]+>/)
@@ -157,10 +159,23 @@ export default {
   max-width: 767px
   max-height: 100%
 textarea#newsContent
+  margin: 0
   width: 100%
   min-height: 200px
   max-height: 100%
 #dialog
   padding: 5px
   color: blue
+span.ndt
+  color: darkblue
+  padding-right: 5px
+.margintop
+  margin-top: 25px
+.news
+  border-top: 1px solid grey
+  & > div
+    display: inline-block
+@media screen and (max-width: 767px)
+  .margintop
+    margin-top: 10px
 </style>

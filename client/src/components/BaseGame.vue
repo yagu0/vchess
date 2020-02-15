@@ -26,7 +26,7 @@ div#baseGame(tabindex=-1 @click="focusBg()"
         button(@click="flip()") &#8645;
         button(@click="play()") >
         button(@click="gotoEnd()") >>
-      #pgnDiv
+      #belowControls
         #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
           button(@click="download()") {{ st.tr["Download"] }} PGN
@@ -128,8 +128,7 @@ export default {
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
     gameContainer.style.width = (boardSize + movesWidth) + "px";
-    // TODO: find the right formula here:
-    //document.getElementById("boardSize").value = Math.floor(boardSize / 10);
+    document.getElementById("boardSize").value = (boardSize * 100) / (window.innerWidth - movesWidth);
     // timeout to avoid calling too many time the adjust method
     let timeoutLaunched = false;
     window.addEventListener("resize", (e) => {
@@ -434,22 +433,24 @@ export default {
   display: inline-block
 
 #controls
-  margin-top: 10px
-  margin-left: auto
-  margin-right: auto
+  margin: 0 auto
   button
     display: inline-block
     width: 20%
     margin: 0
-@media screen and (min-width: 768px)
-  #controls
-    max-width: 400px
 #turnIndicator
   text-align: center
-#pgnDiv
+#belowControls
+  border-top: 1px solid #2f4f4f
   text-align: center
-  margin-left: auto
-  margin-right: auto
+  margin: 0 auto
+  & > #downloadDiv
+    margin: 0
+    & > button
+      margin: 0
+  & > button
+    border-left: 1px solid #2f4f4f
+    margin: 0
 #boardContainer
   float: left
 // TODO: later, maybe, allow movesList of variable width

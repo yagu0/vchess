@@ -102,7 +102,7 @@ export default {
     tableRow.children = moveCells;
     tableContent.push(tableRow);
     let rootElements = [];
-    if (this.score != "*")
+    if (!!this.score && this.score != "*")
     {
       const scoreDiv = h("div",
         {
@@ -145,14 +145,6 @@ export default {
 <style lang="sass" scoped>
 .moves-list
   min-width: 250px
-@media screen and (max-width: 767px)
-  .moves-list
-    tr
-      display: flex
-      margin: 0
-      padding: 0
-      td
-        text-align: left
 td.highlight-lm
   background-color: plum
 </style>

@@ -38,7 +38,7 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
     solution: sanitizeHtml(req.body.prob.solution),
   };
   ProblemModel.create(problem, (err,ret) => {
-    return res.json(err || {pid:ret.pid});
+    return res.json(err || {id:ret.pid});
   });
 });
 
@@ -56,7 +56,7 @@ router.put("/problems", access.logged, access.ajax, (req,res) => {
 
 router.delete("/problems", access.logged, access.ajax, (req,res) => {
   const pid = req.query.id;
-  if (!pid.match(/^[0-9]+$/))
+  if (!pid.toString().match(/^[0-9]+$/))
     res.json({errmsg: "Bad problem ID"});
   ProblemModel.safeRemove(pid, req.userId, err => {
     res.json(err || {});

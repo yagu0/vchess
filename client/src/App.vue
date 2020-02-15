@@ -103,8 +103,8 @@ body
   // 45px is footer height
   min-height: calc(100vh - 45px)
   overflow: hidden
-  @media screen and (max-width: 767px)
-    padding: 0
+  padding: 0
+  margin: 0
 
 .row > div
   padding: 0
@@ -115,9 +115,6 @@ header
   align-items: center
   justify-content: center
   margin: 0 auto
-  & > img
-    width: 30px
-    height: 30px
 
 .clickable
   cursor: pointer
@@ -127,6 +124,29 @@ header
 
 .clearer
   clear: both
+
+.button-group
+  margin: 0
+
+input[type="checkbox"]:focus
+  outline: 0
+
+input[type=checkbox]:checked:before
+  top: -5px;
+  height: 18px
+
+table
+  display: block
+  padding: 0
+  tr > td
+    cursor: pointer
+  th, td
+    padding: 5px
+
+@media screen and (max-width: 767px)
+  table
+    tr > th, td
+      font-size: 14px
 
 nav
   width: 100%
@@ -163,6 +183,7 @@ nav
             height: 27px
     @media screen and (max-width: 767px)
       & > #leftMenu
+        margin-top: 42px
         padding-bottom: 5px
         & > a
           color: #2c3e50
@@ -181,16 +202,25 @@ nav
 
 @media screen and (max-width: 767px)
   nav
-    height: 32px
+    height: 42px
     border: none
     & > label.drawer-toggle
-      font-size: 1.2rem
+      cursor: pointer
+      font-size: 32px
       position: absolute
-      top: -12px
+      top: -22px
       //padding: -5px 0 0 10px
 
 [type="checkbox"].drawer+*
   right: -767px
+
+[type=checkbox].drawer+* .drawer-close
+  top: -10px
+  left: var(--universal-margin)
+  right: 0
+
+[type=checkbox].drawer+* .drawer-close:before
+  font-size: 50px
 
 @media screen and (max-width: 767px)
   .button-group

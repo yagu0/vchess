@@ -343,13 +343,10 @@ export default {
           this.drawOffer = "received";
           break;
         case "newchat":
-        {
-          const chat = data.data;
-          this.newChat = chat;
+          this.newChat = data.data;
           if (!document.getElementById("modalChat").checked)
             document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
           break;
-        }
       }
     },
     socketCloseListener: function() {
