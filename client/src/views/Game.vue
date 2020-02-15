@@ -715,7 +715,7 @@ export default {
 
 #actions
   display: inline-block
-  margin-top: 10px
+  margin: 0
   button
     display: inline-block
     margin: 0
