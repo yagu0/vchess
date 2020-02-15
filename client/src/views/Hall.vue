@@ -297,6 +297,7 @@ export default {
       {
         // Available, in Hall
         this.newchallenge.to = this.people[sid].name;
+        document.getElementById("modalPeople").checked = false;
         doClick("modalNewgame");
       }
       else
