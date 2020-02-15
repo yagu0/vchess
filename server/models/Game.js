@@ -275,7 +275,7 @@ const GameModel =
     const day = 86400000;
     db.serialize(function() {
       let query =
-        "SELECT id,created " +
+        "SELECT id, created " +
         "FROM Games ";
       db.all(query, (err,games) => {
         games.forEach(g => {
