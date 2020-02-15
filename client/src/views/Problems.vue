@@ -39,7 +39,7 @@ main
       button(@click="sendProblem()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row(v-if="showOne")
-    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+    .col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       #topPage
         span {{ curproblem.vname }}
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
@@ -339,6 +339,7 @@ textarea
 #topPage
   span
     font-weight: bold
+    padding-left: var(--universal-margin)
   margin: 0 auto
   & > .nomargin
     margin: 0

@@ -168,11 +168,12 @@ textarea#newsContent
   color: blue
 span.ndt
   color: darkblue
-  padding-right: 5px
+  padding: 0 5px 0 var(--universal-margin)
 .margintop
   margin-top: 25px
-.news
   border-top: 1px solid grey
+.news
+  padding-top: 10px
   & > div
     display: inline-block
 @media screen and (max-width: 767px)
