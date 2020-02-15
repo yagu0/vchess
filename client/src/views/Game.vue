@@ -706,6 +706,9 @@ export default {
   color: grey
   font-style: italic
 
+#playersInfo > p
+  margin: 0
+
 @media screen and (min-width: 768px)
   #actions
     width: 300px
