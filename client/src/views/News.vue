@@ -13,7 +13,7 @@ main
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      button(
+      button#writeNews(
         v-if="devs.includes(st.user.id)"
         @click="showModalNews"
       )
@@ -166,6 +166,9 @@ textarea#newsContent
 #dialog
   padding: 5px
   color: blue
+button#writeNews
+  margin-top: 0
+  margin-bottom: 0
 span.ndt
   color: darkblue
   padding: 0 5px 0 var(--universal-margin)
