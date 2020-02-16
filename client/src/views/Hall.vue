@@ -278,6 +278,10 @@ export default {
       let elt = !!e
         ? e.target
         : document.getElementById("btn" + letter.toUpperCase() + type);
+      // WARNING: this method is called at created in a setTimeout:
+      // => the page could have changed and element no longer defined.
+      if (!elt)
+        return;
       elt.classList.add("active");
       if (!!elt.previousElementSibling)
         elt.previousElementSibling.classList.remove("active");
