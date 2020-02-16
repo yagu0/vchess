@@ -255,7 +255,7 @@ export default {
           mousemove: this.mousemove,
           mouseup: this.mouseup,
           //touchstart: this.mousedown,
-          //touchmove: this.mousemove,
+          touchmove: this.mousemove,
           //touchend: this.mouseup,
         },
       },
