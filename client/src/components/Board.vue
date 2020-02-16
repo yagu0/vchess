@@ -43,44 +43,6 @@ export default {
     const offset = (!!boardElt
       ? [boardElt.offsetTop, boardElt.offsetLeft]
       : [0, 0]);
-    const choices = h(
-      'div',
-      {
-        attrs: { "id": "choices" },
-        'class': { 'row': true },
-        style: {
-          "display": (this.choices.length > 0 ? "block" : "none"),
-          "top": (offset[0] + (sizeY/2)*squareWidth-squareWidth/2) + "px",
-          "left": (offset[1] + squareWidth*(sizeY - this.choices.length)/2) + "px",
-          "width": (this.choices.length * squareWidth) + "px",
-          "height": squareWidth + "px",
-        },
-      },
-      this.choices.map(m => { //a "choice" is a move
-        return h('div',
-          {
-            'class': {
-              'board': true,
-              ['board'+sizeY]: true,
-            },
-            style: {
-              'width': (100/this.choices.length) + "%",
-              'padding-bottom': (100/this.choices.length) + "%",
-            },
-          },
-          [h('img',
-            {
-              attrs: { "src": '/images/pieces/' +
-                V.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
-              'class': { 'choice-piece': true },
-              on: {
-                "click": e => { this.play(m); this.choices=[]; },
-              },
-            })
-          ]
-        );
-      })
-    );
     // Create board element (+ reserves if needed by variant or mode)
     const lm = this.lastMove;
     const showLight = this.settings.highlight && this.vname != "Dark";
@@ -168,7 +130,48 @@ export default {
       })
     );
     const playingColor = this.userColor || "w"; //default for an observer
-    let elementArray = [choices, gameDiv];
+    let elementArray = [gameDiv];
+    if (this.choices.length > 0)
+    {
+      const choices = h(
+        'div',
+        {
+          attrs: { "id": "choices" },
+          'class': { 'row': true },
+          style: {
+            "top": (offset[0] + (sizeY/2)*squareWidth-squareWidth/2) + "px",
+            "left": (offset[1] + squareWidth*(sizeY - this.choices.length)/2) + "px",
+            "width": (this.choices.length * squareWidth) + "px",
+            "height": squareWidth + "px",
+          },
+        },
+        this.choices.map(m => { //a "choice" is a move
+          return h('div',
+            {
+              'class': {
+                'board': true,
+                ['board'+sizeY]: true,
+              },
+              style: {
+                'width': (100/this.choices.length) + "%",
+                'padding-bottom': (100/this.choices.length) + "%",
+              },
+            },
+            [h('img',
+              {
+                attrs: { "src": '/images/pieces/' +
+                  V.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
+                'class': { 'choice-piece': true },
+                on: {
+                  "click": e => { this.play(m); this.choices=[]; },
+                },
+              })
+            ]
+          );
+        })
+      );
+      elementArray.unshift(choices);
+    }
     if (!!this.vr.reserve)
     {
       const shiftIdx = (playingColor=="w" ? 0 : 1);
