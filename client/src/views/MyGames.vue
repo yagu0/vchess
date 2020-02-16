@@ -3,11 +3,11 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button(@click="display='live'") {{ st.tr["Live games"] }}
-        button(@click="display='corr'") {{ st.tr["Correspondance games"] }}
-      GameList(v-show="display=='live'" :games="filterGames('live')"
+        button#liveGames(@click="setDisplay('live',$event)") {{ st.tr["Live games"] }}
+        button#corrGames(@click="setDisplay('corr',$event)") {{ st.tr["Correspondance games"] }}
+      GameList(v-show="display=='live'" :games="liveGames"
         @show-game="showGame")
-      GameList(v-show="display=='corr'" :games="filterGames('corr')"
+      GameList(v-show="display=='corr'" :games="corrGames"
         @show-game="showGame")
 </template>
 
@@ -25,31 +25,43 @@ export default {
     return {
       st: store.state,
       display: "live",
-      games: [],
+      liveGames: [],
+      corrGames: [],
     };
   },
   created: function() {
     GameStorage.getAll((localGames) => {
       localGames.forEach((g) => g.type = this.classifyObject(g));
-      //Array.prototype.push.apply(this.games, localGames); //TODO: Vue 3
-      this.games = this.games.concat(localGames);
+      this.liveGames = localGames;
     });
     if (this.st.user.id > 0)
     {
       ajax("/games", "GET", {uid: this.st.user.id}, (res) => {
         res.games.forEach((g) => g.type = this.classifyObject(g));
-        //Array.prototype.push.apply(this.games, res.games); //TODO: Vue 3
-        this.games = this.games.concat(res.games);
+        this.corrGames = res.games;
       });
     }
   },
+  mounted: function() {
+    const showType = localStorage.getItem("type-myGames") || "live";
+    this.setDisplay(showType);
+  },
   methods: {
-    // TODO: classifyObject and filterGames are redundant (see Hall.vue)
+    setDisplay: function(type, e) {
+      this.display = type;
+      localStorage.setItem("type-myGames", type);
+      let elt = !!e
+        ? e.target
+        : document.getElementById(type + "Games");
+      elt.classList.add("active");
+      if (!!elt.previousElementSibling)
+        elt.previousElementSibling.classList.remove("active");
+      else
+        elt.nextElementSibling.classList.remove("active");
+    },
+    // TODO: classifyObject is redundant (see Hall.vue)
     classifyObject: function(o) {
       return (o.cadence.indexOf('d') === -1 ? "live" : "corr");
-    },
-    filterGames: function(type) {
-      return this.games.filter(g => g.type == type);
     },
     showGame: function(g) {
       this.$router.push("/game/" + g.id);
@@ -57,3 +69,8 @@ export default {
   },
 };
 </script>
+
+<style lang="sass" scoped>
+.active
+  color: #42a983
+</style>

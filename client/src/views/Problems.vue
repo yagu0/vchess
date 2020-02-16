@@ -39,9 +39,10 @@ main
       button(@click="sendProblem()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row(v-if="showOne")
-    .col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
+    .col-sm-12.col-md-10.col-md-offset-2
       #topPage
-        span {{ curproblem.vname }}
+        span.vname {{ curproblem.vname }}
+        span.uname {{ "(" + curproblem.uname + ")" }}
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
         button.nomargin(
           v-if="st.user.id == curproblem.uid"
@@ -54,7 +55,7 @@ main
         )
           | {{ st.tr["Delete"] }}
       p.clickable(
-        v-html="curproblem.uname + ' : ' + parseHtml(curproblem.instruction)"
+        v-html="parseHtml(curproblem.instruction)"
         @click="curproblem.showSolution=!curproblem.showSolution"
       )
         | {{ st.tr["Show solution"] }}
@@ -83,13 +84,15 @@ main
         tr
           th {{ st.tr["Variant"] }}
           th {{ st.tr["Instructions"] }}
+          th {{ st.tr["Number"] }}
         tr(
           v-for="p in problems"
           v-show="displayProblem(p)"
           @click="setHrefPid(p)"
         )
           td {{ p.vname }}
-          td(v-html="p.instruction")
+          td {{ firstChars(p.instruction) }}
+          td {{ p.id }}
   BaseGame(v-if="showOne" :game="game" :vr="vr")
 </template>
 
@@ -146,10 +149,15 @@ export default {
       this.problems.forEach(p => {
         if (p.uid != this.st.user.id)
           names[p.uid] = ""; //unknwon for now
-        else { console.log("assign " + this.st.user.name);
-          p.uname = this.st.user.name; console.log(p); console.log(this.problems); }
+        else
+          p.uname = this.st.user.name;
       });
-      if (Object.keys(name).length > 0)
+      const showOneIfPid = () => {
+        const pid = this.$route.query["id"];
+        if (!!pid)
+          this.showProblem(this.problems.find(p => p.id == pid));
+      };
+      if (Object.keys(names).length > 0)
       {
         ajax("/users",
           "GET",
@@ -157,12 +165,12 @@ export default {
           res2 => {
             res2.users.forEach(u => {names[u.id] = u.name});
             this.problems.forEach(p => p.uname = names[p.uid]);
+            showOneIfPid();
           }
         );
       }
-      const pid = this.$route.query["id"];
-      if (!!pid)
-        this.showProblem(this.problems.find(p => p.id == pid));
+      else
+        showOneIfPid();
     });
   },
   mounted: function() {
@@ -175,7 +183,7 @@ export default {
       if (this.problems.length > 0 && this.problems[0].vname == "")
         this.problems.forEach(p => this.setVname(p));
     },
-    "$route": function(to, from) { console.log("ddddd");
+    "$route": function(to, from) {
       const pid = to.query["id"];
       if (!!pid)
         this.showProblem(this.problems.find(p => p.id == pid));
@@ -186,6 +194,19 @@ export default {
   methods: {
     setVname: function(prob) {
       prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
+    },
+    firstChars: function(text) {
+      let preparedText = text
+        // Replace line jumps and <br> by spaces
+        .replace(/\n/g, " " )
+        .replace(/<br\/?>/g, " " )
+        .replace(/<[^>]+>/g, "") //remove remaining HTML tags
+        .replace(/[ ]+/g, " ") //remove series of spaces by only one
+        .trim();
+      const maxLength = 32; //arbitrary...
+      if (preparedText.length > maxLength)
+        return preparedText.substr(0,32) + "...";
+      return preparedText;
     },
     copyProblem: function(p1, p2) {
       for (let key in p1)
@@ -336,14 +357,21 @@ textarea
   text-align: center
   & > *
     margin: 0
+
 #topPage
-  span
+  span.vname
     font-weight: bold
+    padding-left: var(--universal-margin)
+  span.uname
     padding-left: var(--universal-margin)
   margin: 0 auto
   & > .nomargin
     margin: 0
   & > .marginleft
     margin: 0 0 0 15px
+
+@media screen and (max-width: 767px)
+  #topPage
+    text-align: center
 
 </style>

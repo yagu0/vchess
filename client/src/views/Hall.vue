@@ -52,21 +52,21 @@ main
         button(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      div
+      div#div2
         .button-group
-          button#btnClive(@click="setDisplay('c','live',$event)" class="active")
+          button.tabbtn#btnClive(@click="setDisplay('c','live',$event)")
             | {{ st.tr["Live challenges"] }}
-          button#btnCcorr(@click="setDisplay('c','corr',$event)")
+          button.tabbtn#btnCcorr(@click="setDisplay('c','corr',$event)")
             | {{ st.tr["Correspondance challenges"] }}
         ChallengeList(v-show="cdisplay=='live'"
           :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
         ChallengeList(v-show="cdisplay=='corr'"
           :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
-      div
+      div#div3
         .button-group
-          button#btnGlive(@click="setDisplay('g','live',$event)" class="active")
+          button.tabbtn#btnGlive(@click="setDisplay('g','live',$event)")
             | {{ st.tr["Live games"] }}
-          button#btnGcorr(@click="setDisplay('g','corr',$event)")
+          button.tabbtn#btnGcorr(@click="setDisplay('g','corr',$event)")
             | {{ st.tr["Correspondance games"] }}
         GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
           :showBoth="true" @show-game="showGame")
@@ -142,17 +142,6 @@ export default {
       "GET",
       {uid: this.st.user.id, excluded: true},
       response => {
-        // Show corr tab with timeout, to let enough time for (socket) polling
-        setTimeout(
-          () => {
-            if (response.games.length > 0 &&
-              this.games.length == response.games.length)
-            {
-              this.setDisplay('g', "corr");
-            }
-          },
-          1000
-        );
         this.games = this.games.concat(response.games.map(g => {
           const type = this.classifyObject(g);
           const vname = this.getVname(g.vid);
@@ -166,16 +155,6 @@ export default {
       "GET",
       {uid: this.st.user.id},
       response => {
-        setTimeout(
-          () => {
-            if (response.challenges.length > 0 &&
-              this.challenges.length == response.challenges.length)
-            {
-              this.setDisplay('c', "corr");
-            }
-          },
-          1000
-        );
         // Gather all senders names, and then retrieve full identity:
         // (TODO [perf]: some might be online...)
         let names = {};
@@ -242,6 +221,10 @@ export default {
         () => { this.newchallenge.cadence = b.innerHTML; }
       )}
     );
+    const showCtype = localStorage.getItem("type-challenges") || "live";
+    const showGtype = localStorage.getItem("type-games") || "live";
+    this.setDisplay('c', showCtype);
+    this.setDisplay('g', showGtype);
   },
   beforeDestroy: function() {
     this.send("disconnect");
@@ -275,14 +258,12 @@ export default {
     },
     setDisplay: function(letter, type, e) {
       this[letter + "display"] = type;
+      localStorage.setItem("type-" + (letter == 'c' ? "challenges" : "games"), type);
       let elt = !!e
         ? e.target
         : document.getElementById("btn" + letter.toUpperCase() + type);
-      // WARNING: this method is called at created in a setTimeout:
-      // => the page could have changed and element no longer defined.
-      if (!elt)
-        return;
       elt.classList.add("active");
+      elt.classList.remove("somethingnew"); //in case of
       if (!!elt.previousElementSibling)
         elt.previousElementSibling.classList.remove("active");
       else
@@ -327,7 +308,7 @@ export default {
     },
     resetChatColor: function() {
       // TODO: this is called twice, once on opening an once on closing
-      document.getElementById("peopleBtn").style.backgroundColor = "#e2e2e2";
+      document.getElementById("peopleBtn").classList.remove("somethingnew");
     },
     processChat: function(chat) {
       this.send("newchat", {data:chat});
@@ -513,11 +494,11 @@ export default {
             newChall.from = Object.assign({sid:chall.from}, fromValues);
             newChall.vname = this.getVname(newChall.vid);
             this.challenges.push(newChall);
-            // Adjust visual:
-            if (newChall.type == "live" && this.cdisplay == "corr" && !this.challenges.some(c => c.type == "corr"))
-              this.setDisplay('c', "live");
-            else if (newChall.type == "corr" && this.cdisplay == "live" && !this.challenges.some(c => c.type == "live"))
-              this.setDisplay('c', "corr");
+            if ((newChall.type == "live" && this.cdisplay == "corr") ||
+              (newChall.type == "corr" && this.cdisplay == "live"))
+            {
+              document.getElementById("btnC" + newChall.type).classList.add("somethingnew");
+            }
           }
           break;
         }
@@ -551,11 +532,11 @@ export default {
             newGame.rids = [game.rid];
             delete newGame["rid"];
             this.games.push(newGame);
-            // Adjust visual:
-            if (newGame.type == "live" && this.gdisplay == "corr" && !this.games.some(g => g.type == "corr"))
-              this.setDisplay('g', "live");
-            else if (newGame.type == "live" && this.gdisplay == "live" && !this.games.some(g => g.type == "live"))
-              this.setDisplay('g', "corr");
+            if ((newGame.type == "live" && this.gdisplay == "corr") ||
+              (newGame.type == "corr" && this.gdisplay == "live"))
+            {
+              document.getElementById("btnG" + newGame.type).classList.add("somethingnew");
+            }
           }
           else
           {
@@ -591,7 +572,7 @@ export default {
         case "newchat":
           this.newChat = data.data;
           if (!document.getElementById("modalPeople").checked)
-            document.getElementById("peopleBtn").style.backgroundColor = "#c5fefe";
+            document.getElementById("peopleBtn").classList.add("somethingnew");
           break;
       }
     },
@@ -830,4 +811,16 @@ div#peopleWrap > .card
   font-style: italic
 button.player-action
   margin-left: 32px
+
+.somethingnew
+  background-color: #c5fefe !important
+
+.tabbtn
+  background-color: white
+
+#div2, #div3
+  margin-top: 15px
+@media screen and (max-width: 767px)
+  #div2, #div3
+    margin-top: 0
 </style>

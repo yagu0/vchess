@@ -14,7 +14,8 @@ main
         :newChat="newChat" @mychat="processChat")
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
-      span.variant-info {{ game.vname }}
+      span.variant-cadence {{ game.cadence }}
+      span.variant-name {{ game.vname }}
       button#chatBtn(onClick="doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
         button(@click="clickDraw()" :class="{['draw-' + drawOffer]: true}")
@@ -345,7 +346,7 @@ export default {
         case "newchat":
           this.newChat = data.data;
           if (!document.getElementById("modalChat").checked)
-            document.getElementById("chatBtn").style.backgroundColor = "#c5fefe";
+            document.getElementById("chatBtn").classList.add("somethingnew");
           break;
       }
     },
@@ -667,7 +668,7 @@ export default {
     },
     resetChatColor: function() {
       // TODO: this is called twice, once on opening an once on closing
-      document.getElementById("chatBtn").style.backgroundColor = "#e2e2e2";
+      document.getElementById("chatBtn").classList.remove("somethingnew");
     },
     processChat: function(chat) {
       this.send("newchat", {data:chat});
@@ -730,7 +731,10 @@ export default {
   #aboveBoard
     margin-left: 30%
 
-.variant-info
+.variant-cadence
+  padding-right: 10px
+
+.variant-name
   font-weight: bold
   padding-right: 10px
 
@@ -763,4 +767,7 @@ export default {
 
 .draw-threerep, .draw-threerep:hover
   background-color: #e4d1fc
+
+.somethingnew
+  background-color: #c5fefe
 </style>

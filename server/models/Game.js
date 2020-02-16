@@ -77,7 +77,7 @@ const GameModel =
       let query =
         // NOTE: g.scoreMsg can be NULL
         // (in this case score = "*" and no reason to look at it)
-        "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.score, " +
+        "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, g.score, " +
           "g.scoreMsg, g.drawOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
@@ -137,24 +137,38 @@ const GameModel =
   getByUser: function(uid, excluded, cb)
   {
     db.serialize(function() {
-      const query =
-        "SELECT DISTINCT gid " +
-        "FROM Players " +
-        "WHERE uid " + (excluded ? "<>" : "=") + " " + uid;
+      let query = "";
+      if (uid == 0)
+      {
+        // Special case anonymous user: show all games
+        query =
+          "SELECT id AS gid " +
+          "FROM Games";
+      }
+      else
+      {
+        // Registered user:
+        query =
+          "SELECT gid " +
+          "FROM Players " +
+          "GROUP BY gid " +
+          "HAVING COUNT(uid = " + uid + " OR NULL) " +
+          (excluded ? " = 0" : " > 0");
+      }
       db.all(query, (err,gameIds) => {
-        if (!!err)
-          return cb(err);
-        if (gameIds.length == 0)
-          return cb(null, []);
+        if (!!err || gameIds.length == 0)
+          return cb(err, []);
         let gameArray = [];
+        let kounter = 0;
         for (let i=0; i<gameIds.length; i++)
         {
           GameModel.getOne(gameIds[i]["gid"], true, (err2,game) => {
             if (!!err2)
               return cb(err2);
             gameArray.push(game);
+            kounter++; //TODO: let's hope this is atomic?!
             // Call callback function only when gameArray is complete:
-            if (i == gameIds.length - 1)
+            if (kounter == gameIds.length)
               return cb(null, gameArray);
           });
         }

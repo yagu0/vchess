@@ -8,7 +8,7 @@ div
       form(@submit.prevent="onSubmit()" @keyup.enter="onSubmit()")
         div(v-show="stage!='Login'")
           fieldset
-            label(for="username") {{ st.tr["Name"] }}
+            label(for="username") {{ st.tr["User name"] }}
             input#username(type="text" v-model="st.user.name")
           fieldset
             label(for="useremail") {{ st.tr["Email"] }}
@@ -18,7 +18,7 @@ div
             input#notifyNew(type="checkbox" v-model="st.user.notify")
         div(v-show="stage=='Login'")
           fieldset
-            label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
+            label(for="nameOrEmail") {{ st.tr["User name or Email"] }}
             input#nameOrEmail(type="text" v-model="nameOrEmail")
       .button-group
         button(@click="onSubmit()")

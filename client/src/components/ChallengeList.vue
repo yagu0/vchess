@@ -30,7 +30,7 @@ export default {
       let maxAdded = 0
       let augmentedChalls = this.challenges.map(c => {
         let priority = 0;
-        if (c.to == this.st.user.name)
+        if (!!c.to && c.to == this.st.user.name)
           priority = 1;
         else if (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
           priority = 2;

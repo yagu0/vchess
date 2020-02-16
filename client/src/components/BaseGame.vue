@@ -121,7 +121,7 @@ export default {
     if (!boardSize)
     {
       boardSize = (window.innerWidth >= 768
-        ? Math.min(600, 0.5*window.innerWidth) //heuristic...
+        ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
         : window.innerWidth);
     }
     const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
