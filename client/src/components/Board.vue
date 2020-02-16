@@ -75,8 +75,6 @@ export default {
               'class': { 'choice-piece': true },
               on: {
                 "click": e => { this.play(m); this.choices=[]; },
-                // NOTE: add 'touchstart' event to fix a problem on smartphones
-                //"touchstart": e => { this.play(m); this.choices=[]; },
               },
             })
           ]
@@ -251,12 +249,12 @@ export default {
       {
         // NOTE: click = mousedown + mouseup
         on: {
-//          mousedown: this.mousedown,
-//          mousemove: this.mousemove,
-//          mouseup: this.mouseup,
-          touchstart: this.mousedown,
-          touchmove: this.mousemove,
-          touchend: this.mouseup,
+          mousedown: this.mousedown,
+          mousemove: this.mousemove,
+          mouseup: this.mouseup,
+//          touchstart: this.mousedown,
+//          touchmove: this.mousemove,
+//          touchend: this.mouseup,
         },
       },
       elementArray
