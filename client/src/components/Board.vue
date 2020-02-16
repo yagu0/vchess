@@ -244,19 +244,31 @@ export default {
       );
       elementArray.push(reserves);
     }
-    return h(
-      'div',
-      {
-        // NOTE: click = mousedown + mouseup
+    let onEvents = {};
+    // NOTE: click = mousedown + mouseup
+    if ('ontouchstart' in window)
+    {
+      onEvents = {
+        on: {
+          touchstart: this.mousedown,
+          touchmove: this.mousemove,
+          touchend: this.mouseup,
+        },
+      };
+    }
+    else
+    {
+      onEvents = {
         on: {
           mousedown: this.mousedown,
           mousemove: this.mousemove,
           mouseup: this.mouseup,
-//          touchstart: this.mousedown,
-          touchmove: this.mousemove,
-//          touchend: this.mouseup,
         },
-      },
+      };
+    }
+    return h(
+      'div',
+      onEvents,
       elementArray
     );
   },
