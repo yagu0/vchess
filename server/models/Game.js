@@ -166,7 +166,7 @@ const GameModel =
   {
     db.serialize(function() {
       const query =
-        "SELECT id " +
+        "SELECT uid " +
         "FROM Players " +
         "WHERE gid = " + id;
       db.all(query, (err,players) => {

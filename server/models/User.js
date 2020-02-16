@@ -142,7 +142,7 @@ const UserModel =
   tryNotify: function(id, message)
   {
     UserModel.getOne("id", id, (err,user) => {
-      if (!err || !user.notify)
+      if (!!err || !user.notify)
         return; //NOTE: error is ignored here
       UserModel.notify(user, message);
     });

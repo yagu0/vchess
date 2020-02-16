@@ -32,7 +32,7 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
         const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
         const oppId = gameInfo.players[oppIdx].id;
         UserModel.tryNotify(oppId,
-          "New game: " + params.siteURL + "/game/" + ret.gid);
+          "Game started: " + params.siteURL + "/game/" + ret.gid);
         res.json({gameId: ret.gid});
       });
     }
@@ -77,28 +77,25 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
   error = GameModel.checkGameUpdate(obj);
   if (!!error)
     return res.json({errmsg: error});
-  GameModel.update(gid, obj, (err) => {
-    if (!!err)
-      return res.json(err);
-    if (!!obj.move || !!obj.score)
-    {
-      // Notify opponent if he enabled notifications:
-      GameModel.getPlayers(gid, (err2,players) => {
-        if (!err2)
-        {
-          const oppid = (players[0].id == req.userId
-            ? players[1].id
-            : players[0].id);
-          const messagePrefix = (!!obj.move
-            ? "New move in game: "
-            : "Game ended: ");
-          UserModel.tryNotify(oppid,
-            messagePrefix + params.siteURL + "/game/" + gid);
-        }
-      });
-    }
-    res.json({});
-  });
+  GameModel.update(gid, obj); //no callback here (several operations)
+  if (!!obj.move || !!obj.score)
+  {
+    // Notify opponent if he enabled notifications:
+    GameModel.getPlayers(gid, (err,players) => {
+      if (!err)
+      {
+        const oppid = (players[0].uid == req.userId
+          ? players[1].uid
+          : players[0].uid);
+        const messagePrefix = (!!obj.move
+          ? "New move in game: "
+          : "Game ended: ");
+        UserModel.tryNotify(oppid,
+          messagePrefix + params.siteURL + "/game/" + gid);
+      }
+    });
+  }
+  res.json({}); //TODO: what if some update action fails?
 });
 
 module.exports = router;
