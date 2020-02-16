@@ -251,12 +251,12 @@ export default {
       {
         // NOTE: click = mousedown + mouseup
         on: {
-          mousedown: this.mousedown,
-          mousemove: this.mousemove,
-          mouseup: this.mouseup,
-          //touchstart: this.mousedown,
+//          mousedown: this.mousedown,
+//          mousemove: this.mousemove,
+//          mouseup: this.mouseup,
+          touchstart: this.mousedown,
           touchmove: this.mousemove,
-          //touchend: this.mouseup,
+          touchend: this.mouseup,
         },
       },
       elementArray
