@@ -32,7 +32,7 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
         const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
         const oppId = gameInfo.players[oppIdx].id;
         UserModel.tryNotify(oppId,
-          "Game started: " + params.siteURL + "/game/" + ret.gid);
+          "Game started: " + params.siteURL + "/#/game/" + ret.gid);
         res.json({gameId: ret.gid});
       });
     }
@@ -91,7 +91,7 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
           ? "New move in game: "
           : "Game ended: ");
         UserModel.tryNotify(oppid,
-          messagePrefix + params.siteURL + "/game/" + gid);
+          messagePrefix + params.siteURL + "/#/game/" + gid);
       }
     });
   }
