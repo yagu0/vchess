@@ -816,7 +816,7 @@ button.player-action
   background-color: #c5fefe !important
 
 .tabbtn
-  background-color: white
+  background-color: #f9faee
 
 #div2, #div3
   margin-top: 15px

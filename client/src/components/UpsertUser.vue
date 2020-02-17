@@ -18,7 +18,7 @@ div
             input#notifyNew(type="checkbox" v-model="st.user.notify")
         div(v-show="stage=='Login'")
           fieldset
-            label(for="nameOrEmail") {{ st.tr["User name or Email"] }}
+            label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
             input#nameOrEmail(type="text" v-model="nameOrEmail")
       .button-group
         button(@click="onSubmit()")

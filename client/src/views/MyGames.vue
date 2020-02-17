@@ -3,8 +3,8 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button#liveGames(@click="setDisplay('live',$event)") {{ st.tr["Live games"] }}
-        button#corrGames(@click="setDisplay('corr',$event)") {{ st.tr["Correspondance games"] }}
+        button.tabbtn#liveGames(@click="setDisplay('live',$event)") {{ st.tr["Live games"] }}
+        button.tabbtn#corrGames(@click="setDisplay('corr',$event)") {{ st.tr["Correspondance games"] }}
       GameList(v-show="display=='live'" :games="liveGames"
         @show-game="showGame")
       GameList(v-show="display=='corr'" :games="corrGames"
@@ -73,4 +73,7 @@ export default {
 <style lang="sass" scoped>
 .active
   color: #42a983
+
+.tabbtn
+  background-color: #f9faee
 </style>
