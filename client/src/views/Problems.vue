@@ -42,7 +42,7 @@ main
     .col-sm-12.col-md-10.col-md-offset-2
       #topPage
         span.vname {{ curproblem.vname }}
-        span.uname {{ "(" + curproblem.uname + ")" }}
+        span.uname ({{ curproblem.uname }})
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
         button.nomargin(
           v-if="st.user.id == curproblem.uid"
@@ -86,7 +86,7 @@ main
           th {{ st.tr["Instructions"] }}
           th {{ st.tr["Number"] }}
         tr(
-          v-for="p in problems"
+          v-for="p in sortedProblems"
           v-show="displayProblem(p)"
           @click="setHrefPid(p)"
         )
@@ -189,6 +189,12 @@ export default {
         this.showProblem(this.problems.find(p => p.id == pid));
       else
         this.showOne = false
+    },
+  },
+  computed: {
+    sortedProblems: function() {
+      // Newest first:
+      return this.problems.sort( (p1,p2) => p2.added - p1.added);
     },
   },
   methods: {
