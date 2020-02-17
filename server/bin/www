@@ -31,7 +31,7 @@ var GameModel = require("../models/Game");
 cron.schedule('0 0 0 * * *', function() {
   // Remove unlogged users and unstarted games every 24h
   UserModel.cleanUsersDb();
-  //GameModel.cleanGamesDb(); //TODO: a CRON task is causing problems on the server
+  GameModel.cleanGamesDb();
 });
 
 /**
