@@ -561,6 +561,9 @@ export default {
     processMove: function(move) {
       if (this.game.type == "corr" && move.color == this.game.mycolor)
       {
+
+//TODO: if takeback, then time over occurs.
+
         if (!confirm(this.st.tr["Move played:"] + " " + move.notation + "\n" + this.st.tr["Are you sure?"]))
           return this.$set(this.game, "moveToUndo", move);
       }
