@@ -40,7 +40,7 @@ div#baseGame(
         :incheck="incheck"
         @play-move="play"
       )
-        #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'") {{ turn }}
+      #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'") {{ turn }}
       #controls
         button(@click="gotoBegin()") <<
         button(@click="undo()") <
