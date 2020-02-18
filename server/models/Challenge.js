@@ -1,4 +1,4 @@
-var db = require("../utils/database");
+const db = require("../utils/database");
 const UserModel = require("./User");
 
 /*

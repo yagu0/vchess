@@ -1,12 +1,12 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var favicon = require('serve-favicon');
-var params = require('./config/parameters');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const favicon = require('serve-favicon');
+const params = require('./config/parameters');
 
-var app = express();
+let app = express();
 
 app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 

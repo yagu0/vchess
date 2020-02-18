@@ -1,7 +1,7 @@
-var gulp = require('gulp');
-var nodemon = require('gulp-nodemon'); //reload server on changes
+const gulp = require('gulp');
+const nodemon = require('gulp-nodemon'); //reload server on changes
 
-var nodemonOptions = {
+const nodemonOptions = {
   script: 'bin/www',
   ext: 'js',
   env: { 'NODE_ENV': 'development' },

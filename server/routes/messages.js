@@ -11,7 +11,7 @@ router.post("/messages", (req,res,next) => {
   const from = req.body["email"];
   // Replace potential newline characters in subject
   const subject = req.body["subject"].replace(/\r?\n|\r/g, " ");
-  const body = req.body["content"]; //TODO: sanitize? Why? How?
+  const body = req.body["content"];
 
   mailer(from, params.mail.contact, subject, body, err => {
     if (!!err)

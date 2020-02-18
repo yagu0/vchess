@@ -4,30 +4,30 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('vc:server');
-var http = require('http');
+let app = require('../app');
+const debug = require('debug')('vc:server');
+const http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+let server = http.createServer(app);
 
 /*
  * CRON tasks
  */
 
-var cron = require('node-cron');
-var UserModel = require("../models/User");
-var GameModel = require("../models/Game");
+let cron = require('node-cron');
+const UserModel = require("../models/User");
+const GameModel = require("../models/Game");
 cron.schedule('0 0 0 * * *', function() {
   // Remove unlogged users and unstarted games every 24h
   UserModel.cleanUsersDb();
@@ -55,16 +55,16 @@ require('../sockets')(wss);
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const parsedPort = parseInt(val, 10);
 
-  if (isNaN(port)) {
+  if (isNaN(parsedPort)) {
     // named pipe
     return val;
   }
 
-  if (port >= 0) {
+  if (parsedPort >= 0) {
     // port number
-    return port;
+    return parsedPort;
   }
 
   return false;
@@ -79,7 +79,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
+  const bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
@@ -103,8 +103,8 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  const addr = server.address();
+  const bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);

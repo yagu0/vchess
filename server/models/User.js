@@ -1,7 +1,7 @@
-var db = require("../utils/database");
-var genToken = require("../utils/tokenGenerator");
-var params = require("../config/parameters");
-var sendEmail = require('../utils/mailer');
+const db = require("../utils/database");
+const genToken = require("../utils/tokenGenerator");
+const params = require("../config/parameters");
+const sendEmail = require('../utils/mailer');
 
 /*
  * Structure:
