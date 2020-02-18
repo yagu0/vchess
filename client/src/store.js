@@ -14,16 +14,16 @@ export const store =
   socketCloseListener: null,
   initialize() {
     ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
-    let mysid = localStorage["mysid"];
+    let mysid = localStorage.getItem("mysid");
     if (!mysid)
     {
       mysid = getRandString();
-      localStorage["mysid"] = mysid; //done only once (unless user clear browser data)
+      localStorage.setItem("mysid", mysid); //done only once (unless user clear browser data)
     }
     // Quick user setup using local storage:
     this.state.user = {
-      id: localStorage["myid"] || 0,
-      name: localStorage["myname"] || "", //"" for "anonymous"
+      id: localStorage.getItem("myid") || 0,
+      name: localStorage.getItem("myname") || "", //"" for "anonymous"
       email: "", //unknown yet
       notify: false, //email notifications
       sid: mysid,
@@ -32,7 +32,17 @@ export const store =
     // NOTE: still superficial identity usurpation possible, but difficult.
     ajax("/whoami", "GET", res => {
       this.state.user.id = res.id;
+      const storedId = localStorage.getItem("myid");
+      if (res.id > 0 && !storedId) //user cleared localStorage
+        localStorage.setItem("myid", res.id);
+      else if (res.id == 0 && !!storedId) //user cleared cookie
+        localStorage.removeItem("myid");
       this.state.user.name = res.name;
+      const storedName = localStorage.getItem("myname");
+      if (!!res.name && !storedName) //user cleared localStorage
+        localStorage.setItem("myname", res.name);
+      else if (!res.name && !!storedName) //user cleared cookie
+        localStorage.removeItem("myname");
       this.state.user.email = res.email;
       this.state.user.notify = res.notify;
     });

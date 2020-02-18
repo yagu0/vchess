@@ -216,8 +216,8 @@ export default {
         vr_tmp.play(move);
         move.fen = vr_tmp.getFen();
       });
-      if (this.game.fenStart.indexOf(" b ") >= 0 ||
-        (this.moves.length > 0 && this.moves[0].color == "b"))
+      if ((this.moves.length > 0 && this.moves[0].color == "b") ||
+        (this.moves.length == 0 && this.vr_tmp.turn == "b"))
       {
         // 'end' is required for Board component to check lastMove for e.p.
         this.moves.unshift({color: "w", notation: "...", end: {x:-1,y:-1}});
@@ -225,7 +225,7 @@ export default {
       const L = this.moves.length;
       this.cursor = L-1;
       this.lastMove = (L > 0 ? this.moves[L-1]  : null);
-      this.incheck = [];
+      this.incheck = this.vr.getCheckSquares(this.vr.turn);
     },
     analyzePosition: function() {
       const newUrl = "/analyse/" + this.game.vname +

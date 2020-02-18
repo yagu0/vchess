@@ -85,34 +85,6 @@ export default {
       this.gameRef.rid = to.query["rid"];
       this.loadGame();
     },
-    "game.clocks": function(newState) {
-      if (this.game.moves.length < 2 || this.game.score != "*")
-      {
-        // 1st move not completed yet, or game over: freeze time
-        this.virtualClocks = newState.map(s => ppt(s));
-        return;
-      }
-      const currentTurn = this.vr.turn;
-      const colorIdx = ["w","b"].indexOf(currentTurn);
-      let countdown = newState[colorIdx] -
-        (Date.now() - this.game.initime[colorIdx])/1000;
-      this.virtualClocks = [0,1].map(i => {
-        const removeTime = i == colorIdx
-          ? (Date.now() - this.game.initime[colorIdx])/1000
-          : 0;
-        return ppt(newState[i] - removeTime);
-      });
-      let clockUpdate = setInterval(() => {
-        if (countdown < 0 || this.vr.turn != currentTurn || this.game.score != "*")
-        {
-          clearInterval(clockUpdate);
-          if (countdown < 0)
-            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", this.st.tr["Time"]);
-        }
-        else
-          this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
-      }, 1000);
-    },
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
   created: function() {
@@ -421,6 +393,10 @@ export default {
         this.vr = new V(game.fen);
         const gtype = (game.cadence.indexOf('d') >= 0 ? "corr" : "live");
         const tc = extractTime(game.cadence);
+        const myIdx = game.players.findIndex(p => {
+          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+        });
+        const mycolor = [undefined,"w","b"][myIdx+1]; //undefined for observers
         if (!game.chats)
           game.chats = []; //live games don't have chat history
         if (gtype == "corr")
@@ -453,8 +429,7 @@ export default {
             if (L >= 1)
               game.initime[L%2] = game.moves[L-1].played;
           }
-          // Now that we used idx and played, re-format moves as for live games
-          game.moves = game.moves.map( (m) => {
+          const reformattedMoves = game.moves.map( (m) => {
             const s = m.squares;
             return {
               appear: s.appear,
@@ -463,12 +438,34 @@ export default {
               end: s.end,
             };
           });
-          // Also sort chat messages (if any)
+          // Sort chat messages from newest to oldest
           game.chats.sort( (c1,c2) => { return c2.added - c1.added; });
+          if (myIdx >= 0 && game.chats.length > 0)
+          {
+            // TODO: group multi-moves into an array, to deduce color from index
+            // and not need this (also repeated in BaseGame::re_setVariables())
+            let vr_tmp = new V(game.fenStart); //vr is already at end of game
+            for (let i=0; i<reformattedMoves.length; i++)
+            {
+              game.moves[i].color = vr_tmp.turn;
+              vr_tmp.play(reformattedMoves[i]);
+            }
+            // Blue background on chat button if last chat message arrived after my last move.
+            let dtLastMove = 0;
+            for (let midx = game.moves.length-1; midx >= 0; midx--)
+            {
+              if (game.moves[midx].color == mycolor)
+              {
+                dtLastMove = game.moves[midx].played;
+                break;
+              }
+            }
+            if (dtLastMove < game.chats[0].added)
+              document.getElementById("chatBtn").classList.add("somethingnew");
+          }
+          // Now that we used idx and played, re-format moves as for live games
+          game.moves = reformattedMoves;
         }
-        const myIdx = game.players.findIndex(p => {
-          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
-        });
         if (gtype == "live" && game.clocks[0] < 0) //game unstarted
         {
           game.clocks = [tc.mainTime, tc.mainTime];
@@ -512,13 +509,14 @@ export default {
           {
             type: gtype,
             increment: tc.increment,
-            mycolor: [undefined,"w","b"][myIdx+1],
+            mycolor: mycolor,
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
             oppsid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
             oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
           }
         );
+        this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
           // Did lastate arrive before game was rendered?
@@ -557,17 +555,43 @@ export default {
         GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
+    re_setClocks: function() {
+      if (this.game.moves.length < 2 || this.game.score != "*")
+      {
+        // 1st move not completed yet, or game over: freeze time
+        this.virtualClocks = this.game.clocks.map(s => ppt(s));
+        return;
+      }
+      const currentTurn = this.vr.turn;
+      const colorIdx = ["w","b"].indexOf(currentTurn);
+      let countdown = this.game.clocks[colorIdx] -
+        (Date.now() - this.game.initime[colorIdx])/1000;
+      this.virtualClocks = [0,1].map(i => {
+        const removeTime = i == colorIdx
+          ? (Date.now() - this.game.initime[colorIdx])/1000
+          : 0;
+        return ppt(this.game.clocks[i] - removeTime);
+      });
+      let clockUpdate = setInterval(() => {
+        if (countdown < 0 || this.vr.turn != currentTurn || this.game.score != "*")
+        {
+          clearInterval(clockUpdate);
+          if (countdown < 0)
+            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", this.st.tr["Time"]);
+        }
+        else
+          this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
+      }, 1000);
+    },
     // Post-process a move (which was just played in BaseGame)
     processMove: function(move) {
       if (this.game.type == "corr" && move.color == this.game.mycolor)
       {
-
-//TODO: if takeback, then time over occurs.
-
         if (!confirm(this.st.tr["Move played:"] + " " + move.notation + "\n" + this.st.tr["Are you sure?"]))
+        {
           return this.$set(this.game, "moveToUndo", move);
+        }
       }
-      // Update storage (corr or live) if I play in the game
       const colorIdx = ["w","b"].indexOf(move.color);
       const nextIdx = ["w","b"].indexOf(this.vr.turn);
       // https://stackoverflow.com/a/38750895
@@ -609,9 +633,10 @@ export default {
       // Update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
-      this.$set(this.game.clocks, colorIdx, this.game.clocks[colorIdx] + addTime);
+      this.game.clocks[colorIdx] += addTime;
       // move.initime is set only when I receive a "lastate" move from opponent
       this.game.initime[nextIdx] = move.initime || Date.now();
+      this.re_setClocks();
       // If repetition detected, consider that a draw offer was received:
       const fenObj = V.ParseFen(move.fen);
       let repIdx = fenObj.position + "_" + fenObj.turn;
