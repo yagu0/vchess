@@ -20,7 +20,7 @@ router.post("/news", access.logged, access.ajax, (req,res) => {
     return res.json({errmsg: "Not allowed to post"});
   const content = sanitizeHtml(req.body.news.content);
   NewsModel.create(content, req.userId, (err,ret) => {
-    return res.json(err || {nid:ret.nid});
+    return res.json(err || {id:ret.nid});
   });
 });
 

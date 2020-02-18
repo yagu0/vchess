@@ -57,7 +57,7 @@ export default {
   },
   created: function() {
     ajax("/news", "GET", { cursor: this.cursor }, res => {
-      this.newsList = res.newsList.sort((n1, n2) => n1.added - n2.added);
+      this.newsList = res.newsList.sort((n1, n2) => n2.added - n1.added);
       const L = res.newsList.length;
       if (L > 0) this.cursor = this.newsList[0].id;
     });
