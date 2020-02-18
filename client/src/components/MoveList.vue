@@ -3,31 +3,6 @@ import { store } from "@/store";
 export default {
   name: "my-move-list",
   props: ["moves", "cursor", "score", "message", "firstNum"],
-  watch: {
-    cursor: function(newCursor) {
-      if (window.innerWidth <= 767) return; //scrolling would hide chessboard
-      // Count grouped moves until the cursor (if multi-moves):
-      let groupsCount = -1;
-      let curCol = undefined;
-      for (let i = 0; i < newCursor; i++) {
-        const m = this.moves[i];
-        if (m.color != curCol) {
-          groupsCount++;
-          curCol = m.color;
-        }
-      }
-      // $nextTick to wait for table > tr to be rendered
-      this.$nextTick(() => {
-        let rows = document.querySelectorAll("#movesList tr");
-        if (rows.length > 0) {
-          rows[Math.floor(Math.max(groupsCount, 0) / 2)].scrollIntoView({
-            behavior: "auto",
-            block: "nearest"
-          });
-        }
-      });
-    }
-  },
   render(h) {
     if (this.moves.length == 0) return h("div");
     let tableContent = [];
@@ -107,6 +82,31 @@ export default {
       )
     );
     return h("div", {}, rootElements);
+  },
+  watch: {
+    cursor: function(newCursor) {
+      if (window.innerWidth <= 767) return; //scrolling would hide chessboard
+      // Count grouped moves until the cursor (if multi-moves):
+      let groupsCount = 0;
+      let curCol = undefined;
+      for (let i = 0; i < newCursor; i++) {
+        const m = this.moves[i];
+        if (m.color != curCol) {
+          groupsCount++;
+          curCol = m.color;
+        }
+      }
+      // $nextTick to wait for table > tr to be rendered
+      this.$nextTick(() => {
+        let rows = document.querySelectorAll("#movesList tr");
+        if (rows.length > 0) {
+          rows[Math.floor(groupsCount / 2)].scrollIntoView({
+            behavior: "auto",
+            block: "nearest"
+          });
+        }
+      });
+    }
   },
   methods: {
     gotoMove: function(index) {
