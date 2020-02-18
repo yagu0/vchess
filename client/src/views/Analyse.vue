@@ -3,9 +3,15 @@ main
   .row
     .col-sm-12
       .text-center
-        input#fen(v-model="curFen" @input="adjustFenSize()")
+        input#fen(
+          v-model="curFen"
+          @input="adjustFenSize()"
+        )
         button(@click="gotoFen()") {{ st.tr["Go"] }}
-  BaseGame(:game="game" :vr="vr")
+  BaseGame(
+    :game="game"
+    :vr="vr"
+  )
 </template>
 
 <script>

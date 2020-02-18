@@ -20,8 +20,10 @@ export const VariantRules = class MagneticRules extends ChessRules {
   // Complete a move with magnetic actions
   // TODO: job is done multiple times for (normal) promotions.
   applyMagneticLaws(move) {
-    if (move.appear[0].p == V.KING && move.appear.length == 1) return [move]; //kings are not charged
-    const aIdx = move.appear[0].p != V.KING ? 0 : 1; //if castling, rook is charged
+    // Exception: kings are not charged
+    if (move.appear[0].p == V.KING && move.appear.length == 1) return [move];
+    // If castling, rook is charged:
+    const aIdx = move.appear[0].p != V.KING ? 0 : 1;
     const [x, y] = [move.appear[aIdx].x, move.appear[aIdx].y];
     const color = this.turn;
     const lastRank = color == "w" ? 0 : 7;

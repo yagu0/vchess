@@ -1,7 +1,13 @@
 <template lang="pug">
 div
-  input#modalUser.modal(type="checkbox" @change="trySetEnterTime($event)")
-  div(role="dialog" data-checkbox="modalUser")
+  input#modalUser.modal(
+    type="checkbox"
+    @change="trySetEnterTime($event)"
+  )
+  div(
+    role="dialog"
+    data-checkbox="modalUser"
+  )
     .card
       label.modal-close(for="modalUser")
       h3.section {{ st.tr[stage] }}
@@ -9,23 +15,42 @@ div
         div(v-show="stage!='Login'")
           fieldset
             label(for="username") {{ st.tr["User name"] }}
-            input#username(type="text" v-model="st.user.name")
+            input#username(
+              type="text"
+              v-model="st.user.name"
+            )
           fieldset
             label(for="useremail") {{ st.tr["Email"] }}
-            input#useremail(type="email" v-model="st.user.email")
+            input#useremail(
+              type="email"
+              v-model="st.user.email"
+            )
           fieldset
             label(for="notifyNew") {{ st.tr["Notifications by email"] }}
-            input#notifyNew(type="checkbox" v-model="st.user.notify")
+            input#notifyNew(
+              type="checkbox"
+              v-model="st.user.notify"
+            )
         div(v-show="stage=='Login'")
           fieldset
             label(for="nameOrEmail") {{ st.tr["Name or Email"] }}
-            input#nameOrEmail(type="text" v-model="nameOrEmail")
+            input#nameOrEmail(
+              type="text"
+              v-model="nameOrEmail"
+            )
       .button-group
         button(@click="onSubmit()")
           span {{ st.tr[submitMessage] }}
-        button(v-if="stage!='Update'" type="button" @click="toggleStage()")
+        button(
+          v-if="stage!='Update'"
+          type="button"
+          @click="toggleStage()"
+        )
           span {{ st.tr[stage=="Login" ? "Register" : "Login"] }}
-        button(v-else type="button" @click="doLogout()")
+        button(
+          v-else type="button"
+          @click="doLogout()"
+        )
           span {{ st.tr["Logout"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
 </template>
@@ -158,6 +183,7 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 370px
   max-height: 100%
+
 #dialog
   padding: 5px
   color: blue

@@ -152,15 +152,22 @@ module.exports = function(wss) {
         case "askfullgame":
         {
           const pg = obj.page || page; //required for askidentity and askgame
-          const tmpIds = Object.keys(clients[pg][obj.target]);
-          if (obj.target == sid) //targetting myself
+          // In cas askfullgame to wrong SID for example, would crash:
+          if (!!clients[pg][obj.target])
           {
-            const idx_myTmpid = tmpIds.findIndex(x => x == tmpId);
-            if (idx_myTmpid >= 0)
-              tmpIds.splice(idx_myTmpid, 1);
+            const tmpIds = Object.keys(clients[pg][obj.target]);
+            if (obj.target == sid) //targetting myself
+            {
+              const idx_myTmpid = tmpIds.findIndex(x => x == tmpId);
+              if (idx_myTmpid >= 0)
+                tmpIds.splice(idx_myTmpid, 1);
+            }
+            const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
+            send(
+              clients[pg][obj.target][tmpIds[tmpId_idx]],
+              {code:obj.code, from:[sid,tmpId,page]}
+            );
           }
-          const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
-          send(clients[pg][obj.target][tmpIds[tmpId_idx]], {code:obj.code, from:[sid,tmpId,page]});
           break;
         }
 

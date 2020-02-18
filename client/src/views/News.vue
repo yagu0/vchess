@@ -1,7 +1,10 @@
 <template lang="pug">
 main
   input#modalNews.modal(type="checkbox")
-  div#newnewsDiv(role="dialog" data-checkbox="modalNews")
+  div#newnewsDiv(
+    role="dialog"
+    data-checkbox="modalNews"
+  )
     .card
       label.modal-close(for="modalNews")
       textarea#newsContent(
@@ -18,13 +21,19 @@ main
         @click="showModalNews"
       )
         | {{ st.tr["Write news"] }}
-      .news(v-for="n,idx in newsList" :class="{margintop:idx>0}")
+      .news(
+        v-for="n,idx in newsList"
+        :class="{margintop:idx>0}"
+      )
         span.ndt {{ formatDatetime(n.added) }}
         div(v-if="devs.includes(st.user.id)")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
         p(v-html="parseHtml(n.content)")
-      button(v-if="hasMore" @click="loadMore()")
+      button(
+        v-if="hasMore"
+        @click="loadMore()"
+      )
         | {{ st.tr["Load more"] }}
 </template>
 
@@ -142,27 +151,33 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100%
+
 textarea#newsContent
   margin: 0
   width: 100%
   min-height: 200px
   max-height: 100%
+
 #dialog
   padding: 5px
   color: blue
+
 button#writeNews
   margin-top: 0
   margin-bottom: 0
+
 span.ndt
   color: darkblue
   padding: 0 5px 0 var(--universal-margin)
-.margintop
-  margin-top: 25px
-  border-top: 1px solid grey
+
 .news
   padding-top: 10px
   & > div
     display: inline-block
+
+.margintop
+  margin-top: 25px
+  border-top: 1px solid grey
 @media screen and (max-width: 767px)
   .margintop
     margin-top: 10px

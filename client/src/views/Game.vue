@@ -1,27 +1,51 @@
 <template lang="pug">
 main
-  input#modalChat.modal(type="checkbox" @click="resetChatColor()")
-  div#chatWrap(role="dialog" data-checkbox="modalChat")
+  input#modalChat.modal(
+    type="checkbox"
+    @click="resetChatColor()"
+  )
+  div#chatWrap(
+    role="dialog"
+    data-checkbox="modalChat"
+  )
     #chat.card
       label.modal-close(for="modalChat")
       #participants
         span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
-        span(v-for="p in Object.values(people)" v-if="!!p.name")
+        span(
+          v-for="p in Object.values(people)"
+          v-if="!!p.name"
+        )
           | {{ p.name }} 
         span.anonymous(v-if="Object.values(people).some(p => !p.name)")
           | + @nonymous
-      Chat(:players="game.players" :pastChats="game.chats"
-        :newChat="newChat" @mychat="processChat")
+      Chat(
+        :players="game.players"
+        :pastChats="game.chats"
+        :newChat="newChat"
+        @mychat="processChat"
+      )
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       span.variant-cadence {{ game.cadence }}
       span.variant-name {{ game.vname }}
-      button#chatBtn(onClick="doClick('modalChat')") Chat
+      button#chatBtn(onClick="window.doClick('modalChat')") Chat
       #actions(v-if="game.score=='*'")
-        button(@click="clickDraw()" :class="{['draw-' + drawOffer]: true}")
+        button(
+          @click="clickDraw()"
+          :class="{['draw-' + drawOffer]: true}"
+        )
           | {{ st.tr["Draw"] }}
-        button(v-if="!!game.mycolor" @click="abortGame()") {{ st.tr["Abort"] }}
-        button(v-if="!!game.mycolor" @click="resign()") {{ st.tr["Resign"] }}
+        button(
+          v-if="!!game.mycolor"
+          @click="abortGame()"
+        )
+          | {{ st.tr["Abort"] }}
+        button(
+          v-if="!!game.mycolor"
+          @click="resign()"
+        )
+          | {{ st.tr["Resign"] }}
       #playersInfo
         p
           span.name(:class="{connected: isConnected(0)}")
@@ -31,7 +55,12 @@ main
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
           span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
-  BaseGame(:game="game" :vr="vr" @newmove="processMove" @gameover="gameOver")
+  BaseGame(
+    :game="game"
+    :vr="vr"
+    @newmove="processMove"
+    @gameover="gameOver"
+  )
 </template>
 
 <script>
@@ -217,7 +246,6 @@ export default {
         case "identity": {
           const user = data.data;
           if (user.name) {
-            //otherwise anonymous
             // If I multi-connect, kill current connexion if no mark (I'm older)
             if (
               this.newConnect[user.sid] &&
@@ -497,6 +525,7 @@ export default {
           }
         }
         if (game.scoreMsg) game.scoreMsg = this.st.tr[game.scoreMsg]; //stored in english
+        delete game["moveToPlay"]; //in case of!
         this.game = Object.assign(
           {},
           game,

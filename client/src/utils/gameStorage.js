@@ -6,7 +6,7 @@
 //   players: array of sid+id+name,
 //   cadence: string,
 //   increment: integer (seconds),
-//   mode: string ("live" or "corr")
+//   type: string ("live" or "corr")
 //   imported: boolean (optional, default false)
 //   // Game (dynamic) state:
 //   fen: string,

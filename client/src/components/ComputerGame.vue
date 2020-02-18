@@ -1,5 +1,10 @@
 <template lang="pug">
-BaseGame(:game="game" :vr="vr" @newmove="processMove" @gameover="gameOver")
+BaseGame(
+  :game="game"
+  :vr="vr"
+  @newmove="processMove"
+  @gameover="gameOver"
+)
 </template>
 
 <script>
@@ -47,7 +52,7 @@ export default {
         this.$emit("game-stopped"); //no more moves: mate or stalemate
         return; //after game ends, no more moves, nothing to do
       }
-      if (!Array.isArray(compMove)) compMove = [compMove]; //to deal with MarseilleRules
+      if (!Array.isArray(compMove)) compMove = [compMove]; //potential multi-move
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500 - (Date.now() - this.timeStart), 0);
       setTimeout(() => {

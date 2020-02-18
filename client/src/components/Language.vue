@@ -7,7 +7,10 @@ div
       "fr": "Français",
     };
   input#modalLang.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalLang")
+  div(
+    role="dialog"
+    data-checkbox="modalLang"
+  )
     .card
       label.modal-close(for="modalLang")
       form(@change="setLanguage($event)")

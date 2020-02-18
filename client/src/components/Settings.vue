@@ -1,17 +1,26 @@
 <template lang="pug">
 div
   input#modalSettings.modal(type="checkbox")
-  div(role="dialog" data-checkbox="modalSettings")
+  div(
+    role="dialog"
+    data-checkbox="modalSettings"
+  )
     .card(@change="updateSettings($event)")
       label.modal-close(for="modalSettings")
       form
         fieldset
           label(for="setHints") {{ st.tr["Show possible moves?"] }}
-          input#setHints(type="checkbox" v-model="st.settings.hints")
+          input#setHints(
+            type="checkbox"
+            v-model="st.settings.hints"
+          )
         fieldset
           label(for="setHighlight")
             | {{ st.tr["Highlight last move and checks?"] }}
-          input#setHighlight(type="checkbox" v-model="st.settings.highlight")
+          input#setHighlight(
+            type="checkbox"
+            v-model="st.settings.highlight"
+          )
         fieldset
           label(for="setBcolor") {{ st.tr["Board colors"] }}
           select#setBcolor(v-model="st.settings.bcolor")

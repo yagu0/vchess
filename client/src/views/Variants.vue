@@ -2,7 +2,10 @@
 main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      input#prefixFilter(v-model="curPrefix" :placeholder="st.tr['Prefix?']")
+      input#prefixFilter(
+        v-model="curPrefix"
+        :placeholder="st.tr['Prefix?']"
+      )
     .variant.col-sm-12.col-md-5.col-lg-4(
       v-for="(v,idx) in filteredVariants"
       :class="{'col-md-offset-1': idx%2==0, 'col-lg-offset-2': idx%2==0}"
@@ -52,10 +55,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-// TODO: box-shadow or box-sizing ? https://stackoverflow.com/a/13517809
 input#prefixFilter
   display: block
   margin: 0 auto
+
 .variant
   box-sizing: border-box
   border: 1px solid brown

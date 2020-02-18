@@ -1,7 +1,13 @@
 <template lang="pug">
 main
-  input#modalNewprob.modal(type="checkbox" @change="infoMsg=''")
-  div#newprobDiv(role="dialog" data-checkbox="modalNewprob")
+  input#modalNewprob.modal(
+    type="checkbox"
+    @change="infoMsg=''"
+  )
+  div#newprobDiv(
+    role="dialog"
+    data-checkbox="modalNewprob"
+  )
     .card(@keyup.enter="sendProblem()")
       label#closeNewprob.modal-close(for="modalNewprob")
       fieldset
@@ -93,7 +99,11 @@ main
           td {{ p.vname }}
           td {{ firstChars(p.instruction) }}
           td {{ p.id }}
-  BaseGame(v-if="showOne" :game="game" :vr="vr")
+  BaseGame(
+    v-if="showOne"
+    :game="game"
+    :vr="vr"
+  )
 </template>
 
 <script>
@@ -310,7 +320,7 @@ export default {
       );
     },
     editProblem: function(prob) {
-      if (!prob.diag) this.setDiagram(prob); //possible because V is loaded at this stage
+      if (!prob.diag) this.setDiagram(prob); //V is loaded at this stage
       this.copyProblem(prob, this.curproblem);
       window.doClick("modalNewprob");
     },
@@ -330,13 +340,17 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100%
+
 #inputFen
   width: 100%
+
 textarea
   width: 100%
+
 #diagram
   margin: 0 auto
   max-width: 400px
+
 #controls
   margin: 0
   width: 100%

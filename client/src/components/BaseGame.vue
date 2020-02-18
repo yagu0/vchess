@@ -52,7 +52,7 @@ div#baseGame(
         #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
           a#download(href="#")
           button(@click="download()") {{ st.tr["Download"] }} PGN
-        button(onClick="doClick('modalAdjust')") &#10530;
+        button(onClick="window.doClick('modalAdjust')") &#10530;
         button(
           v-if="game.vname!='Dark' && game.mode!='analyze'"
           @click="analyzePosition()"
@@ -169,7 +169,6 @@ export default {
   },
   methods: {
     focusBg: function() {
-      // NOTE: small blue border appears...
       document.getElementById("baseGame").focus();
     },
     adjustBoard: function() {
@@ -259,9 +258,9 @@ export default {
         this.game.vname +
         "/?fen=" +
         this.vr.getFen().replace(/ /g, "_");
+      // Open in same tab in live games (against cheating)
       if (this.game.type == "live") this.$router.push(newUrl);
-      //open in same tab: against cheating...
-      else window.open("#" + newUrl); //open in a new tab: more comfortable
+      else window.open("#" + newUrl);
     },
     download: function() {
       const content = this.getPgn();
@@ -305,9 +304,6 @@ export default {
     },
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
-      // TODO: error "flush nextTick callbacks" when observer reloads page:
-      // this late check is not a fix!
-      if (!startSquare) return;
       let endSquare = document.getElementById(getSquareId(move.end));
       let rectStart = startSquare.getBoundingClientRect();
       let rectEnd = endSquare.getBoundingClientRect();
@@ -318,9 +314,6 @@ export default {
       let movingPiece = document.querySelector(
         "#" + getSquareId(move.start) + " > img.piece"
       );
-      if (!movingPiece)
-        //TODO: shouldn't happen
-        return;
       // HACK for animation (with positive translate, image slides "under background")
       // Possible improvement: just alter squares on the piece's way...
       const squares = document.getElementsByClassName("board");
@@ -330,7 +323,7 @@ export default {
       }
       movingPiece.style.transform =
         "translate(" + translation.x + "px," + translation.y + "px)";
-      movingPiece.style.transitionDuration = "0.2s";
+      movingPiece.style.transitionDuration = "0.25s";
       movingPiece.style.zIndex = "3000";
       setTimeout(() => {
         for (let i = 0; i < squares.length; i++)
@@ -353,7 +346,8 @@ export default {
         return;
       }
       const doPlayMove = () => {
-        if (!!receive && this.cursor < this.moves.length - 1) this.gotoEnd(); //required to play the move
+        // To play a move, cursor must be at the end of the game:
+        if (!!receive && this.cursor < this.moves.length - 1) this.gotoEnd();
         if (navigate) {
           if (this.cursor == this.moves.length - 1) return; //no more moves
           move = this.moves[this.cursor + 1];
@@ -433,6 +427,7 @@ export default {
 <style lang="sass" scoped>
 [type="checkbox"]#modalEog+div .card
   min-height: 45px
+
 [type="checkbox"]#modalAdjust+div .card
   padding: 5px
 
@@ -454,8 +449,10 @@ export default {
     display: inline-block
     width: 20%
     margin: 0
+
 #turnIndicator
   text-align: center
+
 #belowControls
   border-top: 1px solid #2f4f4f
   text-align: center
@@ -467,13 +464,16 @@ export default {
   & > button
     border-left: 1px solid #2f4f4f
     margin: 0
+
 #boardContainer
   float: left
 // TODO: later, maybe, allow movesList of variable width
 // or e.g. between 250 and 350px (but more complicated)
+
 #movesList
   width: 280px
   float: left
+
 @media screen and (max-width: 767px)
   #movesList
     width: 100%

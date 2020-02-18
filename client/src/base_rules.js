@@ -4,8 +4,8 @@
 import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
+// class "PiPo": Piece + Position
 export const PiPo = class PiPo {
-  //Piece+Position
   // o: {piece[p], color[c], posX[x], posY[y]}
   constructor(o) {
     this.p = o.p;
@@ -15,7 +15,6 @@ export const PiPo = class PiPo {
   }
 };
 
-// TODO: for animation, moves should contains "moving" and "fading" maybe...
 export const Move = class Move {
   // o: {appear, vanish, [start,] [end,]}
   // appear,vanish = arrays of PiPo

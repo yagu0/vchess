@@ -1,20 +1,29 @@
 <template lang="pug">
 main
   input#modalInfo.modal(type="checkbox")
-  div#infoDiv(role="dialog" data-checkbox="modalInfo")
+  div#infoDiv(
+    role="dialog"
+    data-checkbox="modalInfo"
+  )
     .card.text-center
       label.modal-close(for="modalInfo")
       p(v-html="infoMessage")
   input#modalNewgame.modal(type="checkbox")
-  div#newgameDiv(role="dialog" data-checkbox="modalNewgame")
+  div#newgameDiv(
+    role="dialog"
+    data-checkbox="modalNewgame"
+  )
     .card
       label#closeNewgame.modal-close(for="modalNewgame")
       form(@submit.prevent="newChallenge()" @keyup.enter="newChallenge()")
         fieldset
           label(for="selectVariant") {{ st.tr["Variant"] }} *
           select#selectVariant(v-model="newchallenge.vid")
-            option(v-for="v in st.variants" :value="v.id"
-                :selected="newchallenge.vid==v.id")
+            option(
+              v-for="v in st.variants"
+              :value="v.id"
+              :selected="newchallenge.vid==v.id"
+            )
               | {{ v.name }}
         fieldset
           label(for="cadence") {{ st.tr["Cadence"] }} *
@@ -22,34 +31,61 @@ main
             button 3+2
             button 5+3
             button 15+5
-          input#cadence(type="text" v-model="newchallenge.cadence"
-            placeholder="5+0, 1h+30s, 7d+1d ...")
+          input#cadence(
+            type="text"
+            v-model="newchallenge.cadence"
+            placeholder="5+0, 1h+30s, 7d+1d ..."
+          )
         fieldset(v-if="st.user.id > 0")
           label(for="selectPlayers") {{ st.tr["Play with?"] }}
-          input#selectPlayers(type="text" v-model="newchallenge.to")
+          input#selectPlayers(
+            type="text"
+            v-model="newchallenge.to"
+          )
         fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
           label(for="inputFen") FEN
-          input#inputFen(type="text" v-model="newchallenge.fen")
+          input#inputFen(
+            type="text"
+            v-model="newchallenge.fen"
+          )
       button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
-  input#modalPeople.modal(type="checkbox" @click="resetChatColor()")
-  div#peopleWrap(role="dialog" data-checkbox="modalPeople")
+  input#modalPeople.modal(
+    type="checkbox"
+    @click="resetChatColor()"
+  )
+  div#peopleWrap(
+    role="dialog"
+    data-checkbox="modalPeople"
+  )
     .card
       label.modal-close(for="modalPeople")
       #people
         #players
-          p(v-for="sid in Object.keys(people)" v-if="!!people[sid].name")
+          p(
+            v-for="sid in Object.keys(people)"
+            v-if="!!people[sid].name"
+          )
             span {{ people[sid].name }}
-            button.player-action(v-if="sid!=st.user.sid || isGamer(sid)" @click="challOrWatch(sid)")
+            button.player-action(
+              v-if="sid!=st.user.sid || isGamer(sid)"
+              @click="challOrWatch(sid)"
+            )
               | {{ getActionLabel(sid) }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
-          Chat(:newChat="newChat" @mychat="processChat" :pastChats="[]")
+          Chat(
+            :newChat="newChat"
+            @mychat="processChat"
+            :pastChats="[]"
+          )
         .clearer
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button#peopleBtn(onClick="doClick('modalPeople')") {{ st.tr["Social"] }}
-        button(onClick="doClick('modalNewgame')") {{ st.tr["New game"] }}
+        button#peopleBtn(onClick="window.doClick('modalPeople')")
+          | {{ st.tr["Social"] }}
+        button(onClick="window.doClick('modalNewgame')")
+          | {{ st.tr["New game"] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div#div2
@@ -58,20 +94,34 @@ main
             | {{ st.tr["Live challenges"] }}
           button.tabbtn#btnCcorr(@click="setDisplay('c','corr',$event)")
             | {{ st.tr["Correspondance challenges"] }}
-        ChallengeList(v-show="cdisplay=='live'"
-          :challenges="filterChallenges('live')" @click-challenge="clickChallenge")
-        ChallengeList(v-show="cdisplay=='corr'"
-          :challenges="filterChallenges('corr')" @click-challenge="clickChallenge")
+        ChallengeList(
+          v-show="cdisplay=='live'"
+          :challenges="filterChallenges('live')"
+          @click-challenge="clickChallenge"
+        )
+        ChallengeList(
+          v-show="cdisplay=='corr'"
+          :challenges="filterChallenges('corr')"
+          @click-challenge="clickChallenge"
+        )
       div#div3
         .button-group
           button.tabbtn#btnGlive(@click="setDisplay('g','live',$event)")
             | {{ st.tr["Live games"] }}
           button.tabbtn#btnGcorr(@click="setDisplay('g','corr',$event)")
             | {{ st.tr["Correspondance games"] }}
-        GameList(v-show="gdisplay=='live'" :games="filterGames('live')"
-          :showBoth="true" @show-game="showGame")
-        GameList(v-show="gdisplay=='corr'" :games="filterGames('corr')"
-          :showBoth="true" @show-game="showGame")
+        GameList(
+          v-show="gdisplay=='live'"
+          :games="filterGames('live')"
+          :showBoth="true"
+          @show-game="showGame"
+        )
+        GameList(
+          v-show="gdisplay=='corr'"
+          :games="filterGames('corr')"
+          :showBoth="true"
+          @show-game="showGame"
+        )
 </template>
 
 <script>
@@ -417,7 +467,6 @@ export default {
         case "identity": {
           const user = data.data;
           if (user.name) {
-            //otherwise anonymous
             // If I multi-connect, kill current connexion if no mark (I'm older)
             if (
               this.newConnect[user.sid] &&
@@ -775,21 +824,27 @@ div#peopleWrap > .card
   width: 50%
   position: relative
   float: left
+
 #chat
   width: 50%
   float: left
   position: relative
+
 @media screen and (max-width: 767px)
   #players, #chats
     width: 100%
+
 #chat > .card
   max-width: 100%
   margin: 0;
   border: none;
+
 #players > p
   margin-left: 5px
+
 .anonymous
   font-style: italic
+
 button.player-action
   margin-left: 32px
 

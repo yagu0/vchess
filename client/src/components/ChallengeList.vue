@@ -7,7 +7,11 @@ div
         th {{ st.tr["From"] }}
         th {{ st.tr["Cadence"] }}
     tbody
-      tr(v-for="c in sortedChallenges" :class="{toyou:c.priority==1,fromyou:c.priority==2}" @click="$emit('click-challenge',c)")
+      tr(
+        v-for="c in sortedChallenges"
+        :class="{toyou:c.priority==1,fromyou:c.priority==2}"
+        @click="$emit('click-challenge',c)"
+      )
         td {{ c.vname }}
         td {{ c.from.name || "@nonymous" }}
         td {{ c.cadence }}
@@ -47,7 +51,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-// TODO: understand why the style applied to <tr> element doesn't work
+// NOTE: the style applied to <tr> element doesn't work
 tr.fromyou > td
   font-style: italic
 tr.toyou > td

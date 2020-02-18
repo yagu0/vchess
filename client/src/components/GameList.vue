@@ -8,12 +8,18 @@ div
         th(v-if="showCadence") {{ st.tr["Cadence"] }}
         th {{ st.tr["Result"] }}
     tbody
-      tr(v-for="g in sortedGames" @click="$emit('show-game',g)"
-          :class="{'my-turn': g.myTurn}")
+      tr(
+        v-for="g in sortedGames"
+        @click="$emit('show-game',g)"
+        :class="{'my-turn': g.myTurn}"
+      )
         td {{ g.vname }}
         td {{ player_s(g) }}
         td(v-if="showCadence") {{ g.cadence }}
-        td(:class="{finished: g.score!='*'}" @click="deleteGame(g,$event)")
+        td(
+          :class="{finished: g.score!='*'}"
+          @click="deleteGame(g,$event)"
+        )
           | {{ g.score }}
 </template>
 
@@ -107,7 +113,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-// TODO: understand why the style applied to <tr> element doesn't work
+// NOTE: the style applied to <tr> element doesn't work
 tr.my-turn > td
   background-color: #fcd785
 tr td.finished

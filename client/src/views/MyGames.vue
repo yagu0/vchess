@@ -3,12 +3,20 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button.tabbtn#liveGames(@click="setDisplay('live',$event)") {{ st.tr["Live games"] }}
-        button.tabbtn#corrGames(@click="setDisplay('corr',$event)") {{ st.tr["Correspondance games"] }}
-      GameList(v-show="display=='live'" :games="liveGames"
-        @show-game="showGame")
-      GameList(v-show="display=='corr'" :games="corrGames"
-        @show-game="showGame")
+        button.tabbtn#liveGames(@click="setDisplay('live',$event)")
+          | {{ st.tr["Live games"] }}
+        button.tabbtn#corrGames(@click="setDisplay('corr',$event)")
+          | {{ st.tr["Correspondance games"] }}
+      GameList(
+        v-show="display=='live'"
+        :games="liveGames"
+        @show-game="showGame"
+      )
+      GameList(
+        v-show="display=='corr'"
+        :games="corrGames"
+        @show-game="showGame"
+      )
 </template>
 
 <script>

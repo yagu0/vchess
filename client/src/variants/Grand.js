@@ -316,7 +316,6 @@ export const VariantRules = class GrandRules extends ChessRules {
     return 2;
   }
 
-  // TODO: this function could be generalized and shared better (how ?!...)
   static GenRandInitFen() {
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and last rank

@@ -1,7 +1,13 @@
 <template lang="pug">
 div
-  input#modalContact.modal(type="checkbox" @change="trySetEnterTime($event)")
-  div(role="dialog" data-checkbox="modalContact")
+  input#modalContact.modal(
+    type="checkbox"
+    @change="trySetEnterTime($event)"
+  )
+  div(
+    role="dialog"
+    data-checkbox="modalContact"
+  )
     .card
       label.modal-close(for="modalContact")
       form(@submit.prevent="trySendMessage()" @keyup.enter="trySendMessage()")
@@ -56,7 +62,6 @@ export default {
         !confirm(this.st.tr["No subject. Send anyway?"])
       )
         return;
-
       // Message sending:
       ajax(
         "/messages",
@@ -81,9 +86,11 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100%
+
 textarea#mailContent
   width: 100%
   min-height: 100px
+
 #dialog
   padding: 5px
   color: blue

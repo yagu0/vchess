@@ -16,9 +16,10 @@ export const store = {
       this.state.variants = res.variantArray;
     });
     let mysid = localStorage.getItem("mysid");
+    // Assign mysid only once (until next time user clear browser data)
     if (!mysid) {
       mysid = getRandString();
-      localStorage.setItem("mysid", mysid); //done only once (unless user clear browser data)
+      localStorage.setItem("mysid", mysid);
     }
     // Quick user setup using local storage:
     this.state.user = {
@@ -34,18 +35,18 @@ export const store = {
       this.state.user.id = res.id;
       const storedId = localStorage.getItem("myid");
       if (res.id > 0 && !storedId)
-        //user cleared localStorage
+        // User cleared localStorage
         localStorage.setItem("myid", res.id);
       else if (res.id == 0 && !!storedId)
-        //user cleared cookie
+        // User cleared cookie
         localStorage.removeItem("myid");
       this.state.user.name = res.name;
       const storedName = localStorage.getItem("myname");
       if (!!res.name && !storedName)
-        //user cleared localStorage
+        // User cleared localStorage
         localStorage.setItem("myname", res.name);
       else if (!res.name && !!storedName)
-        //user cleared cookie
+        // User cleared cookie
         localStorage.removeItem("myname");
       this.state.user.email = res.email;
       this.state.user.notify = res.notify;

@@ -25,19 +25,22 @@
               router-link(to="/problems")
                 | {{ st.tr["Problems"] }}
             #rightMenu
-              .clickable(onClick="doClick('modalUser')")
+              .clickable(onClick="window.doClick('modalUser')")
                 | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
-              .clickable(onClick="doClick('modalSettings')")
+              .clickable(onClick="window.doClick('modalSettings')")
                 | {{ st.tr["Settings"] }}
-              .clickable#flagContainer(onClick="doClick('modalLang')")
-                img(v-if="!!st.lang" :src="flagImage")
+              .clickable#flagContainer(onClick="window.doClick('modalLang')")
+                img(
+                  v-if="!!st.lang"
+                  :src="flagImage"
+                )
     router-view
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
         router-link.menuitem(to="/news") {{ st.tr["News"] }}
-        p.clickable(onClick="doClick('modalContact')")
+        p.clickable(onClick="window.doClick('modalContact')")
           | {{ st.tr["Contact"] }}
 </template>
 
