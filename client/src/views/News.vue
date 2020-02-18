@@ -5,7 +5,7 @@ main
     role="dialog"
     data-checkbox="modalNews"
   )
-    .card
+    .card#writeNews
       label.modal-close(for="modalNews")
       textarea#newsContent(
         v-model="curnews.content"
@@ -16,7 +16,7 @@ main
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      button#writeNews(
+      button#writeNewsBtn(
         v-if="devs.includes(st.user.id)"
         @click="showModalNews"
       )
@@ -162,7 +162,10 @@ textarea#newsContent
   padding: 5px
   color: blue
 
-button#writeNews
+#writeNews
+  padding-top: 50px
+
+button#writeNewsBtn
   margin-top: 0
   margin-bottom: 0
 
