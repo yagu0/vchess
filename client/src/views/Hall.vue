@@ -67,7 +67,7 @@ main
           )
             span {{ people[sid].name }}
             button.player-action(
-              v-if="sid!=st.user.sid || isGamer(sid)"
+              v-if="isGamer(sid) || (st.user.id > 0 && sid!=st.user.sid)"
               @click="challOrWatch(sid)"
             )
               | {{ getActionLabel(sid) }}
