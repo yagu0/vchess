@@ -40,8 +40,7 @@ div#baseGame(
         :incheck="incheck"
         @play-move="play"
       )
-      #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'")
-        | {{ st.tr[vr.turn + " to move"] }}
+        #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'") {{ turn }}
       #controls
         button(@click="gotoBegin()") <<
         button(@click="undo()") <
@@ -124,6 +123,9 @@ export default {
   computed: {
     showMoves: function() {
       return this.game.vname != "Dark" || this.game.score != "*";
+    },
+    turn: function() {
+      return this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"];
     },
     analyze: function() {
       return (
