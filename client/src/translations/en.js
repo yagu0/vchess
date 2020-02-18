@@ -6,6 +6,7 @@ export const translations = {
   Analyse: "Analyse",
   "Analyse in Dark mode makes no sense!":
     "Analyse in Dark mode makes no sense!",
+  "Any player": "Any player",
   "Are you sure?": "Are you sure?",
   "Authentication successful!": "Authentication successful!",
   Apply: "Apply",
@@ -36,7 +37,6 @@ export const translations = {
   "Empty message": "Empty message",
   "Error while loading database:": "Error while loading database:",
   "Example game": "Example game",
-  From: "From",
   "Game retrieval failed:": "Game retrieval failed:",
   "Game removal failed:": "Game removal failed:",
   Go: "Go",
@@ -114,6 +114,7 @@ export const translations = {
   "White to move": "White to move",
   "White win": "White win",
   "Who's there?": "Who's there?",
+  With: "With",
   "Write news": "Write news",
   "Your message": "Your message",
 

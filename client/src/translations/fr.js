@@ -6,6 +6,7 @@ export const translations = {
   Analyse: "Analyser",
   "Analyse in Dark mode makes no sense!":
     "Analyser en mode Dark n'a pas de sens !",
+  "Any player": "N'importe qui",
   Apply: "Appliquer",
   "Authentication successful!": "Authentification réussie !",
   "Are you sure?": "Étes vous sûr?",
@@ -39,7 +40,6 @@ export const translations = {
   "Error while loading database:":
     "Erreur lors du chargement de la base de données :",
   "Example game": "Partie exemple",
-  From: "De",
   "Game retrieval failed:": "Échec de la récupération de la partie :",
   "Game removal failed:": "Échec de la suppresion de la partie :",
   Go: "Go",
@@ -119,6 +119,7 @@ export const translations = {
   "White to move": "Trait aux blancs",
   "White win": "Les blancs gagnent",
   "Who's there?": "Qui est là ?",
+  With: "Avec",
   "Write news": "Écrire une news",
   "Your message": "Votre message",
 

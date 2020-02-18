@@ -4,7 +4,7 @@ div
     thead
       tr
         th {{ st.tr["Variant"] }}
-        th {{ st.tr["From"] }}
+        th {{ st.tr["With"] }}
         th {{ st.tr["Cadence"] }}
     tbody
       tr(
@@ -13,7 +13,7 @@ div
         @click="$emit('click-challenge',c)"
       )
         td {{ c.vname }}
-        td {{ c.from.name || "@nonymous" }}
+        td {{ withWho(c) }}
         td {{ c.cadence }}
 </template>
 
@@ -45,6 +45,13 @@ export default {
       return augmentedChalls.sort((c1, c2) => {
         return c2.priority - c1.priority + (c2.added - c1.added) / deltaAdded;
       });
+    }
+  },
+  methods: {
+    withWho: function(c) {
+      if (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
+        return c.to || this.st.tr["Any player"];
+      return c.from.name || "@nonymous";
     }
   }
 };
