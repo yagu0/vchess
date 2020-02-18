@@ -202,6 +202,7 @@ nav
 
 @media screen and (max-width: 767px)
   nav
+    z-index: 5000 //to hide currently selected piece if any
     height: 42px
     border: none
     & > label.drawer-toggle

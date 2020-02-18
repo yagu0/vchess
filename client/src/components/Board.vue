@@ -36,13 +36,6 @@ export default {
     let incheckSq = ArrayFun.init(sizeX, sizeY, false);
     this.incheck.forEach(sq => { incheckSq[sq[0]][sq[1]] = true; });
 
-    let boardElt = document.querySelector(".game");
-    const squareWidth = (!!boardElt
-      ? boardElt.offsetWidth / sizeY
-      : 40); //arbitrary value (not relevant)
-    const offset = (!!boardElt
-      ? [boardElt.offsetTop, boardElt.offsetLeft]
-      : [0, 0]);
     // Create board element (+ reserves if needed by variant or mode)
     const lm = this.lastMove;
     const showLight = this.settings.highlight && this.vname != "Dark";
@@ -129,49 +122,8 @@ export default {
         );
       })
     );
-    const playingColor = this.userColor || "w"; //default for an observer
     let elementArray = [gameDiv];
-    if (this.choices.length > 0)
-    {
-      const choices = h(
-        'div',
-        {
-          attrs: { "id": "choices" },
-          'class': { 'row': true },
-          style: {
-            "top": (offset[0] + (sizeY/2)*squareWidth-squareWidth/2) + "px",
-            "left": (offset[1] + squareWidth*(sizeY - this.choices.length)/2) + "px",
-            "width": (this.choices.length * squareWidth) + "px",
-            "height": squareWidth + "px",
-          },
-        },
-        this.choices.map(m => { //a "choice" is a move
-          return h('div',
-            {
-              'class': {
-                'board': true,
-                ['board'+sizeY]: true,
-              },
-              style: {
-                'width': (100/this.choices.length) + "%",
-                'padding-bottom': (100/this.choices.length) + "%",
-              },
-            },
-            [h('img',
-              {
-                attrs: { "src": '/images/pieces/' +
-                  V.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
-                'class': { 'choice-piece': true },
-                on: {
-                  "click": e => { this.play(m); this.choices=[]; },
-                },
-              })
-            ]
-          );
-        })
-      );
-      elementArray.unshift(choices);
-    }
+    const playingColor = this.userColor || "w"; //default for an observer
     if (!!this.vr.reserve)
     {
       const shiftIdx = (playingColor=="w" ? 0 : 1);
@@ -247,6 +199,50 @@ export default {
       );
       elementArray.push(reserves);
     }
+    const boardElt = document.querySelector(".game");
+    if (this.choices.length > 0 && !!boardElt) //no choices to show at first drawing
+    {
+      const squareWidth = boardElt.offsetWidth / sizeY;
+      const offset = [boardElt.offsetTop, boardElt.offsetLeft];
+      const choices = h(
+        'div',
+        {
+          attrs: { "id": "choices" },
+          'class': { 'row': true },
+          style: {
+            "top": (offset[0] + (sizeY/2)*squareWidth-squareWidth/2) + "px",
+            "left": (offset[1] + squareWidth*(sizeY - this.choices.length)/2) + "px",
+            "width": (this.choices.length * squareWidth) + "px",
+            "height": squareWidth + "px",
+          },
+        },
+        this.choices.map(m => { //a "choice" is a move
+          return h('div',
+            {
+              'class': {
+                'board': true,
+                ['board'+sizeY]: true,
+              },
+              style: {
+                'width': (100/this.choices.length) + "%",
+                'padding-bottom': (100/this.choices.length) + "%",
+              },
+            },
+            [h('img',
+              {
+                attrs: { "src": '/images/pieces/' +
+                  V.getPpath(m.appear[0].c+m.appear[0].p) + '.svg' },
+                'class': { 'choice-piece': true },
+                on: {
+                  "click": e => { this.play(m); this.choices=[]; },
+                },
+              })
+            ]
+          );
+        })
+      );
+      elementArray.unshift(choices);
+    }
     let onEvents = {};
     // NOTE: click = mousedown + mouseup
     if ('ontouchstart' in window)
@@ -277,65 +273,48 @@ export default {
   },
   methods: {
     mousedown: function(e) {
-      e = e || window.event;
-      let ingame = false;
-      let elem = e.target;
-      while (!ingame && elem !== null)
-      {
-        if (elem.classList.contains("game"))
-        {
-          ingame = true;
-          break;
-        }
-        elem = elem.parentElement;
-      }
-      if (!ingame) //let default behavior (click on button...)
+      // Abort if a piece is already being processed, or target is not a piece.
+      // NOTE: just looking at classList[0] because piece is the first assigned class
+      if (!!this.selectedPiece || e.target.classList[0] != "piece")
         return;
       e.preventDefault(); //disable native drag & drop
-      if (!this.selectedPiece && e.target.classList.contains("piece"))
-      {
-        let parent = e.target.parentNode;
-        // Next few lines to center the piece on mouse cursor
-        let rect = parent.getBoundingClientRect();
-        this.start = {
-          x: rect.x + rect.width/2,
-          y: rect.y + rect.width/2,
-          id: parent.id
-        };
-        this.selectedPiece = e.target.cloneNode();
-        let spStyle = this.selectedPiece.style
-        spStyle.position = "absolute";
-        spStyle.top = 0;
-        spStyle.display = "inline-block";
-        spStyle.zIndex = 3000;
-        const startSquare = getSquareFromId(parent.id);
-        this.possibleMoves = [];
-        const color = (this.analyze ? this.vr.turn : this.userColor);
-        if (this.vr.canIplay(color,startSquare))
-          this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-        // Next line add moving piece just after current image
-        // (required for Crazyhouse reserve)
-        parent.insertBefore(this.selectedPiece, e.target.nextSibling);
-      }
+      let parent = e.target.parentNode; //the surrounding square
+      // Next few lines to center the piece on mouse cursor
+      let rect = parent.getBoundingClientRect();
+      this.start = {
+        x: rect.x + rect.width/2,
+        y: rect.y + rect.width/2,
+        id: parent.id,
+      };
+      this.selectedPiece = e.target.cloneNode();
+      let spStyle = this.selectedPiece.style
+      spStyle.position = "absolute";
+      spStyle.top = 0;
+      spStyle.display = "inline-block";
+      spStyle.zIndex = 3000;
+      const startSquare = getSquareFromId(parent.id);
+      this.possibleMoves = [];
+      const color = (this.analyze ? this.vr.turn : this.userColor);
+      if (this.vr.canIplay(color,startSquare))
+        this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+      // Next line add moving piece just after current image
+      // (required for Crazyhouse reserve)
+      parent.insertBefore(this.selectedPiece, e.target.nextSibling);
     },
     mousemove: function(e) {
       if (!this.selectedPiece)
         return;
-      e = e || window.event;
-      // If there is an active element, move it around
-      if (!!this.selectedPiece)
-      {
-        const [offsetX,offsetY] = !!e.clientX
-          ? [e.clientX,e.clientY] //desktop browser
-          : [e.changedTouches[0].pageX, e.changedTouches[0].pageY]; //smartphone
-        this.selectedPiece.style.left = (offsetX-this.start.x) + "px";
-        this.selectedPiece.style.top = (offsetY-this.start.y) + "px";
-      }
+      // There is an active element: move it around
+      const [offsetX,offsetY] = !!e.clientX
+        ? [e.clientX,e.clientY] //desktop browser
+        : [e.changedTouches[0].pageX, e.changedTouches[0].pageY]; //smartphone
+      this.selectedPiece.style.left = (offsetX-this.start.x) + "px";
+      this.selectedPiece.style.top = (offsetY-this.start.y) + "px";
     },
     mouseup: function(e) {
       if (!this.selectedPiece)
         return;
-      e = e || window.event;
+      // There is an active element: obtain the move from start and end squares
       this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coords
       const [offsetX,offsetY] = !!e.clientX
         ? [e.clientX,e.clientY]
@@ -345,11 +324,8 @@ export default {
       // Next condition: classList.contains(piece) fails because of marks
       while (landing.tagName == "IMG")
         landing = landing.parentNode;
-      if (this.start.id == landing.id)
-      {
-        // A click: selectedPiece and possibleMoves are already filled
+      if (this.start.id == landing.id) //one or multi clicks on same piece
         return;
-      }
       // OK: process move attempt, landing is a square node
       let endSquare = getSquareFromId(landing.id);
       let moves = this.findMatchingMoves(endSquare);
