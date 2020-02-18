@@ -452,6 +452,7 @@ export default {
 
 #turnIndicator
   text-align: center
+  font-weight: bold
 
 #belowControls
   border-top: 1px solid #2f4f4f
