@@ -10,33 +10,31 @@ main
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
 export default {
-  name: 'my-auth',
+  name: "my-auth",
   data: function() {
     return {
       st: store.state,
-      errmsg: "",
+      errmsg: ""
     };
   },
   created: function() {
-		ajax(
-			"/authenticate",
-			"GET",
-			{token: this.$route.params["token"]},
-			(res) => {
-				if (!res.errmsg) //if not already logged in
-				{
-					this.st.user.id = res.id;
-					this.st.user.name = res.name;
-					this.st.user.email = res.email;
-					this.st.user.notify = res.notify;
-					localStorage["myname"] = res.name;
-					localStorage["myid"] = res.id;
-				}
-				else
-          this.errmsg = res.errmsg;
-			}
+    ajax(
+      "/authenticate",
+      "GET",
+      { token: this.$route.params["token"] },
+      res => {
+        if (!res.errmsg) {
+          //if not already logged in
+          this.st.user.id = res.id;
+          this.st.user.name = res.name;
+          this.st.user.email = res.email;
+          this.st.user.notify = res.notify;
+          localStorage["myname"] = res.name;
+          localStorage["myid"] = res.id;
+        } else this.errmsg = res.errmsg;
+      }
     );
-  },
+  }
 };
 </script>
 

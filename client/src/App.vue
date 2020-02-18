@@ -53,17 +53,17 @@ export default {
     ContactForm,
     Language,
     Settings,
-    UpsertUser,
+    UpsertUser
   },
   data: function() {
     return {
-      st: store.state,
+      st: store.state
     };
   },
   computed: {
     flagImage: function() {
       return `/images/flags/${this.st.lang}.svg`;
-    },
+    }
   },
   mounted: function() {
     let dialogs = document.querySelectorAll("div[role='dialog']");
@@ -73,12 +73,11 @@ export default {
   },
   methods: {
     hideDrawer: function(e) {
-      if (e.target.innerText == "Forum")
-        return; //external link
+      if (e.target.innerText == "Forum") return; //external link
       e.preventDefault(); //TODO: why is this needed?
       document.getElementsByClassName("drawer")[0].checked = false;
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -19,33 +19,35 @@ export default {
   data: function() {
     return {
       curPrefix: "",
-      st: store.state,
+      st: store.state
     };
   },
   computed: {
-    filteredVariants: function () {
-      const capitalizedPrefix = this.curPrefix.replace(/^\w/, c => c.toUpperCase());
+    filteredVariants: function() {
+      const capitalizedPrefix = this.curPrefix.replace(/^\w/, c =>
+        c.toUpperCase()
+      );
       const variants = this.st.variants
-      .filter( v => {
-        return v.name.startsWith(capitalizedPrefix);
-      })
-      .map( v => {
-        return {
-          name: v.name,
-          desc: v.description,
-        };
-      })
-      .sort((a,b) => {
-        return a.name.localeCompare(b.name);
-      });
+        .filter(v => {
+          return v.name.startsWith(capitalizedPrefix);
+        })
+        .map(v => {
+          return {
+            name: v.name,
+            desc: v.description
+          };
+        })
+        .sort((a, b) => {
+          return a.name.localeCompare(b.name);
+        });
       return variants;
-    },
+    }
   },
   methods: {
     getLink: function(vname) {
       return "/variants/" + vname;
-    },
-  },
+    }
+  }
 };
 </script>
 

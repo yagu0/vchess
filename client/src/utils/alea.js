@@ -1,27 +1,26 @@
 // Random (enough) string for socket and game IDs
-export function getRandString()
-{
-  return (Date.now().toString(36) + Math.random().toString(36).substr(2, 7))
-    .toUpperCase();
+export function getRandString() {
+  return (
+    Date.now().toString(36) +
+    Math.random()
+      .toString(36)
+      .substr(2, 7)
+  ).toUpperCase();
 }
 
-export function randInt(min, max)
-{
-  if (!max)
-  {
+export function randInt(min, max) {
+  if (!max) {
     max = min;
     min = 0;
   }
-  return Math.floor(Math.random() * (max - min) ) + min;
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 // Inspired by https://github.com/jashkenas/underscore/blob/master/underscore.js
-export function sample (arr, n)
-{
+export function sample(arr, n) {
   n = n || 1;
   let cpArr = arr.map(e => e);
-  for (let index = 0; index < n; index++)
-  {
+  for (let index = 0; index < n; index++) {
     const rand = randInt(index, arr.length);
     const temp = cpArr[index];
     cpArr[index] = cpArr[rand];
@@ -30,7 +29,6 @@ export function sample (arr, n)
   return cpArr.slice(0, n);
 }
 
-export function shuffle(arr)
-{
+export function shuffle(arr) {
   return sample(arr, arr.length);
 }

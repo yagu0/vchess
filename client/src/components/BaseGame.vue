@@ -1,25 +1,47 @@
 <template lang="pug">
-div#baseGame(tabindex=-1 @click="focusBg()"
-    @keydown="handleKeys($event)" @wheel="handleScroll($event)")
+div#baseGame(
+  tabindex=-1
+  @click="focusBg()"
+  @keydown="handleKeys($event)"
+  @wheel="handleScroll($event)"
+)
   input#modalEog.modal(type="checkbox")
-  div#eogDiv(role="dialog" data-checkbox="modalEog")
+  div#eogDiv(
+    role="dialog"
+    data-checkbox="modalEog"
+  )
     .card.text-center
       label.modal-close(for="modalEog")
       h3.section {{ endgameMessage }}
   input#modalAdjust.modal(type="checkbox")
-  div#adjuster(role="dialog" data-checkbox="modalAdjust")
+  div#adjuster(
+    role="dialog"
+    data-checkbox="modalAdjust"
+  )
     .card.text-center
       label.modal-close(for="modalAdjust")
       label(for="boardSize") {{ st.tr["Board size"] }}
-      input#boardSize.slider(type="range" min="0" max="100" value="50"
-        @input="adjustBoard()")
+      input#boardSize.slider(
+        type="range"
+        min="0"
+        max="100"
+        value="50"
+        @input="adjustBoard()"
+      )
   #gameContainer
     #boardContainer
-      Board(:vr="vr" :last-move="lastMove" :analyze="analyze"
-        :user-color="game.mycolor" :orientation="orientation"
-        :vname="game.vname" :incheck="incheck" @play-move="play")
+      Board(
+        :vr="vr"
+        :last-move="lastMove"
+        :analyze="analyze"
+        :user-color="game.mycolor"
+        :orientation="orientation"
+        :vname="game.vname"
+        :incheck="incheck"
+        @play-move="play"
+      )
       #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'")
-        | {{ turn }}
+        | {{ st.tr[vr.turn + " to move"] }}
       #controls
         button(@click="gotoBegin()") <<
         button(@click="undo()") <
@@ -31,16 +53,27 @@ div#baseGame(tabindex=-1 @click="focusBg()"
           a#download(href="#")
           button(@click="download()") {{ st.tr["Download"] }} PGN
         button(onClick="doClick('modalAdjust')") &#10530;
-        button(v-if="game.vname!='Dark' && game.mode!='analyze'"
-            @click="analyzePosition()")
+        button(
+          v-if="game.vname!='Dark' && game.mode!='analyze'"
+          @click="analyzePosition()"
+        )
           | {{ st.tr["Analyse"] }}
         // NOTE: rather ugly hack to avoid showing twice "rules" link...
-        button(v-if="!$route.path.match('/variants/')" @click="showRules()")
+        button(
+          v-if="!$route.path.match('/variants/')"
+          @click="showRules()"
+        )
           | {{ st.tr["Rules"] }}
     #movesList
-      MoveList(v-if="showMoves" :score="game.score" :message="game.scoreMsg"
-        :firstNum="firstMoveNumber" :moves="moves" :cursor="cursor"
-        @goto-move="gotoMove")
+      MoveList(
+        v-if="showMoves"
+        :score="game.score"
+        :message="game.scoreMsg"
+        :firstNum="firstMoveNumber"
+        :moves="moves"
+        :cursor="cursor"
+        @goto-move="gotoMove"
+      )
     .clearer
 </template>
 
@@ -53,13 +86,13 @@ import { getDate } from "@/utils/datetime";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
 export default {
-  name: 'my-base-game',
+  name: "my-base-game",
   components: {
     Board,
-    MoveList,
+    MoveList
   },
   // "vr": VariantRules object, describing the game state + rules
-  props: ["vr","game"],
+  props: ["vr", "game"],
   data: function() {
     return {
       st: store.state,
@@ -71,7 +104,7 @@ export default {
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
-      incheck: [], //for Board
+      incheck: [] //for Board
     };
   },
   watch: {
@@ -80,62 +113,54 @@ export default {
       this.re_setVariables();
     },
     // Received a new move to play:
-    "game.moveToPlay": function(newMove) {
-      if (!!newMove) //if stop + launch new game, get undefined move
-        this.play(newMove, "receive");
+    "game.moveToPlay": function(move) {
+      if (move) this.play(move, "receive");
     },
     // ...Or to undo (corr game, move not validated)
     "game.moveToUndo": function(move) {
-      if (!!move)
-        this.undo(move);
-    },
+      if (move) this.undo(move);
+    }
   },
   computed: {
     showMoves: function() {
       return this.game.vname != "Dark" || this.game.score != "*";
     },
-    turn: function() {
-      let color = "";
-      const L = this.moves.length;
-      if (L == 0 || this.moves[L-1].color == "b")
-        color = "White";
-      else //if (this.moves[L-1].color == "w")
-        color = "Black";
-      return this.st.tr[color + " to move"];
-    },
     analyze: function() {
-      return this.game.mode=="analyze" ||
+      return (
+        this.game.mode == "analyze" ||
         // From Board viewpoint, a finished Dark game == analyze (TODO: unclear)
-        (this.game.vname == "Dark" && this.game.score != "*");
-    },
+        (this.game.vname == "Dark" && this.game.score != "*")
+      );
+    }
   },
   created: function() {
-    if (!!this.game.fenStart)
-      this.re_setVariables();
+    if (this.game.fenStart) this.re_setVariables();
   },
   mounted: function() {
-    [document.getElementById("eogDiv"),document.getElementById("adjuster")]
-      .forEach(elt => elt.addEventListener("click", processModalClick));
+    [
+      document.getElementById("eogDiv"),
+      document.getElementById("adjuster")
+    ].forEach(elt => elt.addEventListener("click", processModalClick));
     // Take full width on small screens:
     let boardSize = parseInt(localStorage.getItem("boardSize"));
-    if (!boardSize)
-    {
-      boardSize = (window.innerWidth >= 768
-        ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
-        : window.innerWidth);
+    if (!boardSize) {
+      boardSize =
+        window.innerWidth >= 768
+          ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
+          : window.innerWidth;
     }
-    const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
+    const movesWidth = window.innerWidth >= 768 ? 280 : 0;
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
-    gameContainer.style.width = (boardSize + movesWidth) + "px";
-    document.getElementById("boardSize").value = (boardSize * 100) / (window.innerWidth - movesWidth);
+    gameContainer.style.width = boardSize + movesWidth + "px";
+    document.getElementById("boardSize").value =
+      (boardSize * 100) / (window.innerWidth - movesWidth);
     // timeout to avoid calling too many time the adjust method
     let timeoutLaunched = false;
-    window.addEventListener("resize", (e) => {
-      if (!timeoutLaunched)
-      {
+    window.addEventListener("resize", () => {
+      if (!timeoutLaunched) {
         timeoutLaunched = true;
-        setTimeout( () => {
+        setTimeout(() => {
           this.adjustBoard();
           timeoutLaunched = false;
         }, 500);
@@ -149,24 +174,22 @@ export default {
     },
     adjustBoard: function() {
       const boardContainer = document.getElementById("boardContainer");
-      if (!boardContainer)
-        return; //no board on page
+      if (!boardContainer) return; //no board on page
       const k = document.getElementById("boardSize").value;
-      const movesWidth = (window.innerWidth >= 768 ? 280 : 0);
+      const movesWidth = window.innerWidth >= 768 ? 280 : 0;
       const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...
       // Value of 0 is board min size; 100 is window.width [- movesWidth]
-      const boardSize = minBoardWidth +
-        k * (window.innerWidth - (movesWidth+minBoardWidth)) / 100;
+      const boardSize =
+        minBoardWidth +
+        (k * (window.innerWidth - (movesWidth + minBoardWidth))) / 100;
       localStorage.setItem("boardSize", boardSize);
       boardContainer.style.width = boardSize + "px";
       document.getElementById("gameContainer").style.width =
-        (boardSize + movesWidth) + "px";
+        boardSize + movesWidth + "px";
     },
     handleKeys: function(e) {
-      if ([32,37,38,39,40].includes(e.keyCode))
-        e.preventDefault();
-      switch (e.keyCode)
-      {
+      if ([32, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
+      switch (e.keyCode) {
         case 37:
           this.undo();
           break;
@@ -186,13 +209,10 @@ export default {
     },
     handleScroll: function(e) {
       // NOTE: since game.mode=="analyze" => no score, next condition is enough
-      if (this.game.score != "*")
-      {
+      if (this.game.score != "*") {
         e.preventDefault();
-        if (e.deltaY < 0)
-          this.undo();
-        else if (e.deltaY > 0)
-          this.play();
+        if (e.deltaY < 0) this.undo();
+        else if (e.deltaY > 0) this.play();
       }
     },
     showRules: function() {
@@ -206,8 +226,9 @@ export default {
       // Post-processing: decorate each move with color + current FEN:
       // (to be able to jump to any position quickly)
       let vr_tmp = new V(this.game.fenStart); //vr is already at end of game
-      this.firstMoveNumber =
-        Math.floor(V.ParseFen(this.game.fenStart).movesCount / 2);
+      this.firstMoveNumber = Math.floor(
+        V.ParseFen(this.game.fenStart).movesCount / 2
+      );
       this.moves.forEach(move => {
         // NOTE: this is doing manually what play() function below achieve,
         // but in a lighter "fast-forward" way
@@ -216,31 +237,39 @@ export default {
         vr_tmp.play(move);
         move.fen = vr_tmp.getFen();
       });
-      if ((this.moves.length > 0 && this.moves[0].color == "b") ||
-        (this.moves.length == 0 && this.vr_tmp.turn == "b"))
-      {
+      if (
+        (this.moves.length > 0 && this.moves[0].color == "b") ||
+        (this.moves.length == 0 && vr_tmp.turn == "b")
+      ) {
         // 'end' is required for Board component to check lastMove for e.p.
-        this.moves.unshift({color: "w", notation: "...", end: {x:-1,y:-1}});
+        this.moves.unshift({
+          color: "w",
+          notation: "...",
+          end: { x: -1, y: -1 }
+        });
       }
       const L = this.moves.length;
-      this.cursor = L-1;
-      this.lastMove = (L > 0 ? this.moves[L-1]  : null);
+      this.cursor = L - 1;
+      this.lastMove = L > 0 ? this.moves[L - 1] : null;
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
     },
     analyzePosition: function() {
-      const newUrl = "/analyse/" + this.game.vname +
-        "/?fen=" + this.vr.getFen().replace(/ /g, "_");
-      if (this.game.type == "live")
-        this.$router.push(newUrl); //open in same tab: against cheating...
-      else
-        window.open("#" + newUrl); //open in a new tab: more comfortable
+      const newUrl =
+        "/analyse/" +
+        this.game.vname +
+        "/?fen=" +
+        this.vr.getFen().replace(/ /g, "_");
+      if (this.game.type == "live") this.$router.push(newUrl);
+      //open in same tab: against cheating...
+      else window.open("#" + newUrl); //open in a new tab: more comfortable
     },
     download: function() {
       const content = this.getPgn();
       // Prepare and trigger download link
       let downloadAnchor = document.getElementById("download");
       downloadAnchor.setAttribute("download", "game.pgn");
-      downloadAnchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
+      downloadAnchor.href =
+        "data:text/plain;charset=utf-8," + encodeURIComponent(content);
       downloadAnchor.click();
     },
     getPgn: function() {
@@ -254,15 +283,13 @@ export default {
       pgn += '[Result "' + this.game.score + '"]\n\n';
       let counter = 1;
       let i = 0;
-      while (i < this.moves.length)
-      {
-        pgn += (counter++) + ".";
-        for (let color of ["w","b"])
-        {
+      while (i < this.moves.length) {
+        pgn += counter++ + ".";
+        for (let color of ["w", "b"]) {
           let move = "";
           while (i < this.moves.length && this.moves[i].color == color)
             move += this.moves[i++].notation + ",";
-          move = move.slice(0,-1); //remove last comma
+          move = move.slice(0, -1); //remove last comma
           pgn += move + (i < this.moves.length ? " " : "");
         }
       }
@@ -272,37 +299,41 @@ export default {
       this.endgameMessage = message;
       let modalBox = document.getElementById("modalEog");
       modalBox.checked = true;
-      setTimeout(() => { modalBox.checked = false; }, 2000);
+      setTimeout(() => {
+        modalBox.checked = false;
+      }, 2000);
     },
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
       // TODO: error "flush nextTick callbacks" when observer reloads page:
       // this late check is not a fix!
-      if (!startSquare)
-        return;
+      if (!startSquare) return;
       let endSquare = document.getElementById(getSquareId(move.end));
       let rectStart = startSquare.getBoundingClientRect();
       let rectEnd = endSquare.getBoundingClientRect();
-      let translation = {x:rectEnd.x-rectStart.x, y:rectEnd.y-rectStart.y};
-      let movingPiece =
-        document.querySelector("#" + getSquareId(move.start) + " > img.piece");
-      if (!movingPiece) //TODO: shouldn't happen
+      let translation = {
+        x: rectEnd.x - rectStart.x,
+        y: rectEnd.y - rectStart.y
+      };
+      let movingPiece = document.querySelector(
+        "#" + getSquareId(move.start) + " > img.piece"
+      );
+      if (!movingPiece)
+        //TODO: shouldn't happen
         return;
       // HACK for animation (with positive translate, image slides "under background")
       // Possible improvement: just alter squares on the piece's way...
       const squares = document.getElementsByClassName("board");
-      for (let i=0; i<squares.length; i++)
-      {
+      for (let i = 0; i < squares.length; i++) {
         let square = squares.item(i);
-        if (square.id != getSquareId(move.start))
-          square.style.zIndex = "-1";
+        if (square.id != getSquareId(move.start)) square.style.zIndex = "-1";
       }
-      movingPiece.style.transform = "translate(" + translation.x + "px," +
-        translation.y + "px)";
+      movingPiece.style.transform =
+        "translate(" + translation.x + "px," + translation.y + "px)";
       movingPiece.style.transitionDuration = "0.2s";
       movingPiece.style.zIndex = "3000";
-      setTimeout( () => {
-        for (let i=0; i<squares.length; i++)
+      setTimeout(() => {
+        for (let i = 0; i < squares.length; i++)
           squares.item(i).style.zIndex = "auto";
         movingPiece.style = {}; //required e.g. for 0-0 with KR swap
         callback();
@@ -313,22 +344,20 @@ export default {
       const navigate = !move;
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
-      if (!navigate && this.game.mode!="analyze" && !receive
-        && (this.game.score != "*" || this.cursor < this.moves.length-1))
-      {
+      if (
+        !navigate &&
+        this.game.mode != "analyze" &&
+        !receive &&
+        (this.game.score != "*" || this.cursor < this.moves.length - 1)
+      ) {
         return;
       }
       const doPlayMove = () => {
-        if (!!receive && this.cursor < this.moves.length-1)
-          this.gotoEnd(); //required to play the move
-        if (navigate)
-        {
-          if (this.cursor == this.moves.length-1)
-            return; //no more moves
-          move = this.moves[this.cursor+1];
-        }
-        else
-        {
+        if (!!receive && this.cursor < this.moves.length - 1) this.gotoEnd(); //required to play the move
+        if (navigate) {
+          if (this.cursor == this.moves.length - 1) return; //no more moves
+          move = this.moves[this.cursor + 1];
+        } else {
           move.color = this.vr.turn;
           move.notation = this.vr.getNotation(move);
         }
@@ -336,51 +365,43 @@ export default {
         this.cursor++;
         this.lastMove = move;
         if (this.st.settings.sound == 2)
-          new Audio("/sounds/move.mp3").play().catch(err => {});
-        if (!navigate)
-        {
+          new Audio("/sounds/move.mp3").play().catch(() => {});
+        if (!navigate) {
           move.fen = this.vr.getFen();
           // Stack move on movesList at current cursor
-          if (this.cursor == this.moves.length)
-            this.moves.push(move);
-          else
-            this.moves = this.moves.slice(0,this.cursor).concat([move]);
+          if (this.cursor == this.moves.length) this.moves.push(move);
+          else this.moves = this.moves.slice(0, this.cursor).concat([move]);
         }
         // Is opponent in check?
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
         const score = this.vr.getCurrentScore();
-        if (score != "*")
-        {
+        if (score != "*") {
           const message = getScoreMessage(score);
           if (this.game.mode != "analyze")
             this.$emit("gameover", score, message);
-          else //just show score on screen (allow undo)
-            this.showEndgameMsg(score + " . " + message);
+          //just show score on screen (allow undo)
+          else this.showEndgameMsg(score + " . " + message);
         }
-        if (!navigate && this.game.mode!="analyze")
+        if (!navigate && this.game.mode != "analyze")
           this.$emit("newmove", move); //post-processing (e.g. computer play)
       };
       if (!!receive && this.game.vname != "Dark")
         this.animateMove(move, doPlayMove);
-      else
-        doPlayMove();
+      else doPlayMove();
     },
     undo: function(move) {
       const navigate = !move;
-      if (navigate)
-      {
-        if (this.cursor < 0)
-          return; //no more moves
+      if (navigate) {
+        if (this.cursor < 0) return; //no more moves
         move = this.moves[this.cursor];
       }
       this.vr.undo(move);
       this.cursor--;
-      this.lastMove = (this.cursor >= 0 ? this.moves[this.cursor] : undefined);
+      this.lastMove = this.cursor >= 0 ? this.moves[this.cursor] : undefined;
       if (this.st.settings.sound == 2)
-        new Audio("/sounds/undo.mp3").play().catch(err => {});
+        new Audio("/sounds/undo.mp3").play().catch(() => {});
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      if (!navigate)
-        this.moves.pop();
+      if (!navigate) this.moves.pop();
     },
     gotoMove: function(index) {
       this.vr.re_init(this.moves[index].fen);
@@ -388,29 +409,24 @@ export default {
       this.lastMove = this.moves[index];
     },
     gotoBegin: function() {
-      if (this.cursor == -1)
-        return;
+      if (this.cursor == -1) return;
       this.vr.re_init(this.game.fenStart);
-      if (this.moves.length > 0 && this.moves[0].notation == "...")
-      {
+      if (this.moves.length > 0 && this.moves[0].notation == "...") {
         this.cursor = 0;
         this.lastMove = this.moves[0];
-      }
-      else
-      {
+      } else {
         this.cursor = -1;
         this.lastMove = null;
       }
     },
     gotoEnd: function() {
-      if (this.cursor == this.moves.length - 1)
-        return;
-      this.gotoMove(this.moves.length-1);
+      if (this.cursor == this.moves.length - 1) return;
+      this.gotoMove(this.moves.length - 1);
     },
     flip: function() {
       this.orientation = V.GetOppCol(this.orientation);
-    },
-  },
+    }
+  }
 };
 </script>
 

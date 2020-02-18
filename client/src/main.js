@@ -11,17 +11,17 @@ new Vue({
     return h(App);
   },
   created: function() {
-    window.doClick = (elemId) => { document.getElementById(elemId).click() };
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Escape")
-      {
+    window.doClick = elemId => {
+      document.getElementById(elemId).click();
+    };
+    document.addEventListener("keydown", e => {
+      if (e.code === "Escape") {
         let modalBoxes = document.querySelectorAll("[id^='modal']");
         modalBoxes.forEach(m => {
-          if (m.checked && m.id != "modalWelcome")
-            m.checked = false;
+          if (m.checked && m.id != "modalWelcome") m.checked = false;
         });
       }
     });
     store.initialize();
-  },
+  }
 }).$mount("#app");

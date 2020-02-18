@@ -35,34 +35,30 @@ import { store } from "@/store";
 import { checkNameEmail } from "@/data/userCheck";
 import { ajax } from "@/utils/ajax";
 export default {
-  name: 'my-upsert-user',
+  name: "my-upsert-user",
   data: function() {
     return {
       nameOrEmail: "", //for login
       logStage: "Login", //or Register
       infoMsg: "",
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
-      st: store.state,
+      st: store.state
     };
   },
   watch: {
     nameOrEmail: function(newValue) {
-      if (newValue.indexOf('@') >= 0)
-      {
+      if (newValue.indexOf("@") >= 0) {
         this.st.user.email = newValue;
         this.st.user.name = "";
-      }
-      else
-      {
+      } else {
         this.st.user.name = newValue;
         this.st.user.email = "";
       }
-    },
+    }
   },
   computed: {
     submitMessage: function() {
-      switch (this.stage)
-      {
+      switch (this.stage) {
         case "Login":
           return "Go";
         case "Register":
@@ -70,26 +66,25 @@ export default {
         case "Update":
           return "Apply";
       }
+      return "Never reached";
     },
     stage: function() {
       return this.st.user.id > 0 ? "Update" : this.logStage;
-    },
+    }
   },
   methods: {
     trySetEnterTime: function(event) {
-      if (!!event.target.checked)
-      {
+      if (event.target.checked) {
         this.infoMsg = "";
         this.enterTime = Date.now();
       }
     },
     toggleStage: function() {
       // Loop login <--> register (update is for logged-in users)
-      this.logStage = (this.logStage == "Login" ? "Register" : "Login");
+      this.logStage = this.logStage == "Login" ? "Register" : "Login";
     },
     ajaxUrl: function() {
-      switch (this.stage)
-      {
+      switch (this.stage) {
         case "Login":
           return "/sendtoken";
         case "Register":
@@ -97,10 +92,10 @@ export default {
         case "Update":
           return "/update";
       }
+      return "Never reached";
     },
     ajaxMethod: function() {
-      switch (this.stage)
-      {
+      switch (this.stage) {
         case "Login":
           return "GET";
         case "Register":
@@ -108,10 +103,10 @@ export default {
         case "Update":
           return "PUT";
       }
+      return "Never reached";
     },
     infoMessage: function() {
-      switch (this.stage)
-      {
+      switch (this.stage) {
         case "Login":
           return "Connection token sent. Check your emails!";
         case "Register":
@@ -119,29 +114,31 @@ export default {
         case "Update":
           return "Modifications applied!";
       }
+      return "Never reached";
     },
     onSubmit: function() {
       // Basic anti-bot strategy:
       const exitTime = Date.now();
-      if (this.stage == "Register" && exitTime - this.enterTime < 5000)
-        return;
+      if (this.stage == "Register" && exitTime - this.enterTime < 5000) return;
       let error = undefined;
-      if (this.stage == 'Login')
-      {
-        const type = (this.nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
-        error = checkNameEmail({[type]: this.nameOrEmail});
+      if (this.stage == "Login") {
+        const type = this.nameOrEmail.indexOf("@") >= 0 ? "email" : "name";
+        error = checkNameEmail({ [type]: this.nameOrEmail });
+      } else error = checkNameEmail(this.st.user);
+      if (error) {
+        alert(error);
+        return;
       }
-      else
-        error = checkNameEmail(this.st.user);
-      if (!!error)
-        return alert(error);
       this.infoMsg = "Processing... Please wait";
-      ajax(this.ajaxUrl(), this.ajaxMethod(),
-        this.stage == "Login" ? { nameOrEmail: this.nameOrEmail } : this.st.user,
-        res => {
+      ajax(
+        this.ajaxUrl(),
+        this.ajaxMethod(),
+        this.stage == "Login"
+          ? { nameOrEmail: this.nameOrEmail }
+          : this.st.user,
+        () => {
           this.infoMsg = this.infoMessage();
-          if (this.stage != "Update")
-            this.nameOrEmail = "";
+          if (this.stage != "Update") this.nameOrEmail = "";
         },
         err => {
           this.infoMsg = "";
@@ -152,8 +149,8 @@ export default {
     doLogout: function() {
       document.getElementById("modalUser").checked = false;
       this.$router.push("/logout");
-    },
-  },
+    }
+  }
 };
 </script>
 

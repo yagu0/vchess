@@ -32,21 +32,21 @@ export default {
   name: "my-settings",
   data: function() {
     return {
-      st: store.state,
+      st: store.state
     };
   },
   methods: {
     updateSettings: function(event) {
-      const propName =
-        event.target.id.substr(3).replace(/^\w/, c => c.toLowerCase())
-      let value = (["bcolor","sound"].includes(propName)
+      const propName = event.target.id
+        .substr(3)
+        .replace(/^\w/, c => c.toLowerCase());
+      let value = ["bcolor", "sound"].includes(propName)
         ? event.target.value
-        : event.target.checked);
-      if (propName == "sound")
-        value = parseInt(value);
+        : event.target.checked;
+      if (propName == "sound") value = parseInt(value);
       store.updateSetting(propName, value);
-    },
-  },
+    }
+  }
 };
 </script>
 

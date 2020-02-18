@@ -42,28 +42,29 @@ import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
-import { ArrayFun } from "@/utils/array";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
 import params from "@/parameters";
 export default {
-  name: 'my-game',
+  name: "my-game",
   components: {
     BaseGame,
-    Chat,
+    Chat
   },
   // gameRef: to find the game in (potentially remote) storage
   data: function() {
     return {
       st: store.state,
-      gameRef: { //given in URL (rid = remote ID)
+      gameRef: {
+        //given in URL (rid = remote ID)
         id: "",
         rid: ""
       },
-      game: { //passed to BaseGame
-        players:[{name:""},{name:""}],
+      game: {
+        //passed to BaseGame
+        players: [{ name: "" }, { name: "" }],
         chats: [],
-        rendered: false,
+        rendered: false
       },
       virtualClocks: [0, 0], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
@@ -76,46 +77,54 @@ export default {
       connexionString: "",
       // Related to (killing of) self multi-connects:
       newConnect: {},
-      killed: {},
+      killed: {}
     };
   },
   watch: {
-    "$route": function(to, from) {
+    $route: function(to) {
       this.gameRef.id = to.params["id"];
       this.gameRef.rid = to.query["rid"];
       this.loadGame();
-    },
+    }
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
   created: function() {
     // Always add myself to players' list
     const my = this.st.user;
-    this.$set(this.people, my.sid, {id:my.id, name:my.name});
+    this.$set(this.people, my.sid, { id: my.id, name: my.name });
     this.gameRef.id = this.$route.params["id"];
     this.gameRef.rid = this.$route.query["rid"]; //may be undefined
     // Initialize connection
-    this.connexionString = params.socketUrl +
-      "/?sid=" + this.st.user.sid +
-      "&tmpId=" + getRandString() +
-      "&page=" + encodeURIComponent(this.$route.path);
+    this.connexionString =
+      params.socketUrl +
+      "/?sid=" +
+      this.st.user.sid +
+      "&tmpId=" +
+      getRandString() +
+      "&page=" +
+      encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onmessage = this.socketMessageListener;
     this.conn.onclose = this.socketCloseListener;
     // Socket init required before loading remote game:
-    const socketInit = (callback) => {
-      if (!!this.conn && this.conn.readyState == 1) //1 == OPEN state
+    const socketInit = callback => {
+      if (!!this.conn && this.conn.readyState == 1)
+        //1 == OPEN state
         callback();
-      else //socket not ready yet (initial loading)
-      {
+      //socket not ready yet (initial loading)
+      else {
         // NOTE: it's important to call callback without arguments,
         // otherwise first arg is Websocket object and loadGame fails.
-        this.conn.onopen = () => { return callback() };
+        this.conn.onopen = () => {
+          return callback();
+        };
       }
     };
-    if (!this.gameRef.rid) //game stored locally or on server
+    if (!this.gameRef.rid)
+      //game stored locally or on server
       this.loadGame(null, () => socketInit(this.roomInit));
-    else //game stored remotely: need socket to retrieve it
-    {
+    //game stored remotely: need socket to retrieve it
+    else {
       // NOTE: the callback "roomInit" will be lost, so we don't provide it.
       // --> It will be given when receiving "fullgame" socket event.
       // A more general approach would be to store it somewhere.
@@ -123,8 +132,9 @@ export default {
     }
   },
   mounted: function() {
-    document.getElementById("chatWrap").addEventListener(
-      "click", processModalClick);
+    document
+      .getElementById("chatWrap")
+      .addEventListener("click", processModalClick);
   },
   beforeDestroy: function() {
     this.send("disconnect");
@@ -137,14 +147,8 @@ export default {
       this.send("pollclients");
     },
     send: function(code, obj) {
-      if (!!this.conn)
-      {
-        this.conn.send(JSON.stringify(
-          Object.assign(
-            {code: code},
-            obj,
-          )
-        ));
+      if (this.conn) {
+        this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
       }
     },
     isConnected: function(index) {
@@ -153,38 +157,38 @@ export default {
       if (this.st.user.sid == player.sid || this.st.user.id == player.uid)
         return true;
       // Try to find a match in people:
-      return Object.keys(this.people).some(sid => sid == player.sid) ||
-        Object.values(this.people).some(p => p.id == player.uid);
+      return (
+        Object.keys(this.people).some(sid => sid == player.sid) ||
+        Object.values(this.people).some(p => p.id == player.uid)
+      );
     },
     socketMessageListener: function(msg) {
-      if (!this.conn)
-        return;
+      if (!this.conn) return;
       const data = JSON.parse(msg.data);
-      switch (data.code)
-      {
+      switch (data.code) {
         case "pollclients":
           data.sockIds.forEach(sid => {
-            this.$set(this.people, sid, {id:0, name:""});
-            if (sid != this.st.user.sid)
-            {
-              this.send("askidentity", {target:sid});
+            this.$set(this.people, sid, { id: 0, name: "" });
+            if (sid != this.st.user.sid) {
+              this.send("askidentity", { target: sid });
               // Ask potentially missed last state, if opponent and I play
-              if (!!this.game.mycolor
-                && this.game.type == "live" && this.game.score == "*"
-                && this.game.players.some(p => p.sid == sid))
-              {
-                this.send("asklastate", {target:sid});
+              if (
+                !!this.game.mycolor &&
+                this.game.type == "live" &&
+                this.game.score == "*" &&
+                this.game.players.some(p => p.sid == sid)
+              ) {
+                this.send("asklastate", { target: sid });
               }
             }
           });
           break;
         case "connect":
           if (!this.people[data.from])
-            this.$set(this.people, data.from, {name:"", id:0});
-          if (!this.people[data.from].name)
-          {
+            this.$set(this.people, data.from, { name: "", id: 0 });
+          if (!this.people[data.from].name) {
             this.newConnect[data.from] = true; //for self multi-connects tests
-            this.send("askidentity", {target:data.from});
+            this.send("askidentity", { target: data.from });
           }
           break;
         case "disconnect":
@@ -199,40 +203,39 @@ export default {
           //this.conn.close();
           this.conn = null;
           break;
-        case "askidentity":
-        {
+        case "askidentity": {
           // Request for identification (TODO: anonymous shouldn't need to reply)
           const me = {
             // Decompose to avoid revealing email
             name: this.st.user.name,
             sid: this.st.user.sid,
-            id: this.st.user.id,
+            id: this.st.user.id
           };
-          this.send("identity", {data:me, target:data.from});
+          this.send("identity", { data: me, target: data.from });
           break;
         }
-        case "identity":
-        {
+        case "identity": {
           const user = data.data;
-          if (!!user.name) //otherwise anonymous
-          {
+          if (user.name) {
+            //otherwise anonymous
             // If I multi-connect, kill current connexion if no mark (I'm older)
-            if (this.newConnect[user.sid] && user.id > 0
-              && user.id == this.st.user.id && user.sid != this.st.user.sid)
-            {
-              if (!this.killed[this.st.user.sid])
-              {
-                this.send("killme", {sid:this.st.user.sid});
+            if (
+              this.newConnect[user.sid] &&
+              user.id > 0 &&
+              user.id == this.st.user.id &&
+              user.sid != this.st.user.sid
+            ) {
+              if (!this.killed[this.st.user.sid]) {
+                this.send("killme", { sid: this.st.user.sid });
                 this.killed[this.st.user.sid] = true;
               }
             }
-            if (user.sid != this.st.user.sid) //I already know my identity...
-            {
-              this.$set(this.people, user.sid,
-                {
-                  id: user.id,
-                  name: user.name,
-                });
+            if (user.sid != this.st.user.sid) {
+              //I already know my identity...
+              this.$set(this.people, user.sid, {
+                id: user.id,
+                name: user.name
+              });
             }
           }
           delete this.newConnect[user.sid];
@@ -240,9 +243,10 @@ export default {
         }
         case "askgame":
           // Send current (live) game if not asked by any of the players
-          if (this.game.type == "live"
-            && this.game.players.every(p => p.sid != data.from[0]))
-          {
+          if (
+            this.game.type == "live" &&
+            this.game.players.every(p => p.sid != data.from[0])
+          ) {
             const myGame = {
               id: this.game.id,
               fen: this.game.fen,
@@ -250,13 +254,13 @@ export default {
               vid: this.game.vid,
               cadence: this.game.cadence,
               score: this.game.score,
-              rid: this.st.user.sid, //useful in Hall if I'm an observer
+              rid: this.st.user.sid //useful in Hall if I'm an observer
             };
-            this.send("game", {data:myGame, target:data.from});
+            this.send("game", { data: myGame, target: data.from });
           }
           break;
         case "askfullgame":
-          this.send("fullgame", {data:this.game, target:data.from});
+          this.send("fullgame", { data: this.game, target: data.from });
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
@@ -264,46 +268,48 @@ export default {
           break;
         case "asklastate":
           // Sending last state if I played a move or score != "*"
-          if ((this.game.moves.length > 0 && this.vr.turn != this.game.mycolor)
-              || this.game.score != "*" || this.drawOffer == "sent")
-          {
+          if (
+            (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
+            this.game.score != "*" ||
+            this.drawOffer == "sent"
+          ) {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
-            const myIdx = ["w","b"].indexOf(this.game.mycolor);
+            const myIdx = ["w", "b"].indexOf(this.game.mycolor);
             const myLastate = {
               // NOTE: lastMove (when defined) includes addTime
-              lastMove: (L>0 ? this.game.moves[L-1] : undefined),
+              lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
               // Since we played a move (or abort or resign),
               // only drawOffer=="sent" is possible
               drawSent: this.drawOffer == "sent",
               score: this.game.score,
               movesCount: L,
-              initime: this.game.initime[1-myIdx], //relevant only if I played
+              initime: this.game.initime[1 - myIdx] //relevant only if I played
             };
-            this.send("lastate", {data:myLastate, target:data.from});
+            this.send("lastate", { data: myLastate, target: data.from });
           }
           break;
         case "lastate": //got opponent infos about last move
           this.lastate = data.data;
-          if (this.game.rendered) //game is rendered (Board component)
+          if (this.game.rendered)
+            //game is rendered (Board component)
             this.processLastate();
           //else: will be processed when game is ready
           break;
-        case "newmove":
-        {
+        case "newmove": {
           const move = data.data;
-          if (!!move.cancelDrawOffer) //opponent refuses draw
-          {
+          if (move.cancelDrawOffer) {
+            //opponent refuses draw
             this.drawOffer = "";
             // NOTE for corr games: drawOffer reset by player in turn
             if (this.game.type == "live" && !!this.game.mycolor)
-              GameStorage.update(this.gameRef.id, {drawOffer: ""});
+              GameStorage.update(this.gameRef.id, { drawOffer: "" });
           }
           this.$set(this.game, "moveToPlay", move);
           break;
         }
         case "resign":
-          this.gameOver(data.side=="b" ? "1-0" : "0-1", "Resign");
+          this.gameOver(data.side == "b" ? "1-0" : "0-1", "Resign");
           break;
         case "abort":
           this.gameOver("?", "Abort");
@@ -324,138 +330,129 @@ export default {
     },
     socketCloseListener: function() {
       this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener('message', this.socketMessageListener);
-      this.conn.addEventListener('close', this.socketCloseListener);
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.conn.addEventListener("close", this.socketCloseListener);
     },
     // lastate was received, but maybe game wasn't ready yet:
     processLastate: function() {
       const data = this.lastate;
       this.lastate = undefined; //security...
       const L = this.game.moves.length;
-      if (data.movesCount > L)
-      {
+      if (data.movesCount > L) {
         // Just got last move from him
-        this.$set(this.game, "moveToPlay", Object.assign({initime: data.initime}, data.lastMove));
+        this.$set(
+          this.game,
+          "moveToPlay",
+          Object.assign({ initime: data.initime }, data.lastMove)
+        );
       }
-      if (data.drawSent)
-        this.drawOffer = "received";
-      if (data.score != "*")
-      {
+      if (data.drawSent) this.drawOffer = "received";
+      if (data.score != "*") {
         this.drawOffer = "";
-        if (this.game.score == "*")
-          this.gameOver(data.score);
+        if (this.game.score == "*") this.gameOver(data.score);
       }
     },
     clickDraw: function() {
-      if (!this.game.mycolor)
-        return; //I'm just spectator
-      if (["received","threerep"].includes(this.drawOffer))
-      {
-        if (!confirm(this.st.tr["Accept draw?"]))
-          return;
-        const message = (this.drawOffer == "received"
-          ? "Mutual agreement"
-          : "Three repetitions");
-        this.send("draw", {data:message});
+      if (!this.game.mycolor) return; //I'm just spectator
+      if (["received", "threerep"].includes(this.drawOffer)) {
+        if (!confirm(this.st.tr["Accept draw?"])) return;
+        const message =
+          this.drawOffer == "received"
+            ? "Mutual agreement"
+            : "Three repetitions";
+        this.send("draw", { data: message });
         this.gameOver("1/2", message);
-      }
-      else if (this.drawOffer == "") //no effect if drawOffer == "sent"
-      {
-        if (this.game.mycolor != this.vr.turn)
-          return alert(this.st.tr["Draw offer only in your turn"]);
-        if (!confirm(this.st.tr["Offer draw?"]))
+      } else if (this.drawOffer == "") {
+        //no effect if drawOffer == "sent"
+        if (this.game.mycolor != this.vr.turn) {
+          alert(this.st.tr["Draw offer only in your turn"]);
           return;
+        }
+        if (!confirm(this.st.tr["Offer draw?"])) return;
         this.drawOffer = "sent";
         this.send("drawoffer");
-        GameStorage.update(this.gameRef.id, {drawOffer: this.game.mycolor});
+        GameStorage.update(this.gameRef.id, { drawOffer: this.game.mycolor });
       }
     },
     abortGame: function() {
-      if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"]))
-        return;
+      if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"])) return;
       this.gameOver("?", "Abort");
       this.send("abort");
     },
-    resign: function(e) {
+    resign: function() {
       if (!this.game.mycolor || !confirm(this.st.tr["Resign the game?"]))
         return;
-      this.send("resign", {data:this.game.mycolor});
-      this.gameOver(this.game.mycolor=="w" ? "0-1" : "1-0", "Resign");
+      this.send("resign", { data: this.game.mycolor });
+      this.gameOver(this.game.mycolor == "w" ? "0-1" : "1-0", "Resign");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game, callback) {
-      const afterRetrieval = async (game) => {
+      const afterRetrieval = async game => {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
-        const gtype = (game.cadence.indexOf('d') >= 0 ? "corr" : "live");
+        const gtype = game.cadence.indexOf("d") >= 0 ? "corr" : "live";
         const tc = extractTime(game.cadence);
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;
         });
-        const mycolor = [undefined,"w","b"][myIdx+1]; //undefined for observers
-        if (!game.chats)
-          game.chats = []; //live games don't have chat history
-        if (gtype == "corr")
-        {
-          if (game.players[0].color == "b")
-          {
+        const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
+        if (!game.chats) game.chats = []; //live games don't have chat history
+        if (gtype == "corr") {
+          if (game.players[0].color == "b") {
             // Adopt the same convention for live and corr games: [0] = white
-            [ game.players[0], game.players[1] ] =
-              [ game.players[1], game.players[0] ];
+            [game.players[0], game.players[1]] = [
+              game.players[1],
+              game.players[0]
+            ];
           }
           // corr game: needs to compute the clocks + initime
           // NOTE: clocks in seconds, initime in milliseconds
           game.clocks = [tc.mainTime, tc.mainTime];
-          game.moves.sort((m1,m2) => m1.idx - m2.idx); //in case of
-          if (game.score == "*") //otherwise no need to bother with time
-          {
+          game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
+          if (game.score == "*") {
+            //otherwise no need to bother with time
             game.initime = [0, 0];
             const L = game.moves.length;
-            if (L >= 3)
-            {
+            if (L >= 3) {
               let addTime = [0, 0];
-              for (let i=2; i<L; i++)
-              {
-                addTime[i%2] += tc.increment -
-                  (game.moves[i].played - game.moves[i-1].played) / 1000;
+              for (let i = 2; i < L; i++) {
+                addTime[i % 2] +=
+                  tc.increment -
+                  (game.moves[i].played - game.moves[i - 1].played) / 1000;
               }
-              for (let i=0; i<=1; i++)
-                game.clocks[i] += addTime[i];
+              for (let i = 0; i <= 1; i++) game.clocks[i] += addTime[i];
             }
-            if (L >= 1)
-              game.initime[L%2] = game.moves[L-1].played;
+            if (L >= 1) game.initime[L % 2] = game.moves[L - 1].played;
           }
-          const reformattedMoves = game.moves.map( (m) => {
+          const reformattedMoves = game.moves.map(m => {
             const s = m.squares;
             return {
               appear: s.appear,
               vanish: s.vanish,
               start: s.start,
-              end: s.end,
+              end: s.end
             };
           });
           // Sort chat messages from newest to oldest
-          game.chats.sort( (c1,c2) => { return c2.added - c1.added; });
-          if (myIdx >= 0 && game.chats.length > 0)
-          {
+          game.chats.sort((c1, c2) => {
+            return c2.added - c1.added;
+          });
+          if (myIdx >= 0 && game.chats.length > 0) {
             // TODO: group multi-moves into an array, to deduce color from index
             // and not need this (also repeated in BaseGame::re_setVariables())
             let vr_tmp = new V(game.fenStart); //vr is already at end of game
-            for (let i=0; i<reformattedMoves.length; i++)
-            {
+            for (let i = 0; i < reformattedMoves.length; i++) {
               game.moves[i].color = vr_tmp.turn;
               vr_tmp.play(reformattedMoves[i]);
             }
             // Blue background on chat button if last chat message arrived after my last move.
             let dtLastMove = 0;
-            for (let midx = game.moves.length-1; midx >= 0; midx--)
-            {
-              if (game.moves[midx].color == mycolor)
-              {
+            for (let midx = game.moves.length - 1; midx >= 0; midx--) {
+              if (game.moves[midx].color == mycolor) {
                 dtLastMove = game.moves[midx].played;
                 break;
               }
@@ -466,44 +463,42 @@ export default {
           // Now that we used idx and played, re-format moves as for live games
           game.moves = reformattedMoves;
         }
-        if (gtype == "live" && game.clocks[0] < 0) //game unstarted
-        {
+        if (gtype == "live" && game.clocks[0] < 0) {
+          //game unstarted
           game.clocks = [tc.mainTime, tc.mainTime];
-          if (game.score == "*")
-          {
+          if (game.score == "*") {
             game.initime[0] = Date.now();
-            if (myIdx >= 0)
-            {
+            if (myIdx >= 0) {
               // I play in this live game; corr games don't have clocks+initime
-              GameStorage.update(game.id,
-              {
+              GameStorage.update(game.id, {
                 clocks: game.clocks,
-                initime: game.initime,
+                initime: game.initime
               });
             }
           }
         }
-        if (!!game.drawOffer)
-        {
-          if (game.drawOffer == "t") //three repetitions
+        if (game.drawOffer) {
+          if (game.drawOffer == "t")
+            //three repetitions
             this.drawOffer = "threerep";
-          else
-          {
-            if (myIdx < 0)
-              this.drawOffer = "received"; //by any of the players
-            else
-            {
+          else {
+            if (myIdx < 0) this.drawOffer = "received";
+            //by any of the players
+            else {
               // I play in this game:
-              if ((game.drawOffer == "w" && myIdx==0) || (game.drawOffer=="b" && myIdx==1))
+              if (
+                (game.drawOffer == "w" && myIdx == 0) ||
+                (game.drawOffer == "b" && myIdx == 1)
+              )
                 this.drawOffer = "sent";
-              else //all other cases
-                this.drawOffer = "received";
+              //all other cases
+              else this.drawOffer = "received";
             }
           }
         }
-        if (!!game.scoreMsg)
-          game.scoreMsg = this.st.tr[game.scoreMsg]; //stored in english
-        this.game = Object.assign({},
+        if (game.scoreMsg) game.scoreMsg = this.st.tr[game.scoreMsg]; //stored in english
+        this.game = Object.assign(
+          {},
           game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer
           {
@@ -512,16 +507,15 @@ export default {
             mycolor: mycolor,
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
-            oppsid: (myIdx < 0 ? undefined : game.players[1-myIdx].sid),
-            oppid: (myIdx < 0 ? undefined : game.players[1-myIdx].uid),
+            oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
+            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid
           }
         );
         this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
           // Did lastate arrive before game was rendered?
-          if (!!this.lastate)
-            this.processLastate();
+          if (this.lastate) this.processLastate();
         });
         this.repeat = {}; //reset: scan past moves' FEN:
         let repIdx = 0;
@@ -529,74 +523,84 @@ export default {
         let vr_tmp = new V(game.fenStart);
         game.moves.forEach(m => {
           vr_tmp.play(m);
-          const fenObj = V.ParseFen( vr_tmp.getFen() );
+          const fenObj = V.ParseFen(vr_tmp.getFen());
           repIdx = fenObj.position + "_" + fenObj.turn;
-          if (!!fenObj.flags)
-            repIdx += "_" + fenObj.flags;
-          this.repeat[repIdx] = (!!this.repeat[repIdx]
-            ? this.repeat[repIdx]+1
-            : 1);
+          if (fenObj.flags) repIdx += "_" + fenObj.flags;
+          this.repeat[repIdx] = this.repeat[repIdx]
+            ? this.repeat[repIdx] + 1
+            : 1;
         });
-        if (this.repeat[repIdx] >= 3)
-          this.drawOffer = "threerep";
-        if (!!callback)
-          callback();
+        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
+        if (callback) callback();
       };
-      if (!!game)
-        return afterRetrieval(game);
-      if (!!this.gameRef.rid)
-      {
-        // Remote live game: forgetting about callback func... (TODO: design)
-        this.send("askfullgame", {target:this.gameRef.rid});
+      if (game) {
+        afterRetrieval(game);
+        return;
       }
-      else
-      {
+      if (this.gameRef.rid) {
+        // Remote live game: forgetting about callback func... (TODO: design)
+        this.send("askfullgame", { target: this.gameRef.rid });
+      } else {
         // Local or corr game
         GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
     re_setClocks: function() {
-      if (this.game.moves.length < 2 || this.game.score != "*")
-      {
+      if (this.game.moves.length < 2 || this.game.score != "*") {
         // 1st move not completed yet, or game over: freeze time
         this.virtualClocks = this.game.clocks.map(s => ppt(s));
         return;
       }
       const currentTurn = this.vr.turn;
-      const colorIdx = ["w","b"].indexOf(currentTurn);
-      let countdown = this.game.clocks[colorIdx] -
-        (Date.now() - this.game.initime[colorIdx])/1000;
-      this.virtualClocks = [0,1].map(i => {
-        const removeTime = i == colorIdx
-          ? (Date.now() - this.game.initime[colorIdx])/1000
-          : 0;
+      const colorIdx = ["w", "b"].indexOf(currentTurn);
+      let countdown =
+        this.game.clocks[colorIdx] -
+        (Date.now() - this.game.initime[colorIdx]) / 1000;
+      this.virtualClocks = [0, 1].map(i => {
+        const removeTime =
+          i == colorIdx ? (Date.now() - this.game.initime[colorIdx]) / 1000 : 0;
         return ppt(this.game.clocks[i] - removeTime);
       });
       let clockUpdate = setInterval(() => {
-        if (countdown < 0 || this.vr.turn != currentTurn || this.game.score != "*")
-        {
+        if (
+          countdown < 0 ||
+          this.vr.turn != currentTurn ||
+          this.game.score != "*"
+        ) {
           clearInterval(clockUpdate);
           if (countdown < 0)
-            this.gameOver(this.vr.turn=="w" ? "0-1" : "1-0", this.st.tr["Time"]);
-        }
-        else
-          this.$set(this.virtualClocks, colorIdx, ppt(Math.max(0, --countdown)));
+            this.gameOver(
+              this.vr.turn == "w" ? "0-1" : "1-0",
+              this.st.tr["Time"]
+            );
+        } else
+          this.$set(
+            this.virtualClocks,
+            colorIdx,
+            ppt(Math.max(0, --countdown))
+          );
       }, 1000);
     },
     // Post-process a move (which was just played in BaseGame)
     processMove: function(move) {
-      if (this.game.type == "corr" && move.color == this.game.mycolor)
-      {
-        if (!confirm(this.st.tr["Move played:"] + " " + move.notation + "\n" + this.st.tr["Are you sure?"]))
-        {
-          return this.$set(this.game, "moveToUndo", move);
+      if (this.game.type == "corr" && move.color == this.game.mycolor) {
+        if (
+          !confirm(
+            this.st.tr["Move played:"] +
+              " " +
+              move.notation +
+              "\n" +
+              this.st.tr["Are you sure?"]
+          )
+        ) {
+          this.$set(this.game, "moveToUndo", move);
+          return;
         }
       }
-      const colorIdx = ["w","b"].indexOf(move.color);
-      const nextIdx = ["w","b"].indexOf(this.vr.turn);
+      const colorIdx = ["w", "b"].indexOf(move.color);
+      const nextIdx = ["w", "b"].indexOf(this.vr.turn);
       // https://stackoverflow.com/a/38750895
-      if (!!this.game.mycolor)
-      {
+      if (this.game.mycolor) {
         const allowed_fields = ["appear", "vanish", "start", "end"];
         // NOTE: 'var' to see this variable outside this block
         var filtered_move = Object.keys(move)
@@ -608,28 +612,24 @@ export default {
       }
       // Send move ("newmove" event) to people in the room (if our turn)
       let addTime = 0;
-      if (move.color == this.game.mycolor)
-      {
-        if (this.drawOffer == "received") //I refuse draw
+      if (move.color == this.game.mycolor) {
+        if (this.drawOffer == "received")
+          //I refuse draw
           this.drawOffer = "";
-        if (this.game.moves.length >= 2) //after first move
-        {
+        if (this.game.moves.length >= 2) {
+          //after first move
           const elapsed = Date.now() - this.game.initime[colorIdx];
           // elapsed time is measured in milliseconds
-          addTime = this.game.increment - elapsed/1000;
+          addTime = this.game.increment - elapsed / 1000;
         }
-        const sendMove = Object.assign({},
-          filtered_move,
-          {
-            addTime: addTime,
-            cancelDrawOffer: this.drawOffer=="",
-          });
-        this.send("newmove", {data: sendMove});
+        const sendMove = Object.assign({}, filtered_move, {
+          addTime: addTime,
+          cancelDrawOffer: this.drawOffer == ""
+        });
+        this.send("newmove", { data: sendMove });
         // (Add)Time indication: useful in case of lastate infos requested
         move.addTime = addTime;
-      }
-      else
-        addTime = move.addTime; //supposed transmitted
+      } else addTime = move.addTime; //supposed transmitted
       // Update current game object:
       this.game.moves.push(move);
       this.game.fen = move.fen;
@@ -640,23 +640,18 @@ export default {
       // If repetition detected, consider that a draw offer was received:
       const fenObj = V.ParseFen(move.fen);
       let repIdx = fenObj.position + "_" + fenObj.turn;
-      if (!!fenObj.flags)
-        repIdx += "_" + fenObj.flags;
-      this.repeat[repIdx] = (!!this.repeat[repIdx]
-        ? this.repeat[repIdx]+1
-        : 1);
-      if (this.repeat[repIdx] >= 3)
-        this.drawOffer = "threerep";
-      else if (this.drawOffer == "threerep")
-        this.drawOffer = "";
+      if (fenObj.flags) repIdx += "_" + fenObj.flags;
+      this.repeat[repIdx] = this.repeat[repIdx] ? this.repeat[repIdx] + 1 : 1;
+      if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
+      else if (this.drawOffer == "threerep") this.drawOffer = "";
       // Since corr games are stored at only one location, update should be
       // done only by one player for each move:
-      if (!!this.game.mycolor &&
-        (this.game.type == "live" || move.color == this.game.mycolor))
-      {
+      if (
+        !!this.game.mycolor &&
+        (this.game.type == "live" || move.color == this.game.mycolor)
+      ) {
         let drawCode = "";
-        switch (this.drawOffer)
-        {
+        switch (this.drawOffer) {
           case "threerep":
             drawCode = "t";
             break;
@@ -667,29 +662,24 @@ export default {
             drawCode = this.vr.turn;
             break;
         }
-        if (this.game.type == "corr")
-        {
-          GameStorage.update(this.gameRef.id,
-          {
+        if (this.game.type == "corr") {
+          GameStorage.update(this.gameRef.id, {
             fen: move.fen,
-            move:
-            {
+            move: {
               squares: filtered_move,
               played: Date.now(),
-              idx: this.game.moves.length - 1,
+              idx: this.game.moves.length - 1
             },
-            drawOffer: drawCode || "n", //"n" for "None" to force reset (otherwise it's ignored)
+            drawOffer: drawCode || "n" //"n" for "None" to force reset (otherwise it's ignored)
           });
-        }
-        else //live
-        {
-          GameStorage.update(this.gameRef.id,
-          {
+        } //live
+        else {
+          GameStorage.update(this.gameRef.id, {
             fen: move.fen,
             move: filtered_move,
             clocks: this.game.clocks,
             initime: this.game.initime,
-            drawOffer: drawCode,
+            drawOffer: drawCode
           });
         }
       }
@@ -699,28 +689,30 @@ export default {
       document.getElementById("chatBtn").classList.remove("somethingnew");
     },
     processChat: function(chat) {
-      this.send("newchat", {data:chat});
+      this.send("newchat", { data: chat });
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
       if (this.game.type == "corr" && this.st.user.id > 0)
-        GameStorage.update(this.gameRef.id, {chat: chat});
+        GameStorage.update(this.gameRef.id, { chat: chat });
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
-      this.game.scoreMsg = this.st.tr[(!!scoreMsg
-        ? scoreMsg
-        : getScoreMessage(score))];
+      this.game.scoreMsg = this.st.tr[
+        scoreMsg ? scoreMsg : getScoreMessage(score)
+      ];
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
-      if (myIdx >= 0) //OK, I play in this game
-      {
-        GameStorage.update(this.gameRef.id,
-          {score: score, scoreMsg: scoreMsg});
+      if (myIdx >= 0) {
+        //OK, I play in this game
+        GameStorage.update(this.gameRef.id, {
+          score: score,
+          scoreMsg: scoreMsg
+        });
         // Notify the score to main Hall. TODO: only one player (currently double send)
-        this.send("result", {gid:this.game.id, score:score});
+        this.send("result", { gid: this.game.id, score: score });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

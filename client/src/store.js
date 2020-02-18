@@ -2,21 +2,21 @@ import { ajax } from "./utils/ajax";
 import { getRandString } from "./utils/alea";
 
 // Global store: see https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
-export const store =
-{
+export const store = {
   state: {
     variants: [],
     tr: {},
     user: {},
     settings: {},
-    lang: "",
+    lang: ""
   },
   socketCloseListener: null,
   initialize() {
-    ajax("/variants", "GET", res => { this.state.variants = res.variantArray; });
+    ajax("/variants", "GET", res => {
+      this.state.variants = res.variantArray;
+    });
     let mysid = localStorage.getItem("mysid");
-    if (!mysid)
-    {
+    if (!mysid) {
       mysid = getRandString();
       localStorage.setItem("mysid", mysid); //done only once (unless user clear browser data)
     }
@@ -26,22 +26,26 @@ export const store =
       name: localStorage.getItem("myname") || "", //"" for "anonymous"
       email: "", //unknown yet
       notify: false, //email notifications
-      sid: mysid,
+      sid: mysid
     };
     // Slow verification through the server:
     // NOTE: still superficial identity usurpation possible, but difficult.
     ajax("/whoami", "GET", res => {
       this.state.user.id = res.id;
       const storedId = localStorage.getItem("myid");
-      if (res.id > 0 && !storedId) //user cleared localStorage
+      if (res.id > 0 && !storedId)
+        //user cleared localStorage
         localStorage.setItem("myid", res.id);
-      else if (res.id == 0 && !!storedId) //user cleared cookie
+      else if (res.id == 0 && !!storedId)
+        //user cleared cookie
         localStorage.removeItem("myid");
       this.state.user.name = res.name;
       const storedName = localStorage.getItem("myname");
-      if (!!res.name && !storedName) //user cleared localStorage
+      if (!!res.name && !storedName)
+        //user cleared localStorage
         localStorage.setItem("myname", res.name);
-      else if (!res.name && !!storedName) //user cleared cookie
+      else if (!res.name && !!storedName)
+        //user cleared cookie
         localStorage.removeItem("myname");
       this.state.user.email = res.email;
       this.state.user.notify = res.notify;
@@ -51,13 +55,12 @@ export const store =
       bcolor: localStorage.getItem("bcolor") || "lichess",
       sound: parseInt(localStorage.getItem("sound")) || 1,
       hints: localStorage.getItem("hints") == "true",
-      highlight: localStorage.getItem("highlight") == "true",
+      highlight: localStorage.getItem("highlight") == "true"
     };
-    const supportedLangs = ["en","es","fr"];
-    this.state.lang = localStorage["lang"] ||
-      (supportedLangs.includes(navigator.language)
-        ? navigator.language
-        : "en");
+    const supportedLangs = ["en", "es", "fr"];
+    this.state.lang =
+      localStorage["lang"] ||
+      (supportedLangs.includes(navigator.language) ? navigator.language : "en");
     this.setTranslations();
   },
   updateSetting: function(propName, value) {
@@ -72,5 +75,5 @@ export const store =
   setLanguage(lang) {
     this.state.lang = lang;
     this.setTranslations();
-  },
+  }
 };

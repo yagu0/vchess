@@ -19,25 +19,24 @@ import GameList from "@/components/GameList.vue";
 export default {
   name: "my-my-games",
   components: {
-    GameList,
+    GameList
   },
   data: function() {
     return {
       st: store.state,
       display: "live",
       liveGames: [],
-      corrGames: [],
+      corrGames: []
     };
   },
   created: function() {
-    GameStorage.getAll((localGames) => {
-      localGames.forEach((g) => g.type = this.classifyObject(g));
+    GameStorage.getAll(localGames => {
+      localGames.forEach(g => (g.type = this.classifyObject(g)));
       this.liveGames = localGames;
     });
-    if (this.st.user.id > 0)
-    {
-      ajax("/games", "GET", {uid: this.st.user.id}, (res) => {
-        res.games.forEach((g) => g.type = this.classifyObject(g));
+    if (this.st.user.id > 0) {
+      ajax("/games", "GET", { uid: this.st.user.id }, res => {
+        res.games.forEach(g => (g.type = this.classifyObject(g)));
         this.corrGames = res.games;
       });
     }
@@ -50,23 +49,20 @@ export default {
     setDisplay: function(type, e) {
       this.display = type;
       localStorage.setItem("type-myGames", type);
-      let elt = !!e
-        ? e.target
-        : document.getElementById(type + "Games");
+      let elt = e ? e.target : document.getElementById(type + "Games");
       elt.classList.add("active");
-      if (!!elt.previousElementSibling)
+      if (elt.previousElementSibling)
         elt.previousElementSibling.classList.remove("active");
-      else
-        elt.nextElementSibling.classList.remove("active");
+      else elt.nextElementSibling.classList.remove("active");
     },
     // TODO: classifyObject is redundant (see Hall.vue)
     classifyObject: function(o) {
-      return (o.cadence.indexOf('d') === -1 ? "live" : "corr");
+      return o.cadence.indexOf("d") === -1 ? "live" : "corr";
     },
     showGame: function(g) {
       this.$router.push("/game/" + g.id);
-    },
-  },
+    }
+  }
 };
 </script>
 

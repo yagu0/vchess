@@ -11,46 +11,43 @@ main
 <script>
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
-import { ArrayFun } from "@/utils/array";
 export default {
-  name: 'my-analyse',
+  name: "my-analyse",
   components: {
-    BaseGame,
+    BaseGame
   },
   // gameRef: to find the game in (potentially remote) storage
   data: function() {
     return {
       st: store.state,
-      gameRef: { //given in URL (rid = remote ID)
+      gameRef: {
+        //given in URL (rid = remote ID)
         vname: "",
         fen: ""
       },
       game: {
-        players:[{name:"Analyse"},{name:"Analyse"}],
-        mode: "analyze",
+        players: [{ name: "Analyse" }, { name: "Analyse" }],
+        mode: "analyze"
       },
       vr: null, //"variant rules" object initialized from FEN
-      curFen: "",
+      curFen: ""
       //people: [], //players + observers //TODO later: interactive analyze...
     };
   },
   watch: {
     // NOTE: no watcher for $route change, because if fenStart doesn't change
     // then it doesn't trigger BaseGame.re_init() and the result is weird.
-    "vr.movesCount": function(fen) {
+    "vr.movesCount": function() {
       this.curFen = this.vr.getFen();
       this.adjustFenSize();
-    },
+    }
   },
   created: function() {
     this.gameRef.vname = this.$route.params["vname"];
-    if (this.gameRef.vname == "Dark")
-    {
+    if (this.gameRef.vname == "Dark") {
       alert(this.st.tr["Analyse in Dark mode makes no sense!"]);
       history.back(); //or this.$router.go(-1)
-    }
-    else
-    {
+    } else {
       this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
       this.initialize();
     }
@@ -79,7 +76,7 @@ export default {
     gotoFen: function() {
       this.gameRef.fen = this.curFen;
       this.loadGame();
-    },
-  },
+    }
+  }
 };
 </script>

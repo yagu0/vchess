@@ -5,69 +5,67 @@ import Hall from "./views/Hall.vue";
 Vue.use(Router);
 
 function loadView(view) {
-  return () => import(/* webpackChunkName: "view-[request]" */ `@/views/${view}.vue`)
+  return () =>
+    import(/* webpackChunkName: "view-[request]" */ `@/views/${view}.vue`);
 }
-
-import { ajax } from "@/utils/ajax";
-import { store } from "@/store";
 
 const router = new Router({
   routes: [
     {
       path: "/",
       name: "hall",
-      component: Hall,
+      component: Hall
     },
     {
       path: "/variants",
       name: "variants",
-      component: loadView("Variants"),
+      component: loadView("Variants")
     },
     {
       path: "/variants/:vname([a-zA-Z0-9]+)",
       name: "rules",
-      component: loadView("Rules"),
+      component: loadView("Rules")
     },
     {
       path: "/authenticate/:token",
       name: "authenticate",
-      component: loadView("Auth"),
+      component: loadView("Auth")
     },
     {
       path: "/logout",
       name: "logout",
-      component: loadView("Logout"),
+      component: loadView("Logout")
     },
     {
       path: "/problems",
       name: "myproblems",
-      component: loadView("Problems"),
+      component: loadView("Problems")
     },
     {
       path: "/mygames",
       name: "mygames",
-      component: loadView("MyGames"),
+      component: loadView("MyGames")
     },
     {
       path: "/game/:id([a-zA-Z0-9]+)",
       name: "game",
-      component: loadView("Game"),
+      component: loadView("Game")
     },
     {
       path: "/analyse/:vname([a-zA-Z0-9]+)",
       name: "analyse",
-      component: loadView("Analyse"),
+      component: loadView("Analyse")
     },
     {
       path: "/about",
       name: "about",
-      component: loadView("About"),
+      component: loadView("About")
     },
     {
       path: "/news",
       name: "news",
-      component: loadView("News"),
-    },
+      component: loadView("News")
+    }
   ]
 });
 

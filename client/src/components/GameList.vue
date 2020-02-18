@@ -22,21 +22,20 @@ import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 export default {
   name: "my-game-list",
-  props: ["games","showBoth"],
+  props: ["games", "showBoth"],
   data: function() {
     return {
       st: store.state,
-      showCadence: true,
+      showCadence: true
     };
   },
   mounted: function() {
     // timeout to avoid calling too many time the adjust method
     let timeoutLaunched = false;
-    window.addEventListener("resize", (e) => {
-      if (!timeoutLaunched)
-      {
+    window.addEventListener("resize", () => {
+      if (!timeoutLaunched) {
         timeoutLaunched = true;
-        setTimeout( () => {
+        setTimeout(() => {
           this.showCadence = window.innerWidth >= 425; //TODO: arbitrary
           timeoutLaunched = false;
         }, 500);
@@ -46,55 +45,64 @@ export default {
   computed: {
     sortedGames: function() {
       // Show in order: games where it's my turn, my running games, my games, other games
-      let minCreated = Number.MAX_SAFE_INTEGER
-      let maxCreated = 0
+      let minCreated = Number.MAX_SAFE_INTEGER;
+      let maxCreated = 0;
       let augmentedGames = this.games.map(g => {
         let priority = 0;
-        if (g.players.some(p => p.uid == this.st.user.id || p.sid == this.st.user.sid))
-        {
+        if (
+          g.players.some(
+            p => p.uid == this.st.user.id || p.sid == this.st.user.sid
+          )
+        ) {
           priority++;
-          if (g.score == "*")
-          {
+          if (g.score == "*") {
             priority++;
-            const myColor = g.players[0].uid == this.st.user.id
-                || g.players[0].sid == this.st.user.sid
-              ? "w"
-              : "b";
+            const myColor =
+              g.players[0].uid == this.st.user.id ||
+              g.players[0].sid == this.st.user.sid
+                ? "w"
+                : "b";
             // I play in this game, so g.fen will be defined
-            if (!!g.fen.match(" " + myColor + " "))
-              priority++;
+            if (g.fen.match(" " + myColor + " ")) priority++;
           }
         }
-        if (g.created < minCreated)
-          minCreated = g.created;
-        if (g.created > maxCreated)
-          maxCreated = g.created;
-        return Object.assign({}, g, {priority: priority, myTurn: priority==3});
+        if (g.created < minCreated) minCreated = g.created;
+        if (g.created > maxCreated) maxCreated = g.created;
+        return Object.assign({}, g, {
+          priority: priority,
+          myTurn: priority == 3
+        });
       });
       const deltaCreated = maxCreated - minCreated;
-      return augmentedGames.sort((g1,g2) => {
-        return g2.priority - g1.priority +
-          (g2.created - g1.created) / deltaCreated;
+      return augmentedGames.sort((g1, g2) => {
+        return (
+          g2.priority - g1.priority + (g2.created - g1.created) / deltaCreated
+        );
       });
-    },
+    }
   },
   methods: {
     player_s: function(g) {
       if (this.showBoth)
-        return (g.players[0].name || "@nonymous") + " - " + (g.players[1].name || "@nonymous");
-      if (this.st.user.sid == g.players[0].sid || this.st.user.id == g.players[0].uid)
+        return (
+          (g.players[0].name || "@nonymous") +
+          " - " +
+          (g.players[1].name || "@nonymous")
+        );
+      if (
+        this.st.user.sid == g.players[0].sid ||
+        this.st.user.id == g.players[0].uid
+      )
         return g.players[1].name || "@nonymous";
       return g.players[0].name || "@nonymous";
     },
     deleteGame: function(game, e) {
-      if (game.score != "*")
-      {
-        if (confirm(this.st.tr["Remove game?"]))
-          GameStorage.remove(game.id);
+      if (game.score != "*") {
+        if (confirm(this.st.tr["Remove game?"])) GameStorage.remove(game.id);
         e.stopPropagation();
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

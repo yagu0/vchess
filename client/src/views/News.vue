@@ -18,7 +18,7 @@ main
         @click="showModalNews"
       )
         | {{ st.tr["Write news"] }}
-      .news(v-for="n,idx in sortedNewsList" :class="{margintop:idx>0}")
+      .news(v-for="n,idx in newsList" :class="{margintop:idx>0}")
         span.ndt {{ formatDatetime(n.added) }}
         div(v-if="devs.includes(st.user.id)")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
@@ -41,33 +41,31 @@ export default {
       st: store.state,
       cursor: 0, //ID of last showed news
       hasMore: true, //a priori there could be more news to load
-      curnews: {id:0, content:""},
+      curnews: { id: 0, content: "" },
       newsList: [],
-      infoMsg: "",
+      infoMsg: ""
     };
   },
   created: function() {
-    ajax("/news", "GET", {cursor:this.cursor}, (res) => {
-      this.newsList = res.newsList;
+    ajax("/news", "GET", { cursor: this.cursor }, res => {
+      this.newsList = res.newsList.sort((n1, n2) => n1.added - n2.added);
       const L = res.newsList.length;
-      if (L > 0)
-        this.cursor = res.newsList[L-1].id;
+      if (L > 0) this.cursor = this.newsList[0].id;
     });
   },
   mounted: function() {
-    document.getElementById("newnewsDiv").addEventListener("click", processModalClick);
-  },
-  computed: {
-    sortedNewsList: function() {
-      return this.newsList.sort( (n1,n2) => n1.added - n2.added );
-    },
+    document
+      .getElementById("newnewsDiv")
+      .addEventListener("click", processModalClick);
   },
   methods: {
     formatDatetime: function(dt) {
       const dtObj = new Date(dt);
       const timePart = getTime(dtObj);
       // Show minutes but not seconds:
-      return getDate(dtObj) + " " + timePart.substr(0,timePart.lastIndexOf(":"));
+      return (
+        getDate(dtObj) + " " + timePart.substr(0, timePart.lastIndexOf(":"))
+      );
     },
     parseHtml: function(txt) {
       return !txt.match(/<[/a-zA-Z]+>/)
@@ -78,7 +76,7 @@ export default {
       const newsContent = document.getElementById("newsContent");
       // https://stackoverflow.com/questions/995168/textarea-to-resize-based-on-content-length
       newsContent.style.height = "1px";
-      newsContent.style.height = (10+newsContent.scrollHeight)+"px";
+      newsContent.style.height = 10 + newsContent.scrollHeight + "px";
     },
     resetCurnews: function() {
       this.curnews.id = 0;
@@ -87,49 +85,39 @@ export default {
     },
     showModalNews: function() {
       this.resetCurnews();
-      doClick('modalNews');
+      window.doClick("modalNews");
     },
     sendNews: function() {
       const edit = this.curnews.id > 0;
       this.infoMsg = "Processing... Please wait";
-      ajax(
-        "/news",
-        edit ? "PUT" : "POST",
-        {news: this.curnews},
-        (res) => {
-          if (edit)
-          {
-            let n = this.newsList.find(n => n.id == this.curnews.id);
-            if (!!n)
-              n.content = this.curnews.content;
-          }
-          else
-          {
-            const newNews = {
-              content:this.curnews.content,
-              added:Date.now(),
-              uid: this.st.user.id,
-              id: res.id
-            };
-            this.newsList = this.newsList.concat([newNews]);
-          }
-          document.getElementById("modalNews").checked = false;
-          this.infoMsg = "";
-          this.resetCurnews();
+      ajax("/news", edit ? "PUT" : "POST", { news: this.curnews }, res => {
+        if (edit) {
+          let n = this.newsList.find(n => n.id == this.curnews.id);
+          if (n) n.content = this.curnews.content;
+        } else {
+          const newNews = {
+            content: this.curnews.content,
+            added: Date.now(),
+            uid: this.st.user.id,
+            id: res.id
+          };
+          this.newsList = [newNews].concat(this.newsList);
         }
-      );
+        document.getElementById("modalNews").checked = false;
+        this.infoMsg = "";
+        this.resetCurnews();
+      });
     },
     editNews: function(n) {
       this.curnews.content = n.content;
       this.curnews.id = n.id;
       // No need for added and uid fields: never updated
-      doClick('modalNews');
+      window.doClick("modalNews");
     },
     deleteNews: function(n) {
-      if (confirm(this.st.tr["Are you sure?"]))
-      {
+      if (confirm(this.st.tr["Are you sure?"])) {
         this.infoMsg = "Processing... Please wait";
-        ajax("/news", "DELETE", {id:n.id}, () => {
+        ajax("/news", "DELETE", { id: n.id }, () => {
           const nIdx = this.newsList.findIndex(nw => nw.id == n.id);
           this.newsList.splice(nIdx, 1);
           this.infoMsg = "";
@@ -138,19 +126,15 @@ export default {
       }
     },
     loadMore: function() {
-      ajax("/news", "GET", {cursor:this.cursor}, (res) => {
-        if (res.newsList.length > 0)
-        {
+      ajax("/news", "GET", { cursor: this.cursor }, res => {
+        if (res.newsList.length > 0) {
           this.newsList = this.newsList.concat(res.newsList);
           const L = res.newsList.length;
-          if (L > 0)
-            this.cursor = res.newsList[L-1].id;
-        }
-        else
-          this.hasMore = false;
+          if (L > 0) this.cursor = res.newsList[L - 1].id;
+        } else this.hasMore = false;
       });
-    },
-  },
+    }
+  }
 };
 </script>
 

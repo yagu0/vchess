@@ -27,13 +27,12 @@ export default {
     return {
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
       st: store.state,
-      infoMsg: "",
+      infoMsg: ""
     };
   },
   methods: {
     trySetEnterTime: function(event) {
-      if (!!event.target.checked)
-      {
+      if (event.target.checked) {
         this.enterTime = Date.now();
         this.infoMsg = "";
       }
@@ -41,17 +40,21 @@ export default {
     trySendMessage: function() {
       // Basic anti-bot strategy:
       const exitTime = Date.now();
-      if (exitTime - this.enterTime < 5000)
-        return;
+      if (exitTime - this.enterTime < 5000) return;
       let email = document.getElementById("userEmail");
       let subject = document.getElementById("mailSubject");
       let content = document.getElementById("mailContent");
-      const error = checkNameEmail({email: email});
-      if (!!error)
-        return alert(error);
-      if (content.value.trim().length == 0)
-        return alert(this.st.tr["Empty message"]);
-      if (subject.value.trim().length == 0 && !confirm(this.st.tr["No subject. Send anyway?"]))
+      let error = checkNameEmail({ email: email });
+      if (!error && content.value.trim().length == 0)
+        error = this.st.tr["Empty message"];
+      if (error) {
+        alert(error);
+        return;
+      }
+      if (
+        subject.value.trim().length == 0 &&
+        !confirm(this.st.tr["No subject. Send anyway?"])
+      )
         return;
 
       // Message sending:
@@ -61,7 +64,7 @@ export default {
         {
           email: email.value,
           subject: subject.value,
-          content: content.value,
+          content: content.value
         },
         () => {
           this.infoMsg = "Email sent!";
@@ -69,8 +72,8 @@ export default {
           content.value = "";
         }
       );
-    },
-  },
+    }
+  }
 };
 </script>
 

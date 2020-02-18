@@ -20,32 +20,29 @@ export default {
   props: ["challenges"],
   data: function() {
     return {
-      st: store.state,
+      st: store.state
     };
   },
   computed: {
     sortedChallenges: function() {
       // Show in order: challenges I sent, challenges I received, other challenges
-      let minAdded = Number.MAX_SAFE_INTEGER
-      let maxAdded = 0
+      let minAdded = Number.MAX_SAFE_INTEGER;
+      let maxAdded = 0;
       let augmentedChalls = this.challenges.map(c => {
         let priority = 0;
-        if (!!c.to && c.to == this.st.user.name)
-          priority = 1;
+        if (!!c.to && c.to == this.st.user.name) priority = 1;
         else if (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
           priority = 2;
-        if (c.added < minAdded)
-          minAdded = c.added;
-        if (c.added > maxAdded)
-          maxAdded = c.added
-        return Object.assign({}, c, {priority: priority});
+        if (c.added < minAdded) minAdded = c.added;
+        if (c.added > maxAdded) maxAdded = c.added;
+        return Object.assign({}, c, { priority: priority });
       });
       const deltaAdded = maxAdded - minAdded;
-      return augmentedChalls.sort((c1,c2) => {
+      return augmentedChalls.sort((c1, c2) => {
         return c2.priority - c1.priority + (c2.added - c1.added) / deltaAdded;
       });
-    },
-  },
+    }
+  }
 };
 </script>
 

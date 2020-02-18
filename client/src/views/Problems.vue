@@ -66,7 +66,7 @@ main
   .row(v-else)
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       #controls
-        button#newProblem(onClick="doClick('modalNewprob')")
+        button#newProblem(onClick="window.doClick('modalNewprob')")
           | {{ st.tr["New problem"] }}
         label(for="checkboxMine") {{ st.tr["My problems"] }}
         input#checkboxMine(
@@ -86,7 +86,7 @@ main
           th {{ st.tr["Instructions"] }}
           th {{ st.tr["Number"] }}
         tr(
-          v-for="p in sortedProblems"
+          v-for="p in problems"
           v-show="displayProblem(p)"
           @click="setHrefPid(p)"
         )
@@ -107,14 +107,14 @@ import BaseGame from "@/components/BaseGame.vue";
 export default {
   name: "my-problems",
   components: {
-    BaseGame,
+    BaseGame
   },
   data: function() {
     return {
       st: store.state,
       emptyVar: {
         vid: 0,
-        vname: "",
+        vname: ""
       },
       // Problem currently showed, or edited:
       curproblem: {
@@ -124,7 +124,7 @@ export default {
         diag: "",
         instruction: "",
         solution: "",
-        showSolution: false,
+        showSolution: false
       },
       loadedVar: 0, //corresponding to loaded V
       selectedVar: 0, //to filter problems based on variant
@@ -134,68 +134,56 @@ export default {
       infoMsg: "",
       vr: null, //"variant rules" object initialized from FEN
       game: {
-        players:[{name:"Problem"},{name:"Problem"}],
-        mode: "analyze",
-      },
+        players: [{ name: "Problem" }, { name: "Problem" }],
+        mode: "analyze"
+      }
     };
   },
   created: function() {
-    ajax("/problems", "GET", (res) => {
-      this.problems = res.problems;
+    ajax("/problems", "GET", res => {
+      // Show newest problem first:
+      this.problems = res.problems.sort((p1, p2) => p2.added - p1.added);
       if (this.st.variants.length > 0)
         this.problems.forEach(p => this.setVname(p));
       // Retrieve all problems' authors' names
       let names = {};
       this.problems.forEach(p => {
-        if (p.uid != this.st.user.id)
-          names[p.uid] = ""; //unknwon for now
-        else
-          p.uname = this.st.user.name;
+        if (p.uid != this.st.user.id) names[p.uid] = "";
+        //unknwon for now
+        else p.uname = this.st.user.name;
       });
       const showOneIfPid = () => {
         const pid = this.$route.query["id"];
-        if (!!pid)
-          this.showProblem(this.problems.find(p => p.id == pid));
+        if (pid) this.showProblem(this.problems.find(p => p.id == pid));
       };
-      if (Object.keys(names).length > 0)
-      {
-        ajax("/users",
-          "GET",
-          { ids: Object.keys(names).join(",") },
-          res2 => {
-            res2.users.forEach(u => {names[u.id] = u.name});
-            this.problems.forEach(p => p.uname = names[p.uid]);
-            showOneIfPid();
-          }
-        );
-      }
-      else
-        showOneIfPid();
+      if (Object.keys(names).length > 0) {
+        ajax("/users", "GET", { ids: Object.keys(names).join(",") }, res2 => {
+          res2.users.forEach(u => {
+            names[u.id] = u.name;
+          });
+          this.problems.forEach(p => (p.uname = names[p.uid]));
+          showOneIfPid();
+        });
+      } else showOneIfPid();
     });
   },
   mounted: function() {
-    document.getElementById("newprobDiv").addEventListener("click", processModalClick);
+    document
+      .getElementById("newprobDiv")
+      .addEventListener("click", processModalClick);
   },
   watch: {
     // st.variants changes only once, at loading from [] to [...]
-    "st.variants": function(variantArray) {
+    "st.variants": function() {
       // Set problems vname (either all are set or none)
       if (this.problems.length > 0 && this.problems[0].vname == "")
         this.problems.forEach(p => this.setVname(p));
     },
-    "$route": function(to, from) {
+    $route: function(to) {
       const pid = to.query["id"];
-      if (!!pid)
-        this.showProblem(this.problems.find(p => p.id == pid));
-      else
-        this.showOne = false
-    },
-  },
-  computed: {
-    sortedProblems: function() {
-      // Newest first:
-      return this.problems.sort( (p1,p2) => p2.added - p1.added);
-    },
+      if (pid) this.showProblem(this.problems.find(p => p.id == pid));
+      else this.showOne = false;
+    }
   },
   methods: {
     setVname: function(prob) {
@@ -204,19 +192,18 @@ export default {
     firstChars: function(text) {
       let preparedText = text
         // Replace line jumps and <br> by spaces
-        .replace(/\n/g, " " )
-        .replace(/<br\/?>/g, " " )
+        .replace(/\n/g, " ")
+        .replace(/<br\/?>/g, " ")
         .replace(/<[^>]+>/g, "") //remove remaining HTML tags
         .replace(/[ ]+/g, " ") //remove series of spaces by only one
         .trim();
       const maxLength = 32; //arbitrary...
       if (preparedText.length > maxLength)
-        return preparedText.substr(0,32) + "...";
+        return preparedText.substr(0, 32) + "...";
       return preparedText;
     },
     copyProblem: function(p1, p2) {
-      for (let key in p1)
-        p2[key] = p1[key];
+      for (let key in p1) p2[key] = p1[key];
     },
     setHrefPid: function(p) {
       // Change href => $route changes, watcher notices, call showProblem
@@ -245,14 +232,10 @@ export default {
     },
     changeVariant: function(prob) {
       this.setVname(prob);
-      this.loadVariant(
-        prob.vid,
-        () => {
-          // Set FEN if possible (might not be correct yet)
-          if (V.IsGoodFen(prob.fen))
-            this.setDiagram(prob);
-        }
-      );
+      this.loadVariant(prob.vid, () => {
+        // Set FEN if possible (might not be correct yet)
+        if (V.IsGoodFen(prob.fen)) this.setDiagram(prob);
+      });
     },
     loadVariant: async function(vid, cb) {
       // Condition: vid is a valid variant ID
@@ -274,48 +257,47 @@ export default {
       const parsedFen = V.ParseFen(prob.fen);
       const args = {
         position: parsedFen.position,
-        orientation: parsedFen.turn,
+        orientation: parsedFen.turn
       };
       prob.diag = getDiagram(args);
     },
     displayProblem: function(p) {
-      return ((this.selectedVar == 0 || p.vid == this.selectedVar) &&
-        ((this.onlyMines && p.uid == this.st.user.id)
-          || (!this.onlyMines && p.uid != this.st.user.id)));
+      return (
+        (this.selectedVar == 0 || p.vid == this.selectedVar) &&
+        ((this.onlyMines && p.uid == this.st.user.id) ||
+          (!this.onlyMines && p.uid != this.st.user.id))
+      );
     },
     showProblem: function(p) {
-      this.loadVariant(
-        p.vid,
-        () => {
-          // The FEN is already checked at this stage:
-          this.vr = new V(p.fen);
-          this.game.vname = p.vname;
-          this.game.mycolor = this.vr.turn; //diagram orientation
-          this.game.fen = p.fen;
-          this.$set(this.game, "fenStart", p.fen);
-          this.copyProblem(p, this.curproblem);
-          this.showOne = true;
-        }
-      );
+      this.loadVariant(p.vid, () => {
+        // The FEN is already checked at this stage:
+        this.vr = new V(p.fen);
+        this.game.vname = p.vname;
+        this.game.mycolor = this.vr.turn; //diagram orientation
+        this.game.fen = p.fen;
+        this.$set(this.game, "fenStart", p.fen);
+        this.copyProblem(p, this.curproblem);
+        this.showOne = true;
+      });
     },
     sendProblem: function() {
       const error = checkProblem(this.curproblem);
-      if (!!error)
-        return alert(error);
+      if (error) {
+        alert(error);
+        return;
+      }
       const edit = this.curproblem.id > 0;
       this.infoMsg = "Processing... Please wait";
       ajax(
         "/problems",
         edit ? "PUT" : "POST",
-        {prob: this.curproblem},
-        (ret) => {
-          if (edit)
-          {
+        { prob: this.curproblem },
+        ret => {
+          if (edit) {
             let editedP = this.problems.find(p => p.id == this.curproblem.id);
             this.copyProblem(this.curproblem, editedP);
-          }
-          else //new problem
-          {
+          } //new problem
+          else {
             let newProblem = Object.assign({}, this.curproblem);
             newProblem.id = ret.id;
             newProblem.uid = this.st.user.id;
@@ -328,21 +310,19 @@ export default {
       );
     },
     editProblem: function(prob) {
-      if (!prob.diag)
-        this.setDiagram(prob); //possible because V is loaded at this stage
+      if (!prob.diag) this.setDiagram(prob); //possible because V is loaded at this stage
       this.copyProblem(prob, this.curproblem);
-      doClick('modalNewprob');
+      window.doClick("modalNewprob");
     },
     deleteProblem: function(prob) {
-      if (confirm(this.st.tr["Are you sure?"]))
-      {
-        ajax("/problems", "DELETE", {id:prob.id}, () => {
+      if (confirm(this.st.tr["Are you sure?"])) {
+        ajax("/problems", "DELETE", { id: prob.id }, () => {
           ArrayFun.remove(this.problems, p => p.id == prob.id);
           this.backToList();
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -379,5 +359,4 @@ textarea
 @media screen and (max-width: 767px)
   #topPage
     text-align: center
-
 </style>

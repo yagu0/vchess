@@ -23,9 +23,9 @@ import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
 import { getDiagram } from "@/utils/printDiagram";
 export default {
-  name: 'my-rules',
+  name: "my-rules",
   components: {
-    ComputerGame,
+    ComputerGame
   },
   data: function() {
     return {
@@ -37,14 +37,14 @@ export default {
         vname: "",
         mode: "versus",
         fen: "",
-        score: "*",
+        score: "*"
       }
     };
   },
   watch: {
-    "$route": function(newRoute) {
+    $route: function(newRoute) {
       this.re_setVariant(newRoute.params["vname"]);
-    },
+    }
   },
   created: function() {
     // NOTE: variant cannot be set before store is initialized
@@ -52,23 +52,27 @@ export default {
   },
   computed: {
     content: function() {
-      if (!this.gameInfo.vname)
-        return ""; //variant not set yet
+      if (!this.gameInfo.vname) return ""; //variant not set yet
       // (AJAX) Request to get rules content (plain text, HTML)
-      return require("raw-loader!@/translations/rules/" +
-          this.gameInfo.vname + "/" + this.st.lang + ".pug")
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ").replace(/\\"/g, '"')
-        .replace('module.exports = "', '').replace(/"$/, "")
-        .replace(/(fen:)([^:]*):/g, this.replaceByDiag);
-    },
+      return (
+        require("raw-loader!@/translations/rules/" +
+          this.gameInfo.vname +
+          "/" +
+          this.st.lang +
+          ".pug")
+          // Next two lines fix a weird issue after last update (2019-11)
+          .replace(/\\n/g, " ")
+          .replace(/\\"/g, '"')
+          .replace('module.exports = "', "")
+          .replace(/"$/, "")
+          .replace(/(fen:)([^:]*):/g, this.replaceByDiag)
+      );
+    }
   },
   methods: {
     clickReadRules: function() {
-      if (this.display != "rules")
-        this.display = "rules";
-      else if (this.gameInProgress)
-        this.display = "computer";
+      if (this.display != "rules") this.display = "rules";
+      else if (this.gameInProgress) this.display = "computer";
     },
     parseFen(fen) {
       const fenParts = fen.split(" ");
@@ -76,7 +80,7 @@ export default {
         position: fenParts[0],
         marks: fenParts[1],
         orientation: fenParts[2],
-        shadow: fenParts[3],
+        shadow: fenParts[3]
       };
     },
     // Method to replace diagrams in loaded HTML
@@ -90,8 +94,7 @@ export default {
       this.gameInfo.vname = vname;
     },
     startGame: function(mode) {
-      if (this.gameInProgress)
-        return;
+      if (this.gameInProgress) return;
       this.gameInProgress = true;
       this.display = "computer";
       this.gameInfo.mode = mode;
@@ -107,10 +110,11 @@ export default {
       this.gameInProgress = false;
     },
     gotoAnalyze: function() {
-      this.$router.push("/analyse/" + this.gameInfo.vname
-        + "/?fen=" + V.GenRandInitFen());
-    },
-  },
+      this.$router.push(
+        "/analyse/" + this.gameInfo.vname + "/?fen=" + V.GenRandInitFen()
+      );
+    }
+  }
 };
 </script>
 

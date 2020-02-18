@@ -25,21 +25,20 @@ export default {
   name: "my-language",
   data: function() {
     return {
-      st: store.state,
+      st: store.state
     };
   },
   mounted: function() {
     // NOTE: better style would be in pug directly, but how?
     document.querySelectorAll("#langSelect > option").forEach(opt => {
-      if (opt.value == this.st.lang)
-        opt.selected = true;
+      if (opt.value == this.st.lang) opt.selected = true;
     });
   },
   methods: {
     setLanguage: function(e) {
       localStorage["lang"] = e.target.value;
       store.setLanguage(e.target.value);
-    },
-  },
+    }
+  }
 };
 </script>

@@ -10,11 +10,11 @@ main
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
 export default {
-  name: 'my-logout',
+  name: "my-logout",
   data: function() {
     return {
       st: store.state,
-      errmsg: "",
+      errmsg: ""
     };
   },
   created: function() {
@@ -29,7 +29,7 @@ export default {
     localStorage.removeItem("myid");
     localStorage.removeItem("myname");
     ajax("/logout", "GET"); //TODO: listen for errors?
-  },
+  }
 };
 </script>
 
