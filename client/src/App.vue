@@ -18,12 +18,12 @@
             #leftMenu
               router-link(to="/")
                 | {{ st.tr["Hall"] }}
+              router-link(to="/mygames")
+                | {{ st.tr["My games"] }}
               router-link(to="/variants")
                 | {{ st.tr["Variants"] }}
               router-link(to="/problems")
                 | {{ st.tr["Problems"] }}
-              router-link(to="/mygames")
-                | {{ st.tr["My games"] }}
             #rightMenu
               .clickable(onClick="doClick('modalUser')")
                 | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
