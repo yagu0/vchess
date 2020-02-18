@@ -342,7 +342,9 @@ export default {
           if (matchGid) gids.push(matchGid[0]);
         });
         const gid = gids[Math.floor(Math.random() * gids.length)];
-        this.showGame(this.games.find(g => g.id == gid));
+        const game = this.games.find(g => g.id == gid);
+        if (game) this.showGame(game);
+        else this.$router.push("/game/" + gid); //game vs. me
       }
     },
     showGame: function(g) {
