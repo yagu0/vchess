@@ -17,7 +17,7 @@ div
         td {{ player_s(g) }}
         td(v-if="showCadence") {{ g.cadence }}
         td(
-          :class="{finished: g.score!='*'}"
+          :class="scoreClass(g)"
           @click="deleteGame(g,$event)"
         )
           | {{ g.score }}
@@ -55,20 +55,24 @@ export default {
       let maxCreated = 0;
       let augmentedGames = this.games.map(g => {
         let priority = 0;
+        let myColor = undefined;
         if (
           g.players.some(
             p => p.uid == this.st.user.id || p.sid == this.st.user.sid
           )
         ) {
           priority++;
+          myColor =
+            g.players[0].uid == this.st.user.id ||
+            g.players[0].sid == this.st.user.sid
+              ? "w"
+              : "b";
           if (g.score == "*") {
             priority++;
-            const myColor =
-              g.players[0].uid == this.st.user.id ||
-              g.players[0].sid == this.st.user.sid
-                ? "w"
-                : "b";
             // I play in this game, so g.fen will be defined
+            // NOTE: this is a fragile way to detect turn,
+            // but since V isn't defined let's do that for now. (TODO:)
+            //if (V.ParseFen(g.fen).turn == myColor)
             if (g.fen.match(" " + myColor + " ")) priority++;
           }
         }
@@ -76,7 +80,8 @@ export default {
         if (g.created > maxCreated) maxCreated = g.created;
         return Object.assign({}, g, {
           priority: priority,
-          myTurn: priority == 3
+          myTurn: priority == 3,
+          myColor: myColor
         });
       });
       const deltaCreated = maxCreated - minCreated;
@@ -102,6 +107,26 @@ export default {
         return g.players[1].name || "@nonymous";
       return g.players[0].name || "@nonymous";
     },
+    scoreClass: function(g) {
+      if (g.score == "*" || !g.myColor) return {};
+      // Ok it's my finished game: determine if I won, drew or lost.
+      let res = {};
+      switch (g.score) {
+        case "1-0":
+          res[g.myColor == "w" ? "won" : "lost"] = true;
+          break;
+        case "0-1":
+          res[g.myColor == "b" ? "won" : "lost"] = true;
+          break;
+        case "1/2":
+          res["draw"] = true;
+          break;
+        // default case: "?" for unknown finished
+        default:
+          res["unknown"] = true;
+      }
+      return res;
+    },
     deleteGame: function(game, e) {
       if (game.score != "*") {
         if (confirm(this.st.tr["Remove game?"])) GameStorage.remove(game.id);
@@ -116,6 +141,14 @@ export default {
 // NOTE: the style applied to <tr> element doesn't work
 tr.my-turn > td
   background-color: #fcd785
-tr td.finished
-  background-color: #f5b7b1
+
+tr
+  td.lost
+    background-color: #f5b7b1
+  td.won
+    background-color: lightgreen
+  td.draw
+    background-color: lightblue
+  td.unknown
+    background-color: lightgrey
 </style>
