@@ -83,7 +83,7 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
         button#peopleBtn(onClick="window.doClick('modalPeople')")
-          | {{ st.tr["Social"] }}
+          | {{ st.tr["Who's there?"] }}
         button(onClick="window.doClick('modalNewgame')")
           | {{ st.tr["New game"] }}
   .row
@@ -275,8 +275,11 @@ export default {
         this.newchallenge.cadence = b.innerHTML;
       });
     });
-    const showCtype = localStorage.getItem("type-challenges") || "live";
-    const showGtype = localStorage.getItem("type-games") || "live";
+    const dispCorr = this.$route.query["disp"];
+    const showCtype =
+      dispCorr || localStorage.getItem("type-challenges") || "live";
+    const showGtype =
+      dispCorr || localStorage.getItem("type-games") || "live";
     this.setDisplay("c", showCtype);
     this.setDisplay("g", showGtype);
   },

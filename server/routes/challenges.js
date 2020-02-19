@@ -39,7 +39,9 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
       challenge.to = user.id; //ready now to insert challenge
       insertChallenge();
       if (user.notify)
-        UserModel.notify(user, "New challenge: " + params.siteURL + "/");
+        UserModel.notify(
+          user,
+          "New challenge: " + params.siteURL + "/#/?disp=corr");
     });
   }
   else

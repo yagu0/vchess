@@ -97,7 +97,6 @@ export const translations = {
   Settings: "Settings",
   "Show possible moves?": "Show possible moves?",
   "Show solution": "Show solution",
-  Social: "Social",
   Solution: "Solution",
   "Stop game": "Stop game",
   Subject: "Subject",

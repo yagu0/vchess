@@ -98,7 +98,6 @@ export const translations = {
   Settings: "Configuraciones",
   "Show possible moves?": "¿Mostrar posibles movimientos?",
   "Show solution": "Mostrar la solución",
-  Social: "Social",
   Solution: "Solución",
   "Stop game": "Terminar la partida",
   Subject: "Asunto",
