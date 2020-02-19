@@ -4,8 +4,6 @@ export const translations = {
   "Accept draw?": "Accept draw?",
   All: "All",
   Analyse: "Analyse",
-  "Analyse in Dark mode makes no sense!":
-    "Analyse in Dark mode makes no sense!",
   "Any player": "Any player",
   "Are you sure?": "Are you sure?",
   "Authentication successful!": "Authentication successful!",

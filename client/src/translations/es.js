@@ -4,8 +4,6 @@ export const translations = {
   "Accept draw?": "¿Acceptar tablas?",
   All: "Todos",
   Analyse: "Analizar",
-  "Analyse in Dark mode makes no sense!":
-    "¡Analizar en modo Dark no tiene sentido!",
   "Any player": "Cualquier jugador",
   Apply: "Aplicar",
   "Are you sure?": "¿Está usted seguro?",

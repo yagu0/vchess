@@ -37,7 +37,6 @@ export default {
       },
       vr: null, //"variant rules" object initialized from FEN
       curFen: ""
-      //people: [], //players + observers //TODO later: interactive analyze...
     };
   },
   watch: {
@@ -50,13 +49,8 @@ export default {
   },
   created: function() {
     this.gameRef.vname = this.$route.params["vname"];
-    if (this.gameRef.vname == "Dark") {
-      alert(this.st.tr["Analyse in Dark mode makes no sense!"]);
-      history.back(); //or this.$router.go(-1)
-    } else {
-      this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
-      this.initialize();
-    }
+    this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
+    this.initialize();
   },
   methods: {
     initialize: async function() {

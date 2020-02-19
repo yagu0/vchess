@@ -57,8 +57,8 @@ export default {
       const delay = Math.max(500 - (Date.now() - this.timeStart), 0);
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
-        // NOTE: Dark and 2-moves are incompatible
-        const animate = this.gameInfo.vname != "Dark";
+        // NOTE: do not animate move if special display (ShowMoves != "all")
+        const animate = V.ShowMoves == "all";
         const animDelay = animate ? 250 : 0;
         let moveIdx = 0;
         let self = this;

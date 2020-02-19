@@ -3,7 +3,16 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export const VariantRules = class DarkRules extends ChessRules {
-  // Standard rules, in the shadow
+  // Analyse in Dark mode makes no sense
+  static get CanAnalyse() {
+    return false;
+  }
+
+  // Moves are revealed only when game ends
+  static get ShowMoves() {
+    return "none";
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const [sizeX, sizeY] = [V.size.x, V.size.y];

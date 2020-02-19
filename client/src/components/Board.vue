@@ -11,6 +11,7 @@ export default {
     "vr",
     "lastMove",
     "analyze",
+    "score",
     "incheck",
     "orientation",
     "userColor",
@@ -46,9 +47,9 @@ export default {
       incheckSq[sq[0]][sq[1]] = true;
     });
 
-    // Create board element (+ reserves if needed by variant or mode)
+    // Create board element (+ reserves if needed by variant)
     const lm = this.lastMove;
-    const showLight = this.settings.highlight && this.vname != "Dark";
+    const showLight = this.settings.highlight && V.ShowMoves == "all";
     const gameDiv = h(
       "div",
       {
@@ -72,8 +73,7 @@ export default {
             let elems = [];
             if (
               this.vr.board[ci][cj] != V.EMPTY &&
-              (this.vname != "Dark" ||
-                this.analyze ||
+              (!this.vr.enlightened || this.analyze || this.score != "*" ||
                 (!!this.userColor &&
                   this.vr.enlightened[this.userColor][ci][cj]))
             ) {
@@ -116,8 +116,9 @@ export default {
                   "dark-square": (i + j) % 2 == 1,
                   [this.settings.bcolor]: true,
                   "in-shadow":
-                    this.vname == "Dark" &&
                     !this.analyze &&
+                    this.score == "*" &&
+                    this.vr.enlightened &&
                     (!this.userColor ||
                       !this.vr.enlightened[this.userColor][ci][cj]),
                   highlight:

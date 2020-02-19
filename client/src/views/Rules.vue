@@ -20,7 +20,7 @@ main
         )
           | {{ st.tr["Stop game"] }}
         button(
-          v-if="display=='rules' && gameInfo.vname!='Dark'"
+          v-if="showAnalyzeBtn"
           @click="gotoAnalyze()"
         )
           | {{ st.tr["Analyse"] }}
@@ -69,6 +69,9 @@ export default {
     this.re_setVariant(this.$route.params["vname"]);
   },
   computed: {
+    showAnalyzeBtn: function() {
+      return (this.display=='rules' && (!window.V || V.CanAnalyse));
+    },
     content: function() {
       if (!this.gameInfo.vname) return ""; //variant not set yet
       // (AJAX) Request to get rules content (plain text, HTML)

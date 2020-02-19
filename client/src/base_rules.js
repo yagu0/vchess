@@ -32,13 +32,26 @@ export const ChessRules = class ChessRules {
   //////////////
   // MISC UTILS
 
+  // Some variants don't have flags:
   static get HasFlags() {
     return true;
-  } //some variants don't have flags
+  }
 
+  // Some variants don't have en-passant
   static get HasEnpassant() {
     return true;
-  } //some variants don't have ep.
+  }
+
+  // Some variants cannot have analyse mode
+  static get CanAnalyse() {
+    return true;
+  }
+
+  // Some variants show incomplete information,
+  // and thus show only a partial moves list or no list at all.
+  static get ShowMoves() {
+    return "all";
+  }
 
   // Path to pieces
   static getPpath(b) {

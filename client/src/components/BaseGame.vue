@@ -33,14 +33,15 @@ div#baseGame(
       Board(
         :vr="vr"
         :last-move="lastMove"
-        :analyze="analyze"
+        :analyze="game.mode=='analyze'"
+        :score="game.score"
         :user-color="game.mycolor"
         :orientation="orientation"
         :vname="game.vname"
         :incheck="incheck"
         @play-move="play"
       )
-      #turnIndicator(v-if="game.vname=='Dark' && game.score=='*'") {{ turn }}
+      #turnIndicator(v-if="showTurn") {{ turn }}
       #controls
         button(@click="gotoBegin()") <<
         button(@click="undo()") <
@@ -48,16 +49,16 @@ div#baseGame(
         button(@click="play()") >
         button(@click="gotoEnd()") >>
       #belowControls
-        #downloadDiv(v-if="game.vname!='Dark' || game.score!='*'")
+        #downloadDiv(v-if="allowDownloadPGN")
           a#download(href="#")
           button(@click="download()") {{ st.tr["Download"] }} PGN
         button(onClick="window.doClick('modalAdjust')") &#10530;
         button(
-          v-if="game.vname!='Dark' && game.mode!='analyze'"
+          v-if="canAnalyze"
           @click="analyzePosition()"
         )
           | {{ st.tr["Analyse"] }}
-        // NOTE: rather ugly hack to avoid showing twice "rules" link...
+        // NOTE: variants pages already have a "Rules" link on top
         button(
           v-if="!$route.path.match('/variants/')"
           @click="showRules()"
@@ -122,17 +123,19 @@ export default {
   },
   computed: {
     showMoves: function() {
-      return this.game.vname != "Dark" || this.game.score != "*";
+      return this.game.score != "*" || (window.V && V.ShowMoves == "all");
+    },
+    showTurn: function() {
+      return this.game.score == '*' && window.V && V.ShowMoves != "all";
     },
     turn: function() {
       return this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"];
     },
-    analyze: function() {
-      return (
-        this.game.mode == "analyze" ||
-        // From Board viewpoint, a finished Dark game == analyze (TODO: unclear)
-        (this.game.vname == "Dark" && this.game.score != "*")
-      );
+    canAnalyze: function() {
+      return this.game.mode != "analyze" && window.V && V.CanAnalyze;
+    },
+    allowDownloadPGN: function() {
+      return this.game.score != "*" || (window.V && V.ShowMoves == "all");
     }
   },
   created: function() {
@@ -381,7 +384,7 @@ export default {
         if (!navigate && this.game.mode != "analyze")
           this.$emit("newmove", move); //post-processing (e.g. computer play)
       };
-      if (!!receive && this.game.vname != "Dark")
+      if (!!receive && V.ShowMoves == "all")
         this.animateMove(move, doPlayMove);
       else doPlayMove();
     },
