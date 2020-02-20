@@ -72,7 +72,7 @@ main
   .row(v-else)
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       #controls
-        button#newProblem(onClick="window.doClick('modalNewprob')")
+        button#newProblem(@click="prepareNewProblem()")
           | {{ st.tr["New problem"] }}
         label(for="checkboxMine") {{ st.tr["My problems"] }}
         input#checkboxMine(
@@ -292,6 +292,10 @@ export default {
         this.showOne = true;
       });
     },
+    prepareNewProblem: function() {
+      this.resetCurProb();
+      window.doClick("modalNewprob");
+    },
     sendProblem: function() {
       const error = checkProblem(this.curproblem);
       if (error) {
@@ -311,13 +315,11 @@ export default {
             this.showProblem(editedP);
           }
           else {
-            // New problem
             let newProblem = Object.assign({}, this.curproblem);
             newProblem.id = ret.id;
             newProblem.uid = this.st.user.id;
             newProblem.uname = this.st.user.name;
             this.problems = [newProblem].concat(this.problems);
-            this.resetCurProb();
           }
           document.getElementById("modalNewprob").checked = false;
           this.infoMsg = "";
