@@ -13,13 +13,12 @@ div
   )
     .card
       label.modal-close(for="modalLang")
-      form(@change="setLanguage($event)")
-        fieldset
-          label(for="langSelect") {{ st.tr["Language"] }}
-          select#langSelect
-            each language,langCode in langName
-              option(value=langCode)
-                =language
+      fieldset(@change="setLanguage($event)")
+        label(for="langSelect") {{ st.tr["Language"] }}
+        select#langSelect
+          each language,langCode in langName
+            option(value=langCode)
+              =language
 </template>
 
 <script>

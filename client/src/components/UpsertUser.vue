@@ -11,7 +11,7 @@ div
     .card
       label.modal-close(for="modalUser")
       h3.section {{ st.tr[stage] }}
-      form(@submit.prevent="onSubmit()" @keyup.enter="onSubmit()")
+      div(@keyup.enter="onSubmit()")
         div(v-show="stage!='Login'")
           fieldset
             label(for="username") {{ st.tr["User name"] }}

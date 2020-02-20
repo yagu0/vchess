@@ -513,6 +513,29 @@ export default {
             }
           }
         }
+        this.repeat = {}; //reset: scan past moves' FEN:
+        let repIdx = 0;
+        // NOTE: vr_tmp to obtain FEN strings is redundant with BaseGame
+        let vr_tmp = new V(game.fenStart);
+        let movesCount = -1;
+        let curTurn = "n";
+        game.moves.forEach(m => {
+          if (vr_tmp.turn != curTurn)
+          {
+            movesCount++;
+            curTurn = vr_tmp.turn;
+          }
+          vr_tmp.play(m);
+          const fenObj = V.ParseFen(vr_tmp.getFen());
+          repIdx = fenObj.position + "_" + fenObj.turn;
+          if (fenObj.flags) repIdx += "_" + fenObj.flags;
+          this.repeat[repIdx] = this.repeat[repIdx]
+            ? this.repeat[repIdx] + 1
+            : 1;
+        });
+        if (vr_tmp.turn != curTurn)
+          movesCount++;
+        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
         this.game = Object.assign(
           {},
           game,
@@ -524,7 +547,8 @@ export default {
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
-            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid
+            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid,
+            movesCount: movesCount,
           }
         );
         this.re_setClocks();
@@ -533,20 +557,6 @@ export default {
           // Did lastate arrive before game was rendered?
           if (this.lastate) this.processLastate();
         });
-        this.repeat = {}; //reset: scan past moves' FEN:
-        let repIdx = 0;
-        // NOTE: vr_tmp to obtain FEN strings is redundant with BaseGame
-        let vr_tmp = new V(game.fenStart);
-        game.moves.forEach(m => {
-          vr_tmp.play(m);
-          const fenObj = V.ParseFen(vr_tmp.getFen());
-          repIdx = fenObj.position + "_" + fenObj.turn;
-          if (fenObj.flags) repIdx += "_" + fenObj.flags;
-          this.repeat[repIdx] = this.repeat[repIdx]
-            ? this.repeat[repIdx] + 1
-            : 1;
-        });
-        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
         if (callback) callback();
       };
       if (game) {
@@ -563,7 +573,7 @@ export default {
       }
     },
     re_setClocks: function() {
-      if (this.game.moves.length < 2 || this.game.score != "*") {
+      if (this.game.movesCount < 2 || this.game.score != "*") {
         // 1st move not completed yet, or game over: freeze time
         this.virtualClocks = this.game.clocks.map(s => ppt(s));
         return;
@@ -632,10 +642,9 @@ export default {
       let addTime = 0;
       if (move.color == this.game.mycolor) {
         if (this.drawOffer == "received")
-          //I refuse draw
+          // I refuse draw
           this.drawOffer = "";
-        if (this.game.moves.length >= 2) {
-          //after first move
+        if (this.game.movesCount >= 2) {
           const elapsed = Date.now() - this.game.initime[colorIdx];
           // elapsed time is measured in milliseconds
           addTime = this.game.increment - elapsed / 1000;
@@ -649,13 +658,14 @@ export default {
         move.addTime = addTime;
       } else addTime = move.addTime; //supposed transmitted
       // Update current game object:
+      if (nextIdx != colorIdx)
+        this.game.movesCount++;
       this.game.moves.push(move);
       this.game.fen = move.fen;
       this.game.clocks[colorIdx] += addTime;
       // move.initime is set only when I receive a "lastate" move from opponent
       this.game.initime[nextIdx] = move.initime || Date.now();
-      //if (colorIdx != nextIdx)
-        this.re_setClocks();
+      this.re_setClocks();
       // If repetition detected, consider that a draw offer was received:
       const fenObj = V.ParseFen(move.fen);
       let repIdx = fenObj.position + "_" + fenObj.turn;

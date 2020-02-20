@@ -5,9 +5,8 @@ main
       .text-center
         input#fen(
           v-model="curFen"
-          @input="adjustFenSize()"
+          @input="adjustFenSize(); tryGotoFen()"
         )
-        button(@click="gotoFen()") {{ st.tr["Go"] }}
   BaseGame(
     :game="game"
     :vr="vr"
@@ -73,9 +72,12 @@ export default {
       let fenInput = document.getElementById("fen");
       fenInput.style.width = this.curFen.length + "ch";
     },
-    gotoFen: function() {
-      this.gameRef.fen = this.curFen;
-      this.loadGame();
+    tryGotoFen: function() {
+      if (V.IsGoodFen(this.curFen))
+      {
+        this.gameRef.fen = this.curFen;
+        this.loadGame();
+      }
     }
   }
 };

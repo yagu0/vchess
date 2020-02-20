@@ -8,6 +8,17 @@ main
     .card.text-center
       label.modal-close(for="modalInfo")
       p(v-html="infoMessage")
+  input#modalAccept.modal(type="checkbox")
+  div#acceptDiv(role="dialog")
+    .card.text-center
+      p
+        span.variantName {{ curChallToAccept.vname }} 
+        span {{ curChallToAccept.cadence }} 
+        span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
+      .diagram(v-html="tchallDiag")
+      .button-group#buttonsTchall
+        button.acceptBtn(@click="decisionChallenge(true)") {{ st.tr["Accept challenge?"] }}
+        button.refuseBtn(@click="decisionChallenge(false)") {{ st.tr["Refuse"] }}
   input#modalNewgame.modal(type="checkbox")
   div#newgameDiv(
     role="dialog"
@@ -15,10 +26,13 @@ main
   )
     .card
       label#closeNewgame.modal-close(for="modalNewgame")
-      form(@submit.prevent="newChallenge()" @keyup.enter="newChallenge()")
+      div(@keyup.enter="newChallenge()")
         fieldset
           label(for="selectVariant") {{ st.tr["Variant"] }} *
-          select#selectVariant(v-model="newchallenge.vid")
+          select#selectVariant(
+            @change="loadNewchallVariant(trySetNewchallDiag)"
+            v-model="newchallenge.vid"
+          )
             option(
               v-for="v in st.variants"
               :value="v.id"
@@ -43,11 +57,13 @@ main
             v-model="newchallenge.to"
           )
         fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
-          label(for="inputFen") FEN
           input#inputFen(
+            placeholder="FEN"
+            @input="trySetNewchallDiag()"
             type="text"
             v-model="newchallenge.fen"
           )
+        .diagram(v-html="newchallenge.diag")
       button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
   input#modalPeople.modal(
     type="checkbox"
@@ -131,6 +147,7 @@ import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
 import params from "@/parameters";
 import { getRandString, shuffle } from "@/utils/alea";
+import { getDiagram } from "@/utils/printDiagram";
 import Chat from "@/components/Chat.vue";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
@@ -154,10 +171,17 @@ export default {
       infoMessage: "",
       newchallenge: {
         fen: "",
-        vid: localStorage.getItem("vid") || "",
+        vid: parseInt(localStorage.getItem("vid")) || 0,
         to: "", //name of challenged player (if any)
-        cadence: localStorage.getItem("cadence") || ""
+        cadence: localStorage.getItem("cadence") || "",
+        // VariantRules object, stored to not interfere with
+        // diagrams of targetted challenges:
+        V: null,
+        vname: "",
+        diag: "" //visualizing FEN
       },
+      tchallDiag: "",
+      curChallToAccept: {from: {}},
       newChat: "",
       conn: null,
       connexionString: "",
@@ -173,6 +197,8 @@ export default {
       this.challenges.concat(this.games).forEach(o => {
         if (o.vname == "") o.vname = this.getVname(o.vid);
       });
+      if (!this.newchallenge.V && this.newchallenge.vid > 0)
+        this.loadNewchallVariant();
     }
   },
   computed: {
@@ -185,6 +211,8 @@ export default {
     }
   },
   created: function() {
+    if (this.st.variants.length > 0 && this.newchallenge.vid > 0)
+      this.loadNewchallVariant();
     const my = this.st.user;
     this.$set(this.people, my.sid, { id: my.id, name: my.name, pages: ["/"] });
     // Ask server for current corr games (all but mines)
@@ -630,6 +658,33 @@ export default {
       this.conn.addEventListener("close", this.socketCloseListener);
     },
     // Challenge lifecycle:
+    loadNewchallVariant: async function(cb) {
+      const vname = this.getVname(this.newchallenge.vid);
+      const vModule = await import("@/variants/" + vname + ".js");
+      this.newchallenge.V = vModule.VariantRules;
+      this.newchallenge.vname = vname;
+      if (cb)
+        cb();
+    },
+    trySetNewchallDiag: function() {
+      if (!this.newchallenge.fen) {
+        this.newchallenge.diag = "";
+        return;
+      }
+      // If vid > 0 then the variant is loaded (function above):
+      window.V = this.newchallenge.V;
+      if (
+        this.newchallenge.vid > 0 &&
+        this.newchallenge.fen &&
+        V.IsGoodFen(this.newchallenge.fen)
+      ) {
+        const parsedFen = V.ParseFen(this.newchallenge.fen);
+        this.newchallenge.diag = getDiagram({
+          position: parsedFen.position,
+          orientation: V.GetOppCol(parsedFen.turn)
+        });
+      }
+    },
     newChallenge: async function() {
       if (this.newchallenge.cadence.match(/^[0-9]+$/))
         this.newchallenge.cadence += "+0"; //assume minutes, no increment
@@ -653,9 +708,7 @@ export default {
         alert(error);
         return;
       }
-      const vname = this.getVname(this.newchallenge.vid);
-      const vModule = await import("@/variants/" + vname + ".js");
-      window.V = vModule.VariantRules;
+      window.V = this.newchallenge.V;
       error = checkChallenge(this.newchallenge);
       if (error) {
         alert(error);
@@ -684,7 +737,7 @@ export default {
         });
         // Add new challenge:
         chall.from = {
-          //decompose to avoid revealing email
+          // Decompose to avoid revealing email
           sid: this.st.user.sid,
           id: this.st.user.id,
           name: this.st.user.name
@@ -692,7 +745,7 @@ export default {
         chall.added = Date.now();
         // NOTE: vname and type are redundant (can be deduced from cadence + vid)
         chall.type = ctype;
-        chall.vname = vname;
+        chall.vname = this.newchallenge.vname;
         this.challenges.push(chall);
         // Remember cadence  + vid for quicker further challenges:
         localStorage.setItem("cadence", chall.cadence);
@@ -709,7 +762,28 @@ export default {
         });
       }
     },
-    clickChallenge: function(c) {
+    // Callback function after a diagram was showed to accept
+    // or refuse targetted challenge:
+    decisionChallenge: function(accepted) {
+      this.curChallToAccept.accepted = accepted;
+      this.finishProcessingChallenge(this.curChallToAccept);
+      document.getElementById("modalAccept").checked = false;
+    },
+    finishProcessingChallenge: function(c) {
+      if (c.accepted) {
+        c.seat = {
+          // Again, avoid c.seat = st.user to not reveal email
+          sid: this.st.user.sid,
+          id: this.st.user.id,
+          name: this.st.user.name
+        };
+        this.launchGame(c);
+      } else {
+        this.send("refusechallenge", { data: c.id, target: c.from.sid });
+      }
+      this.send("deletechallenge", { data: c.id });
+    },
+    clickChallenge: async function(c) {
       const myChallenge =
         c.from.sid == this.st.user.sid || //live
         (this.st.user.id > 0 && c.from.id == this.st.user.id); //corr
@@ -719,25 +793,30 @@ export default {
           return;
         }
         c.accepted = true;
+        const vModule = await import("@/variants/" + c.vname + ".js");
+        window.V = vModule.VariantRules;
         if (c.to) {
-          //c.to == this.st.user.name (connected)
-          // TODO: if special FEN, show diagram after loading variant
-          c.accepted = confirm("Accept challenge?");
+          // c.to == this.st.user.name (connected)
+          if (c.fen) {
+            const parsedFen = V.ParseFen(c.fen);
+            this.tchallDiag = getDiagram({
+              position: parsedFen.position,
+              orientation: V.GetOppCol(parsedFen.turn)
+            });
+            this.curChallToAccept = c;
+            document.getElementById("modalAccept").checked = true;
+          }
+          else {
+            if (!confirm(this.st.tr["Accept challenge?"]))
+              c.accepted = false;
+            this.finishProcessingChallenge(c);
+          }
         }
-        if (c.accepted) {
-          c.seat = {
-            //again, avoid c.seat = st.user to not reveal email
-            sid: this.st.user.sid,
-            id: this.st.user.id,
-            name: this.st.user.name
-          };
-          this.launchGame(c);
-        } else {
-          this.send("refusechallenge", { data: c.id, target: c.from.sid });
-        }
-        this.send("deletechallenge", { data: c.id });
-      } //my challenge
+        else
+          this.finishProcessingChallenge(c);
+      }
       else {
+        // My challenge
         if (c.type == "corr") {
           ajax("/challenges", "DELETE", { id: c.id });
         }
@@ -747,9 +826,7 @@ export default {
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
     },
     // NOTE: when launching game, the challenge is already being deleted
-    launchGame: async function(c) {
-      const vModule = await import("@/variants/" + c.vname + ".js");
-      window.V = vModule.VariantRules;
+    launchGame: function(c) {
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),
@@ -822,7 +899,7 @@ export default {
   padding: 15px 0
   max-width: 430px
 
-#newgameDiv > .card
+#newgameDiv > .card, #acceptDiv > .card
   max-width: 767px
   max-height: 100%
 
@@ -874,6 +951,24 @@ button.player-action
 
 .tabbtn
   background-color: #f9faee
+
+button.acceptBtn
+  background-color: lightgreen
+button.refuseBtn
+  background-color: red
+
+#buttonsTchall
+  margin-top: 10px
+
+.variantName
+  font-weight: bold
+
+.diagram
+  margin: 0 auto
+  max-width: 400px
+
+#inputFen
+  width: 100%
 
 #div2, #div3
   margin-top: 15px

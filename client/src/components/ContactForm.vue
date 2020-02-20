@@ -10,15 +10,14 @@ div
   )
     .card
       label.modal-close(for="modalContact")
-      form(@submit.prevent="trySendMessage()" @keyup.enter="trySendMessage()")
-        fieldset
-          label(for="userEmail") {{ st.tr["Email"] }}
-          input#userEmail(type="email")
-        fieldset
-          label(for="mailSubject") {{ st.tr["Subject"] }}
-          input#mailSubject(type="text")
-        fieldset
-          textarea#mailContent(:placeholder="st.tr['Your message']")
+      fieldset
+        label(for="userEmail") {{ st.tr["Email"] }}
+        input#userEmail(type="email")
+      fieldset
+        label(for="mailSubject") {{ st.tr["Subject"] }}
+        input#mailSubject(type="text")
+      fieldset
+        textarea#mailContent(:placeholder="st.tr['Your message']")
       button(@click="trySendMessage()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
 </template>
