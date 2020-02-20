@@ -24,25 +24,18 @@ function dbOperation(callback) {
   let DBOpenRequest = window.indexedDB.open("vchess", 4);
 
   DBOpenRequest.onerror = function(event) {
-    alert(store.state.tr["Database error:"] + " " + event.target.errorCode);
+    alert(store.state.tr["Database error: stop private browsing, or update your browser"]);
+    callback("error",null);
   };
 
   DBOpenRequest.onsuccess = function() {
     db = DBOpenRequest.result;
-    callback(db);
+    callback(null,db);
     db.close();
   };
 
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
-    db.onerror = function(event) {
-      alert(
-        store.state.tr["Error while loading database:"] +
-          " " +
-          event.target.errorCode
-      );
-    };
-    // Create objectStore for vchess->games
     let objectStore = db.createObjectStore("games", { keyPath: "id" });
     objectStore.createIndex("score", "score"); //to search by game result
   };
@@ -51,19 +44,15 @@ function dbOperation(callback) {
 export const GameStorage = {
   // Optional callback to get error status
   add: function(game, callback) {
-    dbOperation(db => {
-      let transaction = db.transaction("games", "readwrite");
-      if (callback) {
-        transaction.oncomplete = function() {
-          callback({}); //everything's fine
-        };
-        transaction.onerror = function() {
-          callback({
-            errmsg:
-              store.state.tr["Game retrieval failed:"] + " " + transaction.error
-          });
-        };
+    dbOperation((err,db) => {
+      if (err) {
+        callback("error");
+        return;
       }
+      let transaction = db.transaction("games", "readwrite");
+      transaction.oncomplete = function() {
+        callback(); //everything's fine
+      };
       let objectStore = transaction.objectStore("games");
       objectStore.add(game);
     });
@@ -88,17 +77,20 @@ export const GameStorage = {
       });
     } else {
       // live
-      dbOperation(db => {
+      dbOperation((err,db) => {
         let objectStore = db
           .transaction("games", "readwrite")
           .objectStore("games");
         objectStore.get(gameId).onsuccess = function(event) {
-          const game = event.target.result;
-          Object.keys(obj).forEach(k => {
-            if (k == "move") game.moves.push(obj[k]);
-            else game[k] = obj[k];
-          });
-          objectStore.put(game); //save updated data
+          // Ignoring error silently: shouldn't happen now. TODO?
+          if (event.target.result) {
+            const game = event.target.result;
+            Object.keys(obj).forEach(k => {
+              if (k == "move") game.moves.push(obj[k]);
+              else game[k] = obj[k];
+            });
+            objectStore.put(game); //save updated data
+          }
         };
       });
     }
@@ -106,7 +98,7 @@ export const GameStorage = {
 
   // Retrieve all local games (running, completed, imported...)
   getAll: function(callback) {
-    dbOperation(db => {
+    dbOperation((err,db) => {
       let objectStore = db.transaction("games").objectStore("games");
       let games = [];
       objectStore.openCursor().onsuccess = function(event) {
@@ -132,42 +124,29 @@ export const GameStorage = {
         });
         callback(game);
       });
-    } //local game
+    }
     else {
-      dbOperation(db => {
+      // Local game
+      dbOperation((err,db) => {
         let objectStore = db.transaction("games").objectStore("games");
         objectStore.get(gameId).onsuccess = function(event) {
-          callback(event.target.result);
+          if (event.target.result)
+            callback(event.target.result);
         };
       });
     }
   },
 
-  getCurrent: function(callback) {
-    dbOperation(db => {
-      let objectStore = db.transaction("games").objectStore("games");
-      objectStore.get("*").onsuccess = function(event) {
-        callback(event.target.result);
-      };
-    });
-  },
-
   // Delete a game in indexedDB
   remove: function(gameId, callback) {
-    dbOperation(db => {
-      let transaction = db.transaction(["games"], "readwrite");
-      if (callback) {
+    dbOperation((err,db) => {
+      if (!err) {
+        let transaction = db.transaction(["games"], "readwrite");
         transaction.oncomplete = function() {
           callback({}); //everything's fine
         };
-        transaction.onerror = function() {
-          callback({
-            errmsg:
-              store.state.tr["Game removal failed:"] + " " + transaction.error
-          });
-        };
+        transaction.objectStore("games").delete(gameId);
       }
-      transaction.objectStore("games").delete(gameId);
     });
   }
 };

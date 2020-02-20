@@ -43,7 +43,7 @@ export const ChessRules = class ChessRules {
   }
 
   // Some variants cannot have analyse mode
-  static get CanAnalyse() {
+  static get CanAnalyze() {
     return true;
   }
 

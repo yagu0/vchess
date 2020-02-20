@@ -35,7 +35,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
   {
     UserModel.getOne("name", challenge.to, (err,user) => {
       if (!!err || !user)
-        return res.json(err | {errmsg: "Typo in player name"});
+        return res.json(err || {errmsg: "Typo in player name"});
       challenge.to = user.id; //ready now to insert challenge
       insertChallenge();
       if (user.notify)

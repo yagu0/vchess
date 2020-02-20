@@ -32,7 +32,8 @@ export default {
   data: function() {
     return {
       st: store.state,
-      showCadence: true
+      deleted: {}, //mark deleted games
+      showCadence: window.innerWidth >= 425 //TODO: arbitrary value
     };
   },
   mounted: function() {
@@ -42,7 +43,7 @@ export default {
       if (!timeoutLaunched) {
         timeoutLaunched = true;
         setTimeout(() => {
-          this.showCadence = window.innerWidth >= 425; //TODO: arbitrary
+          this.showCadence = window.innerWidth >= 425;
           timeoutLaunched = false;
         }, 500);
       }
@@ -53,37 +54,39 @@ export default {
       // Show in order: games where it's my turn, my running games, my games, other games
       let minCreated = Number.MAX_SAFE_INTEGER;
       let maxCreated = 0;
-      let augmentedGames = this.games.map(g => {
-        let priority = 0;
-        let myColor = undefined;
-        if (
-          g.players.some(
-            p => p.uid == this.st.user.id || p.sid == this.st.user.sid
-          )
-        ) {
-          priority++;
-          myColor =
-            g.players[0].uid == this.st.user.id ||
-            g.players[0].sid == this.st.user.sid
-              ? "w"
-              : "b";
-          if (g.score == "*") {
+      let augmentedGames = this.games
+        .filter(g => !this.deleted[g.id])
+        .map(g => {
+          let priority = 0;
+          let myColor = undefined;
+          if (
+            g.players.some(
+              p => p.uid == this.st.user.id || p.sid == this.st.user.sid
+            )
+          ) {
             priority++;
-            // I play in this game, so g.fen will be defined
-            // NOTE: this is a fragile way to detect turn,
-            // but since V isn't defined let's do that for now. (TODO:)
-            //if (V.ParseFen(g.fen).turn == myColor)
-            if (g.fen.match(" " + myColor + " ")) priority++;
+            myColor =
+              g.players[0].uid == this.st.user.id ||
+              g.players[0].sid == this.st.user.sid
+                ? "w"
+                : "b";
+            if (g.score == "*") {
+              priority++;
+              // I play in this game, so g.fen will be defined
+              // NOTE: this is a fragile way to detect turn,
+              // but since V isn't defined let's do that for now. (TODO:)
+              //if (V.ParseFen(g.fen).turn == myColor)
+              if (g.fen.match(" " + myColor + " ")) priority++;
+            }
           }
-        }
-        if (g.created < minCreated) minCreated = g.created;
-        if (g.created > maxCreated) maxCreated = g.created;
-        return Object.assign({}, g, {
-          priority: priority,
-          myTurn: priority == 3,
-          myColor: myColor
+          if (g.created < minCreated) minCreated = g.created;
+          if (g.created > maxCreated) maxCreated = g.created;
+          return Object.assign({}, g, {
+            priority: priority,
+            myTurn: priority == 3,
+            myColor: myColor
+          });
         });
-      });
       const deltaCreated = maxCreated - minCreated;
       return augmentedGames.sort((g1, g2) => {
         return (
@@ -129,7 +132,14 @@ export default {
     },
     deleteGame: function(game, e) {
       if (game.score != "*") {
-        if (confirm(this.st.tr["Remove game?"])) GameStorage.remove(game.id);
+        if (confirm(this.st.tr["Remove game?"])) {
+          GameStorage.remove(
+            game.id,
+            () => {
+              this.$set(this.deleted, game.id, true);
+            }
+          );
+        }
         e.stopPropagation();
       }
     }

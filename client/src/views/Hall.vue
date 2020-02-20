@@ -28,9 +28,9 @@ main
         fieldset
           label(for="cadence") {{ st.tr["Cadence"] }} *
           div#predefinedCadences
-            button 3+2
-            button 5+3
-            button 15+5
+            button(type="button") 3+2
+            button(type="button") 5+3
+            button(type="button") 15+5
           input#cadence(
             type="text"
             v-model="newchallenge.cadence"
@@ -627,11 +627,24 @@ export default {
     },
     // Challenge lifecycle:
     newChallenge: async function() {
+      if (this.newchallenge.cadence.match(/^[0-9]+$/))
+        this.newchallenge.cadence += "+0"; //assume minutes, no increment
+      const ctype = this.classifyObject(this.newchallenge);
+      // TODO: cadence still unchecked so ctype could be wrong...
       let error = "";
-      if (this.newchallenge.vid == "")
+      if (!this.newchallenge.vid)
         error = this.st.tr["Please select a variant"];
-      else if (!!this.newchallenge.to && this.newchallenge.to == this.st.user.name)
-        error = this.st.tr["Self-challenge is forbidden"];
+      else if (ctype == "corr" && this.st.user.id <= 0)
+        error = this.st.tr["Please log in to play correspondance games"];
+      else if (this.newchallenge.to) {
+        if (this.newchallenge.to == this.st.user.name)
+          error = this.st.tr["Self-challenge is forbidden"];
+        else if (
+          ctype == "live" &&
+          Object.values(this.people).every(p => p.name != this.newchallenge.to)
+        )
+          error = this.newchallenge.to + " " + this.st.tr["is not online"];
+      }
       if (error) {
         alert(error);
         return;
@@ -639,12 +652,7 @@ export default {
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
       window.V = vModule.VariantRules;
-      if (this.newchallenge.cadence.match(/^[0-9]+$/))
-        this.newchallenge.cadence += "+0"; //assume minutes, no increment
-      const ctype = this.classifyObject(this.newchallenge);
       error = checkChallenge(this.newchallenge);
-      if (!error && ctype == "corr" && this.st.user.id <= 0)
-        error = this.st.tr["Please log in to play correspondance games"];
       if (error) {
         alert(error);
         return;
@@ -789,10 +797,14 @@ export default {
         initime: [0, 0], //initialized later
         score: "*"
       });
-      GameStorage.add(game);
-      if (this.st.settings.sound >= 1)
-        new Audio("/sounds/newgame.mp3").play().catch(() => {});
-      this.$router.push("/game/" + gameInfo.id);
+      GameStorage.add(game, (err) => {
+        // If an error occurred, game is not added: abort
+        if (!err) {
+          if (this.st.settings.sound >= 1)
+            new Audio("/sounds/newgame.mp3").play().catch(() => {});
+          this.$router.push("/game/" + gameInfo.id);
+        }
+      });
     }
   }
 };

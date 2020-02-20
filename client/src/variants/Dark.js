@@ -4,7 +4,7 @@ import { randInt } from "@/utils/alea";
 
 export const VariantRules = class DarkRules extends ChessRules {
   // Analyse in Dark mode makes no sense
-  static get CanAnalyse() {
+  static get CanAnalyze() {
     return false;
   }
 

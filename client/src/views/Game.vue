@@ -56,6 +56,7 @@ main
             | {{ game.players[1].name || "@nonymous" }}
           span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
   BaseGame(
+    ref="basegame"
     :game="game"
     :vr="vr"
     @newmove="processMove"
@@ -138,10 +139,10 @@ export default {
     // Socket init required before loading remote game:
     const socketInit = callback => {
       if (!!this.conn && this.conn.readyState == 1)
-        //1 == OPEN state
+        // 1 == OPEN state
         callback();
-      //socket not ready yet (initial loading)
       else {
+        // Socket not ready yet (initial loading)
         // NOTE: it's important to call callback without arguments,
         // otherwise first arg is Websocket object and loadGame fails.
         this.conn.onopen = () => {
@@ -150,10 +151,10 @@ export default {
       }
     };
     if (!this.gameRef.rid)
-      //game stored locally or on server
+      // Game stored locally or on server
       this.loadGame(null, () => socketInit(this.roomInit));
-    //game stored remotely: need socket to retrieve it
     else {
+      // Game stored remotely: need socket to retrieve it
       // NOTE: the callback "roomInit" will be lost, so we don't provide it.
       // --> It will be given when receiving "fullgame" socket event.
       // A more general approach would be to store it somewhere.
@@ -333,14 +334,16 @@ export default {
             if (this.game.type == "live" && !!this.game.mycolor)
               GameStorage.update(this.gameRef.id, { drawOffer: "" });
           }
-          this.$set(this.game, "moveToPlay", move);
+          this.$refs["basegame"].play(move, "received");
           break;
         }
         case "resign":
-          this.gameOver(data.side == "b" ? "1-0" : "0-1", "Resign");
+          const score = data.side == "b" ? "1-0" : "0-1";
+          const side = data.side == "w" ? "White" : "Black";
+          this.gameOver(score, side + " surrender");
           break;
         case "abort":
-          this.gameOver("?", "Abort");
+          this.gameOver("?", "Stop");
           break;
         case "draw":
           this.gameOver("1/2", data.data);
@@ -368,9 +371,7 @@ export default {
       const L = this.game.moves.length;
       if (data.movesCount > L) {
         // Just got last move from him
-        this.$set(
-          this.game,
-          "moveToPlay",
+        this.$refs["basegame"].play(
           Object.assign({ initime: data.initime }, data.lastMove)
         );
       }
@@ -404,14 +405,16 @@ export default {
     },
     abortGame: function() {
       if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"])) return;
-      this.gameOver("?", "Abort");
+      this.gameOver("?", "Stop");
       this.send("abort");
     },
     resign: function() {
       if (!this.game.mycolor || !confirm(this.st.tr["Resign the game?"]))
         return;
       this.send("resign", { data: this.game.mycolor });
-      this.gameOver(this.game.mycolor == "w" ? "0-1" : "1-0", "Resign");
+      const score = this.game.mycolor == "w" ? "0-1" : "1-0";
+      const side = this.game.mycolor == "w" ? "White" : "Black";
+      this.gameOver(score, side + " surrender");
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -437,7 +440,7 @@ export default {
               game.players[0]
             ];
           }
-          // corr game: needs to compute the clocks + initime
+          // corr game: need to compute the clocks + initime
           // NOTE: clocks in seconds, initime in milliseconds
           game.clocks = [tc.mainTime, tc.mainTime];
           game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
@@ -456,31 +459,17 @@ export default {
             }
             if (L >= 1) game.initime[L % 2] = game.moves[L - 1].played;
           }
-          const reformattedMoves = game.moves.map(m => {
-            const s = m.squares;
-            return {
-              appear: s.appear,
-              vanish: s.vanish,
-              start: s.start,
-              end: s.end
-            };
-          });
           // Sort chat messages from newest to oldest
           game.chats.sort((c1, c2) => {
             return c2.added - c1.added;
           });
           if (myIdx >= 0 && game.chats.length > 0) {
-            // TODO: group multi-moves into an array, to deduce color from index
-            // and not need this (also repeated in BaseGame::re_setVariables())
-            let vr_tmp = new V(game.fenStart); //vr is already at end of game
-            for (let i = 0; i < reformattedMoves.length; i++) {
-              game.moves[i].color = vr_tmp.turn;
-              vr_tmp.play(reformattedMoves[i]);
-            }
-            // Blue background on chat button if last chat message arrived after my last move.
+            // Did a chat message arrive after my last move?
+            let vr_tmp = new V(game.fen); //start from last position
             let dtLastMove = 0;
             for (let midx = game.moves.length - 1; midx >= 0; midx--) {
-              if (game.moves[midx].color == mycolor) {
+              vr_tmp.undo(game.moves[midx]);
+              if (vr_tmp.turn == mycolor) {
                 dtLastMove = game.moves[midx].played;
                 break;
               }
@@ -489,10 +478,10 @@ export default {
               document.getElementById("chatBtn").classList.add("somethingnew");
           }
           // Now that we used idx and played, re-format moves as for live games
-          game.moves = reformattedMoves;
+          game.moves = game.moves.map(m => m.squares);
         }
         if (gtype == "live" && game.clocks[0] < 0) {
-          //game unstarted
+          // Game is unstarted
           game.clocks = [tc.mainTime, tc.mainTime];
           if (game.score == "*") {
             game.initime[0] = Date.now();
@@ -507,11 +496,11 @@ export default {
         }
         if (game.drawOffer) {
           if (game.drawOffer == "t")
-            //three repetitions
+            // Three repetitions
             this.drawOffer = "threerep";
           else {
+            // Draw offered by any of the players:
             if (myIdx < 0) this.drawOffer = "received";
-            //by any of the players
             else {
               // I play in this game:
               if (
@@ -519,13 +508,10 @@ export default {
                 (game.drawOffer == "b" && myIdx == 1)
               )
                 this.drawOffer = "sent";
-              //all other cases
               else this.drawOffer = "received";
             }
           }
         }
-        if (game.scoreMsg) game.scoreMsg = this.st.tr[game.scoreMsg]; //stored in english
-        delete game["moveToPlay"]; //in case of!
         this.game = Object.assign(
           {},
           game,
@@ -571,6 +557,7 @@ export default {
         this.send("askfullgame", { target: this.gameRef.rid });
       } else {
         // Local or corr game
+        // NOTE: afterRetrieval() is never called if game not found
         GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
@@ -581,6 +568,7 @@ export default {
         return;
       }
       const currentTurn = this.vr.turn;
+      const currentMovesCount = this.game.moves.length;
       const colorIdx = ["w", "b"].indexOf(currentTurn);
       let countdown =
         this.game.clocks[colorIdx] -
@@ -593,13 +581,13 @@ export default {
       let clockUpdate = setInterval(() => {
         if (
           countdown < 0 ||
-          this.vr.turn != currentTurn ||
+          this.game.moves.length > currentMovesCount ||
           this.game.score != "*"
         ) {
           clearInterval(clockUpdate);
           if (countdown < 0)
             this.gameOver(
-              this.vr.turn == "w" ? "0-1" : "1-0",
+              currentTurn == "w" ? "0-1" : "1-0",
               this.st.tr["Time"]
             );
         } else
@@ -610,7 +598,7 @@ export default {
           );
       }, 1000);
     },
-    // Post-process a move (which was just played in BaseGame)
+    // Post-process a (potentially partial) move (which was just played in BaseGame)
     processMove: function(move) {
       if (this.game.type == "corr" && move.color == this.game.mycolor) {
         if (
@@ -622,7 +610,7 @@ export default {
               this.st.tr["Are you sure?"]
           )
         ) {
-          this.$set(this.game, "moveToUndo", move);
+          this.$refs["basegame"].undo(move);
           return;
         }
       }
@@ -631,7 +619,7 @@ export default {
       // https://stackoverflow.com/a/38750895
       if (this.game.mycolor) {
         const allowed_fields = ["appear", "vanish", "start", "end"];
-        // NOTE: 'var' to see this variable outside this block
+        // NOTE: 'var' to see that variable outside this block
         var filtered_move = Object.keys(move)
           .filter(key => allowed_fields.includes(key))
           .reduce((obj, key) => {
@@ -665,7 +653,8 @@ export default {
       this.game.clocks[colorIdx] += addTime;
       // move.initime is set only when I receive a "lastate" move from opponent
       this.game.initime[nextIdx] = move.initime || Date.now();
-      this.re_setClocks();
+      //if (colorIdx != nextIdx)
+        this.re_setClocks();
       // If repetition detected, consider that a draw offer was received:
       const fenObj = V.ParseFen(move.fen);
       let repIdx = fenObj.position + "_" + fenObj.turn;
@@ -676,7 +665,7 @@ export default {
       // Since corr games are stored at only one location, update should be
       // done only by one player for each move:
       if (
-        !!this.game.mycolor &&
+        this.game.mycolor &&
         (this.game.type == "live" || move.color == this.game.mycolor)
       ) {
         let drawCode = "";
@@ -699,10 +688,12 @@ export default {
               played: Date.now(),
               idx: this.game.moves.length - 1
             },
-            drawOffer: drawCode || "n" //"n" for "None" to force reset (otherwise it's ignored)
+            // Code "n" for "None" to force reset (otherwise it's ignored)
+            drawOffer: drawCode || "n"
           });
-        } //live
+        }
         else {
+          // Live game:
           GameStorage.update(this.gameRef.id, {
             fen: move.fen,
             move: filtered_move,
@@ -725,14 +716,12 @@ export default {
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
-      this.game.scoreMsg = this.st.tr[
-        scoreMsg ? scoreMsg : getScoreMessage(score)
-      ];
+      this.$set(this.game, "scoreMsg", scoreMsg || getScoreMessage(score));
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
       if (myIdx >= 0) {
-        //OK, I play in this game
+        // OK, I play in this game
         GameStorage.update(this.gameRef.id, {
           score: score,
           scoreMsg: scoreMsg

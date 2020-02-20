@@ -112,14 +112,6 @@ export default {
     "game.fenStart": function() {
       this.re_setVariables();
     },
-    // Received a new move to play:
-    "game.moveToPlay": function(move) {
-      if (move) this.play(move, "receive");
-    },
-    // ...Or to undo (corr game, move not validated)
-    "game.moveToUndo": function(move) {
-      if (move) this.undo(move);
-    }
   },
   computed: {
     showMoves: function() {
@@ -225,26 +217,21 @@ export default {
     },
     re_setVariables: function() {
       this.endgameMessage = "";
-      this.orientation = this.game.mycolor || "w"; //default orientation for observed games
+      // "w": default orientation for observed games
+      this.orientation = this.game.mycolor || "w";
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
-      // Post-processing: decorate each move with color + current FEN:
-      // (to be able to jump to any position quickly)
-      let vr_tmp = new V(this.game.fenStart); //vr is already at end of game
-      this.firstMoveNumber = Math.floor(
-        V.ParseFen(this.game.fenStart).movesCount / 2
-      );
+      // Post-processing: decorate each move with color, notation and FEN
+      let vr_tmp = new V(this.game.fenStart);
+      const parsedFen = V.ParseFen(this.game.fenStart);
+      const firstMoveColor = parsedFen.turn;
+      this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2);
       this.moves.forEach(move => {
-        // NOTE: this is doing manually what play() function below achieve,
-        // but in a lighter "fast-forward" way
         move.color = vr_tmp.turn;
         move.notation = vr_tmp.getNotation(move);
         vr_tmp.play(move);
         move.fen = vr_tmp.getFen();
       });
-      if (
-        (this.moves.length > 0 && this.moves[0].color == "b") ||
-        (this.moves.length == 0 && vr_tmp.turn == "b")
-      ) {
+      if (firstMoveColor == "b") {
         // 'end' is required for Board component to check lastMove for e.p.
         this.moves.unshift({
           color: "w",

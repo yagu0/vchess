@@ -1,5 +1,6 @@
 <template lang="pug">
 BaseGame(
+  ref="basegame"
   :game="game"
   :vr="vr"
   @newmove="processMove"
@@ -41,7 +42,6 @@ export default {
       }
     }
   },
-  // Modal end of game, and then sub-components
   created: function() {
     // Computer moves web worker logic:
     this.compWorker = new Worker();
@@ -63,7 +63,7 @@ export default {
         let moveIdx = 0;
         let self = this;
         (function executeMove() {
-          self.$set(self.game, "moveToPlay", compMove[moveIdx++]);
+          self.$refs["basegame"].play(compMove[moveIdx++]);
           if (moveIdx >= compMove.length) {
             self.compThink = false;
             if (self.game.score != "*")
@@ -95,6 +95,8 @@ export default {
       if (mycolor != "w" || this.gameInfo.mode == "auto")
         this.playComputerMove();
     },
+    // NOTE: a "goto" action could lead to an error when comp is thinking,
+    // but it's OK because from the user viewpoint the game just stops.
     playComputerMove: function() {
       this.timeStart = Date.now();
       this.compThink = true;

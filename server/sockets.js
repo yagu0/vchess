@@ -153,7 +153,7 @@ module.exports = function(wss) {
         {
           const pg = obj.page || page; //required for askidentity and askgame
           // In cas askfullgame to wrong SID for example, would crash:
-          if (!!clients[pg][obj.target])
+          if (clients[pg] && clients[pg][obj.target])
           {
             const tmpIds = Object.keys(clients[pg][obj.target]);
             if (obj.target == sid) //targetting myself
@@ -207,7 +207,10 @@ module.exports = function(wss) {
         case "lastate":
         {
           const pg = obj.target[2] || page; //required for identity and game
-          send(clients[pg][obj.target[0]][obj.target[1]], {code:obj.code, data:obj.data});
+          // NOTE: if in game we ask identity to opponent still in Hall,
+          // but leaving Hall, clients[pg] or clients[pg][target] could be ndefined
+          if (clients[pg] && clients[pg][obj.target[0]])
+            send(clients[pg][obj.target[0]][obj.target[1]], {code:obj.code, data:obj.data});
           break;
         }
       }
