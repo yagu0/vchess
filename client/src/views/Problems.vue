@@ -322,7 +322,8 @@ export default {
       );
     },
     editProblem: function(prob) {
-      if (!prob.diag) this.setDiagram(prob); //V is loaded at this stage
+      // prob.diag might correspond to some other problem or be empty:
+      this.setDiagram(prob); //V is loaded at this stage
       this.copyProblem(prob, this.curproblem);
       window.doClick("modalNewprob");
     },
