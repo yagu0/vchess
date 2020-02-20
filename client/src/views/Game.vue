@@ -466,9 +466,10 @@ export default {
           if (myIdx >= 0 && game.chats.length > 0) {
             // Did a chat message arrive after my last move?
             let vr_tmp = new V(game.fen); //start from last position
+            const flags = V.ParseFen(game.fen).flags; //may be undefined
             let dtLastMove = 0;
             for (let midx = game.moves.length - 1; midx >= 0; midx--) {
-              vr_tmp.undo(game.moves[midx].squares);
+              vr_tmp.undo(Object.assign({flags:flags}, game.moves[midx].squares));
               if (vr_tmp.turn == mycolor) {
                 dtLastMove = game.moves[midx].played;
                 break;

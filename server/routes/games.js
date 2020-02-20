@@ -61,7 +61,7 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
   if (gid.toString().match(/^[0-9]+$/) && GameModel.checkGameUpdate(obj))
   {
     GameModel.getPlayers(gid, (err,players) => {
-      if (players.some(p => p.id == req.userId))
+      if (players.some(p => p.uid == req.userId))
       {
         GameModel.update(gid, obj);
         if (obj.move || obj.score)
