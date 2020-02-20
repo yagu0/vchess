@@ -4,5 +4,9 @@ export function checkProblem(p) {
 
   if (!V.IsGoodFen(p.fen)) return "Errors in FEN";
 
+  if (p.instruction.trim().length == 0) return "Empty instructions";
+
+  if (p.solution.trim().length == 0) return "Empty solution";
+
   return "";
 }
