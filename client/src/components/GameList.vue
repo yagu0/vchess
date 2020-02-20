@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  table
+  table.game-list
     thead
       tr
         th {{ st.tr["Variant"] }}

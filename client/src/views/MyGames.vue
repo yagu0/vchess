@@ -74,10 +74,13 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped>
+<style lang="sass">
 .active
   color: #42a983
 
 .tabbtn
   background-color: #f9faee
+
+table.game-list
+  max-height: 100%
 </style>
