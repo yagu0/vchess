@@ -313,7 +313,7 @@ export default {
             newProblem.id = ret.id;
             newProblem.uid = this.st.user.id;
             newProblem.uname = this.st.user.name;
-            this.problems = this.problems.concat(newProblem);
+            this.problems = [newProblem].concat(this.problems);
             this.resetCurProb();
           }
           this.infoMsg = "";
