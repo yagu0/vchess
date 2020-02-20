@@ -30,7 +30,7 @@ main
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
         p(v-html="parseHtml(n.content)")
-      button(
+      button#loadMoreBtn(
         v-if="hasMore"
         @click="loadMore()"
       )
@@ -165,7 +165,7 @@ textarea#newsContent
 #writeNews
   padding-top: 50px
 
-button#writeNewsBtn
+button#writeNewsBtn, button#loadMoreBtn
   margin-top: 0
   margin-bottom: 0
 
