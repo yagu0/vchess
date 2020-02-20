@@ -6,8 +6,8 @@ module.exports =
   logged: function(req, res, next) {
     const callback = () => {
       if (!loggedIn)
-        return res.json({errmsg: "Not logged in"});
-      next();
+        res.json({errmsg: "Not logged in"});
+      else next();
     };
     let loggedIn = undefined;
     if (!req.cookies.token)
@@ -40,27 +40,27 @@ module.exports =
     // Just a quick heuristic, which should be enough
     const loggedIn = !!req.cookies.token;
     if (loggedIn)
-      return res.json({errmsg: "Already logged in"});
-    next();
+      res.json({errmsg: "Already logged in"});
+    else next();
   },
 
   // Prevent direct access to AJAX results
   ajax: function(req, res, next) {
     if (!req.xhr)
-      return res.json({errmsg: "Unauthorized access"});
-    next();
+      res.json({errmsg: "Unauthorized access"});
+    else next();
   },
 
   // Check for errors before callback (continue page loading). TODO: better name.
   checkRequest: function(res, err, out, msg, cb) {
-    if (!!err)
-      return res.json({errmsg: err.errmsg || err.toString()});
-    if (!out
+    if (err)
+      res.json({errmsg: err.errmsg || err.toString()});
+    else if (!out
       || (Array.isArray(out) && out.length == 0)
       || (typeof out === "object" && Object.keys(out).length == 0))
     {
-      return res.json({errmsg: msg});
+      res.json({errmsg: msg});
     }
-    cb();
+    else cb();
   },
 }

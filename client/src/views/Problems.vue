@@ -8,7 +8,7 @@ main
     role="dialog"
     data-checkbox="modalNewprob"
   )
-    .card(@keyup.enter="sendProblem()")
+    .card
       label#closeNewprob.modal-close(for="modalNewprob")
       fieldset
         label(for="selectVariant") {{ st.tr["Variant"] }}
@@ -45,7 +45,7 @@ main
       button(@click="sendProblem()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row(v-if="showOne")
-    .col-sm-12.col-md-10.col-md-offset-2
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       #topPage
         span.vname {{ curproblem.vname }}
         span.uname ({{ curproblem.uname }})
@@ -60,7 +60,7 @@ main
           @click="deleteProblem(curproblem)"
         )
           | {{ st.tr["Delete"] }}
-      p.clickable(
+      p.oneInstructions.clickable(
         v-html="parseHtml(curproblem.instruction)"
         @click="curproblem.showSolution=!curproblem.showSolution"
       )
@@ -273,7 +273,7 @@ export default {
     },
     displayProblem: function(p) {
       return (
-        (this.selectedVar == 0 || p.vid == this.selectedVar) &&
+        (!this.selectedVar || p.vid == this.selectedVar) &&
         ((this.onlyMines && p.uid == this.st.user.id) ||
           (!this.onlyMines && p.uid != this.st.user.id))
       );
@@ -293,7 +293,7 @@ export default {
     sendProblem: function() {
       const error = checkProblem(this.curproblem);
       if (error) {
-        alert(error);
+        alert(this.st.tr[error]);
         return;
       }
       const edit = this.curproblem.id > 0;
@@ -357,6 +357,11 @@ textarea
   text-align: center
   & > *
     margin: 0
+
+p.oneInstructions
+  margin: 0
+  padding: 2px 5px
+  background-color: lightgreen
 
 #topPage
   span.vname

@@ -10,12 +10,12 @@ export function checkChallenge(c) {
   // Basic alphanumeric check for opponent name
   if (c.to) {
     // NOTE: slightly redundant (see data/userCheck.js)
-    if (!c.to.match(/^[\w]+$/)) return "Wrong characters in opponent name";
+    if (!c.to.match(/^[\w]+$/)) return "Name: alphanumerics and underscore";
   }
 
   // Allow custom FEN (and check it) only for individual challenges
   if (c.fen.length > 0 && !!c.to) {
-    if (!V.IsGoodFen(c.fen)) return "Bad FEN string";
+    if (!V.IsGoodFen(c.fen)) return "Errors in FEN";
   } else c.fen = "";
 
   return "";

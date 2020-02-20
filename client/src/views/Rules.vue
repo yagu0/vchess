@@ -29,9 +29,9 @@ main
         v-html="content"
       )
   ComputerGame(
+    ref="compgame"
     v-show="display=='computer'"
     :game-info="gameInfo"
-    @game-over="stopGame"
     @game-stopped="gameStopped"
   )
 </template>
@@ -54,8 +54,7 @@ export default {
       gameInfo: {
         vname: "",
         mode: "versus",
-        fen: "",
-        score: "*"
+        fen: ""
       }
     };
   },
@@ -119,12 +118,11 @@ export default {
       this.gameInProgress = true;
       this.display = "computer";
       this.gameInfo.mode = mode;
-      this.gameInfo.score = "*";
-      this.gameInfo.fen = V.GenRandInitFen();
+      this.$set(this.gameInfo, "fen", V.GenRandInitFen());
     },
     // user is willing to stop the game:
-    stopGame: function(score) {
-      this.gameInfo.score = score || "?";
+    stopGame: function() {
+      this.$refs["compgame"].gameOver("?", "Undetermined result");
     },
     // The game is effectively stopped:
     gameStopped: function() {

@@ -1,20 +1,33 @@
-// AJAX methods to get, create, update or delete a problem
-
 let router = require("express").Router();
 const access = require("../utils/access");
 const ProblemModel = require("../models/Problem");
 const sanitizeHtml = require('sanitize-html');
 
+router.post("/problems", access.logged, access.ajax, (req,res) => {
+  if (ProblemModel.checkProblem(req.body.prob))
+  {
+    const problem =
+    {
+      vid: req.body.prob.vid,
+      fen: req.body.prob.fen,
+      uid: req.userId,
+      instruction: sanitizeHtml(req.body.prob.instruction),
+      solution: sanitizeHtml(req.body.prob.solution),
+    };
+    ProblemModel.create(problem, (err,ret) => {
+      res.json(err || {id:ret.pid});
+    });
+  }
+  else
+    res.json({});
+});
+
 router.get("/problems", (req,res) => {
   const probId = req.query["pid"];
-  if (!!probId)
+  if (probId && probId.match(/^[0-9]+$/))
   {
-    if (!probId.match(/^[0-9]+$/))
-      return res.json({errmsg: "Wrong problem ID"});
     ProblemModel.getOne(req.query["pid"], (err,problem) => {
-      access.checkRequest(res, err, problem, "Problem not found", () => {
-        res.json({problem: problem});
-      });
+      res.json(err || {problem: problem});
     });
   }
   else
@@ -25,42 +38,22 @@ router.get("/problems", (req,res) => {
   }
 });
 
-router.post("/problems", access.logged, access.ajax, (req,res) => {
-  const error = ProblemModel.checkProblem(req.body.prob);
-  if (!!error)
-    return res.json({errmsg:error});
-  const problem =
-  {
-    vid: req.body.prob.vid,
-    fen: req.body.prob.fen,
-    uid: req.userId,
-    instruction: sanitizeHtml(req.body.prob.instruction),
-    solution: sanitizeHtml(req.body.prob.solution),
-  };
-  ProblemModel.create(problem, (err,ret) => {
-    return res.json(err || {id:ret.pid});
-  });
-});
-
 router.put("/problems", access.logged, access.ajax, (req,res) => {
   let obj = req.body.prob;
-  const error = ProblemModel.checkProblem(obj);
-  if (!!error)
-    return res.json({errmsg: error});
-  obj.instruction = sanitizeHtml(obj.instruction);
-  obj.solution = sanitizeHtml(obj.solution);
-  ProblemModel.update(obj, (err) => {
-    res.json(err || {});
-  });
+  if (ProblemModel.checkProblem(obj))
+  {
+    obj.instruction = sanitizeHtml(obj.instruction);
+    obj.solution = sanitizeHtml(obj.solution);
+    ProblemModel.safeUpdate(obj, req.userId);
+  }
+  res.json({});
 });
 
 router.delete("/problems", access.logged, access.ajax, (req,res) => {
   const pid = req.query.id;
-  if (!pid.toString().match(/^[0-9]+$/))
-    res.json({errmsg: "Bad problem ID"});
-  ProblemModel.safeRemove(pid, req.userId, err => {
-    res.json(err || {});
-  });
+  if (pid.toString().match(/^[0-9]+$/))
+    ProblemModel.safeRemove(pid, req.userId);
+  res.json({});
 });
 
 module.exports = router;

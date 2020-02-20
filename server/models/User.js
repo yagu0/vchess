@@ -19,40 +19,26 @@ const UserModel =
 {
   checkNameEmail: function(o)
   {
-    if (typeof o.name === "string")
-    {
-      if (o.name.length == 0)
-        return "Empty name";
-      if (!o.name.match(/^[\w]+$/))
-        return "Bad characters in name";
-    }
-    if (typeof o.email === "string")
-    {
-      if (o.email.length == 0)
-        return "Empty email";
-      if (!o.email.match(/^[\w.+-]+@[\w.+-]+$/))
-        return "Bad characters in email";
-    }
-    return ""; //NOTE: not required, but more consistent... (?!)
+    return (
+      (!o.name || o.name.match(/^[\w]+$/)) &&
+      (!o.email || o.email.match(/^[\w.+-]+@[\w.+-]+$/))
+    );
   },
 
-  // NOTE: parameters are already cleaned (in controller), thus no sanitization here
-  create: function(name, email, notify, callback)
+  create: function(name, email, notify, cb)
   {
     db.serialize(function() {
-      const insertQuery =
+      const query =
         "INSERT INTO Users " +
         "(name, email, notify, created) VALUES " +
-        "('" + name + "', '" + email + "', " + notify + "," + Date.now() + ")";
-      db.run(insertQuery, err => {
-        if (!!err)
-          return callback(err);
-        db.get("SELECT last_insert_rowid() AS rowid", callback);
+        "('" + name + "','" + email + "'," + notify + "," + Date.now() + ")";
+      db.run(query, function(err) {
+        cb(err, {uid: this.lastID});
       });
     });
   },
 
-  // Find one user (by id, name, email, or token)
+  // Find one user by id, name, email, or token
   getOne: function(by, value, cb)
   {
     const delimiter = (typeof value === "string" ? "'" : "");
@@ -78,14 +64,14 @@ const UserModel =
   /////////
   // MODIFY
 
-  setLoginToken: function(token, uid, cb)
+  setLoginToken: function(token, uid)
   {
     db.serialize(function() {
       const query =
         "UPDATE Users " +
-        "SET loginToken = '" + token + "', loginTime = " + Date.now() + " " +
+        "SET loginToken = '" + token + "',loginTime = " + Date.now() + " " +
         "WHERE id = " + uid;
-      db.run(query, cb);
+      db.run(query);
     });
   },
 
@@ -94,28 +80,26 @@ const UserModel =
   // TODO: option would be to reset all tokens periodically, e.g. every 3 months
   trySetSessionToken: function(uid, cb)
   {
-    // Also empty the login token to invalidate future attempts
     db.serialize(function() {
-      const querySessionToken =
+      let query =
         "SELECT sessionToken " +
         "FROM Users " +
         "WHERE id = " + uid;
-      db.get(querySessionToken, (err,ret) => {
-        if (!!err)
-          return cb(err);
+      db.get(query, (err,ret) => {
         const token = ret.sessionToken || genToken(params.token.length);
-        const queryUpdate =
+        query =
           "UPDATE Users " +
+          // Also empty the login token to invalidate future attempts
           "SET loginToken = NULL" +
           (!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
           "WHERE id = " + uid;
-        db.run(queryUpdate);
-        cb(null, token);
+        db.run(query);
+        cb(token);
       });
     });
   },
 
-  updateSettings: function(user, cb)
+  updateSettings: function(user)
   {
     db.serialize(function() {
       const query =
@@ -124,7 +108,7 @@ const UserModel =
         ", email = '" + user.email + "'" +
         ", notify = " + user.notify + " " +
         "WHERE id = " + user.id;
-      db.run(query, cb);
+      db.run(query);
     });
   },
 
@@ -142,9 +126,8 @@ const UserModel =
   tryNotify: function(id, message)
   {
     UserModel.getOne("id", id, (err,user) => {
-      if (!!err || !user.notify)
-        return; //NOTE: error is ignored here
-      UserModel.notify(user, message);
+      if (!err && user.notify)
+        UserModel.notify(user, message);
     });
   },
 

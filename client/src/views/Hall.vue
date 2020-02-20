@@ -563,28 +563,32 @@ export default {
         case "newgame": {
           // NOTE: it may be live or correspondance
           const game = data.data;
-          let locGame = this.games.find(g => g.id == game.id);
-          if (!locGame) {
-            let newGame = game;
-            newGame.type = this.classifyObject(game);
-            newGame.vname = this.getVname(game.vid);
-            if (!game.score)
-              //if new game from Hall
-              newGame.score = "*";
-            newGame.rids = [game.rid];
-            delete newGame["rid"];
-            this.games.push(newGame);
-            if (
-              (newGame.type == "live" && this.gdisplay == "corr") ||
-              (newGame.type == "corr" && this.gdisplay == "live")
-            ) {
-              document
-                .getElementById("btnG" + newGame.type)
-                .classList.add("somethingnew");
+          // Ignore games where I play (corr games)
+          if (game.players.every(p => p.id != this.st.user.id))
+          {
+            let locGame = this.games.find(g => g.id == game.id);
+            if (!locGame) {
+              let newGame = game;
+              newGame.type = this.classifyObject(game);
+              newGame.vname = this.getVname(game.vid);
+              if (!game.score)
+                //if new game from Hall
+                newGame.score = "*";
+              newGame.rids = [game.rid];
+              delete newGame["rid"];
+              this.games.push(newGame);
+              if (
+                (newGame.type == "live" && this.gdisplay == "corr") ||
+                (newGame.type == "corr" && this.gdisplay == "live")
+              ) {
+                document
+                  .getElementById("btnG" + newGame.type)
+                  .classList.add("somethingnew");
+              }
+            } else {
+              // Append rid (if not already in list)
+              if (!locGame.rids.includes(game.rid)) locGame.rids.push(game.rid);
             }
-          } else {
-            // Append rid (if not already in list)
-            if (!locGame.rids.includes(game.rid)) locGame.rids.push(game.rid);
           }
           break;
         }

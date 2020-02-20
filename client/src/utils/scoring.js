@@ -12,7 +12,7 @@ export function getScoreMessage(score) {
       eogMessage = "Draw";
       break;
     case "?":
-      eogMessage = "Unknown";
+      eogMessage = "Undetermined result";
       break;
   }
   return eogMessage;

@@ -16,18 +16,14 @@ const ChallengeModel =
 {
   checkChallenge: function(c)
   {
-    if (!c.vid.toString().match(/^[0-9]+$/))
-      return "Wrong variant ID";
-    if (!c.cadence.match(/^[0-9dhms +]+$/))
-      return "Wrong characters in time control";
-    if (!c.fen.match(/^[a-zA-Z0-9, /-]*$/))
-      return "Bad FEN string";
-    if (!!c.to)
-      return UserModel.checkNameEmail({name: c.to});
-    return "";
+    return (
+      c.vid.toString().match(/^[0-9]+$/) &&
+      c.cadence.match(/^[0-9dhms +]+$/) &&
+      c.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
+      (!c.to || UserModel.checkNameEmail({name: c.to}))
+    );
   },
 
-  // fen cannot be undefined
   create: function(c, cb)
   {
     db.serialize(function() {
@@ -38,26 +34,12 @@ const ChallengeModel =
         "(" + Date.now() + "," + c.uid + "," + (!!c.to ? c.to + "," : "") +
           c.vid + ",'" + c.fen + "','" + c.cadence + "')";
       db.run(query, function(err) {
-        return cb(err, {cid: this.lastID});
+        cb(err, {cid: this.lastID});
       });
     });
   },
 
-  getOne: function(id, cb)
-  {
-    db.serialize(function() {
-      const query =
-        "SELECT * " +
-        "FROM Challenges " +
-        "WHERE id = " + id;
-      db.get(query, (err,challenge) => {
-        return cb(err, challenge);
-      });
-    });
-  },
-
-  // All challenges except where target is defined and not me,
-  // and I'm not the sender.
+  // All challenges related to user with ID uid
   getByUser: function(uid, cb)
   {
     db.serialize(function() {
@@ -68,7 +50,7 @@ const ChallengeModel =
           " OR uid = " + uid +
           " OR target = " + uid;
       db.all(query, (err,challenges) => {
-        return cb(err, challenges);
+        cb(err, challenges);
       });
     });
   },
@@ -83,7 +65,7 @@ const ChallengeModel =
     });
   },
 
-  safeRemove: function(id, uid, cb)
+  safeRemove: function(id, uid)
   {
     db.serialize(function() {
       const query =
@@ -91,10 +73,8 @@ const ChallengeModel =
         "FROM Challenges " +
         "WHERE id = " + id + " AND uid = " + uid;
       db.get(query, (err,chall) => {
-        if (!chall)
-          return cb({errmsg: "Not your challenge"});
-        ChallengeModel.remove(id);
-        cb(null);
+        if (!err && chall)
+          ChallengeModel.remove(id);
       });
     });
   },

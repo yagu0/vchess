@@ -151,7 +151,7 @@ export default {
         error = checkNameEmail({ [type]: this.nameOrEmail });
       } else error = checkNameEmail(this.st.user);
       if (error) {
-        alert(error);
+        alert(this.st.tr[error]);
         return;
       }
       this.infoMsg = "Processing... Please wait";

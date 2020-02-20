@@ -10,10 +10,14 @@ module.exports = function(from, to, subject, body, cb)
     console.log("Subject: " + subject);
     console.log(body);
     if (!cb)
-      cb = (err) => { if (!!err) console.log(err); }
-    return cb();
+      cb = (err) => { if (err) console.log(err); }
+    cb();
+    return;
   }
-  else if (!cb)
+
+  // Production-only code from here:
+
+  if (!cb)
     cb = () => {}; //default: do nothing (TODO: log somewhere)
 
   // Create reusable transporter object using the default SMTP transport
@@ -38,10 +42,8 @@ module.exports = function(from, to, subject, body, cb)
 
   // Send mail with the defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
-    if (!!error)
-      return cb(error);
     // Ignore info. Option:
     //console.log('Message sent: %s', info.messageId);
-    return cb();
+    cb(error);
   });
 }

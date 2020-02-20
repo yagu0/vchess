@@ -34,17 +34,13 @@ const UserModel = require("./User");
 const GameModel =
 {
   checkGameInfo: function(g) {
-    if (!g.vid.toString().match(/^[0-9]+$/))
-      return "Wrong variant ID";
-    if (!g.cadence.match(/^[0-9dhms +]+$/))
-      return "Wrong characters in time control";
-    if (!g.fen.match(/^[a-zA-Z0-9, /-]*$/))
-      return "Bad FEN string";
-    if (g.players.length != 2)
-      return "Need exactly 2 players";
-    if (g.players.some(p => !p.id.toString().match(/^[0-9]+$/)))
-      return "Wrong characters in player ID";
-    return "";
+    return (
+      g.vid.toString().match(/^[0-9]+$/) &&
+      g.cadence.match(/^[0-9dhms +]+$/) &&
+      g.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
+      g.players.length == 2 &&
+      g.players.every(p => p.id.toString().match(/^[0-9]+$/))
+    );
   },
 
   create: function(vid, fen, cadence, players, cb)
@@ -56,16 +52,19 @@ const GameModel =
         "VALUES " +
         "(" + vid + ",'" + fen + "','" + fen + "','*','" + cadence + "'," + Date.now() + ",'')";
       db.run(query, function(err) {
-        if (!!err)
-          return cb(err);
-        players.forEach((p,idx) => {
-          const color = (idx==0 ? "w" : "b");
-          query =
-            "INSERT INTO Players VALUES " +
-            "(" + this.lastID + "," + p.id + ",'" + color + "')";
-          db.run(query);
-        });
-        cb(null, {gid: this.lastID});
+        if (err)
+          cb(err)
+        else
+        {
+          players.forEach((p,idx) => {
+            const color = (idx==0 ? "w" : "b");
+            query =
+              "INSERT INTO Players VALUES " +
+              "(" + this.lastID + "," + p.id + ",'" + color + "')";
+            db.run(query);
+          });
+          cb(null, {gid: this.lastID});
+        }
       });
     });
   },
@@ -73,10 +72,9 @@ const GameModel =
   // TODO: some queries here could be async
   getOne: function(id, light, cb)
   {
+    // NOTE: ignoring errors (shouldn't happen at this stage)
     db.serialize(function() {
       let query =
-        // NOTE: g.scoreMsg can be NULL
-        // (in this case score = "*" and no reason to look at it)
         "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, g.score, " +
           "g.scoreMsg, g.drawOffer, v.name AS vname " +
         "FROM Games g " +
@@ -84,8 +82,6 @@ const GameModel =
         "  ON g.vid = v.id " +
         "WHERE g.id = " + id;
       db.get(query, (err,gameInfo) => {
-        if (!!err)
-          return cb(err);
         query =
           "SELECT p.uid, p.color, u.name " +
           "FROM Players p " +
@@ -93,41 +89,39 @@ const GameModel =
           "  ON p.uid = u.id " +
           "WHERE p.gid = " + id;
         db.all(query, (err2,players) => {
-          if (!!err2)
-            return cb(err2);
           if (light)
           {
             const game = Object.assign({},
               gameInfo,
               {players: players}
             );
-            return cb(null, game);
+            cb(null, game);
           }
-          query =
-            "SELECT squares, played, idx " +
-            "FROM Moves " +
-            "WHERE gid = " + id;
-          db.all(query, (err3,moves) => {
-            if (!!err3)
-              return cb(err3);
+          else
+          {
+            // Full game requested:
             query =
-              "SELECT msg, name, added " +
-              "FROM Chats " +
+              "SELECT squares, played, idx " +
+              "FROM Moves " +
               "WHERE gid = " + id;
-            db.all(query, (err4,chats) => {
-              if (!!err4)
-                return cb(err4);
-              const game = Object.assign({},
-                gameInfo,
-                {
-                  players: players,
-                  moves: moves,
-                  chats: chats,
-                }
-              );
-              return cb(null, game);
+            db.all(query, (err3,moves) => {
+              query =
+                "SELECT msg, name, added " +
+                "FROM Chats " +
+                "WHERE gid = " + id;
+              db.all(query, (err4,chats) => {
+                const game = Object.assign({},
+                  gameInfo,
+                  {
+                    players: players,
+                    moves: moves,
+                    chats: chats,
+                  }
+                );
+                cb(null, game);
+              });
             });
-          });
+          }
         });
       });
     });
@@ -156,21 +150,22 @@ const GameModel =
           (excluded ? " = 0" : " > 0");
       }
       db.all(query, (err,gameIds) => {
-        if (!!err || gameIds.length == 0)
-          return cb(err, []);
-        let gameArray = [];
-        let kounter = 0;
-        for (let i=0; i<gameIds.length; i++)
+        if (err || gameIds.length == 0)
+          cb(err, []);
+        else
         {
-          GameModel.getOne(gameIds[i]["gid"], true, (err2,game) => {
-            if (!!err2)
-              return cb(err2);
-            gameArray.push(game);
-            kounter++; //TODO: let's hope this is atomic?!
-            // Call callback function only when gameArray is complete:
-            if (kounter == gameIds.length)
-              return cb(null, gameArray);
-          });
+          let gameArray = [];
+          let gCounter = 0;
+          for (let i=0; i<gameIds.length; i++)
+          {
+            GameModel.getOne(gameIds[i]["gid"], true, (err2,game) => {
+              gameArray.push(game);
+              gCounter++; //TODO: let's hope this is atomic?!
+              // Call callback function only when gameArray is complete:
+              if (gCounter == gameIds.length)
+                cb(null, gameArray);
+            });
+          }
         }
       });
     });
@@ -192,27 +187,27 @@ const GameModel =
   checkGameUpdate: function(obj)
   {
     // Check all that is possible (required) in obj:
-    if (!!obj.move)
-    {
-      if (!obj.move.played.toString().match(/^[0-9]+$/))
-        return "Wrong move played time";
-      if (!obj.move.idx.toString().match(/^[0-9]+$/))
-        return "Wrong move index";
-    }
-    if (!!obj.drawOffer && !obj.drawOffer.match(/^[wbtn]$/))
-      return "Wrong draw offer format";
-    if (!!obj.fen && !obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
-      return "Wrong FEN string";
-    if (!!obj.score && !obj.score.match(/^[012?*\/-]+$/))
-      return "Wrong characters in score";
-    if (!!obj.scoreMsg && !obj.scoreMsg.match(/^[a-zA-Z ]+$/))
-      return "Wrong characters in score message";
-    if (!!obj.chat)
-      return UserModel.checkNameEmail({name: obj.chat.name});
-    return "";
+    return (
+      (
+        !obj.move || (
+          obj.move.played.toString().match(/^[0-9]+$/) &&
+          obj.move.idx.toString().match(/^[0-9]+$/)
+        )
+      ) && (
+        !obj.drawOffer || obj.drawOffer.match(/^[wbtn]$/)
+      ) && (
+        !obj.fen || obj.fen.match(/^[a-zA-Z0-9, /-]*$/)
+      ) && (
+        !obj.score || obj.score.match(/^[012?*\/-]+$/)
+      ) && (
+        !obj.scoreMsg || obj.scoreMsg.match(/^[a-zA-Z ]+$/)
+      ) && (
+        !obj.chat || UserModel.checkNameEmail({name: obj.chat.name})
+      )
+    );
   },
 
-  // obj can have fields move, chat, fen, drawOffer and/or score
+  // obj can have fields move, chat, fen, drawOffer and/or score + message
   update: function(id, obj)
   {
     db.parallelize(function() {
@@ -220,21 +215,19 @@ const GameModel =
         "UPDATE Games " +
         "SET ";
       let modifs = "";
-      if (!!obj.message)
-        modifs += "message = message || ' ' || '" + obj.message + "',";
       // NOTE: if drawOffer is set, we should check that it's player's turn
       // A bit overcomplicated. Let's trust the client on that for now...
-      if (!!obj.drawOffer)
+      if (obj.drawOffer)
       {
         if (obj.drawOffer == "n") //Special "None" update
           obj.drawOffer = "";
         modifs += "drawOffer = '" + obj.drawOffer + "',";
       }
-      if (!!obj.fen)
+      if (obj.fen)
         modifs += "fen = '" + obj.fen + "',";
-      if (!!obj.score)
+      if (obj.score)
         modifs += "score = '" + obj.score + "',";
-      if (!!obj.scoreMsg)
+      if (obj.scoreMsg)
         modifs += "scoreMsg = '" + obj.scoreMsg + "',";
       modifs = modifs.slice(0,-1); //remove last comma
       if (modifs.length > 0)
@@ -242,7 +235,7 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
-      if (!!obj.move)
+      if (obj.move)
       {
         const m = obj.move;
         query =
@@ -250,7 +243,7 @@ const GameModel =
           "(" + id + ",?," + m.played + "," + m.idx + ")";
         db.run(query, JSON.stringify(m.squares));
       }
-      if (!!obj.chat)
+      if (obj.chat)
       {
         query =
           "INSERT INTO Chats (gid, msg, name, added) VALUES ("

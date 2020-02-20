@@ -15,13 +15,11 @@ const ProblemModel =
 {
   checkProblem: function(p)
   {
-    if (!p.id.toString().match(/^[0-9]+$/))
-      return "Wrong problem ID";
-    if (!p.vid.toString().match(/^[0-9]+$/))
-      return "Wrong variant ID";
-    if (!p.fen.match(/^[a-zA-Z0-9, /-]*$/))
-      return "Bad FEN string";
-    return "";
+    return (
+      p.id.toString().match(/^[0-9]+$/) &&
+      p.vid.toString().match(/^[0-9]+$/) &&
+      p.fen.match(/^[a-zA-Z0-9, /-]*$/)
+    );
   },
 
   create: function(p, cb)
@@ -33,7 +31,7 @@ const ProblemModel =
           "VALUES " +
         "(" + Date.now() + "," + p.uid + "," + p.vid + ",'" + p.fen  + "',?,?)";
       db.run(query, [p.instruction,p.solution], function(err) {
-        return cb(err, {pid: this.lastID});
+        cb(err, {pid: this.lastID});
       });
     });
   },
@@ -45,7 +43,7 @@ const ProblemModel =
         "SELECT * " +
         "FROM Problems";
       db.all(query, (err,problems) => {
-        return cb(err, problems);
+        cb(err, problems);
       });
     });
   },
@@ -58,49 +56,33 @@ const ProblemModel =
         "FROM Problems " +
         "WHERE id = " + id;
       db.get(query, (err,problem) => {
-        return cb(err, problem);
+        cb(err, problem);
       });
     });
   },
 
-  update: function(prob, cb)
+  safeUpdate: function(prob, uid)
   {
     db.serialize(function() {
-      let query =
+      const query =
         "UPDATE Problems " +
         "SET " +
           "vid = " + prob.vid + "," +
           "fen = '" + prob.fen + "'," +
           "instruction = ?," +
           "solution = ? " +
-        "WHERE id = " + prob.id;
-      db.run(query, [prob.instruction,prob.solution], cb);
+        "WHERE id = " + prob.id + " AND uid = " + uid;
+      db.run(query, [prob.instruction,prob.solution]);
     });
   },
 
-  remove: function(id)
+  safeRemove: function(id, uid)
   {
     db.serialize(function() {
       const query =
         "DELETE FROM Problems " +
-        "WHERE id = " + id;
-      db.run(query);
-    });
-  },
-
-  safeRemove: function(id, uid, cb)
-  {
-    db.serialize(function() {
-      const query =
-        "SELECT 1 " +
-        "FROM Problems " +
         "WHERE id = " + id + " AND uid = " + uid;
-      db.get(query, (err,prob) => {
-        if (!prob)
-          return cb({errmsg: "Not your problem"});
-        ProblemModel.remove(id);
-        cb(null);
-      });
+      db.run(query);
     });
   },
 }

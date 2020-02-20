@@ -35,12 +35,6 @@ export default {
     "gameInfo.fen": function() {
       this.launchGame();
     },
-    "gameInfo.score": function(newScore) {
-      if (newScore != "*") {
-        this.game.score = newScore; //user action
-        if (!this.compThink) this.$emit("game-stopped"); //otherwise wait for comp
-      }
-    }
   },
   created: function() {
     // Computer moves web worker logic:
@@ -63,7 +57,7 @@ export default {
         let moveIdx = 0;
         let self = this;
         (function executeMove() {
-          self.$refs["basegame"].play(compMove[moveIdx++]);
+          self.$refs["basegame"].play(compMove[moveIdx++], "received");
           if (moveIdx >= compMove.length) {
             self.compThink = false;
             if (self.game.score != "*")
@@ -117,7 +111,7 @@ export default {
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
       this.game.scoreMsg = scoreMsg;
-      this.$emit("game-over", score); //bubble up to Rules.vue
+      if (!this.compThink) this.$emit("game-stopped"); //otherwise wait for comp
     }
   }
 };
