@@ -7,7 +7,6 @@
 //   cadence: string,
 //   increment: integer (seconds),
 //   type: string ("live" or "corr")
-//   imported: boolean (optional, default false)
 //   // Game (dynamic) state:
 //   fen: string,
 //   moves: array of Move objects,

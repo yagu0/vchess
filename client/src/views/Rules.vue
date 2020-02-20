@@ -40,6 +40,7 @@ main
 import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
 import { getDiagram } from "@/utils/printDiagram";
+import { CompgameStorage } from "@/utils/compgameStorage";
 export default {
   name: "my-rules",
   components: {
@@ -54,7 +55,6 @@ export default {
       gameInfo: {
         vname: "",
         mode: "versus",
-        fen: ""
       }
     };
   },
@@ -118,15 +118,24 @@ export default {
       this.gameInProgress = true;
       this.display = "computer";
       this.gameInfo.mode = mode;
-      this.$set(this.gameInfo, "fen", V.GenRandInitFen());
+      if (this.gameInfo.mode == "versus") {
+        CompgameStorage.get(this.gameInfo.vname, (game) => {
+          // NOTE: game might be null
+          this.$refs["compgame"].launchGame(game);
+        });
+      } else {
+        this.$refs["compgame"].launchGame();
+      }
     },
-    // user is willing to stop the game:
+    // user wants to stop the game:
     stopGame: function() {
       this.$refs["compgame"].gameOver("?", "Undetermined result");
     },
     // The game is effectively stopped:
     gameStopped: function() {
       this.gameInProgress = false;
+      if (this.gameInfo.mode == "versus")
+        CompgameStorage.remove(this.gameInfo.vname);
     },
     gotoAnalyze: function() {
       this.$router.push(

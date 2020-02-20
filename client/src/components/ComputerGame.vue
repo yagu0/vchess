@@ -11,6 +11,7 @@ BaseGame(
 <script>
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
+import { CompgameStorage } from "@/utils/compgameStorage";
 import Worker from "worker-loader!@/playCompMove";
 export default {
   name: "my-computer-game",
@@ -30,11 +31,6 @@ export default {
       compThink: false, //avoid asking a new move while one is being searched
       compWorker: null
     };
-  },
-  watch: {
-    "gameInfo.fen": function() {
-      this.launchGame();
-    },
   },
   created: function() {
     // Computer moves web worker logic:
@@ -57,36 +53,41 @@ export default {
         let moveIdx = 0;
         let self = this;
         (function executeMove() {
+          // NOTE: BaseGame::play() will trigger processMove() here
           self.$refs["basegame"].play(compMove[moveIdx++], "received");
           if (moveIdx >= compMove.length) {
             self.compThink = false;
             if (self.game.score != "*")
-              //user action
+              // User action
               self.$emit("game-stopped");
           } else setTimeout(executeMove, 500 + animDelay);
         })();
       }, delay);
     };
-    if (this.gameInfo.fen) this.launchGame();
   },
   methods: {
-    launchGame: function() {
+    launchGame: function(game) {
       this.compWorker.postMessage(["scripts", this.gameInfo.vname]);
-      this.compWorker.postMessage(["init", this.gameInfo.fen]);
-      this.vr = new V(this.gameInfo.fen);
-      const mycolor = Math.random() < 0.5 ? "w" : "b";
-      let players = [{ name: "Myself" }, { name: "Computer" }];
-      if (mycolor == "b") players = players.reverse();
+      if (!game) {
+        game = {
+          vname: this.gameInfo.vname,
+          fenStart: V.GenRandInitFen(),
+          mycolor: Math.random() < 0.5 ? "w" : "b",
+          moves: []
+        };
+        game.fen = game.fenStart;
+        if (this.gameInfo.mode == "versus")
+          CompgameStorage.add(game);
+      }
+      this.compWorker.postMessage(["init", game.fen]);
+      this.vr = new V(game.fen);
+      game.players = [{ name: "Myself" }, { name: "Computer" }];
+      if (game.myColor == "b") game.players = game.players.reverse();
+      game.score = "*"; //finished games are removed
       this.currentUrl = document.location.href; //to avoid playing outside page
-      // NOTE: fen and fenStart are redundant in game object
-      this.game = Object.assign({}, this.gameInfo, {
-        fenStart: this.gameInfo.fen,
-        players: players,
-        mycolor: mycolor,
-        score: "*"
-      });
-      this.compWorker.postMessage(["init", this.gameInfo.fen]);
-      if (mycolor != "w" || this.gameInfo.mode == "auto")
+      this.game = game;
+      this.compWorker.postMessage(["init", game.fen]);
+      if (this.gameInfo.mode == "auto" || game.mycolor != this.vr.turn)
         this.playComputerMove();
     },
     // NOTE: a "goto" action could lead to an error when comp is thinking,
@@ -106,6 +107,20 @@ export default {
         (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)
       ) {
         this.playComputerMove();
+      }
+      // Finally, update storage:
+      if (this.gameInfo.mode == "versus") {
+        const allowed_fields = ["appear", "vanish", "start", "end"];
+        const filtered_move = Object.keys(move)
+          .filter(key => allowed_fields.includes(key))
+          .reduce((obj, key) => {
+            obj[key] = move[key];
+            return obj;
+          }, {});
+        CompgameStorage.update(this.gameInfo.vname, {
+          move: filtered_move,
+          fen: move.fen
+        });
       }
     },
     gameOver: function(score, scoreMsg) {
