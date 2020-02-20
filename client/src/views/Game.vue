@@ -468,7 +468,7 @@ export default {
             let vr_tmp = new V(game.fen); //start from last position
             let dtLastMove = 0;
             for (let midx = game.moves.length - 1; midx >= 0; midx--) {
-              vr_tmp.undo(game.moves[midx]);
+              vr_tmp.undo(game.moves[midx].squares);
               if (vr_tmp.turn == mycolor) {
                 dtLastMove = game.moves[midx].played;
                 break;
