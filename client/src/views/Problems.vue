@@ -159,7 +159,6 @@ export default {
       let names = {};
       this.problems.forEach(p => {
         if (p.uid != this.st.user.id) names[p.uid] = "";
-        //unknwon for now
         else p.uname = this.st.user.name;
       });
       const showOneIfPid = () => {
@@ -171,7 +170,10 @@ export default {
           res2.users.forEach(u => {
             names[u.id] = u.name;
           });
-          this.problems.forEach(p => (p.uname = names[p.uid]));
+          this.problems.forEach(p => {
+            if (!p.uname)
+              p.uname = names[p.uid];
+          });
           showOneIfPid();
         });
       } else showOneIfPid();
@@ -306,6 +308,7 @@ export default {
           if (edit) {
             let editedP = this.problems.find(p => p.id == this.curproblem.id);
             this.copyProblem(this.curproblem, editedP);
+            this.showProblem(editedP);
           }
           else {
             // New problem
@@ -316,8 +319,8 @@ export default {
             this.problems = [newProblem].concat(this.problems);
             this.resetCurProb();
           }
-          this.infoMsg = "";
           document.getElementById("modalNewprob").checked = false;
+          this.infoMsg = "";
         }
       );
     },

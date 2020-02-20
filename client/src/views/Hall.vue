@@ -237,7 +237,6 @@ export default {
       let names = {};
       response.challenges.forEach(c => {
         if (c.uid != this.st.user.id) names[c.uid] = "";
-        //unknwon for now
         else if (!!c.target && c.target != this.st.user.id)
           names[c.target] = "";
       });
