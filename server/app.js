@@ -55,10 +55,11 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
+  if (app.get('env') === 'development')
+    console.log(err.stack);
   res.send(
     "<h1>" + err.message + "</h1>" +
-    "<h2>" + err.status + "</h2>" +
-    "<pre>" + err.stack + "</pre>"
+    "<h2>" + err.status + "</h2>"
   );
 });
 
