@@ -306,15 +306,16 @@ export default {
           if (edit) {
             let editedP = this.problems.find(p => p.id == this.curproblem.id);
             this.copyProblem(this.curproblem, editedP);
-          } //new problem
+          }
           else {
+            // New problem
             let newProblem = Object.assign({}, this.curproblem);
             newProblem.id = ret.id;
             newProblem.uid = this.st.user.id;
             newProblem.uname = this.st.user.name;
             this.problems = this.problems.concat(newProblem);
+            this.resetCurProb();
           }
-          this.resetCurProb();
           this.infoMsg = "";
         }
       );

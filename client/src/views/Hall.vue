@@ -799,9 +799,10 @@ export default {
           // c.to == this.st.user.name (connected)
           if (c.fen) {
             const parsedFen = V.ParseFen(c.fen);
+            c.mycolor = V.GetOppCol(parsedFen.turn);
             this.tchallDiag = getDiagram({
               position: parsedFen.position,
-              orientation: V.GetOppCol(parsedFen.turn)
+              orientation: c.mycolor
             });
             this.curChallToAccept = c;
             document.getElementById("modalAccept").checked = true;
@@ -831,7 +832,10 @@ export default {
       let gameInfo = {
         id: getRandString(),
         fen: c.fen || V.GenRandInitFen(),
-        players: shuffle([c.from, c.seat]), //white then black
+        // White player index 0, black player index 1:
+        players: c.mycolor
+          ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
+          : shuffle([c.from, c.seat]),
         vid: c.vid,
         cadence: c.cadence
       };
