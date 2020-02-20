@@ -86,7 +86,7 @@ main
             :value="v.id"
           )
             | {{ v.name }}
-      table
+      table#tProblems
         tr
           th {{ st.tr["Variant"] }}
           th {{ st.tr["Instructions"] }}
@@ -358,6 +358,9 @@ textarea
 #diagram
   margin: 0 auto
   max-width: 400px
+
+table#tProblems
+  max-height: 100%
 
 #controls
   margin: 0
