@@ -317,6 +317,7 @@ export default {
             this.resetCurProb();
           }
           this.infoMsg = "";
+          document.getElementById("modalNewprob").checked = false;
         }
       );
     },
