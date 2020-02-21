@@ -599,7 +599,7 @@ export default {
           if (countdown < 0)
             this.gameOver(
               currentTurn == "w" ? "0-1" : "1-0",
-              this.st.tr["Time"]
+              "Time"
             );
         } else
           this.$set(
