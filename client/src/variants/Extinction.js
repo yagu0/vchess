@@ -1,6 +1,23 @@
 import { ChessRules } from "@/base_rules";
 
 export const VariantRules = class ExtinctionRules extends ChessRules {
+  static IsGoodPosition(position) {
+    if (!ChessRules.IsGoodPosition(position))
+      return false;
+    // Also check that each piece type is present
+    const rows = position.split("/");
+    let pieces = {};
+    for (let row of rows) {
+      for (let i = 0; i < row.length; i++) {
+        if (isNaN(parseInt(row[i])) && !pieces[row[i]])
+          pieces[row[i]] = true;
+      }
+    }
+    if (Object.keys(pieces).length != 12)
+      return false;
+    return true;
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const pos = V.ParseFen(fen).position;

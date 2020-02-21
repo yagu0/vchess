@@ -96,9 +96,12 @@ export const ChessRules = class ChessRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
+    let kings = {};
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
+        if (['K','k'].includes(row[i]))
+          kings[row[i]] = true;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
           const num = parseInt(row[i]);
@@ -108,6 +111,9 @@ export const ChessRules = class ChessRules {
       }
       if (sumElts != V.size.y) return false;
     }
+    // Both kings should be on board:
+    if (Object.keys(kings).length != 2)
+      return false;
     return true;
   }
 

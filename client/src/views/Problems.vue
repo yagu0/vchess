@@ -47,19 +47,16 @@ main
   .row(v-if="showOne")
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       #topPage
+        .button-group(v-if="st.user.id == curproblem.uid")
+          button(@click="editProblem(curproblem)") {{ st.tr["Edit"] }}
+          button(@click="deleteProblem(curproblem)") {{ st.tr["Delete"] }}
         span.vname {{ curproblem.vname }}
         span.uname ({{ curproblem.uname }})
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
-        button.nomargin(
-          v-if="st.user.id == curproblem.uid"
-          @click="editProblem(curproblem)"
-        )
-          | {{ st.tr["Edit"] }}
-        button.nomargin(
-          v-if="st.user.id == curproblem.uid"
-          @click="deleteProblem(curproblem)"
-        )
-          | {{ st.tr["Delete"] }}
+        button.nomargin(@click="gotoPrevNext($event,curproblem,1)")
+          | {{ st.tr["Previous"] }}
+        button.nomargin(@click="gotoPrevNext($event,curproblem,-1)")
+          | {{ st.tr["Next"] }}
       p.oneInstructions.clickable(
         v-html="parseHtml(curproblem.instruction)"
         @click="curproblem.showSolution=!curproblem.showSolution"
@@ -291,6 +288,21 @@ export default {
         this.copyProblem(p, this.curproblem);
         this.showOne = true;
       });
+    },
+    gotoPrevNext: function(e, prob, dir) {
+      const startIdx = this.problems.findIndex(p => p.id == prob.id);
+      let nextIdx = startIdx + dir;
+      while (
+        nextIdx >= 0 &&
+        nextIdx < this.problems.length &&
+        ((this.onlyMines && this.problems[nextIdx].uid != this.st.user.id) ||
+          (!this.onlyMines && this.problems[nextIdx].uid == this.st.user.id))
+      )
+        nextIdx += dir;
+      if (nextIdx >= 0 && nextIdx < this.problems.length)
+        this.setHrefPid(this.problems[nextIdx]);
+      else
+        alert(this.st.tr["No more problems"]);
     },
     prepareNewProblem: function() {
       this.resetCurProb();
