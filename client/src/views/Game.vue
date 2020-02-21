@@ -463,7 +463,7 @@ export default {
           game.chats.sort((c1, c2) => {
             return c2.added - c1.added;
           });
-          if (myIdx >= 0 && game.chats.length > 0) {
+          if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
             // Did a chat message arrive after my last move?
             let vr_tmp = new V(game.fen); //start from last position
             const flags = V.ParseFen(game.fen).flags; //may be undefined
