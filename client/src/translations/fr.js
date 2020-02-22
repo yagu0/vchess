@@ -130,6 +130,7 @@ export const translations = {
   "Board upside down": "Échiquier à l'envers",
   "Both sides of the mirror": "Les deux côté du miroir",
   "Capture all of a kind": "Capturez tout d'un même type",
+  "Capture en passant": "Capturer en passant",
   "Captures reborn": "Les captures renaissent",
   "Change colors": "Changer les couleurs",
   "Dangerous collisions": "Collisions dangeureuses",

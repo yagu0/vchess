@@ -130,6 +130,7 @@ export const translations = {
   "Board upside down": "Board upside down",
   "Both sides of the mirror": "Both sides of the mirror",
   "Capture all of a kind": "Capture all of a kind",
+  "Capture en passant": "Capture en passant",
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
   "Dangerous collisions": "Dangerous collisions",

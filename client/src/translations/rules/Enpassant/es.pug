@@ -1,0 +1,39 @@
+p.boxed
+  | Todas las piezas se pueden capturar en passant, por cualquier pieza.
+
+p Más específicamente:
+ul
+  li.
+    Se puede capturar una pieza que mueve varias casillas
+    por una pieza opuesta que controla un cuadrado en su camino;
+    esta captura solo es posible inmediatamente después del movimiento
+    (misma condición que para capturar peones en passant).
+  li.
+    Incluso si el capturador se encuentra capturado en el siguiente movimiento,
+    la pieza inicialmente capturada no vuelve al tablero.
+
+p Es una generalización de la captura en passant de los peones, que sigue siendo posible.
+
+h3 Movimientos especiales
+
+ul
+  li.
+    Los caballos se convierten en caballeros, capaces de realizar varias
+    saltos en la misma dirección.
+    Por ejemplo en la posición inicial, el caballero en g1 puede ir a e5
+    o tomar d7 además de los movimientos de caballo.
+  li El rey puede capturar una pieza en passant haciendo un movimiento de caballo.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqk1nr/ppppppbp/6p1/8/8/2NP5/PPP1PPPP/R1BQKBNR h3,f3,e5,d7:
+  figcaption.
+    Posibles jugadas de caballero después de 1.d3 g6 2.Nc3 Bg7.
+    Si 3.Nxd7, 3...Bxe5 e.p. es posible.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html") variante En Passant
+  | &nbsp;en chessvariants.com.

@@ -1,0 +1,36 @@
+p.boxed
+  | All pieces can be captured en passant, by any piece.
+
+p More precisely:
+ul
+  li.
+    A piece making a multistep move can be captured by an opponent's piece
+    guarding a square on its way; this capture is only possible right after
+    the move (same condition as for en passant pawns captures).
+  li.
+    Even if the capturer gets captured en passant on next turn,
+    the initial captured piece does not return to the board.
+
+p This is a generalisation of the pawn en passant capture, which is still possible.
+
+h3 Special moves
+
+ul
+  li.
+    Knights become knightriders, which may make multi knight-steps in the same direction.
+    For example in the standard initial position, the knightrider on g1
+    can go to e5 or capture d7 in addition to the knight moves (see diagram below).
+  li The king can capture a piece en passant by making a knight move.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqk1nr/ppppppbp/6p1/8/8/2NP5/PPP1PPPP/R1BQKBNR h3,f3,e5,d7:
+  figcaption.
+    Possible knightrider moves after 1.d3 g6 2.Nc3 Bg7.
+    If 3.Nxd7, 3...Bxe5 e.p. is possible.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html") En Passant chess
+  | &nbsp;on chessvariants.com.

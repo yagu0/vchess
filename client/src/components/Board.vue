@@ -343,7 +343,7 @@ export default {
       // Next condition: classList.contains(piece) fails because of marks
       while (landing.tagName == "IMG") landing = landing.parentNode;
       if (this.start.id == landing.id)
-        //one or multi clicks on same piece
+        // One or multi clicks on same piece
         return;
       // OK: process move attempt, landing is a square node
       let endSquare = getSquareFromId(landing.id);
