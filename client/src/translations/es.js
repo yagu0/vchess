@@ -132,6 +132,7 @@ export const translations = {
   "Capture all of a kind": "Capturar todo del mismo tipo",
   "Captures reborn": "Las capturas renacen",
   "Change colors": "Cambiar colores",
+  "Dangerous collisions": "Colisiones peligrosas",
   "Exchange pieces positions": "Intercambiar las posiciones de las piezas",
   "Exotic captures": "Capturas exóticas",
   "Explosive captures": "Capturas explosivas",

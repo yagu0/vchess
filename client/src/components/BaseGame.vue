@@ -393,6 +393,7 @@ export default {
       this.vr.re_init(this.moves[index].fen);
       this.cursor = index;
       this.lastMove = this.moves[index];
+      this.incheck = this.vr.getCheckSquares(this.vr.turn);
     },
     gotoBegin: function() {
       if (this.cursor == -1) return;
@@ -404,6 +405,7 @@ export default {
         this.cursor = -1;
         this.lastMove = null;
       }
+      this.incheck = this.vr.getCheckSquares(this.vr.turn);
     },
     gotoEnd: function() {
       if (this.cursor == this.moves.length - 1) return;

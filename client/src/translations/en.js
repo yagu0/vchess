@@ -132,6 +132,7 @@ export const translations = {
   "Capture all of a kind": "Capture all of a kind",
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
+  "Dangerous collisions": "Dangerous collisions",
   "Exchange pieces positions": "Exchange pieces positions",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
