@@ -968,6 +968,8 @@ export const ChessRules = class ChessRules {
   // After move is played, update variables + flags
   updateVariables(move) {
     let piece = undefined;
+    // TODO: update variables before move is played, and just use this.turn ?
+    // (doesn't work in general, think MarseilleChess)
     let c = undefined;
     if (move.vanish.length >= 1) {
       // Usual case, something is moved
@@ -978,9 +980,8 @@ export const ChessRules = class ChessRules {
       piece = move.appear[0].p;
       c = move.appear[0].c;
     }
-    if (c == "c") {
-      //if (!["w","b"].includes(c))
-      // 'c = move.vanish[0].c' doesn't work for Checkered
+    if (!['w','b'].includes(c)) {
+      // Checkered, for example
       c = V.GetOppCol(this.turn);
     }
     const firstRank = c == "w" ? V.size.x - 1 : 0;
@@ -1265,10 +1266,10 @@ export const ChessRules = class ChessRules {
         // Capture
         const startColumn = V.CoordToColumn(move.start.y);
         notation = startColumn + "x" + finalSquare;
-      } //no capture
+      }
       else notation = finalSquare;
       if (move.appear.length > 0 && move.appear[0].p != V.PAWN)
-        //promotion
+        // Promotion
         notation += "=" + move.appear[0].p.toUpperCase();
       return notation;
     }

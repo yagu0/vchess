@@ -74,52 +74,46 @@ export const VariantRules = class EnpassantRules extends ChessRules {
     let moves = [];
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const shiftX = color == "w" ? -1 : 1;
-    const firstRank = color == "w" ? sizeX - 1 : 0;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
-    const pawnColor = this.getColor(x, y); //can be different for checkered
 
-    // NOTE: next condition is generally true (no pawn on last rank)
-    if (x + shiftX >= 0 && x + shiftX < sizeX) {
-      const finalPieces =
-        x + shiftX == lastRank
-          ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-          : [V.PAWN];
-      // One square forward
-      if (this.board[x + shiftX][y] == V.EMPTY) {
+    const finalPieces =
+      x + shiftX == lastRank
+        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+        : [V.PAWN];
+    // One square forward
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y], {
+            c: color,
+            p: piece
+          })
+        );
+      }
+      if (
+        x == startRank &&
+        this.board[x + 2 * shiftX][y] == V.EMPTY
+      ) {
+        // Two squares jump
+        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+      }
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
         for (let piece of finalPieces) {
           moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y], {
-              c: pawnColor,
+            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
+              c: color,
               p: piece
             })
           );
-        }
-        // Next condition because pawns on 1st rank can generally jump
-        if (
-          [startRank, firstRank].includes(x) &&
-          this.board[x + 2 * shiftX][y] == V.EMPTY
-        ) {
-          // Two squares jump
-          moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-        }
-      }
-      // Captures
-      for (let shiftY of [-1, 1]) {
-        if (
-          y + shiftY >= 0 &&
-          y + shiftY < sizeY &&
-          this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-          this.canTake([x, y], [x + shiftX, y + shiftY])
-        ) {
-          for (let piece of finalPieces) {
-            moves.push(
-              this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-                c: pawnColor,
-                p: piece
-              })
-            );
-          }
         }
       }
     }

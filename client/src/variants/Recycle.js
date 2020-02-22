@@ -1,22 +1,13 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
-export const VariantRules = class CrazyhouseRules extends ChessRules {
+export const VariantRules = class RecycleRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check reserves
     if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{10,10}$/))
       return false;
-    // 6) Check promoted array
-    if (!fenParsed.promoted) return false;
-    if (fenParsed.promoted == "-") return true; //no promoted piece on board
-    const squares = fenParsed.promoted.split(",");
-    for (let square of squares) {
-      const c = V.SquareToCoords(square);
-      if (c.y < 0 || c.y > V.size.y || isNaN(c.x) || c.x < 0 || c.x > V.size.x)
-        return false;
-    }
     return true;
   }
 
@@ -24,17 +15,16 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     const fenParts = fen.split(" ");
     return Object.assign(ChessRules.ParseFen(fen), {
       reserve: fenParts[5],
-      promoted: fenParts[6]
     });
   }
 
   static GenRandInitFen() {
-    return ChessRules.GenRandInitFen() + " 0000000000 -";
+    return ChessRules.GenRandInitFen() + " 0000000000";
   }
 
   getFen() {
     return (
-      super.getFen() + " " + this.getReserveFen() + " " + this.getPromotedFen()
+      super.getFen() + " " + this.getReserveFen()
     );
   }
 
@@ -49,19 +39,6 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
       counts[5 + i] = this.reserve["b"][V.PIECES[i]];
     }
     return counts.join("");
-  }
-
-  getPromotedFen() {
-    let res = "";
-    for (let i = 0; i < V.size.x; i++) {
-      for (let j = 0; j < V.size.y; j++) {
-        if (this.promoted[i][j]) res += V.CoordsToSquare({ x: i, y: j });
-      }
-    }
-    if (res.length > 0) res = res.slice(0, -1);
-    //remove last comma
-    else res = "-";
-    return res;
   }
 
   setOtherVariables(fen) {
@@ -84,13 +61,6 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
         [V.QUEEN]: parseInt(fenParsed.reserve[9])
       }
     };
-    this.promoted = ArrayFun.init(V.size.x, V.size.y, false);
-    if (fenParsed.promoted != "-") {
-      for (let square of fenParsed.promoted.split(",")) {
-        const [x, y] = V.SquareToCoords(square);
-        this.promoted[x][y] = true;
-      }
-    }
   }
 
   getColor(i, j) {
@@ -151,6 +121,70 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
+  getPotentialPawnMoves([x, y]) {
+    const color = this.turn;
+    let moves = [];
+    const [sizeX, sizeY] = [V.size.x, V.size.y];
+    const shiftX = color == "w" ? -1 : 1;
+    const startRank = color == "w" ? sizeX - 2 : 1;
+    const lastRank = color == "w" ? 0 : sizeX - 1;
+
+    // One square forward
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      moves.push(
+        this.getBasicMove([x, y], [x + shiftX, y])
+      );
+      // Next condition because pawns on 1st rank can generally jump
+      if (
+        x == startRank &&
+        this.board[x + 2 * shiftX][y] == V.EMPTY
+      ) {
+        // Two squares jump
+        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+      }
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y + shiftY])
+        );
+      }
+    }
+
+    // En passant
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: "p",
+        c: this.getColor(x, epSquare.y)
+      });
+      moves.push(enpassantMove);
+    }
+
+    // Post-processing: remove falling pawns
+    if (x + shiftX == lastRank) {
+      moves.forEach(m => {
+        m.appear.pop();
+      });
+    }
+
+    return moves;
+  }
+
   getAllValidMoves() {
     let moves = super.getAllValidMoves();
     const color = this.turn;
@@ -175,22 +209,23 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     return true;
   }
 
+  canTake([x1, y1], [x2, y2]) {
+    // Self-captures allowed, except for the king:
+    return this.getPiece(x2, y2) != V.KING;
+  }
+
   updateVariables(move) {
     super.updateVariables(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
-    const color = move.appear[0].c;
+    const color = V.GetOppCol(this.turn);
     if (move.vanish.length == 0) {
       this.reserve[color][move.appear[0].p]--;
       return;
     }
-    move.movePromoted = this.promoted[move.start.x][move.start.y];
-    move.capturePromoted = this.promoted[move.end.x][move.end.y];
-    this.promoted[move.start.x][move.start.y] = false;
-    this.promoted[move.end.x][move.end.y] =
-      move.movePromoted ||
-      (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN);
-    if (move.capturePromoted) this.reserve[color][V.PAWN]++;
-    else if (move.vanish.length == 2) this.reserve[color][move.vanish[1].p]++;
+    else if (move.vanish.length == 2 && move.vanish[1].c == color) {
+      // Self-capture
+      this.reserve[color][move.vanish[1].p]++;
+    }
   }
 
   unupdateVariables(move) {
@@ -201,14 +236,12 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
       this.reserve[color][move.appear[0].p]++;
       return;
     }
-    if (move.movePromoted) this.promoted[move.start.x][move.start.y] = true;
-    this.promoted[move.end.x][move.end.y] = move.capturePromoted;
-    if (move.capturePromoted) this.reserve[color][V.PAWN]--;
-    else if (move.vanish.length == 2) this.reserve[color][move.vanish[1].p]--;
+    else if (move.vanish.length == 2 && move.vanish[1].c == color) {
+      this.reserve[color][move.vanish[1].p]--;
+    }
   }
 
   static get SEARCH_DEPTH() {
-    // High branching factor
     return 2;
   }
 
@@ -224,7 +257,19 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
   }
 
   getNotation(move) {
-    if (move.vanish.length > 0) return super.getNotation(move);
+    const finalSquare = V.CoordsToSquare(move.end);
+    if (move.vanish.length > 0) {
+      if (move.appear.length > 0) {
+        // Standard move
+        return super.getNotation(move);
+      } else {
+        // Pawn fallen: capturing or not
+        let res = "";
+        if (move.vanish.length == 2)
+          res += V.CoordToColumn(move.start.y) + "x";
+        return res + finalSquare;
+      }
+    }
     // Rebirth:
     const piece =
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";

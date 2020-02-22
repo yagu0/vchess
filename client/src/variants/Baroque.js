@@ -203,7 +203,6 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return moves;
   }
 
-  // Long-leaper
   getKnightCaptures(startSquare, byChameleon) {
     // Look in every direction for captures
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
@@ -271,6 +270,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return super.getPotentialQueenMoves(sq).concat(this.getKnightCaptures(sq));
   }
 
+  // Chameleon
   getPotentialBishopMoves([x, y]) {
     let moves = super
       .getPotentialQueenMoves([x, y])
@@ -297,7 +297,6 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return moves;
   }
 
-  // Withdrawer
   addQueenCaptures(moves, byChameleon) {
     if (moves.length == 0) return;
     const [x, y] = [moves[0].start.x, moves[0].start.y];
@@ -341,6 +340,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     });
   }
 
+  // Withdrawer
   getPotentialQueenMoves(sq) {
     let moves = super.getPotentialQueenMoves(sq);
     this.addQueenCaptures(moves);

@@ -18,6 +18,7 @@ insert or ignore into Variants (name,description) values
   ('Losers', 'Lose all pieces'),
   ('Magnetic', 'Laws of attraction'),
   ('Marseille', 'Move twice'),
+  ('Recycle', 'Reuse pieces'),
   ('Upsidedown', 'Board upside down'),
   ('Wildebeest', 'Balanced sliders & leapers'),
   ('Zen', 'Reverse captures');

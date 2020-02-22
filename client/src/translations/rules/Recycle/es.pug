@@ -1,0 +1,32 @@
+p.boxed
+  | Puedes capturar tus propias piezas: estas pueden ser
+  | colocándo a cualquier casilla en lugar de moverlo.
+
+p.
+  Se aplican reglas ortodoxas, con un solo cambio:
+  cada turno puedes elegir comer una de tus propias piezas,
+  aumentando su "reserva" de piezas de espera con esta unidad.
+  Con cada movimiento puedes elegir poner una de estas piezas en reserva
+  (en cualquier lugar, excepto las filas 1 y 8 para los peones) en lugar
+  de jugar una jugada habitual.
+
+p.
+  Notación: un signo '@' indica la llegada de una pieza de reserva.
+  Por ejemplo, B@d4 significa que un alfil se mete en d4, y @f3 significa
+  renacimiento de peón en f3.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkb1r/ppppnppp/8/4N3/3p4/8/PPPPPPPP/1RBQKBNR:
+  figcaption Después de 1.Rxb1 Nxe7 2.N@e5 @d4
+
+p.
+  Nota: cuando un peón alcanza la 8va(1ra) fila, se retira del juego.
+  No se reemplaza por otra pieza. No hay promoción
+
+h3 Fuente
+
+p
+  | La
+  a(href="https://www.chessvariants.com/difftaking.dir/recyclechess.html") variante Reciclaje
+  | &nbsp;en chessvariants.com.

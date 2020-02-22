@@ -143,6 +143,7 @@ export const translations = {
   "Lose all pieces": "Lose all pieces",
   "Move twice": "Move twice",
   "Pawns move diagonally": "Pawns move diagonally",
+  "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",
   "Shared pieces": "Shared pieces",
   "Standard rules": "Standard rules"

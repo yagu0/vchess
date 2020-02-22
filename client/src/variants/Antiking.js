@@ -131,7 +131,6 @@ export const VariantRules = class AntikingRules extends ChessRules {
 
   getCurrentScore() {
     if (this.atLeastOneMove())
-      // game not over
       return "*";
 
     const color = this.turn;
