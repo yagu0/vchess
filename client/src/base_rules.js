@@ -1055,7 +1055,6 @@ export const ChessRules = class ChessRules {
   // What is the score ? (Interesting if game is over)
   getCurrentScore() {
     if (this.atLeastOneMove())
-      // game not over
       return "*";
 
     // Game over

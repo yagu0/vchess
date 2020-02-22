@@ -140,27 +140,34 @@ export const VariantRules = class BenedictRules extends ChessRules {
     // Get all moves from x,y without captures:
     let moves = super.getPotentialMovesFrom([x, y]);
     // Add flips:
+    let newAppear = [];
+    let newVanish = [];
     moves.forEach(m => {
       V.PlayOnBoard(this.board, m);
-      const flipped = this.findCaptures([m.end.x, m.end.y]);
-      V.UndoOnBoard(this.board, m);
-      flipped.forEach(sq => {
-        const piece = this.getPiece(sq[0],sq[1]);
-        const pipoA = new PiPo({
-          x:sq[0],
-          y:sq[1],
-          c:color,
-          p:piece
+      // If castling, m.appear has 2 elements:
+      m.appear.forEach(a => {
+        const flipped = this.findCaptures([a.x, a.y]);
+        flipped.forEach(sq => {
+          const piece = this.getPiece(sq[0],sq[1]);
+          const pipoA = new PiPo({
+            x:sq[0],
+            y:sq[1],
+            c:color,
+            p:piece
+          });
+          const pipoV = new PiPo({
+            x:sq[0],
+            y:sq[1],
+            c:oppCol,
+            p:piece
+          });
+          newAppear.push(pipoA);
+          newVanish.push(pipoV);
         });
-        const pipoV = new PiPo({
-          x:sq[0],
-          y:sq[1],
-          c:oppCol,
-          p:piece
-        });
-        m.appear.push(pipoA);
-        m.vanish.push(pipoV);
+        Array.prototype.push.apply(m.appear, newAppear);
+        Array.prototype.push.apply(m.vanish, newVanish);
       });
+      V.UndoOnBoard(this.board, m);
     });
     return moves;
   }
@@ -175,12 +182,31 @@ export const VariantRules = class BenedictRules extends ChessRules {
     return [];
   }
 
+  // Stop at the first move found
+  atLeastOneMove() {
+    const color = this.turn;
+    const oppCol = V.GetOppCol(color);
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
+          const moves = this.getPotentialMovesFrom([i, j]);
+          if (moves.length > 0)
+            return true;
+        }
+      }
+    }
+    return false;
+  }
+
   getCurrentScore() {
     const color = this.turn;
     // Did a king change color?
     const kp = this.kingPos[color];
     if (this.getColor(kp[0], kp[1]) != color)
       return color == "w" ? "0-1" : "1-0";
-    return "*";
+    if (this.atLeastOneMove())
+      return "*";
+    // Stalemate:
+    return "1/2";
   }
 };
