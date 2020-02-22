@@ -140,9 +140,9 @@ export const VariantRules = class BenedictRules extends ChessRules {
     // Get all moves from x,y without captures:
     let moves = super.getPotentialMovesFrom([x, y]);
     // Add flips:
-    let newAppear = [];
-    let newVanish = [];
     moves.forEach(m => {
+      let newAppear = [];
+      let newVanish = [];
       V.PlayOnBoard(this.board, m);
       // If castling, m.appear has 2 elements:
       m.appear.forEach(a => {
@@ -164,9 +164,9 @@ export const VariantRules = class BenedictRules extends ChessRules {
           newAppear.push(pipoA);
           newVanish.push(pipoV);
         });
-        Array.prototype.push.apply(m.appear, newAppear);
-        Array.prototype.push.apply(m.vanish, newVanish);
       });
+      Array.prototype.push.apply(m.appear, newAppear);
+      Array.prototype.push.apply(m.vanish, newVanish);
       V.UndoOnBoard(this.board, m);
     });
     return moves;
