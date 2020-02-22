@@ -28,7 +28,7 @@ export const VariantRules = class ZenRules extends ChessRules {
   // if met piece is opponent and same movement (asA): eat it!
   findCaptures_aux([x, y], asA) {
     const color = this.getColor(x, y);
-    var moves = [];
+    let moves = [];
     const steps =
       asA != V.PAWN
         ? asA == V.QUEEN
@@ -43,7 +43,7 @@ export const VariantRules = class ZenRules extends ChessRules {
             [1, -1],
             [1, 1]
           ];
-    const oneStep = asA == V.KNIGHT || asA == V.PAWN; //we don't capture king
+    const oneStep = [V.KNIGHT,V.PAWN].includes(asA); //we don't capture king
     const lastRank = color == "w" ? 0 : V.size.x - 1;
     const promotionPieces = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
     outerLoop: for (let loop = 0; loop < steps.length; loop++) {
@@ -105,12 +105,13 @@ export const VariantRules = class ZenRules extends ChessRules {
           [startRank, firstRank].includes(x) &&
           this.board[x + 2 * shift][y] == V.EMPTY
         ) {
-          //two squares jump
+          // Two squares jump
           moves.push(this.getBasicMove([x, y], [x + 2 * shift, y]));
         }
       }
-    } //promotion
+    }
     else {
+      // Promotion
       let promotionPieces = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
       promotionPieces.forEach(p => {
         // Normal move

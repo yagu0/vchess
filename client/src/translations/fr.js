@@ -131,6 +131,7 @@ export const translations = {
   "Both sides of the mirror": "Les deux côté du miroir",
   "Capture all of a kind": "Capturez tout d'un même type",
   "Captures reborn": "Les captures renaissent",
+  "Change colors": "Changer les couleurs",
   "Exchange pieces positions": "Échangez les positions des pièces",
   "Exotic captures": "Captures exotiques",
   "Explosive captures": "Captures explosives",

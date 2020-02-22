@@ -1,0 +1,30 @@
+p.boxed
+  | Attacked pieces change color after each turn. Goal is to change king's color.
+
+p.
+  More precisely, only pieces attacked by the moving unit are flipped.
+  They change side, until the opponent in turn can attack them.
+  There are no captures: only color changes.
+
+figure.diagram-container
+  .diagram
+    | fen:r1bqkbnr/ppPpPppp/2n5/3N4/8/8/PPPPPPPP/R1BQKBNR:
+  figcaption After 1.Nc3 Nc6 2.Nd5: pawns on c7 and e7 change color.
+
+h3 End of the game
+
+p.
+  The game ends when a king changes color.
+  There can be no stalemate since all pieces remain on the board.
+
+p.
+  In the diagram position, 2...g6?? for example would allow 3.Nf6 which
+  attacks the king and therefore ends the game.
+  However black can defend with 2...Nb4 or 2...Nf6 which flips the d5 knight,
+  or even 2...f6.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/benedict.html") Benedict chess
+  | &nbsp;on chessvariants.com.

@@ -435,7 +435,7 @@ export const ChessRules = class ChessRules {
     if (V.HasEnpassant) {
       const epSq =
         parsedFen.enpassant != "-"
-          ? V.SquareToCoords(parsedFen.enpassant)
+          ? this.getEpSquare(parsedFen.enpassant)
           : undefined;
       this.epSquares = [epSq];
     }
@@ -722,10 +722,11 @@ export const ChessRules = class ChessRules {
     const oppCol = V.GetOppCol(c);
     let moves = [];
     let i = 0;
+    // King, then rook:
     const finalSquares = [
       [2, 3],
       [V.size.y - 2, V.size.y - 3]
-    ]; //king, then rook
+    ];
     castlingCheck: for (
       let castleSide = 0;
       castleSide < 2;
@@ -1022,9 +1023,9 @@ export const ChessRules = class ChessRules {
 
   play(move) {
     // DEBUG:
-    //    if (!this.states) this.states = [];
-    //    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
-    //    this.states.push(stateFen);
+//    if (!this.states) this.states = [];
+//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//    this.states.push(stateFen);
 
     if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
     if (V.HasEnpassant) this.epSquares.push(this.getEpSquare(move));
@@ -1043,9 +1044,9 @@ export const ChessRules = class ChessRules {
     this.unupdateVariables(move);
 
     // DEBUG:
-    //    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
-    //    if (stateFen != this.states[this.states.length-1]) debugger;
-    //    this.states.pop();
+//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//    if (stateFen != this.states[this.states.length-1]) debugger;
+//    this.states.pop();
   }
 
   ///////////////

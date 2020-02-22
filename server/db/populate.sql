@@ -5,6 +5,7 @@ insert or ignore into Variants (name,description) values
   ('Antiking', 'Keep antiking in check'),
   ('Atomic', 'Explosive captures'),
   ('Baroque', 'Exotic captures'),
+  ('Benedict', 'Change colors'),
   ('Berolina', 'Pawns move diagonally'),
   ('Checkered', 'Shared pieces'),
   ('Chess960', 'Standard rules'),
