@@ -13,7 +13,7 @@ export const store = {
   socketCloseListener: null,
   initialize() {
     ajax("/variants", "GET", res => {
-      this.state.variants = res.variantArray;
+      this.state.variants = res.variantArray.sort((v1,v2) => v1.localeCompare(v2));
     });
     let mysid = localStorage.getItem("mysid");
     // Assign mysid only once (until next time user clear browser data)
