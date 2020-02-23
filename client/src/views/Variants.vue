@@ -4,6 +4,7 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       input#prefixFilter(
         v-model="curPrefix"
+        @input="setCurPrefix($event)"
         :placeholder="st.tr['Prefix?']"
       )
     .variant.col-sm-12.col-md-5.col-lg-4(
@@ -47,6 +48,10 @@ export default {
     }
   },
   methods: {
+    // oninput listener, required for smartphones:
+    setCurPrefix: function(e) {
+      this.curPrefix = e.target.value;
+    },
     getLink: function(vname) {
       return "/variants/" + vname;
     }
