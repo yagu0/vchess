@@ -175,15 +175,74 @@ export const VariantRules = class AllmateRules extends ChessRules {
     return moves;
   }
 
+  // TODO: allow pieces to "commit suicide"? (Currently yes except king)
   filterValid(moves) {
-    return moves;
+    // Remove moves which let the king mate-captured:
+    if (moves.length == 0) return [];
+    const color = this.turn;
+    const oppCol = V.GetOppCol(color);
+    return moves.filter(m => {
+      let res = true;
+      this.play(m);
+      if (this.underCheck(color)) {
+        res = false;
+        const attacked = this.kingPos[color];
+        // Try to find a move to escape check
+        // TODO: very inefficient method.
+        outerLoop: for (let i=0; i<V.size.x; i++) {
+          for (let j=0; j<V.size.y; j++) {
+            if (this.getColor(i,j) == color) {
+              let emoves = [];
+              // Artficial turn change to "play twice":
+              this.turn = color;
+              switch (this.getPiece(i, j)) {
+                case V.PAWN:
+                  emoves = this.getPotentialPawnMoves([i, j]);
+                  break;
+                case V.ROOK:
+                  emoves = this.getPotentialRookMoves([i, j]);
+                  break;
+                case V.KNIGHT:
+                  emoves = this.getPotentialKnightMoves([i, j]);
+                  break;
+                case V.BISHOP:
+                  emoves = this.getPotentialBishopMoves([i, j]);
+                  break;
+                case V.QUEEN:
+                  emoves = this.getPotentialQueenMoves([i, j]);
+                  break;
+                case V.KING:
+                  emoves = this.getPotentialKingMoves([i, j]);
+                  break;
+              }
+              this.turn = oppCol;
+              for (let em of emoves) {
+                V.PlayOnBoard(this.board, em);
+                let sq = attacked;
+                if (em.start.x == attacked[0] && em.start.y == attacked[1])
+                  // King moved:
+                  sq = [em.appear[0].x, em.appear[0].y];
+                if (!this.isAttacked(sq, [oppCol]))
+                  res = true;
+                V.UndoOnBoard(this.board, em);
+                if (res)
+                  // No need to explore more moves
+                  break outerLoop;
+              }
+            }
+          }
+        }
+      }
+      this.undo(m);
+      return res;
+    });
   }
 
   updateVariables(move) {
     super.updateVariables(move);
     if (move.vanish.length == 2 && move.appear.length == 1) {
       // Did opponent king disappeared?
-      if (move.vanish[1].p == V.KING)
+      if (move.vanish.some(v => v.p == V.KING))
         this.kingPos[this.turn] = [-1, -1];
     }
   }
@@ -192,8 +251,9 @@ export const VariantRules = class AllmateRules extends ChessRules {
     super.unupdateVariables(move);
     if (move.vanish.length == 2 && move.appear.length == 1) {
       // Did opponent king disappeared?
-      if (move.vanish[1].p == V.KING)
-        this.kingPos[move.vanish[1].c] = [move.vanish[1].x,move.vanish[1].y];
+      const vIdx = move.vanish.findIndex(v => v.p == V.KING)
+      if (vIdx >= 0)
+        this.kingPos[move.vanish[vIdx].c] = [move.vanish[vIdx].x,move.vanish[vIdx].y];
     }
   }
 
@@ -216,8 +276,13 @@ export const VariantRules = class AllmateRules extends ChessRules {
   getNotation(move) {
     let notation = super.getNotation(move);
     // Add a capture mark (not describing what is captured...):
-    if (move.vanish.length > 1 && move.appear[0].p != V.KING)
-      notation = notation.replace("x","") + "X";
+    if (move.vanish.length > 1 && move.appear[0].p != V.KING) {
+      if (notation.match(/^[a-h]/))
+        // Pawn capture: remove "bx" in bxc4 for example
+        notation = notation.substr(2);
+      else
+        notation = notation.replace("x","") + "X";
+    }
     return notation;
   }
 };
