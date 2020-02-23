@@ -88,45 +88,14 @@ export const VariantRules = class ZenRules extends ChessRules {
     return moves;
   }
 
+  canTake(sq1, sq2) {
+    return false; //captures handled separately
+  }
+
   getPotentialPawnMoves([x, y]) {
-    const color = this.getColor(x, y);
-    let moves = [];
-    const sizeY = V.size.y;
-    const shift = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeY - 2 : 1;
-    const firstRank = color == "w" ? sizeY - 1 : 0;
-    const lastRank = color == "w" ? 0 : sizeY - 1;
-
-    if (x + shift != lastRank) {
-      // Normal moves
-      if (this.board[x + shift][y] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [x + shift, y]));
-        if (
-          [startRank, firstRank].includes(x) &&
-          this.board[x + 2 * shift][y] == V.EMPTY
-        ) {
-          // Two squares jump
-          moves.push(this.getBasicMove([x, y], [x + 2 * shift, y]));
-        }
-      }
-    }
-    else {
-      // Promotion
-      let promotionPieces = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
-      promotionPieces.forEach(p => {
-        // Normal move
-        if (this.board[x + shift][y] == V.EMPTY)
-          moves.push(
-            this.getBasicMove([x, y], [x + shift, y], { c: color, p: p })
-          );
-      });
-    }
-
-    // No en passant here
-
+    let moves = super.getPotentialPawnMoves([x, y]);
     // Add "zen" captures
     Array.prototype.push.apply(moves, this.findCaptures([x, y]));
-
     return moves;
   }
 

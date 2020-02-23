@@ -1,0 +1,36 @@
+p.boxed
+  | Si una pieza es atacada y no puede escapar del ataque, se captura.
+
+p.
+  Cualquier pieza atacada que no pueda escapar de la captura moviéndose,
+  al capturar al atacante o al interponer una pieza se considera mate:
+  se elimina del juego.
+  Tenga en cuenta que tal movimiento no tiene que hacerse: cuando una pieza es
+  atacada pero sin mate, no se elimina.
+  Por lo tanto, los reyes y otras monedas pueden permanecer en jaque.
+
+p.
+  Las piezas no pueden capturar en el sentido habitual, solo a través de
+  "mate-captura" descrito anteriormente.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1P6/2N5/P1PPPPPP/RNBQKBNR:
+  figcaption Después de 1.b4 b5 2.Nc3X el peón b5 es "mate-capturado"
+
+p.
+  Nota sobre la notación de las jugadas: ya que las capturas no se realizan
+  en la casilla de llegada, se agrega una marca "X" al movimiento para indicar la captura.
+  Para evitar las notaciones demasiado largas, la lista potencial de casillas
+  de captura no está escrita.
+
+h3 Fin de la partida
+
+p El juego termina cuando un rey es "mate-capturado".
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/difftaking.dir/allmate.html") variante Allmate
+  | &nbsp;en chessvariants.com.

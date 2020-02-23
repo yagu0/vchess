@@ -141,6 +141,7 @@ export const translations = {
   "Keep antiking in check": "Keep antiking in check",
   "Laws of attraction": "Laws of attraction",
   "Lose all pieces": "Lose all pieces",
+  "Mate any piece": "Mate any piece",
   "Move twice": "Move twice",
   "Pawns move diagonally": "Pawns move diagonally",
   "Reuse pieces": "Reuse pieces",

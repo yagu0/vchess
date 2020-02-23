@@ -141,6 +141,7 @@ export const translations = {
   "Keep antiking in check": "Mantener el antirey en jaque",
   "Laws of attraction": "Las leyes de las atracciones",
   "Lose all pieces": "Perder todas las piezas",
+  "Mate any piece": "Matar cualquier pieza",
   "Move twice": "Mover dos veces",
   "Pawns move diagonally": "Peones se mueven en diagonal",
   "Reuse pieces": "Reutilizar piezas",

@@ -76,7 +76,7 @@ export const VariantRules = class AtomicRules extends ChessRules {
   updateVariables(move) {
     super.updateVariables(move);
     if (move.appear.length == 0) {
-      //capture
+      // Capture
       const firstRank = { w: 7, b: 0 };
       for (let c of ["w", "b"]) {
         // Did we explode king of color c ? (TODO: remove move earlier)
@@ -143,10 +143,9 @@ export const VariantRules = class AtomicRules extends ChessRules {
     const color = this.turn;
     const kp = this.kingPos[color];
     if (kp[0] < 0)
-      //king disappeared
+      // King disappeared
       return color == "w" ? "0-1" : "1-0";
     if (this.atLeastOneMove())
-      // game not over
       return "*";
     if (!this.isAttacked(kp, [V.GetOppCol(color)])) return "1/2";
     return color == "w" ? "0-1" : "1-0"; //checkmate

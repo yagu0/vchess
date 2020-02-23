@@ -1,0 +1,34 @@
+p.boxed
+  | If a piece is attacked and cannot move out of attack, it is captured.
+
+p.
+  Any piece that is attacked, but which cannot escape capture by moving away,
+  capturing the attacking piece, or interposing the attacking piece is
+  considered to be mated, and is removed from the board.
+  Note that such a move does not need to be played: if a piece is attacked
+  but not mated, it is not removed.
+  Thus, kings and other pieces may remain under check.
+
+p.
+  Pieces cannot be taken in the normal way, only by the "mate-capture"
+  described above.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1P6/2N5/P1PPPPPP/RNBQKBNR:
+  figcaption After 1.b4 b5 2.Nc3X the b5 pawn is "mate-captured"
+
+p.
+  Note about moves notation: since captures do not occur on final squares,
+  an "X" mark is appended to the move to indicate a capture.
+  To keep notation short the potential list of captured squares is not written.
+
+h3 End of the game
+
+p The game ends when a king is "mate-captured".
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/allmate.html") Allmate chess
+  | &nbsp;on chessvariants.com.

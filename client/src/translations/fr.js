@@ -141,6 +141,7 @@ export const translations = {
   "Keep antiking in check": "Gardez l'antiroi en échec",
   "Laws of attraction": "Les lois de l'attraction",
   "Lose all pieces": "Perdez toutes les pièces",
+  "Mate any piece": "Mater n'importe quelle pièce",
   "Move twice": "Jouer deux coups",
   "Pawns move diagonally": "Les pions vont en diagonale",
   "Reuse pieces": "Réutiliser les pièces",

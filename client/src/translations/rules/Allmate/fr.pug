@@ -1,0 +1,36 @@
+p.boxed
+  | Si une pièce est attaquée et ne peut se soustraire à l'attaque, elle est capturée.
+
+p.
+  Toute pièce attaquée ne pouvant échapper à la capture en se déplaçant,
+  en capturant l'attaquant ou en interposant une pièce est considérée matée :
+  elle est retirée du jeu.
+  Notez qu'un tel coup n'a pas à être joué : quand une pièce est attaquée mais
+  non matée, elle n'est pas supprimée.
+  Ainsi, les rois et autres pièces peuvent rester en échec.
+
+p.
+  Les pièces ne peuvent capturer au sens habituel, seulement via la "mat-capture"
+  décrite ci-dessus.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1P6/2N5/P1PPPPPP/RNBQKBNR:
+  figcaption Après 1.b4 b5 2.Nc3X le pion b5 est "mat-capturé"
+
+p.
+  Note sur la notation des coups: puisque les captures ne s'effectuent pas
+  sur la case d'arrivée, une marque "X" est ajoutée au coup pour indiquer la capture.
+  Afin d'éviter les notations à rallonge la liste potentielle des cases de
+  capture n'est pas écrite.
+
+h3 Fin de la partie
+
+p La partie s'achève quand un roi est "mat-capturé".
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/difftaking.dir/allmate.html") variante Allmate
+  | &nbsp;sur chessvariants.com.

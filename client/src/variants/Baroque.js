@@ -591,7 +591,8 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     } else if (move.appear[0].p == V.KING)
       notation = "K" + (move.vanish.length > 1 ? "x" : "") + finalSquare;
     else notation = move.appear[0].p.toUpperCase() + finalSquare;
-    if (move.vanish.length > 1 && move.appear[0].p != V.KING) notation += "X"; //capture mark (not describing what is captured...)
+    // Add a capture mark (not describing what is captured...):
+    if (move.vanish.length > 1 && move.appear[0].p != V.KING) notation += "X";
     return notation;
   }
 };
