@@ -125,6 +125,7 @@ export const translations = {
   "Your message": "Your message",
 
   // Variants boxes:
+  "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
   "Big board": "Big board",
   "Board upside down": "Board upside down",

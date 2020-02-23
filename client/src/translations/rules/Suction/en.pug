@@ -1,0 +1,37 @@
+p.boxed
+  | Captures swap pieces. Goal is to bring enemy king to your first row.
+
+p.
+  When a piece is taken it is not removed from the board, but moved instead
+  to the square that was initially occupied by the capturing piece.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkb1r/ppp1pppp/5B2/3p4/8/1P6/PnPPPPPP/RN1QKBNR:
+  figcaption After 1.b3 d5 2.Bb2 Nf6 3.Bxf6
+
+ul
+  li.
+    The king cannot move at all, except by being captured by one of the
+    opponent's pieces. There is no castling.
+  li Taking a king has no effect besides moving it.
+
+p.
+  Pawns don't promote, but instead just stay on the back rank where they
+  can't move. A pawn can still re-enter play after this happens,
+  by being captured.
+
+h3 End of the game
+
+p The goal is to "suck" the opponent's king to your own first rank.
+
+figure.diagram-container
+  .diagram
+    | fen:2Pb3r/1rP3nq/1p2p2p/p1p2NpP/1P2R2k/P3p2P/pN1PP1B1/R1BnQ1Kb:
+  figcaption White can win with 1.Qxh4
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/rules/suction-chess") Suction chess
+  | &nbsp;on chessvariants.com.

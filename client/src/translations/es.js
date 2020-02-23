@@ -125,6 +125,7 @@ export const translations = {
   "Your message": "Tu mensaje",
 
   // Variants boxes:
+  "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",
   "Big board": "Gran tablero",
   "Board upside down": "Tablero al revés",

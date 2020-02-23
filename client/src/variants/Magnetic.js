@@ -136,8 +136,9 @@ export const VariantRules = class MagneticRules extends ChessRules {
     return true; //TODO: is it right?
   }
 
-  underCheck() {
-    return false; //there is no check
+  filterValid(moves) {
+    // There are no checks
+    return moves;
   }
 
   getCheckSquares() {
@@ -189,7 +190,7 @@ export const VariantRules = class MagneticRules extends ChessRules {
     const color = this.turn;
     const kp = this.kingPos[color];
     if (kp[0] < 0)
-      //king disappeared
+      // King disappeared
       return color == "w" ? "0-1" : "1-0";
     if (this.atLeastOneMove())
       // game not over
