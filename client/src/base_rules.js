@@ -1261,7 +1261,7 @@ export const ChessRules = class ChessRules {
   // TODO: un-ambiguous notation (switch on piece type, check directions...)
   getNotation(move) {
     if (move.appear.length == 2 && move.appear[0].p == V.KING)
-      //castle
+      // Castle
       return move.end.y < move.start.y ? "0-0-0" : "0-0";
 
     // Translate final square

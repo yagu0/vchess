@@ -42,6 +42,13 @@ export const VariantRules = class HiddenRules extends ChessRules {
     };
   }
 
+  // Turn a hidden piece or revealed piece into revealed piece:
+  static Decode(p) {
+    if (Object.keys(V.HIDDEN_DECODE).includes(p))
+      return V.HIDDEN_DECODE[p];
+    return p;
+  }
+
   static get PIECES() {
     return ChessRules.PIECES.concat(Object.values(V.HIDDEN_CODE));
   }
@@ -93,6 +100,13 @@ export const VariantRules = class HiddenRules extends ChessRules {
   }
 
   getBasicMove([sx, sy], [ex, ey], tr) {
+    if (
+      tr &&
+      Object.keys(V.HIDDEN_DECODE).includes(this.board[sx][sy].charAt(1))
+    ) {
+      // The transformed piece is a priori hidden
+      tr.p = V.HIDDEN_CODE[tr.p];
+    }
     let mv = new Move({
       appear: [
         new PiPo({
@@ -123,9 +137,9 @@ export const VariantRules = class HiddenRules extends ChessRules {
         })
       );
       // Pieces are revealed when they capture
-      if (Object.keys(V.HIDDEN_DECODE).includes(mv.appear[0].p))
-        mv.appear[0].p = V.HIDDEN_DECODE[mv.appear[0].p];
+      mv.appear[0].p = V.Decode(mv.appear[0].p);
     }
+
     return mv;
   }
 
@@ -137,6 +151,10 @@ export const VariantRules = class HiddenRules extends ChessRules {
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
     );
+  }
+
+  filterValid(moves) {
+    return moves;
   }
 
   static GenRandInitFen() {
@@ -176,7 +194,7 @@ export const VariantRules = class HiddenRules extends ChessRules {
       const queenPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
-      // Get random square for queen
+      // Get random square for king
       randIndex = randInt(9);
       const kingPos = positions[randIndex];
       positions.splice(randIndex, 1);
@@ -240,5 +258,34 @@ export const VariantRules = class HiddenRules extends ChessRules {
     // Just return a random move. TODO: something smarter...
     const moves = this.getAllValidMoves();
     return moves[randInt(moves.length)];
+  }
+
+  getNotation(move) {
+    // Translate final square
+    const finalSquare = V.CoordsToSquare(move.end);
+
+    const piece = this.getPiece(move.start.x, move.start.y);
+    if (piece == V.PAWN) {
+      // Pawn move
+      let notation = "";
+      if (move.vanish.length > move.appear.length) {
+        // Capture
+        const startColumn = V.CoordToColumn(move.start.y);
+        notation = startColumn + "x" + finalSquare;
+      }
+      else notation = finalSquare;
+      if (move.appear.length > 0 && !["p","s"].includes(move.appear[0].p)) {
+        // Promotion
+        const appearPiece = V.Decode(move.appear[0].p);
+        notation += "=" + appearPiece.toUpperCase();
+      }
+      return notation;
+    }
+    // Piece movement
+    return (
+      piece.toUpperCase() +
+      (move.vanish.length > move.appear.length ? "x" : "") +
+      finalSquare
+    );
   }
 };
