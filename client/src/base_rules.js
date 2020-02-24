@@ -46,11 +46,18 @@ export const ChessRules = class ChessRules {
   static get CanAnalyze() {
     return true;
   }
+  // Patch: issues with javascript OOP, objects can't access static fields.
+  get canAnalyze() {
+    return V.CanAnalyze;
+  }
 
   // Some variants show incomplete information,
   // and thus show only a partial moves list or no list at all.
   static get ShowMoves() {
     return "all";
+  }
+  get showMoves() {
+    return V.ShowMoves;
   }
 
   // Turn "wb" into "B" (for FEN)

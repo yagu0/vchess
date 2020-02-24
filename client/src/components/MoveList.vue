@@ -2,7 +2,8 @@
 import { store } from "@/store";
 export default {
   name: "my-move-list",
-  props: ["moves", "cursor", "score", "message", "firstNum"],
+  props: ["moves", "show", "cursor", "score", "message", "firstNum"],
+  // TODO: if show == "byrows", show only full rows.
   render(h) {
     let rootElements = [];
     if (!!this.score && this.score != "*") {

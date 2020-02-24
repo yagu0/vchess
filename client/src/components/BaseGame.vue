@@ -66,7 +66,8 @@ div#baseGame(
           | {{ st.tr["Rules"] }}
     #movesList
       MoveList(
-        v-if="showMoves"
+        v-if="showMoves != 'none'"
+        :show="showMoves"
         :score="game.score"
         :message="game.scoreMsg"
         :firstNum="firstMoveNumber"
@@ -115,10 +116,12 @@ export default {
   },
   computed: {
     showMoves: function() {
-      return this.game.score != "*" || (this.vr && this.vr.ShowMoves == "all");
+      return this.game.score != "*"
+        ? "all"
+        : (this.vr ? this.vr.showMoves : "none");
     },
     showTurn: function() {
-      return this.game.score == '*' && this.vr && this.vr.ShowMoves != "all";
+      return this.game.score == '*' && this.vr && this.vr.showMoves != "all";
     },
     turn: function() {
       return this.vr
@@ -126,10 +129,10 @@ export default {
         : "";
     },
     canAnalyze: function() {
-      return this.game.mode != "analyze" && this.vr && this.vr.CanAnalyze;
+      return this.game.mode != "analyze" && this.vr && this.vr.canAnalyze;
     },
     allowDownloadPGN: function() {
-      return this.game.score != "*" || (this.vr && this.vr.ShowMoves == "all");
+      return this.game.score != "*" || (this.vr && this.vr.showMoves == "all");
     }
   },
   created: function() {
