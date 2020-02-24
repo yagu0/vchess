@@ -147,6 +147,7 @@ export const translations = {
   "Pawns move diagonally": "Pawns move diagonally",
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",
+  "Run forward": "Run forward",
   "Shared pieces": "Shared pieces",
   "Standard rules": "Standard rules",
   "Unidentified pieces": "Unidentified pieces"

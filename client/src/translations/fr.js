@@ -147,6 +147,7 @@ export const translations = {
   "Pawns move diagonally": "Les pions vont en diagonale",
   "Reuse pieces": "Réutiliser les pièces",
   "Reverse captures": "Captures inversées",
+  "Run forward": "Courir vers l'avant",
   "Shared pieces": "Pièces partagées",
   "Standard rules": "Règles usuelles",
   "Unidentified pieces": "Pièces non identifiées"

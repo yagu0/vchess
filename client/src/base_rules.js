@@ -274,12 +274,13 @@ export const ChessRules = class ChessRules {
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
     }
+    // Add turn + flags + enpassant
     return (
       pieces["b"].join("") +
       "/pppppppp/8/8/8/8/PPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
       " w 0 1111 -"
-    ); //add turn + flags + enpassant
+    );
   }
 
   // "Parse" FEN: just return untransformed string data

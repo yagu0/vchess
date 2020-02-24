@@ -11,6 +11,7 @@ insert or ignore into Variants (name,description) values
   ('Berolina', 'Pawns move diagonally'),
   ('Checkered', 'Shared pieces'),
   ('Chess960', 'Standard rules'),
+  ('Circular', 'Run forward'),
   ('Crazyhouse', 'Captures reborn'),
   ('Dark', 'In the shadow'),
   ('Enpassant', 'Capture en passant'),
