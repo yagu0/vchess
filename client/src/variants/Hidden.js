@@ -1,4 +1,4 @@
-import { ChessRules } from "@/base_rules";
+import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
@@ -46,6 +46,14 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return ChessRules.PIECES.concat(Object.values(V.HIDDEN_CODE));
   }
 
+  // Pieces can be hidden :)
+  getPiece(i, j) {
+    const piece = this.board[i][j].charAt(1);
+    if (Object.keys(V.HIDDEN_DECODE).includes(piece))
+      return V.HIDDEN_DECODE[piece];
+    return piece;
+  }
+
   // Scan board for kings positions (no castling)
   scanKingsRooks(fen) {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
@@ -84,9 +92,53 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return b;
   }
 
-  //getPotentialMovesFrom: TODO: write
+  getBasicMove([sx, sy], [ex, ey], tr) {
+    let mv = new Move({
+      appear: [
+        new PiPo({
+          x: ex,
+          y: ey,
+          c: tr ? tr.c : this.getColor(sx, sy),
+          p: tr ? tr.p : this.board[sx][sy].charAt(1)
+        })
+      ],
+      vanish: [
+        new PiPo({
+          x: sx,
+          y: sy,
+          c: this.getColor(sx, sy),
+          p: this.board[sx][sy].charAt(1)
+        })
+      ]
+    });
 
-  // TODO: bishops on different colors, a1 --> h1, h2 --> a2 ?
+    // The opponent piece disappears if we take it
+    if (this.board[ex][ey] != V.EMPTY) {
+      mv.vanish.push(
+        new PiPo({
+          x: ex,
+          y: ey,
+          c: this.getColor(ex, ey),
+          p: this.board[ex][ey].charAt(1)
+        })
+      );
+      // Pieces are revealed when they capture
+      if (Object.keys(V.HIDDEN_DECODE).includes(mv.appear[0].p))
+        mv.appear[0].p = V.HIDDEN_DECODE[mv.appear[0].p];
+    }
+    return mv;
+  }
+
+  // What are the king moves from square x,y ?
+  getPotentialKingMoves(sq) {
+    // No castling:
+    return this.getSlideNJumpMoves(
+      sq,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+      "oneStep"
+    );
+  }
+
   static GenRandInitFen() {
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces + pawns on two first ranks
@@ -111,36 +163,43 @@ export const VariantRules = class HiddenRules extends ChessRules {
       const knight2Pos = positions[randIndex];
       positions.splice(randIndex, 1);
 
-      // Get random square for queen
+      // Get random squares for rooks
       randIndex = randInt(12);
+      const rook1Pos = positions[randIndex];
+      positions.splice(randIndex, 1);
+      randIndex = randInt(11);
+      const rook2Pos = positions[randIndex];
+      positions.splice(randIndex, 1);
+
+      // Get random square for queen
+      randIndex = randInt(10);
       const queenPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
-      // Get random squares for pawns
-      // TODO...
+      // Get random square for queen
+      randIndex = randInt(9);
+      const kingPos = positions[randIndex];
+      positions.splice(randIndex, 1);
 
-      // Rooks and king positions are now fixed,
-      // because of the ordering rook-king-rook
-      const rook1Pos = positions[0];
-      const kingPos = positions[1];
-      const rook2Pos = positions[2];
+      // Pawns position are all remaining slots:
+      for (let p of positions)
+        pieces[c][p] = "s";
 
       // Finally put the shuffled pieces in the board array
-      pieces[c][rook1Pos] = "r";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][bishop1Pos] = "b";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][bishop2Pos] = "b";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][rook2Pos] = "r";
+      pieces[c][rook1Pos] = "u";
+      pieces[c][knight1Pos] = "o";
+      pieces[c][bishop1Pos] = "c";
+      pieces[c][queenPos] = "t";
+      pieces[c][kingPos] = "l";
+      pieces[c][bishop2Pos] = "c";
+      pieces[c][knight2Pos] = "o";
+      pieces[c][rook2Pos] = "u";
     }
-    return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0"
-    );
+    let upFen = pieces["b"].join("");
+    upFen = upFen.substr(0,8) + "/" + upFen.substr(8);
+    let downFen = pieces["b"].join("").toUpperCase();
+    downFen = downFen.substr(0,8) + "/" + downFen.substr(8);
+    return upFen + "/8/8/8/8/" + downFen + " w 0";
   }
 
   getCheckSquares() {

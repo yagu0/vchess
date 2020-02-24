@@ -57,7 +57,8 @@ export default {
       gameInfo: {
         vname: "",
         mode: "versus",
-      }
+      },
+      V: null,
     };
   },
   watch: {
@@ -71,7 +72,7 @@ export default {
   },
   computed: {
     showAnalyzeBtn: function() {
-      return (this.display=='rules' && (!window.V || V.CanAnalyze));
+      return (this.display=='rules' && (!this.V || this.V.CanAnalyze));
     },
     content: function() {
       if (!this.gameInfo.vname) return ""; //variant not set yet
@@ -112,7 +113,7 @@ export default {
     },
     re_setVariant: async function(vname) {
       const vModule = await import("@/variants/" + vname + ".js");
-      window.V = vModule.VariantRules;
+      this.V = window.V = vModule.VariantRules;
       this.gameInfo.vname = vname;
     },
     startGame: function(mode) {

@@ -104,11 +104,16 @@ export default {
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
-      incheck: [] //for Board
+      incheck: [], //for Board
+      V: null // TODO: need "local" V to trigger re-computation of computed properties ?
+            // --> le passer depuis CompGame ou Game comme une property ?!
     };
   },
   watch: {
     // game initial FEN changes when a new game starts
+    
+    // TODO: this watcher is obsolete ?
+
     "game.fenStart": function() {
       this.re_setVariables();
     },
