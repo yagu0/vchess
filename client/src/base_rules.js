@@ -357,9 +357,9 @@ export const ChessRules = class ChessRules {
       for (let indexInRow = 0; indexInRow < rows[i].length; indexInRow++) {
         const character = rows[i][indexInRow];
         const num = parseInt(character);
+        // If num is a number, just shift j:
         if (!isNaN(num)) j += num;
-        //just shift j
-        //something at position i,j
+        // Else: something at position i,j
         else board[i][j++] = V.fen2board(character);
       }
     }

@@ -469,7 +469,9 @@ export default {
             const flags = V.ParseFen(game.fen).flags; //may be undefined
             let dtLastMove = 0;
             for (let midx = game.moves.length - 1; midx >= 0; midx--) {
-              vr_tmp.undo(Object.assign({flags:flags}, game.moves[midx].squares));
+              // NOTE: flags could be wrong, but since our only concern is turn,
+              // this should be enough. (TODO?)
+              vr_tmp.undo(Object.assign({flags:JSON.stringify(flags)}, game.moves[midx].squares));
               if (vr_tmp.turn == mycolor) {
                 dtLastMove = game.moves[midx].played;
                 break;

@@ -104,35 +104,32 @@ export default {
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
-      incheck: [], //for Board
-      V: null // TODO: need "local" V to trigger re-computation of computed properties ?
-            // --> le passer depuis CompGame ou Game comme une property ?!
+      incheck: [] //for Board
     };
   },
   watch: {
     // game initial FEN changes when a new game starts
-    
-    // TODO: this watcher is obsolete ?
-
     "game.fenStart": function() {
       this.re_setVariables();
     },
   },
   computed: {
     showMoves: function() {
-      return this.game.score != "*" || (window.V && V.ShowMoves == "all");
+      return this.game.score != "*" || (this.vr && this.vr.ShowMoves == "all");
     },
     showTurn: function() {
-      return this.game.score == '*' && window.V && V.ShowMoves != "all";
+      return this.game.score == '*' && this.vr && this.vr.ShowMoves != "all";
     },
     turn: function() {
-      return this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"];
+      return this.vr
+        ? this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"]
+        : "";
     },
     canAnalyze: function() {
-      return this.game.mode != "analyze" && window.V && V.CanAnalyze;
+      return this.game.mode != "analyze" && this.vr && this.vr.CanAnalyze;
     },
     allowDownloadPGN: function() {
-      return this.game.score != "*" || (window.V && V.ShowMoves == "all");
+      return this.game.score != "*" || (this.vr && this.vr.ShowMoves == "all");
     }
   },
   created: function() {
