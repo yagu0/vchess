@@ -25,12 +25,12 @@ export const VariantRules = class AliceRules extends ChessRules {
     };
   }
 
-  static getPpath(b) {
-    return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
-  }
-
   static get PIECES() {
     return ChessRules.PIECES.concat(Object.keys(V.ALICE_PIECES));
+  }
+
+  getPpath(b) {
+    return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
   }
 
   setOtherVariables(fen) {

@@ -88,7 +88,7 @@ export default {
                   attrs: {
                     src:
                       "/images/pieces/" +
-                      V.getPpath(this.vr.board[ci][cj]) +
+                      this.vr.getPpath(this.vr.board[ci][cj], this.userColor, this.score) +
                       ".svg"
                   }
                 })
@@ -154,7 +154,7 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    this.vr.getReservePpath(playingColor, i) +
+                    this.vr.getReservePpath(i, playingColor) +
                     ".svg"
                 }
               }),
@@ -181,7 +181,7 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    this.vr.getReservePpath(oppCol, i) +
+                    this.vr.getReservePpath(i, oppCol) +
                     ".svg"
                 }
               }),
@@ -255,7 +255,7 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    V.getPpath(m.appear[0].c + m.appear[0].p) +
+                    this.vr.getPpath(m.appear[0].c + m.appear[0].p) +
                     ".svg"
                 },
                 class: { "choice-piece": true },

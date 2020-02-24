@@ -74,7 +74,7 @@ export const VariantRules = class RecycleRules extends ChessRules {
   }
 
   // Used by the interface:
-  getReservePpath(color, index) {
+  getReservePpath(index, color) {
     return color + V.RESERVE_PIECES[index];
   }
 

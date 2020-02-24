@@ -11,15 +11,15 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  static getPpath(b) {
+  static get PIECES() {
+    return ChessRules.PIECES.concat([V.IMMOBILIZER]);
+  }
+
+  getPpath(b) {
     if (b[1] == "m")
       //'m' for Immobilizer (I is too similar to 1)
       return "Baroque/" + b;
     return b; //usual piece
-  }
-
-  static get PIECES() {
-    return ChessRules.PIECES.concat([V.IMMOBILIZER]);
   }
 
   // No castling, but checks, so keep track of kings

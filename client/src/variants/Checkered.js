@@ -1,10 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
 export const VariantRules = class CheckeredRules extends ChessRules {
-  static getPpath(b) {
-    return b[0] == "c" ? "Checkered/" + b : b;
-  }
-
   static board2fen(b) {
     const checkered_codes = {
       p: "s",
@@ -38,6 +34,10 @@ export const VariantRules = class CheckeredRules extends ChessRules {
 
   static get PIECES() {
     return ChessRules.PIECES.concat(["s", "t", "u", "c", "o"]);
+  }
+
+  getPpath(b) {
+    return b[0] == "c" ? "Checkered/" + b : b;
   }
 
   setOtherVariables(fen) {
@@ -130,7 +130,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
         }
       }
       if (m.vanish.length == 1) moves.push(m);
-      //no capture
+      // No capture
       else {
         // A capture occured (m.vanish.length == 2)
         m.appear[0].c = "c";
@@ -156,7 +156,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   // Does m2 un-do m1 ? (to disallow undoing checkered moves)
   oppositeMoves(m1, m2) {
     return (
-      !!m1 &&
+      m1 &&
       m2.appear[0].c == "c" &&
       m2.appear.length == 1 &&
       m2.vanish.length == 1 &&
@@ -170,8 +170,8 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   filterValid(moves) {
     if (moves.length == 0) return [];
     const color = this.turn;
+    const L = this.cmoves.length; //at least 1: init from FEN
     return moves.filter(m => {
-      const L = this.cmoves.length; //at least 1: init from FEN
       if (this.oppositeMoves(this.cmoves[L - 1], m)) return false;
       this.play(m);
       const res = !this.underCheck(color);

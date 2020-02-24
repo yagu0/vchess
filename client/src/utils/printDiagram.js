@@ -70,6 +70,7 @@ export function getDiagram(args) {
   const orientation = args.orientation || "w";
   const markArray = getMarkArray(args.marks);
   const shadowArray = getShadowArray(args.shadow);
+  const vr = new V(); //just for pieces images paths
   let boardDiv = "";
   const [startX, startY, inc] =
     orientation == "w" ? [0, 0, 1] : [V.size.x - 1, V.size.y - 1, -1];
@@ -87,7 +88,7 @@ export function getDiagram(args) {
         boardDiv +=
           "<img " +
           "src='/images/pieces/" +
-          V.getPpath(board[i][j]) +
+          vr.getPpath(board[i][j]) +
           ".svg' " +
           "class='piece'/>";
       }

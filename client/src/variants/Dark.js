@@ -46,9 +46,7 @@ export const VariantRules = class DarkRules extends ChessRules {
                 V.OnBoard(i + pawnShift[color], j + shiftY) &&
                 this.board[i + pawnShift[color]][j + shiftY] == V.EMPTY
               ) {
-                this.enlightened[color][i + pawnShift[color]][
-                  j + shiftY
-                ] = true;
+                this.enlightened[color][i + pawnShift[color]][j + shiftY] = true;
               }
             }
           }
@@ -83,25 +81,15 @@ export const VariantRules = class DarkRules extends ChessRules {
     return potentialMoves; //because there are no checks
   }
 
-  atLeastOneMove() {
-    if (this.kingPos[this.turn][0] < 0) return false;
-    return true; //TODO: is it right?
-  }
-
-  underCheck() {
-    return false; //there is no check
-  }
-
   getCheckSquares() {
     return [];
   }
 
   updateVariables(move) {
     super.updateVariables(move);
-    if (move.vanish.length >= 2 && move.vanish[1].p == V.KING) {
-      // We took opponent king ! (because if castle vanish[1] is a rook)
+    if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
+      // We took opponent king (because if castle vanish[1] is a rook)
       this.kingPos[this.turn] = [-1, -1];
-    }
 
     // Update lights for both colors:
     this.updateEnlightened();
@@ -111,15 +99,9 @@ export const VariantRules = class DarkRules extends ChessRules {
     super.unupdateVariables(move);
     const c = move.vanish[0].c;
     const oppCol = V.GetOppCol(c);
-    if (this.kingPos[oppCol][0] < 0) {
-      // Last move took opponent's king
-      for (let psq of move.vanish) {
-        if (psq.p == "k") {
-          this.kingPos[oppCol] = [psq.x, psq.y];
-          break;
-        }
-      }
-    }
+    if (this.kingPos[oppCol][0] < 0)
+      // Last move took opponent's king:
+      this.kingPos[oppCol] = [move.vanish[1].x, move.vanish[1].y];
 
     // Update lights for both colors:
     this.updateEnlightened();
@@ -129,12 +111,10 @@ export const VariantRules = class DarkRules extends ChessRules {
     const color = this.turn;
     const kp = this.kingPos[color];
     if (kp[0] < 0)
-      //king disappeared
+      // King disappeared
       return color == "w" ? "0-1" : "1-0";
-    if (this.atLeastOneMove())
-      // game not over
-      return "*";
-    return "1/2"; //no moves but kings still there (seems impossible)
+    // Assume that stalemate is impossible (I think so. Would need proof...)
+    return "*";
   }
 
   static get THRESHOLD_MATE() {

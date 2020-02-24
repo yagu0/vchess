@@ -148,5 +148,6 @@ export const translations = {
   "Reuse pieces": "Reutilizar piezas",
   "Reverse captures": "Capturas invertidas",
   "Shared pieces": "Piezas compartidas",
-  "Standard rules": "Reglas estandar"
+  "Standard rules": "Reglas estandar",
+  "Unidentified pieces": "Piezas no identificadas"
 };

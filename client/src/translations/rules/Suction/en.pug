@@ -5,10 +5,14 @@ p.
   When a piece is taken it is not removed from the board, but moved instead
   to the square that was initially occupied by the capturing piece.
 
+p.
+  It is forbidden to "un-do" a capture right after it was played:
+  in the diagram position, 3...Bxg7 is not allowed.
+
 figure.diagram-container
   .diagram
-    | fen:rnbqkb1r/ppp1pppp/5B2/3p4/8/1P6/PnPPPPPP/RN1QKBNR:
-  figcaption After 1.b3 d5 2.Bb2 Nf6 3.Bxf6
+    | fen:rnbqk1nr/ppppppBp/6p1/8/8/1P6/PbPPPPPP/RN1QKBNR:
+  figcaption After 1.b3 g6 2.Bb2 Bg7 3.Bxg7
 
 ul
   li.

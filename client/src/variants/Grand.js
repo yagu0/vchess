@@ -5,10 +5,6 @@ import { randInt } from "@/utils/alea";
 // NOTE: initial setup differs from the original; see
 // https://www.chessvariants.com/large.dir/freeling.html
 export const VariantRules = class GrandRules extends ChessRules {
-  static getPpath(b) {
-    return ([V.MARSHALL, V.CARDINAL].includes(b[1]) ? "Grand/" : "") + b;
-  }
-
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -33,6 +29,10 @@ export const VariantRules = class GrandRules extends ChessRules {
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
     return Object.assign(ChessRules.ParseFen(fen), { captured: fenParts[5] });
+  }
+
+  getPpath(b) {
+    return ([V.MARSHALL, V.CARDINAL].includes(b[1]) ? "Grand/" : "") + b;
   }
 
   getFen() {

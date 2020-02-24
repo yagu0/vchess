@@ -3,16 +3,16 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export const VariantRules = class AntikingRules extends ChessRules {
-  static getPpath(b) {
-    return b[1] == "a" ? "Antiking/" + b : b;
-  }
-
   static get ANTIKING() {
     return "a";
   }
 
   static get PIECES() {
     return ChessRules.PIECES.concat([V.ANTIKING]);
+  }
+
+  getPpath(b) {
+    return b[1] == "a" ? "Antiking/" + b : b;
   }
 
   setOtherVariables(fen) {

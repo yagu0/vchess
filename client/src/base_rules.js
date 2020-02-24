@@ -53,11 +53,6 @@ export const ChessRules = class ChessRules {
     return "all";
   }
 
-  // Path to pieces
-  static getPpath(b) {
-    return b; //usual pieces in pieces/ folder
-  }
-
   // Turn "wb" into "B" (for FEN)
   static board2fen(b) {
     return b[0] == "w" ? b[1].toUpperCase() : b[1];
@@ -158,6 +153,11 @@ export const ChessRules = class ChessRules {
   // {x:0,y:4} --> e8
   static CoordsToSquare(coords) {
     return V.CoordToColumn(coords.y) + (V.size.x - coords.x);
+  }
+
+  // Path to pieces
+  getPpath(b) {
+    return b; //usual pieces in pieces/ folder
   }
 
   // Aggregates flags into one object
@@ -379,7 +379,9 @@ export const ChessRules = class ChessRules {
   // INITIALIZATION
 
   constructor(fen) {
-    this.re_init(fen);
+    // In printDiagram() fen isn't supply because only getPpath() is used
+    if (fen)
+      this.re_init(fen);
   }
 
   // Fen string fully describes the game state

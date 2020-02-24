@@ -16,6 +16,7 @@ insert or ignore into Variants (name,description) values
   ('Enpassant', 'Capture en passant'),
   ('Extinction', 'Capture all of a kind'),
   ('Grand', 'Big board'),
+  ('Hidden', 'Unidentified pieces'),
   ('Losers', 'Lose all pieces'),
   ('Magnetic', 'Laws of attraction'),
   ('Marseille', 'Move twice'),

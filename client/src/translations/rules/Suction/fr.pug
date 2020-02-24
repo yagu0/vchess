@@ -6,10 +6,14 @@ p.
   Quand une pièce est capturée elle n'est pas retirée de l'échiquier, mais
   seulement déplacée sur la case initialement occupée par la pièce capturante.
 
+p.
+  Il est interdit de "défaire" une capture juste après qu'elle a été jouée :
+  dans la position du diagramme, 3...Bxg7 n'est pas autorisé.
+
 figure.diagram-container
   .diagram
-    | fen:rnbqkb1r/ppp1pppp/5B2/3p4/8/1P6/PnPPPPPP/RN1QKBNR:
-  figcaption Après 1.b3 d5 2.Bb2 Nf6 3.Bxf6
+    | fen:rnbqk1nr/ppppppBp/6p1/8/8/1P6/PbPPPPPP/RN1QKBNR:
+  figcaption Après 1.b3 g6 2.Bb2 Bg7 3.Bxg7
 
 ul
   li.

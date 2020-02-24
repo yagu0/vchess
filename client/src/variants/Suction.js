@@ -1,6 +1,35 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class AntimatterRules extends ChessRules {
+export const VariantRules = class SuctionRules extends ChessRules {
+  setOtherVariables(fen) {
+    super.setOtherVariables(fen);
+    // Local stack of captures
+    this.cmoves = [];
+    const cmove = fen.split(" ")[5];
+    if (cmove == "-") this.cmoves.push(null);
+    else {
+      this.cmoves.push({
+        start: ChessRules.SquareToCoords(cmove.substr(0, 2)),
+        end: ChessRules.SquareToCoords(cmove.substr(2))
+      });
+    }
+  }
+
+  static IsGoodFen(fen) {
+    if (!ChessRules.IsGoodFen(fen)) return false;
+    const fenParts = fen.split(" ");
+    if (fenParts.length != 6) return false;
+    if (fenParts[5] != "-" && !fenParts[5].match(/^([a-h][1-8]){2}$/))
+      return false;
+    return true;
+  }
+
+  getCmove(move) {
+    if (move.vanish.length == 2)
+      return { start: move.start, end: move.end };
+    return null;
+  }
+
   getBasicMove([sx, sy], [ex, ey]) {
     const startColor = this.getColor(sx, sy);
     const startPiece = this.getPiece(sx, sy);
@@ -121,6 +150,27 @@ export const VariantRules = class AntimatterRules extends ChessRules {
     return [];
   }
 
+  // Does m2 un-do m1 ? (to disallow undoing captures)
+  oppositeMoves(m1, m2) {
+    return (
+      m1 &&
+      m2.vanish.length == 2 &&
+      m1.start.x == m2.start.x &&
+      m1.end.x == m2.end.x &&
+      m1.start.y == m2.start.y &&
+      m1.end.y == m2.end.y
+    );
+  }
+
+  filterValid(moves) {
+    if (moves.length == 0) return [];
+    const color = this.turn;
+    return moves.filter(m => {
+      const L = this.cmoves.length; //at least 1: init from FEN
+      return !this.oppositeMoves(this.cmoves[L - 1], m);
+    });
+  }
+
   updateVariables(move) {
     super.updateVariables(move);
     if (move.vanish.length == 2) {
@@ -139,12 +189,32 @@ export const VariantRules = class AntimatterRules extends ChessRules {
     }
   }
 
-  atLeastOneMove() {
-    return true;
+  static GenRandInitFen() {
+    // Add empty cmove:
+    return ChessRules.GenRandInitFen() + " -";
   }
 
-  filterValid(moves) {
-    return moves;
+  getFen() {
+    const L = this.cmoves.length;
+    const cmoveFen = !this.cmoves[L - 1]
+      ? "-"
+      : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
+        ChessRules.CoordsToSquare(this.cmoves[L - 1].end);
+    return super.getFen() + " " + cmoveFen;
+  }
+
+  play(move) {
+    this.cmoves.push(this.getCmove(move));
+    super.play(move);
+  }
+
+  undo(move) {
+    this.cmoves.pop();
+    super.undo(move);
+  }
+
+  atLeastOneMove() {
+    return true;
   }
 
   getCheckSquares() {

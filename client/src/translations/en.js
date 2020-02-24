@@ -148,5 +148,6 @@ export const translations = {
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",
   "Shared pieces": "Shared pieces",
-  "Standard rules": "Standard rules"
+  "Standard rules": "Standard rules",
+  "Unidentified pieces": "Unidentified pieces"
 };

@@ -3,10 +3,6 @@ import { ArrayFun } from "@/utils/array";
 import { sample, randInt } from "@/utils/alea";
 
 export const VariantRules = class WildebeestRules extends ChessRules {
-  static getPpath(b) {
-    return ([V.CAMEL, V.WILDEBEEST].includes(b[1]) ? "Wildebeest/" : "") + b;
-  }
-
   static get size() {
     return { x: 10, y: 11 };
   }
@@ -50,6 +46,10 @@ export const VariantRules = class WildebeestRules extends ChessRules {
       }
     }
     return true;
+  }
+
+  getPpath(b) {
+    return ([V.CAMEL, V.WILDEBEEST].includes(b[1]) ? "Wildebeest/" : "") + b;
   }
 
   // There may be 2 enPassant squares (if pawn jump 3 squares)
