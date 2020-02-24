@@ -1,23 +1,32 @@
 p.boxed
-  | Si une pièce en capture une autre du même type, les deux disparaissent.
+  | La disposition des pièces est cachée : les joueurs connaissent l'emplacement
+  | des pièces adverses mais pas leur nature.
 
 p.
-  Le pouvoir défensif des pions est ainsi augmenté, puisqu'ils ne craignent
-  plus les captures (par d'autres pions).
+  Les pièces restent cachées jusqu'à ce qu'elles effectuent une capture,
+  moment à partir duquel elles sont révélées.
 
 p.
-  Les finales sont aussi beaucoup affectées, et parfois de nouvelles menaces
-  surviennent : sur le diagramme, 3.Bxg7 gagne un pion car 3...Bxg7 provoquerait
-  la disparition des deux fous.
+  Il n'y a ni roque ni prise en passant.
+  Les pions peuvent cependant avancer de deux cases s'ils démarrent sur la
+  première ou seconde rangée.
+
+p La victoire s'obtient en capturant le roi adverse.
 
 figure.diagram-container
   .diagram
-    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/8/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption After 1.b3 c5 2.Bb2 Nc6
+    | fen:qbppnprp/prppbkpn/8/8/8/8/QBPPNPRP/PRPPBKPN:
+  figcaption Possible position initiale.
+
+p.
+  Note au sujet de la position de départ : les pièces sont réparties au hasard
+  sur les deux premières rangées. Le roi pourrait être sur la seconde rangée,
+  attaqué par une tour ou dame ennemie. Ceci dit, puisque vous ne disposez pas
+  de cette information c'est un pari risqué :)
 
 h3 Source
 
 p
   | La 
-  a(href="https://www.chessvariants.com/rules/antimatter-chess") variante Antimatière
+  a(href="https://www.chessvariants.com/rules/strate-go-chess") variante Strate-Go
   | &nbsp;sur chessvariants.com.
