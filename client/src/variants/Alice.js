@@ -30,7 +30,7 @@ export const VariantRules = class AliceRules extends ChessRules {
   }
 
   getPpath(b) {
-    return (Object.keys(this.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
+    return (Object.keys(V.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
   }
 
   setOtherVariables(fen) {
