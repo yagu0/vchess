@@ -22,6 +22,7 @@ insert or ignore into Variants (name,description) values
   ('Losers', 'Lose all pieces'),
   ('Magnetic', 'Laws of attraction'),
   ('Marseille', 'Move twice'),
+  ('Royalrace', 'King crosses the board'),
   ('Recycle', 'Reuse pieces'),
   ('Suction', 'Attract opposite king'),
   ('Upsidedown', 'Board upside down'),

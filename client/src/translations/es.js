@@ -141,6 +141,7 @@ export const translations = {
   "Explosive captures": "Capturas explosivas",
   "In the shadow": "En la sombra",
   "Keep antiking in check": "Mantener el antirey en jaque",
+  "King crosses the board": "El rey cruza el tablero",
   "Laws of attraction": "Las leyes de las atracciones",
   "Lose all pieces": "Perder todas las piezas",
   "Mate any piece": "Matar cualquier pieza",

@@ -170,9 +170,9 @@ export const VariantRules = class CircularRules extends ChessRules {
   }
 
   isAttackedByPawn([x, y], colors) {
+    const pawnShift = 1;
+    const attackerRow = V.ComputeX(x + pawnShift);
     for (let c of colors) {
-      let pawnShift = 1;
-      const attackerRow = V.ComputeX(x + pawnShift);
       for (let i of [-1, 1]) {
         if (
           y + i >= 0 &&

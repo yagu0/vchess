@@ -141,6 +141,7 @@ export const translations = {
   "Explosive captures": "Explosive captures",
   "In the shadow": "In the shadow",
   "Keep antiking in check": "Keep antiking in check",
+  "King crosses the board": "King crosses the board",
   "Laws of attraction": "Laws of attraction",
   "Lose all pieces": "Lose all pieces",
   "Mate any piece": "Mate any piece",

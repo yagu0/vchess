@@ -467,7 +467,7 @@ export const ChessRules = class ChessRules {
     return { x: 8, y: 8 };
   }
 
-  // Color of thing on suqare (i,j). 'undefined' if square is empty
+  // Color of thing on square (i,j). 'undefined' if square is empty
   getColor(i, j) {
     return this.board[i][j].charAt(0);
   }
@@ -543,7 +543,7 @@ export const ChessRules = class ChessRules {
   ////////////////////
   // MOVES GENERATION
 
-  // All possible moves from selected square (assumption: color is OK)
+  // All possible moves from selected square
   getPotentialMovesFrom([x, y]) {
     switch (this.getPiece(x, y)) {
       case V.PAWN:
