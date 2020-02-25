@@ -2,7 +2,29 @@ p.boxed
   | Bring your king to the other side of the board.
   | Giving check is not allowed.
 
-p TODO
+p.
+  The board is of size 11 by 11, and to win your king must arrive on the 11th rank.
+  He can never be in check (thus there is no checkmate).
+  Stalemate would be a draw, but it seldom occur in this variant.
+
+p.
+  The basic strategy is to erect barriers on the way of the opponent king,
+  with rooks and queen for example, while your king advance next to it.
+
+figure.diagram-container
+  .diagram
+    | fen:9r1/1K9/4R6/10k/Q10/2B1RNb2p1/4Pn5/6Nq3/6p1r1n/P10/2B5b2:
+  figcaption White can win by 1.Re8 Rxe8 2.Rxe8 and 3.Ka8 or 3.Kc8.
+
+h3 Adapted pieces movement
+
+ul
+  li.
+    The knights are turned into knightriders:
+    they can make multi knight steps in the same direction.
+  li.
+    The pawns can move as rooks.
+    They still capture one square diagonally, and can also do it backward.
 
 h3 Source
 

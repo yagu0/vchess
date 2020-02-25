@@ -1,1 +1,36 @@
-p TODO
+p.boxed
+  | Amenez votre roi de l'autre côté de l'échiquier.
+  | Les échecs ne sont pas autorisés.
+
+p.
+  L'échiquier est de taille 11 par 11, et pour gagner votre roi doit parvenir
+  sur la 11eme rangée.
+  Il ne peut jamais être en échec (il n'y a donc pas de mat).
+  Le pat signifierait match nul, mais il arrive très rarement dans cette variante.
+
+p.
+  La stratégie de base consiste à ériger des barrières sur le chemin du roi adverse,
+  avec des tours et la dame par exemple, tandis que votre roi avance à côté.
+
+figure.diagram-container
+  .diagram
+    | fen:9r1/1K9/4R6/10k/Q10/2B1RNb2p1/4Pn5/6Nq3/6p1r1n/P10/2B5b2:
+  figcaption Les blancs peuvent gagner par 1.Re8 Rxe8 2.Rxe8 et 3.Ka8 ou 3.Kc8.
+
+h3 Déplacements de pièces adaptés
+
+ul
+  li.
+    Les cavaliers deviennent des chevaliers :
+    ils peuvent effectuer plusieurs sauts de cavalier dans une même direction.
+  li.
+    Les pions se déplacent comme des tours.
+    Ils capturent toujours d'une case en diagonale,
+    et peuvent aussi le faire en arrière.
+
+h3 Source
+
+p
+  | Fortement inspiré par la variante Racing Kings jouable entre autres
+  a(href="https://lichess.org/variant/racingKings") sur lichess
+  | .

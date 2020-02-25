@@ -1,1 +1,36 @@
-p TODO
+p.boxed
+  | Lleva a tu rey al otro lado del tablero.
+  | Las jaques no están permitidas.
+
+p.
+  El tablero de ajedrez mide 11 por 11, y para ganar tu rey debes alcanzar
+  en la 11ma fila.
+  Él nunca puede estar en jaque (por lo que no hay jaque mate).
+  El empate significaría tablas, pero rara vez ocurre en esta variante.
+
+p.
+  La estrategia básica es erigir barreras en el camino del rey contrario,
+  con torres y la dama, por ejemplo, mientras tu rey avanza al lado.
+
+figure.diagram-container
+  .diagram
+    | fen:9r1/1K9/4R6/10k/Q10/2B1RNb2p1/4Pn5/6Nq3/6p1r1n/P10/2B5b2:
+  figcaption Las blancas pueden ganar por 1.Re8 Rxe8 2.Rxe8 y 3.Ka8 o 3.Kc8.
+
+h3 Movimientos de piezas adaptadas
+
+ul
+  li.
+    Los caballos se convierten en caballeros:
+    pueden hacer varios saltos de caballo en la misma dirección.
+  li.
+    Los peones se mueven como torres.
+    Siempre capturan desde un cuadrado diagonal,
+    y también puede hacerlo al revés.
+
+h3 Fuente
+
+p
+  | Fuertemente inspirado por la variante Racing Kings, jugable entre otros
+  a(href="https://lichess.org/variant/racingKings") en lichess
+  | .

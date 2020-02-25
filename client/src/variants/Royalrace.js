@@ -84,9 +84,11 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
       "11/11/11/11/11/11/11/11/11/" +
       whiteFen.substr(5).split("").reverse().join("") +
       "1" +
-      blackFen.substr(5).split("").reverse().join("") +
+      blackFen.substr(5).split("").join("") +
       "/" +
-      whiteFen.substr(0,5) + "1" + blackFen.substr(0,5) +
+      whiteFen.substr(0,5) +
+      "1" +
+      blackFen.substr(0,5).split("").reverse().join("") +
       " w 0"
     );
   }
@@ -99,15 +101,16 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
         return m.vanish.length == 1;
       });
 
-    // Captures
-    const shiftX = -1;
-    for (let shiftY of [-1, 1]) {
-      if (
-        V.OnBoard(x + shiftX, y + shiftY) &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        moves.push(this.getBasicMove([x, y], [x + shiftX, y + shiftY]));
+    // Captures (in both directions)
+    for (let shiftX of [-1, 1]) {
+      for (let shiftY of [-1, 1]) {
+        if (
+          V.OnBoard(x + shiftX, y + shiftY) &&
+          this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+          this.canTake([x, y], [x + shiftX, y + shiftY])
+        ) {
+          moves.push(this.getBasicMove([x, y], [x + shiftX, y + shiftY]));
+        }
       }
     }
 
