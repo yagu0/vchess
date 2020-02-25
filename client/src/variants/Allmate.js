@@ -240,20 +240,34 @@ export const VariantRules = class AllmateRules extends ChessRules {
 
   updateVariables(move) {
     super.updateVariables(move);
-    if (move.vanish.length == 2 && move.appear.length == 1) {
-      // Did opponent king disappeared?
-      if (move.vanish.some(v => v.p == V.KING))
-        this.kingPos[this.turn] = [-1, -1];
+    const color = V.GetOppCol(this.turn);
+    if (move.vanish.length >= 2 && move.appear.length == 1) {
+      move.vanish.forEach(v => {
+        if (v.c == color)
+          return;
+        // Did opponent king disappeared?
+        if (v.p == V.KING)
+          this.kingPos[this.turn] = [-1, -1];
+        // Or maybe a rook?
+        else if (v.p == V.ROOK) {
+          if (v.y < this.INIT_COL_KING[v.c])
+            this.castleFlags[v.c][0] = false;
+          else
+            // v.y > this.INIT_COL_KING[v.c]
+            this.castleFlags[v.c][1] = false;
+        }
+      });
     }
   }
 
   unupdateVariables(move) {
     super.unupdateVariables(move);
-    if (move.vanish.length == 2 && move.appear.length == 1) {
+    const color = this.turn;
+    if (move.vanish.length >= 2 && move.appear.length == 1) {
       // Did opponent king disappeared?
-      const vIdx = move.vanish.findIndex(v => v.p == V.KING)
-      if (vIdx >= 0)
-        this.kingPos[move.vanish[vIdx].c] = [move.vanish[vIdx].x,move.vanish[vIdx].y];
+      const psq = move.vanish.find(v => v.p == V.KING && v.c != color)
+      if (psq)
+        this.kingPos[psq.c] = [psq.x, psq.y];
     }
   }
 
