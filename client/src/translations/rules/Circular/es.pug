@@ -1,23 +1,30 @@
 p.boxed
-  | Si una pieza captura otra del mismo tipo, las dos desaparecen.
+  | Las filas 1 y 8 se comunican.
+  | Todos los peones van en la misma dirección y nunca son promovidos.
 
 p.
-  El poder defensivo de los peones aumenta así, ya que no temen
-  más capturas (por otros peones).
-
-p.
-  Las finales también se ven muy afectadas y, a veces, nuevas amenazas
-  ocurren: en el diagrama, 3.Bxg7 gana un peón porque 3...Bxg7 causaría
-  la desaparición de los dos alfiles.
+  En la posición inicial, a menudo es posible ganar en unos pocos
+  movimientos que comienzan con jaque: por eso está prohibido.
 
 figure.diagram-container
   .diagram
-    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/8/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption Después de 1.b3 c5 2.Bb2 Nc6
+    | fen:8/8/pppppppp/rkbrnnqb/8/8/PPPPPPPP/BBRNKQNR:
+  figcaption 1.Nc3+ ganaría rápidamente.
+
+p.
+  Tenga en cuenta que dado que las filas 1 y 8 se comunican, un peón negro
+  en el octavo fila amenaza una pieza en el primero.
+  Por ejemplo, el peón d6 a d8 pondría en jaque el rey blanco.
+
+p.
+  Debido a las reglas de peones inusuales (todos van en la misma
+  dirección: arriba), no hay capturas en passant.
+  El enroque tampoco es posible porque el rey es vulnerable
+  en ambas direcciones.
 
 h3 Fuente
 
 p
   | La 
-  a(href="https://www.chessvariants.com/rules/antimatter-chess") variante Antimateria
+  a(href="https://www.chessvariants.com/d.betza/chessvar/race.html") variante 8x8 Race
   | &nbsp;en chessvariants.com.

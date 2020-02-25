@@ -1,23 +1,30 @@
 p.boxed
-  | Si une pièce en capture une autre du même type, les deux disparaissent.
+  | Les rangées 1 et 8 communiquent.
+  | Les pions vont tous dans le même sens et ne sont jamais promus.
 
 p.
-  Le pouvoir défensif des pions est ainsi augmenté, puisqu'ils ne craignent
-  plus les captures (par d'autres pions).
-
-p.
-  Les finales sont aussi beaucoup affectées, et parfois de nouvelles menaces
-  surviennent : sur le diagramme, 3.Bxg7 gagne un pion car 3...Bxg7 provoquerait
-  la disparition des deux fous.
+  Dans la position initiale, il est souvent possible de gagner en quelques
+  coups en commençant par donner échec : c'est pourquoi on l'interdit.
 
 figure.diagram-container
   .diagram
-    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/8/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption After 1.b3 c5 2.Bb2 Nc6
+    | fen:8/8/pppppppp/rkbrnnqb/8/8/PPPPPPPP/BBRNKQNR:
+  figcaption 1.Nc3+ gagnerait rapidement.
+
+p.
+  Notez que puisque les rangées 1 et 8 communiquent, un pion noir sur la 8eme
+  rangée menace une pièce sur la première. Par exemple pion d6 à d8 mettrait
+  en échec le roi blanc.
+
+p.
+  À cause des règles inhabituelles sur les pions (ils vont tous dans la même
+  direction : vers le haut), les captures en passant n'existent pas.
+  Le roque n'est pas possible non plus car le roi est vulnérable
+  dans les deux directions.
 
 h3 Source
 
 p
   | La 
-  a(href="https://www.chessvariants.com/rules/antimatter-chess") variante Antimatière
+  a(href="https://www.chessvariants.com/d.betza/chessvar/race.html") variante 8x8 Race
   | &nbsp;sur chessvariants.com.

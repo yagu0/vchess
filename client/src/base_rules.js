@@ -60,6 +60,14 @@ export const ChessRules = class ChessRules {
     return V.ShowMoves;
   }
 
+  // Some variants always show the same orientation
+  static get CanFlip() {
+    return true;
+  }
+  get canFlip() {
+    return V.CanFlip;
+  }
+
   // Turn "wb" into "B" (for FEN)
   static board2fen(b) {
     return b[0] == "w" ? b[1].toUpperCase() : b[1];
@@ -378,7 +386,6 @@ export const ChessRules = class ChessRules {
   setFlags(fenflags) {
     // white a-castle, h-castle, black a-castle, h-castle
     this.castleFlags = { w: [true, true], b: [true, true] };
-    if (!fenflags) return;
     for (let i = 0; i < 4; i++)
       this.castleFlags[i < 2 ? "w" : "b"][i % 2] = fenflags.charAt(i) == "1";
   }
@@ -627,8 +634,8 @@ export const ChessRules = class ChessRules {
         x + shiftX == lastRank
           ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
           : [V.PAWN];
-      // One square forward
       if (this.board[x + shiftX][y] == V.EMPTY) {
+        // One square forward
         for (let piece of finalPieces) {
           moves.push(
             this.getBasicMove([x, y], [x + shiftX, y], {

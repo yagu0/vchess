@@ -45,7 +45,7 @@ div#baseGame(
       #controls
         button(@click="gotoBegin()") <<
         button(@click="undo()") <
-        button(@click="flip()") &#8645;
+        button(v-if="canFlip" @click="flip()") &#8645;
         button(@click="play()") >
         button(@click="gotoEnd()") >>
       #belowControls
@@ -121,15 +121,27 @@ export default {
         : (this.vr ? this.vr.showMoves : "none");
     },
     showTurn: function() {
-      return this.game.score == '*' && this.vr && this.vr.showMoves != "all";
+      return (
+        this.game.score == '*' &&
+        this.vr &&
+        (this.vr.showMoves != "all" || !this.vr.canFlip)
+      );
     },
     turn: function() {
-      return this.vr
-        ? this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"]
+      if (!this.vr)
+        return "";
+      if (this.vr.showMoves != "all")
+        return this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"]
+      // Cannot flip: racing king or circular chess
+      return this.vr.movesCount == 0 && this.game.mycolor == "w"
+        ? this.st.tr["It's your turn!"]
         : "";
     },
     canAnalyze: function() {
       return this.game.mode != "analyze" && this.vr && this.vr.canAnalyze;
+    },
+    canFlip: function() {
+      return this.vr && this.vr.canFlip;
     },
     allowDownloadPGN: function() {
       return this.game.score != "*" || (this.vr && this.vr.showMoves == "all");
@@ -444,6 +456,7 @@ export default {
 
 #controls
   margin: 0 auto
+  text-align: center
   button
     display: inline-block
     width: 20%

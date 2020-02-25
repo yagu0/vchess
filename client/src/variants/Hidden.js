@@ -214,9 +214,9 @@ export const VariantRules = class HiddenRules extends ChessRules {
       pieces[c][rook2Pos] = "u";
     }
     let upFen = pieces["b"].join("");
-    upFen = upFen.substr(0,8) + "/" + upFen.substr(8);
+    upFen = upFen.substr(0,8) + "/" + upFen.substr(8).split("").reverse().join("");
     let downFen = pieces["b"].join("").toUpperCase();
-    downFen = downFen.substr(0,8) + "/" + downFen.substr(8);
+    downFen = downFen.substr(0,8) + "/" + downFen.substr(8).split("").reverse().join("");
     return upFen + "/8/8/8/8/" + downFen + " w 0";
   }
 
@@ -255,9 +255,49 @@ export const VariantRules = class HiddenRules extends ChessRules {
   }
 
   getComputerMove() {
-    // Just return a random move. TODO: something smarter...
-    const moves = this.getAllValidMoves();
-    return moves[randInt(moves.length)];
+    const color = this.turn;
+    let moves = this.getAllValidMoves();
+    for (let move of moves) {
+      move.eval = 0; //a priori...
+
+      // Can I take something ? If yes, do it with some probability
+      if (move.vanish.length == 2 && move.vanish[1].c != color) {
+        // OK this isn't a castling move
+        const myPieceVal = V.VALUES[move.appear[0].p];
+        const hisPieceVal = Object.keys(V.HIDDEN_DECODE).includes(move.vanish[1].p)
+          ? undefined
+          : V.VALUES[move.vanish[1].p];
+        if (!hisPieceVal) {
+          // Opponent's piece is unknown: do not take too much risk
+          move.eval = -myPieceVal + 1.5; //so that pawns always take
+        }
+        // Favor captures
+        else if (myPieceVal <= hisPieceVal)
+          move.eval = hisPieceVal - myPieceVal + 1;
+        else {
+          // Taking a pawn with minor piece,
+          // or minor piece or pawn with a rook,
+          // or anything but a queen with a queen,
+          // or anything with a king.
+          move.eval = hisPieceVal - myPieceVal;
+        }
+      } else {
+        // If no capture, favor small step moves,
+        // but sometimes move the knight anyway
+        const penalty = V.Decode(move.vanish[0].p) != V.KNIGHT
+          ? Math.abs(move.end.x - move.start.x) + Math.abs(move.end.y - move.start.y)
+          : (Math.random() < 0.5 ? 3 : 1);
+        move.eval -= penalty / (V.size.x + V.size.y - 1);
+      }
+
+      // TODO: also favor movements toward the center?
+    }
+
+    moves.sort((a, b) => b.eval - a.eval);
+    let candidates = [0];
+    for (let j = 1; j < moves.length && moves[j].eval == moves[0].eval; j++)
+      candidates.push(j);
+    return moves[candidates[randInt(candidates.length)]];
   }
 
   getNotation(move) {

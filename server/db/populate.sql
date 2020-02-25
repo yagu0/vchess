@@ -13,6 +13,7 @@ insert or ignore into Variants (name,description) values
   ('Chess960', 'Standard rules'),
   ('Circular', 'Run forward'),
   ('Crazyhouse', 'Captures reborn'),
+  ('Cylinder', 'Neverending rows'),
   ('Dark', 'In the shadow'),
   ('Enpassant', 'Capture en passant'),
   ('Extinction', 'Capture all of a kind'),

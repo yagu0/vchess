@@ -223,19 +223,18 @@ export const VariantRules = class DarkRules extends ChessRules {
 
       // Can I take something ? If yes, do it if it seems good...
       if (move.vanish.length == 2 && move.vanish[1].c != color) {
-        //avoid castle
+        // OK this isn't a castling move
         const myPieceVal = V.VALUES[move.appear[0].p];
         const hisPieceVal = V.VALUES[move.vanish[1].p];
-        if (myPieceVal <= hisPieceVal) move.eval = hisPieceVal - myPieceVal + 2;
-        //favor captures
+        // Favor captures
+        if (myPieceVal <= hisPieceVal) move.eval = hisPieceVal - myPieceVal + 1;
         else {
           // Taking a pawn with minor piece,
           // or minor piece or pawn with a rook,
           // or anything but a queen with a queen,
           // or anything with a king.
-          // ==> Do it at random, although
-          //     this is clearly inferior to what a human can deduce...
-          move.eval = Math.random() < 0.5 ? 1 : -1;
+          move.eval = hisPieceVal - myPieceVal;
+                      //Math.random() < 0.5 ? 1 : -1;
         }
       }
     }

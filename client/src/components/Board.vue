@@ -59,7 +59,7 @@ export default {
         }
       },
       [...Array(sizeX).keys()].map(i => {
-        let ci = this.orientation == "w" ? i : sizeX - i - 1;
+        let ci = !V.CanFlip || this.orientation == "w" ? i : sizeX - i - 1;
         return h(
           "div",
           {
@@ -69,7 +69,7 @@ export default {
             style: { opacity: this.choices.length > 0 ? "0.5" : "1" }
           },
           [...Array(sizeY).keys()].map(j => {
-            let cj = this.orientation == "w" ? j : sizeY - j - 1;
+            let cj = !V.CanFlip || this.orientation == "w" ? j : sizeY - j - 1;
             let elems = [];
             if (
               this.vr.board[ci][cj] != V.EMPTY &&

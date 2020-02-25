@@ -1,26 +1,27 @@
-p https://www.chessvariants.com/d.betza/chessvar/race.html 8x8 race chess
-
-p See also: https://www.chessvariants.com/shape.dir/x_torus.html
-
 p.boxed
-  | If a piece captures one of the same kind, both disappear.
+  | Ranks 1 and 8 communicate. Pawns all go the same way and never promote.
 
 p.
-  The defensive power of pawns is thus increased, because they don't fear
-  captures (by other pawns).
-
-p.
-  Endings are also affected quite a lot, and sometimes new threats occur:
-  on the diagram, 3.Bxg7 wins a pawn because 3...Bxg7 would make both
-  bishops disappear.
+  In the initial position, it is often possible to win in a few moves by
+  giving check first: that is why this is forbidden.
 
 figure.diagram-container
   .diagram
-    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/8/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption After 1.b3 c5 2.Bb2 Nc6
+    | fen:8/8/pppppppp/rkbrnnqb/8/8/PPPPPPPP/BBRNKQNR:
+  figcaption 1.Nc3+ would win quickly.
+
+p.
+  Note that since ranks 1 and 8 communicate, a black pawn on the 8th rank
+  threatens a piece on the first rank. For example pawn d6 to d8 would check
+  the white king.
+
+p.
+  Due to the unusual pawns rules (they all go the same way: up the board),
+  en passant captures do not exist. Castling is also disabled because
+  the king is vulnerable in both directions.
 
 h3 Source
 
 p
-  a(href="https://www.chessvariants.com/rules/antimatter-chess") Antimatter chess
+  a(href="https://www.chessvariants.com/d.betza/chessvar/race.html") 8x8 Race Chess
   | &nbsp;on chessvariants.com.

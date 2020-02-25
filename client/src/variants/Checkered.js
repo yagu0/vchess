@@ -74,7 +74,6 @@ export const VariantRules = class CheckeredRules extends ChessRules {
       w: [...Array(8).fill(true)], //pawns can move 2 squares?
       b: [...Array(8).fill(true)]
     };
-    if (!fenflags) return;
     const flags = fenflags.substr(4); //skip first 4 digits, for castle
     for (let c of ["w", "b"]) {
       for (let i = 0; i < 8; i++)
@@ -112,7 +111,8 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     let standardMoves = super.getPotentialMovesFrom([x, y]);
     const lastRank = this.turn == "w" ? 0 : 7;
-    if (this.getPiece(x, y) == V.KING) return standardMoves; //king has to be treated differently (for castles)
+    // King has to be treated differently (for castles)
+    if (this.getPiece(x, y) == V.KING) return standardMoves;
     let moves = [];
     standardMoves.forEach(m => {
       if (m.vanish[0].p == V.PAWN) {

@@ -1,0 +1,24 @@
+p.boxed
+  | Columns 'a' and 'h' communicate.
+
+p.
+  Column 'a' is now just to the right of column 'h': a pawn on h2 can
+  take on a3, and a bishop on h3 can go to a4, and so on.
+
+p.
+  This allows a single piece to give a double check. On the following diagram
+  the bishop give check on b5 by two distinct paths: e2-d3-c4 and g2-h3-a4.
+  Covering both attacking lines is impossible so the king has to move.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/2p5/3n4/1k6/8/8/2PP4/5B1K:
+  .diagram.diag22
+    | fen:4k3/2p5/8/8/7N/8/3P4/7K a2,b3,b5,a6,g2,f3,f5,g6:
+  figcaption Left: double-check on b5. Right: possible knight moves from h4.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/boardrules.dir/cylindrical.html") Cylinder Chess
+  | &nbsp;on chessvariants.com.

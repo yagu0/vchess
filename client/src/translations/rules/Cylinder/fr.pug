@@ -1,0 +1,27 @@
+p.boxed
+  | Les colonnes 'a' et 'h' commniquent.
+
+p.
+  La colonne 'a' est maintenant juste à la droite de la colonne 'h' :
+  un pion en h2 peut prendre en a3, et un fou en h3 peut aller en a4, etc.
+
+p.
+  Ceci permet des double échecs donnés par une seule pièce. Sur le diagramme
+  suivant, le fou donne échec par deux chemins différents : e2-d3-c4 et g2-h3-a4.
+  Il n'est pas possible de couvrir les deux lignes d'attaque, donc le roi doit bouger.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/2p5/3n4/1k6/8/8/2PP4/5B1K:
+  .diagram.diag22
+    | fen:4k3/2p5/8/8/7N/8/3P4/7K a2,b3,b5,a6,g2,f3,f5,g6:
+  figcaption.
+    Gauche: double-échec en b5. Droite: possibles coups de cavalier depuis h4.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/boardrules.dir/cylindrical.html")
+    | variante cylindrique
+  | &nbsp;sur chessvariants.com.

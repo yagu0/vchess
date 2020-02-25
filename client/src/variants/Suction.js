@@ -236,4 +236,28 @@ export const VariantRules = class SuctionRules extends ChessRules {
     // Very simple criterion for now: kings position
     return this.kingPos["w"][0] + this.kingPos["b"][0];
   }
+
+  getNotation(move) {
+    // Translate final square
+    const finalSquare = V.CoordsToSquare(move.end);
+
+    const piece = this.getPiece(move.start.x, move.start.y);
+    if (piece == V.PAWN) {
+      // Pawn move
+      let notation = "";
+      if (move.vanish.length == 2) {
+        // Capture
+        const startColumn = V.CoordToColumn(move.start.y);
+        notation = startColumn + "x" + finalSquare;
+      }
+      else notation = finalSquare;
+      return notation;
+    }
+    // Piece movement
+    return (
+      piece.toUpperCase() +
+      (move.vanish.length == 2 ? "x" : "") +
+      finalSquare
+    );
+  }
 };
