@@ -126,6 +126,7 @@ export const translations = {
   "Your message": "Your message",
 
   // Variants boxes:
+  "Ancient rules": "Ancient rules",
   "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
   "Big board": "Big board",
@@ -136,15 +137,17 @@ export const translations = {
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
   "Dangerous collisions": "Dangerous collisions",
-  "Exchange pieces positions": "Exchange pieces positions",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
   "In the shadow": "In the shadow",
+  "Give three checks": "Give three checks",
   "Keep antiking in check": "Keep antiking in check",
   "King crosses the board": "King crosses the board",
   "Laws of attraction": "Laws of attraction",
   "Lose all pieces": "Lose all pieces",
   "Mate any piece": "Mate any piece",
+  "Middle battle": "Middle battle",
+  "Move like a knight": "Move like a knight",
   "Move twice": "Move twice",
   "Neverending rows": "Neverending rows",
   "Pawns move diagonally": "Pawns move diagonally",
@@ -152,6 +155,8 @@ export const translations = {
   "Reverse captures": "Reverse captures",
   "Run forward": "Run forward",
   "Shared pieces": "Shared pieces",
+  "Shoot pieces": "Shoot pieces",
+  "Squares disappear": "Squares disappear",
   "Standard rules": "Standard rules",
   "Unidentified pieces": "Unidentified pieces"
 };

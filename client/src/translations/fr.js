@@ -126,6 +126,7 @@ export const translations = {
   "Your message": "Votre message",
 
   // Variants boxes:
+  "Ancient rules": "Règles anciennes",
   "Attract opposite king": "Attirer le roi adverse",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",
   "Big board": "Grand échiquier",
@@ -136,15 +137,17 @@ export const translations = {
   "Captures reborn": "Les captures renaissent",
   "Change colors": "Changer les couleurs",
   "Dangerous collisions": "Collisions dangeureuses",
-  "Exchange pieces positions": "Échangez les positions des pièces",
   "Exotic captures": "Captures exotiques",
   "Explosive captures": "Captures explosives",
   "In the shadow": "Dans l'ombre",
+  "Give three checks": "Donnez trois échecs",
   "Keep antiking in check": "Gardez l'antiroi en échec",
   "King crosses the board": "Le roi traverse l'échiquier",
   "Laws of attraction": "Les lois de l'attraction",
   "Lose all pieces": "Perdez toutes les pièces",
   "Mate any piece": "Mater n'importe quelle pièce",
+  "Middle battle": "Bataille du milieu",
+  "Move like a knight": "Bougez comme un cavalier",
   "Move twice": "Jouer deux coups",
   "Neverending rows": "Rangées sans fin",
   "Pawns move diagonally": "Les pions vont en diagonale",
@@ -152,6 +155,8 @@ export const translations = {
   "Reverse captures": "Captures inversées",
   "Run forward": "Courir vers l'avant",
   "Shared pieces": "Pièces partagées",
+  "Shoot pieces": "Tirez sur les pièces",
+  "Squares disappear": "Les cases disparaissent",
   "Standard rules": "Règles usuelles",
   "Unidentified pieces": "Pièces non identifiées"
 };

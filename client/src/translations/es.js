@@ -126,6 +126,7 @@ export const translations = {
   "Your message": "Tu mensaje",
 
   // Variants boxes:
+  "Ancient rules": "Viejas reglas",
   "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",
   "Big board": "Gran tablero",
@@ -136,15 +137,17 @@ export const translations = {
   "Captures reborn": "Las capturas renacen",
   "Change colors": "Cambiar colores",
   "Dangerous collisions": "Colisiones peligrosas",
-  "Exchange pieces positions": "Intercambiar las posiciones de las piezas",
   "Exotic captures": "Capturas exóticas",
   "Explosive captures": "Capturas explosivas",
   "In the shadow": "En la sombra",
+  "Give three checks": "Dar tres jaques",
   "Keep antiking in check": "Mantener el antirey en jaque",
   "King crosses the board": "El rey cruza el tablero",
   "Laws of attraction": "Las leyes de las atracciones",
   "Lose all pieces": "Perder todas las piezas",
   "Mate any piece": "Matar cualquier pieza",
+  "Middle battle": "Batalla media",
+  "Move like a knight": "Moverse como un caballo",
   "Move twice": "Mover dos veces",
   "Neverending rows": "Filas interminables",
   "Pawns move diagonally": "Peones se mueven en diagonal",
@@ -152,6 +155,8 @@ export const translations = {
   "Reverse captures": "Capturas invertidas",
   "Run forward": "Correr hacia adelante",
   "Shared pieces": "Piezas compartidas",
+  "Shoot pieces": "Tirar de las piezas",
+  "Squares disappear": "Las casillas desaparecen",
   "Standard rules": "Reglas estandar",
   "Unidentified pieces": "Piezas no identificadas"
 };

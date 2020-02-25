@@ -178,7 +178,10 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     if (this.kingPos[color][0] == 0)
       // The opposing edge is reached!
       return color == "w" ? "1-0" : "0-1";
-    return "*";
+    if (this.atLeastOneMove())
+      return "*";
+    // Stalemate (will probably never happen)
+    return "1/2";
   }
 
   static get SEARCH_DEPTH() {
