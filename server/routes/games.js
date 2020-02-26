@@ -63,20 +63,21 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
     GameModel.getPlayers(gid, (err,players) => {
       if (players.some(p => p.uid == req.userId))
       {
-        GameModel.update(gid, obj);
-        if (obj.move || obj.score)
-        {
-          // Notify opponent if he enabled notifications:
-          const oppid = players[0].uid == req.userId
-            ? players[1].uid
-            : players[0].uid;
-          const messagePrefix = obj.move
-            ? "New move in game: "
-            : "Game ended: ";
-          UserModel.tryNotify(oppid,
-            messagePrefix + params.siteURL + "/#/game/" + gid);
-        }
-        res.json({});
+        GameModel.update(gid, obj, (err) => {
+          if (!err && (obj.move || obj.score))
+          {
+            // Notify opponent if he enabled notifications:
+            const oppid = players[0].uid == req.userId
+              ? players[1].uid
+              : players[0].uid;
+            const messagePrefix = obj.move
+              ? "New move in game: "
+              : "Game ended: ";
+            UserModel.tryNotify(oppid,
+              messagePrefix + params.siteURL + "/#/game/" + gid);
+          }
+          res.json(err || {});
+        });
       }
     });
   }

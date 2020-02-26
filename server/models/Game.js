@@ -208,7 +208,7 @@ const GameModel =
   },
 
   // obj can have fields move, chat, fen, drawOffer and/or score + message
-  update: function(id, obj)
+  update: function(id, obj, cb)
   {
     db.parallelize(function() {
       let query =
@@ -235,14 +235,27 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
+      let wrongMoveIndex = false;
       if (obj.move)
       {
-        const m = obj.move;
+        // Security: only update moves if index is right
         query =
-          "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
-          "(" + id + ",?," + m.played + "," + m.idx + ")";
-        db.run(query, JSON.stringify(m.squares));
+          "SELECT MAX(idx) AS maxIdx " +
+          "FROM Moves " +
+          "WHERE gid = " + id;
+        db.get(query, (err,ret) => {
+          const m = obj.move;
+          if (!ret.maxIdx || ret.maxIdx + 1 == m.idx) {
+            query =
+              "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
+              "(" + id + ",?," + m.played + "," + m.idx + ")";
+            db.run(query, JSON.stringify(m.squares));
+            cb(null);
+          }
+          else cb({errmsg:"Wrong move index"});
+        });
       }
+      else cb(null);
       if (obj.chat)
       {
         query =
