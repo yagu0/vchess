@@ -4,7 +4,7 @@ import { randInt } from "@/utils/alea";
 
 // TODO:
 
-export const VariantRules = class HiddenRules extends ChessRules {
+export const VariantRules = class WormholeRules extends ChessRules {
   static get HasFlags() {
     return false;
   }

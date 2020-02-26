@@ -1121,6 +1121,7 @@ export const ChessRules = class ChessRules {
     // Some variants may show a bigger moves list to the human (Switching),
     // thus the argument "computer" below (which is generally ignored)
     let moves1 = this.getAllValidMoves("computer");
+
     if (moves1.length == 0)
       //TODO: this situation should not happen
       return null;
@@ -1209,7 +1210,7 @@ export const ChessRules = class ChessRules {
         return (color == "w" ? 1 : -1) * (b.eval - a.eval);
       });
     } else return currentBest;
-    //    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
+    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
     candidates = [0];
     for (let j = 1; j < moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -1254,6 +1255,18 @@ export const ChessRules = class ChessRules {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] != V.EMPTY) {
           const sign = this.getColor(i, j) == "w" ? 1 : -1;
+
+
+//TODO: debug in KnightRelay
+if (isNaN(V.VALUES[this.getPiece(i, j)])) {
+  console.log(i + " " + j);
+  console.log(this.getPiece(i, j));
+  console.log(this.board);
+  console.log("ajout " + sign + " * "+  V.VALUES[this.getPiece(i, j)]);
+  debugger;
+}
+
+
           evaluation += sign * V.VALUES[this.getPiece(i, j)];
         }
       }
