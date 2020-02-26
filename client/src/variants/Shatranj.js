@@ -1,6 +1,9 @@
+// TODO: bishop OK, but queen should move vertical/horizontal and capture diagonally.
+// ==> then the pawn promotion is a real promotion (enhancement).
+
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ChaturangaRules extends ChessRules {
+export const VariantRules = class ShatranjRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
