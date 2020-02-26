@@ -24,17 +24,44 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
             V.OnBoard(x+step[0],y+step[1]) &&
             this.getColor(x+step[0],y+step[1]) != color
           ) {
-            let m = this.getBasicMove([x,y], [x+step[0],y+step[1]]);
-            if (!m.appear[0].c || !m.vanish[0].c)
-              debugger;
-            moves.push(m);
-            //moves.push(this.getBasicMove([x,y], [x+step[0],y+step[1]]));
+            moves.push(this.getBasicMove([x,y], [x+step[0],y+step[1]]));
           }
         }
       }
     }
 
     return moves;
+  }
+
+  isAttacked(sq, colors) {
+    if (super.isAttacked(sq, colors))
+      return true;
+
+    // Check if a (non-knight) piece at knight distance
+    // is guarded by a knight (and thus attacking)
+    const x = sq[0],
+          y = sq[1];
+    for (const step of V.steps[V.KNIGHT]) {
+      if (
+        V.OnBoard(x+step[0],y+step[1]) &&
+        colors.includes(this.getColor(x+step[0],y+step[1])) &&
+        this.getPiece(x+step[0],y+step[1]) != V.KNIGHT
+      ) {
+        for (const step2 of V.steps[V.KNIGHT]) {
+          const xx = x+step[0]+step2[0],
+                yy = y+step[1]+step2[1];
+          if (
+            V.OnBoard(xx,yy) &&
+            colors.includes(this.getColor(xx,yy)) &&
+            this.getPiece(xx,yy) == V.KNIGHT
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   getNotation(move) {

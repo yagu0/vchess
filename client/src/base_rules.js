@@ -195,17 +195,19 @@ export const ChessRules = class ChessRules {
     }
     // Argument is a move:
     const move = moveOrSquare;
-    const [sx, sy, ex] = [move.start.x, move.start.y, move.end.x];
+    const s = move.start,
+          e = move.end;
     // NOTE: next conditions are first for Atomic, and last for Checkered
     if (
       move.appear.length > 0 &&
-      Math.abs(sx - ex) == 2 &&
+      Math.abs(s.x - e.x) == 2 &&
+      s.y == e.y &&
       move.appear[0].p == V.PAWN &&
       ["w", "b"].includes(move.appear[0].c)
     ) {
       return {
-        x: (sx + ex) / 2,
-        y: sy
+        x: (s.x + e.x) / 2,
+        y: s.y
       };
     }
     return undefined; //default
@@ -595,6 +597,7 @@ export const ChessRules = class ChessRules {
         })
       );
     }
+
     return mv;
   }
 
@@ -1210,7 +1213,7 @@ export const ChessRules = class ChessRules {
         return (color == "w" ? 1 : -1) * (b.eval - a.eval);
       });
     } else return currentBest;
-    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
+//    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
     candidates = [0];
     for (let j = 1; j < moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -1235,8 +1238,9 @@ export const ChessRules = class ChessRules {
         alpha = Math.max(alpha, v);
         if (alpha >= beta) break; //beta cutoff
       }
-    } //color=="b"
+    }
     else {
+      // color=="b"
       for (let i = 0; i < moves.length; i++) {
         this.play(moves[i]);
         v = Math.min(v, this.alphabeta(depth - 1, alpha, beta));
@@ -1255,18 +1259,6 @@ export const ChessRules = class ChessRules {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] != V.EMPTY) {
           const sign = this.getColor(i, j) == "w" ? 1 : -1;
-
-
-//TODO: debug in KnightRelay
-if (isNaN(V.VALUES[this.getPiece(i, j)])) {
-  console.log(i + " " + j);
-  console.log(this.getPiece(i, j));
-  console.log(this.board);
-  console.log("ajout " + sign + " * "+  V.VALUES[this.getPiece(i, j)]);
-  debugger;
-}
-
-
           evaluation += sign * V.VALUES[this.getPiece(i, j)];
         }
       }
