@@ -117,8 +117,9 @@ export const VariantRules = class WildebeestRules extends ChessRules {
     const shiftX = color == "w" ? -1 : 1;
     const startRanks = color == "w" ? [sizeX - 2, sizeX - 3] : [1, 2];
     const lastRank = color == "w" ? 0 : sizeX - 1;
-    const finalPieces =
-      x + shiftX == lastRank ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN] : [V.PAWN];
+    const finalPieces = x + shiftX == lastRank
+      ? [V.WILDEBEEST, V.QUEEN]
+      : [V.PAWN];
 
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward
