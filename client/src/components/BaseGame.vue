@@ -1,10 +1,5 @@
 <template lang="pug">
-div#baseGame(
-  tabindex=-1
-  @click="focusBg()"
-  @keydown="handleKeys($event)"
-  @wheel="handleScroll($event)"
-)
+div#baseGame
   input#modalEog.modal(type="checkbox")
   div#eogDiv(
     role="dialog"
@@ -86,26 +81,30 @@ import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
 import { processModalClick } from "@/utils/modalClick";
 import { getScoreMessage } from "@/utils/scoring";
+import { getFullNotation } from "@/utils/notation";
+import { undoMove } from "@/utils/playUndo";
 export default {
   name: "my-base-game",
   components: {
     Board,
     MoveList
   },
-  // "vr": VariantRules object, describing the game state + rules
-  props: ["vr", "game"],
+  props: ["game"],
   data: function() {
     return {
       st: store.state,
       // NOTE: all following variables must be reset at the beginning of a game
+      vr: null, //VariantRules object, game state
       endgameMessage: "",
       orientation: "w",
       score: "*", //'*' means 'unfinished'
       moves: [],
+      // TODO: later, use subCursor to navigate intra-multimoves?
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
-      incheck: [] //for Board
+      incheck: [], //for Board
+      inMultimove: false
     };
   },
   watch: {
@@ -151,6 +150,14 @@ export default {
     if (this.game.fenStart) this.re_setVariables();
   },
   mounted: function() {
+    if (!("ontouchstart" in window)) {
+      // Desktop browser:
+      const baseGameDiv = document.getElementById("baseGame");
+      baseGameDiv.tabIndex = 0;
+      baseGameDiv.addEventListener("click", this.focusBg);
+      baseGameDiv.addEventListener("keydown", this.handleKeys);
+      baseGameDiv.addEventListener("wheel", this.handleScroll);
+    }
     [
       document.getElementById("eogDiv"),
       document.getElementById("adjuster")
@@ -221,12 +228,9 @@ export default {
       }
     },
     handleScroll: function(e) {
-      // NOTE: since game.mode=="analyze" => no score, next condition is enough
-      if (this.game.score != "*") {
-        e.preventDefault();
-        if (e.deltaY < 0) this.undo();
-        else if (e.deltaY > 0) this.play();
-      }
+      e.preventDefault();
+      if (e.deltaY < 0) this.undo();
+      else if (e.deltaY > 0) this.play();
     },
     showRules: function() {
       //this.$router.push("/variants/" + this.game.vname);
@@ -237,29 +241,42 @@ export default {
       // "w": default orientation for observed games
       this.orientation = this.game.mycolor || "w";
       this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
-      // Post-processing: decorate each move with color, notation and FEN
-      let vr_tmp = new V(this.game.fenStart);
+      // Post-processing: decorate each move with notation and FEN
+      this.vr = new V(this.game.fenStart);
       const parsedFen = V.ParseFen(this.game.fenStart);
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2);
       this.moves.forEach(move => {
-        move.color = vr_tmp.turn;
-        move.notation = vr_tmp.getNotation(move);
-        vr_tmp.play(move);
-        move.fen = vr_tmp.getFen();
+        // Strategy working also for multi-moves:
+        if (!Array.isArray(move)) move = [move];
+        move.forEach(m => {
+          m.notation = this.vr.getNotation(m);
+          this.vr.play(m);
+        });
       });
       if (firstMoveColor == "b") {
         // 'end' is required for Board component to check lastMove for e.p.
         this.moves.unshift({
-          color: "w",
           notation: "...",
           end: { x: -1, y: -1 }
         });
       }
-      const L = this.moves.length;
-      this.cursor = L - 1;
-      this.lastMove = L > 0 ? this.moves[L - 1] : null;
+      this.positionCursorTo(this.moves.length - 1);
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
+    },
+    positionCursorTo: function(index) {
+      this.cursor = index;
+      // Caution: last move in moves array might be a multi-move
+      if (index >= 0) {
+        if (Array.isArray(this.moves[index])) {
+          const L = this.moves[index].length;
+          this.lastMove = this.moves[index][L - 1];
+        } else {
+          this.lastMove = this.moves[index];
+        }
+      }
+      else
+        this.lastMove = null;
     },
     analyzePosition: function() {
       const newUrl =
@@ -289,17 +306,10 @@ export default {
       pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
       pgn += '[Result "' + this.game.score + '"]\n\n';
-      let counter = 1;
-      let i = 0;
-      while (i < this.moves.length) {
-        pgn += counter++ + ".";
-        for (let color of ["w", "b"]) {
-          let move = "";
-          while (i < this.moves.length && this.moves[i].color == color)
-            move += this.moves[i++].notation + ",";
-          move = move.slice(0, -1); //remove last comma
-          pgn += move + (i < this.moves.length ? " " : "");
-        }
+      for (let i = 0; i < this.moves.length; i += 2) {
+        pgn += (i/2+1) + "." + getFullNotation(this.moves[i]) + " ";
+        if (i+1 < this.moves.length)
+          pgn += getFullNotation(this.moves[i+1]) + " ";
       }
       return pgn + "\n";
     },
@@ -311,6 +321,7 @@ export default {
         modalBox.checked = false;
       }, 2000);
     },
+    // Animate an elementary move
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
       let endSquare = document.getElementById(getSquareId(move.end));
@@ -341,88 +352,167 @@ export default {
         callback();
       }, 250);
     },
-    play: function(move, receive) {
-      // NOTE: navigate and receive are mutually exclusive
+    // "light": if gotoMove() or gotoEnd()
+    // data: some custom data (addTime) to be re-emitted
+    play: function(move, received, light, data) {
       const navigate = !move;
+      const playSubmove = (smove) => {
+        if (!navigate) smove.notation = this.vr.getNotation(smove);
+        this.vr.play(smove);
+        this.lastMove = smove;
+        // Is opponent in check?
+        this.incheck = this.vr.getCheckSquares(this.vr.turn);
+        if (!navigate) {
+          if (!this.inMultimove) {
+            if (this.cursor < this.moves.length - 1)
+              this.moves = this.moves.slice(0, Math.max(this.cursor, 0));
+            this.moves.push(smove);
+            this.inMultimove = true; //potentially
+            this.cursor++;
+          } else {
+            // Already in the middle of a multi-move
+            const L = this.moves.length;
+            if (!Array.isArray(this.moves[L-1]))
+              this.$set(this.moves, L-1, [this.moves[L-1], smove]);
+            else
+              this.$set(this.moves, L-1, this.moves.concat([smove]));
+          }
+        }
+      };
+      const playMove = () => {
+        const animate = V.ShowMoves == "all" && received;
+        if (!Array.isArray(move)) move = [move];
+        let moveIdx = 0;
+        let self = this;
+        const initurn = this.vr.turn;
+        (function executeMove() {
+          const smove = move[moveIdx++];
+          if (animate) {
+            self.animateMove(smove, () => {
+              playSubmove(smove);
+              if (moveIdx < move.length)
+                setTimeout(executeMove, 500);
+              else afterMove(smove, initurn);
+            });
+          } else {
+            playSubmove(smove);
+            if (moveIdx < move.length) executeMove();
+            else afterMove(smove, initurn);
+          }
+        })();
+      };
+      const afterMove = (smove, initurn) => {
+        if (this.st.settings.sound == 2)
+          new Audio("/sounds/move.mp3").play().catch(() => {});
+        if (this.vr.turn != initurn) {
+          // Turn has changed: move is complete
+          this.inMultimove = false;
+          const score = this.vr.getCurrentScore();
+          if (score != "*") {
+            const message = getScoreMessage(score);
+            if (!navigate && this.game.mode != "analyze")
+              this.$emit("gameover", score, message);
+            // Just show score on screen (allow undo)
+            else this.showEndgameMsg(score + " . " + message);
+          }
+          if (!navigate && this.game.mode != "analyze") {
+            const L = this.moves.length;
+            // Post-processing (e.g. computer play)
+            this.$emit("newmove", this.moves[L-1], data);
+          }
+        }
+      };
+      // NOTE: navigate and received are mutually exclusive
+      if (navigate) {
+        // The move to navigate to is necessarily full:
+        if (this.cursor == this.moves.length - 1) return; //no more moves
+        move = this.moves[this.cursor + 1];
+        if (light) {
+          // Just play the move, nothing else:
+          if (!Array.isArray(move)) move = [move];
+          for (let i=0; i < move.length; i++) this.vr.play(move[i]);
+        }
+        else playMove();
+        this.cursor++;
+        return;
+      }
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
       if (
-        !navigate &&
         this.game.mode != "analyze" &&
-        !receive &&
+        !received &&
         (this.game.score != "*" || this.cursor < this.moves.length - 1)
       ) {
         return;
       }
-      const doPlayMove = () => {
-        // To play a move, cursor must be at the end of the game:
-        if (!!receive && this.cursor < this.moves.length - 1) this.gotoEnd();
-        if (navigate) {
-          if (this.cursor == this.moves.length - 1) return; //no more moves
-          move = this.moves[this.cursor + 1];
-        } else {
-          move.color = this.vr.turn;
-          move.notation = this.vr.getNotation(move);
-        }
-        this.vr.play(move);
-        this.cursor++;
-        this.lastMove = move;
-        if (this.st.settings.sound == 2)
-          new Audio("/sounds/move.mp3").play().catch(() => {});
-        if (!navigate) {
-          move.fen = this.vr.getFen();
-          // Stack move on movesList at current cursor
-          if (this.cursor == this.moves.length) this.moves.push(move);
-          else this.moves = this.moves.slice(0, this.cursor).concat([move]);
-        }
-        // Is opponent in check?
-        this.incheck = this.vr.getCheckSquares(this.vr.turn);
-        const score = this.vr.getCurrentScore();
-        if (score != "*") {
-          const message = getScoreMessage(score);
-          if (this.game.mode != "analyze")
-            this.$emit("gameover", score, message);
-          //just show score on screen (allow undo)
-          else this.showEndgameMsg(score + " . " + message);
-        }
-        if (!navigate && this.game.mode != "analyze")
-          this.$emit("newmove", move); //post-processing (e.g. computer play)
-      };
-      if (!!receive && V.ShowMoves == "all")
-        this.animateMove(move, doPlayMove);
-      else doPlayMove();
+      // To play a received move, cursor must be at the end of the game:
+      if (received && this.cursor < this.moves.length - 1)
+        this.gotoEnd();
+      playMove();
     },
-    undo: function(move) {
-      const navigate = !move;
-      if (navigate) {
-        if (this.cursor < 0) return; //no more moves
-        move = this.moves[this.cursor];
-      }
-      this.vr.undo(move);
+    cancelCurrentMultimove: function() {
+      // Cancel current multi-move
+      const L = this.moves.length;
+      let move = this.moves[L-1];
+      if (!Array.isArray(move)) move = [move];
+      for (let i=move.length -1; i >= 0; i--) this.vr.undo(move[i]);
+      this.moves.pop();
       this.cursor--;
-      this.lastMove = this.cursor >= 0 ? this.moves[this.cursor] : undefined;
-      if (this.st.settings.sound == 2)
-        new Audio("/sounds/undo.mp3").play().catch(() => {});
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      if (!navigate) this.moves.pop();
+      this.inMultimove = false;
+    },
+    cancelLastMove: function() {
+      // The last played move was canceled (corr game)
+      this.undo();
+      this.moves.pop();
+    },
+    // "light": if gotoMove() or gotoBegin()
+    undo: function(move, light) {
+      if (this.inMultimove) {
+        this.cancelCurrentMultimove();
+        this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      } else {
+        if (!move) {
+          if (this.cursor < 0) return; //no more moves
+          move = this.moves[this.cursor];
+        }
+        // Caution; if multi-move, undo all submoves from last to first
+        undoMove(move, this.vr);
+        if (light) this.cursor--;
+        else {
+          this.positionCursorTo(this.cursor - 1);
+          if (this.st.settings.sound == 2)
+            new Audio("/sounds/undo.mp3").play().catch(() => {});
+          this.incheck = this.vr.getCheckSquares(this.vr.turn);
+        }
+      }
     },
     gotoMove: function(index) {
-      this.vr.re_init(this.moves[index].fen);
-      this.cursor = index;
-      this.lastMove = this.moves[index];
+      if (this.inMultimove) this.cancelCurrentMultimove();
+      if (index == this.cursor) return;
+      if (index < this.cursor) {
+        while (this.cursor > index)
+          this.undo(null, null, "light");
+      }
+      else {
+        // index > this.cursor)
+        while (this.cursor < index)
+          this.play(null, null, "light");
+      }
+      // NOTE: next line also re-assign cursor, but it's very light
+      this.positionCursorTo(index);
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
     },
     gotoBegin: function() {
-      if (this.cursor == -1) return;
-      this.vr.re_init(this.game.fenStart);
+      if (this.inMultimove) this.cancelCurrentMultimove();
+      while (this.cursor >= 0)
+        this.undo(null, null, "light");
       if (this.moves.length > 0 && this.moves[0].notation == "...") {
         this.cursor = 0;
         this.lastMove = this.moves[0];
       } else {
-        this.cursor = -1;
         this.lastMove = null;
       }
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      this.incheck = [];
     },
     gotoEnd: function() {
       if (this.cursor == this.moves.length - 1) return;

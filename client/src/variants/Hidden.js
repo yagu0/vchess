@@ -61,6 +61,18 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return piece;
   }
 
+  getPpath(b, color, score) {
+    if (Object.keys(V.HIDDEN_DECODE).includes(b[1])) {
+      // Supposed to be hidden.
+      if (score == "*" && (!color || color != b[0]))
+        return "Hidden/" + b[0] + "p";
+      // Else: condition OK to show the piece
+      return b[0] + V.HIDDEN_DECODE[b[1]];
+    }
+    // The piece is already not supposed to be hidden:
+    return b;
+  }
+
   // Scan board for kings positions (no castling)
   scanKingsRooks(fen) {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
@@ -85,18 +97,6 @@ export const VariantRules = class HiddenRules extends ChessRules {
         k++;
       }
     }
-  }
-
-  getPpath(b, color, score) {
-    if (Object.keys(V.HIDDEN_DECODE).includes(b[1])) {
-      // Supposed to be hidden.
-      if (score == "*" && (!color || color != b[0]))
-        return "Hidden/" + b[0] + "p";
-      // Else: condition OK to show the piece
-      return b[0] + V.HIDDEN_DECODE[b[1]];
-    }
-    // The piece is already not supposed to be hidden:
-    return b;
   }
 
   getBasicMove([sx, sy], [ex, ey], tr) {

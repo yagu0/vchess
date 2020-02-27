@@ -2,7 +2,6 @@
 BaseGame(
   ref="basegame"
   :game="game"
-  :vr="vr"
   @newmove="processMove"
   @gameover="gameOver"
 )
@@ -12,6 +11,7 @@ BaseGame(
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import { CompgameStorage } from "@/utils/compgameStorage";
+import { playMove, getFilteredMove } from "@/utils/playUndo";
 import Worker from "worker-loader!@/playCompMove";
 export default {
   name: "my-computer-game",
@@ -37,31 +37,17 @@ export default {
     this.compWorker = new Worker();
     this.compWorker.onmessage = e => {
       let compMove = e.data;
-      if (!compMove) {
-        this.compThink = false;
-        this.$emit("game-stopped"); //no more moves: mate or stalemate
-        return; //after game ends, no more moves, nothing to do
-      }
-      if (!Array.isArray(compMove)) compMove = [compMove]; //potential multi-move
       // Small delay for the bot to appear "more human"
       const delay = Math.max(500 - (Date.now() - this.timeStart), 0);
+      let self = this;
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
-        // NOTE: do not animate move if special display (ShowMoves != "all")
-        const animate = V.ShowMoves == "all";
-        const animDelay = animate ? 250 : 0;
-        let moveIdx = 0;
-        let self = this;
-        (function executeMove() {
-          // NOTE: BaseGame::play() will trigger processMove() here
-          self.$refs["basegame"].play(compMove[moveIdx++], "received");
-          if (moveIdx >= compMove.length) {
-            self.compThink = false;
-            if (self.game.score != "*")
-              // User action
-              self.$emit("game-stopped");
-          } else setTimeout(executeMove, 500 + animDelay);
-        })();
+        // NOTE: BaseGame::play() will trigger processMove() here
+        self.$refs["basegame"].play(compMove, "received");
+        self.compThink = false;
+        if (self.game.score != "*")
+          // User action
+          self.$emit("game-stopped");
       }, delay);
     };
   },
@@ -99,28 +85,19 @@ export default {
       this.compWorker.postMessage(["askmove"]);
     },
     processMove: function(move) {
+      playMove(move, this.vr);
+      // This move could have ended the game: if this is the case,
+      // the game is already removed from storage (if mode == 'versus')
       if (this.game.score != "*") return;
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove", move]);
-      // subTurn condition for Marseille (and Avalanche) rules
-      if (
-        (!this.vr.subTurn || this.vr.subTurn <= 1) &&
-        (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)
-      ) {
+      if (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)
         this.playComputerMove();
-      }
       // Finally, update storage:
       if (this.gameInfo.mode == "versus") {
-        const allowed_fields = ["appear", "vanish", "start", "end"];
-        const filtered_move = Object.keys(move)
-          .filter(key => allowed_fields.includes(key))
-          .reduce((obj, key) => {
-            obj[key] = move[key];
-            return obj;
-          }, {});
         CompgameStorage.update(this.gameInfo.vname, {
-          move: filtered_move,
-          fen: move.fen
+          move: getFilteredMove(move),
+          fen: this.vr.getFen()
         });
       }
     },

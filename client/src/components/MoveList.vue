@@ -1,100 +1,32 @@
+<template lang="pug">
+div
+  #scoreInfo(v-if="score!='*'")
+    p {{ score }}
+    p {{ message }}
+  .moves-list
+    .tr(v-for="moveIdx in evenNumbers")
+      .td {{ firstNum + moveIdx / 2 + 1 }}
+      .td(v-if="moveIdx < moves.length-1 || show == 'all'"
+        :class="{'highlight-lm': cursor == moveIdx}"
+        @click="() => gotoMove(moveIdx)"
+      )
+        | {{ notation(moves[moveIdx]) }}
+      .td(
+        v-if="moveIdx < moves.length-1"
+        :class="{'highlight-lm': cursor == moveIdx+1}"
+        @click="() => gotoMove(moveIdx+1)"
+      )
+        | {{ notation(moves[moveIdx+1]) }}
+      // Else: just add an empty cell
+      //.td(v-else)
+</template>
+
 <script>
 import { store } from "@/store";
+import { getFullNotation } from "@/utils/notation";
 export default {
   name: "my-move-list",
   props: ["moves", "show", "cursor", "score", "message", "firstNum"],
-  // TODO: if show == "byrows", show only full rows.
-  render(h) {
-    let rootElements = [];
-    if (!!this.score && this.score != "*") {
-      const scoreDiv = h(
-        "div",
-        {
-          id: "scoreInfo",
-          style: {
-            display: this.score != "*" ? "block" : "none"
-          }
-        },
-        [h("p", this.score), h("p", store.state.tr[this.message])]
-      );
-      rootElements.push(scoreDiv);
-    }
-    if (this.moves.length > 0) {
-      let tableContent = [];
-      let moveCounter = 0;
-      let tableRow = undefined;
-      let moveCells = undefined;
-      let curCellContent = "";
-      let firstIndex = 0;
-      for (let i = 0; i < this.moves.length; i++) {
-        if (this.moves[i].color == "w") {
-          if (i == 0 || (i > 0 && this.moves[i - 1].color == "b")) {
-            if (tableRow) {
-              tableRow.children = moveCells;
-              tableContent.push(tableRow);
-            }
-            moveCells = [
-              h(
-                "div",
-                {
-                  "class": {td: true},
-                  domProps: { innerHTML: ++moveCounter + "." }
-                }
-              )
-            ];
-            tableRow = h("div", {"class": {tr: true}});
-            curCellContent = "";
-            firstIndex = i;
-          }
-        }
-        // Next condition is fine because even if the first move is black,
-        // there will be the "..." which count as white move.
-        else if (this.moves[i].color == "b" && this.moves[i - 1].color == "w")
-          firstIndex = i;
-        curCellContent += this.moves[i].notation;
-        if (
-          i < this.moves.length - 1 &&
-          this.moves[i + 1].color == this.moves[i].color
-        )
-          curCellContent += ",";
-        else {
-          // Color change
-          moveCells.push(
-            h(
-              "div",
-              {
-                "class": {
-                  td: true,
-                  "highlight-lm": this.cursor >= firstIndex && this.cursor <= i
-                },
-                domProps: { innerHTML: curCellContent },
-                on: { click: () => this.gotoMove(i) }
-              }
-            )
-          );
-          curCellContent = "";
-        }
-      }
-      // Complete last row, which might not be full:
-      if (moveCells.length - 1 == 1) {
-        moveCells.push(h("div", {"class": {td: true}}));
-      }
-      tableRow.children = moveCells;
-      tableContent.push(tableRow);
-      rootElements.push(
-        h(
-          "div",
-          {
-            class: {
-              "moves-list": true
-            }
-          },
-          tableContent
-        )
-      );
-    }
-    return h("div", {}, rootElements);
-  },
   watch: {
     cursor: function(newCursor) {
       if (window.innerWidth <= 767) return; //scrolling would hide chessboard
@@ -110,7 +42,15 @@ export default {
       });
     }
   },
+  computed: {
+    evenNumbers: function() {
+      return [...Array(this.moves.length).keys()].filter(i => i%2==0);
+    }
+  },
   methods: {
+    notation: function(move) {
+      return getFullNotation(move);
+    },
     gotoMove: function(index) {
       this.$emit("goto-move", index);
     }

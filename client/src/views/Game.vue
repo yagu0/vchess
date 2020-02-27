@@ -58,7 +58,6 @@ main
   BaseGame(
     ref="basegame"
     :game="game"
-    :vr="vr"
     @newmove="processMove"
     @gameover="gameOver"
   )
@@ -73,6 +72,8 @@ import { ppt } from "@/utils/datetime";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
 import { processModalClick } from "@/utils/modalClick";
+import { getFullNotation } from "@/utils/notation";
+import { playMove, getFilteredMove } from "@/utils/playUndo";
 import { getScoreMessage } from "@/utils/scoring";
 import params from "@/parameters";
 export default {
@@ -321,20 +322,24 @@ export default {
         case "lastate": //got opponent infos about last move
           this.lastate = data.data;
           if (this.game.rendered)
-            //game is rendered (Board component)
+            // Game is rendered (Board component)
             this.processLastate();
-          //else: will be processed when game is ready
+          // Else: will be processed when game is ready
           break;
         case "newmove": {
           const move = data.data;
           if (move.cancelDrawOffer) {
-            //opponent refuses draw
+            // Opponent refuses draw
             this.drawOffer = "";
             // NOTE for corr games: drawOffer reset by player in turn
             if (this.game.type == "live" && !!this.game.mycolor)
               GameStorage.update(this.gameRef.id, { drawOffer: "" });
           }
-          this.$refs["basegame"].play(move, "received");
+          this.$refs["basegame"].play(
+            move.move,
+            "received",
+            null,
+            {addTime:move.addTime});
           break;
         }
         case "resign":
@@ -372,8 +377,10 @@ export default {
       if (data.movesCount > L) {
         // Just got last move from him
         this.$refs["basegame"].play(
-          Object.assign({ initime: data.initime }, data.lastMove)
-        );
+          data.lastMove.move,
+          "received",
+          null,
+          {addTime:data.lastMove.addTime, initime:data.initime});
       }
       if (data.drawSent) this.drawOffer = "received";
       if (data.score != "*") {
@@ -392,7 +399,7 @@ export default {
         this.send("draw", { data: message });
         this.gameOver("1/2", message);
       } else if (this.drawOffer == "") {
-        //no effect if drawOffer == "sent"
+        // No effect if drawOffer == "sent"
         if (this.game.mycolor != this.vr.turn) {
           alert(this.st.tr["Draw offer only in your turn"]);
           return;
@@ -444,10 +451,10 @@ export default {
           // NOTE: clocks in seconds, initime in milliseconds
           game.clocks = [tc.mainTime, tc.mainTime];
           game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
+          const L = game.moves.length;
           if (game.score == "*") {
-            //otherwise no need to bother with time
+            // Set clocks + initime
             game.initime = [0, 0];
-            const L = game.moves.length;
             if (L >= 3) {
               let addTime = [0, 0];
               for (let i = 2; i < L; i++) {
@@ -465,16 +472,16 @@ export default {
           });
           if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
             // Did a chat message arrive after my last move?
-            let vr_tmp = new V(game.fen); //start from last position
-            const flags = V.ParseFen(game.fen).flags; //may be undefined
             let dtLastMove = 0;
-            for (let midx = game.moves.length - 1; midx >= 0; midx--) {
-              // NOTE: flags could be wrong, but since our only concern is turn,
-              // this should be enough. (TODO?)
-              vr_tmp.undo(Object.assign({flags:JSON.stringify(flags)}, game.moves[midx].squares));
-              if (vr_tmp.turn == mycolor) {
-                dtLastMove = game.moves[midx].played;
-                break;
+            if (L == 1 && myIdx == 0)
+              dtLastMove = game.moves[0].played;
+            else if (L >= 2) {
+              if (L % 2 == 0) {
+                // It's now white turn
+                dtLastMove = game.moves[L-1-(1-myIdx)].played;
+              } else {
+                // Black turn:
+                dtLastMove = game.moves[L-1-myIdx].played;
               }
             }
             if (dtLastMove < game.chats[0].added)
@@ -517,30 +524,17 @@ export default {
         }
         this.repeat = {}; //reset: scan past moves' FEN:
         let repIdx = 0;
-        // NOTE: vr_tmp to obtain FEN strings is redundant with BaseGame
         let vr_tmp = new V(game.fenStart);
-        let movesCount = -1;
         let curTurn = "n";
         game.moves.forEach(m => {
-          if (vr_tmp.turn != curTurn)
-          {
-            movesCount++;
-            curTurn = vr_tmp.turn;
-          }
-          vr_tmp.play(m);
-          const fenObj = V.ParseFen(vr_tmp.getFen());
-          repIdx = fenObj.position + "_" + fenObj.turn;
-          if (fenObj.flags) repIdx += "_" + fenObj.flags;
-          this.repeat[repIdx] = this.repeat[repIdx]
-            ? this.repeat[repIdx] + 1
+          playMove(m, vr_tmp);
+          const fenIdx = vr_tmp.getFen().replace(/ /g, "_");
+          this.repeat[fenIdx] = this.repeat[fenIdx]
+            ? this.repeat[fenIdx] + 1
             : 1;
         });
-        if (vr_tmp.turn != curTurn)
-          movesCount++;
         if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
         this.game = Object.assign(
-          {},
-          game,
           // NOTE: assign mycolor here, since BaseGame could also be VS computer
           {
             type: gtype,
@@ -550,8 +544,9 @@ export default {
             // at least oppsid or oppid is available anyway:
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
             oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid,
-            movesCount: movesCount,
-          }
+            movesCount: game.moves.length
+          },
+          game,
         );
         this.re_setClocks();
         this.$nextTick(() => {
@@ -612,110 +607,111 @@ export default {
       }, 1000);
     },
     // Post-process a (potentially partial) move (which was just played in BaseGame)
-    processMove: function(move) {
-      if (this.game.type == "corr" && move.color == this.game.mycolor) {
-        if (
-          !confirm(
-            this.st.tr["Move played:"] +
-              " " +
-              move.notation +
-              "\n" +
-              this.st.tr["Are you sure?"]
-          )
-        ) {
-          this.$refs["basegame"].undo(move);
-          return;
+    processMove: function(move, data) {
+      const moveCol = this.vr.turn;
+      const doProcessMove = () => {
+        const colorIdx = ["w", "b"].indexOf(moveCol);
+        const nextIdx = 1 - colorIdx;
+        if (this.game.mycolor) {
+          // NOTE: 'var' to see that variable outside this block
+          var filtered_move = getFilteredMove(move);
         }
-      }
-      const colorIdx = ["w", "b"].indexOf(move.color);
-      const nextIdx = ["w", "b"].indexOf(this.vr.turn);
-      // https://stackoverflow.com/a/38750895
-      if (this.game.mycolor) {
-        const allowed_fields = ["appear", "vanish", "start", "end"];
-        // NOTE: 'var' to see that variable outside this block
-        var filtered_move = Object.keys(move)
-          .filter(key => allowed_fields.includes(key))
-          .reduce((obj, key) => {
-            obj[key] = move[key];
-            return obj;
-          }, {});
-      }
-      // Send move ("newmove" event) to people in the room (if our turn)
-      let addTime = 0;
-      if (move.color == this.game.mycolor) {
-        if (this.drawOffer == "received")
-          // I refuse draw
-          this.drawOffer = "";
-        if (this.game.movesCount >= 2) {
-          const elapsed = Date.now() - this.game.initime[colorIdx];
-          // elapsed time is measured in milliseconds
-          addTime = this.game.increment - elapsed / 1000;
-        }
-        const sendMove = Object.assign({}, filtered_move, {
-          addTime: addTime,
-          cancelDrawOffer: this.drawOffer == ""
-        });
-        this.send("newmove", { data: sendMove });
-        // (Add)Time indication: useful in case of lastate infos requested
-        move.addTime = addTime;
-      } else addTime = move.addTime; //supposed transmitted
-      // Update current game object:
-      if (nextIdx != colorIdx)
-        this.game.movesCount++;
-      this.game.moves.push(move);
-      this.game.fen = move.fen;
-      this.game.clocks[colorIdx] += addTime;
-      // move.initime is set only when I receive a "lastate" move from opponent
-      this.game.initime[nextIdx] = move.initime || Date.now();
-      this.re_setClocks();
-      // If repetition detected, consider that a draw offer was received:
-      const fenObj = V.ParseFen(move.fen);
-      let repIdx = fenObj.position + "_" + fenObj.turn;
-      if (fenObj.flags) repIdx += "_" + fenObj.flags;
-      this.repeat[repIdx] = this.repeat[repIdx] ? this.repeat[repIdx] + 1 : 1;
-      if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
-      else if (this.drawOffer == "threerep") this.drawOffer = "";
-      // Since corr games are stored at only one location, update should be
-      // done only by one player for each move:
-      if (
-        this.game.mycolor &&
-        (this.game.type == "live" || move.color == this.game.mycolor)
-      ) {
-        let drawCode = "";
-        switch (this.drawOffer) {
-          case "threerep":
-            drawCode = "t";
-            break;
-          case "sent":
-            drawCode = this.game.mycolor;
-            break;
-          case "received":
-            drawCode = this.vr.turn;
-            break;
-        }
-        if (this.game.type == "corr") {
-          GameStorage.update(this.gameRef.id, {
-            fen: move.fen,
-            move: {
-              squares: filtered_move,
-              played: Date.now(),
-              idx: this.game.moves.length - 1
-            },
-            // Code "n" for "None" to force reset (otherwise it's ignored)
-            drawOffer: drawCode || "n"
-          });
-        }
-        else {
-          // Live game:
-          GameStorage.update(this.gameRef.id, {
-            fen: move.fen,
+        // Send move ("newmove" event) to people in the room (if our turn)
+        let addTime = data ? data.addTime : 0;
+        if (moveCol == this.game.mycolor) {
+          if (this.drawOffer == "received")
+            // I refuse draw
+            this.drawOffer = "";
+          if (this.game.movesCount >= 2) {
+            const elapsed = Date.now() - this.game.initime[colorIdx];
+            // elapsed time is measured in milliseconds
+            addTime = this.game.increment - elapsed / 1000;
+          }
+          const sendMove = {
             move: filtered_move,
-            clocks: this.game.clocks,
-            initime: this.game.initime,
-            drawOffer: drawCode
-          });
+            addTime: addTime,
+            cancelDrawOffer: this.drawOffer == ""
+          };
+          this.send("newmove", { data: sendMove });
         }
+        // Update current game object (no need for moves stack):
+        playMove(move, this.vr);
+        this.game.movesCount++;
+        // (add)Time indication: useful in case of lastate infos requested
+        this.game.moves.push({move:move, addTime:addTime});
+        this.game.fen = this.vr.getFen();
+        this.game.clocks[colorIdx] += addTime;
+        // data.initime is set only when I receive a "lastate" move from opponent
+        this.game.initime[nextIdx] = (data && data.initime) ? data.initime : Date.now();
+        this.re_setClocks();
+        // If repetition detected, consider that a draw offer was received:
+        const fenObj = V.ParseFen(this.game.fen);
+        let repIdx = fenObj.position + "_" + fenObj.turn;
+        if (fenObj.flags) repIdx += "_" + fenObj.flags;
+        this.repeat[repIdx] = this.repeat[repIdx] ? this.repeat[repIdx] + 1 : 1;
+        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
+        else if (this.drawOffer == "threerep") this.drawOffer = "";
+        // Since corr games are stored at only one location, update should be
+        // done only by one player for each move:
+        if (
+          this.game.mycolor &&
+          (this.game.type == "live" || moveCol == this.game.mycolor)
+        ) {
+          let drawCode = "";
+          switch (this.drawOffer) {
+            case "threerep":
+              drawCode = "t";
+              break;
+            case "sent":
+              drawCode = this.game.mycolor;
+              break;
+            case "received":
+              drawCode = V.GetOppCol(this.game.mycolor);
+              break;
+          }
+          if (this.game.type == "corr") {
+            GameStorage.update(this.gameRef.id, {
+              fen: this.game.fen,
+              move: {
+                squares: filtered_move,
+                played: Date.now(),
+                idx: this.game.moves.length - 1
+              },
+              // Code "n" for "None" to force reset (otherwise it's ignored)
+              drawOffer: drawCode || "n"
+            });
+          }
+          else {
+            // Live game:
+            GameStorage.update(this.gameRef.id, {
+              fen: this.game.fen,
+              move: filtered_move,
+              clocks: this.game.clocks,
+              initime: this.game.initime,
+              drawOffer: drawCode
+            });
+          }
+        }
+      };
+      if (this.game.type == "corr" && moveCol == this.game.mycolor) {
+        setTimeout(() => {
+          if (
+            !confirm(
+              this.st.tr["Move played:"] +
+                " " +
+                getFullNotation(move) +
+                "\n" +
+                this.st.tr["Are you sure?"]
+            )
+          ) {
+            this.$refs["basegame"].cancelLastMove();
+            return;
+          }
+          doProcessMove();
+        // Let small time to finish drawing current move attempt:
+        }, 500);
       }
+      else doProcessMove();
     },
     resetChatColor: function() {
       // TODO: this is called twice, once on opening an once on closing

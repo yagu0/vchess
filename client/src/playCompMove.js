@@ -12,7 +12,11 @@ onmessage = async function(e) {
       break;
     }
     case "newmove":
-      self.vr.play(e.data[1]);
+      let move = e.data[1];
+      // Caution: could be a multi-move
+      if (!Array.isArray(move))
+        move = [move];
+      move.forEach(m => self.vr.play(m));
       break;
     case "askmove": {
       const compMove = self.vr.getComputerMove();

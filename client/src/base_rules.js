@@ -1126,7 +1126,7 @@ export const ChessRules = class ChessRules {
     let moves1 = this.getAllValidMoves("computer");
 
     if (moves1.length == 0)
-      //TODO: this situation should not happen
+      // TODO: this situation should not happen
       return null;
 
     // Can I mate in 1 ? (for Magnetic & Extinction)

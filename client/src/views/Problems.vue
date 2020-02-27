@@ -99,7 +99,6 @@ main
   BaseGame(
     v-if="showOne"
     :game="game"
-    :vr="vr"
   )
 </template>
 
@@ -139,7 +138,6 @@ export default {
       onlyMines: false,
       showOne: false,
       infoMsg: "",
-      vr: null, //"variant rules" object initialized from FEN
       game: {
         players: [{ name: "Problem" }, { name: "Problem" }],
         mode: "analyze"
@@ -280,9 +278,8 @@ export default {
     showProblem: function(p) {
       this.loadVariant(p.vid, () => {
         // The FEN is already checked at this stage:
-        this.vr = new V(p.fen);
         this.game.vname = p.vname;
-        this.game.mycolor = this.vr.turn; //diagram orientation
+        this.game.mycolor = V.ParseFen(p.fen).turn; //diagram orientation
         this.game.fen = p.fen;
         this.$set(this.game, "fenStart", p.fen);
         this.copyProblem(p, this.curproblem);

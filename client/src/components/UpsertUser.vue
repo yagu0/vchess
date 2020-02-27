@@ -181,7 +181,7 @@ export default {
 
 <style lang="sass" scoped>
 [type="checkbox"].modal+div .card
-  max-width: 370px
+  max-width: 450px
   max-height: 100%
 
 #dialog

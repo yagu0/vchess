@@ -3,10 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export const VariantRules = class MarseilleRules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
-    if (enpassant != "-") {
-      const squares = enpassant.split(",");
-      if (squares.length > 2) return false;
-      for (let sq of squares) {
+    const squares = enpassant.split(",");
+    if (squares.length > 2) return false;
+    for (let sq of squares) {
+      if (sq != "-") {
         const ep = V.SquareToCoords(sq);
         if (isNaN(ep.x) || !V.OnBoard(ep)) return false;
       }
@@ -20,25 +20,20 @@ export const VariantRules = class MarseilleRules extends ChessRules {
 
   // There may be 2 enPassant squares (if 2 pawns jump 2 squares in same turn)
   getEnpassantFen() {
-    const L = this.epSquares.length;
-    if (this.epSquares[L - 1].every(epsq => epsq === undefined)) return "-"; //no en-passant
-    let res = "";
-    this.epSquares[L - 1].forEach(epsq => {
-      if (epsq) res += V.CoordsToSquare(epsq) + ",";
-    });
-    return res.slice(0, -1); //remove last comma
+    return this.epSquares[this.epSquares.length - 1].map(
+      epsq => epsq === undefined
+        ? "-" //no en-passant
+        : V.CoordsToSquare(epsq)
+    ).join(",");
   }
 
   setOtherVariables(fen) {
     const parsedFen = V.ParseFen(fen);
     this.setFlags(parsedFen.flags);
-    if (parsedFen.enpassant == "-") this.epSquares = [[undefined]];
-    else {
-      let res = [];
-      const squares = parsedFen.enpassant.split(",");
-      for (let sq of squares) res.push(V.SquareToCoords(sq));
-      this.epSquares = [res];
-    }
+    this.epSquares = [parsedFen.enpassant.split(",").map(sq => {
+      if (sq != "-") return V.SquareToCoords(sq);
+      return undefined;
+    })];
     this.scanKingsRooks(fen);
     // Extract subTurn from turn indicator: "w" (first move), or
     // "w1" or "w2" white subturn 1 or 2, and same for black
@@ -166,8 +161,8 @@ export const VariantRules = class MarseilleRules extends ChessRules {
     V.UndoOnBoard(this.board, move);
     if (move.turn[1] == "0" || move.checkOnSubturn1 || this.subTurn == 2)
       this.epSquares.pop();
-    //this.subTurn == 1
     else {
+      // this.subTurn == 1
       let lastEpsq = this.epSquares[this.epSquares.length - 1];
       lastEpsq.pop();
     }
@@ -192,8 +187,6 @@ export const VariantRules = class MarseilleRules extends ChessRules {
 
   // No alpha-beta here, just adapted min-max at depth 2(+1)
   getComputerMove() {
-    if (this.subTurn == 2) return null; //TODO: imperfect interface setup
-
     const maxeval = V.INFINITY;
     const color = this.turn;
     const oppCol = V.GetOppCol(this.turn);
