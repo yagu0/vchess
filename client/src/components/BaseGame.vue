@@ -255,9 +255,10 @@ export default {
         });
       });
       if (firstMoveColor == "b") {
-        // 'end' is required for Board component to check lastMove for e.p.
+        // 'start' & 'end' is required for Board component
         this.moves.unshift({
           notation: "...",
+          start: { x: -1, y: -1 },
           end: { x: -1, y: -1 }
         });
       }
@@ -413,7 +414,7 @@ export default {
             if (!navigate && this.game.mode != "analyze")
               this.$emit("gameover", score, message);
             // Just show score on screen (allow undo)
-            else this.showEndgameMsg(score + " . " + message);
+            else this.showEndgameMsg(score + " . " + this.st.tr[message]);
           }
           if (!navigate && this.game.mode != "analyze") {
             const L = this.moves.length;

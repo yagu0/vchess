@@ -2,7 +2,7 @@
 div
   #scoreInfo(v-if="score!='*'")
     p {{ score }}
-    p {{ message }}
+    p {{ st.tr[message] }}
   .moves-list
     .tr(v-for="moveIdx in evenNumbers")
       .td {{ firstNum + moveIdx / 2 + 1 }}
@@ -27,6 +27,11 @@ import { getFullNotation } from "@/utils/notation";
 export default {
   name: "my-move-list",
   props: ["moves", "show", "cursor", "score", "message", "firstNum"],
+  data: function() {
+    return {
+      st: store.state
+    };
+  },
   watch: {
     cursor: function(newCursor) {
       if (window.innerWidth <= 767) return; //scrolling would hide chessboard

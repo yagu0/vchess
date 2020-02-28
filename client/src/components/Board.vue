@@ -47,9 +47,32 @@ export default {
       incheckSq[sq[0]][sq[1]] = true;
     });
 
-    // Create board element (+ reserves if needed by variant)
     const lm = this.lastMove;
     const showLight = this.settings.highlight && V.ShowMoves == "all";
+    const orientation = !V.CanFlip ? "w" : this.orientation;
+    // Ensure that squares colors do not change when board is flipped
+    const lightSquareMod = (sizeX + sizeY) % 2;
+    const showPiece = (x, y) => {
+      return (
+        this.vr.board[x][y] != V.EMPTY &&
+        (!this.vr.enlightened || this.analyze || this.score != "*" ||
+          (!!this.userColor && this.vr.enlightened[this.userColor][x][y]))
+      );
+    };
+    const inHighlight = (x, y) => {
+      return showLight && !!lm && (
+        (lm.end.x == x && lm.end.y == y) ||
+        (lm.start.x == x && lm.start.y == y));
+    };
+    const inShadow = (x, y) => {
+      return (
+        !this.analyze &&
+        this.score == "*" &&
+        this.vr.enlightened &&
+        (!this.userColor || !this.vr.enlightened[this.userColor][x][y])
+      );
+    };
+    // Create board element (+ reserves if needed by variant)
     const gameDiv = h(
       "div",
       {
@@ -59,7 +82,7 @@ export default {
         }
       },
       [...Array(sizeX).keys()].map(i => {
-        let ci = !V.CanFlip || this.orientation == "w" ? i : sizeX - i - 1;
+        const ci = orientation == "w" ? i : sizeX - i - 1;
         return h(
           "div",
           {
@@ -69,14 +92,9 @@ export default {
             style: { opacity: this.choices.length > 0 ? "0.5" : "1" }
           },
           [...Array(sizeY).keys()].map(j => {
-            let cj = !V.CanFlip || this.orientation == "w" ? j : sizeY - j - 1;
+            const cj = orientation == "w" ? j : sizeY - j - 1;
             let elems = [];
-            if (
-              this.vr.board[ci][cj] != V.EMPTY &&
-              (!this.vr.enlightened || this.analyze || this.score != "*" ||
-                (!!this.userColor &&
-                  this.vr.enlightened[this.userColor][ci][cj]))
-            ) {
+            if (showPiece(ci, cj)) {
               elems.push(
                 h("img", {
                   class: {
@@ -106,24 +124,21 @@ export default {
                 })
               );
             }
+            const lightSquare = (ci + cj) % 2 == lightSquareMod;
             return h(
               "div",
               {
                 class: {
                   board: true,
                   ["board" + sizeY]: true,
-                  "light-square": (i + j) % 2 == 0,
-                  "dark-square": (i + j) % 2 == 1,
+                  "light-square": lightSquare,
+                  "dark-square": !lightSquare,
                   [this.settings.bcolor]: true,
-                  "in-shadow":
-                    !this.analyze &&
-                    this.score == "*" &&
-                    this.vr.enlightened &&
-                    (!this.userColor ||
-                      !this.vr.enlightened[this.userColor][ci][cj]),
-                  highlight:
-                    showLight && !!lm && lm.end.x == ci && lm.end.y == cj,
-                  incheck: showLight && incheckSq[ci][cj]
+                  "in-shadow": inShadow(ci, cj),
+                  "highlight-light": inHighlight(ci, cj) && lightSquare,
+                  "highlight-dark": inHighlight(ci, cj) && !lightSquare,
+                  "incheck-light": showLight && lightSquare && incheckSq[ci][cj],
+                  "incheck-dark": showLight && !lightSquare && incheckSq[ci][cj]
                 },
                 attrs: {
                   id: getSquareId({ x: ci, y: cj })
@@ -410,11 +425,15 @@ img.ghost
   opacity: 0.4
   top: 0
 
-.highlight
-  background-color: #00cc66 !important
+.highlight-light
+  background-color: rgba(0, 204, 102, 0.7) !important
+.highlight-dark
+  background-color: rgba(0, 204, 102, 0.9) !important
 
-.incheck
-  background-color: #cc3300 !important
+.incheck-light
+  background-color: rgba(204, 51, 0, 0.7) !important
+.incheck-dark
+  background-color: rgba(204, 51, 0, 0.9) !important
 
 .light-square.lichess
   background-color: #f0d9b5;
