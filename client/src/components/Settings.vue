@@ -5,9 +5,27 @@ div
     role="dialog"
     data-checkbox="modalSettings"
   )
-    .card(@change="updateSettings($event)")
+    .card
       label.modal-close(for="modalSettings")
-      form
+      -
+        var langName = {
+          "en": "English",
+          "es": "Español",
+          "fr": "Français",
+        };
+      fieldset(@change="setLanguage($event)")
+        label(for="langSelect")
+          | {{ st.tr["Language"] }}
+        select#langSelect
+          each language,langCode in langName
+            option(value=langCode)
+              =language
+        #flagContainer
+          img(
+            v-if="!!st.lang"
+            :src="flagImage"
+          )
+      div(@change="updateSettings($event)")
         fieldset
           label(for="setHints") {{ st.tr["Show possible moves?"] }}
           input#setHints(
@@ -44,7 +62,22 @@ export default {
       st: store.state
     };
   },
+  mounted: function() {
+    // NOTE: better style would be in pug directly, but how?
+    document.querySelectorAll("#langSelect > option").forEach(opt => {
+      if (opt.value == this.st.lang) opt.selected = true;
+    });
+  },
+  computed: {
+    flagImage: function() {
+      return `/images/flags/${this.st.lang}.svg`;
+    }
+  },
   methods: {
+    setLanguage: function(e) {
+      localStorage["lang"] = e.target.value;
+      store.setLanguage(e.target.value);
+    },
     updateSettings: function(event) {
       const propName = event.target.id
         .substr(3)
@@ -63,4 +96,12 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100%
+#flagContainer
+  display: inline-block
+  height: 100%
+  & > img
+    vertical-align: middle
+    padding: 0 0 0 10px
+    width: 36px
+    height: 27px
 </style>

@@ -8,21 +8,6 @@ div#baseGame
     .card.text-center
       label.modal-close(for="modalEog")
       h3.section {{ endgameMessage }}
-  input#modalAdjust.modal(type="checkbox")
-  div#adjuster(
-    role="dialog"
-    data-checkbox="modalAdjust"
-  )
-    .card.text-center
-      label.modal-close(for="modalAdjust")
-      label(for="boardSize") {{ st.tr["Board size"] }}
-      input#boardSize.slider(
-        type="range"
-        min="0"
-        max="100"
-        value="50"
-        @input="adjustBoard()"
-      )
   #gameContainer
     #boardContainer
       Board(
@@ -47,7 +32,6 @@ div#baseGame
         #downloadDiv(v-if="allowDownloadPGN")
           a#download(href="#")
           button(@click="download()") {{ st.tr["Download"] }} PGN
-        button(onClick="window.doClick('modalAdjust')") &#10530;
         button(
           v-if="canAnalyze"
           @click="analyzePosition()"
@@ -158,54 +142,13 @@ export default {
       baseGameDiv.addEventListener("keydown", this.handleKeys);
       baseGameDiv.addEventListener("wheel", this.handleScroll);
     }
-    [
-      document.getElementById("eogDiv"),
-      document.getElementById("adjuster")
-    ].forEach(elt => elt.addEventListener("click", processModalClick));
-    // Take full width on small screens:
-    let boardSize = parseInt(localStorage.getItem("boardSize"));
-    if (!boardSize) {
-      boardSize =
-        window.innerWidth >= 768
-          ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
-          : window.innerWidth;
-    }
-    const movesWidth = window.innerWidth >= 768 ? 280 : 0;
-    document.getElementById("boardContainer").style.width = boardSize + "px";
-    let gameContainer = document.getElementById("gameContainer");
-    gameContainer.style.width = boardSize + movesWidth + "px";
-    document.getElementById("boardSize").value =
-      (boardSize * 100) / (window.innerWidth - movesWidth);
-    // timeout to avoid calling too many time the adjust method
-    let timeoutLaunched = false;
-    window.addEventListener("resize", () => {
-      if (!timeoutLaunched) {
-        timeoutLaunched = true;
-        setTimeout(() => {
-          this.adjustBoard();
-          timeoutLaunched = false;
-        }, 500);
-      }
-    });
+    document.getElementById("eogDiv").addEventListener(
+      "click",
+      processModalClick);
   },
   methods: {
     focusBg: function() {
       document.getElementById("baseGame").focus();
-    },
-    adjustBoard: function() {
-      const boardContainer = document.getElementById("boardContainer");
-      if (!boardContainer) return; //no board on page
-      const k = document.getElementById("boardSize").value;
-      const movesWidth = window.innerWidth >= 768 ? 280 : 0;
-      const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...
-      // Value of 0 is board min size; 100 is window.width [- movesWidth]
-      const boardSize =
-        minBoardWidth +
-        (k * (window.innerWidth - (movesWidth + minBoardWidth))) / 100;
-      localStorage.setItem("boardSize", boardSize);
-      boardContainer.style.width = boardSize + "px";
-      document.getElementById("gameContainer").style.width =
-        boardSize + movesWidth + "px";
     },
     handleKeys: function(e) {
       if ([32, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
@@ -529,9 +472,6 @@ export default {
 <style lang="sass" scoped>
 [type="checkbox"]#modalEog+div .card
   min-height: 45px
-
-[type="checkbox"]#modalAdjust+div .card
-  padding: 5px
 
 #baseGame
   width: 100%

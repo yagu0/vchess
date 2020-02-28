@@ -1,6 +1,5 @@
 <template lang="pug">
 #app
-  Language
   Settings
   ContactForm
   UpsertUser
@@ -9,7 +8,7 @@
       .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
         // Menu (top of page):
         // Left: hall, variants, problems, mygames
-        // Right: usermenu, settings, flag
+        // Right: usermenu, settings
         nav
           label.drawer-toggle(for="drawerControl")
           input#drawerControl.drawer(type="checkbox")
@@ -27,13 +26,9 @@
             #rightMenu
               .clickable(onClick="window.doClick('modalUser')")
                 | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
-              .clickable(onClick="window.doClick('modalSettings')")
-                | {{ st.tr["Settings"] }}
-              .clickable#flagContainer(onClick="window.doClick('modalLang')")
-                img(
-                  v-if="!!st.lang"
-                  :src="flagImage"
-                )
+              #divSettings.clickable(onClick="window.doClick('modalSettings')")
+                span {{ st.tr["Settings"] }}
+                img(src="/images/settings.svg")
     router-view
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -46,7 +41,6 @@
 
 <script>
 import ContactForm from "@/components/ContactForm.vue";
-import Language from "@/components/Language.vue";
 import Settings from "@/components/Settings.vue";
 import UpsertUser from "@/components/UpsertUser.vue";
 import { store } from "./store.js";
@@ -54,7 +48,6 @@ import { processModalClick } from "./utils/modalClick.js";
 export default {
   components: {
     ContactForm,
-    Language,
     Settings,
     UpsertUser
   },
@@ -62,11 +55,6 @@ export default {
     return {
       st: store.state
     };
-  },
-  computed: {
-    flagImage: function() {
-      return `/images/flags/${this.st.lang}.svg`;
-    }
   },
   mounted: function() {
     let dialogs = document.querySelectorAll("div[role='dialog']");
@@ -145,6 +133,16 @@ table
   th, td
     padding: 5px
 
+#divSettings
+  padding: 0 10px 0 0
+  height: 100%
+  & > span
+    vertical-align: middle
+  & > img
+    padding: 0
+    height: 24px
+    vertical-align: middle
+
 @media screen and (max-width: 767px)
   table
     tr > th, td
@@ -177,12 +175,6 @@ nav
         justify-content: flex-end
         & > div
           display: inline-block
-          &#flagContainer
-            display: inline-flex
-          & > img
-            padding: 0
-            width: 36px
-            height: 27px
     @media screen and (max-width: 767px)
       & > #leftMenu
         margin-top: 42px
@@ -194,13 +186,6 @@ nav
       & > #rightMenu
         padding-top: 5px
         border-top: 1px solid darkgrey
-        & > div
-          &#flagContainer
-            display: inline-flex
-          & > img
-            padding: 0
-            width: 36px
-            height: 27px
 
 @media screen and (max-width: 767px)
   nav
