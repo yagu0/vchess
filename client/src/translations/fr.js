@@ -99,6 +99,7 @@ export const translations = {
   Send: "Envoyer",
   "Self-challenge is forbidden": "Interdit de s'auto-défier",
   "Send challenge": "Envoyer défi",
+  "Set board size": "Régler la taille de l'échiquier",
   Settings: "Réglages",
   "Show possible moves?": "Montrer les coups possibles ?",
   "Show solution": "Montrer la solution",

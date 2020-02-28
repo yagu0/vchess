@@ -17,7 +17,7 @@ div
       )
   div#boardSizeBtnContainer
     button#boardSizeBtn(onClick="window.doClick('modalAdjust')")
-      | {{ st.tr["Board size"] }}
+      | {{ st.tr["Set board size"] }}
   #scoreInfo(v-if="score!='*'")
     p {{ score }}
     p {{ st.tr[message] }}

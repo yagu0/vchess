@@ -99,6 +99,7 @@ export const translations = {
   Send: "Send",
   "Self-challenge is forbidden": "Self-challenge is forbidden",
   "Send challenge": "Send challenge",
+  "Set board size": "Set board size",
   Settings: "Settings",
   "Show possible moves?": "Show possible moves?",
   "Show solution": "Show solution",
