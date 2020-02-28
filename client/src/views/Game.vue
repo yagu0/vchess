@@ -294,7 +294,11 @@ export default {
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
-          this.loadGame(data.data, this.roomInit);
+          let game = data.data;
+          // Move format isn't the same in storage and in browser,
+          // because of the 'addTime' field.
+          game.moves = game.moves.map(m => { return m.move || m; });
+          this.loadGame(game, this.roomInit);
           break;
         case "asklastate":
           // Sending last state if I played a move or score != "*"

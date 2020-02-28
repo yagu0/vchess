@@ -37,7 +37,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   }
 
   getPpath(b) {
-    return b[0] == "c" ? "Checkered/" + b : b;
+    return (b[0] == "c" ? "Checkered/" : "") + b;
   }
 
   setOtherVariables(fen) {
@@ -180,6 +180,41 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     });
   }
 
+  getAllValidMoves() {
+    const oppCol = V.GetOppCol(this.turn);
+    let potentialMoves = [];
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        // NOTE: just testing == color isn't enough because of checkred pieces
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
+          Array.prototype.push.apply(
+            potentialMoves,
+            this.getPotentialMovesFrom([i, j])
+          );
+        }
+      }
+    }
+    return this.filterValid(potentialMoves);
+  }
+
+  atLeastOneMove() {
+    const oppCol = V.GetOppCol(this.turn);
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        // NOTE: just testing == color isn't enough because of checkred pieces
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
+          const moves = this.getPotentialMovesFrom([i, j]);
+          if (moves.length > 0) {
+            for (let k = 0; k < moves.length; k++) {
+              if (this.filterValid([moves[k]]).length > 0) return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   isAttackedByPawn([x, y], colors) {
     for (let c of colors) {
       const color = c == "c" ? this.turn : c;
@@ -245,13 +280,15 @@ export const VariantRules = class CheckeredRules extends ChessRules {
 
   evalPosition() {
     let evaluation = 0;
-    //Just count material for now, considering checkered neutral (...)
+    // Just count material for now, considering checkered neutral (...)
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] != V.EMPTY) {
           const sqColor = this.getColor(i, j);
-          const sign = sqColor == "w" ? 1 : sqColor == "b" ? -1 : 0;
-          evaluation += sign * V.VALUES[this.getPiece(i, j)];
+          if (["w","b"].includes(sqColor)) {
+            const sign = sqColor == "w" ? 1 : -1;
+            evaluation += sign * V.VALUES[this.getPiece(i, j)];
+          }
         }
       }
     }

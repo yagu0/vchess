@@ -1,1 +1,53 @@
-p TODO
+p.boxed
+  | Quand une pièce se déplace, la case initiale disparaît. Cela crée un
+  a(href="https://fr.wikipedia.org/wiki/Trou_de_ver") "trou de ver"
+  | .
+
+p.
+  Puisque toutes les cases initiales disparaissent, l'échiquier a exactement
+  64 - T cases après T tours. La partie ne peut donc excéder 32 coups.
+  En effet on peut sauter par dessus une case disparue, mais celle-ci ne
+  peut plus être utilisée.
+  Les trous sont indiqués par la lettre 'x' sur les chaînes FEN.
+
+p.
+  Dans la situation du diagramme, le cavalier noir peut aller sur toutes les
+  cases marquées : g5 et f6 sont accessibles grâce aux trous en f4 et e5.
+  En effet le cavalier se déplace d'abord d'une case horizontalement ou
+  verticalement, puis d'une case en diagonale "dans la même direction".
+  Ceci est la seule description valide dans cette variante (les autres
+  mèneraient à différents coups de cavaliers aux abords des trous).
+  Le roi noir peut aller en c6 : il se déplace vers la case non disparue
+  la plus proche (s'il y en a).
+
+figure.diagram-container
+  .diagram
+    | fen:rbkxxxbn/ppxppppx/2qxxB2/4x2p/3P1x2/3n1x2/PPPxPPPP/RBxxxNKR b2,f2,b4,c5,g5,f6:
+  figcaption Coups possibles pour le cavalier en d3.
+
+p.
+  Le roque ainsi que la prise en passant ne sont pas permis.
+  La promotion est possible mais seulement en capturant.
+
+h3 Déplacement des pièces
+
+ul
+  li La tour se déplace d'une ou deux cases verticalement ou horizontalement.
+  li Le fous se déplace d'une ou deux cases en diagonale.
+  li La dame peut se mouvoir comme une tour ou un fou.
+  li.
+    Le pion se déplace comme aux échecs orthodoxes, et peut aussi sauter par
+    dessus une pièce lors de son potentiel double coup initial.
+
+h3 Fin de la partie
+
+p Gagnez par mat ou pat : si vous ne pouvez plus jouer, vous perdez.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/32turn.dir/wormhole.html") variante Wormhole
+  | &nbsp;sur chessvariants.com.
+  | J'ai changé les déplacements des pièces car ceux décrits ici me
+  | paraissent mieux adaptés. Ceci pourrait évoluer.

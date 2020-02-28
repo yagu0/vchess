@@ -610,7 +610,7 @@ export const ChessRules = class ChessRules {
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep !== undefined) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -836,12 +836,10 @@ export const ChessRules = class ChessRules {
   // (for engine and game end)
   getAllValidMoves() {
     const color = this.turn;
-    const oppCol = V.GetOppCol(color);
     let potentialMoves = [];
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        // Next condition "!= oppCol" to work with checkered variant
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
+        if (this.getColor(i, j) == color) {
           Array.prototype.push.apply(
             potentialMoves,
             this.getPotentialMovesFrom([i, j])
@@ -855,10 +853,9 @@ export const ChessRules = class ChessRules {
   // Stop at the first move found
   atLeastOneMove() {
     const color = this.turn;
-    const oppCol = V.GetOppCol(color);
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
+        if (this.getColor(i, j) == color) {
           const moves = this.getPotentialMovesFrom([i, j]);
           if (moves.length > 0) {
             for (let k = 0; k < moves.length; k++) {
@@ -883,10 +880,31 @@ export const ChessRules = class ChessRules {
     );
   }
 
+  // Generic method for non-pawn pieces ("sliding or jumping"):
+  // is x,y attacked by a piece of color in array 'colors' ?
+  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        rx += step[0];
+        ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.getPiece(rx, ry) === piece &&
+        colors.includes(this.getColor(rx, ry))
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Is square x,y attacked by 'colors' pawns ?
   isAttackedByPawn([x, y], colors) {
     for (let c of colors) {
-      let pawnShift = c == "w" ? 1 : -1;
+      const pawnShift = c == "w" ? 1 : -1;
       if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
         for (let i of [-1, 1]) {
           if (
@@ -943,27 +961,6 @@ export const ChessRules = class ChessRules {
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
     );
-  }
-
-  // Generic method for non-pawn pieces ("sliding or jumping"):
-  // is x,y attacked by a piece of color in array 'colors' ?
-  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
-    for (let step of steps) {
-      let rx = x + step[0],
-          ry = y + step[1];
-      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
-        rx += step[0];
-        ry += step[1];
-      }
-      if (
-        V.OnBoard(rx, ry) &&
-        this.getPiece(rx, ry) === piece &&
-        colors.includes(this.getColor(rx, ry))
-      ) {
-        return true;
-      }
-    }
-    return false;
   }
 
   // Is color under check after his move ?

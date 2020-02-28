@@ -1,1 +1,51 @@
-p TODO
+p.boxed
+  | When a piece moves, the initial square disappears. It creates a 
+  a(href="https://en.wikipedia.org/wiki/Wormhole") "wormhole"
+  | .
+
+p.
+  Since all initial squares vanish, the board has exactly 64 - T squares
+  after T turns, so the game cannot last more than 32 moves.
+  Indeed a vanished square can be jumped over, but cannot be used again.
+  Holes are indicated with the letter 'x' on FEN strings.
+
+p.
+  In the diagram situation, the black knight can go to all the marked squares:
+  g5 and f6 are reachable because of the holes on f4 and e5.
+  Indeed the knight first moves one square vertically or horizontally,
+  and only then one square diagonally "in the same direction".
+  This is the only valid description in this variant
+  (others would lead to different knight movements around holes).
+  The black king can go to c6:
+  it moves to the closest non-vanished square (if any).
+
+figure.diagram-container
+  .diagram
+    | fen:rbkxxxbn/ppxppppx/2qxxB2/4x2p/3P1x2/3n1x2/PPPxPPPP/RBxxxNKR b2,f2,b4,c5,g5,f6:
+  figcaption Possible moves for the knight on d3.
+
+p.
+  No castle or en passant captures are possible.
+  Promotion is permitted but only by capturing.
+
+h3 Pieces movements
+
+ul
+  li The rook moves one or two squares vertically or horizontally.
+  li The bishop moves one or two squares diagonally.
+  li The queen moves either like a rook or like a bishop.
+  li.
+    The pawn moves like in orthodox chess, but can jumped over pieces at its
+    initial potential 2-squares move.
+
+h3 End of the game
+
+p Win by checkmate or stalemate: if you can no longer move, you lose.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/32turn.dir/wormhole.html") Wormhole chess
+  | &nbsp;on chessvariants.com.
+  | I changed the pieces movements because I have a better feeling with the moves
+  | described earlier. It might evolve.

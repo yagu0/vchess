@@ -1,1 +1,45 @@
-p TODO
+p.boxed
+  | Entrez dans l'arène, ou capturez-y quelque chose.
+  | L'"arène" désigne le rectangle 4x8 au centre de l'échiquier.
+
+ul
+  li.
+    En plus de son déplacement habituel,
+    le pion peut capturer en diagonale vers arrière.
+  li.
+    Le roi et la reine sont remplacés par des ducs.
+    Un duc peut se déplacer d'une, deux ou trois cases dans toutes les directions.
+    Il peut se retrouver en échec à tout moment, mais perdre ses deux
+    ducs signifie perdre la partie.
+
+p.
+  La zone de taille 4x8 au centre de l'échiquier (initialement vide)
+  s'appelle l'"arène". Une pièce hors de l'arène peut seulement effectuer
+  un coup y entrant.
+  Une pièce déjà dans l'arène ne peut se déplacer qu'en capturant
+  quelque chose dans cette zone.
+
+p Un joueur gagne si :
+ul
+  li Il capture les deux ducs adverses.
+  li.
+    Son adversaire n'a plus de pièces dans l'arène à l'issue de
+    n'importe quel tour excepté le premier.
+  li Son adversaire ne peut plus jouer.
+
+figure.diagram-container
+  .diagram
+    | fen:brnkqrnb/pppppppp/8/8/8/8/PPPPPPPP/QNRBBKNR:
+  figcaption Après les coups 1.e4 Nd6 2.Bg4 Nxe4.
+
+p.
+  Dans la situation du diagramme, le fou en g4 ne peut rien capturer dans l'arène,
+  et donc ne peut pas bouger. Notez que 1...d5?? 2.exd5 1-0, car les noirs
+  n'auraient aucune pièce dans l'arène.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/32turn.dir/arenachess.html") variante Arena
+  | &nbsp;sur chessvariants.com.

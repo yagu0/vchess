@@ -47,15 +47,17 @@ export const VariantRules = class ArenaRules extends ChessRules {
         moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
       }
     }
-    // Captures
+    // Captures: also possible backward
     for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        moves.push(this.getBasicMove([x, y], [x + shiftX, y + shiftY]));
+      if (y + shiftY >= 0 && y + shiftY < sizeY) {
+        for (let direction of [-1,1]) {
+          if (
+            this.board[x + direction][y + shiftY] != V.EMPTY &&
+            this.canTake([x, y], [x + direction, y + shiftY])
+          ) {
+            moves.push(this.getBasicMove([x, y], [x + direction, y + shiftY]));
+          }
+        }
       }
     }
 

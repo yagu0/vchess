@@ -1,1 +1,44 @@
-p TODO
+p.boxed
+  | Entra en la arena o captura algo.
+  | La "arena" designa el rectángulo de 4x8 en el centro del tablero.
+
+ul
+  li.
+    Además de su moviéndose habitual,
+    el peón puede capturar en diagonal hacia atrás.
+  li.
+    El rey y la reina son reemplazados por duques.
+    Un duque puede mover uno, dos o tres casillas en todas las direcciones.
+    Puede estar en jaque en cualquier momento, pero perder ambos
+    duques significa perder la partida.
+
+p.
+  El área de tamaño 4x8 en el centro del tablero de ajedrez (inicialmente vacía)
+  se llama la "arena". Una pieza fuera de la arena solo puede realizar
+  un movimiento entrando en él.
+  Una pieza que ya está en la arena solo puede moverse capturando algo en esta área.
+
+p Un jugador gana si:
+ul
+  li Captura a los dos duques opuestos.
+  li.
+    Su oponente no tiene más piezas en la arena después de
+    cualquier turno excepto el primero.
+  li Su oponente ya no puede jugar.
+
+figure.diagram-container
+  .diagram
+    | fen:brnkqrnb/pppppppp/8/8/8/8/PPPPPPPP/QNRBBKNR:
+  figcaption Después de los movimientos 1.e4 Nd6 2.Bg4 Nxe4.
+
+p.
+  En la situación del diagrama, el alfil en g4 no puede capturar nada en la arena,
+  y por lo tanto no puede moverse. Tenga en cuenta que 1...d5?? 2.exd5 1-0, 
+  porque los negros no tendría piezas en la arena.
+
+h3 Fuente
+
+p
+  | La
+  a(href="https://www.chessvariants.com/32turn.dir/arenachess.html") variante Arena
+  | &nbsp;en chessvariants.com.
