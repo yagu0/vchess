@@ -212,6 +212,7 @@ export default {
           "DELETE",
           {gid: this.game.id},
           () => {
+            // TODO: this.game.pastChats = [] could be enough here?
             this.$set(this.game, "pastChats", []);
           }
         );

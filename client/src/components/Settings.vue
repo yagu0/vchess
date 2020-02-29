@@ -47,7 +47,7 @@ div
             option(value="chesstempo") {{ st.tr["blue"] }}
         fieldset
           label(for="setSound")
-            | {{ st.tr["Sound on new game?"] }}
+            | {{ st.tr["Sound alert when game starts?"] }}
           input#setSound(
             type="checkbox"
             v-model="st.settings.sound"

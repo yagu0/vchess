@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   button(@click="clearHistory()")
-    | {{ st.tr["Clear chat"] }}
+    | {{ st.tr["Clear history"] }}
   input#inputChat(
     type="text"
     :placeholder="st.tr['Chat here']"
