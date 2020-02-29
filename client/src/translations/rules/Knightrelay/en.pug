@@ -4,13 +4,22 @@ p.boxed
 p.
   In addition to its normal abilities, a piece guarded by a knight can move like him.
   On the following diagram, 1.Nf4 would checkmate because it guard the g6 queen.
-  If it was black to play, then 1...Rxe2 is possible due to the c8 knight.
+  If it is black to play, then 1...Rxe2 is possible due to the c8 knight.
 
 figure.diagram-container
   .diagram
     | fen:7k/8/6Q1/1n6/8/2r5/4N3/K7:
 
+p.
+  A pawn on the sixth rank guarded by a knight could thus make a knight move to reach
+  the last rank and promote.
+
+p These oddities excepted, orthodox rules apply.
+
 h3 Source
 
 p
-  a(href="TODO") TODO
+  | The original rule is described for example 
+  a(href="https://www.chessvariants.com/diffmove.dir/nrelay.html") on this page
+  | . However, I don't really like the invulnerability condition and the restrictions
+  | imposed in these rules, so I implemented this simpler version.

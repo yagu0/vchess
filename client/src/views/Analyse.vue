@@ -9,7 +9,7 @@ main
         )
   BaseGame(
     :game="game"
-    :vr="vr"
+    @fenchange="setFen"
   )
 </template>
 
@@ -34,18 +34,11 @@ export default {
         players: [{ name: "Analyse" }, { name: "Analyse" }],
         mode: "analyze"
       },
-      vr: null, //"variant rules" object initialized from FEN
       curFen: ""
     };
   },
-  watch: {
-    // NOTE: no watcher for $route change, because if fenStart doesn't change
-    // then it doesn't trigger BaseGame.re_init() and the result is weird.
-    "vr.movesCount": function() {
-      this.curFen = this.vr.getFen();
-      this.adjustFenSize();
-    }
-  },
+  // NOTE: no watcher for $route change, because if fenStart doesn't change
+  // then it doesn't trigger BaseGame.re_init() and the result is weird.
   created: function() {
     this.gameRef.vname = this.$route.params["vname"];
     this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
@@ -64,11 +57,16 @@ export default {
       this.game.fen = this.gameRef.fen;
       this.curFen = this.game.fen;
       this.adjustFenSize();
-      this.vr = new V(this.game.fen);
-      this.game.mycolor = this.vr.turn;
+      this.game.mycolor = V.ParseFen(this.gameRef.fen).turn;
       this.$set(this.game, "fenStart", this.gameRef.fen);
     },
+    // Triggered by "fenchange" emitted in BaseGame:
+    setFen: function(fen) {
+      this.curFen = fen;
+      this.adjustFenSize();
+    },
     adjustFenSize: function() {
+      console.log("flababa");
       let fenInput = document.getElementById("fen");
       fenInput.style.width = this.curFen.length + "ch";
     },

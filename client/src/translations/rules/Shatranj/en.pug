@@ -1,1 +1,38 @@
-p TODO
+p.boxed
+  | Bishops and queen are less powerful then in standard chess.
+
+ul
+  li Elephants replace the orthodox bishops.
+  li General or vizir replace the orthodox queen.
+  li The only special pawn move is the promotion, always to a vizir.
+  li There is no castling option.
+  li Stalemate or bare king counts as a win, but two bare kings count as a draw.
+p.
+  Note: the general is still represented as a queen, because I didn't find an
+  appropriate image. Please tell me if you have one :)
+
+p
+  | I implemented a slightly different version of Shatranj
+  | as described for example 
+  a(href="https://www.chessvariants.com/historic.dir/shatranj.html") on chessvariants.com
+  | , because otherwise elephants could only evolve on a quarter of the board,
+  | and the vizirs would be colorbound as well as the promoted pawns.
+
+p.
+  So, while trying to keep the feeling of this old game,
+  here is what I came up with:
+ul
+  li.
+    Elephants can move by one or two squares diagonally.
+    Only the 2-squares moves (maybe jumping over a piece) can capture.
+  li.
+    Generals can move (without capturing) to any adjacent square
+    horizontally or vertically.
+    They capture on any diagonally adjacent square, so that a general corresponds
+    to a natural pawn promotion.
+p All other pieces move like in orthodoxe chess.
+
+figure.diagram-container
+  .diagram
+    | fen:2bkn3/7R/2qPP3/8/8/3n4/1r3r2/3K4:
+  figcaption White can mate in two moves: see problems section.

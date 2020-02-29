@@ -1,1 +1,41 @@
-p TODO
+p.boxed
+  | Les fous et la dame sont moins puissants qu'aux échecs standards.
+
+ul
+  li Les éléphants remplacent les fous.
+  li Le général ou vizir remplace la dame orthodoxe
+  li Le seul coup spécial de pion est la promotion, toujours en vizir.
+  li Il n'y a pas de roque.
+  li.
+    Le pat ainsi qu'un roi nu compte comme une victoire,
+    mais deux rois seuls équivaut à un match nul.
+p.
+  Note : le général est encore représenté par une dame, parce que
+  je n'ai pas trouvé d'image appropriée. Dites-moi si vous en avez une :)
+
+p
+  | J'ai implémenté une version légèrement différente du Shatranj telle que
+  | décrite par exemple
+  a(href="https://www.chessvariants.com/historic.dir/shatranj.html") sur chessvariants.com
+  | , car sinon les éléphants n'évoluent que sur un quart d'échiquier,
+  | et les vizirs (ainsi que les pions promus) ne parcourent qu'un demi-échiquier.
+
+p.
+  Donc, tout en essayant de rester dans l'esprit de ce jeu ancien,
+  voici ce à quoi j'ai abouti :
+ul
+  li.
+    Les éléphants peuvent se déplacer d'une ou deux cases en diagonale.
+    Seuls les sauts de deux cases (éventuellement par dessus une pièce)
+    peuvent capturer.
+  li.
+    Les généraux se déplacent (sans capturer) sur n'importe quelle case
+    adjacente, horizontalement ou verticalemnt.
+    Ils capturent sur n'importe quele case diagonalement adjacente,
+    de telle sorte qu'un général correspond à une promotion de pion naturelle.
+p Toutes les autres pièces se déplacent comme aux échecs orthodoxes.
+
+figure.diagram-container
+  .diagram
+    | fen:2bkn3/7R/2qPP3/8/8/3n4/1r3r2/3K4:
+  figcaption Les blancs peuvent mater en deux coups : voir la section problèmes.

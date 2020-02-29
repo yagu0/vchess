@@ -296,6 +296,15 @@ export default {
         callback();
       }, 250);
     },
+    // For Analyse mode:
+    emitFenIfAnalyze: function() {
+      if (this.game.mode == "analyze") {
+        this.$emit(
+          "fenchange",
+          this.lastMove ? this.lastMove.fen : this.game.fenStart
+        );
+      }
+    },
     // "light": if gotoMove() or gotoEnd()
     // data: some custom data (addTime) to be re-emitted
     play: function(move, received, light, data) {
@@ -309,7 +318,7 @@ export default {
         if (!navigate) {
           if (!this.inMultimove) {
             if (this.cursor < this.moves.length - 1)
-              this.moves = this.moves.slice(0, Math.max(this.cursor, 0));
+              this.moves = this.moves.slice(0, this.cursor + 1);
             this.moves.push(smove);
             this.inMultimove = true; //potentially
             this.cursor++;
@@ -376,7 +385,10 @@ export default {
           if (!Array.isArray(move)) move = [move];
           for (let i=0; i < move.length; i++) this.vr.play(move[i]);
         }
-        else playMove();
+        else {
+          playMove();
+          this.emitFenIfAnalyze();
+        }
         this.cursor++;
         return;
       }
@@ -393,6 +405,8 @@ export default {
       if (received && this.cursor < this.moves.length - 1)
         this.gotoEnd();
       playMove();
+      this.lastMove.fen = this.vr.getFen();
+      this.emitFenIfAnalyze();
     },
     cancelCurrentMultimove: function() {
       // Cancel current multi-move
@@ -427,6 +441,7 @@ export default {
           if (this.st.settings.sound == 2)
             new Audio("/sounds/undo.mp3").play().catch(() => {});
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
+          this.emitFenIfAnalyze();
         }
       }
     },
@@ -445,6 +460,7 @@ export default {
       // NOTE: next line also re-assign cursor, but it's very light
       this.positionCursorTo(index);
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      this.emitFenIfAnalyze();
     },
     gotoBegin: function() {
       if (this.inMultimove) this.cancelCurrentMultimove();
@@ -457,10 +473,12 @@ export default {
         this.lastMove = null;
       }
       this.incheck = [];
+      this.emitFenIfAnalyze();
     },
     gotoEnd: function() {
       if (this.cursor == this.moves.length - 1) return;
       this.gotoMove(this.moves.length - 1);
+      this.emitFenIfAnalyze();
     },
     flip: function() {
       this.orientation = V.GetOppCol(this.orientation);

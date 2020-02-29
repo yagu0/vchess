@@ -1,1 +1,23 @@
-p TODO
+p.boxed
+  | Capturing pieces don't move.
+
+p.
+  Everything is the same as in orthodox chess, except that after capturing
+  a piece, the attacker stay still.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkbnr/p1pppppp/1pn5/7Q/4P3/8/PPPP1PPP/RNB1KBNR:
+  .diagram.diag22
+    | fen:r1bqkbnr/p1ppp2p/1pn5/7Q/4P3/8/PPPP1PPP/RNB1KBNR:
+  figcaption Left: after 1.e4 Nc6 2.Qh5 b6??. Right: after 3.Qxf7+ g6 4.Qxg6#.
+
+p.
+  This "small" difference alters the strategy a lot: guarding pieces is useless,
+  for example, and the king cannot escape a check by capturing.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/rifle.html") Rifle Chess
+  | &nbsp;on chessvariants.com.

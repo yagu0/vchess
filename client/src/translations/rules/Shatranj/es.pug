@@ -1,1 +1,41 @@
-p TODO
+p.boxed
+  | Los alfiles y la dama son menos poderosos que el ajedrez estándar.
+
+ul
+  li Los elefantes reemplazan a los alfiles.
+  li El general o vizir reemplaza a la dama ortodoxa.
+  li El único movimiento de peón especial es la promoción, siempre en vizir.
+  li No hay enroque.
+  li.
+    El empate y un rey desnudo cuentan como una victoria,
+    pero solo dos reyes es equivalente a tablas.
+p.
+  Nota: el general todavía está representado por una dama, porque
+  No encontré una imagen adecuada. Dime si tienes uno :)
+
+p
+  | Implementé una versión ligeramente diferente de Shatranj como
+  | descrito por ejemplo
+  a(href="https://www.chessvariants.com/historic.dir/shatranj.html") en chessvariants.com
+  | , porque de lo contrario los elefantes solo evolucionan en un cuarto de tablero,
+  | y los vizires (así como los peones promocionados) solo viajan un medio tablero
+  | de ajedrez.
+
+p.
+  Entonces, al tratar de permanecer en el espíritu de este antiguo juego,
+  esto es lo que obtuve:
+ul
+  li.
+    Los elefantes pueden mover una o dos cajas en diagonal.
+    Solo los saltos de dos cajas (posiblemente sobre una pieza) pueden capturar.
+  li.
+    Los generales se mueven (sin capturar) en cualquier casilla
+    adyacente, horizontal o verticalmente.
+    Capturan en cualquier casilla diagonalmente adyacente,
+    para que un general corresponda a una promoción de peón natural.
+p Todas las otras piezas se mueven como en el ajedrez ortodoxo.
+
+figure.diagram-container
+  .diagram
+    | fen:2bkn3/7R/2qPP3/8/8/3n4/1r3r2/3K4:
+  figcaption Las blancas pueden mate en dos jugadas: vea la sección de problemas.

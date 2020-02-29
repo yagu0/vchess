@@ -23,7 +23,7 @@ main
           v-if="showAnalyzeBtn"
           @click="gotoAnalyze()"
         )
-          | {{ st.tr["Analyse"] }}
+          | {{ st.tr["Analysis mode"] }}
   .row
     .col-sm-12.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
       div(
@@ -72,7 +72,7 @@ export default {
   },
   computed: {
     showAnalyzeBtn: function() {
-      return (this.display=='rules' && (!this.V || this.V.CanAnalyze));
+      return this.V && this.V.CanAnalyze;
     },
     content: function() {
       if (!this.gameInfo.vname) return ""; //variant not set yet

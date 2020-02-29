@@ -5,6 +5,7 @@ export const translations = {
   "Accept challenge?": "¿Acceptar el desafío?",
   All: "Todos",
   Analyse: "Analizar",
+  "Analysis mode": "Modo análisis",
   "Any player": "Cualquier jugador",
   Apply: "Aplicar",
   "Are you sure?": "¿Está usted seguro?",

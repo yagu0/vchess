@@ -5,7 +5,8 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
     let moves = super.getPotentialMovesFrom([x, y]);
 
     // Expand possible moves if guarded by a knight:
-    if (this.getPiece(x,y) != V.KNIGHT) {
+    const piece = this.getPiece(x,y);
+    if (piece != V.KNIGHT) {
       const color = this.turn;
       let guardedByKnight = false;
       for (const step of V.steps[V.KNIGHT]) {
@@ -19,12 +20,24 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
         }
       }
       if (guardedByKnight) {
+        const lastRank = color == "w" ? 0 : V.size.x - 1;
         for (const step of V.steps[V.KNIGHT]) {
           if (
             V.OnBoard(x+step[0],y+step[1]) &&
             this.getColor(x+step[0],y+step[1]) != color
           ) {
-            moves.push(this.getBasicMove([x,y], [x+step[0],y+step[1]]));
+            // Potential promotions:
+            const finalPieces = piece == V.PAWN && x + step[0] == lastRank
+              ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+              : [V.PAWN];
+            for (let p of finalPieces) {
+              moves.push(
+                this.getBasicMove([x,y], [x+step[0],y+step[1]], {
+                  c: color,
+                  p: p
+                })
+              );
+            }
           }
         }
       }
