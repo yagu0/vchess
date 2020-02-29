@@ -66,7 +66,6 @@ export default {
       this.adjustFenSize();
     },
     adjustFenSize: function() {
-      console.log("flababa");
       let fenInput = document.getElementById("fen");
       fenInput.style.width = this.curFen.length + "ch";
     },
