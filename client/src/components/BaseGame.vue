@@ -368,8 +368,9 @@ export default {
             const message = getScoreMessage(score);
             if (!navigate && this.game.mode != "analyze")
               this.$emit("gameover", score, message);
-            // Just show score on screen (allow undo)
-            else this.showEndgameMsg(score + " . " + this.st.tr[message]);
+            else if (this.game.mode == "analyze")
+              // Just show score on screen (allow undo)
+              this.showEndgameMsg(score + " . " + this.st.tr[message]);
           }
           if (!navigate && this.game.mode != "analyze") {
             const L = this.moves.length;
