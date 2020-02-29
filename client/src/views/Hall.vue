@@ -42,9 +42,10 @@ main
         fieldset
           label(for="cadence") {{ st.tr["Cadence"] }} *
           div#predefinedCadences
-            button(type="button") 3+2
             button(type="button") 5+3
             button(type="button") 15+5
+            button(type="button") 45+30
+            button(type="button") 7d+2d
           input#cadence(
             type="text"
             v-model="newchallenge.cadence"
