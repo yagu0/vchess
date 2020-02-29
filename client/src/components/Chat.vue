@@ -1,5 +1,7 @@
 <template lang="pug">
 div
+  button(@click="clearHistory()")
+    | {{ st.tr["Clear chat"] }}
   input#inputChat(
     type="text"
     :placeholder="st.tr['Chat here']"
@@ -51,6 +53,10 @@ export default {
       const chat = { msg: chatTxt, name: this.st.user.name || "@nonymous" };
       this.$emit("mychat", chat);
       this.chats.unshift(chat);
+    },
+    clearHistory: function() {
+      this.chats = [];
+      this.$emit("chatcleared");
     }
   }
 };

@@ -751,6 +751,13 @@ export default {
         localStorage.setItem("cadence", chall.cadence);
         localStorage.setItem("vid", chall.vid);
         document.getElementById("modalNewgame").checked = false;
+        // Show the challenge if not on current display
+        if (
+          (ctype == "live" && this.cdisplay == "corr") ||
+          (ctype == "corr" && this.cdisplay == "live")
+        ) {
+          this.setDisplay('c', ctype);
+        }
       };
       if (ctype == "live") {
         // Live challenges have a random ID
@@ -885,8 +892,8 @@ export default {
       GameStorage.add(game, (err) => {
         // If an error occurred, game is not added: abort
         if (!err) {
-          if (this.st.settings.sound >= 1)
-            new Audio("/sounds/newgame.mp3").play().catch(() => {});
+          if (this.st.settings.sound)
+            new Audio("/sounds/newgame.wav").play().catch(() => {});
           this.$router.push("/game/" + gameInfo.id);
         }
       });

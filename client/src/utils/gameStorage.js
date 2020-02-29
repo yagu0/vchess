@@ -96,7 +96,8 @@ export const GameStorage = {
   },
 
   // Retrieve all local games (running, completed, imported...)
-  getAll: function(callback) {
+  // light: do not retrieve moves or players or clocks (TODO: this is the only usage)
+  getAll: function(light, callback) {
     dbOperation((err,db) => {
       let objectStore = db.transaction("games").objectStore("games");
       let games = [];
@@ -104,7 +105,15 @@ export const GameStorage = {
         let cursor = event.target.result;
         // if there is still another cursor to go, keep running this code
         if (cursor) {
-          games.push(cursor.value);
+          let g = cursor.value;
+          if (light) {
+            g.movesCount = g.moves.length;
+            delete g.moves;
+            delete g.clocks;
+            delete g.initime;
+            delete g.players;
+          }
+          games.push(g);
           cursor.continue();
         } else callback(games);
       };

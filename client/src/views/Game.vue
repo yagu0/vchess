@@ -24,6 +24,7 @@ main
         :pastChats="game.chats"
         :newChat="newChat"
         @mychat="processChat"
+        @chatcleared="clearChat"
       )
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
@@ -192,6 +193,29 @@ export default {
         Object.keys(this.people).some(sid => sid == player.sid) ||
         Object.values(this.people).some(p => p.id == player.uid)
       );
+    },
+    resetChatColor: function() {
+      // TODO: this is called twice, once on opening an once on closing
+      document.getElementById("chatBtn").classList.remove("somethingnew");
+    },
+    processChat: function(chat) {
+      this.send("newchat", { data: chat });
+      // NOTE: anonymous chats in corr games are not stored on server (TODO?)
+      if (this.game.type == "corr" && this.st.user.id > 0)
+        GameStorage.update(this.gameRef.id, { chat: chat });
+    },
+    clearChat: function() {
+      // Nothing more to do if game is live (chats not recorded)
+      if (this.game.mycolor && this.game.type == "corr") {
+        ajax(
+          "/chats",
+          "DELETE",
+          {gid: this.game.id},
+          () => {
+            this.$set(this.game, "pastChats", []);
+          }
+        );
+      }
     },
     socketMessageListener: function(msg) {
       if (!this.conn) return;
@@ -634,7 +658,10 @@ export default {
           const sendMove = {
             move: filtered_move,
             addTime: addTime,
-            cancelDrawOffer: this.drawOffer == ""
+            cancelDrawOffer: this.drawOffer == "",
+            // Players' SID required for /mygames page
+            // TODO: precompute and add this field to game object?
+            players: this.game.players.map(p => p.sid)
           };
           this.send("newmove", { data: sendMove });
         }
@@ -716,16 +743,6 @@ export default {
         }, 500);
       }
       else doProcessMove();
-    },
-    resetChatColor: function() {
-      // TODO: this is called twice, once on opening an once on closing
-      document.getElementById("chatBtn").classList.remove("somethingnew");
-    },
-    processChat: function(chat) {
-      this.send("newchat", { data: chat });
-      // NOTE: anonymous chats in corr games are not stored on server (TODO?)
-      if (this.game.type == "corr" && this.st.user.id > 0)
-        GameStorage.update(this.gameRef.id, { chat: chat });
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;

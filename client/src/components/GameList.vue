@@ -54,6 +54,13 @@ export default {
       // Show in order: games where it's my turn, my running games, my games, other games
       let minCreated = Number.MAX_SAFE_INTEGER;
       let maxCreated = 0;
+      const isMyTurn = (g, myColor) => {
+        const rem = g.movesCount % 2;
+        return (
+          (rem == 0 && myColor == "w") ||
+          (rem == 1 && myColor == "b")
+        );
+      };
       let augmentedGames = this.games
         .filter(g => !this.deleted[g.id])
         .map(g => {
@@ -72,11 +79,7 @@ export default {
                 : "b";
             if (g.score == "*") {
               priority++;
-              // I play in this game, so g.fen will be defined
-              // NOTE: this is a fragile way to detect turn,
-              // but since V isn't defined let's do that for now. (TODO:)
-              //if (V.ParseFen(g.fen).turn == myColor)
-              if (g.fen.match(" " + myColor + " ")) priority++;
+              if (isMyTurn(g, myColor)) priority++;
             }
           }
           if (g.created < minCreated) minCreated = g.created;

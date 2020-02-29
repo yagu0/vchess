@@ -91,11 +91,18 @@ const GameModel =
         db.all(query, (err2,players) => {
           if (light)
           {
-            const game = Object.assign({},
-              gameInfo,
-              {players: players}
-            );
-            cb(null, game);
+            query =
+              "SELECT COUNT(*) AS nbMoves " +
+              "FROM Moves " +
+              "WHERE gid = " + id;
+            db.get(query, (err,ret) => {
+              const game = Object.assign({},
+                gameInfo,
+                {players: players},
+                {movesCount: ret.nbMoves}
+              );
+              cb(null, game);
+            });
           }
           else
           {
@@ -235,7 +242,6 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
-      let wrongMoveIndex = false;
       if (obj.move)
       {
         // Security: only update moves if index is right
@@ -262,6 +268,14 @@ const GameModel =
           "INSERT INTO Chats (gid, msg, name, added) VALUES ("
             + id + ",?,'" + obj.chat.name + "'," + Date.now() + ")";
         db.run(query, obj.chat.msg);
+      }
+      else if (obj.delchat)
+      {
+        query =
+          "DELETE " +
+          "FROM Chats " +
+          "WHERE gid = " + id;
+        db.run(query, cb);
       }
     });
   },

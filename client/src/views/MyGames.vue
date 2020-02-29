@@ -34,11 +34,13 @@ export default {
       st: store.state,
       display: "live",
       liveGames: [],
-      corrGames: []
+      corrGames: [],
+      conn: null,
+      connexionString: ""
     };
   },
   created: function() {
-    GameStorage.getAll(localGames => {
+    GameStorage.getAll(true, localGames => {
       localGames.forEach(g => (g.type = this.classifyObject(g)));
       this.liveGames = localGames;
     });
@@ -48,6 +50,18 @@ export default {
         this.corrGames = res.games;
       });
     }
+    // Initialize connection
+    this.connexionString =
+      params.socketUrl +
+      "/?sid=" +
+      this.st.user.sid +
+      "&tmpId=" +
+      getRandString() +
+      "&page=" +
+      encodeURIComponent(this.$route.path);
+    this.conn = new WebSocket(this.connexionString);
+    this.conn.onmessage = this.socketMessageListener;
+    this.conn.onclose = this.socketCloseListener;
   },
   mounted: function() {
     const showType = localStorage.getItem("type-myGames") || "live";
@@ -69,6 +83,23 @@ export default {
     },
     showGame: function(g) {
       this.$router.push("/game/" + g.id);
+    },
+    socketMessageListener: function(msg) {
+      const data = JSON.parse(msg.data);
+      // Only event is newmove, and received only:
+      if (data.code == "newmove") {
+        let games = !!parseInt(data.gid)
+          ? this.corrGames
+          : this.liveGames;
+        // NOTE: new move itself is not received, because it wouldn't be used.
+        let g = games.find(g => g.id == data.gid);
+        this.$set(g, "movesCount", g.movesCount + 1);
+      }
+    },
+    socketCloseListener: function() {
+      this.conn = new WebSocket(this.connexionString);
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.conn.addEventListener("close", this.socketCloseListener);
     }
   }
 };

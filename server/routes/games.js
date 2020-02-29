@@ -54,7 +54,7 @@ router.get("/games", access.ajax, (req,res) => {
   }
 });
 
-// New move + fen update + score + chats...
+// FEN update + score(Msg) + draw status / and new move + chats
 router.put("/games", access.logged, access.ajax, (req,res) => {
   const gid = req.body.gid;
   const obj = req.body.newObj;
@@ -81,6 +81,20 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
       }
     });
   }
+});
+
+// TODO: chats deletion here, but could/should be elsewhere.
+// Moves update also could, although logical unit in a game.
+router.delete("/chats", access.logged, access.ajax, (req,res) => {
+  const gid = req.query["gid"];
+  GameModel.getPlayers(gid, (err,players) => {
+    if (players.some(p => p.uid == req.userId))
+    {
+      GameModel.update(gid, {delchat: true}, (err) => {
+        res.json(err || {});
+      });
+    }
+  });
 });
 
 module.exports = router;

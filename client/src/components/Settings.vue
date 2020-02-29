@@ -46,11 +46,12 @@ div
             option(value="chesscom") {{ st.tr["green"] }}
             option(value="chesstempo") {{ st.tr["blue"] }}
         fieldset
-          label(for="setSound") {{ st.tr["Play sounds?"] }}
-          select#setSound(v-model="st.settings.sound")
-            option(value="0") {{ st.tr["None"] }}
-            option(value="1") {{ st.tr["New game"] }}
-            option(value="2") {{ st.tr["All"] }}
+          label(for="setSound")
+            | {{ st.tr["Sound on new game?"] }}
+          input#setSound(
+            type="checkbox"
+            v-model="st.settings.sound"
+          )
 </template>
 
 <script>
@@ -82,10 +83,9 @@ export default {
       const propName = event.target.id
         .substr(3)
         .replace(/^\w/, c => c.toLowerCase());
-      let value = ["bcolor", "sound"].includes(propName)
+      const value = propName == "bcolor"
         ? event.target.value
         : event.target.checked;
-      if (propName == "sound") value = parseInt(value);
       store.updateSetting(propName, value);
     }
   }

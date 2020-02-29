@@ -355,8 +355,6 @@ export default {
         })();
       };
       const afterMove = (smove, initurn) => {
-        if (this.st.settings.sound == 2)
-          new Audio("/sounds/move.mp3").play().catch(() => {});
         if (this.vr.turn != initurn) {
           // Turn has changed: move is complete
           if (!smove.fen) {
@@ -440,8 +438,6 @@ export default {
         if (light) this.cursor--;
         else {
           this.positionCursorTo(this.cursor - 1);
-          if (this.st.settings.sound == 2)
-            new Audio("/sounds/undo.mp3").play().catch(() => {});
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
           this.emitFenIfAnalyze();
         }

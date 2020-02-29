@@ -53,11 +53,16 @@ export const store = {
       this.state.user.notify = res.notify;
     });
     // Settings initialized with values from localStorage
+    const getItemDefaultTrue = (item) => {
+      const value = localStorage.getItem(item);
+      if (!value) return true;
+      return value == "true";
+    };
     this.state.settings = {
       bcolor: localStorage.getItem("bcolor") || "lichess",
-      sound: parseInt(localStorage.getItem("sound")) || 1,
-      hints: localStorage.getItem("hints") == "true",
-      highlight: localStorage.getItem("highlight") == "true"
+      sound: getItemDefaultTrue("sound"),
+      hints: getItemDefaultTrue("hints"),
+      highlight: getItemDefaultTrue("highlight")
     };
     const supportedLangs = ["en", "es", "fr"];
     const navLanguage = navigator.language.substr(0,2);
