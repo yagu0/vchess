@@ -19,7 +19,10 @@ main
       .button-group#buttonsTchall
         button.acceptBtn(@click="decisionChallenge(true)") {{ st.tr["Accept challenge?"] }}
         button.refuseBtn(@click="decisionChallenge(false)") {{ st.tr["Refuse"] }}
-  input#modalNewgame.modal(type="checkbox")
+  input#modalNewgame.modal(
+    type="checkbox"
+    @change="cadenceFocusIfOpened($event)"
+  )
   div#newgameDiv(
     role="dialog"
     data-checkbox="modalNewgame"
@@ -316,6 +319,10 @@ export default {
   },
   methods: {
     // Helpers:
+    cadenceFocusIfOpened: function() {
+      if (event.target.checked)
+        document.getElementById("cadence").focus();
+    },
     send: function(code, obj) {
       if (this.conn) {
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
@@ -479,12 +486,12 @@ export default {
         }
         case "killed":
           // I logged in elsewhere:
-          alert(this.st.tr["New connexion detected: tab now offline"]);
           // TODO: this fails. See https://github.com/websockets/ws/issues/489
           //this.conn.removeEventListener("message", this.socketMessageListener);
           //this.conn.removeEventListener("close", this.socketCloseListener);
           //this.conn.close();
           this.conn = null;
+          alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
         case "askidentity": {
           // Request for identification (TODO: anonymous shouldn't need to reply)

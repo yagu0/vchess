@@ -14,22 +14,22 @@ div
       div(@keyup.enter="onSubmit()")
         div(v-show="stage!='Login'")
           fieldset
-            label(for="username") {{ st.tr["User name"] }}
-            input#username(
+            label(for="u_username") {{ st.tr["User name"] }}
+            input#u_username(
               type="text"
-              v-model="st.user.name"
+              v-model="user.name"
             )
           fieldset
-            label(for="useremail") {{ st.tr["Email"] }}
-            input#useremail(
+            label(for="u_useremail") {{ st.tr["Email"] }}
+            input#u_useremail(
               type="email"
-              v-model="st.user.email"
+              v-model="user.email"
             )
           fieldset
             label(for="notifyNew") {{ st.tr["Notifications by email"] }}
             input#notifyNew(
               type="checkbox"
-              v-model="st.user.notify"
+              v-model="user.notify"
             )
         div(v-show="stage=='Login'")
           fieldset
@@ -67,17 +67,18 @@ export default {
       logStage: "Login", //or Register
       infoMsg: "",
       enterTime: Number.MAX_SAFE_INTEGER, //for a basic anti-bot strategy
-      st: store.state
+      st: store.state,
+      user: {}
     };
   },
   watch: {
     nameOrEmail: function(newValue) {
       if (newValue.indexOf("@") >= 0) {
-        this.st.user.email = newValue;
-        this.st.user.name = "";
+        this.user.email = newValue;
+        this.user.name = "";
       } else {
-        this.st.user.name = newValue;
-        this.st.user.email = "";
+        this.user.name = newValue;
+        this.user.email = "";
       }
     }
   },
@@ -102,6 +103,12 @@ export default {
       if (event.target.checked) {
         this.infoMsg = "";
         this.enterTime = Date.now();
+        document.getElementById("u_username").focus();
+        this.user = {
+          name: this.st.user.name,
+          email: this.st.user.email,
+          notify: this.st.user.notify
+        };
       }
     },
     toggleStage: function() {
@@ -149,7 +156,7 @@ export default {
       if (this.stage == "Login") {
         const type = this.nameOrEmail.indexOf("@") >= 0 ? "email" : "name";
         error = checkNameEmail({ [type]: this.nameOrEmail });
-      } else error = checkNameEmail(this.st.user);
+      } else error = checkNameEmail(this.user);
       if (error) {
         alert(this.st.tr[error]);
         return;
@@ -160,10 +167,15 @@ export default {
         this.ajaxMethod(),
         this.stage == "Login"
           ? { nameOrEmail: this.nameOrEmail }
-          : this.st.user,
+          : this.user,
         () => {
           this.infoMsg = this.infoMessage();
           if (this.stage != "Update") this.nameOrEmail = "";
+          else {
+            this.st.user.name = this.user.name;
+            this.st.user.email = this.user.email;
+            this.st.user.notify = this.user.notify;
+          }
         },
         err => {
           this.infoMsg = "";

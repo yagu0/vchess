@@ -2,7 +2,7 @@
 main
   input#modalNewprob.modal(
     type="checkbox"
-    @change="infoMsg=''"
+    @change="fenFocusIfOpened($event)"
   )
   div#newprobDiv(
     role="dialog"
@@ -193,6 +193,12 @@ export default {
     }
   },
   methods: {
+    fenFocusIfOpened: function(event) {
+      if (event.target.checked) {
+        this.infoMsg = "";
+        document.getElementById("inputFen").focus();
+      }
+    },
     setVname: function(prob) {
       prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
     },

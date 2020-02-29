@@ -248,12 +248,12 @@ export default {
           break;
         case "killed":
           // I logged in elsewhere:
-          alert(this.st.tr["New connexion detected: tab now offline"]);
           // TODO: this fails. See https://github.com/websockets/ws/issues/489
           //this.conn.removeEventListener("message", this.socketMessageListener);
           //this.conn.removeEventListener("close", this.socketCloseListener);
           //this.conn.close();
           this.conn = null;
+          alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
         case "askidentity": {
           // Request for identification (TODO: anonymous shouldn't need to reply)

@@ -9,7 +9,7 @@ main
       )
     .variant.col-sm-12.col-md-5.col-lg-4(
       v-for="(v,idx) in filteredVariants"
-      :class="{'col-md-offset-1': idx%2==0, 'col-lg-offset-2': idx%2==0}"
+      :class="getVclasses(filteredVariants, idx)"
     )
       router-link(:to="getLink(v.name)")
         h4.boxtitle.text-center {{ v.name }}
@@ -54,7 +54,15 @@ export default {
     },
     getLink: function(vname) {
       return "/variants/" + vname;
-    }
+    },
+    getVclasses: function(varray, idx) {
+      const idxMod2 = idx % 2;
+      return {
+        'col-md-offset-1': idxMod2 == 0,
+        'col-lg-offset-2': idxMod2 == 0,
+        'last-noneighb': idxMod2 == 0 && idx == varray.length - 1
+      };
+    },
   }
 };
 </script>
@@ -79,4 +87,7 @@ input#prefixFilter
   .description
     @media screen and (max-width: 767px)
       margin-top: 0
+
+.last-noneighb
+  margin: 0 auto
 </style>
