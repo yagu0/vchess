@@ -242,6 +242,7 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
+      // NOTE: move, chat and delchat are mutually exclusive
       if (obj.move)
       {
         // Security: only update moves if index is right
@@ -275,7 +276,7 @@ const GameModel =
           "DELETE " +
           "FROM Chats " +
           "WHERE gid = " + id;
-        db.run(query, cb);
+        db.run(query);
       }
     });
   },

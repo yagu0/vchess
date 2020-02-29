@@ -90,8 +90,8 @@ router.delete("/chats", access.logged, access.ajax, (req,res) => {
   GameModel.getPlayers(gid, (err,players) => {
     if (players.some(p => p.uid == req.userId))
     {
-      GameModel.update(gid, {delchat: true}, (err) => {
-        res.json(err || {});
+      GameModel.update(gid, {delchat: true}, () => {
+        res.json({});
       });
     }
   });

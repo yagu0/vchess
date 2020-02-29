@@ -23,6 +23,8 @@ main
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ajax } from "@/utils/ajax";
+import params from "@/parameters";
+import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
 export default {
   name: "my-my-games",
@@ -67,12 +69,16 @@ export default {
     const showType = localStorage.getItem("type-myGames") || "live";
     this.setDisplay(showType);
   },
+  beforeDestroy: function() {
+    this.conn.send(JSON.stringify({code: "disconnect"}));
+  },
   methods: {
     setDisplay: function(type, e) {
       this.display = type;
       localStorage.setItem("type-myGames", type);
       let elt = e ? e.target : document.getElementById(type + "Games");
       elt.classList.add("active");
+      elt.classList.remove("somethingnew"); //in case of
       if (elt.previousElementSibling)
         elt.previousElementSibling.classList.remove("active");
       else elt.nextElementSibling.classList.remove("active");
@@ -94,6 +100,14 @@ export default {
         // NOTE: new move itself is not received, because it wouldn't be used.
         let g = games.find(g => g.id == data.gid);
         this.$set(g, "movesCount", g.movesCount + 1);
+        if (
+          (g.type == "live" && this.display == "corr") ||
+          (g.type == "corr" && this.display == "live")
+        ) {
+          document
+            .getElementById(g.type + "Games")
+            .classList.add("somethingnew");
+        }
       }
     },
     socketCloseListener: function() {
@@ -114,4 +128,7 @@ export default {
 
 table.game-list
   max-height: 100%
+
+.somethingnew
+  background-color: #c5fefe !important
 </style>

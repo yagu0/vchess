@@ -197,16 +197,14 @@ module.exports = function(wss) {
           {
             // Relay newmove info to myGames page
             // NOTE: the move itself is not needed (for now at least)
-            const newmoveForMygames = {
-              gid: page.split("/")[2] //format is "/game/gid"
-            };
+            const gid = page.split("/")[2]; //format is "/game/gid"
             obj.data.players.forEach(pSid => {
               if (clients[mygamesPg][pSid])
               {
                 Object.keys(clients[mygamesPg][pSid]).forEach(x => {
                   send(
                     clients[mygamesPg][pSid][x],
-                    {code:"newmove", data:newmoveForMygames}
+                    {code:"newmove", gid:gid}
                   );
                 });
               }

@@ -1,0 +1,4 @@
+newmove received on mygames page should be added to storage if gtype == "live"
+and, on game page "mconnect" events => send newmove to them (better than current setup)
+also, mygames page should ask lastate infos to connected players if any (where it's not my turn)
+(maybe in component GameList, if g.type == "live" ...)

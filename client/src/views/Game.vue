@@ -70,6 +70,7 @@ import Chat from "@/components/Chat.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
+import { ajax } from "@/utils/ajax";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
 import { processModalClick } from "@/utils/modalClick";
@@ -206,16 +207,11 @@ export default {
     },
     clearChat: function() {
       // Nothing more to do if game is live (chats not recorded)
-      if (this.game.mycolor && this.game.type == "corr") {
-        ajax(
-          "/chats",
-          "DELETE",
-          {gid: this.game.id},
-          () => {
-            // TODO: this.game.pastChats = [] could be enough here?
-            this.$set(this.game, "pastChats", []);
-          }
-        );
+      if (this.game.type == "corr") {
+        if (this.game.mycolor)
+          ajax("/chats", "DELETE", {gid: this.game.id});
+        // TODO: this.game.chats = [] could be enough here?
+        this.$set(this.game, "chats", []);
       }
     },
     socketMessageListener: function(msg) {

@@ -290,12 +290,11 @@ export const VariantRules = class AllmateRules extends ChessRules {
   getNotation(move) {
     let notation = super.getNotation(move);
     // Add a capture mark (not describing what is captured...):
-    if (move.vanish.length > 1 && move.appear[0].p != V.KING) {
-      if (notation.match(/^[a-h]/))
-        // Pawn capture: remove "bx" in bxc4 for example
-        notation = notation.substr(2);
-      else
-        notation = notation.replace("x","") + "X";
+    if (move.vanish.length > 1 && move.appear.length == 1) {
+      if (notation.match(/^[a-h]x/))
+        // Pawn capture: remove initial "b" in bxc4 for example
+        notation = notation.substr(1);
+      notation = notation.replace("x","") + "X";
     }
     return notation;
   }
