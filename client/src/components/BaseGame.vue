@@ -359,9 +359,11 @@ export default {
           new Audio("/sounds/move.mp3").play().catch(() => {});
         if (this.vr.turn != initurn) {
           // Turn has changed: move is complete
-          if (!smove.fen)
+          if (!smove.fen) {
             // NOTE: only FEN of last sub-move is required (thus setting it here)
             smove.fen = this.vr.getFen();
+            this.emitFenIfAnalyze();
+          }
           this.inMultimove = false;
           const score = this.vr.getCurrentScore();
           if (score != "*") {
@@ -408,10 +410,8 @@ export default {
       if (received && this.cursor < this.moves.length - 1)
         this.gotoEnd();
       playMove();
-      this.emitFenIfAnalyze();
     },
     cancelCurrentMultimove: function() {
-      // Cancel current multi-move
       const L = this.moves.length;
       let move = this.moves[L-1];
       if (!Array.isArray(move)) move = [move];
