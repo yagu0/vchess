@@ -77,6 +77,17 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
     return false;
   }
 
+  static get VALUES() {
+    return {
+      p: 1,
+      r: 5,
+      n: 7, //the knight is valuable
+      b: 3,
+      q: 9,
+      k: 1000
+    };
+  }
+
   getNotation(move) {
     if (move.appear.length == 2 && move.appear[0].p == V.KING)
       // Castle
