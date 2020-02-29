@@ -60,9 +60,10 @@ export const store = {
       highlight: localStorage.getItem("highlight") == "true"
     };
     const supportedLangs = ["en", "es", "fr"];
+    const navLanguage = navigator.language.substr(0,2);
     this.state.lang =
       localStorage["lang"] ||
-      (supportedLangs.includes(navigator.language) ? navigator.language : "en");
+      (supportedLangs.includes(navLanguage) ? navLanguage : "en");
     this.setTranslations();
   },
   updateSetting: function(propName, value) {
