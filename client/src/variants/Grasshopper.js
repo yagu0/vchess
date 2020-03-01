@@ -78,56 +78,17 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
-      // TODO: grasshoppers power decline when less pieces on board...
-      { g: 3 },
+      // TODO: grasshoppers power decline with less pieces on board...
+      { g: 2 },
       ChessRules.VALUES
     );
   }
 
   static GenRandInitFen() {
-    let pieces = { w: new Array(10), b: new Array(10) };
-    for (let c of ["w", "b"]) {
-      let positions = ArrayFun.range(8);
-
-      // Get random squares for grasshoppers (unconstrained)
-      let randIndex = randInt(8);
-      const grasshopper1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(7);
-      const grasshopper2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Knights
-      randIndex = randInt(6);
-      let knight1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(5);
-      let knight2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Queen
-      randIndex = randInt(4);
-      let queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      let rook1Pos = positions[0];
-      let kingPos = positions[1];
-      let rook2Pos = positions[2];
-
-      pieces[c][rook1Pos] = "r";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][grasshopper1Pos] = "g";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][grasshopper2Pos] = "g";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][rook2Pos] = "r";
-    }
-    return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0 1111 -"
-    );
+    return ChessRules.GenRandInitFen()
+      .replace(
+        "/pppppppp/8/8/8/8/PPPPPPPP/",
+        "/gggggggg/pppppppp/8/8/PPPPPPPP/GGGGGGGG/"
+      );
   }
 };
