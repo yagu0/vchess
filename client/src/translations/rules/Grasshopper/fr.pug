@@ -1,1 +1,35 @@
-p TODO
+p.boxed
+  | Une nouvelle pièce apparaît : la sauterelle, sautant par dessus une pièce
+  | pour atterrir juste derrière.
+
+p.
+  Notation: 'G' comme la première lettre de grasshopper,
+  signifiant sauterelle en anglais.
+
+p.
+  Chaque joueur commence avec huit sauterelles placées entre la première
+  rangée et les pions sur la troisième.
+  La sauterelle se déplace potentiellement dans toutes les directions,
+  mais a besoin de l'aide d'une pièce pour son mouvement :
+  elle saute par dessus la première pièce rencontrée (de n'importe quelle couleur),
+  et atterrit sur la case située juste derrière.
+  Cette dernière doit être vide ou occupée par l'ennemi (qui se retrouve mangé).
+
+figure.diagram-container
+  .diagram
+    | fen:8/5g2/ppppp3/8/2G2k2/1PPP4/4R3/8 a2,c2,c7,f7,g4:
+  figcaption Possibles coups de sauterelle depuis c4.
+
+p.
+  Note : les coups de sauterelles ne sont pas symétriques.
+  Sur le diagramme la sauterelle noire ne peut pas capturer en c4.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/dpieces.dir/grashopper.html") variante Grasshopper
+  | &nbsp;sur chessvariants.com.
+  | On peut y jouer également
+  a(href="https://greenchess.net/rules.php?v=grasshopper") sur greenchess.net
+  | &nbsp;(avec une position initiale déterministe).

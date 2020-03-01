@@ -1,1 +1,30 @@
-p TODO
+p.boxed
+  | The king moves like a knight, and the knights like a king.
+  | The goal is still to checkmate the king.
+
+p "Knights moving like a king" are quite logically called "commoners".
+
+p Castling is still permitted, under the same conditions as in orthodox chess.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:7k/8/8/8/8/1r6/8/3K1r2:
+  .diagram.diag22
+    | fen:rcbqk1cr/pppp1ppp/8/2b1p3/2B1P3/5Q2/PPPP1PPP/RCB1K1CR:
+  figcaption.
+    Left: Royal knight version of the two-rooks mate.
+    Right: After 1.e4 e5 2.Bc4 Bc5 3.Qf3
+
+p.
+  On the right diagram, the threat is 4.Bxf7+ Cxf7 5.Qxf7+,
+  with more material and a winning attack.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/diffobjective.dir/knightmate.html") 
+    | Knightmate Chess
+  | &nbsp;on chessvariants.com.
+  | This variant is also playable 
+  a(href="https://greenchess.net/rules.php?v=knightmate") on greenchess.net
+  | &nbsp;(with a deterministic initial position).

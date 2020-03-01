@@ -1,1 +1,26 @@
-p TODO
+p.boxed
+  | Uno de los peones de cada lado es en realidad una dama (disfrazada).
+  | Esta se revela cuando no se mueve como un peón.
+
+p.
+  La dama oculta no da jaque (porque el oponente no ve su naturaleza),
+  pero eventualmente puede capturar al rey. Esta captura termina el juego.
+  Aparte de eso, todo va como el ajedrez ortodoxo.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/ppp1tppp/8/3P4/8/8/TPPP1PPP/RNBQKBNR:
+  figcaption Después de 1.e4 d5 2.exd5
+
+p.
+  En la posición del diagrama, si la dama negra escondida está en e7
+  entonces pueden jugar 2...Dxe1, ciertamente revelando su identidad pero
+  ganando la victoria al pasar.
+
+h3 Fuente
+
+p
+  a(href = "https://dames-cachees.herokuapp.com/rules") Este sitio web
+  | &nbsp;presenta las reglas y te permite jugar en vivo,
+  | con una posición inicial determinista pero dejando elegir
+  | la ubicación de la dama escondida

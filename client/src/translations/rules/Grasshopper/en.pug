@@ -1,1 +1,28 @@
-p TODO
+p.boxed
+  | A new piece appears: the grasshopper (G), jumping over a piece and landing right after.
+
+p.
+  Each player begins with eight grasshoppers between the first rank and the
+  pawns on the third rank. The grasshopper moves potentially in all
+  directions, but needs the help of a piece for its movement :
+  it jumps over the first encountered piece (of any color),
+  and land on the very next square.
+  This square must be either empty or occupied by an enemy piece (which is eaten).
+
+figure.diagram-container
+  .diagram
+    | fen:8/5g2/ppppp3/8/2G2k2/1PPP4/4R3/8 a2,c2,c7,f7,g4:
+  figcaption Possible grasshopper moves from c4.
+
+p.
+  Note: grasshopper moves are not symmetric.
+  On the diagram the black grasshopper cannot capture on c4.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/dpieces.dir/grashopper.html") Grasshopper Chess
+  | &nbsp;on chessvariants.com.
+  | This variant is also playable
+  a(href="https://greenchess.net/rules.php?v=grasshopper") on greenchess.net
+  | &nbsp;(with a deterministic initial position).

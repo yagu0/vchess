@@ -150,14 +150,13 @@ export const translations = {
   "In the shadow": "En la sombra",
   "Give three checks": "Dar tres jaques",
   "Keep antiking in check": "Mantener el antirey en jaque",
-  "King crosses the board": "El rey cruza el tablero",
+  "Kings cross the board": "Los reyes cruzan el tablero",
   "Laws of attraction": "Las leyes de las atracciones",
   "Long jumps over pieces": "Saltos largos sobre las piezas",
   "Lose all pieces": "Perder todas las piezas",
   "Mate any piece": "Matar cualquier pieza",
   "Mate the knight": "Matar el caballo",
   "Middle battle": "Batalla media",
-  "Move like a knight": "Moverse como un caballo",
   "Move twice": "Mover dos veces",
   "Neverending rows": "Filas interminables",
   "Pawns move diagonally": "Peones se mueven en diagonal",
@@ -169,5 +168,6 @@ export const translations = {
   "Shoot pieces": "Tirar de las piezas",
   "Squares disappear": "Las casillas desaparecen",
   "Standard rules": "Reglas estandar",
+  "The knight transfers its powers": "El caballo transfiere sus poderes",
   "Unidentified pieces": "Piezas no identificadas"
 };

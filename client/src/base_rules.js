@@ -395,14 +395,12 @@ export const ChessRules = class ChessRules {
   //////////////////
   // INITIALIZATION
 
-  constructor(fen) {
-    // In printDiagram() fen isn't supply because only getPpath() is used
-    if (fen)
-      this.re_init(fen);
-  }
-
   // Fen string fully describes the game state
-  re_init(fen) {
+  constructor(fen) {
+    if (!fen)
+      // In printDiagram() fen isn't supply because only getPpath() is used
+      // TODO: find a better solution!
+      return;
     const fenParsed = V.ParseFen(fen);
     this.board = V.GetBoard(fenParsed.position);
     this.turn = fenParsed.turn[0]; //[0] to work with MarseilleRules

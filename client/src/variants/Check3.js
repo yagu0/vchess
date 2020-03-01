@@ -25,7 +25,9 @@ export const VariantRules = class Check3Rules extends ChessRules {
   }
 
   getPpath(b) {
-    if (b[1] == 'k' && this.checkFlags[b[0]] > 0)
+    // TODO: !!this.checkFlags condition for printDiagram, but clearly not good.
+    // This is just a temporary fix.
+    if (b[1] == 'k' && this.checkFlags && this.checkFlags[b[0]] > 0)
       return "Check3/" + b[0] + 'k_' + this.checkFlags[b[0]];
     return b;
   }

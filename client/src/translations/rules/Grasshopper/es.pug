@@ -1,1 +1,35 @@
-p TODO
+p.boxed
+  | Aparece una nueva pieza: el saltamontes, saltando sobre una pieza
+  | aterrizar justo detrás.
+
+p.
+  Notación: 'G' como la primera carta de grasshopper,
+  que significa saltamontes en inglés.
+
+p.
+  Cada jugador comienza con ocho saltamontes colocadas entre las primeras
+  fila y los peones en el tercero.
+  El saltamontes se mueve potencialmente en todas las direcciones,
+  pero necesita la ayuda de una pieza para su movimiento:
+  el salta sobre la primera pieza encontrada (de cualquier color),
+  y aterriza en la casilla justo detrás.
+  Este última debe estar vacío u ocupado por el enemigo (que se encuentra comido).
+
+figure.diagram-container
+  .diagram
+    | fen:8/5g2/ppppp3/8/2G2k2/1PPP4/4R3/8 a2,c2,c7,f7,g4:
+  figcaption Posibles movimientos de saltamontes desde c4.
+
+p.
+  Nota: los movimientos de saltamontes no son simétricos.
+  En el diagrama, el saltamontes negro no puede capturar en c4.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/dpieces.dir/grashopper.html") variante Grasshopper
+  | &nbsp;en chessvariants.com.
+  | También podemos jugarlo
+  a(href="https://greenchess.net/rules.php?v=grasshopper") en greenchess.net
+  | &nbsp;(con una posición inicial determinista).

@@ -150,14 +150,13 @@ export const translations = {
   "In the shadow": "In the shadow",
   "Give three checks": "Give three checks",
   "Keep antiking in check": "Keep antiking in check",
-  "King crosses the board": "King crosses the board",
+  "Kings cross the board": "Kings cross the board",
   "Laws of attraction": "Laws of attraction",
   "Long jumps over pieces": "Long jumps over pieces",
   "Lose all pieces": "Lose all pieces",
   "Mate any piece": "Mate any piece",
   "Mate the knight": "Mate the knight",
   "Middle battle": "Middle battle",
-  "Move like a knight": "Move like a knight",
   "Move twice": "Move twice",
   "Neverending rows": "Neverending rows",
   "Pawns move diagonally": "Pawns move diagonally",
@@ -169,5 +168,6 @@ export const translations = {
   "Shoot pieces": "Shoot pieces",
   "Squares disappear": "Squares disappear",
   "Standard rules": "Standard rules",
+  "The knight transfers its powers": "The knight transfers its powers",
   "Unidentified pieces": "Unidentified pieces"
 };

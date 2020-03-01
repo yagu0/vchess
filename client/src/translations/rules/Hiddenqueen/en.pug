@@ -1,1 +1,25 @@
-p TODO
+p.boxed
+  | One of the pawns of each side is a disguised queen.
+  | She is revealed only when not moving like a pawn.
+
+p.
+  The hidden queen cannot give check (because the opponent cannot see her nature),
+  but she could sometimes capture the king. This capture ends the game.
+  Except that, everything goes as in orthodox chess.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/ppp1tppp/8/3P4/8/8/TPPP1PPP/RNBQKBNR:
+  figcaption After 1.e4 d5 2.exd5
+
+p.
+  In the diagram position, if the black hidden queen is on e7 then
+  they can play 2...Qxe1, revealing her identity and winning at the same time.
+
+h3 Source
+
+p
+  a(href="https://dames-cachees.herokuapp.com/rules") This website
+  | &nbsp;introduces the rules and allow to play in live,
+  | with a deterministic initial position but a user-defined
+  | location of the hiden queen.

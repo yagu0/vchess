@@ -150,14 +150,13 @@ export const translations = {
   "In the shadow": "Dans l'ombre",
   "Give three checks": "Donnez trois échecs",
   "Keep antiking in check": "Gardez l'antiroi en échec",
-  "King crosses the board": "Le roi traverse l'échiquier",
+  "Kings cross the board": "Les rois traversent l'échiquier",
   "Laws of attraction": "Les lois de l'attraction",
   "Long jumps over pieces": "Sauts longs par dessus les pièces",
   "Lose all pieces": "Perdez toutes les pièces",
   "Mate any piece": "Matez n'importe quelle pièce",
   "Mate the knight": "Matez le cavalier",
   "Middle battle": "Bataille du milieu",
-  "Move like a knight": "Bougez comme un cavalier",
   "Move twice": "Jouer deux coups",
   "Neverending rows": "Rangées sans fin",
   "Pawns move diagonally": "Les pions vont en diagonale",
@@ -169,5 +168,6 @@ export const translations = {
   "Shoot pieces": "Tirez sur les pièces",
   "Squares disappear": "Les cases disparaissent",
   "Standard rules": "Règles usuelles",
+  "The knight transfers its powers": "Le cavalier transfère ses pouvoirs",
   "Unidentified pieces": "Pièces non identifiées"
 };

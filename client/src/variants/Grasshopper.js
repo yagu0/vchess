@@ -3,6 +3,10 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export const VariantRules = class GrasshopperRules extends ChessRules {
+  static get HasEnpassant() {
+    return false;
+  }
+
   static get GRASSHOPPER() {
     return "g";
   }
@@ -22,6 +26,51 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
       default:
         return super.getPotentialMovesFrom([x, y]);
     }
+  }
+
+  getPotentialPawnMoves([x, y]) {
+    const color = this.turn;
+    let moves = [];
+    const [sizeX, sizeY] = [V.size.x, V.size.y];
+    const shiftX = color == "w" ? -1 : 1;
+    const lastRank = color == "w" ? 0 : sizeX - 1;
+
+    const finalPieces =
+      x + shiftX == lastRank
+        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.GRASSHOPPER]
+        : [V.PAWN];
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      // One square forward
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y], {
+            c: color,
+            p: piece
+          })
+        );
+      }
+      // No 2-squares jump
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
+        for (let piece of finalPieces) {
+          moves.push(
+            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
+              c: color,
+              p: piece
+            })
+          );
+        }
+      }
+    }
+
+    return moves;
   }
 
   getPotentialGrasshopperMoves([x, y]) {
@@ -86,6 +135,7 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
 
   static GenRandInitFen() {
     return ChessRules.GenRandInitFen()
+      .replace("w 0 1111 -", "w 0 1111")
       .replace(
         "/pppppppp/8/8/8/8/PPPPPPPP/",
         "/gggggggg/pppppppp/8/8/PPPPPPPP/GGGGGGGG/"

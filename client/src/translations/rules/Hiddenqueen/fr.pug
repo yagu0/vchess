@@ -1,1 +1,26 @@
-p TODO
+p.boxed
+  | Un des pions de chaque camp est en réalité une dame (déguisée).
+  | Celle-ci est révélée lorsqu'elle ne se déplace pas comme un pion.
+
+p.
+  La dame cachée ne donne pas échec (car l'adversaire ne voit pas sa nature),
+  mais elle peut éventuellement capturer le roi. Cette capture met fin à la partie.
+  À part ça tout se déroule comme aux échecs orthodoxes.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/ppp1tppp/8/3P4/8/8/TPPP1PPP/RNBQKBNR:
+  figcaption Après 1.e4 d5 2.exd5
+
+p.
+  Dans la position du diagramme, si la dame cachée des noirs est en e7
+  alors ils peuvent jouer 2...Dxe1, révélant certes son identité mais
+  emportant la victoire au passage.
+
+h3 Source
+
+p
+  a(href="https://dames-cachees.herokuapp.com/rules") Ce site web
+  | &nbsp;présente les règles et permet de jouer en direct,
+  | avec une position initiale déterministe mais en laissant choisir
+  | l'emplacement de la dame cachée.
