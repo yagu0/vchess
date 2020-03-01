@@ -13,7 +13,12 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
   {
     UserModel.create(name, email, notify, (err,ret) => {
       if (err)
-        res.json({errmsg: "User creation failed. Try again"});
+      {
+        const msg = err.code == "SQLITE_CONSTRAINT"
+          ? "User name or email already in use"
+          : "User creation failed. Try again";
+        res.json({errmsg: msg});
+      }
       else
       {
         const user = {
@@ -29,7 +34,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
 });
 
 // NOTE: this method is safe because the sessionToken must be guessed
-router.get("/whoami", access.ajax, (req,res) => {
+router.get("/whoami", (req,res) => {
   const callback = (user) => {
     res.json({
       name: user.name,

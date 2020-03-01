@@ -6,7 +6,7 @@ module.exports =
   logged: function(req, res, next) {
     const callback = () => {
       if (!loggedIn)
-        res.json({errmsg: "Error: please delete cookies and cross fingers"});
+        res.json({errmsg: "Error: try to delete cookies"});
       else next();
     };
     let loggedIn = undefined;
@@ -40,7 +40,7 @@ module.exports =
     // Just a quick heuristic, which should be enough
     const loggedIn = !!req.cookies.token;
     if (loggedIn)
-      res.json({errmsg: "Error: please delete cookies and cross fingers"});
+      res.json({errmsg: "Error: try to delete cookies"});
     else next();
   },
 

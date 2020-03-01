@@ -1,8 +1,8 @@
 import params from "../parameters"; //for server URL
+import { store } from "../store"; //for translations
 
 // TODO: replace by fetch API ?
 // https://www.sitepoint.com/xmlhttprequest-vs-the-fetch-api-whats-best-for-ajax-in-2019/
-// Problem: fetch() does not set req.xhr... see access/ajax() security especially for /whoami
 
 // From JSON (encoded string values!) to "arg1=...&arg2=..."
 function toQueryString(data) {
@@ -25,7 +25,7 @@ export function ajax(url, method, data, success, error) {
   if (!success) success = () => {}; //by default, do nothing
   if (!error)
     error = errmsg => {
-      alert(errmsg);
+      alert(store.state.tr[errmsg] || errmsg);
     };
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {

@@ -2,7 +2,9 @@
 main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      p {{ st.tr["Authentication successful!"] }}
+      div(v-if="authOk")
+        p {{ st.tr["Authentication successful!"] }}
+        p {{ st.tr["Back to Hall in 3 seconds..."] }}
 </template>
 
 <script>
@@ -12,7 +14,8 @@ export default {
   name: "my-auth",
   data: function() {
     return {
-      st: store.state
+      st: store.state,
+      authOk: false
     };
   },
   created: function() {
@@ -21,12 +24,16 @@ export default {
       "GET",
       { token: this.$route.params["token"] },
       res => {
+        this.authOk = true;
         this.st.user.id = res.id;
         this.st.user.name = res.name;
         this.st.user.email = res.email;
         this.st.user.notify = res.notify;
         localStorage["myname"] = res.name;
         localStorage["myid"] = res.id;
+        setTimeout(() => {
+          this.$router.replace("/");
+        }, 3000);
       }
     );
   }

@@ -8,6 +8,9 @@ const Parameters =
 
   // true if the server is at a different address
   cors: true,
+
+  // "include" if the server is at a different address
+  credentials: "same-origin"
 };
 
 export default Parameters;

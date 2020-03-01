@@ -142,7 +142,7 @@ export default {
         case "Login":
           return "Connection token sent. Check your emails!";
         case "Register":
-          return "Registration complete! Please check your emails";
+          return "Registration complete! Please check your emails now";
         case "Update":
           return "Modifications applied!";
       }

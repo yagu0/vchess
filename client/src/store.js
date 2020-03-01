@@ -1,4 +1,5 @@
-import { ajax } from "./utils/ajax";
+// NOTE: do not use ajax() here because ajax.js require the store for translations
+import params from "./parameters"; //for server URL
 import { getRandString } from "./utils/alea";
 
 // Global store: see https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
@@ -12,8 +13,13 @@ export const store = {
   },
   socketCloseListener: null,
   initialize() {
-    ajax("/variants", "GET", res => {
-      this.state.variants = res.variantArray.sort(
+    fetch(
+      params.serverUrl + "/variants",
+      {method: "GET"},
+    )
+    .then(res => res.json())
+    .then(json => {
+      this.state.variants = json.variantArray.sort(
         (v1,v2) => v1.name.localeCompare(v2.name));
     });
     let mysid = localStorage.getItem("mysid");
@@ -32,25 +38,33 @@ export const store = {
     };
     // Slow verification through the server:
     // NOTE: still superficial identity usurpation possible, but difficult.
-    ajax("/whoami", "GET", res => {
-      this.state.user.id = res.id;
+    fetch(
+      params.serverUrl + "/whoami",
+      {
+        method: "GET",
+        credentials: params.credentials
+      }
+    )
+    .then(res => res.json())
+    .then(json => {
+      this.state.user.id = json.id;
       const storedId = localStorage.getItem("myid");
-      if (res.id > 0 && !storedId)
+      if (json.id > 0 && !storedId)
         // User cleared localStorage
-        localStorage.setItem("myid", res.id);
-      else if (res.id == 0 && !!storedId)
+        localStorage.setItem("myid", json.id);
+      else if (json.id == 0 && !!storedId)
         // User cleared cookie
         localStorage.removeItem("myid");
-      this.state.user.name = res.name;
+      this.state.user.name = json.name;
       const storedName = localStorage.getItem("myname");
-      if (!!res.name && !storedName)
+      if (!!json.name && !storedName)
         // User cleared localStorage
-        localStorage.setItem("myname", res.name);
-      else if (!res.name && !!storedName)
+        localStorage.setItem("myname", json.name);
+      else if (!json.name && !!storedName)
         // User cleared cookie
         localStorage.removeItem("myname");
-      this.state.user.email = res.email;
-      this.state.user.notify = res.notify;
+      this.state.user.email = json.email;
+      this.state.user.notify = json.notify;
     });
     // Settings initialized with values from localStorage
     const getItemDefaultTrue = (item) => {
