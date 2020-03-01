@@ -112,9 +112,20 @@ export default {
       return getDiagram(args);
     },
     re_setVariant: async function(vname) {
-      const vModule = await import("@/variants/" + vname + ".js");
-      this.V = window.V = vModule.VariantRules;
-      this.gameInfo.vname = vname;
+      await import("@/variants/" + vname + ".js")
+      .then((vModule) => {
+        this.V = window.V = vModule.VariantRules;
+        this.gameInfo.vname = vname;
+      })
+      .catch((err) => {
+        // Soon after component creation, st.tr might be uninitialized.
+        // Set a timeout to let a chance for the message to show translated.
+        const text = "Mispelled variant name";
+        setTimeout(() => {
+          alert(this.st.tr[text] || text);
+          this.$router.replace("/variants");
+        }, 500);
+      });
     },
     startGame: function(mode) {
       if (this.gameInProgress) return;

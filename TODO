@@ -1,9 +1,18 @@
-newmove received on mygames page should be added to storage if gtype == "live"
-and, on game page "mconnect" events => send newmove to them (better than current setup)
-also, mygames page should ask lastate infos to connected players if any (where it's not my turn)
-(maybe in component GameList, if g.type == "live" ...)
+# Functionality:
+On Game page "mconnect" events =>
+  send lastate to them (because they have the game infos) or just "your turn" - if their turn
+  remember them to send next "newmove" (or just "it's your turn") later - if not their turn
+  (=> listen for "mdisconnect" as well)
+From MyGames page: send "mconnect" to all online players (me included: potential multi-tabs)
+  When quit, send mdisconnect (relayed by server if no other MyGames tab).
+And remove current "notify through newmove" on server in sockets.js
 
+# Images:
 Color black wildebeest and camels pieces in white instead of transparent.
+Color white grasshoppers as well. Adjust wormholes color and size.
+Better "Check3" king images: just horizontal red bars maybe (1 to 3).
+Center king image for Knightmate variant.
 
+# Misc:
 Saw once a "double challenge" bug, one anonymous and a second one logged
 Both were asked a challenge probably, and both challenges added as different ones.

@@ -141,13 +141,20 @@ const UserModel =
     const day = 86400000;
     db.serialize(function() {
       const query =
-        "SELECT id, sessionToken, created " +
+        "SELECT id, sessionToken, created, name, email " +
         "FROM Users";
       db.all(query, (err, users) => {
         users.forEach(u => {
-          // Remove unlogged users for >1 day
+          // Remove unlogged users for > 24h
           if (!u.sessionToken && tsNow - u.created > day)
+          {
+            notify(
+              u,
+              "Your account has been deleted because " +
+              "you didn't log in for 24h after registration"
+            );
             db.run("DELETE FROM Users WHERE id = " + u.id);
+          }
         });
       });
     });

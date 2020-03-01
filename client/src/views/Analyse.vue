@@ -41,15 +41,34 @@ export default {
   // then it doesn't trigger BaseGame.re_init() and the result is weird.
   created: function() {
     this.gameRef.vname = this.$route.params["vname"];
-    this.gameRef.fen = this.$route.query["fen"].replace(/_/g, " ");
-    this.initialize();
+    const routeFen = this.$route.query["fen"];
+    if (!routeFen) this.alertAndQuit("Missing FEN");
+    else {
+      this.gameRef.fen = routeFen.replace(/_/g, " ");
+      this.initialize();
+    }
   },
   methods: {
+    alertAndQuit: function(text, wrongVname) {
+      // Soon after component creation, st.tr might be uninitialized.
+      // Set a timeout to let a chance for the message to show translated.
+      const newUrl = "/variants" + (wrongVname ? "" : "/" + this.gameRef.vname);
+      setTimeout(() => {
+        alert(this.st.tr[text] || text);
+        this.$router.replace(newUrl);
+      }, 500);
+    },
     initialize: async function() {
       // Obtain VariantRules object
-      const vModule = await import("@/variants/" + this.gameRef.vname + ".js");
-      window.V = vModule.VariantRules;
-      this.loadGame();
+      await import("@/variants/" + this.gameRef.vname + ".js")
+      .then((vModule) => {
+        window.V = vModule.VariantRules;
+        if (!V.CanAnalyze)
+          // Late check, in case the user tried to enter URL by hand
+          this.alertAndQuit("Analysis disabled for this variant");
+        else this.loadGame();
+      })
+      .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
     },
     loadGame: function() {
       // NOTE: no need to set score (~unused)

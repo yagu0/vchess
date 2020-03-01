@@ -307,8 +307,8 @@ export const VariantRules = class GrandRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
-      ChessRules.VALUES,
-      { c: 5, m: 7 } //experimental
+      { c: 5, m: 7 }, //experimental
+      ChessRules.VALUES
     );
   }
 

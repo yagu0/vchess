@@ -235,8 +235,8 @@ export const VariantRules = class WildebeestRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
-      ChessRules.VALUES,
-      { c: 3, w: 7 } //experimental
+      { c: 3, w: 7 }, //experimental
+      ChessRules.VALUES
     );
   }
 

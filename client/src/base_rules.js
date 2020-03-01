@@ -1114,29 +1114,16 @@ export const ChessRules = class ChessRules {
     return 3;
   }
 
-  // NOTE: works also for extinction chess because depth is 3...
   getComputerMove() {
     const maxeval = V.INFINITY;
     const color = this.turn;
     // Some variants may show a bigger moves list to the human (Switching),
     // thus the argument "computer" below (which is generally ignored)
-    let moves1 = this.getAllValidMoves("computer");
+    let moves1 = this.getAllValidMoves();
 
     if (moves1.length == 0)
       // TODO: this situation should not happen
       return null;
-
-    // Can I mate in 1 ? (for Magnetic & Extinction)
-    for (let i of shuffle(ArrayFun.range(moves1.length))) {
-      this.play(moves1[i]);
-      let finish = Math.abs(this.evalPosition()) >= V.THRESHOLD_MATE;
-      if (!finish) {
-        const score = this.getCurrentScore();
-        if (["1-0", "0-1"].includes(score)) finish = true;
-      }
-      this.undo(moves1[i]);
-      if (finish) return moves1[i];
-    }
 
     // Rank moves using a min-max at depth 2
     for (let i = 0; i < moves1.length; i++) {
@@ -1149,7 +1136,7 @@ export const ChessRules = class ChessRules {
         // Initial enemy evaluation is very low too, for him
         eval2 = (color == "w" ? 1 : -1) * maxeval;
         // Second half-move:
-        let moves2 = this.getAllValidMoves("computer");
+        let moves2 = this.getAllValidMoves();
         for (let j = 0; j < moves2.length; j++) {
           this.play(moves2[j]);
           const score2 = this.getCurrentScore();
@@ -1185,6 +1172,7 @@ export const ChessRules = class ChessRules {
     moves1.sort((a, b) => {
       return (color == "w" ? 1 : -1) * (b.eval - a.eval);
     });
+//    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
     let candidates = [0]; //indices of candidates moves
     for (let j = 1; j < moves1.length && moves1[j].eval == moves1[0].eval; j++)
@@ -1225,7 +1213,7 @@ export const ChessRules = class ChessRules {
     if (score != "*")
       return score == "1/2" ? 0 : (score == "1-0" ? 1 : -1) * maxeval;
     if (depth == 0) return this.evalPosition();
-    const moves = this.getAllValidMoves("computer");
+    const moves = this.getAllValidMoves();
     let v = color == "w" ? -maxeval : maxeval;
     if (color == "w") {
       for (let i = 0; i < moves.length; i++) {

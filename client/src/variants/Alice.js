@@ -282,14 +282,17 @@ export const VariantRules = class AliceRules extends ChessRules {
   }
 
   static get VALUES() {
-    return Object.assign(ChessRules.VALUES, {
-      s: 1,
-      u: 5,
-      o: 3,
-      c: 3,
-      t: 9,
-      l: 1000
-    });
+    return Object.assign(
+      {
+        s: 1,
+        u: 5,
+        o: 3,
+        c: 3,
+        t: 9,
+        l: 1000
+      },
+      ChessRules.VALUES
+    );
   }
 
   getNotation(move) {

@@ -145,7 +145,10 @@ export const VariantRules = class AntikingRules extends ChessRules {
   }
 
   static get VALUES() {
-    return Object.assign(ChessRules.VALUES, { a: 1000 });
+    return Object.assign(
+      { a: 1000 },
+      ChessRules.VALUES
+    );
   }
 
   static GenRandInitFen() {
