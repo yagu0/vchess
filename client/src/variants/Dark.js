@@ -63,6 +63,19 @@ export const VariantRules = class DarkRules extends ChessRules {
       this.enlightened["w"][move.end.x][move.end.y] = true;
     for (let move of movesBlack)
       this.enlightened["b"][move.end.x][move.end.y] = true;
+    // Include en-passant capturing square if any:
+    let moves = currentTurn == "w" ? movesWhite : movesBlack;
+    for (let m of moves) {
+      if (
+        m.appear[0].p == V.PAWN &&
+        m.vanish.length == 2 &&
+        m.vanish[1].x != m.end.x
+      ) {
+        const psq = m.vanish[1];
+        this.enlightened[currentTurn][psq.x][psq.y] = true;
+        break;
+      }
+    }
   }
 
   // Has to be redefined to avoid an infinite loop
