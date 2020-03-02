@@ -21,7 +21,7 @@ div
   #scoreInfo(v-if="score!='*'")
     p {{ score }}
     p {{ st.tr[message] }}
-  .moves-list
+  .moves-list(v-if="show != 'none'")
     .tr(v-for="moveIdx in evenNumbers")
       .td {{ firstNum + moveIdx / 2 + 1 }}
       .td(v-if="moveIdx < moves.length-1 || show == 'all'"

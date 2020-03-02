@@ -45,7 +45,6 @@ div#baseGame
           | {{ st.tr["Rules"] }}
     #movesList
       MoveList(
-        v-if="showMoves != 'none'"
         :show="showMoves"
         :score="game.score"
         :message="game.scoreMsg"
