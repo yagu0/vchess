@@ -31,7 +31,7 @@ export function ppt(t) {
   // "Pretty print" an amount of time given in seconds
   const dayInSeconds = 60 * 60 * 24;
   const hourInSeconds = 60 * 60;
-  const days = Math.floor(t / dayInSeconds);
+  let days = Math.floor(t / dayInSeconds);
   const hours = Math.floor((t % dayInSeconds) / hourInSeconds);
   const minutes = Math.floor((t % hourInSeconds) / 60);
   const seconds = Math.floor(t % 60);
