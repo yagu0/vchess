@@ -896,7 +896,7 @@ export default {
         // If an error occurred, game is not added: abort
         if (!err) {
           if (this.st.settings.sound)
-            new Audio("/sounds/newgame.wav").play().catch(() => {});
+            new Audio("/sounds/newgame.flac").play().catch(() => {});
           this.$router.push("/game/" + gameInfo.id);
         }
       });
