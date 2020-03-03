@@ -364,7 +364,7 @@ export default {
             move.move,
             "received",
             null,
-            {addTime:move.addTime});
+            {addTime: move.addTime});
           break;
         }
         case "resign":
@@ -405,7 +405,7 @@ export default {
           data.lastMove.move,
           "received",
           null,
-          {addTime:data.lastMove.addTime, initime:data.initime});
+          {addTime: data.lastMove.addTime, initime: data.initime});
       }
       if (data.drawSent) this.drawOffer = "received";
       if (data.score != "*") {
@@ -472,24 +472,19 @@ export default {
               game.players[0]
             ];
           }
-          // corr game: need to compute the clocks + initime
           // NOTE: clocks in seconds, initime in milliseconds
-          game.clocks = [tc.mainTime, tc.mainTime];
           game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
           const L = game.moves.length;
           if (game.score == "*") {
             // Set clocks + initime
+            game.clocks = [tc.mainTime, tc.mainTime];
             game.initime = [0, 0];
-            if (L >= 3) {
-              let addTime = [0, 0];
-              for (let i = 2; i < L; i++) {
-                addTime[i % 2] +=
-                  tc.increment -
-                  (game.moves[i].played - game.moves[i - 1].played) / 1000;
-              }
-              for (let i = 0; i <= 1; i++) game.clocks[i] += addTime[i];
+            if (L >= 1) {
+              const gameLastupdate = game.moves[L-1].played;
+              game.initime[L % 2] = gameLastupdate;
+              if (L >= 2)
+                game.clocks[L % 2] = Date.now() - gameLastupdate;
             }
-            if (L >= 1) game.initime[L % 2] = game.moves[L - 1].played;
           }
           // Sort chat messages from newest to oldest
           game.chats.sort((c1, c2) => {
@@ -642,19 +637,20 @@ export default {
           var filtered_move = getFilteredMove(move);
         }
         // Send move ("newmove" event) to people in the room (if our turn)
-        let addTime = data ? data.addTime : 0;
+        let addTime = (data && this.game.type == "live") ? data.addTime : 0;
         if (moveCol == this.game.mycolor) {
           if (this.drawOffer == "received")
             // I refuse draw
             this.drawOffer = "";
-          if (this.game.movesCount >= 2) {
+          // 'addTime' is irrelevant for corr games:
+          if (this.game.type == "live" && this.game.movesCount >= 2) {
             const elapsed = Date.now() - this.game.initime[colorIdx];
             // elapsed time is measured in milliseconds
             addTime = this.game.increment - elapsed / 1000;
           }
           const sendMove = {
             move: filtered_move,
-            addTime: addTime,
+            addTime: addTime, //undefined for corr games
             cancelDrawOffer: this.drawOffer == "",
             // Players' SID required for /mygames page
             // TODO: precompute and add this field to game object?
@@ -666,9 +662,13 @@ export default {
         playMove(move, this.vr);
         this.game.movesCount++;
         // (add)Time indication: useful in case of lastate infos requested
-        this.game.moves.push({move:move, addTime:addTime});
+        this.game.moves.push(this.game.type == "live"
+          ? {move:move, addTime:addTime}
+          : move);
         this.game.fen = this.vr.getFen();
-        this.game.clocks[colorIdx] += addTime;
+        if (this.game.type == "live") this.game.clocks[colorIdx] += addTime;
+        // In corr games, just reset clock to mainTime:
+        else this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
         // data.initime is set only when I receive a "lastate" move from opponent
         this.game.initime[nextIdx] = (data && data.initime) ? data.initime : Date.now();
         this.re_setClocks();

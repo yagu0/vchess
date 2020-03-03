@@ -14,9 +14,9 @@ function timeUnitToSeconds(value, unit) {
   return seconds;
 }
 
+// Used only if increment, hence live game: no "day" unit
 function isLargerUnit(unit1, unit2) {
   return (
-    (unit1 == "d" && unit2 != "d") ||
     (unit1 == "h" && ["s", "m"].includes(unit2)) ||
     (unit1 == "m" && unit2 == "s")
   );
@@ -24,9 +24,8 @@ function isLargerUnit(unit1, unit2) {
 
 export function extractTime(cadence) {
   let tcParts = cadence.replace(/ /g, "").split("+");
-  // Concatenate usual time control suffixes, in case of none is provided
+  // Concatenate usual time control suffix, in case of none is provided
   tcParts[0] += "m";
-  tcParts[1] += "s";
   const mainTimeArray = tcParts[0].match(/^([0-9]+)([smhd]+)$/);
   if (!mainTimeArray) return null;
   const mainTimeValue = parseInt(mainTimeArray[1]);
@@ -34,6 +33,7 @@ export function extractTime(cadence) {
   const mainTime = timeUnitToSeconds(mainTimeValue, mainTimeUnit);
   let increment = 0;
   if (tcParts.length >= 2) {
+    tcParts[1] += "s";
     const incrementArray = tcParts[1].match(/^([0-9]+)([smhd]+)$/);
     if (!incrementArray) return null;
     const incrementValue = parseInt(incrementArray[1]);
