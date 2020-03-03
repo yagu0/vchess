@@ -2,11 +2,11 @@ p.boxed
   | Si une pièce est attaquée et ne peut se soustraire à l'attaque, elle est capturée.
 
 p.
-  Toute pièce attaquée ne pouvant échapper à la capture en se déplaçant,
-  en capturant l'attaquant ou en interposant une pièce est considérée matée :
-  elle est retirée du jeu.
-  Notez qu'un tel coup n'a pas à être joué : quand une pièce est attaquée mais
-  non matée, elle n'est pas supprimée.
+  Si une pièce est attaquée et qu'aucun coup orthodoxe ne peut empêcher sa
+  capture (au sens usuel), elle est considérée matée et est retirée du jeu.
+  Si un tel coup orthodoxe existe, il n'a pas à être joué
+  (il pourrait même être illégal car les captures normales sont interdites) :
+  la pièce n'est pas capturée.
   Ainsi, les rois et autres pièces peuvent rester en échec.
 
 p.

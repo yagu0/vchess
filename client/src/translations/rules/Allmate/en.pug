@@ -2,11 +2,11 @@ p.boxed
   | If a piece is attacked and cannot move out of attack, it is captured.
 
 p.
-  Any piece that is attacked, but which cannot escape capture by moving away,
-  capturing the attacking piece, or interposing the attacking piece is
-  considered to be mated, and is removed from the board.
-  Note that such a move does not need to be played: if a piece is attacked
-  but not mated, it is not removed.
+  If a piece is attacked and no orthodox move can prevent its (normal) capture,
+  it is considered to be mated and is removed from the board.
+  If such an orthodox move exists, it doesn't have to be played
+  (it could even be illegal because normal captures are forbidden):
+  the piece is not captured.
   Thus, kings and other pieces may remain under check.
 
 p.
