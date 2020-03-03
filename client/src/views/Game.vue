@@ -77,6 +77,7 @@ import { processModalClick } from "@/utils/modalClick";
 import { getFullNotation } from "@/utils/notation";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
 import { getScoreMessage } from "@/utils/scoring";
+import { ArrayFun } from "@/utils/array";
 import params from "@/parameters";
 export default {
   name: "my-game",
@@ -89,12 +90,12 @@ export default {
     return {
       st: store.state,
       gameRef: {
-        //given in URL (rid = remote ID)
+        // rid = remote (socket) ID
         id: "",
         rid: ""
       },
       game: {
-        //passed to BaseGame
+        // Passed to BaseGame
         players: [{ name: "" }, { name: "" }],
         chats: [],
         rendered: false
@@ -103,6 +104,7 @@ export default {
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
       people: {}, //players + observers
+      onMygames: [], //opponents (or me) on "MyGames" page
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
       newChat: "",
@@ -144,25 +146,20 @@ export default {
       if (!!this.conn && this.conn.readyState == 1)
         // 1 == OPEN state
         callback();
-      else {
+      else
         // Socket not ready yet (initial loading)
         // NOTE: it's important to call callback without arguments,
         // otherwise first arg is Websocket object and loadGame fails.
-        this.conn.onopen = () => {
-          return callback();
-        };
-      }
+        this.conn.onopen = () => callback();
     };
     if (!this.gameRef.rid)
       // Game stored locally or on server
       this.loadGame(null, () => socketInit(this.roomInit));
-    else {
+    else
       // Game stored remotely: need socket to retrieve it
       // NOTE: the callback "roomInit" will be lost, so we don't provide it.
       // --> It will be given when receiving "fullgame" socket event.
-      // A more general approach would be to store it somewhere.
       socketInit(this.loadGame);
-    }
   },
   mounted: function() {
     document
@@ -180,9 +177,8 @@ export default {
       this.send("pollclients");
     },
     send: function(code, obj) {
-      if (this.conn) {
+      if (this.conn)
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
-      }
     },
     isConnected: function(index) {
       const player = this.game.players[index];
@@ -191,8 +187,15 @@ export default {
         return true;
       // Try to find a match in people:
       return (
-        Object.keys(this.people).some(sid => sid == player.sid) ||
-        Object.values(this.people).some(p => p.id == player.uid)
+        (
+          player.sid &&
+          Object.keys(this.people).some(sid => sid == player.sid)
+        )
+        ||
+        (
+          player.uid &&
+          Object.values(this.people).some(p => p.id == player.uid)
+        )
       );
     },
     resetChatColor: function() {
@@ -210,9 +213,26 @@ export default {
       if (this.game.type == "corr") {
         if (this.game.mycolor)
           ajax("/chats", "DELETE", {gid: this.game.id});
-        // TODO: this.game.chats = [] could be enough here?
-        this.$set(this.game, "chats", []);
+        this.game.chats = [];
       }
+    },
+    // Notify turn after a new move (to opponent and me on MyGames page)
+    notifyTurn: function(sid) {
+      const player = this.people[sid];
+      const colorIdx = this.game.players.findIndex(
+        p => p.sid == sid || p.id == player.id);
+      const color = ["w","b"][colorIdx];
+      const yourTurn =
+        (
+          color == "w" &&
+          this.game.movesCount % 2 == 0
+        )
+        ||
+        (
+          color == "b" &&
+          this.game.movesCount % 2 == 1
+        );
+      this.send("turnchange", { target: sid, yourTurn: yourTurn });
     },
     socketMessageListener: function(msg) {
       if (!this.conn) return;
@@ -237,6 +257,7 @@ export default {
           break;
         case "connect":
           if (!this.people[data.from])
+            // TODO: people array should be init only after identity is known
             this.$set(this.people, data.from, { name: "", id: 0 });
           if (!this.people[data.from].name) {
             this.newConnect[data.from] = true; //for self multi-connects tests
@@ -246,12 +267,25 @@ export default {
         case "disconnect":
           this.$delete(this.people, data.from);
           break;
+        case "mconnect":
+        {
+          // TODO: from MyGames page : send mconnect message with the list of gid (live and corr)
+          // Either me (another tab) or opponent
+          const sid = data.from;
+          if (!this.onMygames.some(s => s == sid))
+          {
+            this.onMygames.push(sid);
+            this.notifyTurn(sid); //TODO: this may require server ID (so, notify after receiving identity)
+          }
+          break;
+          if (!this.people[sid])
+            this.send("askidentity", { target: sid });
+        }
+        case "mdisconnect":
+          ArrayFun.remove(this.onMygames, sid => sid == data.from);
+          break;
         case "killed":
           // I logged in elsewhere:
-          // TODO: this fails. See https://github.com/websockets/ws/issues/489
-          //this.conn.removeEventListener("message", this.socketMessageListener);
-          //this.conn.removeEventListener("close", this.socketCloseListener);
-          //this.conn.close();
           this.conn = null;
           alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
@@ -267,6 +301,7 @@ export default {
           break;
         }
         case "identity": {
+          // TODO: init people array here.
           const user = data.data;
           if (user.name) {
             // If I multi-connect, kill current connexion if no mark (I'm older)
@@ -632,6 +667,9 @@ export default {
       }, 1000);
     },
     // Post-process a (potentially partial) move (which was just played in BaseGame)
+    // TODO?: wait for AJAX return to finish processing a move,
+    //   and for opponent pingback in case of live game : if none received after e.g. 500ms, re-send newmove
+    //   ...and provide move index with newmove event for basic check after receiving
     processMove: function(move, data) {
       const moveCol = this.vr.turn;
       const doProcessMove = () => {
@@ -665,6 +703,7 @@ export default {
         // Update current game object (no need for moves stack):
         playMove(move, this.vr);
         this.game.movesCount++;
+        // TODO: notifyTurn
         // (add)Time indication: useful in case of lastate infos requested
         this.game.moves.push({move:move, addTime:addTime});
         this.game.fen = this.vr.getFen();
