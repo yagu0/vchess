@@ -78,6 +78,11 @@ export const VariantRules = class DarkRules extends ChessRules {
     }
   }
 
+  filterValid(moves) {
+    // Used in the interface
+    return moves;
+  }
+
   // Has to be redefined to avoid an infinite loop
   getAllValidMoves() {
     const color = this.turn;

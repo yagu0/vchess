@@ -517,8 +517,10 @@ export default {
             if (L >= 1) {
               const gameLastupdate = game.moves[L-1].played;
               game.initime[L % 2] = gameLastupdate;
-              if (L >= 2)
-                game.clocks[L % 2] = Date.now() - gameLastupdate;
+              if (L >= 2) {
+                game.clocks[L % 2] =
+                  tc.mainTime - (Date.now() - gameLastupdate) / 1000;
+              }
             }
           }
           // Sort chat messages from newest to oldest
