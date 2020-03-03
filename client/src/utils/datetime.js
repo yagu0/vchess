@@ -36,15 +36,16 @@ export function ppt(t) {
   const minutes = Math.floor((t % hourInSeconds) / 60);
   const seconds = Math.floor(t % 60);
   let res = "";
+  // NOTE: 3 days limit is rather arbitrary
+  if (days >= 3 && hours >= 12) days++;
   if (days > 0) res += days + "d ";
-  if (days <= 3 && hours > 0)
-    //NOTE: 3 is arbitrary
-    res += hours + "h ";
+  if (days < 3 && hours > 0) res += hours + "h ";
   if (days == 0 && minutes > 0)
     res += hours > 0 ? padDigits(minutes) + "m " : minutes + ":";
   if (days == 0 && hours == 0) {
     res += padDigits(seconds);
-    if (minutes == 0) res += "s"; //seconds indicator, since this is the only number printed
+    // Seconds indicator, since this is the only number printed:
+    if (minutes == 0) res += "s";
   }
   return res.trim(); //remove potential last space
 }
