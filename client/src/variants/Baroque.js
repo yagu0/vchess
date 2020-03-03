@@ -72,7 +72,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
       ) {
         const oppPiece = this.getPiece(i, j);
         if (oppPiece == V.IMMOBILIZER) {
-          // Moving is impossible only if this immobilizer is not neutralized
+          // Moving is possible only if this immobilizer is neutralized
           for (let step2 of adjacentSteps) {
             const [i2, j2] = [i + step2[0], j + step2[1]];
             if (i2 == x && j2 == y) continue; //skip initial piece!
@@ -474,8 +474,8 @@ export const VariantRules = class BaroqueRules extends ChessRules {
   }
 
   isAttackedByBishop([x, y], colors) {
-    // We cheat a little here: since this function is used exclusively for king,
-    // it's enough to check the immediate surrounding of the square.
+    // We cheat a little here: since this function is used exclusively for
+    // the king, it's enough to check the immediate surrounding of the square.
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     for (let step of adjacentSteps) {
       const [i, j] = [x + step[0], y + step[1]];
@@ -507,6 +507,23 @@ export const VariantRules = class BaroqueRules extends ChessRules {
         ) {
           return true;
         }
+      }
+    }
+    return false;
+  }
+
+  isAttackedByKing([x, y], colors) {
+    const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      if (
+        V.OnBoard(rx, ry) &&
+        this.getPiece(rx, ry) === V.KING &&
+        colors.includes(this.getColor(rx, ry)) &&
+        !this.isImmobilized([rx, ry])
+      ) {
+        return true;
       }
     }
     return false;

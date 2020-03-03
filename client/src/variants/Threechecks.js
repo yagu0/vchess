@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class Check3Rules extends ChessRules {
+export const VariantRules = class ThreechecksRules extends ChessRules {
   static IsGoodFlags(flags) {
     // 4 for castle + 2 for checks (0,1 or 2)
     return !!flags.match(/^[01]{4,4}[012]{2,2}$/);
@@ -28,7 +28,7 @@ export const VariantRules = class Check3Rules extends ChessRules {
     // TODO: !!this.checkFlags condition for printDiagram, but clearly not good.
     // This is just a temporary fix.
     if (b[1] == 'k' && this.checkFlags && this.checkFlags[b[0]] > 0)
-      return "Check3/" + b[0] + 'k_' + this.checkFlags[b[0]];
+      return "Threechecks/" + b[0] + 'k_' + this.checkFlags[b[0]];
     return b;
   }
 

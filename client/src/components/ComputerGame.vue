@@ -38,7 +38,8 @@ export default {
     this.compWorker.onmessage = e => {
       let compMove = e.data;
       // Small delay for the bot to appear "more human"
-      const delay = Math.max(500 - (Date.now() - this.timeStart), 0);
+      const minDelay = this.gameInfo.mode == "versus" ? 500 : 1000;
+      const delay = Math.max(minDelay - (Date.now() - this.timeStart), 0);
       let self = this;
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
