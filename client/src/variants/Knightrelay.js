@@ -29,7 +29,7 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
             // Potential promotions:
             const finalPieces = piece == V.PAWN && x + step[0] == lastRank
               ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-              : [V.PAWN];
+              : [piece];
             for (let p of finalPieces) {
               moves.push(
                 this.getBasicMove([x,y], [x+step[0],y+step[1]], {

@@ -5,10 +5,6 @@ export const VariantRules = class AllmateRules extends ChessRules {
     return false;
   }
 
-  canTake(sq1, sq2) {
-    return false; //Captures handled differently
-  }
-
   getCheckSquares() {
     // No notion of check
     return [];
@@ -20,6 +16,10 @@ export const VariantRules = class AllmateRules extends ChessRules {
 
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
+    // Remove standard captures (without removing castling):
+    moves = moves.filter(m => {
+      return m.vanish.length == 1 || m.appear.length == 2;
+    });
 
     // Augment moves with "mate-captures":
     // TODO: this is coded in a highly inefficient way...

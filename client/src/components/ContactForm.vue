@@ -12,7 +12,7 @@ div
       label.modal-close(for="modalContact")
       fieldset
         label(for="userEmail") {{ st.tr["Email"] }}
-        input#userEmail(type="email")
+        input#userEmail(type="email" :value="st.user.email")
       fieldset
         label(for="mailSubject") {{ st.tr["Subject"] }}
         input#mailSubject(type="text")
