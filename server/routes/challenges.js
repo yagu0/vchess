@@ -24,7 +24,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
     if (req.body.chall.to)
     {
       UserModel.getOne("name", challenge.to, (err,user) => {
-        if (!!err || !user)
+        if (err || !user)
           res.json(err || {errmsg: "Typo in player name"});
         else
         {

@@ -31,10 +31,10 @@ const ChallengeModel =
     db.serialize(function() {
       const query =
         "INSERT INTO Challenges " +
-          "(added, uid, " + (!!c.to ? "target, " : "") +
+          "(added, uid, " + (c.to ? "target, " : "") +
           "vid, randomness, fen, cadence) " +
         "VALUES " +
-          "(" + Date.now() + "," + c.uid + "," + (!!c.to ? c.to + "," : "") +
+          "(" + Date.now() + "," + c.uid + "," + (c.to ? c.to + "," : "") +
           c.vid + "," + c.randomness + ",'" + c.fen + "','" + c.cadence + "')";
       db.run(query, function(err) {
         cb(err, {cid: this.lastID});
@@ -76,7 +76,7 @@ const ChallengeModel =
         "FROM Challenges " +
         "WHERE id = " + id + " " +
           // Condition: I'm the sender or the target
-          "AND (uid = " + uid + " OR to = " + uid + ")";
+          "AND (uid = " + uid + " OR target = " + uid + ")";
       db.get(query, (err,chall) => {
         if (!err && chall)
           ChallengeModel.remove(id);
