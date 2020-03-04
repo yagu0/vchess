@@ -33,6 +33,8 @@ export function extractTime(cadence) {
   const mainTime = timeUnitToSeconds(mainTimeValue, mainTimeUnit);
   let increment = 0;
   if (tcParts.length >= 2) {
+    // Correspondance games don't use an increment:
+    if (mainTimeUnit == 'd') return null;
     tcParts[1] += "s";
     const incrementArray = tcParts[1].match(/^([0-9]+)([smhd]+)$/);
     if (!incrementArray) return null;

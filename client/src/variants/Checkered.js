@@ -295,10 +295,10 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     return evaluation;
   }
 
-  static GenRandInitFen() {
-    const randFen = ChessRules.GenRandInitFen();
-    // Add 16 pawns flags + empty cmove:
-    return randFen.replace(" w 0 1111", " w 0 11111111111111111111 -");
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness)
+      // Add 16 pawns flags + empty cmove:
+      .replace(" w 0 1111", " w 0 11111111111111111111 -");
   }
 
   static ParseFen(fen) {

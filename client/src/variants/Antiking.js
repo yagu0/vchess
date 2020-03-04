@@ -151,10 +151,19 @@ export const VariantRules = class AntikingRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR w 0 1111 -";
+
     let pieces = { w: new Array(8), b: new Array(8) };
     let antikingPos = { w: -1, b: -1 };
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
 
       // Get random squares for bishops, but avoid corners; because,

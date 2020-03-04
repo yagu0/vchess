@@ -227,11 +227,13 @@ export default {
         this.lastMove = null;
     },
     analyzePosition: function() {
-      const newUrl =
+      let newUrl =
         "/analyse/" +
         this.game.vname +
         "/?fen=" +
         this.vr.getFen().replace(/ /g, "_");
+      if (this.game.mycolor)
+        newUrl += "&side=" + this.game.mycolor;
       // Open in same tab in live games (against cheating)
       if (this.game.type == "live") this.$router.push(newUrl);
       else window.open("#" + newUrl);
@@ -337,7 +339,7 @@ export default {
         }
       };
       const playMove = () => {
-        const animate = V.ShowMoves == "all" && received;
+        const animate = V.ShowMoves == "all" && (received || navigate);
         if (!Array.isArray(move)) move = [move];
         let moveIdx = 0;
         let self = this;

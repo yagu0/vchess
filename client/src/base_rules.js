@@ -238,11 +238,21 @@ export const ChessRules = class ChessRules {
   /////////////
   // FEN UTILS
 
-  // Setup the initial random (assymetric) position
-  static GenRandInitFen() {
+  // Setup the initial random (asymmetric) position
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      // Deterministic:
+      return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 1111 -";
+
     let pieces = { w: new Array(8), b: new Array(8) };
-    // Shuffle pieces on first and last rank
+    // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
 
       // Get random squares for bishops

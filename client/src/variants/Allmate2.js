@@ -10,8 +10,8 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
     return [];
   }
 
-  static GenRandInitFen() {
-    return ChessRules.GenRandInitFen().replace(/ -$/, "");
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness).replace(/ -$/, "");
   }
 
   getPotentialMovesFrom([x, y]) {

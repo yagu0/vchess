@@ -244,9 +244,18 @@ export const VariantRules = class WildebeestRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w 0 1111 -";
+
     let pieces = { w: new Array(10), b: new Array(10) };
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(11);
 
       // Get random squares for bishops + camels (different colors)
@@ -264,7 +273,7 @@ export const VariantRules = class WildebeestRules extends ChessRules {
       for (let idx of randIndexes.concat(randIndexes_tmp).sort((a, b) => {
         return b - a;
       })) {
-        //largest indices first
+        // Largest indices first
         positions.splice(idx, 1);
       }
 

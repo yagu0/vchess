@@ -545,10 +545,20 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      // Deterministic:
+      return "rnbqkbnrm/pppppppp/8/8/8/8/PPPPPPPP/MNBKQBNR w 0";
+
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
       // Get random squares for every piece, totally freely
 

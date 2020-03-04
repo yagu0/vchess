@@ -43,6 +43,7 @@ create table Challenges (
   uid integer,
   target integer,
   vid integer,
+  randomness integer,
   fen varchar,
   cadence varchar,
   foreign key (uid) references Users(id),

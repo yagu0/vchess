@@ -20,9 +20,18 @@ export const VariantRules = class UpsidedownRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w 0";
+
     let pieces = { w: new Array(8), b: new Array(8) };
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
 
       let randIndex = randInt(8);

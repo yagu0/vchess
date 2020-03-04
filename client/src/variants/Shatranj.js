@@ -21,8 +21,8 @@ export const VariantRules = class ShatranjRules extends ChessRules {
     ];
   }
 
-  static GenRandInitFen() {
-    return ChessRules.GenRandInitFen().replace("w 1111 -", "w");
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness).replace("w 1111 -", "w");
   }
 
   getPotentialPawnMoves([x, y]) {

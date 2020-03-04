@@ -47,10 +47,10 @@ export const VariantRules = class ThreechecksRules extends ChessRules {
     return super.getCurrentScore();
   }
 
-  static GenRandInitFen() {
-    const randFen = ChessRules.GenRandInitFen();
-    // Add check flags (at 0)
-    return randFen.replace(" w 0 1111", " w 0 111100");
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness)
+      // Add check flags (at 0)
+      .replace(" w 0 1111", " w 0 111100");
   }
 
   getFlagsFen() {

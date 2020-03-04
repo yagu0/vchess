@@ -5,8 +5,10 @@ export const VariantRules = class ArenaRules extends ChessRules {
     return false;
   }
 
-  static GenRandInitFen() {
-    return ChessRules.GenRandInitFen().replace("w 1111 -", "w -");
+  static GenRandInitFen(randomness) {
+    return ChessRules
+      .GenRandInitFen(randomness)
+      .replace("w 0 1111 -", "w 0 -");
   }
 
   static InArena(x) {

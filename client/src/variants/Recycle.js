@@ -18,8 +18,8 @@ export const VariantRules = class RecycleRules extends ChessRules {
     });
   }
 
-  static GenRandInitFen() {
-    return ChessRules.GenRandInitFen() + " 0000000000";
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness) + " 0000000000";
   }
 
   getFen() {

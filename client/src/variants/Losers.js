@@ -142,10 +142,19 @@ export const VariantRules = class LosersRules extends ChessRules {
     return -super.evalPosition(); //better with less material
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 -";
+
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
 
       // Get random squares for bishops
@@ -194,7 +203,8 @@ export const VariantRules = class LosersRules extends ChessRules {
       pieces["b"].join("") +
       "/pppppppp/8/8/8/8/PPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
+      // En-passant allowed, but no flags
       " w 0 -"
-    ); //en-passant allowed, but no flags
+    );
   }
 };

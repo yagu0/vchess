@@ -316,10 +316,21 @@ export const VariantRules = class GrandRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0) {
+      return "rnbqkmcbnr/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR " +
+        "w 0 1111 - 00000000000000";
+    }
+
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(10);
 
       // Get random squares for bishops

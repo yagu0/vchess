@@ -189,9 +189,9 @@ export const VariantRules = class SuctionRules extends ChessRules {
     }
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
     // Add empty cmove:
-    return ChessRules.GenRandInitFen() + " -";
+    return ChessRules.GenRandInitFen(randomness) + " -";
   }
 
   getFen() {

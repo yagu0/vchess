@@ -54,6 +54,12 @@ main
             v-model="newchallenge.cadence"
             placeholder="5+0, 1h+30s, 5d ..."
           )
+        fieldset
+          label(for="selectRandomLevel") {{ st.tr["Randomness"] }}
+          select#selectRandomLevel(v-model="newchallenge.randomness")
+            option(value="0") {{ st.tr["Deterministic"] }}
+            option(value="1") {{ st.tr["Symmetric random"] }}
+            option(value="2") {{ st.tr["Asymmetric random"] }}
         fieldset(v-if="st.user.id > 0")
           label(for="selectPlayers") {{ st.tr["Play with?"] }}
           input#selectPlayers(
@@ -178,6 +184,7 @@ export default {
         vid: parseInt(localStorage.getItem("vid")) || 0,
         to: "", //name of challenged player (if any)
         cadence: localStorage.getItem("cadence") || "",
+        randomness: parseInt(localStorage.getItem("randomness")) || 2,
         // VariantRules object, stored to not interfere with
         // diagrams of targetted challenges:
         V: null,
@@ -541,6 +548,7 @@ export default {
               id: c.id,
               from: this.st.user.sid,
               to: c.to,
+              randomness: c.randomness,
               fen: c.fen,
               vid: c.vid,
               cadence: c.cadence,
@@ -561,6 +569,7 @@ export default {
           ) {
             let newChall = Object.assign({}, chall);
             newChall.type = this.classifyObject(chall);
+            newChall.randomness = chall.randomness;
             newChall.added = Date.now();
             let fromValues = Object.assign({}, this.people[chall.from]);
             delete fromValues["pages"]; //irrelevant in this context
@@ -719,6 +728,8 @@ export default {
       }
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
+      delete chall["V"];
+      delete chall["diag"];
       const finishAddChallenge = cid => {
         chall.id = cid || "c" + getRandString();
         // Remove old challenge if any (only one at a time of a given type):
@@ -753,6 +764,7 @@ export default {
         // Remember cadence  + vid for quicker further challenges:
         localStorage.setItem("cadence", chall.cadence);
         localStorage.setItem("vid", chall.vid);
+        localStorage.setItem("randomness", chall.randomness);
         document.getElementById("modalNewgame").checked = false;
         // Show the challenge if not on current display
         if (
@@ -841,7 +853,7 @@ export default {
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),
-        fen: c.fen || V.GenRandInitFen(),
+        fen: c.fen || V.GenRandInitFen(c.randomness),
         // White player index 0, black player index 1:
         players: c.mycolor
           ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])

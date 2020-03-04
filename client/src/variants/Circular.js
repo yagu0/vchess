@@ -30,10 +30,19 @@ export const VariantRules = class CircularRules extends ChessRules {
     this.pawnFlags = flags;
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR w 0 1111111111111111";
+
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and fifth rank
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+
       let positions = ArrayFun.range(8);
 
       // Get random squares for bishops

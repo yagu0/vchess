@@ -6,6 +6,7 @@ div
         th {{ st.tr["Variant"] }}
         th {{ st.tr["With"] }}
         th {{ st.tr["Cadence"] }}
+        th {{ st.tr["Random?"] }}
     tbody
       tr(
         v-for="c in sortedChallenges"
@@ -15,6 +16,7 @@ div
         td {{ c.vname }}
         td {{ withWho(c) }}
         td {{ c.cadence }}
+        td(:class="getRandomnessClass(c)")
 </template>
 
 <script>
@@ -52,6 +54,11 @@ export default {
       if (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
         return c.to || this.st.tr["Any player"];
       return c.from.name || "@nonymous";
+    },
+    getRandomnessClass: function(c) {
+      return {
+        ["random-" + c.randomness]: true
+      };
     }
   }
 };
@@ -63,4 +70,12 @@ tr.fromyou > td
   font-style: italic
 tr.toyou > td
   background-color: #fcd785
+
+tr > td:last-child
+  &.random-0
+    background-color: #FF5733
+  &.random-1
+    background-color: #2B63B4
+  &.random-2
+    background-color: #33B42B
 </style>

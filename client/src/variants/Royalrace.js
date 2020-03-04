@@ -19,10 +19,22 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     return { x: 11, y: 11 };
   }
 
-  static GenRandInitFen() {
+  static GenRandInitFen(randomness) {
+    if (!randomness) randomness = 2;
+    if (randomness == 0)
+      return "11/11/11/11/11/11/11/11/11/QRBNP1pnbrq/KRBNP1pnbrk w 0";
+
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and second rank
     for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = JSON.parse(JSON.stringify(pieces['w'])).reverse();
+        pieces['b'] =
+          pieces['b'].splice(5,10).reverse().concat(
+          pieces['b'].splice(0,5).reverse());
+        break;
+      }
+
       // Reserve 4 and 5 which are pawns positions
       let positions = ArrayFun.range(10).filter(i => i != 4 && i != 5);
 

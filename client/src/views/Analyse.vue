@@ -45,7 +45,9 @@ export default {
     if (!routeFen) this.alertAndQuit("Missing FEN");
     else {
       this.gameRef.fen = routeFen.replace(/_/g, " ");
-      this.initialize();
+      // orientation is optional: taken from FEN if missing
+      const orientation = this.$route.query["side"];
+      this.initialize(orientation);
     }
   },
   methods: {
@@ -58,7 +60,7 @@ export default {
         this.$router.replace(newUrl);
       }, 500);
     },
-    initialize: async function() {
+    initialize: async function(orientation) {
       // Obtain VariantRules object
       await import("@/variants/" + this.gameRef.vname + ".js")
       .then((vModule) => {
@@ -66,17 +68,17 @@ export default {
         if (!V.CanAnalyze)
           // Late check, in case the user tried to enter URL by hand
           this.alertAndQuit("Analysis disabled for this variant");
-        else this.loadGame();
+        else this.loadGame(orientation);
       })
       .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
     },
-    loadGame: function() {
+    loadGame: function(orientation) {
       // NOTE: no need to set score (~unused)
       this.game.vname = this.gameRef.vname;
       this.game.fen = this.gameRef.fen;
       this.curFen = this.game.fen;
       this.adjustFenSize();
-      this.game.mycolor = V.ParseFen(this.gameRef.fen).turn;
+      this.game.mycolor = orientation || V.ParseFen(this.gameRef.fen).turn;
       this.$set(this.game, "fenStart", this.gameRef.fen);
     },
     // Triggered by "fenchange" emitted in BaseGame:

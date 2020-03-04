@@ -157,6 +157,7 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return moves;
   }
 
+  // Ignore randomness here: placement is always random asymmetric
   static GenRandInitFen() {
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces + pawns on two first ranks
