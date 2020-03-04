@@ -93,10 +93,15 @@ main
           )
             span {{ people[sid].name }}
             button.player-action(
-              v-if="isGamer(sid) || (st.user.id > 0 && sid!=st.user.sid)"
-              @click="challOrWatch(sid)"
+              v-if="isGamer(sid)"
+              @click="watchGame(sid)"
             )
-              | {{ getActionLabel(sid) }}
+              | {{ st.tr["Observe"] }}
+            button.player-action(
+              v-else-if="st.user.id > 0 && sid!=st.user.sid"
+              @click="challenge(sid)"
+            )
+              | {{ st.tr["Challenge"] }}
           p.anonymous @nonymous ({{ anonymousCount }})
         #chat
           Chat(
@@ -369,29 +374,23 @@ export default {
     isGamer: function(sid) {
       return this.people[sid].pages.some(p => p.indexOf("/game/") >= 0);
     },
-    getActionLabel: function(sid) {
-      return this.people[sid].pages.some(p => p == "/game/")
-        ? "Observe"
-        : "Challenge";
+    challenge: function(sid) {
+      // Available, in Hall (only)
+      this.newchallenge.to = this.people[sid].name;
+      document.getElementById("modalPeople").checked = false;
+      window.doClick("modalNewgame");
     },
-    challOrWatch: function(sid) {
-      if (this.people[sid].pages.some(p => p == "/")) {
-        // Available, in Hall
-        this.newchallenge.to = this.people[sid].name;
-        document.getElementById("modalPeople").checked = false;
-        window.doClick("modalNewgame");
-      } else {
-        // In some game, maybe playing maybe not: show a random one
-        let gids = [];
-        this.people[sid].pages.forEach(p => {
-          const matchGid = p.match(/[a-zA-Z0-9]+$/);
-          if (matchGid) gids.push(matchGid[0]);
-        });
-        const gid = gids[Math.floor(Math.random() * gids.length)];
-        const game = this.games.find(g => g.id == gid);
-        if (game) this.showGame(game);
-        else this.$router.push("/game/" + gid); //game vs. me
-      }
+    watchGame: function(sid) {
+      // In some game, maybe playing maybe not: show a random one
+      let gids = [];
+      this.people[sid].pages.forEach(p => {
+        const matchGid = p.match(/[a-zA-Z0-9]+$/);
+        if (matchGid) gids.push(matchGid[0]);
+      });
+      const gid = gids[Math.floor(Math.random() * gids.length)];
+      const game = this.games.find(g => g.id == gid);
+      if (game) this.showGame(game);
+      else this.$router.push("/game/" + gid); //game vs. me
     },
     showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
