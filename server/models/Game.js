@@ -244,7 +244,7 @@ const GameModel =
       }
 
 
-//return cb({errmsg: JSON.stringify(obj.move)});
+return cb({errmsg: JSON.stringify(obj.move) + "  " + (!!obj.move)});
 
 
       // NOTE: move, chat and delchat are mutually exclusive
