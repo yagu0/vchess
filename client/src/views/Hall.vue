@@ -370,6 +370,11 @@ export default {
       return this.people[sid].pages.some(p => p.indexOf("/game/") >= 0);
     },
     getActionLabel: function(sid) {
+
+
+console.log(this.people[sid]);
+
+
       return this.people[sid].pages.some(p => p == "/")
         ? "Challenge"
         : "Observe";
