@@ -476,7 +476,10 @@ export default {
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect") {
             // Remove the live challenge sent by this player:
-            ArrayFun.remove(this.challenges, c => c.from.sid == data.from);
+            ArrayFun.remove(
+              this.challenges,
+              c => c.type == "live" && c.from.sid == data.from
+            );
           } else {
             // Remove the matching live game if now unreachable
             const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
