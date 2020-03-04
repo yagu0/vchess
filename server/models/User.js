@@ -20,7 +20,7 @@ const UserModel =
   checkNameEmail: function(o)
   {
     return (
-      (!o.name || o.name.match(/^[\w]+$/)) &&
+      (!o.name || o.name.match(/^[\w-]+$/)) &&
       (!o.email || o.email.match(/^[\w.+-]+@[\w.+-]+$/))
     );
   },

@@ -28,7 +28,7 @@
                 | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
               #divSettings.clickable(onClick="window.doClick('modalSettings')")
                 span {{ st.tr["Settings"] }}
-                img(src="/images/settings.svg")
+                img(src="/images/icons/settings.svg")
     router-view
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2

@@ -10,6 +10,11 @@ And remove current "notify through newmove" on server in sockets.js
 Analyse mode when launched from a position: should keep orientation
 --> $route query param, "side=w or b"
 
+Subcursor (intra move) for multi-move variants for better navigation (in BaseGame)
+
+Allow symmetric mode in all variants (vertical symmetry for racing kings)
+flag in challenge, "Symmetric: true / false", option of GenRandInitFen()
+
 # Misc:
 Saw once a "double challenge" bug, one anonymous and a second one logged
 Both were asked a challenge probably, and both challenges added as different ones.
@@ -19,5 +24,14 @@ Both were asked a challenge probably, and both challenges added as different one
 https://www.chessvariants.com/rules/8-piece-chess
 Eightpieces : non-symmetric
 Sym8pieces : symmetric (960)
+
+Generator vatiant, called "Matrix" ?
+Peces on first rank never move but generate new pieces. Pawn don't generate.
+A generator captured and replaced by a similar piece does not generate.
+King does not generate. No castling. En passant possible?
+Goal is still checkmate.
+
+Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
+If a pawn taken: direction of the capturer.
 
 + Maxima, Interweave, Roccoco, Dynamo, Synchrone, Cannibal (force captures)

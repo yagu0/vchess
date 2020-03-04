@@ -23,11 +23,16 @@ div#baseGame
       )
       #turnIndicator(v-if="showTurn") {{ turn }}
       #controls
-        button(@click="gotoBegin()") <<
-        button(@click="undo()") <
-        button(v-if="canFlip" @click="flip()") &#8645;
-        button(@click="play()") >
-        button(@click="gotoEnd()") >>
+        button(@click="gotoBegin()")
+          img.inline(src="/images/icons/fast-forward_rev.svg")
+        button(@click="undo()")
+          img.inline(src="/images/icons/play_rev.svg")
+        button(v-if="canFlip" @click="flip()")
+          img.inline(src="/images/icons/flip.svg")
+        button(@click="play()")
+          img.inline(src="/images/icons/play.svg")
+        button(@click="gotoEnd()")
+          img.inline(src="/images/icons/fast-forward.svg")
       #belowControls
         #downloadDiv(v-if="allowDownloadPGN")
           a#download(href="#")
@@ -504,10 +509,17 @@ export default {
 #controls
   margin: 0 auto
   text-align: center
+  display: flex
   button
     display: inline-block
     width: 20%
     margin: 0
+    img.inline
+      height: 24px
+      padding-top: 5px
+    @media screen and (max-width: 767px)
+      img.inline
+        height: 18px
 
 #turnIndicator
   text-align: center
