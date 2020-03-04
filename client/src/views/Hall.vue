@@ -600,7 +600,8 @@ export default {
           // NOTE: it may be live or correspondance
           const game = data.data;
           // Ignore games where I play (corr games)
-          if (game.players.every(p => p.id != this.st.user.id))
+          if (game.players.every(p =>
+            p.sid != this.st.user.sid || p.id != this.st.user.id))
           {
             let locGame = this.games.find(g => g.id == game.id);
             if (!locGame) {
