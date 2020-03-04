@@ -195,8 +195,9 @@ nav
       cursor: pointer
       font-size: 32px
       position: absolute
-      top: -22px
-      //padding: -5px 0 0 10px
+      top: 5px
+      line-height: 1em
+      padding: 0
     & > #menuBar
       z-index: 5000 //to hide currently selected piece if any
 
@@ -204,12 +205,15 @@ nav
   right: -767px
 
 [type=checkbox].drawer+* .drawer-close
-  top: -10px
-  left: var(--universal-margin)
-  right: 0
+  top: 0
+  left: 10px
+  padding: 0
+  width: 42px
+  height: 42px
 
 [type=checkbox].drawer+* .drawer-close:before
   font-size: 50px
+  line-height: 1em
 
 @media screen and (max-width: 767px)
   .button-group

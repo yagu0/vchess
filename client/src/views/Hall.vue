@@ -55,7 +55,7 @@ main
             placeholder="5+0, 1h+30s, 5d ..."
           )
         fieldset
-          label(for="selectRandomLevel") {{ st.tr["Randomness"] }}
+          label(for="selectRandomLevel") {{ st.tr["Randomness"] }} *
           select#selectRandomLevel(v-model="newchallenge.randomness")
             option(value="0") {{ st.tr["Deterministic"] }}
             option(value="1") {{ st.tr["Symmetric random"] }}
