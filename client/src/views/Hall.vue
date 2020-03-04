@@ -254,7 +254,7 @@ export default {
       let names = {};
       response.challenges.forEach(c => {
         if (c.uid != this.st.user.id) names[c.uid] = "";
-        else if (!!c.target && c.target != this.st.user.id)
+        else if (c.target && c.target != this.st.user.id)
           names[c.target] = "";
       });
       const addChallenges = () => {
@@ -807,7 +807,7 @@ export default {
         this.launchGame(c);
       } else {
         const oppsid = this.getOppsid(c);
-        if (oppSid)
+        if (oppsid)
           this.send("refusechallenge", { data: c.id, target: oppsid });
       }
       this.send("deletechallenge", { data: c.id });
