@@ -18,13 +18,10 @@ export const VariantRules = class BerolinaRules extends ChessRules {
     const move = moveOrSquare;
     const [sx, ex, sy] = [move.start.x, move.end.x, move.start.y];
     if (this.getPiece(sx, sy) == V.PAWN && Math.abs(sx - ex) == 2) {
-      return [
-        {
-          x: (ex + sx) / 2,
-          y: (move.end.y + sy) / 2
-        },
-        move.end.y
-      ];
+      return {
+        x: (ex + sx) / 2,
+        y: (move.end.y + sy) / 2
+      };
     }
     return undefined; //default
   }
