@@ -77,7 +77,7 @@ main
       button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
   input#modalPeople.modal(
     type="checkbox"
-    @click="resetChatColor()"
+    @click="resetSocialColor()"
   )
   div#peopleWrap(
     role="dialog"
@@ -89,7 +89,7 @@ main
         #players
           p(
             v-for="sid in Object.keys(people)"
-            v-if="!!people[sid].name"
+            v-if="people[sid].name"
           )
             span {{ people[sid].name }}
             button.player-action(
@@ -216,7 +216,8 @@ export default {
     anonymousCount: function() {
       let count = 0;
       Object.values(this.people).forEach(p => {
-        count += !p.name ? 1 : 0;
+        // Do not cound people who did not send their identity yet:
+        count += (!p.name && p.id === 0) ? 1 : 0;
       });
       return count;
     }
@@ -400,7 +401,7 @@ export default {
         url += "?rid=" + g.rids[Math.floor(Math.random() * g.rids.length)];
       this.$router.push(url);
     },
-    resetChatColor: function() {
+    resetSocialColor: function() {
       // TODO: this is called twice, once on opening an once on closing
       document.getElementById("peopleBtn").classList.remove("somethingnew");
     },
@@ -419,17 +420,18 @@ export default {
           data.sockIds.forEach(s => {
             const page = s.page || "/";
             if (s.sid != this.st.user.sid && !identityAsked[s.sid]) {
-              identityAsked[s.sid] = true;
               this.send("askidentity", { target: s.sid, page: page });
+              identityAsked[s.sid] = true;
             }
             if (!this.people[s.sid])
-              this.$set(this.people, s.sid, { id: 0, name: "", pages: [page] });
+              // Do not set name or id: identity unknown yet
+              this.$set(this.people, s.sid, { pages: [page] });
             else if (this.people[s.sid].pages.indexOf(page) < 0)
               this.people[s.sid].pages.push(page);
             if (!s.page)
-              //peer is in Hall
+              // Peer is in Hall
               this.send("askchallenge", { target: s.sid });
-            //peer is in Game
+            // Peer is in Game
             else this.send("askgame", { target: s.sid, page: page });
           });
           break;
@@ -441,20 +443,17 @@ export default {
           // So it's a good idea to ask identity if he was anonymous.
           // But only ask game / challenge if currently disconnected.
           if (!this.people[data.from]) {
-            this.$set(this.people, data.from, {
-              name: "",
-              id: 0,
-              pages: [page]
-            });
+            this.$set(this.people, data.from, { pages: [page] });
             if (data.code == "connect")
               this.send("askchallenge", { target: data.from });
             else this.send("askgame", { target: data.from, page: page });
           } else {
-            // append page if not already in list
+            // Append page if not already in list
             if (this.people[data.from].pages.indexOf(page) < 0)
               this.people[data.from].pages.push(page);
           }
-          if (this.people[data.from].id == 0) {
+          if (!this.people[data.from].name && this.people[data.from].id !== 0) {
+            // Identity not known yet
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from, page: page });
           }
@@ -509,6 +508,11 @@ export default {
         }
         case "identity": {
           const user = data.data;
+          this.$set(this.people, user.sid, {
+            id: user.id,
+            name: user.name,
+            pages: this.people[user.sid].pages
+          });
           if (user.name) {
             // If I multi-connect, kill current connexion if no mark (I'm older)
             if (
@@ -521,14 +525,6 @@ export default {
                 this.send("killme", { sid: this.st.user.sid });
                 this.killed[this.st.user.sid] = true;
               }
-            }
-            if (user.sid != this.st.user.sid) {
-              //I already know my identity...
-              this.$set(this.people, user.sid, {
-                id: user.id,
-                name: user.name,
-                pages: this.people[user.sid].pages
-              });
             }
           }
           delete this.newConnect[user.sid];

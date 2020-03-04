@@ -284,6 +284,9 @@ export default {
       let movingPiece = document.querySelector(
         "#" + getSquareId(move.start) + " > img.piece"
       );
+      // For some unknown reasons Opera get "movingPiece == null" error
+      // TOOO: is it calling 'animate()' twice ? One extra time ?
+      if (!movingPiece) return;
       // HACK for animation (with positive translate, image slides "under background")
       // Possible improvement: just alter squares on the piece's way...
       const squares = document.getElementsByClassName("board");

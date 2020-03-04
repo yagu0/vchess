@@ -14,10 +14,10 @@ main
         span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
         span(
           v-for="p in Object.values(people)"
-          v-if="!!p.name"
+          v-if="p.name"
         )
           | {{ p.name }} 
-        span.anonymous(v-if="Object.values(people).some(p => !p.name)")
+        span.anonymous(v-if="Object.values(people).some(p => !p.name && p.id === 0)")
           | + @nonymous
       Chat(
         :players="game.players"
@@ -240,12 +240,11 @@ export default {
       switch (data.code) {
         case "pollclients":
           data.sockIds.forEach(sid => {
-            this.$set(this.people, sid, { id: 0, name: "" });
             if (sid != this.st.user.sid) {
               this.send("askidentity", { target: sid });
               // Ask potentially missed last state, if opponent and I play
               if (
-                !!this.game.mycolor &&
+                this.game.mycolor &&
                 this.game.type == "live" &&
                 this.game.score == "*" &&
                 this.game.players.some(p => p.sid == sid)
@@ -256,10 +255,7 @@ export default {
           });
           break;
         case "connect":
-          if (!this.people[data.from])
-            // TODO: people array should be init only after identity is known
-            this.$set(this.people, data.from, { name: "", id: 0 });
-          if (!this.people[data.from].name) {
+          if (!this.people[data.from]) {
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from });
           }
@@ -267,8 +263,7 @@ export default {
         case "disconnect":
           this.$delete(this.people, data.from);
           break;
-        case "mconnect":
-        {
+        case "mconnect": {
           // TODO: from MyGames page : send mconnect message with the list of gid (live and corr)
           // Either me (another tab) or opponent
           const sid = data.from;
@@ -290,7 +285,7 @@ export default {
           alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
         case "askidentity": {
-          // Request for identification (TODO: anonymous shouldn't need to reply)
+          // Request for identification
           const me = {
             // Decompose to avoid revealing email
             name: this.st.user.name,
@@ -301,8 +296,8 @@ export default {
           break;
         }
         case "identity": {
-          // TODO: init people array here.
           const user = data.data;
+          this.$set(this.people, user.sid, { name: user.name, id: user.id });
           if (user.name) {
             // If I multi-connect, kill current connexion if no mark (I'm older)
             if (
@@ -315,13 +310,6 @@ export default {
                 this.send("killme", { sid: this.st.user.sid });
                 this.killed[this.st.user.sid] = true;
               }
-            }
-            if (user.sid != this.st.user.sid) {
-              //I already know my identity...
-              this.$set(this.people, user.sid, {
-                id: user.id,
-                name: user.name
-              });
             }
           }
           delete this.newConnect[user.sid];
