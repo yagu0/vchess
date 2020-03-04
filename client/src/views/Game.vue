@@ -710,6 +710,10 @@ export default {
         else if (this.drawOffer == "threerep") this.drawOffer = "";
         // Since corr games are stored at only one location, update should be
         // done only by one player for each move:
+        
+
+console.log(moveCol + " " + this.game.type);
+
         if (
           this.game.mycolor &&
           (this.game.type == "live" || moveCol == this.game.mycolor)
@@ -727,6 +731,10 @@ export default {
               break;
           }
           if (this.game.type == "corr") {
+
+
+console.log("DO UPDATE");
+
             GameStorage.update(this.gameRef.id, {
               fen: this.game.fen,
               move: {
