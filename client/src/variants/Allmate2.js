@@ -1,6 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class AllmateRules extends ChessRules {
+export const VariantRules = class Allmate2Rules extends ChessRules {
   static get HasEnpassant() {
     return false;
   }
@@ -38,6 +38,7 @@ export const VariantRules = class AllmateRules extends ChessRules {
       }
 
       // 2) Among attacked pieces, which cannot escape capture?
+      // --> without (normal-)capturing: difference with Allmate variant
       // Avoid "oppMoves = this.getAllValidMoves();" => infinite recursion
       outerLoop: for (let i=0; i<V.size.x; i++) {
         for (let j=0; j<V.size.y; j++) {
@@ -64,6 +65,9 @@ export const VariantRules = class AllmateRules extends ChessRules {
                 break;
             }
             for (let om of oppMoves) {
+              if (om.vanish.length == 2 && om.appear.length == 1)
+                // Skip captures: forbidden in this mode
+                continue;
               V.PlayOnBoard(this.board, om);
               Object.values(attacked).forEach(sq => {
                 const origSq = [sq[0], sq[1]];

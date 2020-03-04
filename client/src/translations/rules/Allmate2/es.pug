@@ -1,0 +1,42 @@
+p.boxed
+  | Si una pieza es atacada y no puede escapar del ataque, se captura.
+
+p.
+  Si se ataca una pieza y ningún movimiento ortodoxo puede evitar su
+  capturado (en el sentido habitual), se considera matado y se elimina del juego.
+  Si tal movimiento ortodoxo existe, no necesita ser jugado
+  (incluso podría ser ilegal porque las capturas normales están prohibidas):
+  la pieza no se captura.
+  Por lo tanto, los reyes y otras piezas pueden permanecer en jaque.
+
+p.
+  Las piezas no pueden capturar en el sentido habitual, solo a través de
+  "mate-captura" descrito anteriormente.
+
+p El juego termina cuando un rey es "mate-capturado".
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/p1pppppp/8/8/1P6/2N5/P1PPPPPP/RNBQKBNR:
+  figcaption Después de 1.b4 b5 2.Nc3X el peón b5 es "mate-capturado"
+
+p.
+  Nota sobre la notación de las jugadas: ya que las capturas no se realizan
+  en la casilla de llegada, se agrega una marca "X" al movimiento para indicar la captura.
+  Para evitar las notaciones demasiado largas, la lista potencial de casillas
+  de captura no está escrita.
+
+h3 Nota "suicidio"
+
+p.
+  En la implementación actual, todas las piezas excepto los reyes pueden
+  "suicidarse", es decir, ir o quedarse en una casilla donde son mate.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/difftaking.dir/allmate.html") variante Allmate
+  | &nbsp;en chessvariants.com.
+
+p Inventor: Dr. Chris Taylor (1979)

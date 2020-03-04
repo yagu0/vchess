@@ -2,7 +2,8 @@
 
 insert or ignore into Variants (name,description) values
   ('Alice', 'Both sides of the mirror'),
-  ('Allmate', 'Mate any piece'),
+  ('Allmate1', 'Mate any piece (v1)'),
+  ('Allmate2', 'Mate any piece (v2)'),
   ('Antiking', 'Keep antiking in check'),
   ('Antimatter', 'Dangerous collisions'),
   ('Arena', 'Middle battle'),
