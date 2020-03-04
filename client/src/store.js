@@ -76,8 +76,12 @@ export const store = {
       bcolor: localStorage.getItem("bcolor") || "lichess",
       sound: getItemDefaultTrue("sound"),
       hints: getItemDefaultTrue("hints"),
-      highlight: getItemDefaultTrue("highlight")
+      highlight: getItemDefaultTrue("highlight"),
+      randomness: parseInt(localStorage.getItem("randomness"))
     };
+    if (isNaN(this.state.settings.randomness))
+      // Default: random asymmetric
+      this.state.settings.randomness = 2;
     const supportedLangs = ["en", "es", "fr"];
     const navLanguage = navigator.language.substr(0,2);
     this.state.lang =

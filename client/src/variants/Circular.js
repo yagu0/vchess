@@ -31,7 +31,6 @@ export const VariantRules = class CircularRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0)
       return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR w 0 1111111111111111";
 

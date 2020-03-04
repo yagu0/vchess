@@ -546,7 +546,6 @@ export const VariantRules = class BaroqueRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0)
       // Deterministic:
       return "rnbqkbnrm/pppppppp/8/8/8/8/PPPPPPPP/MNBKQBNR w 0";

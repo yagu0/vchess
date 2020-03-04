@@ -20,7 +20,6 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0)
       return "11/11/11/11/11/11/11/11/11/QRBNP1pnbrq/KRBNP1pnbrk w 0";
 

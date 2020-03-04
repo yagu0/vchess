@@ -317,7 +317,6 @@ export const VariantRules = class GrandRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0) {
       return "rnbqkmcbnr/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR " +
         "w 0 1111 - 00000000000000";

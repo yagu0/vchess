@@ -96,6 +96,7 @@ export const translations = {
   "participant(s):": "participant(s):",
   "Random?": "Random?",
   "Randomness": "Randomness",
+  "Randomness against computer": "Randomness against computer",
   Refuse: "Refuse",
   Register: "Register",
   "Registration complete! Please check your emails now": "Registration complete! Please check your emails now",

@@ -96,6 +96,7 @@ export const translations = {
   "participant(s):": "participante(s):",
   "Random?": "Aleatorio?",
   "Randomness": "Grado de azar",
+  "Randomness against computer": "Grado de azar contra la computadora",
   Refuse: "Rechazar",
   Register: "Registrarse",
   "Registration complete! Please check your emails now": "¡Registro completo! Revise sus correos electrónicos ahora",

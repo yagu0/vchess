@@ -240,7 +240,6 @@ export const ChessRules = class ChessRules {
 
   // Setup the initial random (asymmetric) position
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0)
       // Deterministic:
       return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 1111 -";

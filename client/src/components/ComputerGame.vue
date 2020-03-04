@@ -58,7 +58,7 @@ export default {
       if (!game) {
         game = {
           vname: this.gameInfo.vname,
-          fenStart: V.GenRandInitFen(),
+          fenStart: V.GenRandInitFen(this.st.settings.randomness),
           moves: []
         };
         game.fen = game.fenStart;

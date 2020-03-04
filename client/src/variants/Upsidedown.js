@@ -21,7 +21,6 @@ export const VariantRules = class UpsidedownRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0)
       return "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w 0";
 
