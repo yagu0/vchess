@@ -197,17 +197,17 @@ const GameModel =
     return (
       (
         !obj.move || (
-          obj.move.played.toString().match(/^[0-9]+$/) &&
-          obj.move.idx.toString().match(/^[0-9]+$/)
+          !!(obj.move.played.toString().match(/^[0-9]+$/)) &&
+          !!(obj.move.idx.toString().match(/^[0-9]+$/))
         )
       ) && (
-        !obj.drawOffer || obj.drawOffer.match(/^[wbtn]$/)
+        !obj.drawOffer || !!(obj.drawOffer.match(/^[wbtn]$/))
       ) && (
-        !obj.fen || obj.fen.match(/^[a-zA-Z0-9, /-]*$/)
+        !obj.fen || !!(obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
       ) && (
-        !obj.score || obj.score.match(/^[012?*\/-]+$/)
+        !obj.score || !!(obj.score.match(/^[012?*\/-]+$/))
       ) && (
-        !obj.scoreMsg || obj.scoreMsg.match(/^[a-zA-Z ]+$/)
+        !obj.scoreMsg || !!(obj.scoreMsg.match(/^[a-zA-Z ]+$/))
       ) && (
         !obj.chat || UserModel.checkNameEmail({name: obj.chat.name})
       )
@@ -242,11 +242,6 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
-
-
-return cb({errmsg: JSON.stringify(obj.move) + "  " + (!!obj.move)});
-
-
       // NOTE: move, chat and delchat are mutually exclusive
       if (!!obj.move)
       {
@@ -257,10 +252,6 @@ return cb({errmsg: JSON.stringify(obj.move) + "  " + (!!obj.move)});
           "WHERE gid = " + id;
         db.get(query, (err,ret) => {
           const m = obj.move;
-
-//return cb({errmsg: ret.maxIdx + " " + m.idx + " " + (!ret.maxIdx || ret.maxIdx + 1 == m.idx) + " " + query});
-
-
           if (!ret.maxIdx || ret.maxIdx + 1 == m.idx) {
             query =
               "INSERT INTO Moves (gid, squares, played, idx) VALUES " +

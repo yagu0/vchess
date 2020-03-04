@@ -706,7 +706,7 @@ export default {
       }
     },
     newChallenge: async function() {
-      if (this.newchallenge.cadence.match(/^[0-9]+$/))
+      if (!!(this.newchallenge.cadence.match(/^[0-9]+$/)))
         this.newchallenge.cadence += "+0"; //assume minutes, no increment
       const ctype = this.classifyObject(this.newchallenge);
       // TODO: cadence still unchecked so ctype could be wrong...

@@ -727,6 +727,10 @@ export default {
               break;
           }
           if (this.game.type == "corr") {
+
+
+console.log("new fen : " + this.game.fen);
+
             GameStorage.update(this.gameRef.id, {
               fen: this.game.fen,
               move: {
