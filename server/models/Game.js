@@ -242,6 +242,11 @@ const GameModel =
         query += modifs + " WHERE id = " + id;
         db.run(query);
       }
+
+
+return cb({errmsg: JSON.stringify(obj.move)});
+
+
       // NOTE: move, chat and delchat are mutually exclusive
       if (obj.move)
       {
