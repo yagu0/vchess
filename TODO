@@ -7,11 +7,8 @@ From MyGames page: send "mconnect" to all online players (me included: potential
   When quit, send mdisconnect (relayed by server if no other MyGames tab).
 And remove current "notify through newmove" on server in sockets.js
 
-# Images:
-Color black wildebeest and camels pieces in white instead of transparent.
-Color white grasshoppers as well. Adjust wormholes color and size.
-Better "Check3" king images: just horizontal red bars maybe (1 to 3).
-Center king image for Knightmate variant.
+Analyse mode when launched from a position: should keep orientation
+--> $route query param, "side=w or b"
 
 # Misc:
 Saw once a "double challenge" bug, one anonymous and a second one logged
@@ -22,3 +19,5 @@ Both were asked a challenge probably, and both challenges added as different one
 https://www.chessvariants.com/rules/8-piece-chess
 Eightpieces : non-symmetric
 Sym8pieces : symmetric (960)
+
++ Maxima, Interweave, Roccoco, Dynamo, Synchrone, Cannibal (force captures)
