@@ -2,14 +2,14 @@
 On Game page "mconnect" events =>
   send lastate to them (because they have the game infos) or just "your turn" - if their turn
   remember them to send next "newmove" (or just "it's your turn") later - if not their turn
-  (=> listen for "mdisconnect" as well)
+  (=> listen for "mdisconnect" as well, and gameover, and newgame)
 From MyGames page: send "mconnect" to all online players (me included: potential multi-tabs)
   When quit, send mdisconnect (relayed by server if no other MyGames tab).
-And remove current "notify through newmove" on server in sockets.js
 
 # Misc:
 Saw once a "double challenge" bug, one anonymous and a second one logged
 Both were asked a challenge probably, and both challenges added as different ones.
+=> would probably be solved by waiting for identity before adding people to people array
 
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
