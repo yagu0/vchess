@@ -18,12 +18,39 @@ export const VariantRules = class BerolinaRules extends ChessRules {
     const move = moveOrSquare;
     const [sx, ex, sy] = [move.start.x, move.end.x, move.start.y];
     if (this.getPiece(sx, sy) == V.PAWN && Math.abs(sx - ex) == 2) {
-      return {
-        x: (ex + sx) / 2,
-        y: (move.end.y + sy) / 2
-      };
+      return [
+        {
+          x: (ex + sx) / 2,
+          y: (move.end.y + sy) / 2
+        },
+        // The arrival column must be remembered, because
+        // potentially two pawns could be candidates to be captured:
+        // one on our left, and one on our right.
+        move.end.y
+      ];
     }
     return undefined; //default
+  }
+
+  static IsGoodEnpassant(enpassant) {
+    if (enpassant != "-") {
+      const epParts = enpassant.split(",");
+      const epSq = V.SquareToCoords(epParts[0]);
+      if (isNaN(epSq.x) || isNaN(epSq.y) || !V.OnBoard(epSq)) return false;
+      const arrCol = V.ColumnToCoord(epParts[1]);
+      if (isNaN(arrCol) || arrCol < 0 || arrCol >= V.size.y) return false;
+    }
+    return true;
+  }
+
+  getEnpassantFen() {
+    const L = this.epSquares.length;
+    if (!this.epSquares[L - 1]) return "-"; //no en-passant
+    return (
+      V.CoordsToSquare(this.epSquares[L - 1][0]) +
+      "," +
+      V.CoordToColumn(this.epSquares[L - 1][1])
+    );
   }
 
   // Special pawns movements
@@ -78,8 +105,7 @@ export const VariantRules = class BerolinaRules extends ChessRules {
     if (
       !!epSquare &&
       epSquare[0].x == x + shiftX &&
-      epSquare[0].y == y &&
-      Math.abs(epSquare[1] - y) == 1
+      epSquare[0].y == y
     ) {
       let enpassantMove = this.getBasicMove([x, y], [x + shiftX, y]);
       enpassantMove.vanish.push({
