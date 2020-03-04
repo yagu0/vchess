@@ -252,10 +252,14 @@ const GameModel =
           "WHERE gid = " + id;
         db.get(query, (err,ret) => {
           const m = obj.move;
+
+
+
           if (!ret.maxIdx || ret.maxIdx + 1 == m.idx) {
             query =
               "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
               "(" + id + ",?," + m.played + "," + m.idx + ")";
+return cb({errmsg: (!ret.maxIdx || ret.maxIdx + 1 == m.idx) + " " + query});
             db.run(query, JSON.stringify(m.squares));
             cb(null);
           }

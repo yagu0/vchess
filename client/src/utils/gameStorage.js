@@ -62,7 +62,6 @@ export const GameStorage = {
   update: function(gameId, obj) {
     if (Number.isInteger(gameId) || !isNaN(parseInt(gameId))) {
       // corr: only move, fen and score
-console.log(obj.move);
       ajax("/games", "PUT", {
         gid: gameId,
         newObj: {
