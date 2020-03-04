@@ -43,6 +43,10 @@ export default {
   },
   created: function() {
     GameStorage.getAll(true, localGames => {
+
+
+console.log(localGames);
+
       localGames.forEach(g => (g.type = this.classifyObject(g)));
       this.liveGames = localGames;
     });

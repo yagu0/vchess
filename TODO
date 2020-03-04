@@ -11,6 +11,8 @@ Saw once a "double challenge" bug, one anonymous and a second one logged
 Both were asked a challenge probably, and both challenges added as different ones.
 => would probably be solved by waiting for identity before adding people to people array
 
+Bug only in prod: observers don't see current games in live games section
+also some games seem to have trouble to start...
 Color bug
 anonymous on game name but username OK in chat
 game not showing on "live games" ... ?
