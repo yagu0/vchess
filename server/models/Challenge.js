@@ -74,7 +74,9 @@ const ChallengeModel =
       const query =
         "SELECT 1 " +
         "FROM Challenges " +
-        "WHERE id = " + id + " AND uid = " + uid;
+        "WHERE id = " + id + " " +
+          // Condition: I'm the sender or the target
+          "AND (uid = " + uid + " OR to = " + uid + ")";
       db.get(query, (err,chall) => {
         if (!err && chall)
           ChallengeModel.remove(id);

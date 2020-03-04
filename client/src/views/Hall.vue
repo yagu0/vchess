@@ -812,6 +812,8 @@ export default {
         const oppsid = this.getOppsid(c);
         if (oppsid)
           this.send("refusechallenge", { data: c.id, target: oppsid });
+        if (c.type == "corr")
+          ajax("/challenges", "DELETE", { id: c.id });
       }
       this.send("deletechallenge", { data: c.id });
     },
@@ -850,9 +852,8 @@ export default {
       }
       else {
         // My challenge
-        if (c.type == "corr") {
+        if (c.type == "corr")
           ajax("/challenges", "DELETE", { id: c.id });
-        }
         this.send("deletechallenge", { data: c.id });
       }
       // In all cases, the challenge is consumed:
