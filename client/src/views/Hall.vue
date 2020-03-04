@@ -797,6 +797,9 @@ export default {
         };
         this.launchGame(c);
       } else {
+
+debugger;
+
         this.send("refusechallenge", { data: c.id, target: c.from.sid });
       }
       this.send("deletechallenge", { data: c.id });
