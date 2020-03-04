@@ -244,11 +244,11 @@ const GameModel =
       }
 
 
-return cb({errmsg: JSON.stringify(obj.move)});
+//return cb({errmsg: JSON.stringify(obj.move)});
 
 
       // NOTE: move, chat and delchat are mutually exclusive
-      if (obj.move)
+      if (!!obj.move)
       {
         // Security: only update moves if index is right
         query =
@@ -258,7 +258,7 @@ return cb({errmsg: JSON.stringify(obj.move)});
         db.get(query, (err,ret) => {
           const m = obj.move;
 
-return cb({errmsg: ret.maxIdx + " " + m.idx + " " + (!ret.maxIdx || ret.maxIdx + 1 == m.idx) + " " + query});
+//return cb({errmsg: ret.maxIdx + " " + m.idx + " " + (!ret.maxIdx || ret.maxIdx + 1 == m.idx) + " " + query});
 
 
           if (!ret.maxIdx || ret.maxIdx + 1 == m.idx) {
