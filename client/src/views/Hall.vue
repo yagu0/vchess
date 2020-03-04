@@ -407,6 +407,15 @@ export default {
     processChat: function(chat) {
       this.send("newchat", { data: chat });
     },
+    getOppsid: function(c) {
+      let oppsid = c.from.sid; //may not be defined if corr + offline opp
+      if (!oppsid) {
+        oppsid = Object.keys(this.people).find(
+          sid => this.people[sid].id == c.from.id
+        );
+      }
+      return oppsid;
+    },
     // Messaging center:
     socketMessageListener: function(msg) {
       if (!this.conn) return;
@@ -797,10 +806,9 @@ export default {
         };
         this.launchGame(c);
       } else {
-
-console.log(c);
-
-        this.send("refusechallenge", { data: c.id, target: c.from.sid });
+        const oppsid = this.getOppsid(c);
+        if (oppSid)
+          this.send("refusechallenge", { data: c.id, target: oppsid });
       }
       this.send("deletechallenge", { data: c.id });
     },
@@ -860,13 +868,8 @@ console.log(c);
         vid: c.vid,
         cadence: c.cadence
       };
-      let oppsid = c.from.sid; //may not be defined if corr + offline opp
-      if (!oppsid) {
-        oppsid = Object.keys(this.people).find(
-          sid => this.people[sid].id == c.from.id
-        );
-      }
       const notifyNewgame = () => {
+        const oppsid = this.getOppsid(c);
         if (oppsid)
           //opponent is online
           this.send("startgame", { data: gameInfo, target: oppsid });
