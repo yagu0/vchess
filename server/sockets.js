@@ -192,7 +192,7 @@ module.exports = function(wss) {
             Object.keys(clients[page][obj.target]).forEach(x => {
               send(
                 clients[page][obj.target][x],
-                {code: "newmove", dataWithFrom}
+                Object.assign({code: "newmove"}, dataWithFrom)
               );
             });
           } else {

@@ -113,7 +113,7 @@ export const translations = {
   "Show possible moves?": "Montrer les coups possibles ?",
   "Show solution": "Montrer la solution",
   Solution: "Solution",
-  "Sound alert when game starts?": "Alert sonore quand une partie démarre?",
+  "Sound alert when game starts?": "Alerte sonore quand une partie démarre?",
   Stop: "Arrêt",
   "Stop game": "Arrêter la partie",
   Subject: "Sujet",

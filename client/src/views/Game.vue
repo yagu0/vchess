@@ -111,7 +111,7 @@ export default {
       conn: null,
       roomInitialized: false,
       // If newmove has wrong index: ask fullgame again:
-      fullGamerequested: false,
+      gameIsLoading: false,
       // If asklastate got no reply, ask again:
       gotLastate: false,
       gotMoveIdx: -1, //last move index received
@@ -226,7 +226,7 @@ export default {
       if (this.game.type == "corr") {
         if (!!this.game.mycolor)
           ajax("/chats", "DELETE", {gid: this.game.id});
-        this.game.chats = [];
+        this.$set(this.game, "chats", []);
       }
     },
     // Notify turn after a new move (to opponent and me on MyGames page)
@@ -235,16 +235,10 @@ export default {
       const colorIdx = this.game.players.findIndex(
         p => p.sid == sid || p.id == player.id);
       const color = ["w","b"][colorIdx];
+      const movesCount = this.game.moves.length;
       const yourTurn =
-        (
-          color == "w" &&
-          this.game.movesCount % 2 == 0
-        )
-        ||
-        (
-          color == "b" &&
-          this.game.movesCount % 2 == 1
-        );
+        (color == "w" && movesCount % 2 == 0) ||
+        (color == "b" && movesCount % 2 == 1);
       this.send("turnchange", { target: sid, yourTurn: yourTurn });
     },
     socketMessageListener: function(msg) {
@@ -253,18 +247,8 @@ export default {
       switch (data.code) {
         case "pollclients":
           data.sockIds.forEach(sid => {
-            if (sid != this.st.user.sid) {
+            if (sid != this.st.user.sid)
               this.send("askidentity", { target: sid });
-              // Ask potentially missed last state, if opponent and I play
-              if (
-                !!this.game.mycolor &&
-                this.game.type == "live" &&
-                this.game.score == "*" &&
-                this.game.players.some(p => p.sid == sid)
-              ) {
-                this.send("asklastate", { target: sid });
-              }
-            }
           });
           break;
         case "connect":
@@ -324,6 +308,28 @@ export default {
             }
             delete this.newConnect[user.sid];
           }
+          if (!this.killed[this.st.user.sid]) {
+            // Ask potentially missed last state, if opponent and I play
+            if (
+              !!this.game.mycolor &&
+              this.game.type == "live" &&
+              this.game.score == "*" &&
+              this.game.players.some(p => p.sid == user.sid)
+            ) {
+              let self = this;
+              (function askLastate() {
+                self.send("asklastate", { target: user.sid });
+                setTimeout(
+                  () => {
+                    // Ask until we got a reply (or opponent disconnect):
+                    if (!self.gotLastate && !!self.people[user.sid])
+                      askLastate();
+                  },
+                  750
+                );
+              })();
+            }
+          }
           break;
         }
         case "askgame":
@@ -349,14 +355,10 @@ export default {
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
-          let game = data.data;
-          // Move format isn't the same in storage and in browser,
-          // because of the 'addTime' field.
-          game.moves = game.moves.map(m => { return m.move || m; });
-          this.loadGame(game, this.roomInit);
+          this.loadGame(data.data, this.roomInit);
           break;
         case "asklastate":
-          // Sending last state if I played a move or score != "*"
+          // Sending informative last state if I played a move or score != "*"
           if (
             (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
             this.game.score != "*" ||
@@ -366,8 +368,8 @@ export default {
             const L = this.game.moves.length;
             const myIdx = ["w", "b"].indexOf(this.game.mycolor);
             const myLastate = {
-              // NOTE: lastMove (when defined) includes addTime
               lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
+              addTime: L > 0 ? this.game.addTimes[L - 1] : undefined,
               // Since we played a move (or abort or resign),
               // only drawOffer=="sent" is possible
               drawSent: this.drawOffer == "sent",
@@ -376,47 +378,58 @@ export default {
               initime: this.game.initime[1 - myIdx] //relevant only if I played
             };
             this.send("lastate", { data: myLastate, target: data.from });
+          } else {
+            this.send("lastate", { data: {nothing: true}, target: data.from });
           }
           break;
-        case "lastate": //got opponent infos about last move
-          this.lastate = data.data;
-          if (this.game.rendered)
-            // Game is rendered (Board component)
-            this.processLastate();
-          // Else: will be processed when game is ready
+        case "lastate": {
+          // Got opponent infos about last move
+          this.gotLastate = true;
+          if (!data.data.nothing) {
+            this.lastate = data.data;
+            if (this.game.rendered)
+              // Game is rendered (Board component)
+              this.processLastate();
+            // Else: will be processed when game is ready
+          }
           break;
+        }
         case "newmove": {
-
-console.log(data.data);
-
-          const move = data.data;
-          if (move.index > this.game.movesCount && !this.fullGameRequested) {
-            // This can only happen if I'm an observer and missed a move:
-            // just ask fullgame again, this is much simpler.
-            (function askIfPeerConnected() {
-              if (!!this.people[this.gameRef.rid])
-                this.send("askfullgame", { target: this.gameRef.rid });
-              else setTimeout(askIfPeerConnected, 1000);
-            })();
-            this.fullGameRequested = true;
+          const movePlus = data.data;
+          const movesCount = this.game.moves.length;
+          if (movePlus.index > movesCount) {
+            // This can only happen if I'm an observer and missed a move.
+            if (!this.gameIsLoading) {
+              this.gameIsLoading = true;
+              if (!this.gameRef.rid)
+                // This is my game: just reload.
+                this.loadGame();
+              else {
+                // Just ask fullgame again (once!), this is much simpler.
+                // If this fails, the user could just reload page :/
+                let self = this;
+                (function askIfPeerConnected() {
+                  if (!!self.people[self.gameRef.rid])
+                    self.send("askfullgame", { target: self.gameRef.rid });
+                  else setTimeout(askIfPeerConnected, 1000);
+                })();
+              }
+            }
           } else {
             if (
-              move.index < this.game.movesCount ||
-              this.gotMoveIdx >= move.index
+              movePlus.index < movesCount ||
+              this.gotMoveIdx >= movePlus.index
             ) {
               // Opponent re-send but we already have the move:
               // (maybe he didn't receive our pingback...)
-              this.send("gotmove", {data: move.index, target: data.from});
+              this.send("gotmove", {data: movePlus.index, target: data.from});
             } else {
-              this.gotMoveIdx = move.index;
-              const receiveMyMove = (
-                !!this.game.mycolor &&
-                move.index == this.game.movesCount
-              );
+              this.gotMoveIdx = movePlus.index;
+              const receiveMyMove = (movePlus.color == this.game.mycolor);
               if (!receiveMyMove && !!this.game.mycolor)
                 // Notify opponent that I got the move:
-                this.send("gotmove", {data: move.index, target: data.from});
-              if (move.cancelDrawOffer) {
+                this.send("gotmove", {data: movePlus.index, target: data.from});
+              if (movePlus.cancelDrawOffer) {
                 // Opponent refuses draw
                 this.drawOffer = "";
                 // NOTE for corr games: drawOffer reset by player in turn
@@ -429,11 +442,11 @@ console.log(data.data);
                 }
               }
               this.$refs["basegame"].play(
-                move.move,
+                movePlus.move,
                 "received",
                 null,
                 {
-                  addTime: move.addTime,
+                  addTime: movePlus.addTime,
                   receiveMyMove: receiveMyMove
                 }
               );
@@ -445,11 +458,6 @@ console.log(data.data);
           this.opponentGotMove = true;
           break;
         }
-/// TODO: same strategy for askLastate
-// --> the message could not have been received,
-// or maybe we ddn't receive it back.
-
-
         case "resign":
           const score = data.side == "b" ? "1-0" : "0-1";
           const side = data.side == "w" ? "White" : "Black";
@@ -485,10 +493,11 @@ console.log(data.data);
       if (data.movesCount > L) {
         // Just got last move from him
         this.$refs["basegame"].play(
-          data.lastMove.move,
+          data.lastMove,
           "received",
           null,
-          {addTime: data.lastMove.addTime, initime: data.initime});
+          {addTime: data.addTime, initime: data.initime}
+        );
       }
       if (data.drawSent) this.drawOffer = "received";
       if (data.score != "*") {
@@ -649,20 +658,22 @@ console.log(data.data);
             // at least oppsid or oppid is available anyway:
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
             oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid,
-            movesCount: game.moves.length
+            addTimes: [], //used for live games
           },
           game,
         );
-        if (this.fullGameRequested)
-          // Second (or more) time the full game is asked:
-          this.fullGameRequested = false;
+        if (this.gameIsLoading)
+          // Re-load game because we missed some moves:
+          // artificially reset BaseGame (required if moves arrive too quickly)
+          this.$refs["basegame"].re_setVariables();
         this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
           // Did lastate arrive before game was rendered?
           if (this.lastate) this.processLastate();
         });
-        if (callback) callback();
+        this.gameIsLoading = false;
+        if (!!callback) callback();
       };
       if (!!game) {
         afterRetrieval(game);
@@ -678,7 +689,7 @@ console.log(data.data);
       }
     },
     re_setClocks: function() {
-      if (this.game.movesCount < 2 || this.game.score != "*") {
+      if (this.game.moves.length < 2 || this.game.score != "*") {
         // 1st move not completed yet, or game over: freeze time
         this.virtualClocks = this.game.clocks.map(s => ppt(s));
         return;
@@ -721,56 +732,28 @@ console.log(data.data);
       const doProcessMove = () => {
         const colorIdx = ["w", "b"].indexOf(moveCol);
         const nextIdx = 1 - colorIdx;
-        if (!!this.game.mycolor && !data.receiveMyMove) {
-          // NOTE: 'var' to see that variable outside this block
-          var filtered_move = getFilteredMove(move);
-        }
-        // Send move ("newmove" event) to people in the room (if our turn)
-        let addTime = (this.game.type == "live") ? data.addTime : 0;
+        const origMovescount = this.game.moves.length;
+        let addTime =
+          this.game.type == "live"
+            ? (data.addTime || 0)
+            : undefined;
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw
             this.drawOffer = "";
-          // 'addTime' is irrelevant for corr games:
-          if (this.game.type == "live" && this.game.movesCount >= 2) {
+          if (this.game.type == "live" && origMovescount >= 2) {
             const elapsed = Date.now() - this.game.initime[colorIdx];
             // elapsed time is measured in milliseconds
             addTime = this.game.increment - elapsed / 1000;
           }
-          const sendMove = {
-            move: filtered_move,
-            index: this.game.movesCount,
-            addTime: addTime, //undefined for corr games
-            cancelDrawOffer: this.drawOffer == ""
-          };
-          this.opponentGotMove = false;
-          this.send("newmove", {data: sendMove});
-          // If the opponent doesn't reply gotmove soon enough, re-send move:
-          let retrySendmove = setInterval( () => {
-            if (this.opponentGotMove) {
-              clearInterval(retrySendmove);
-              return;
-            }
-            let oppsid = this.game.players[nextIdx].sid;
-            if (!oppsid) {
-              oppsid = Object.keys(this.people).find(
-                sid => this.people[sid].id == this.game.players[nextIdx].uid
-              );
-            }
-            if (!oppsid || !this.people[oppsid])
-              // Opponent is disconnected: he'll ask last state
-              clearInterval(retrySendmove);
-            else this.send("newmove", {data: sendMove, target: oppsid});
-          }, 750);
         }
-        // Update current game object (no need for moves stack):
+        // Update current game object:
         playMove(move, this.vr);
-        this.game.movesCount++;
 // TODO: notifyTurn: "changeturn" message
+        this.game.moves.push(move);
         // (add)Time indication: useful in case of lastate infos requested
-        this.game.moves.push(this.game.type == "live"
-          ? {move:move, addTime:addTime}
-          : move);
+        if (this.game.type == "live")
+          this.game.addTimes.push(addTime);
         this.game.fen = this.vr.getFen();
         if (this.game.type == "live") this.game.clocks[colorIdx] += addTime;
         // In corr games, just reset clock to mainTime:
@@ -785,6 +768,10 @@ console.log(data.data);
         else if (this.drawOffer == "threerep") this.drawOffer = "";
         // Since corr games are stored at only one location, update should be
         // done only by one player for each move:
+        if (!!this.game.mycolor && !data.receiveMyMove) {
+          // NOTE: 'var' to see that variable outside this block
+          var filtered_move = getFilteredMove(move);
+        }
         if (
           !!this.game.mycolor &&
           !data.receiveMyMove &&
@@ -808,14 +795,14 @@ console.log(data.data);
               move: {
                 squares: filtered_move,
                 played: Date.now(),
-                idx: this.game.moves.length - 1
+                idx: origMovescount
               },
               // Code "n" for "None" to force reset (otherwise it's ignored)
               drawOffer: drawCode || "n"
             });
           }
-          else {
-            // Live game:
+          else if (!document.hidden) {
+            // Live game: consider only the active tab
             GameStorage.update(this.gameRef.id, {
               fen: this.game.fen,
               move: filtered_move,
@@ -824,6 +811,36 @@ console.log(data.data);
               drawOffer: drawCode
             });
           }
+        }
+        // Send move ("newmove" event) to people in the room (if our turn)
+        if (moveCol == this.game.mycolor && !data.receiveMyMove) {
+          const sendMove = {
+            move: filtered_move,
+            index: origMovescount,
+            // color is required to check if this is my move (if several tabs opened)
+            color: moveCol,
+            addTime: addTime, //undefined for corr games
+            cancelDrawOffer: this.drawOffer == ""
+          };
+          this.opponentGotMove = false;
+          this.send("newmove", {data: sendMove});
+          // If the opponent doesn't reply gotmove soon enough, re-send move:
+          let retrySendmove = setInterval( () => {
+            if (this.opponentGotMove) {
+              clearInterval(retrySendmove);
+              return;
+            }
+            let oppsid = this.game.players[nextIdx].sid;
+            if (!oppsid) {
+              oppsid = Object.keys(this.people).find(
+                sid => this.people[sid].id == this.game.players[nextIdx].uid
+              );
+            }
+            if (!oppsid || !this.people[oppsid])
+              // Opponent is disconnected: he'll ask last state
+              clearInterval(retrySendmove);
+            else this.send("newmove", {data: sendMove, target: oppsid});
+          }, 750);
         }
       };
       if (
