@@ -178,34 +178,38 @@ module.exports = function(wss) {
         case "newchallenge":
         case "newgame":
         case "deletechallenge":
-        case "newmove":
         case "resign":
         case "abort":
         case "drawoffer":
         case "draw":
-          // TODO: if newmove, change "from" field to fully specified sid + tmpId
-          // ==> allow "gotmove" messages to be fully targetted
+          notifyRoom(page, obj.code, {data: obj.data});
+          break;
+
+        case "newmove": {
+          const dataWithFrom = {from: [sid,tmpId], data: obj.data};
           // Special case re-send newmove only to opponent:
-          if (!!obj.target) {
+          if (!!obj.target && !!clients[page][obj.target]) {
             Object.keys(clients[page][obj.target]).forEach(x => {
               send(
                 clients[page][obj.target][x],
-                {code: "newmove", data: obj.data}
+                {code: "newmove", dataWithFrom}
               );
             });
+          } else {
+            // NOTE: data.from is useful only to opponent
+            notifyRoom(page, "newmove", dataWithFrom);
           }
-          else notifyRoom(page, obj.code, {data: obj.data});
           break;
-
+        }
         case "gotmove":
-          // TODO: should fully specify the target and be included in the last case below
-          if (!!clients[page][obj.target]) {
-            Object.keys(clients[page][obj.target]).forEach(x => {
-              send(
-                clients[pg][obj.target][x],
-                {code: "gotmove", data: obj.data}
-              );
-            });
+          if (
+            !!clients[page][obj.target[0]] &&
+            !!clients[page][obj.target[0]][obj.target[1]]
+          ) {
+            send(
+              clients[page][obj.target[0]][obj.target[1]],
+              {code: "gotmove", data: obj.data}
+            );
           }
           break;
 

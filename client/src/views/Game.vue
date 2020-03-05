@@ -114,6 +114,7 @@ export default {
       fullGamerequested: false,
       // If asklastate got no reply, ask again:
       gotLastate: false,
+      gotMoveIdx: -1, //last move index received
       // If newmove got no pingback, send again:
       opponentGotMove: false,
       connexionString: "",
@@ -385,6 +386,9 @@ export default {
           // Else: will be processed when game is ready
           break;
         case "newmove": {
+
+console.log(data.data);
+
           const move = data.data;
           if (move.index > this.game.movesCount && !this.fullGameRequested) {
             // This can only happen if I'm an observer and missed a move:
@@ -402,16 +406,16 @@ export default {
             ) {
               // Opponent re-send but we already have the move:
               // (maybe he didn't receive our pingback...)
-              // TODO: currently, all opponent game tabs will receive this
-              this.send("gotmove", {index: move.index, target: data.from});
+              this.send("gotmove", {data: move.index, target: data.from});
             } else {
+              this.gotMoveIdx = move.index;
               const receiveMyMove = (
                 !!this.game.mycolor &&
                 move.index == this.game.movesCount
               );
               if (!receiveMyMove && !!this.game.mycolor)
                 // Notify opponent that I got the move:
-                this.send("gotmove", {index: move.index, target: data.from});
+                this.send("gotmove", {data: move.index, target: data.from});
               if (move.cancelDrawOffer) {
                 // Opponent refuses draw
                 this.drawOffer = "";
@@ -712,6 +716,7 @@ export default {
     },
     // Post-process a (potentially partial) move (which was just played in BaseGame)
     processMove: function(move, data) {
+      if (!data) data = {};
       const moveCol = this.vr.turn;
       const doProcessMove = () => {
         const colorIdx = ["w", "b"].indexOf(moveCol);
@@ -721,7 +726,7 @@ export default {
           var filtered_move = getFilteredMove(move);
         }
         // Send move ("newmove" event) to people in the room (if our turn)
-        let addTime = (data && this.game.type == "live") ? data.addTime : 0;
+        let addTime = (this.game.type == "live") ? data.addTime : 0;
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw
@@ -739,10 +744,24 @@ export default {
             cancelDrawOffer: this.drawOffer == ""
           };
           this.opponentGotMove = false;
-          this.send("newmove", { data: sendMove });
-
-// TODO: setInterval 500ms to 1s (750?) : if !gotMove (with the right index), re-send
-
+          this.send("newmove", {data: sendMove});
+          // If the opponent doesn't reply gotmove soon enough, re-send move:
+          let retrySendmove = setInterval( () => {
+            if (this.opponentGotMove) {
+              clearInterval(retrySendmove);
+              return;
+            }
+            let oppsid = this.game.players[nextIdx].sid;
+            if (!oppsid) {
+              oppsid = Object.keys(this.people).find(
+                sid => this.people[sid].id == this.game.players[nextIdx].uid
+              );
+            }
+            if (!oppsid || !this.people[oppsid])
+              // Opponent is disconnected: he'll ask last state
+              clearInterval(retrySendmove);
+            else this.send("newmove", {data: sendMove, target: oppsid});
+          }, 750);
         }
         // Update current game object (no need for moves stack):
         playMove(move, this.vr);
@@ -757,7 +776,7 @@ export default {
         // In corr games, just reset clock to mainTime:
         else this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
         // data.initime is set only when I receive a "lastate" move from opponent
-        this.game.initime[nextIdx] = (data && data.initime) ? data.initime : Date.now();
+        this.game.initime[nextIdx] = data.initime || Date.now();
         this.re_setClocks();
         // If repetition detected, consider that a draw offer was received:
         const fenObj = this.vr.getFenForRepeat();
