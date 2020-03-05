@@ -134,7 +134,13 @@ export default {
       return res;
     },
     deleteGame: function(game, e) {
-      if (game.score != "*") {
+      if (
+        game.score != "*" &&
+        game.players.some(p =>
+          p.sid == this.st.user.sid ||
+          p.uid == this.st.user.id
+        )
+      ) {
         if (confirm(this.st.tr["Remove game?"])) {
           GameStorage.remove(
             game.id,

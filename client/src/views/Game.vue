@@ -109,6 +109,13 @@ export default {
       repeat: {}, //detect position repetition
       newChat: "",
       conn: null,
+      roomInitialized: false,
+      // If newmove has wrong index: ask fullgame again:
+      fullGamerequested: false,
+      // If asklastate got no reply, ask again:
+      gotLastate: false,
+      // If newmove got no pingback, send again:
+      opponentGotMove: false,
       connexionString: "",
       // Related to (killing of) self multi-connects:
       newConnect: {},
@@ -171,13 +178,18 @@ export default {
   },
   methods: {
     roomInit: function() {
-      // Notify the room only now that I connected, because
-      // messages might be lost otherwise (if game loading is slow)
-      this.send("connect");
-      this.send("pollclients");
+      if (!this.roomInitialized) {
+        // Notify the room only now that I connected, because
+        // messages might be lost otherwise (if game loading is slow)
+        this.send("connect");
+        this.send("pollclients");
+        // We may ask fullgame several times if some moves are lost,
+        // but room should be init only once:
+        this.roomInitialized = true;
+      }
     },
     send: function(code, obj) {
-      if (this.conn)
+      if (!!this.conn)
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
     },
     isConnected: function(index) {
@@ -211,7 +223,7 @@ export default {
     clearChat: function() {
       // Nothing more to do if game is live (chats not recorded)
       if (this.game.type == "corr") {
-        if (this.game.mycolor)
+        if (!!this.game.mycolor)
           ajax("/chats", "DELETE", {gid: this.game.id});
         this.game.chats = [];
       }
@@ -244,7 +256,7 @@ export default {
               this.send("askidentity", { target: sid });
               // Ask potentially missed last state, if opponent and I play
               if (
-                this.game.mycolor &&
+                !!this.game.mycolor &&
                 this.game.type == "live" &&
                 this.game.score == "*" &&
                 this.game.players.some(p => p.sid == sid)
@@ -298,21 +310,19 @@ export default {
         case "identity": {
           const user = data.data;
           this.$set(this.people, user.sid, { name: user.name, id: user.id });
-          if (user.name) {
-            // If I multi-connect, kill current connexion if no mark (I'm older)
+          // If I multi-connect, kill current connexion if no mark (I'm older)
+          if (this.newConnect[user.sid]) {
             if (
-              this.newConnect[user.sid] &&
               user.id > 0 &&
               user.id == this.st.user.id &&
-              user.sid != this.st.user.sid
+              user.sid != this.st.user.sid &&
+              !this.killed[this.st.user.sid]
             ) {
-              if (!this.killed[this.st.user.sid]) {
                 this.send("killme", { sid: this.st.user.sid });
                 this.killed[this.st.user.sid] = true;
-              }
             }
+            delete this.newConnect[user.sid];
           }
-          delete this.newConnect[user.sid];
           break;
         }
         case "askgame":
@@ -376,20 +386,66 @@ export default {
           break;
         case "newmove": {
           const move = data.data;
-          if (move.cancelDrawOffer) {
-            // Opponent refuses draw
-            this.drawOffer = "";
-            // NOTE for corr games: drawOffer reset by player in turn
-            if (this.game.type == "live" && !!this.game.mycolor)
-              GameStorage.update(this.gameRef.id, { drawOffer: "" });
+          if (move.index > this.game.movesCount && !this.fullGameRequested) {
+            // This can only happen if I'm an observer and missed a move:
+            // just ask fullgame again, this is much simpler.
+            (function askIfPeerConnected() {
+              if (!!this.people[this.gameRef.rid])
+                this.send("askfullgame", { target: this.gameRef.rid });
+              else setTimeout(askIfPeerConnected, 1000);
+            })();
+            this.fullGameRequested = true;
+          } else {
+            if (
+              move.index < this.game.movesCount ||
+              this.gotMoveIdx >= move.index
+            ) {
+              // Opponent re-send but we already have the move:
+              // (maybe he didn't receive our pingback...)
+              // TODO: currently, all opponent game tabs will receive this
+              this.send("gotmove", {index: move.index, target: data.from});
+            } else {
+              const receiveMyMove = (
+                !!this.game.mycolor &&
+                move.index == this.game.movesCount
+              );
+              if (!receiveMyMove && !!this.game.mycolor)
+                // Notify opponent that I got the move:
+                this.send("gotmove", {index: move.index, target: data.from});
+              if (move.cancelDrawOffer) {
+                // Opponent refuses draw
+                this.drawOffer = "";
+                // NOTE for corr games: drawOffer reset by player in turn
+                if (
+                  this.game.type == "live" &&
+                  !!this.game.mycolor &&
+                  !receiveMyMove
+                ) {
+                  GameStorage.update(this.gameRef.id, { drawOffer: "" });
+                }
+              }
+              this.$refs["basegame"].play(
+                move.move,
+                "received",
+                null,
+                {
+                  addTime: move.addTime,
+                  receiveMyMove: receiveMyMove
+                }
+              );
+            }
           }
-          this.$refs["basegame"].play(
-            move.move,
-            "received",
-            null,
-            {addTime: move.addTime});
           break;
         }
+        case "gotmove": {
+          this.opponentGotMove = true;
+          break;
+        }
+/// TODO: same strategy for askLastate
+// --> the message could not have been received,
+// or maybe we ddn't receive it back.
+
+
         case "resign":
           const score = data.side == "b" ? "1-0" : "0-1";
           const side = data.side == "w" ? "White" : "Black";
@@ -448,7 +504,7 @@ export default {
         this.gameOver("1/2", message);
       } else if (this.drawOffer == "") {
         // No effect if drawOffer == "sent"
-        if (this.game.mycolor != this.vr.turn) {
+        if (!!this.game.mycolor != this.vr.turn) {
           alert(this.st.tr["Draw offer only in your turn"]);
           return;
         }
@@ -593,6 +649,9 @@ export default {
           },
           game,
         );
+        if (this.fullGameRequested)
+          // Second (or more) time the full game is asked:
+          this.fullGameRequested = false;
         this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
@@ -601,7 +660,7 @@ export default {
         });
         if (callback) callback();
       };
-      if (game) {
+      if (!!game) {
         afterRetrieval(game);
         return;
       }
@@ -652,21 +711,18 @@ export default {
       }, 1000);
     },
     // Post-process a (potentially partial) move (which was just played in BaseGame)
-    // TODO?: wait for AJAX return to finish processing a move,
-    //   and for opponent pingback in case of live game : if none received after e.g. 500ms, re-send newmove
-    //   ...and provide move index with newmove event for basic check after receiving
     processMove: function(move, data) {
       const moveCol = this.vr.turn;
       const doProcessMove = () => {
         const colorIdx = ["w", "b"].indexOf(moveCol);
         const nextIdx = 1 - colorIdx;
-        if (this.game.mycolor) {
+        if (!!this.game.mycolor && !data.receiveMyMove) {
           // NOTE: 'var' to see that variable outside this block
           var filtered_move = getFilteredMove(move);
         }
         // Send move ("newmove" event) to people in the room (if our turn)
         let addTime = (data && this.game.type == "live") ? data.addTime : 0;
-        if (moveCol == this.game.mycolor) {
+        if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw
             this.drawOffer = "";
@@ -678,18 +734,20 @@ export default {
           }
           const sendMove = {
             move: filtered_move,
+            index: this.game.movesCount,
             addTime: addTime, //undefined for corr games
-            cancelDrawOffer: this.drawOffer == "",
-            // Players' SID required for /mygames page
-            // TODO: precompute and add this field to game object?
-            players: this.game.players.map(p => p.sid)
+            cancelDrawOffer: this.drawOffer == ""
           };
+          this.opponentGotMove = false;
           this.send("newmove", { data: sendMove });
+
+// TODO: setInterval 500ms to 1s (750?) : if !gotMove (with the right index), re-send
+
         }
         // Update current game object (no need for moves stack):
         playMove(move, this.vr);
         this.game.movesCount++;
-        // TODO: notifyTurn
+// TODO: notifyTurn: "changeturn" message
         // (add)Time indication: useful in case of lastate infos requested
         this.game.moves.push(this.game.type == "live"
           ? {move:move, addTime:addTime}
@@ -702,16 +760,15 @@ export default {
         this.game.initime[nextIdx] = (data && data.initime) ? data.initime : Date.now();
         this.re_setClocks();
         // If repetition detected, consider that a draw offer was received:
-        const fenObj = V.ParseFen(this.game.fen);
-        let repIdx = fenObj.position + "_" + fenObj.turn;
-        if (fenObj.flags) repIdx += "_" + fenObj.flags;
-        this.repeat[repIdx] = this.repeat[repIdx] ? this.repeat[repIdx] + 1 : 1;
-        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
+        const fenObj = this.vr.getFenForRepeat();
+        this.repeat[fenObj] = this.repeat[fenObj] ? this.repeat[fenObj] + 1 : 1;
+        if (this.repeat[fenObj] >= 3) this.drawOffer = "threerep";
         else if (this.drawOffer == "threerep") this.drawOffer = "";
         // Since corr games are stored at only one location, update should be
         // done only by one player for each move:
         if (
-          this.game.mycolor &&
+          !!this.game.mycolor &&
+          !data.receiveMyMove &&
           (this.game.type == "live" || moveCol == this.game.mycolor)
         ) {
           let drawCode = "";
@@ -750,8 +807,14 @@ export default {
           }
         }
       };
-      if (this.game.type == "corr" && moveCol == this.game.mycolor) {
+      if (
+        this.game.type == "corr" &&
+        moveCol == this.game.mycolor &&
+        !data.receiveMyMove
+      ) {
         setTimeout(() => {
+          // TODO: remplacer cette confirm box par qqch de plus discret
+          // (et de même pour challenge accepté / refusé)
           if (
             !confirm(
               this.st.tr["Move played:"] +

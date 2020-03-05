@@ -38,6 +38,17 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     );
   }
 
+  getFenForRepeat() {
+    return (
+      this.getBaseFen() + "_" +
+      this.getTurnFen() + "_" +
+      this.getFlagsFen() + "_" +
+      this.getEnpassantFen() + "_" +
+      this.getReserveFen() + "_" +
+      this.getPromotedFen()
+    );
+  }
+
   getReserveFen() {
     let counts = new Array(10);
     for (

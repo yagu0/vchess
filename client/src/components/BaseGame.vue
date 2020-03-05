@@ -274,6 +274,7 @@ export default {
     // Animate an elementary move
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
+      if (!startSquare) return; //shouldn't happen but...
       let endSquare = document.getElementById(getSquareId(move.end));
       let rectStart = startSquare.getBoundingClientRect();
       let rectEnd = endSquare.getBoundingClientRect();

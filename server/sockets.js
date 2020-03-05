@@ -14,7 +14,7 @@ function getJsonFromUrl(url) {
 
 // Helper to safe-send some message through a (web-)socket:
 function send(socket, message) {
-  if (socket && socket.readyState == 1)
+  if (!!socket && socket.readyState == 1)
     socket.send(JSON.stringify(message));
 }
 
@@ -145,7 +145,7 @@ module.exports = function(wss) {
         case "askfullgame": {
           const pg = obj.page || page; //required for askidentity and askgame
           // In cas askfullgame to wrong SID for example, would crash:
-          if (clients[pg] && clients[pg][obj.target]) {
+          if (!!clients[pg] && !!clients[pg][obj.target]) {
             const tmpIds = Object.keys(clients[pg][obj.target]);
             if (obj.target == sid) {
               // Targetting myself
@@ -183,7 +183,30 @@ module.exports = function(wss) {
         case "abort":
         case "drawoffer":
         case "draw":
-          notifyRoom(page, obj.code, {data: obj.data});
+          // TODO: if newmove, change "from" field to fully specified sid + tmpId
+          // ==> allow "gotmove" messages to be fully targetted
+          // Special case re-send newmove only to opponent:
+          if (!!obj.target) {
+            Object.keys(clients[page][obj.target]).forEach(x => {
+              send(
+                clients[page][obj.target][x],
+                {code: "newmove", data: obj.data}
+              );
+            });
+          }
+          else notifyRoom(page, obj.code, {data: obj.data});
+          break;
+
+        case "gotmove":
+          // TODO: should fully specify the target and be included in the last case below
+          if (!!clients[page][obj.target]) {
+            Object.keys(clients[page][obj.target]).forEach(x => {
+              send(
+                clients[pg][obj.target][x],
+                {code: "gotmove", data: obj.data}
+              );
+            });
+          }
           break;
 
         case "result":
@@ -222,8 +245,8 @@ module.exports = function(wss) {
         {
           const pg = obj.target[2] || page; //required for identity and game
           // NOTE: if in game we ask identity to opponent still in Hall,
-          // but leaving Hall, clients[pg] or clients[pg][target] could be ndefined
-          if (clients[pg] && clients[pg][obj.target[0]])
+          // but leaving Hall, clients[pg] or clients[pg][target] could be undefined
+          if (!!clients[pg] && !!clients[pg][obj.target[0]])
             send(clients[pg][obj.target[0]][obj.target[1]], {code:obj.code, data:obj.data});
           break;
         }

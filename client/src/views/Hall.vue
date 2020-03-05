@@ -89,7 +89,7 @@ main
         #players
           p(
             v-for="sid in Object.keys(people)"
-            v-if="people[sid].name"
+            v-if="!!people[sid].name"
           )
             span {{ people[sid].name }}
             button.player-action(
@@ -98,7 +98,7 @@ main
             )
               | {{ st.tr["Observe"] }}
             button.player-action(
-              v-else-if="st.user.id > 0 && sid!=st.user.sid"
+              v-else-if="st.user.id > 0 && sid != st.user.sid"
               @click="challenge(sid)"
             )
               | {{ st.tr["Challenge"] }}
@@ -211,7 +211,7 @@ export default {
     "st.variants": function() {
       // Set potential challenges and games variant names:
       this.challenges.concat(this.games).forEach(o => {
-        if (o.vname == "") o.vname = this.getVname(o.vid);
+        if (!o.vname) o.vname = this.getVname(o.vid);
       });
       if (!this.newchallenge.V && this.newchallenge.vid > 0)
         this.loadNewchallVariant();
@@ -254,7 +254,7 @@ export default {
       let names = {};
       response.challenges.forEach(c => {
         if (c.uid != this.st.user.id) names[c.uid] = "";
-        else if (c.target && c.target != this.st.user.id)
+        else if (!!c.target && c.target != this.st.user.id)
           names[c.target] = "";
       });
       const addChallenges = () => {
@@ -337,7 +337,7 @@ export default {
         document.getElementById("cadence").focus();
     },
     send: function(code, obj) {
-      if (this.conn) {
+      if (!!this.conn) {
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
       }
     },
@@ -367,7 +367,7 @@ export default {
         : document.getElementById("btn" + letter.toUpperCase() + type);
       elt.classList.add("active");
       elt.classList.remove("somethingnew"); //in case of
-      if (elt.previousElementSibling)
+      if (!!elt.previousElementSibling)
         elt.previousElementSibling.classList.remove("active");
       else elt.nextElementSibling.classList.remove("active");
     },
@@ -385,11 +385,11 @@ export default {
       let gids = [];
       this.people[sid].pages.forEach(p => {
         const matchGid = p.match(/[a-zA-Z0-9]+$/);
-        if (matchGid) gids.push(matchGid[0]);
+        if (!!matchGid) gids.push(matchGid[0]);
       });
       const gid = gids[Math.floor(Math.random() * gids.length)];
       const game = this.games.find(g => g.id == gid);
-      if (game) this.showGame(game);
+      if (!!game) this.showGame(game);
       else this.$router.push("/game/" + gid); //game vs. me
     },
     showGame: function(g) {
@@ -524,21 +524,19 @@ export default {
             name: user.name,
             pages: this.people[user.sid].pages
           });
-          if (user.name) {
-            // If I multi-connect, kill current connexion if no mark (I'm older)
+          // If I multi-connect, kill current connexion if no mark (I'm older)
+          if (this.newConnect[user.sid]) {
             if (
-              this.newConnect[user.sid] &&
               user.id > 0 &&
               user.id == this.st.user.id &&
-              user.sid != this.st.user.sid
+              user.sid != this.st.user.sid &&
+              !this.killed[this.st.user.sid]
             ) {
-              if (!this.killed[this.st.user.sid]) {
                 this.send("killme", { sid: this.st.user.sid });
                 this.killed[this.st.user.sid] = true;
-              }
             }
+            delete this.newConnect[user.sid];
           }
-          delete this.newConnect[user.sid];
           break;
         }
         case "askchallenge": {
@@ -642,7 +640,7 @@ export default {
         }
         case "result": {
           let g = this.games.find(g => g.id == data.gid);
-          if (g) g.score = data.score;
+          if (!!g) g.score = data.score;
           break;
         }
         case "startgame": {
@@ -683,7 +681,7 @@ export default {
       const vModule = await import("@/variants/" + vname + ".js");
       this.newchallenge.V = vModule.VariantRules;
       this.newchallenge.vname = vname;
-      if (cb)
+      if (!!cb)
         cb();
     },
     trySetNewchallDiag: function() {
@@ -695,7 +693,7 @@ export default {
       window.V = this.newchallenge.V;
       if (
         this.newchallenge.vid > 0 &&
-        this.newchallenge.fen &&
+        !!this.newchallenge.fen &&
         V.IsGoodFen(this.newchallenge.fen)
       ) {
         const parsedFen = V.ParseFen(this.newchallenge.fen);
@@ -715,7 +713,7 @@ export default {
         error = this.st.tr["Please select a variant"];
       else if (ctype == "corr" && this.st.user.id <= 0)
         error = this.st.tr["Please log in to play correspondance games"];
-      else if (this.newchallenge.to) {
+      else if (!!this.newchallenge.to) {
         if (this.newchallenge.to == this.st.user.name)
           error = this.st.tr["Self-challenge is forbidden"];
         else if (
@@ -810,7 +808,7 @@ export default {
         this.launchGame(c);
       } else {
         const oppsid = this.getOppsid(c);
-        if (oppsid)
+        if (!!oppsid)
           this.send("refusechallenge", { data: c.id, target: oppsid });
         if (c.type == "corr")
           ajax("/challenges", "DELETE", { id: c.id });
@@ -829,9 +827,9 @@ export default {
         c.accepted = true;
         const vModule = await import("@/variants/" + c.vname + ".js");
         window.V = vModule.VariantRules;
-        if (c.to) {
+        if (!!c.to) {
           // c.to == this.st.user.name (connected)
-          if (c.fen) {
+          if (!!c.fen) {
             const parsedFen = V.ParseFen(c.fen);
             c.mycolor = V.GetOppCol(parsedFen.turn);
             this.tchallDiag = getDiagram({
@@ -874,7 +872,7 @@ export default {
       };
       const notifyNewgame = () => {
         const oppsid = this.getOppsid(c);
-        if (oppsid)
+        if (!!oppsid)
           //opponent is online
           this.send("startgame", { data: gameInfo, target: oppsid });
         // Send game info (only if live) to everyone except me in this tab

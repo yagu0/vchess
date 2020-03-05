@@ -126,11 +126,12 @@ export const VariantRules = class AliceRules extends ChessRules {
       // If the move is computed on board1, m.appear change for Alice pieces.
       if (mirrorSide == 1) {
         m.appear.forEach(psq => {
-          //forEach: castling taken into account
+          // forEach: castling taken into account
           psq.p = V.ALICE_CODES[psq.p]; //goto board2
         });
-      } //move on board2: mark vanishing pieces as Alice
+      }
       else {
+        // Move on board2: mark vanishing pieces as Alice
         m.vanish.forEach(psq => {
           psq.p = V.ALICE_CODES[psq.p];
         });

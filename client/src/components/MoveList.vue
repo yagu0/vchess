@@ -138,12 +138,12 @@ export default {
     border-bottom: 1px solid lightgrey
     & > .td
       float: left
-      padding: 2% 0 2% 1%
+      padding: 2% 0 2% 2%
       &:first-child
         color: grey
-        width: 15%
+        width: 13%
       &:not(first-child)
-        width: 41%
+        width: 40.5%
 
 @media screen and (max-width: 767px)
   .moves-list

@@ -39,6 +39,16 @@ export const VariantRules = class GrandRules extends ChessRules {
     return super.getFen() + " " + this.getCapturedFen();
   }
 
+  getFenForRepeat() {
+    return (
+      this.getBaseFen() + "_" +
+      this.getTurnFen() + "_" +
+      this.getFlagsFen() + "_" +
+      this.getEnpassantFen() + "_" +
+      this.getCapturedFen()
+    );
+  }
+
   getCapturedFen() {
     let counts = [...Array(14).fill(0)];
     let i = 0;

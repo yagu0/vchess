@@ -92,8 +92,7 @@ export default {
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
-      // Only event is newmove, and received only:
-      if (data.code == "newmove") {
+      if (data.code == "changeturn") {
         let games = !!parseInt(data.gid)
           ? this.corrGames
           : this.liveGames;

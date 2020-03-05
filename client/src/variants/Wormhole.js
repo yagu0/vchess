@@ -154,16 +154,16 @@ export const VariantRules = class WormholeRules extends ChessRules {
       }
     }
     // Captures
-    const finalPieces = x + shiftX == lastRank
-      ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-      : [V.PAWN];
     for (let shiftY of [-1, 1]) {
       const sq = this.getSquareAfter([x,y], [shiftX,shiftY]);
       if (
-        sq &&
+        !!sq &&
         this.board[sq[0]][sq[1]] != V.EMPTY &&
         this.canTake([x, y], [sq[0], sq[1]])
       ) {
+        const finalPieces = sq[0] == lastRank
+          ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+          : [V.PAWN];
         for (let piece of finalPieces) {
           moves.push(
             this.getBasicMove([x, y], [sq[0], sq[1]], {
@@ -295,7 +295,7 @@ export const VariantRules = class WormholeRules extends ChessRules {
     const piece = this.getPiece(move.start.x, move.start.y);
     // Indicate start square + dest square, because holes distort the board
     let notation =
-      piece.toUpperCase() +
+      (piece != V.PAWN ? piece.toUpperCase() : "") +
       V.CoordsToSquare(move.start) +
       (move.vanish.length > move.appear.length ? "x" : "") +
       V.CoordsToSquare(move.end);

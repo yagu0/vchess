@@ -197,12 +197,13 @@ export const ChessRules = class ChessRules {
     const move = moveOrSquare;
     const s = move.start,
           e = move.end;
-    // NOTE: next conditions are first for Atomic, and last for Checkered
+    // NOTE: next conditions are first for Crazyhouse, and last for Checkered
+    // TODO: Checkered exceptions are too weird and should move in its own file.
     if (
-      move.appear.length > 0 &&
+      move.vanish.length > 0 &&
       Math.abs(s.x - e.x) == 2 &&
       s.y == e.y &&
-      move.appear[0].p == V.PAWN &&
+      move.vanish[0].p == V.PAWN &&
       ["w", "b"].includes(move.appear[0].c)
     ) {
       return {
@@ -319,13 +320,21 @@ export const ChessRules = class ChessRules {
   // Return current fen (game state)
   getFen() {
     return (
-      this.getBaseFen() +
-      " " +
-      this.getTurnFen() +
-      " " +
+      this.getBaseFen() + " " +
+      this.getTurnFen() + " " +
       this.movesCount +
       (V.HasFlags ? " " + this.getFlagsFen() : "") +
       (V.HasEnpassant ? " " + this.getEnpassantFen() : "")
+    );
+  }
+
+  getFenForRepeat() {
+    // Omit movesCount, only variable allowed to differ
+    return (
+      this.getBaseFen() + "_" +
+      this.getTurnFen() +
+      (V.HasFlags ? "_" + this.getFlagsFen() : "") +
+      (V.HasEnpassant ? "_" + this.getEnpassantFen() : "")
     );
   }
 
