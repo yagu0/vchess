@@ -241,6 +241,22 @@ export default {
         (color == "b" && movesCount % 2 == 1);
       this.send("turnchange", { target: sid, yourTurn: yourTurn });
     },
+    askGameAgain: function() {
+      this.gameIsLoading = true;
+      if (!this.gameRef.rid)
+        // This is my game: just reload.
+        this.loadGame();
+      else {
+        // Just ask fullgame again (once!), this is much simpler.
+        // If this fails, the user could just reload page :/
+        let self = this;
+        (function askIfPeerConnected() {
+          if (!!self.people[self.gameRef.rid])
+            self.send("askfullgame", { target: self.gameRef.rid });
+          else setTimeout(askIfPeerConnected, 1000);
+        })();
+      }
+    },
     socketMessageListener: function(msg) {
       if (!this.conn) return;
       const data = JSON.parse(msg.data);
@@ -399,23 +415,10 @@ export default {
           const movesCount = this.game.moves.length;
           if (movePlus.index > movesCount) {
             // This can only happen if I'm an observer and missed a move.
-            if (!this.gameIsLoading) {
-              this.gameIsLoading = true;
-              if (!this.gameRef.rid)
-                // This is my game: just reload.
-                this.loadGame();
-              else {
-                // Just ask fullgame again (once!), this is much simpler.
-                // If this fails, the user could just reload page :/
-                let self = this;
-                (function askIfPeerConnected() {
-                  if (!!self.people[self.gameRef.rid])
-                    self.send("askfullgame", { target: self.gameRef.rid });
-                  else setTimeout(askIfPeerConnected, 1000);
-                })();
-              }
-            }
-          } else {
+            this.gotMoveIdx = movePlus.index;
+            if (!this.gameIsLoading) this.askGameAgain();
+          }
+          else {
             if (
               movePlus.index < movesCount ||
               this.gotMoveIdx >= movePlus.index
@@ -672,7 +675,12 @@ export default {
           // Did lastate arrive before game was rendered?
           if (this.lastate) this.processLastate();
         });
-        this.gameIsLoading = false;
+        if (this.gameIsLoading) {
+          this.gameIsLoading = false;
+          if (this.gotMoveIdx >= game.moves.length)
+            // Some moves arrived meanwhile...
+            this.askGameAgain();
+        }
         if (!!callback) callback();
       };
       if (!!game) {
