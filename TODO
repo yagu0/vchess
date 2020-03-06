@@ -1,4 +1,4 @@
-# Functionality:
+# Enhancements:
 On Game page "mconnect" events =>
   send lastate to them (because they have the game infos) or just "your turn" - if their turn
   remember them to send next "newmove" (or just "it's your turn") later - if not their turn
@@ -6,16 +6,27 @@ On Game page "mconnect" events =>
 From MyGames page: send "mconnect" to all online players (me included: potential multi-tabs)
   When quit, send mdisconnect (relayed by server if no other MyGames tab).
 
-# Misc:
 Rematch button (change colors, re-apply randomness params (which should be saved somehow somewhere))
   --> need a bit more duplicated logic: in Game page, listen for newgame, and add a "launchGame" function
 Will need a 'rematch' field in Game on server
 
+Put reserve pieces above and below the board. Center them.
+Show count of remaining units as a red digit printed on the piece
+(can it reach 10? theoretically yes... but then maybe we can just show "0" ?)
+Grey "disabled" style for reserve pieces if none available.
+
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
-https://www.chessvariants.com/rules/8-piece-chess
-Eightpieces : non-symmetric
-Sym8pieces : symmetric (960)
+https://www.chessvariants.com/rules/8-piece-chess "Eightpieces"
+
+"Capture" Chess (idea of opperwezen, maybe not new): captures are forced,
+but the goal is still to checkmate (not lose all material).
+
+Cannibal Chess with forced captures.
+
+Knightrelay: implement "official" version as Knightrelay v1
+
+Antiking: implement v1 (deterministic) https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html
 
 Generator vatiant, called "Matrix" ?
 Peces on first rank never move but generate new pieces. Pawn don't generate.
@@ -26,6 +37,16 @@ Goal is still checkmate.
 Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
 If a pawn taken: direction of the capturer.
 
-+ Maxima, Interweave, Roccoco, Dynamo, Synchrone, Cannibal (force captures)
++ Maxima, Interweave, Roccoco, Dynamo, Synchrone
 
 S-chess https://en.wikipedia.org/wiki/Seirawan_chess
+
+"Ball" Chess: 9x9 board, ball on center square. 2 queens ?
+To take the ball when it's free you need to capture it.
+To take the ball when it's used, u need to take the piece.
+Goal: bring ball to final rank.
+Possibles passes : soit à une pièce, soit sur une case.
+  --> remplace un déplacement de pièce. Par exemple pion a2 passe à cavalier a4 = 1 coup.
+  --> selon le mode de déplacement standard (donc tout droit pour les pions)
+Pas de notion d'échec ou de mat (?)
+Si une pièce est mat elle donne le ballon (?)
