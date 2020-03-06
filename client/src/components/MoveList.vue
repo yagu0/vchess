@@ -108,13 +108,12 @@ export default {
       if (window.innerWidth <= 767) return; //scrolling would hide chessboard
       // $nextTick to wait for table > tr to be rendered
       this.$nextTick(() => {
-        let curLine = document.querySelector(".td.highlight-lm");
-        if (!!curLine) curLine = curLine.parentNode;
-        if (!curLine && this.moves.length > 0)
+        let curMove = document.querySelector(".td.highlight-lm");
+        if (!curMove && this.moves.length > 0)
           // Cursor is before game beginning, and some moves were made:
-          curLine = document.querySelector(".moves-list .tr:first-child")
-        if (!!curLine) {
-          curLine.scrollIntoView({
+          curMove = document.querySelector(".moves-list > .tr:first-child > .td");
+        if (!!curMove) {
+          curMove.scrollIntoView({
             behavior: "auto",
             block: "nearest"
           });
