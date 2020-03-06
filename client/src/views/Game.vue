@@ -232,8 +232,12 @@ export default {
     isConnected: function(index) {
       const player = this.game.players[index];
       // Is it me ?
-      if (this.st.user.sid == player.sid || this.st.user.id == player.uid)
+      if (
+        (this.st.user.sid == player.sid || this.st.user.id == player.uid) &&
+        (!this.st.user.name || this.st.user.name == player.name)
+      ) {
         return true;
+      }
       // Try to find a match in people:
       return (
         (
