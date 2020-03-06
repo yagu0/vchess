@@ -37,8 +37,12 @@ export default {
       let augmentedChalls = this.challenges.map(c => {
         let priority = 0;
         if (!!c.to && c.to == this.st.user.name) priority = 1;
-        else if (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
+        else if (
+          c.from.sid == this.st.user.sid ||
+          (c.from.id > 0 && c.from.id == this.st.user.id)
+        ) {
           priority = 2;
+        }
         if (c.added < minAdded) minAdded = c.added;
         if (c.added > maxAdded) maxAdded = c.added;
         return Object.assign({}, c, { priority: priority });

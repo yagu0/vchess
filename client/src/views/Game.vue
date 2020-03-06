@@ -246,7 +246,7 @@ export default {
     notifyTurn: function(sid) {
       const player = this.people[sid];
       const colorIdx = this.game.players.findIndex(
-        p => p.sid == sid || p.id == player.id);
+        p => p.sid == sid || p.uid == player.id);
       const color = ["w","b"][colorIdx];
       const movesCount = this.game.moves.length;
       const yourTurn =
