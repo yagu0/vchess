@@ -188,6 +188,11 @@ img.inline
   @media screen and (max-width: 767px)
     height: 18px
 
+#scoreInfo
+  margin: 10px 0
+  @media screen and (max-width: 767px)
+    margin: 5px 0
+
 span.score
   display: inline-block
   margin-left: 10px
