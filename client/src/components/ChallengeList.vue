@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  table
+  table(v-if="challenges.length > 0")
     thead
       tr
         th {{ st.tr["Variant"] }}
@@ -17,6 +17,8 @@ div
         td {{ withWho(c) }}
         td {{ c.cadence }}
         td(:class="getRandomnessClass(c)")
+  p(v-else)
+    | {{ st.tr["No challenges found :( Click on 'New game'!"] }}
 </template>
 
 <script>
@@ -69,6 +71,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+p
+  text-align: center
+  font-weight: bold
+
 // NOTE: the style applied to <tr> element doesn't work
 tr.fromyou > td
   font-style: italic

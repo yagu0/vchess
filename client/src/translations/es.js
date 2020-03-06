@@ -76,6 +76,8 @@ export const translations = {
   "New game": "Nueva partida",
   "New problem": "Nuevo problema",
   News: "Noticias",
+  "No challenges found :( Click on 'New game'!": "No se encontró ningún desafío :( ¡Haz clic en 'Nueva partida'!",
+  "No games found :( Send a challenge!": "No se encontró partidas :( ¡Envía un desafío!",
   "No more problems": "No mas problemas",
   "No subject. Send anyway?": "Sin asunto. ¿Enviar sin embargo?",
   "Notifications by email": "Notificaciones por email",

@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  table.game-list
+  table.game-list(v-if="games.length > 0")
     thead
       tr
         th {{ st.tr["Variant"] }}
@@ -21,6 +21,8 @@ div
           @click="deleteGame(g,$event)"
         )
           | {{ g.score }}
+  p(v-else)
+    | {{ st.tr["No games found :( Send a challenge!"] }}
 </template>
 
 <script>
@@ -157,6 +159,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+p
+  text-align: center
+  font-weight: bold
+
 // NOTE: the style applied to <tr> element doesn't work
 tr.my-turn > td
   background-color: #fcd785
