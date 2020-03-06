@@ -387,7 +387,20 @@ export default {
           }
           break;
         case "askfullgame":
-          this.send("fullgame", { data: this.game, target: data.from });
+          const gameToSend = Object.keys(this.game)
+            .filter(k =>
+              [
+                "id","fen","players","vid","cadence","fenStart","vname",
+                "moves","clocks","initime","score","drawOffer"
+              ].includes(k))
+            .reduce(
+              (obj, k) => {
+                obj[k] = this.game[k];
+                return obj;
+              },
+              {}
+            );
+          this.send("fullgame", { data: gameToSend, target: data.from });
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
@@ -641,7 +654,7 @@ export default {
             }
           }
         }
-        if (game.drawOffer) {
+        if (!!game.drawOffer) {
           if (game.drawOffer == "t")
             // Three repetitions
             this.drawOffer = "threerep";
