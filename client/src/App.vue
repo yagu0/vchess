@@ -193,11 +193,14 @@ nav
     border: none
     & > label.drawer-toggle
       cursor: pointer
-      font-size: 32px
       position: absolute
-      top: 5px
-      line-height: 1em
+      top: 0
+      left: 5px
+      line-height: 42px
+      height: 42px
       padding: 0
+    & > label.drawer-toggle:before
+      font-size: 42px
     & > #menuBar
       z-index: 5000 //to hide currently selected piece if any
 
@@ -206,14 +209,14 @@ nav
 
 [type=checkbox].drawer+* .drawer-close
   top: 0
-  left: 10px
+  left: 5px
   padding: 0
-  width: 42px
-  height: 42px
+  height: 50px
+  width: 50px
+  line-height: 50px
 
 [type=checkbox].drawer+* .drawer-close:before
   font-size: 50px
-  line-height: 1em
 
 @media screen and (max-width: 767px)
   .button-group

@@ -87,12 +87,13 @@ export default {
       orientation: "w",
       score: "*", //'*' means 'unfinished'
       moves: [],
-      // TODO: later, use subCursor to navigate intra-multimoves?
       cursor: -1, //index of the move just played
       lastMove: null,
       firstMoveNumber: 0, //for printing
       incheck: [], //for Board
-      inMultimove: false
+      inMultimove: false,
+      inPlay: false,
+      stackToPlay: []
     };
   },
   watch: {
@@ -316,8 +317,15 @@ export default {
       }
     },
     // "light": if gotoMove() or gotoEnd()
-    // data: some custom data (addTime) to be re-emitted
-    play: function(move, received, light, data) {
+    play: function(move, received, light, noemit) {
+      if (!!noemit) {
+        if (this.inPlay) {
+          // Received moves in observed games can arrive too fast:
+          this.stackToPlay.unshift(move);
+          return;
+        }
+        this.inPlay = true;
+      }
       const navigate = !move;
       const playSubmove = (smove) => {
         if (!navigate) smove.notation = this.vr.getNotation(smove);
@@ -384,8 +392,15 @@ export default {
           }
           if (!navigate && this.game.mode != "analyze") {
             const L = this.moves.length;
-            // Post-processing (e.g. computer play)
-            this.$emit("newmove", this.moves[L-1], data);
+            if (!noemit)
+              // Post-processing (e.g. computer play)
+              this.$emit("newmove", this.moves[L-1]);
+            else {
+              this.inPlay = false;
+              if (this.stackToPlay.length > 0)
+                // Move(s) arrived in-between
+                this.play(this.stackToPlay.pop(), received, light, noemit);
+            }
           }
         }
       };

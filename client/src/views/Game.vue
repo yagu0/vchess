@@ -51,11 +51,23 @@ main
         p
           span.name(:class="{connected: isConnected(0)}")
             | {{ game.players[0].name || "@nonymous" }}
-          span.time(v-if="game.score=='*'") {{ virtualClocks[0] }}
+          span.time(
+            v-if="game.score=='*'"
+            :class="{yourturn: !!vr && vr.turn == 'w'}"
+          )
+            span.time-left {{ virtualClocks[0][0] }}
+            span.time-separator(v-if="!!virtualClocks[0][1]") :
+            span.time-right(v-if="!!virtualClocks[0][1]") {{ virtualClocks[0][1] }}
           span.split-names -
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
-          span.time(v-if="game.score=='*'") {{ virtualClocks[1] }}
+          span.time(
+            v-if="game.score=='*'"
+            :class="{yourturn: !!vr && vr.turn == 'b'}"
+          )
+            span.time-left {{ virtualClocks[1][0] }}
+            span.time-separator(v-if="!!virtualClocks[1][1]") :
+            span.time-right(v-if="!!virtualClocks[1][1]") {{ virtualClocks[1][1] }}
   BaseGame(
     ref="basegame"
     :game="game"
@@ -100,7 +112,7 @@ export default {
         chats: [],
         rendered: false
       },
-      virtualClocks: [0, 0], //initialized with true game.clocks
+      virtualClocks: [[0,0], [0,0]], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
       people: {}, //players + observers
@@ -111,6 +123,7 @@ export default {
       conn: null,
       roomInitialized: false,
       // If newmove has wrong index: ask fullgame again:
+      askGameTime: 0,
       gameIsLoading: false,
       // If asklastate got no reply, ask again:
       gotLastate: false,
@@ -243,19 +256,26 @@ export default {
     },
     askGameAgain: function() {
       this.gameIsLoading = true;
-      if (!this.gameRef.rid)
-        // This is my game: just reload.
-        this.loadGame();
-      else {
-        // Just ask fullgame again (once!), this is much simpler.
-        // If this fails, the user could just reload page :/
-        let self = this;
-        (function askIfPeerConnected() {
-          if (!!self.people[self.gameRef.rid])
-            self.send("askfullgame", { target: self.gameRef.rid });
-          else setTimeout(askIfPeerConnected, 1000);
-        })();
-      }
+      const doAskGame = () => {
+        if (!this.gameRef.rid)
+          // This is my game: just reload.
+          this.loadGame();
+        else {
+          // Just ask fullgame again (once!), this is much simpler.
+          // If this fails, the user could just reload page :/
+          let self = this;
+          (function askIfPeerConnected() {
+            if (!!self.people[self.gameRef.rid])
+              self.send("askfullgame", { target: self.gameRef.rid });
+            else setTimeout(askIfPeerConnected, 1000);
+          })();
+        }
+      };
+      // Delay of at least 2s between two game requests
+      const now = Date.now();
+      const delay = Math.max(2000 - (now - this.askGameTime), 0);
+      this.askGameTime = now;
+      setTimeout(doAskGame, delay);
     },
     socketMessageListener: function(msg) {
       if (!this.conn) return;
@@ -341,7 +361,7 @@ export default {
                     if (!self.gotLastate && !!self.people[user.sid])
                       askLastate();
                   },
-                  750
+                  1000
                 );
               })();
             }
@@ -415,7 +435,8 @@ export default {
           const movesCount = this.game.moves.length;
           if (movePlus.index > movesCount) {
             // This can only happen if I'm an observer and missed a move.
-            this.gotMoveIdx = movePlus.index;
+            if (this.gotMoveIdx < movePlus.index)
+              this.gotMoveIdx = movePlus.index;
             if (!this.gameIsLoading) this.askGameAgain();
           }
           else {
@@ -444,10 +465,9 @@ export default {
                   GameStorage.update(this.gameRef.id, { drawOffer: "" });
                 }
               }
-              this.$refs["basegame"].play(
+              this.$refs["basegame"].play(movePlus.move, "received", null, true);
+              this.processMove(
                 movePlus.move,
-                "received",
-                null,
                 {
                   addTime: movePlus.addTime,
                   receiveMyMove: receiveMyMove
@@ -667,7 +687,7 @@ export default {
         );
         if (this.gameIsLoading)
           // Re-load game because we missed some moves:
-          // artificially reset BaseGame (required if moves arrive too quickly)
+          // artificially reset BaseGame (required if moves arrived in wrong order)
           this.$refs["basegame"].re_setVariables();
         this.re_setClocks();
         this.$nextTick(() => {
@@ -699,7 +719,7 @@ export default {
     re_setClocks: function() {
       if (this.game.moves.length < 2 || this.game.score != "*") {
         // 1st move not completed yet, or game over: freeze time
-        this.virtualClocks = this.game.clocks.map(s => ppt(s));
+        this.virtualClocks = this.game.clocks.map(s => ppt(s).split(':'));
         return;
       }
       const currentTurn = this.vr.turn;
@@ -711,7 +731,7 @@ export default {
       this.virtualClocks = [0, 1].map(i => {
         const removeTime =
           i == colorIdx ? (Date.now() - this.game.initime[colorIdx]) / 1000 : 0;
-        return ppt(this.game.clocks[i] - removeTime);
+        return ppt(this.game.clocks[i] - removeTime).split(':');
       });
       let clockUpdate = setInterval(() => {
         if (
@@ -729,11 +749,11 @@ export default {
           this.$set(
             this.virtualClocks,
             colorIdx,
-            ppt(Math.max(0, --countdown))
+            ppt(Math.max(0, --countdown)).split(':')
           );
       }, 1000);
     },
-    // Post-process a (potentially partial) move (which was just played in BaseGame)
+    // Update variables and storage after a move:
     processMove: function(move, data) {
       if (!data) data = {};
       const moveCol = this.vr.turn;
@@ -809,15 +829,21 @@ export default {
               drawOffer: drawCode || "n"
             });
           }
-          else if (!document.hidden) {
-            // Live game: consider only the active tab
-            GameStorage.update(this.gameRef.id, {
-              fen: this.game.fen,
-              move: filtered_move,
-              clocks: this.game.clocks,
-              initime: this.game.initime,
-              drawOffer: drawCode
-            });
+          else {
+            const updateStorage = () => {
+              GameStorage.update(this.gameRef.id, {
+                fen: this.game.fen,
+                move: filtered_move,
+                moveIdx: origMovescount,
+                clocks: this.game.clocks,
+                initime: this.game.initime,
+                drawOffer: drawCode
+              });
+            };
+            // The active tab can update storage immediately
+            if (!document.hidden) updateStorage();
+            // Small random delay otherwise
+            else setTimeout(updateStorage, 500 + 1000 * Math.random());
           }
         }
         // Send move ("newmove" event) to people in the room (if our turn)
@@ -833,22 +859,25 @@ export default {
           this.opponentGotMove = false;
           this.send("newmove", {data: sendMove});
           // If the opponent doesn't reply gotmove soon enough, re-send move:
-          let retrySendmove = setInterval( () => {
-            if (this.opponentGotMove) {
-              clearInterval(retrySendmove);
-              return;
-            }
-            let oppsid = this.game.players[nextIdx].sid;
-            if (!oppsid) {
-              oppsid = Object.keys(this.people).find(
-                sid => this.people[sid].id == this.game.players[nextIdx].uid
-              );
-            }
-            if (!oppsid || !this.people[oppsid])
-              // Opponent is disconnected: he'll ask last state
-              clearInterval(retrySendmove);
-            else this.send("newmove", {data: sendMove, target: oppsid});
-          }, 750);
+          let retrySendmove = setInterval(
+            () => {
+              if (this.opponentGotMove) {
+                clearInterval(retrySendmove);
+                return;
+              }
+              let oppsid = this.game.players[nextIdx].sid;
+              if (!oppsid) {
+                oppsid = Object.keys(this.people).find(
+                  sid => this.people[sid].id == this.game.players[nextIdx].uid
+                );
+              }
+              if (!oppsid || !this.people[oppsid])
+                // Opponent is disconnected: he'll ask last state
+                clearInterval(retrySendmove);
+              else this.send("newmove", {data: sendMove, target: oppsid});
+            },
+            1000
+          );
         }
       };
       if (
@@ -939,14 +968,29 @@ export default {
   font-weight: bold
   padding-right: 10px
 
-.name
+span.name
   font-size: 1.5rem
-  padding: 1px
+  padding: 0 3px
 
-.time
+span.time
   font-size: 2rem
   display: inline-block
-  margin-left: 10px
+  .time-left
+    margin-left: 10px
+  .time-right
+    margin-left: 5px
+  .time-separator
+    margin-left: 5px
+    position: relative
+    top: -1px
+
+span.yourturn
+  color: #831B1B
+  .time-separator
+    animation: blink-animation 2s steps(3, start) infinite
+@keyframes blink-animation
+  to
+    visibility: hidden
 
 .split-names
   display: inline-block

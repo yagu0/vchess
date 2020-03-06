@@ -84,6 +84,8 @@ export const GameStorage = {
           // Ignoring error silently: shouldn't happen now. TODO?
           if (event.target.result) {
             let game = event.target.result;
+            // Hidden tabs are delayed, to prevent multi-updates:
+            if (obj.moveIdx < game.moves.length) return;
             Object.keys(obj).forEach(k => {
               if (k == "move") game.moves.push(obj[k]);
               else game[k] = obj[k];

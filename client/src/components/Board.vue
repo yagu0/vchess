@@ -48,7 +48,10 @@ export default {
     });
 
     const lm = this.lastMove;
-    const showLight = this.settings.highlight && V.ShowMoves == "all";
+    const showLight = (
+      this.settings.highlight &&
+      ["all","highlight"].includes(V.ShowMoves)
+    );
     const orientation = !V.CanFlip ? "w" : this.orientation;
     // Ensure that squares colors do not change when board is flipped
     const lightSquareMod = (sizeX + sizeY) % 2;

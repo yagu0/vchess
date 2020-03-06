@@ -16,9 +16,9 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return false;
   }
 
-  // Moves are revealed only when game ends
+  // Moves are revealed only when game ends, but are highlighted on board
   static get ShowMoves() {
-    return "none";
+    return "highlight";
   }
 
   static get HIDDEN_DECODE() {

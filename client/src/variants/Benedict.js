@@ -290,4 +290,15 @@ export const VariantRules = class BenedictRules extends ChessRules {
     // Stalemate:
     return "1/2";
   }
+
+  getNotation(move) {
+    // Just remove flips:
+    const basicMove = {
+      appear: [move.appear[0]],
+      vanish: [move.vanish[0]],
+      start: move.start,
+      end: move.end
+    };
+    return super.getNotation(basicMove);
+  }
 };
