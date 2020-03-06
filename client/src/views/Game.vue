@@ -540,7 +540,7 @@ export default {
         this.gameOver("1/2", message);
       } else if (this.drawOffer == "") {
         // No effect if drawOffer == "sent"
-        if (!!this.game.mycolor != this.vr.turn) {
+        if (this.game.mycolor != this.vr.turn) {
           alert(this.st.tr["Draw offer only in your turn"]);
           return;
         }
