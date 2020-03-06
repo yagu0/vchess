@@ -9,7 +9,6 @@ From MyGames page: send "mconnect" to all online players (me included: potential
 # Misc:
 Rematch button (change colors, re-apply randomness params (which should be saved somehow somewhere))
   --> need a bit more duplicated logic: in Game page, listen for newgame, and add a "launchGame" function
-Next button in corr game (only if accessed from "MyGames" tab, by giving list of gids)
 
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s

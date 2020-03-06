@@ -30,23 +30,41 @@ main
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       span.variant-cadence {{ game.cadence }}
       span.variant-name {{ game.vname }}
-      button#chatBtn(onClick="window.doClick('modalChat')") Chat
+      span#nextGame(
+        v-if="nextIds.length > 0"
+        @click="showNextGame()"
+      )
+        | {{ st.tr["Next_g"] }}
+      button#chatBtn.tooltip(
+        onClick="window.doClick('modalChat')"
+        aria-label="Chat"
+      )
+        img(src="/images/icons/chat.svg")
       #actions(v-if="game.score=='*'")
-        button(
+        button.tooltip(
           @click="clickDraw()"
           :class="{['draw-' + drawOffer]: true}"
+          :aria-label="st.tr['Draw']"
         )
-          | {{ st.tr["Draw"] }}
-        button(
+          img(src="/images/icons/draw.svg")
+        button.tooltip(
           v-if="!!game.mycolor"
           @click="abortGame()"
+          :aria-label="st.tr['Abort']"
         )
-          | {{ st.tr["Abort"] }}
-        button(
+          img(src="/images/icons/abort.svg")
+        button.tooltip(
           v-if="!!game.mycolor"
           @click="resign()"
+          :aria-label="st.tr['Resign']"
         )
-          | {{ st.tr["Resign"] }}
+          img(src="/images/icons/resign.svg")
+      button.tooltip(
+        v-else-if="!!game.mycolor"
+        @click="rematch()"
+        :aria-label="st.tr['Rematch']"
+      )
+        img(src="/images/icons/rematch.svg")
       #playersInfo
         p
           span.name(:class="{connected: isConnected(0)}")
@@ -112,6 +130,7 @@ export default {
         chats: [],
         rendered: false
       },
+      nextIds: [],
       virtualClocks: [[0,0], [0,0]], //initialized with true game.clocks
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
@@ -149,7 +168,11 @@ export default {
     const my = this.st.user;
     this.$set(this.people, my.sid, { id: my.id, name: my.name });
     this.gameRef.id = this.$route.params["id"];
-    this.gameRef.rid = this.$route.query["rid"]; //may be undefined
+    // rid = remote ID to find an observed live game,
+    // next = next corr games IDs to navigate faster
+    // (Both might be undefined)
+    this.gameRef.rid = this.$route.query["rid"];
+    this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
     // Initialize connection
     this.connexionString =
       params.socketUrl +
@@ -253,6 +276,18 @@ export default {
         (color == "w" && movesCount % 2 == 0) ||
         (color == "b" && movesCount % 2 == 1);
       this.send("turnchange", { target: sid, yourTurn: yourTurn });
+    },
+    showNextGame: function() {
+      // Did I play in current game? If not, add it to nextIds list
+      if (this.game.score == "*" && this.vr.turn == this.game.mycolor)
+        this.nextIds.unshift(this.game.id);
+      const nextGid = this.nextIds.pop();
+      this.$router.push(
+        "/game/" + nextGid + "/?next=" + JSON.stringify(this.nextIds));
+    },
+    rematch: function() {
+      alert("Unimplemented yet (soon :) )");
+      // TODO: same logic as for draw, but re-click remove rematch offer (toggle)
     },
     askGameAgain: function() {
       this.gameIsLoading = true;
@@ -602,10 +637,10 @@ export default {
           }
           // NOTE: clocks in seconds, initime in milliseconds
           game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
+          game.clocks = [tc.mainTime, tc.mainTime];
           const L = game.moves.length;
           if (game.score == "*") {
             // Set clocks + initime
-            game.clocks = [tc.mainTime, tc.mainTime];
             game.initime = [0, 0];
             if (L >= 1) {
               const gameLastupdate = game.moves[L-1].played;
@@ -963,9 +998,16 @@ export default {
 #actions
   display: inline-block
   margin: 0
-  button
-    display: inline-block
-    margin: 0
+
+button
+  display: inline-block
+  margin: 0
+  display: inline-flex
+  img
+    height: 24px
+    display: flex
+    @media screen and (max-width: 767px)
+      height: 18px
 
 @media screen and (max-width: 767px)
   #aboveBoard
@@ -980,6 +1022,12 @@ export default {
 .variant-name
   font-weight: bold
   padding-right: 10px
+
+span#nextGame
+  background-color: #edda99
+  cursor: pointer
+  display: inline-block
+  margin-right: 10px
 
 span.name
   font-size: 1.5rem
@@ -1013,9 +1061,6 @@ span.yourturn
   padding-top: 20px
   max-width: 767px
   border: none;
-
-#chatBtn
-  margin: 0 10px 0 0
 
 .draw-sent, .draw-sent:hover
   background-color: lightyellow

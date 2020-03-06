@@ -15,12 +15,34 @@ div
         value="50"
         @input="adjustBoard()"
       )
-  div#boardSizeBtnContainer
-    button#boardSizeBtn(onClick="window.doClick('modalAdjust')")
-      | {{ st.tr["Set board size"] }}
+  #aboveMoves
+    // NOTE: variants pages already have a "Rules" link on top
+    span#rulesBtn(
+      v-if="!$route.path.match('/variants/')"
+      @click="$emit('showrules')"
+    )
+      | {{ st.tr["Rules"] }}
+    button.tooltip(
+      onClick="window.doClick('modalAdjust')"
+      :aria-label="st.tr['Resize board']"
+    )
+      img.inline(src="/images/icons/resize.svg")
+    #downloadDiv(v-if="canDownload")
+      a#download(href="#")
+      button.tooltip(
+        @click="$emit('download')"
+        :aria-label="st.tr['Download'] + ' PGN'"
+      )
+        img.inline(src="/images/icons/download.svg")
+    button.tooltip(
+      v-if="canAnalyze"
+      @click="$emit('analyze')"
+      :aria-label="st.tr['Analyse']"
+    )
+      img.inline(src="/images/icons/analyse.svg")
   #scoreInfo(v-if="score!='*'")
-    p {{ score }}
-    p {{ st.tr[message] }}
+    span.score {{ score }}
+    span.score-msg {{ st.tr[message] }}
   .moves-list(v-if="!['none','highlight'].includes(show)")
     .tr(v-for="moveIdx in evenNumbers")
       .td {{ firstNum + moveIdx / 2 + 1 }}
@@ -43,7 +65,9 @@ import { getFullNotation } from "@/utils/notation";
 import { processModalClick } from "@/utils/modalClick";
 export default {
   name: "my-move-list",
-  props: ["moves", "show", "cursor", "score", "message", "firstNum"],
+  props: [
+    "moves", "show", "canAnalyze", "canDownload",
+    "cursor", "score", "message", "firstNum"],
   data: function() {
     return {
       st: store.state
@@ -156,9 +180,34 @@ export default {
   width: 100%
   text-align: center
 
-button#boardSizeBtn
-  margin: 0
-
 [type="checkbox"]#modalAdjust+div .card
   padding: 5px
+
+img.inline
+  height: 24px
+  @media screen and (max-width: 767px)
+    height: 18px
+
+span.score
+  display: inline-block
+  margin-left: 10px
+  font-weight: bold
+
+span.score-msg
+  display: inline-block
+  margin-left: 10px
+  font-style: italic
+
+#downloadDiv
+  display: inline-block
+  margin: 0
+
+span#rulesBtn
+  cursor: pointer
+  display: inline-block
+  margin: 0 10px
+  font-weight: bold
+
+button
+  margin: 0
 </style>

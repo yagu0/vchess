@@ -56,7 +56,7 @@ main
         button.nomargin(@click="gotoPrevNext($event,curproblem,1)")
           | {{ st.tr["Previous"] }}
         button.nomargin(@click="gotoPrevNext($event,curproblem,-1)")
-          | {{ st.tr["Next"] }}
+          | {{ st.tr["Next_p"] }}
       p.oneInstructions.clickable(
         v-html="parseHtml(curproblem.instruction)"
         @click="curproblem.showSolution=!curproblem.showSolution"

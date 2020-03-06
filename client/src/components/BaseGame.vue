@@ -33,29 +33,19 @@ div#baseGame
           img.inline(src="/images/icons/play.svg")
         button(@click="gotoEnd()")
           img.inline(src="/images/icons/fast-forward.svg")
-      #belowControls
-        #downloadDiv(v-if="allowDownloadPGN")
-          a#download(href="#")
-          button(@click="download()") {{ st.tr["Download"] }} PGN
-        button(
-          v-if="canAnalyze"
-          @click="analyzePosition()"
-        )
-          | {{ st.tr["Analyse"] }}
-        // NOTE: variants pages already have a "Rules" link on top
-        button(
-          v-if="!$route.path.match('/variants/')"
-          @click="showRules()"
-        )
-          | {{ st.tr["Rules"] }}
     #movesList
       MoveList(
         :show="showMoves"
+        :canAnalyze="canAnalyze"
+        :canDownload="allowDownloadPGN"
         :score="game.score"
         :message="game.scoreMsg"
         :firstNum="firstMoveNumber"
         :moves="moves"
         :cursor="cursor"
+        @download="download"
+        @showrules="showRules"
+        @analyze="analyzePosition"
         @goto-move="gotoMove"
       )
     .clearer
@@ -535,28 +525,18 @@ export default {
     display: inline-block
     width: 20%
     margin: 0
-    img.inline
-      height: 24px
-      padding-top: 5px
-    @media screen and (max-width: 767px)
-      img.inline
-        height: 18px
+    padding-top: 5px
+    padding-bottom: 5px
+
+img.inline
+  height: 24px
+  padding-top: 5px
+  @media screen and (max-width: 767px)
+    height: 18px
 
 #turnIndicator
   text-align: center
   font-weight: bold
-
-#belowControls
-  border-top: 1px solid #2f4f4f
-  text-align: center
-  margin: 0 auto
-  & > #downloadDiv
-    margin: 0
-    & > button
-      margin: 0
-  & > button
-    border-left: 1px solid #2f4f4f
-    margin: 0
 
 #boardContainer
   float: left

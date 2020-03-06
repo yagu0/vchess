@@ -87,8 +87,33 @@ export default {
     classifyObject: function(o) {
       return o.cadence.indexOf("d") === -1 ? "live" : "corr";
     },
-    showGame: function(g) {
-      this.$router.push("/game/" + g.id);
+    showGame: function(game) {
+      // TODO: "isMyTurn" is duplicated (see GameList component). myColor also
+      const isMyTurn = (g) => {
+        const myColor =
+          g.players[0].uid == this.st.user.id ||
+          g.players[0].sid == this.st.user.sid
+            ? "w"
+            : "b";
+        const rem = g.movesCount % 2;
+        return (
+          (rem == 0 && myColor == "w") ||
+          (rem == 1 && myColor == "b")
+        );
+      };
+      if (game.type == "live" || !isMyTurn(game))
+        this.$router.push("/game/" + game.id);
+      // It's my turn in this game. Are there others?
+      let nextIds = "";
+      let otherCorrGamesMyTurn = this.corrGames.filter(
+        g => g.id != game.id && isMyTurn(g));
+      if (otherCorrGamesMyTurn.length > 0) {
+        nextIds += "/?next=[";
+        otherCorrGamesMyTurn.forEach(g => { nextIds += g.id + ","; });
+        // Remove last comma and close array:
+        nextIds = nextIds.slice(0, -1) + "]";
+      }
+      this.$router.push("/game/" + game.id + nextIds);
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
