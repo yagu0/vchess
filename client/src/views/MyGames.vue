@@ -90,6 +90,7 @@ export default {
     showGame: function(game) {
       // TODO: "isMyTurn" is duplicated (see GameList component). myColor also
       const isMyTurn = (g) => {
+        if (g.score != "*") return false;
         const myColor =
           g.players[0].uid == this.st.user.id ||
           g.players[0].sid == this.st.user.sid
