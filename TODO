@@ -11,9 +11,6 @@ Rematch button (change colors, re-apply randomness params (which should be saved
   --> need a bit more duplicated logic: in Game page, listen for newgame, and add a "launchGame" function
 Will need a 'rematch' field in Game on server
 
-Store sid on server in user, so that multi-accounts on same browser works better
-(and require no more the check on names in Game in isConnected() )
-
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
 https://www.chessvariants.com/rules/8-piece-chess

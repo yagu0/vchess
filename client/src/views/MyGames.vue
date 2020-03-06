@@ -102,8 +102,10 @@ export default {
           (rem == 1 && myColor == "b")
         );
       };
-      if (game.type == "live" || !isMyTurn(game))
+      if (game.type == "live" || !isMyTurn(game)) {
         this.$router.push("/game/" + game.id);
+        return;
+      }
       // It's my turn in this game. Are there others?
       let nextIds = "";
       let otherCorrGamesMyTurn = this.corrGames.filter(

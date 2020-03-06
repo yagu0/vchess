@@ -2,11 +2,7 @@
 
 Website to play to many chess variants, including rare ones - some almost
 never seen elsewhere, like "l'&Eacute;chiquet&eacute;" [french], renamed "checkered chess"
-in English.
-
-Notes:
- - Games start with a random assymetric position!
- - No ratings, no tournaments: no "competition spirit"
+in English. No ratings, no tournaments: no "competition spirit".
 
 ## Get involved
 
