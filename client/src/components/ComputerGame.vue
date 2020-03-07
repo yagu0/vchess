@@ -3,7 +3,6 @@ BaseGame(
   ref="basegame"
   :game="game"
   @newmove="processMove"
-  @gameover="gameOver"
 )
 </template>
 
@@ -11,6 +10,7 @@ BaseGame(
 import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 import { CompgameStorage } from "@/utils/compgameStorage";
+import { getScoreMessage } from "@/utils/scoring";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
 import Worker from "worker-loader!@/playCompMove";
 export default {
@@ -85,11 +85,13 @@ export default {
       this.compThink = true;
       this.compWorker.postMessage(["askmove"]);
     },
-    processMove: function(move) {
+    processMove: function(move, scoreObj) {
       playMove(move, this.vr);
-      // This move could have ended the game: if this is the case,
-      // the game is already removed from storage (if mode == 'versus')
-      if (this.game.score != "*") return;
+      // This move could have ended the game:
+      if (scoreObj.score != "*") {
+        this.gameOver(scoreObj.score);
+        return;
+      }
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove", move]);
       if (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)
@@ -102,10 +104,11 @@ export default {
         });
       }
     },
-    gameOver: function(score, scoreMsg) {
+    gameOver: function(score) {
       this.game.score = score;
-      this.game.scoreMsg = scoreMsg;
-      if (!this.compThink) this.$emit("game-stopped"); //otherwise wait for comp
+      this.game.scoreMsg = getScoreMessage(score);
+      // If comp is thinking, let him finish:
+      if (!this.compThink) this.$emit("game-stopped");
     }
   }
 };

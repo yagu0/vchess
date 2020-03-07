@@ -368,20 +368,21 @@ export default {
             this.emitFenIfAnalyze();
           }
           this.inMultimove = false;
-          const score = this.vr.getCurrentScore();
-          if (score != "*") {
-            const message = getScoreMessage(score);
-            if (!navigate && this.game.mode != "analyze")
-              this.$emit("gameover", score, message);
-            else if (this.game.mode == "analyze")
+          if (!noemit) {
+            var score = this.vr.getCurrentScore();
+            if (score != "*" && this.game.mode == "analyze") {
+              const message = getScoreMessage(score);
               // Just show score on screen (allow undo)
               this.showEndgameMsg(score + " . " + this.st.tr[message]);
+            }
           }
           if (!navigate && this.game.mode != "analyze") {
             const L = this.moves.length;
             if (!noemit)
-              // Post-processing (e.g. computer play)
-              this.$emit("newmove", this.moves[L-1]);
+              // Post-processing (e.g. computer play).
+              // NOTE: always emit the score, even in unfinished,
+              // to tell Game::processMove() that it's not a received move.
+              this.$emit("newmove", this.moves[L-1], { score: score });
             else {
               this.inPlay = false;
               if (this.stackToPlay.length > 0)

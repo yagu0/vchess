@@ -103,7 +103,6 @@ main
     ref="basegame"
     :game="game"
     @newmove="processMove"
-    @gameover="gameOver"
   )
 </template>
 
@@ -116,10 +115,11 @@ import { ppt } from "@/utils/datetime";
 import { ajax } from "@/utils/ajax";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
+import { getScoreMessage } from "@/utils/scoring";
+import { getFullNotation } from "@/utils/notation";
 import { getDiagram } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
-import { getScoreMessage } from "@/utils/scoring";
 import { ArrayFun } from "@/utils/array";
 import params from "@/parameters";
 export default {
@@ -175,6 +175,10 @@ export default {
       if (from.params["id"] != to.params["id"]) {
         // Change everything:
         this.cleanBeforeDestroy();
+        let boardDiv = document.querySelector(".game");
+        if (!!boardDiv)
+          // In case of incomplete information variant:
+          boardDiv.style.visibility = "hidden";
         this.atCreation();
       } else {
         // Same game ID
@@ -350,7 +354,6 @@ export default {
       this.send("turnchange", { target: sid, yourTurn: yourTurn });
     },
     showNextGame: function() {
-      if (this.nextIds.length == 0) return;
       // Did I play in current game? If not, add it to nextIds list
       if (this.game.score == "*" && this.vr.turn == this.game.mycolor)
         this.nextIds.unshift(this.game.id);
@@ -637,13 +640,16 @@ export default {
       this.conn.addEventListener("message", this.socketMessageListener);
       this.conn.addEventListener("close", this.socketCloseListener);
     },
-    updateCorrGame: function(obj) {
+    updateCorrGame: function(obj, callback) {
       ajax(
         "/games",
         "PUT",
         {
           gid: this.gameRef.id,
           newObj: obj
+        },
+        () => {
+          if (!!callback) callback();
         }
       );
     },
@@ -664,7 +670,9 @@ export default {
       if (data.drawSent) this.drawOffer = "received";
       if (data.score != "*") {
         this.drawOffer = "";
-        if (this.game.score == "*") this.gameOver(data.score);
+        if (this.game.score == "*")
+          // TODO: also pass scoreMsg in lastate
+          this.gameOver(data.score);
       }
     },
     clickDraw: function() {
@@ -833,9 +841,14 @@ export default {
           // Re-load game because we missed some moves:
           // artificially reset BaseGame (required if moves arrived in wrong order)
           this.$refs["basegame"].re_setVariables();
-        else
+        else {
           // Initial loading:
           this.gotMoveIdx = game.moves.length - 1;
+          // If we arrive here after 'nextGame' action, the board might be hidden
+          let boardDiv = document.querySelector(".game");
+          if (!!boardDiv && boardDiv.style.visibility == "hidden")
+            boardDiv.style.visibility = "visible";
+        }
         this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
@@ -937,6 +950,11 @@ export default {
         }
         // Update current game object:
         playMove(move, this.vr);
+        if (!data.score) {
+          // Received move, score has not been computed in BaseGame (!!noemit)
+          const score = this.vr.getCurrentScore();
+          if (score != "*") this.gameOver(score);
+        }
 // TODO: notifyTurn: "changeturn" message
         this.game.moves.push(move);
         // (add)Time indication: useful in case of lastate infos requested
@@ -1045,41 +1063,83 @@ export default {
         moveCol == this.game.mycolor &&
         !data.receiveMyMove
       ) {
-        let el = document.querySelector("#buttonsConfirm > .acceptBtn");
-        // We may play several moves in a row: in case of, remove listener:
-        let elClone = el.cloneNode(true);
-        el.parentNode.replaceChild(elClone, el);
-        elClone.addEventListener(
-          "click",
-          () => {
-            document.getElementById("modalConfirm").checked = false;
-            doProcessMove();
-            if (this.st.settings.gotonext) this.showNextGame();
-            else this.re_setClocks();
+        const afterSetScore = () => {
+          doProcessMove();
+          if (this.st.settings.gotonext && this.nextIds.length > 0)
+            this.showNextGame();
+          else {
+            this.re_setClocks();
+            // The board might have been hidden:
+            let boardDiv = document.querySelector(".game");
+            if (boardDiv.style.visibility == "hidden")
+              boardDiv.style.visibility = "visible";
           }
-        );
-        // PlayOnBoard is enough, and more appropriate for Synchrone Chess
-        V.PlayOnBoard(this.vr.board, move);
-        const position = this.vr.getBaseFen();
-        V.UndoOnBoard(this.vr.board, move);
-        this.curDiag = getDiagram({
-          position: position,
-          orientation: V.CanFlip ? this.game.mycolor : "w"
-        });
-        document.getElementById("modalConfirm").checked = true;
+        };
+        if (["all","byrow"].includes(V.ShowMoves)) {
+          let el = document.querySelector("#buttonsConfirm > .acceptBtn");
+          // We may play several moves in a row: in case of, remove listener:
+          let elClone = el.cloneNode(true);
+          el.parentNode.replaceChild(elClone, el);
+          elClone.addEventListener(
+            "click",
+            () => {
+              document.getElementById("modalConfirm").checked = false;
+              if (!!data.score && data.score != "*")
+                // Set score first
+                this.gameOver(data.score, null, afterSetScore);
+              else afterSetScore();
+            }
+          );
+          // PlayOnBoard is enough, and more appropriate for Synchrone Chess
+          V.PlayOnBoard(this.vr.board, move);
+          const position = this.vr.getBaseFen();
+          V.UndoOnBoard(this.vr.board, move);
+          this.curDiag = getDiagram({
+            position: position,
+            orientation: V.CanFlip ? this.game.mycolor : "w"
+          });
+          document.getElementById("modalConfirm").checked = true;
+        } else {
+          // Incomplete information: just ask confirmation
+          // Hide the board, because otherwise it could be revealed (TODO?)
+          let boardDiv = document.querySelector(".game");
+          boardDiv.style.visibility = "hidden";
+          if (
+            !confirm(
+              this.st.tr["Move played:"] + " " +
+              getFullNotation(move) + "\n" +
+              this.st.tr["Are you sure?"]
+            )
+          ) {
+            this.$refs["basegame"].cancelLastMove();
+            boardDiv.style.visibility = "visible";
+            return;
+          }
+          if (!!data.score && data.score != "*")
+            this.gameOver(data.score, null, afterSetScore);
+          else afterSetScore();
+        }
       }
       else {
-        doProcessMove();
-        this.re_setClocks();
+        // Normal situation
+        const afterSetScore = () => {
+          doProcessMove();
+          this.re_setClocks();
+        };
+        if (!!data.score && data.score != "*")
+          this.gameOver(data.score, null, afterSetScore);
+        else afterSetScore();
       }
     },
     cancelMove: function() {
       document.getElementById("modalConfirm").checked = false;
       this.$refs["basegame"].cancelLastMove();
     },
-    gameOver: function(score, scoreMsg) {
+    // In corr games, callback to change page only after score is set:
+    gameOver: function(score, scoreMsg, callback) {
       this.game.score = score;
-      this.$set(this.game, "scoreMsg", scoreMsg || getScoreMessage(score));
+      if (!scoreMsg) scoreMsg = getScoreMessage(score);
+      this.$set(this.game, "scoreMsg", scoreMsg);
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
       });
@@ -1089,12 +1149,15 @@ export default {
           score: score,
           scoreMsg: scoreMsg
         };
-        if (this.Game.type == "live")
+        if (this.game.type == "live") {
           GameStorage.update(this.gameRef.id, scoreObj);
-        else this.updateCorrGame(scoreObj);
+          if (!!callback) callback();
+        }
+        else this.updateCorrGame(scoreObj, callback);
         // Notify the score to main Hall. TODO: only one player (currently double send)
         this.send("result", { gid: this.game.id, score: score });
       }
+      else if (!!callback) callback();
     }
   }
 };
