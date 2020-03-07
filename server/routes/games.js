@@ -35,7 +35,7 @@ router.get("/games", access.ajax, (req,res) => {
   {
     if (gameId.match(/^[0-9]+$/))
     {
-      GameModel.getOne(gameId, false, (err,game) => {
+      GameModel.getOne(gameId, (err,game) => {
         res.json({game: game});
       });
     }
@@ -57,14 +57,19 @@ router.get("/games", access.ajax, (req,res) => {
 // FEN update + score(Msg) + draw status / and new move + chats
 router.put("/games", access.logged, access.ajax, (req,res) => {
   const gid = req.body.gid;
-  const obj = req.body.newObj;
+  let obj = req.body.newObj;
   if (gid.toString().match(/^[0-9]+$/) && GameModel.checkGameUpdate(obj))
   {
     GameModel.getPlayers(gid, (err,players) => {
-      if (players.some(p => p.uid == req.userId))
-      {
+      const myIdx = players.findIndex(p => p.uid == req.userId)
+      if (myIdx >= 0) {
+        // Did I mark the game for deletion?
+        if (!!obj.removeFlag) {
+          obj.deletedBy = ["w","b"][myIdx];
+          delete obj["removeFlag"];
+        }
         GameModel.update(gid, obj, (err) => {
-          if (!err && (obj.move || obj.score))
+          if (!err && (!!obj.move || !!obj.score))
           {
             // Notify opponent if he enabled notifications:
             const oppid = players[0].uid == req.userId

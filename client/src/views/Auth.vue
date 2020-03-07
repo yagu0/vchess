@@ -4,7 +4,6 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div(v-if="authOk")
         p {{ st.tr["Authentication successful!"] }}
-        p {{ st.tr["Back to Hall in 3 seconds..."] }}
 </template>
 
 <script>
@@ -31,9 +30,6 @@ export default {
         this.st.user.notify = res.notify;
         localStorage["myname"] = res.name;
         localStorage["myid"] = res.id;
-        setTimeout(() => {
-          this.$router.replace("/");
-        }, 3000);
       }
     );
   }

@@ -15,7 +15,6 @@
 //   score: string (several options; '*' == running),
 // }
 
-import { ajax } from "@/utils/ajax";
 import { store } from "@/store";
 
 function dbOperation(callback) {
@@ -57,44 +56,27 @@ export const GameStorage = {
     });
   },
 
-  // TODO: also option to takeback a move ?
   // obj: chat, move, fen, clocks, score[Msg], initime, ...
   update: function(gameId, obj) {
-    if (Number.isInteger(gameId) || !isNaN(parseInt(gameId))) {
-      // corr: only move, fen and score
-      ajax("/games", "PUT", {
-        gid: gameId,
-        newObj: {
-          // Some fields may be undefined:
-          chat: obj.chat,
-          move: obj.move,
-          fen: obj.fen,
-          score: obj.score,
-          scoreMsg: obj.scoreMsg,
-          drawOffer: obj.drawOffer
+    // live
+    dbOperation((err,db) => {
+      let objectStore = db
+        .transaction("games", "readwrite")
+        .objectStore("games");
+      objectStore.get(gameId).onsuccess = function(event) {
+        // Ignoring error silently: shouldn't happen now. TODO?
+        if (event.target.result) {
+          let game = event.target.result;
+          // Hidden tabs are delayed, to prevent multi-updates:
+          if (obj.moveIdx < game.moves.length) return;
+          Object.keys(obj).forEach(k => {
+            if (k == "move") game.moves.push(obj[k]);
+            else game[k] = obj[k];
+          });
+          objectStore.put(game); //save updated data
         }
-      });
-    } else {
-      // live
-      dbOperation((err,db) => {
-        let objectStore = db
-          .transaction("games", "readwrite")
-          .objectStore("games");
-        objectStore.get(gameId).onsuccess = function(event) {
-          // Ignoring error silently: shouldn't happen now. TODO?
-          if (event.target.result) {
-            let game = event.target.result;
-            // Hidden tabs are delayed, to prevent multi-updates:
-            if (obj.moveIdx < game.moves.length) return;
-            Object.keys(obj).forEach(k => {
-              if (k == "move") game.moves.push(obj[k]);
-              else game[k] = obj[k];
-            });
-            objectStore.put(game); //save updated data
-          }
-        };
-      });
-    }
+      };
+    });
   },
 
   // Retrieve all local games (running, completed, imported...)
@@ -124,26 +106,14 @@ export const GameStorage = {
   // Retrieve any game from its identifiers (locally or on server)
   // NOTE: need callback because result is obtained asynchronously
   get: function(gameId, callback) {
-    // corr games identifiers are integers
-    if (Number.isInteger(gameId) || !isNaN(parseInt(gameId))) {
-      ajax("/games", "GET", { gid: gameId }, res => {
-        let game = res.game;
-        game.moves.forEach(m => {
-          m.squares = JSON.parse(m.squares);
-        });
-        callback(game);
-      });
-    }
-    else {
-      // Local game
-      dbOperation((err,db) => {
-        let objectStore = db.transaction("games").objectStore("games");
-        objectStore.get(gameId).onsuccess = function(event) {
-          if (event.target.result)
-            callback(event.target.result);
-        };
-      });
-    }
+    // Local game
+    dbOperation((err,db) => {
+      let objectStore = db.transaction("games").objectStore("games");
+      objectStore.get(gameId).onsuccess = function(event) {
+        if (event.target.result)
+          callback(event.target.result);
+      };
+    });
   },
 
   // Delete a game in indexedDB

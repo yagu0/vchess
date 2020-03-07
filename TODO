@@ -41,6 +41,7 @@ Take(a)n(d)make : if capture a piece, take its power for the last of the turn an
 If a pawn taken: direction of the capturer.
 
 + Maxima, Interweave, Roccoco, Dynamo, Synchrone
+Synchrone Chess: allow to anticipate en-passant capture as well :)
 
 S-chess https://en.wikipedia.org/wiki/Seirawan_chess
 

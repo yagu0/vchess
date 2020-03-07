@@ -16,6 +16,7 @@ main
         v-show="display=='corr'"
         :games="corrGames"
         @show-game="showGame"
+        @abort="abortGame"
       )
 </template>
 
@@ -23,6 +24,7 @@ main
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ajax } from "@/utils/ajax";
+import { getScoreMessage } from "@/utils/scoring";
 import params from "@/parameters";
 import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
@@ -43,13 +45,24 @@ export default {
   },
   created: function() {
     GameStorage.getAll(true, localGames => {
-      localGames.forEach(g => (g.type = this.classifyObject(g)));
+      localGames.forEach(g => g.type = "live");
       this.liveGames = localGames;
     });
     if (this.st.user.id > 0) {
-      ajax("/games", "GET", { uid: this.st.user.id }, res => {
-        res.games.forEach(g => (g.type = this.classifyObject(g)));
-        this.corrGames = res.games;
+      ajax(
+        "/games",
+        "GET",
+        { uid: this.st.user.id },
+        res => {
+          let serverGames = res.games.filter(g => {
+            const mySide =
+              g.players[0].uid == this.st.user.id
+                ? "White"
+                : "Black";
+            return !g["deletedBy" + mySide];
+          });
+          serverGames.forEach(g => g.type = "corr");
+          this.corrGames = serverGames;
       });
     }
     // Initialize connection
@@ -117,6 +130,40 @@ export default {
         nextIds = nextIds.slice(0, -1) + "]";
       }
       this.$router.push("/game/" + game.id + nextIds);
+    },
+    abortGame: function(game) {
+      // Special "trans-pages" case: from MyGames to Game
+      // TODO: also for corr games? (It's less important)
+      if (game.type == "live") {
+        const oppsid =
+          game.players[0].sid == this.st.user.sid
+            ? game.players[1].sid
+            : game.players[0].sid;
+        this.conn.send(
+          JSON.stringify(
+            {
+              code: "mabort",
+              gid: game.id,
+              // NOTE: target might not be online
+              target: oppsid
+            }
+          )
+        );
+      }
+      else if (!game.deletedByWhite || !game.deletedByBlack) {
+        // Set score if game isn't deleted on server:
+        ajax(
+          "/games",
+          "PUT",
+          {
+            gid: game.id,
+            newObj: {
+              score: "?",
+              scoreMsg: getScoreMessage("?")
+            }
+          }
+        );
+      }
     },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);

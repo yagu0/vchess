@@ -4,7 +4,6 @@ main
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div(v-if="logoutOk")
         p {{ st.tr["Logout successful!"] }}
-        p {{ st.tr["Back to Hall in 3 seconds..."] }}
 </template>
 
 <script>
@@ -30,9 +29,6 @@ export default {
         this.st.user.notify = false;
         localStorage.removeItem("myid");
         localStorage.removeItem("myname");
-        setTimeout(() => {
-          this.$router.replace("/");
-        }, 3000);
       }
     );
   }

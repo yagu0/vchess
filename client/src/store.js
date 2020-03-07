@@ -77,6 +77,7 @@ export const store = {
       sound: getItemDefaultTrue("sound"),
       hints: getItemDefaultTrue("hints"),
       highlight: getItemDefaultTrue("highlight"),
+      gotonext: getItemDefaultTrue("gotonext"),
       randomness: parseInt(localStorage.getItem("randomness"))
     };
     if (isNaN(this.state.settings.randomness))

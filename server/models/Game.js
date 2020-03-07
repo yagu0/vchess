@@ -48,9 +48,9 @@ const GameModel =
     db.serialize(function() {
       let query =
         "INSERT INTO Games " +
-        "(vid, fenStart, fen, score, cadence, created, drawOffer) " +
+        "(vid, fenStart, fen, cadence, created) " +
         "VALUES " +
-        "(" + vid + ",'" + fen + "','" + fen + "','*','" + cadence + "'," + Date.now() + ",'')";
+        "(" + vid + ",'" + fen + "','" + fen + "','" + cadence + "'," + Date.now() + ")";
       db.run(query, function(err) {
         if (err)
           cb(err)
@@ -70,65 +70,46 @@ const GameModel =
   },
 
   // TODO: some queries here could be async
-  getOne: function(id, light, cb)
+  getOne: function(id, cb)
   {
     // NOTE: ignoring errors (shouldn't happen at this stage)
     db.serialize(function() {
       let query =
         "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, g.score, " +
-          "g.scoreMsg, g.drawOffer, v.name AS vname " +
+          "g.scoreMsg, g.drawOffer, g.rematchOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
         "WHERE g.id = " + id;
-      db.get(query, (err,gameInfo) => {
+      db.get(query, (err, gameInfo) => {
         query =
           "SELECT p.uid, p.color, u.name " +
           "FROM Players p " +
           "JOIN Users u " +
           "  ON p.uid = u.id " +
           "WHERE p.gid = " + id;
-        db.all(query, (err2,players) => {
-          if (light)
-          {
+        db.all(query, (err2, players) => {
+          query =
+            "SELECT squares, played, idx " +
+            "FROM Moves " +
+            "WHERE gid = " + id;
+          db.all(query, (err3, moves) => {
             query =
-              "SELECT COUNT(*) AS nbMoves " +
-              "FROM Moves " +
+              "SELECT msg, name, added " +
+              "FROM Chats " +
               "WHERE gid = " + id;
-            db.get(query, (err,ret) => {
+            db.all(query, (err4, chats) => {
               const game = Object.assign({},
                 gameInfo,
-                {players: players},
-                {movesCount: ret.nbMoves}
+                {
+                  players: players,
+                  moves: moves,
+                  chats: chats,
+                }
               );
               cb(null, game);
             });
-          }
-          else
-          {
-            // Full game requested:
-            query =
-              "SELECT squares, played, idx " +
-              "FROM Moves " +
-              "WHERE gid = " + id;
-            db.all(query, (err3,moves) => {
-              query =
-                "SELECT msg, name, added " +
-                "FROM Chats " +
-                "WHERE gid = " + id;
-              db.all(query, (err4,chats) => {
-                const game = Object.assign({},
-                  gameInfo,
-                  {
-                    players: players,
-                    moves: moves,
-                    chats: chats,
-                  }
-                );
-                cb(null, game);
-              });
-            });
-          }
+          });
         });
       });
     });
@@ -137,17 +118,49 @@ const GameModel =
   // For display on MyGames or Hall: no need for moves or chats
   getByUser: function(uid, excluded, cb)
   {
+    // Some fields are not required when showing a games list:
+    const getOneLight = (id, cb2) => {
+      let query =
+        "SELECT g.id, g.vid, g.fen, g.cadence, g.created, g.score, " +
+          "g.scoreMsg, g.deletedByWhite, g.deletedByBlack, v.name AS vname " +
+        "FROM Games g " +
+        "JOIN Variants v " +
+        "  ON g.vid = v.id " +
+        "WHERE g.id = " + id;
+      db.get(query, (err, gameInfo) => {
+        query =
+          "SELECT p.uid, p.color, u.name " +
+          "FROM Players p " +
+          "JOIN Users u " +
+          "  ON p.uid = u.id " +
+          "WHERE p.gid = " + id;
+        db.all(query, (err2, players) => {
+          query =
+            "SELECT COUNT(*) AS nbMoves " +
+            "FROM Moves " +
+            "WHERE gid = " + id;
+          db.get(query, (err,ret) => {
+            const game = Object.assign({},
+              gameInfo,
+              {
+                players: players,
+                movesCount: ret.nbMoves
+              }
+            );
+            cb2(game);
+          });
+        });
+      });
+    };
     db.serialize(function() {
       let query = "";
-      if (uid == 0)
-      {
+      if (uid == 0) {
         // Special case anonymous user: show all games
         query =
           "SELECT id AS gid " +
           "FROM Games";
       }
-      else
-      {
+      else {
         // Registered user:
         query =
           "SELECT gid " +
@@ -157,15 +170,12 @@ const GameModel =
           (excluded ? " = 0" : " > 0");
       }
       db.all(query, (err,gameIds) => {
-        if (err || gameIds.length == 0)
-          cb(err, []);
-        else
-        {
+        if (err || gameIds.length == 0) cb(err, []);
+        else {
           let gameArray = [];
           let gCounter = 0;
-          for (let i=0; i<gameIds.length; i++)
-          {
-            GameModel.getOne(gameIds[i]["gid"], true, (err2,game) => {
+          for (let i=0; i<gameIds.length; i++) {
+            getOneLight(gameIds[i]["gid"], (game) => {
               gameArray.push(game);
               gCounter++; //TODO: let's hope this is atomic?!
               // Call callback function only when gameArray is complete:
@@ -230,12 +240,16 @@ const GameModel =
           obj.drawOffer = "";
         modifs += "drawOffer = '" + obj.drawOffer + "',";
       }
-      if (obj.fen)
+      if (!!obj.fen)
         modifs += "fen = '" + obj.fen + "',";
-      if (obj.score)
+      if (!!obj.score)
         modifs += "score = '" + obj.score + "',";
-      if (obj.scoreMsg)
+      if (!!obj.scoreMsg)
         modifs += "scoreMsg = '" + obj.scoreMsg + "',";
+      if (!!obj.deletedBy) {
+        const myColor = obj.deletedBy == 'w' ? "White" : "Black";
+        modifs += "deletedBy" + myColor + " = true,";
+      }
       modifs = modifs.slice(0,-1); //remove last comma
       if (modifs.length > 0)
       {
@@ -263,7 +277,7 @@ const GameModel =
         });
       }
       else cb(null);
-      if (obj.chat)
+      if (!!obj.chat)
       {
         query =
           "INSERT INTO Chats (gid, msg, name, added) VALUES ("
@@ -277,6 +291,21 @@ const GameModel =
           "FROM Chats " +
           "WHERE gid = " + id;
         db.run(query);
+      }
+      if (!!obj.deletedBy) {
+        // Did my opponent delete it too?
+        let selection =
+          "deletedBy" +
+          (obj.deletedBy == 'w' ? "Black" : "White") +
+          " AS deletedByOpp";
+        query =
+          "SELECT " + selection + " " +
+          "FROM Games " +
+          "WHERE id = " + id;
+        db.get(query, (err,ret) => {
+          // If yes: just remove game
+          if (!!ret.deletedByOpp) GameModel.remove(id);
+        });
       }
     });
   },

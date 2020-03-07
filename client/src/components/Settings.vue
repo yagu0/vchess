@@ -53,6 +53,13 @@ div
             v-model="st.settings.sound"
           )
         fieldset
+          label(for="setGotonext")
+            | {{ st.tr["Show next game after move?"] }}
+          input#setGotonext(
+            type="checkbox"
+            v-model="st.settings.gotonext"
+          )
+        fieldset
           label(for="setRandomness") {{ st.tr["Randomness against computer"] }}
           select#setRandomness(v-model="st.settings.randomness")
             option(value="0") {{ st.tr["Deterministic"] }}

@@ -87,9 +87,10 @@ export default {
     };
   },
   watch: {
-    // game initial FEN changes when a new game starts
-    "game.fenStart": function() {
-      this.re_setVariables();
+    // game initial FEN changes when a new game starts.
+    // NOTE: when game ID change on Game page, fenStart may be temporarily undefined
+    "game.fenStart": function(fenStart) {
+      if (!!fenStart) this.re_setVariables();
     },
   },
   computed: {
@@ -256,11 +257,7 @@ export default {
     },
     showEndgameMsg: function(message) {
       this.endgameMessage = message;
-      let modalBox = document.getElementById("modalEog");
-      modalBox.checked = true;
-      setTimeout(() => {
-        modalBox.checked = false;
-      }, 2000);
+      document.getElementById("modalEog").checked = true;
     },
     // Animate an elementary move
     animateMove: function(move, callback) {

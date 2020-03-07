@@ -28,6 +28,7 @@ div
 <script>
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
+import { ajax } from "@/utils/ajax";
 export default {
   name: "my-game-list",
   props: ["games", "showBoth"],
@@ -137,19 +138,42 @@ export default {
     },
     deleteGame: function(game, e) {
       if (
-        game.score != "*" &&
+        // My game ?
         game.players.some(p =>
           p.sid == this.st.user.sid ||
           p.uid == this.st.user.id
         )
       ) {
-        if (confirm(this.st.tr["Remove game?"])) {
-          GameStorage.remove(
-            game.id,
-            () => {
-              this.$set(this.deleted, game.id, true);
-            }
-          );
+        const message =
+          game.score != "*"
+            ? "Remove game?"
+            : "Abort and remove game?";
+        if (confirm(this.st.tr[message])) {
+          const afterDelete = () => {
+            if (game.score == "*") this.$emit("abort", game);
+            this.$set(this.deleted, game.id, true);
+          };
+          if (game.type == "live")
+            // Effectively remove game:
+            GameStorage.remove(game.id, afterDelete);
+          else {
+            const mySide =
+              game.players[0].uid == this.st.user.id
+                ? "White"
+                : "Black";
+            game["deletedBy" + mySide] = true;
+            // Mark the game for deletion on server
+            // If both people mark it, it is deleted
+            ajax(
+              "/games",
+              "PUT",
+              {
+                gid: game.id,
+                newObj: { removeFlag: true }
+              },
+              afterDelete
+            );
+          }
         }
         e.stopPropagation();
       }

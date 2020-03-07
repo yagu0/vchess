@@ -1,5 +1,6 @@
 export const translations = {
   Abort: "Abort",
+  "Abort and remove game?": "Abort and Remove game?",
   About: "About",
   "Accept draw?": "Accept draw?",
   "Accept challenge?": "Accept challenge?",
@@ -11,7 +12,6 @@ export const translations = {
   "Are you sure?": "Are you sure?",
   "Asymmetric random": "Asymmetric random",
   "Authentication successful!": "Authentication successful!",
-  "Back to Hall in 3 seconds...": "Back to Hall in 3 seconds...",
   "Back to list": "Back to list",
   "Black to move": "Black to move",
   "Black surrender": "Black surrender",
@@ -115,6 +115,7 @@ export const translations = {
   "Self-challenge is forbidden": "Self-challenge is forbidden",
   "Send challenge": "Send challenge",
   Settings: "Settings",
+  "Show next game after move?": "Show next game after move?",
   "Show possible moves?": "Show possible moves?",
   "Show solution": "Show solution",
   Solution: "Solution",

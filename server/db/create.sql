@@ -55,11 +55,14 @@ create table Games (
   vid integer,
   fenStart varchar, --initial state
   fen varchar, --current state
-  score varchar,
+  score varchar default '*',
   scoreMsg varchar,
   cadence varchar,
   created datetime,
-  drawOffer character,
+  drawOffer character default '',
+  rematchOffer character default '',
+  deletedByWhite boolean,
+  deletedByBlack boolean,
   foreign key (vid) references Variants(id)
 );
 

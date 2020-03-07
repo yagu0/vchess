@@ -1,5 +1,6 @@
 export const translations = {
   Abort: "Terminar",
+  "Abort and remove game?": "¿Terminar y eliminar la partida?",
   About: "Acerca de",
   "Accept draw?": "¿Acceptar tablas?",
   "Accept challenge?": "¿Acceptar el desafío?",
@@ -11,7 +12,6 @@ export const translations = {
   "Are you sure?": "¿Está usted seguro?",
   "Asymmetric random": "Aleatorio asimétrico",
   "Authentication successful!": "¡Autenticación exitosa!",
-  "Back to Hall in 3 seconds...": "Regreso al salón en 3 segundos...",
   "Back to list": "Volver a la lista",
   "Black to move": "Juegan las negras",
   "Black surrender": "Las negras abandonan",
@@ -115,6 +115,7 @@ export const translations = {
   "Self-challenge is forbidden": "Auto desafío está prohibido",
   "Send challenge": "Enviar desafío",
   Settings: "Configuraciones",
+  "Show next game after move?": "¿Mostrar la siguiente partida después de una jugada?",
   "Show possible moves?": "¿Mostrar posibles movimientos?",
   "Show solution": "Mostrar la solución",
   Solution: "Solución",

@@ -20,6 +20,7 @@ main
         span.anonymous(v-if="Object.values(people).some(p => !p.name && p.id === 0)")
           | + @nonymous
       Chat(
+        ref="chatcomp"
         :players="game.players"
         :pastChats="game.chats"
         :newChat="newChat"
@@ -85,7 +86,8 @@ main
           )
             span.time-left {{ virtualClocks[0][0] }}
             span.time-separator(v-if="!!virtualClocks[0][1]") :
-            span.time-right(v-if="!!virtualClocks[0][1]") {{ virtualClocks[0][1] }}
+            span.time-right(v-if="!!virtualClocks[0][1]")
+              | {{ virtualClocks[0][1] }}
           span.split-names -
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
@@ -95,7 +97,8 @@ main
           )
             span.time-left {{ virtualClocks[1][0] }}
             span.time-separator(v-if="!!virtualClocks[1][1]") :
-            span.time-right(v-if="!!virtualClocks[1][1]") {{ virtualClocks[1][1] }}
+            span.time-right(v-if="!!virtualClocks[1][1]")
+              | {{ virtualClocks[1][1] }}
   BaseGame(
     ref="basegame"
     :game="game"
@@ -125,7 +128,6 @@ export default {
     BaseGame,
     Chat
   },
-  // gameRef: to find the game in (potentially remote) storage
   data: function() {
     return {
       st: store.state,
@@ -134,14 +136,10 @@ export default {
         id: "",
         rid: ""
       },
-      game: {
-        // Passed to BaseGame
-        players: [{ name: "" }, { name: "" }],
-        chats: [],
-        rendered: false
-      },
       nextIds: [],
-      virtualClocks: [[0,0], [0,0]], //initialized with true game.clocks
+      game: {}, //passed to BaseGame
+      // virtualClocks will be initialized from true game.clocks
+      virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
       people: {}, //players + observers
@@ -161,61 +159,35 @@ export default {
       // If newmove got no pingback, send again:
       opponentGotMove: false,
       connexionString: "",
+      // Intervals from setInterval():
+      // TODO: limit them to e.g. 3 retries ?!
+      askIfPeerConnected: null,
+      askLastate: null,
+      retrySendmove: null,
+      clockUpdate: null,
       // Related to (killing of) self multi-connects:
       newConnect: {},
       killed: {}
     };
   },
   watch: {
-    $route: function(to) {
-      this.gameRef.id = to.params["id"];
-      this.gameRef.rid = to.query["rid"];
-      this.loadGame();
+    $route: function(to, from) {
+      if (from.params["id"] != to.params["id"]) {
+        // Change everything:
+        this.cleanBeforeDestroy();
+        this.atCreation();
+      } else {
+        // Same game ID
+        this.gameRef.id = to.params["id"];
+        this.gameRef.rid = to.query["rid"];
+        this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
+        this.loadGame();
+      }
     }
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
   created: function() {
-    // Always add myself to players' list
-    const my = this.st.user;
-    this.$set(this.people, my.sid, { id: my.id, name: my.name });
-    this.gameRef.id = this.$route.params["id"];
-    // rid = remote ID to find an observed live game,
-    // next = next corr games IDs to navigate faster
-    // (Both might be undefined)
-    this.gameRef.rid = this.$route.query["rid"];
-    this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
-    // Initialize connection
-    this.connexionString =
-      params.socketUrl +
-      "/?sid=" +
-      this.st.user.sid +
-      "&tmpId=" +
-      getRandString() +
-      "&page=" +
-      // Discard potential "/?next=[...]" for page indication:
-      encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
-    this.conn = new WebSocket(this.connexionString);
-    this.conn.onmessage = this.socketMessageListener;
-    this.conn.onclose = this.socketCloseListener;
-    // Socket init required before loading remote game:
-    const socketInit = callback => {
-      if (!!this.conn && this.conn.readyState == 1)
-        // 1 == OPEN state
-        callback();
-      else
-        // Socket not ready yet (initial loading)
-        // NOTE: it's important to call callback without arguments,
-        // otherwise first arg is Websocket object and loadGame fails.
-        this.conn.onopen = () => callback();
-    };
-    if (!this.gameRef.rid)
-      // Game stored locally or on server
-      this.loadGame(null, () => socketInit(this.roomInit));
-    else
-      // Game stored remotely: need socket to retrieve it
-      // NOTE: the callback "roomInit" will be lost, so we don't provide it.
-      // --> It will be given when receiving "fullgame" socket event.
-      socketInit(this.loadGame);
+    this.atCreation();
   },
   mounted: function() {
     document
@@ -229,9 +201,89 @@ export default {
     }
   },
   beforeDestroy: function() {
-    this.send("disconnect");
+    this.cleanBeforeDestroy();
   },
   methods: {
+    atCreation: function() {
+      // 0] (Re)Set variables
+      this.gameRef.id = this.$route.params["id"];
+      // rid = remote ID to find an observed live game,
+      // next = next corr games IDs to navigate faster
+      // (Both might be undefined)
+      this.gameRef.rid = this.$route.query["rid"];
+      this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
+      // Always add myself to players' list
+      const my = this.st.user;
+      this.$set(this.people, my.sid, { id: my.id, name: my.name });
+      this.game = {
+        players: [{ name: "" }, { name: "" }],
+        chats: [],
+        rendered: false
+      };
+      let chatComp = this.$refs["chatcomp"];
+      if (!!chatComp) chatComp.chats = [];
+      this.virtualClocks = [[0,0], [0,0]];
+      this.vr = null;
+      this.drawOffer = "";
+      this.onMygames = [];
+      this.lastate = undefined;
+      this.newChat = "";
+      this.roomInitialized = false;
+      this.askGameTime = 0;
+      this.gameIsLoading = false;
+      this.gotLastate = false;
+      this.gotMoveIdx = -1;
+      this.opponentGotMove = false;
+      this.askIfPeerConnected = null;
+      this.askLastate = null;
+      this.retrySendmove = null;
+      this.clockUpdate = null;
+      this.newConnect = {};
+      this.killed = {};
+      // 1] Initialize connection
+      this.connexionString =
+        params.socketUrl +
+        "/?sid=" +
+        this.st.user.sid +
+        "&tmpId=" +
+        getRandString() +
+        "&page=" +
+        // Discard potential "/?next=[...]" for page indication:
+        encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
+      this.conn = new WebSocket(this.connexionString);
+      this.conn.onmessage = this.socketMessageListener;
+      this.conn.onclose = this.socketCloseListener;
+      // Socket init required before loading remote game:
+      const socketInit = callback => {
+        if (!!this.conn && this.conn.readyState == 1)
+          // 1 == OPEN state
+          callback();
+        else
+          // Socket not ready yet (initial loading)
+          // NOTE: it's important to call callback without arguments,
+          // otherwise first arg is Websocket object and loadGame fails.
+          this.conn.onopen = () => callback();
+      };
+      if (!this.gameRef.rid)
+        // Game stored locally or on server
+        this.loadGame(null, () => socketInit(this.roomInit));
+      else
+        // Game stored remotely: need socket to retrieve it
+        // NOTE: the callback "roomInit" will be lost, so we don't provide it.
+        // --> It will be given when receiving "fullgame" socket event.
+        socketInit(this.loadGame);
+    },
+    cleanBeforeDestroy: function() {
+      if (!!this.askIfPeerConnected)
+        clearInterval(this.askIfPeerConnected);
+      if (!!this.askLastate)
+        clearInterval(this.askLastate);
+      if (!!this.retrySendmove)
+        clearInterval(this.retrySendmove);
+      if (!!this.clockUpdate)
+        clearInterval(this.clockUpdate);
+      this.send("disconnect");
+    },
     roomInit: function() {
       if (!this.roomInitialized) {
         // Notify the room only now that I connected, because
@@ -275,7 +327,7 @@ export default {
       this.send("newchat", { data: chat });
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
       if (this.game.type == "corr" && this.st.user.id > 0)
-        GameStorage.update(this.gameRef.id, { chat: chat });
+        this.updateCorrGame({ chat: chat });
     },
     clearChat: function() {
       // Nothing more to do if game is live (chats not recorded)
@@ -298,6 +350,7 @@ export default {
       this.send("turnchange", { target: sid, yourTurn: yourTurn });
     },
     showNextGame: function() {
+      if (this.nextIds.length == 0) return;
       // Did I play in current game? If not, add it to nextIds list
       if (this.game.score == "*" && this.vr.turn == this.game.mycolor)
         this.nextIds.unshift(this.game.id);
@@ -311,19 +364,28 @@ export default {
     },
     askGameAgain: function() {
       this.gameIsLoading = true;
+      const currentUrl = document.location.href;
       const doAskGame = () => {
+        if (currentUrl != document.location.href) return; //page change
         if (!this.gameRef.rid)
           // This is my game: just reload.
           this.loadGame();
         else {
           // Just ask fullgame again (once!), this is much simpler.
           // If this fails, the user could just reload page :/
-          let self = this;
-          (function askIfPeerConnected() {
-            if (!!self.people[self.gameRef.rid])
-              self.send("askfullgame", { target: self.gameRef.rid });
-            else setTimeout(askIfPeerConnected, 1000);
-          })();
+          this.send("askfullgame", { target: this.gameRef.rid });
+          this.askIfPeerConnected = setInterval(
+            () => {
+              if (
+                !!this.people[this.gameRef.rid] &&
+                currentUrl != document.location.href
+              ) {
+                this.send("askfullgame", { target: this.gameRef.rid });
+                clearInterval(this.askIfPeerConnected);
+              }
+            },
+            1000
+          );
         }
       };
       // Delay of at least 2s between two game requests
@@ -407,18 +469,17 @@ export default {
               this.game.score == "*" &&
               this.game.players.some(p => p.sid == user.sid)
             ) {
-              let self = this;
-              (function askLastate() {
-                self.send("asklastate", { target: user.sid });
-                setTimeout(
-                  () => {
-                    // Ask until we got a reply (or opponent disconnect):
-                    if (!self.gotLastate && !!self.people[user.sid])
-                      askLastate();
-                  },
-                  1000
-                );
-              })();
+              this.send("asklastate", { target: user.sid });
+              this.askLastate = setInterval(
+                () => {
+                  // Ask until we got a reply (or opponent disconnect):
+                  if (!this.gotLastate && !!this.people[user.sid])
+                    this.send("asklastate", { target: user.sid });
+                  else
+                    clearInterval(this.askLastate);
+                },
+                1000
+              );
             }
           }
           break;
@@ -576,6 +637,16 @@ export default {
       this.conn.addEventListener("message", this.socketMessageListener);
       this.conn.addEventListener("close", this.socketCloseListener);
     },
+    updateCorrGame: function(obj) {
+      ajax(
+        "/games",
+        "PUT",
+        {
+          gid: this.gameRef.id,
+          newObj: obj
+        }
+      );
+    },
     // lastate was received, but maybe game wasn't ready yet:
     processLastate: function() {
       const data = this.lastate;
@@ -615,7 +686,12 @@ export default {
         if (!confirm(this.st.tr["Offer draw?"])) return;
         this.drawOffer = "sent";
         this.send("drawoffer");
-        GameStorage.update(this.gameRef.id, { drawOffer: this.game.mycolor });
+        if (this.game.type == "live") {
+          GameStorage.update(
+            this.gameRef.id,
+            { drawOffer: this.game.mycolor }
+          );
+        } else this.updateCorrGame({ drawOffer: this.game.mycolor });
       }
     },
     abortGame: function() {
@@ -757,6 +833,9 @@ export default {
           // Re-load game because we missed some moves:
           // artificially reset BaseGame (required if moves arrived in wrong order)
           this.$refs["basegame"].re_setVariables();
+        else
+          // Initial loading:
+          this.gotMoveIdx = game.moves.length - 1;
         this.re_setClocks();
         this.$nextTick(() => {
           this.game.rendered = true;
@@ -779,9 +858,22 @@ export default {
         // Remote live game: forgetting about callback func... (TODO: design)
         this.send("askfullgame", { target: this.gameRef.rid });
       } else {
-        // Local or corr game
+        // Local or corr game on server.
         // NOTE: afterRetrieval() is never called if game not found
-        GameStorage.get(this.gameRef.id, afterRetrieval);
+        const gid = this.gameRef.id;
+        if (Number.isInteger(gid) || !isNaN(parseInt(gid))) {
+          // corr games identifiers are integers
+          ajax("/games", "GET", { gid: gid }, res => {
+            let g = res.game;
+            g.moves.forEach(m => {
+              m.squares = JSON.parse(m.squares);
+            });
+            afterRetrieval(g);
+          });
+        }
+        else
+          // Local game
+          GameStorage.get(this.gameRef.id, afterRetrieval);
       }
     },
     re_setClocks: function() {
@@ -801,13 +893,13 @@ export default {
           i == colorIdx ? (Date.now() - this.game.initime[colorIdx]) / 1000 : 0;
         return ppt(this.game.clocks[i] - removeTime).split(':');
       });
-      let clockUpdate = setInterval(() => {
+      this.clockUpdate = setInterval(() => {
         if (
           countdown < 0 ||
           this.game.moves.length > currentMovesCount ||
           this.game.score != "*"
         ) {
-          clearInterval(clockUpdate);
+          clearInterval(this.clockUpdate);
           if (countdown < 0)
             this.gameOver(
               currentTurn == "w" ? "0-1" : "1-0",
@@ -856,18 +948,17 @@ export default {
         else this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
         // data.initime is set only when I receive a "lastate" move from opponent
         this.game.initime[nextIdx] = data.initime || Date.now();
-        this.re_setClocks();
         // If repetition detected, consider that a draw offer was received:
         const fenObj = this.vr.getFenForRepeat();
         this.repeat[fenObj] = this.repeat[fenObj] ? this.repeat[fenObj] + 1 : 1;
         if (this.repeat[fenObj] >= 3) this.drawOffer = "threerep";
         else if (this.drawOffer == "threerep") this.drawOffer = "";
-        // Since corr games are stored at only one location, update should be
-        // done only by one player for each move:
         if (!!this.game.mycolor && !data.receiveMyMove) {
           // NOTE: 'var' to see that variable outside this block
           var filtered_move = getFilteredMove(move);
         }
+        // Since corr games are stored at only one location, update should be
+        // done only by one player for each move:
         if (
           !!this.game.mycolor &&
           !data.receiveMyMove &&
@@ -886,7 +977,8 @@ export default {
               break;
           }
           if (this.game.type == "corr") {
-            GameStorage.update(this.gameRef.id, {
+            // corr: only move, fen and score
+            this.updateCorrGame({
               fen: this.game.fen,
               move: {
                 squares: filtered_move,
@@ -927,10 +1019,10 @@ export default {
           this.opponentGotMove = false;
           this.send("newmove", {data: sendMove});
           // If the opponent doesn't reply gotmove soon enough, re-send move:
-          let retrySendmove = setInterval(
+          this.retrySendmove = setInterval(
             () => {
               if (this.opponentGotMove) {
-                clearInterval(retrySendmove);
+                clearInterval(this.retrySendmove);
                 return;
               }
               let oppsid = this.game.players[nextIdx].sid;
@@ -941,7 +1033,7 @@ export default {
               }
               if (!oppsid || !this.people[oppsid])
                 // Opponent is disconnected: he'll ask last state
-                clearInterval(retrySendmove);
+                clearInterval(this.retrySendmove);
               else this.send("newmove", {data: sendMove, target: oppsid});
             },
             1000
@@ -962,18 +1054,24 @@ export default {
           () => {
             document.getElementById("modalConfirm").checked = false;
             doProcessMove();
+            if (this.st.settings.gotonext) this.showNextGame();
+            else this.re_setClocks();
           }
         );
-        this.vr.play(move);
-        const parsedFen = V.ParseFen(this.vr.getFen());
-        this.vr.undo(move);
+        // PlayOnBoard is enough, and more appropriate for Synchrone Chess
+        V.PlayOnBoard(this.vr.board, move);
+        const position = this.vr.getBaseFen();
+        V.UndoOnBoard(this.vr.board, move);
         this.curDiag = getDiagram({
-          position: parsedFen.position,
-          orientation: this.game.mycolor
+          position: position,
+          orientation: V.CanFlip ? this.game.mycolor : "w"
         });
         document.getElementById("modalConfirm").checked = true;
       }
-      else doProcessMove();
+      else {
+        doProcessMove();
+        this.re_setClocks();
+      }
     },
     cancelMove: function() {
       document.getElementById("modalConfirm").checked = false;
@@ -987,10 +1085,13 @@ export default {
       });
       if (myIdx >= 0) {
         // OK, I play in this game
-        GameStorage.update(this.gameRef.id, {
+        const scoreObj = {
           score: score,
           scoreMsg: scoreMsg
-        });
+        };
+        if (this.Game.type == "live")
+          GameStorage.update(this.gameRef.id, scoreObj);
+        else this.updateCorrGame(scoreObj);
         // Notify the score to main Hall. TODO: only one player (currently double send)
         this.send("result", { gid: this.game.id, score: score });
       }

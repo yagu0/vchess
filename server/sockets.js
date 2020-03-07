@@ -35,7 +35,7 @@ module.exports = function(wss) {
           if (k == sid && x == tmpId) return;
           send(
             clients[page][k][x],
-            Object.assign({code: code, from: sid}, obj)
+            Object.assign({ code: code, from: sid }, obj)
           );
         });
       });
@@ -57,7 +57,7 @@ module.exports = function(wss) {
         // I effectively disconnected from this page:
         notifyRoom(page, "disconnect");
         if (page.indexOf("/game/") >= 0)
-          notifyRoom("/", "gdisconnect", {page:page});
+          notifyRoom("/", "gdisconnect", { page:page });
       }
     };
     const messageListener = (objtxt) => {
@@ -69,7 +69,7 @@ module.exports = function(wss) {
         case "connect": {
           notifyRoom(page, "connect");
           if (page.indexOf("/game/") >= 0)
-            notifyRoom("/", "gconnect", {page:page});
+            notifyRoom("/", "gconnect", { page:page });
           break;
         }
         case "disconnect":
@@ -90,7 +90,7 @@ module.exports = function(wss) {
                 Object.keys(clients[pg][k]).forEach(x => {
                   send(
                     clients[pg][k][x],
-                    Object.assign({code: code, from: obj.sid}, o)
+                    Object.assign({ code: code, from: obj.sid }, o)
                   );
                 });
               }
@@ -101,7 +101,7 @@ module.exports = function(wss) {
               doKill(pg);
               disconnectFromOtherConnexion(pg, "disconnect");
               if (pg.indexOf("/game/") >= 0 && clients["/"])
-                disconnectFromOtherConnexion("/", "gdisconnect", {page: pg});
+                disconnectFromOtherConnexion("/", "gdisconnect", { page: pg });
             }
           });
           break;
@@ -113,7 +113,7 @@ module.exports = function(wss) {
             // Avoid polling myself: no new information to get
             if (k != sid) sockIds.push(k);
           });
-          send(socket, {code: "pollclients", sockIds: sockIds});
+          send(socket, { code: "pollclients", sockIds: sockIds });
           break;
         }
         case "pollclientsandgamers": {
@@ -128,11 +128,11 @@ module.exports = function(wss) {
             if (p != "/") {
               Object.keys(clients[p]).forEach(k => {
                 // 'page' indicator is needed for gamers
-                if (k != sid) sockIds.push({sid:k, page:p});
+                if (k != sid) sockIds.push({ sid:k, page:p });
               });
             }
           });
-          send(socket, {code: "pollclientsandgamers", sockIds: sockIds});
+          send(socket, { code: "pollclientsandgamers", sockIds: sockIds });
           break;
         }
 
@@ -155,7 +155,7 @@ module.exports = function(wss) {
             const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
             send(
               clients[pg][obj.target][tmpIds[tmpId_idx]],
-              {code: obj.code, from: [sid,tmpId,page]}
+              { code: obj.code, from: [sid,tmpId,page] }
             );
           }
           break;
@@ -168,7 +168,7 @@ module.exports = function(wss) {
             if (obj.target != sid || x != tmpId)
               send(
                 clients[page][obj.target][x],
-                {code: obj.code, data: obj.data}
+                { code: obj.code, data: obj.data }
               );
           });
           break;
@@ -186,13 +186,13 @@ module.exports = function(wss) {
           break;
 
         case "newmove": {
-          const dataWithFrom = {from: [sid,tmpId], data: obj.data};
+          const dataWithFrom = { from: [sid,tmpId], data: obj.data };
           // Special case re-send newmove only to opponent:
           if (!!obj.target && !!clients[page][obj.target]) {
             Object.keys(clients[page][obj.target]).forEach(x => {
               send(
                 clients[page][obj.target][x],
-                Object.assign({code: "newmove"}, dataWithFrom)
+                Object.assign({ code: "newmove" }, dataWithFrom)
               );
             });
           } else {
@@ -208,14 +208,14 @@ module.exports = function(wss) {
           ) {
             send(
               clients[page][obj.target[0]][obj.target[1]],
-              {code: "gotmove", data: obj.data}
+              { code: "gotmove", data: obj.data }
             );
           }
           break;
 
         case "result":
           // Special case: notify all, 'transroom': Game --> Hall
-          notifyRoom("/", "result", {gid: obj.gid, score: obj.score});
+          notifyRoom("/", "result", { gid: obj.gid, score: obj.score });
           break;
 
         case "mconnect":
@@ -228,7 +228,7 @@ module.exports = function(wss) {
               Object.keys(clients[pg][s]).forEach(x => {
                 send(
                   clients[pg][s][x],
-                  {code: "mconnect", data: obj.data}
+                  { code: "mconnect", data: obj.data }
                 );
               });
             });
@@ -238,6 +238,18 @@ module.exports = function(wss) {
           // TODO
           // Also TODO: pass newgame to MyGames, and gameover (result)
           break;
+        case "mabort": {
+          const gamePg = "/game/" + obj.gid;
+          if (!!clients[gamePg] && !!clients[gamePg][obj.target]) {
+            Object.keys(clients[gamePg][target]).forEach(x => {
+              send(
+                clients[gamePg][obj.target][x],
+                { code: "abort" }
+              );
+            });
+          }
+          break;
+        }
 
         // Passing, relaying something: from isn't needed,
         // but target is fully identified (sid + tmpId)
@@ -250,8 +262,12 @@ module.exports = function(wss) {
           const pg = obj.target[2] || page; //required for identity and game
           // NOTE: if in game we ask identity to opponent still in Hall,
           // but leaving Hall, clients[pg] or clients[pg][target] could be undefined
-          if (!!clients[pg] && !!clients[pg][obj.target[0]])
-            send(clients[pg][obj.target[0]][obj.target[1]], {code:obj.code, data:obj.data});
+          if (!!clients[pg] && !!clients[pg][obj.target[0]]) {
+            send(
+              clients[pg][obj.target[0]][obj.target[1]],
+              { code:obj.code, data:obj.data }
+            );
+          }
           break;
         }
       }
@@ -262,9 +278,9 @@ module.exports = function(wss) {
     };
     // Update clients object: add new connexion
     if (!clients[page])
-      clients[page] = {[sid]: {[tmpId]: socket}};
+      clients[page] = { [sid]: {[tmpId]: socket } };
     else if (!clients[page][sid])
-      clients[page][sid] = {[tmpId]: socket};
+      clients[page][sid] = { [tmpId]: socket };
     else
       clients[page][sid][tmpId] = socket;
     socket.on("message", messageListener);
