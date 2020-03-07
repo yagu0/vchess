@@ -18,7 +18,12 @@ new Vue({
       if (e.code === "Escape") {
         let modalBoxes = document.querySelectorAll("[id^='modal']");
         modalBoxes.forEach(m => {
-          if (m.checked && m.id != "modalAccept") m.checked = false;
+          if (
+            m.checked &&
+            !["modalAccept","modalConfirm"].includes(m.id)
+          ) {
+            m.checked = false;
+          }
         });
       }
     });

@@ -10,15 +10,17 @@ main
       p(v-html="infoMessage")
   input#modalAccept.modal(type="checkbox")
   div#acceptDiv(role="dialog")
-    .card.text-center
-      p
+    .card
+      p.text-center
         span.variantName {{ curChallToAccept.vname }} 
         span {{ curChallToAccept.cadence }} 
         span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
       .diagram(v-html="tchallDiag")
       .button-group#buttonsTchall
-        button.acceptBtn(@click="decisionChallenge(true)") {{ st.tr["Accept challenge?"] }}
-        button.refuseBtn(@click="decisionChallenge(false)") {{ st.tr["Refuse"] }}
+        button.acceptBtn(@click="decisionChallenge(true)")
+          span {{ st.tr["Accept challenge?"] }}
+        button.refuseBtn(@click="decisionChallenge(false)")
+          span {{ st.tr["Refuse"] }}
   input#modalNewgame.modal(
     type="checkbox"
     @change="cadenceFocusIfOpened($event)"
@@ -303,6 +305,7 @@ export default {
       "&tmpId=" +
       getRandString() +
       "&page=" +
+      // Hall: path is "/" (could be hard-coded as well)
       encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onopen = connectAndPoll;
@@ -699,7 +702,7 @@ export default {
         const parsedFen = V.ParseFen(this.newchallenge.fen);
         this.newchallenge.diag = getDiagram({
           position: parsedFen.position,
-          orientation: V.GetOppCol(parsedFen.turn)
+          orientation: parsedFen.turn
         });
       }
     },
@@ -989,6 +992,9 @@ button.refuseBtn
 
 #buttonsTchall
   margin-top: 10px
+  & > button > span
+    width: 100%
+    text-align: center
 
 .variantName
   font-weight: bold
@@ -996,6 +1002,8 @@ button.refuseBtn
 .diagram
   margin: 0 auto
   max-width: 400px
+  // width: 100% required for Firefox
+  width: 100%
 
 #inputFen
   width: 100%

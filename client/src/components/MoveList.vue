@@ -77,6 +77,12 @@ export default {
     document.getElementById("adjuster").addEventListener(
       "click",
       processModalClick);
+    if ("ontouchstart" in window) {
+      // Disable tooltips on smartphones:
+      document.getElementsByClassName("tooltip").forEach(elt => {
+        elt.classList.remove("tooltip");
+      });
+    }
     // Take full width on small screens:
     let boardSize = parseInt(localStorage.getItem("boardSize"));
     if (!boardSize) {
@@ -218,4 +224,7 @@ span#rulesBtn
 
 button
   margin: 0
+
+button.tooltip
+  padding-bottom: 5px
 </style>

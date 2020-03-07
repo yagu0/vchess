@@ -8,7 +8,7 @@ main
     role="dialog"
     data-checkbox="modalChat"
   )
-    #chat.card
+    .card
       label.modal-close(for="modalChat")
       #participants
         span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
@@ -26,6 +26,16 @@ main
         @mychat="processChat"
         @chatcleared="clearChat"
       )
+  input#modalConfirm.modal(type="checkbox")
+  div#confirmDiv(role="dialog")
+    .card
+      .diagram(v-html="curDiag")
+      .button-group#buttonsConfirm
+        // onClick for acceptBtn: set dynamically
+        button.acceptBtn
+          span {{ st.tr["Validate"] }}
+        button.refuseBtn(@click="cancelMove()")
+          span {{ st.tr["Cancel"] }}
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
       span.variant-cadence {{ game.cadence }}
@@ -103,8 +113,8 @@ import { ppt } from "@/utils/datetime";
 import { ajax } from "@/utils/ajax";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
+import { getDiagram } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
-import { getFullNotation } from "@/utils/notation";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
 import { getScoreMessage } from "@/utils/scoring";
 import { ArrayFun } from "@/utils/array";
@@ -138,6 +148,7 @@ export default {
       onMygames: [], //opponents (or me) on "MyGames" page
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
+      curDiag: "", //for corr moves confirmation
       newChat: "",
       conn: null,
       roomInitialized: false,
@@ -181,7 +192,8 @@ export default {
       "&tmpId=" +
       getRandString() +
       "&page=" +
-      encodeURIComponent(this.$route.path);
+      // Discard potential "/?next=[...]" for page indication:
+      encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onmessage = this.socketMessageListener;
     this.conn.onclose = this.socketCloseListener;
@@ -209,6 +221,12 @@ export default {
     document
       .getElementById("chatWrap")
       .addEventListener("click", processModalClick);
+    if ("ontouchstart" in window) {
+      // Disable tooltips on smartphones:
+      document.getElementsByClassName("tooltip").forEach(elt => {
+        elt.classList.remove("tooltip");
+      });
+    }
   },
   beforeDestroy: function() {
     this.send("disconnect");
@@ -935,26 +953,31 @@ export default {
         moveCol == this.game.mycolor &&
         !data.receiveMyMove
       ) {
-        setTimeout(() => {
-          // TODO: remplacer cette confirm box par qqch de plus discret
-          // (et de même pour challenge accepté / refusé)
-          if (
-            !confirm(
-              this.st.tr["Move played:"] +
-                " " +
-                getFullNotation(move) +
-                "\n" +
-                this.st.tr["Are you sure?"]
-            )
-          ) {
-            this.$refs["basegame"].cancelLastMove();
-            return;
+        let el = document.querySelector("#buttonsConfirm > .acceptBtn");
+        // We may play several moves in a row: in case of, remove listener:
+        let elClone = el.cloneNode(true);
+        el.parentNode.replaceChild(elClone, el);
+        elClone.addEventListener(
+          "click",
+          () => {
+            document.getElementById("modalConfirm").checked = false;
+            doProcessMove();
           }
-          doProcessMove();
-        // Let small time to finish drawing current move attempt:
-        }, 500);
+        );
+        this.vr.play(move);
+        const parsedFen = V.ParseFen(this.vr.getFen());
+        this.vr.undo(move);
+        this.curDiag = getDiagram({
+          position: parsedFen.position,
+          orientation: this.game.mycolor
+        });
+        document.getElementById("modalConfirm").checked = true;
       }
       else doProcessMove();
+    },
+    cancelMove: function() {
+      document.getElementById("modalConfirm").checked = false;
+      this.$refs["basegame"].cancelLastMove();
     },
     gameOver: function(score, scoreMsg) {
       this.game.score = score;
@@ -1059,10 +1082,14 @@ span.yourturn
   display: inline-block
   margin: 0 15px
 
-#chat
+#chatWrap > .card
   padding-top: 20px
   max-width: 767px
-  border: none;
+  border: none
+
+#confirmDiv > .card
+  max-width: 767px
+  max-height: 100%
 
 .draw-sent, .draw-sent:hover
   background-color: lightyellow
@@ -1075,4 +1102,21 @@ span.yourturn
 
 .somethingnew
   background-color: #c5fefe
+
+.diagram
+  margin: 0 auto
+  max-width: 400px
+  // width: 100% required for Firefox
+  width: 100%
+
+#buttonsConfirm
+  margin: 0
+  & > button > span
+    width: 100%
+    text-align: center
+
+button.acceptBtn
+  background-color: lightgreen
+button.refuseBtn
+  background-color: red
 </style>
