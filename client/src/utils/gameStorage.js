@@ -122,7 +122,7 @@ export const GameStorage = {
       if (!err) {
         let transaction = db.transaction(["games"], "readwrite");
         transaction.oncomplete = function() {
-          callback({}); //everything's fine
+          callback(); //everything's fine
         };
         transaction.objectStore("games").delete(gameId);
       }

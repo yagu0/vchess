@@ -895,6 +895,7 @@ export default {
         this.virtualClocks = this.game.clocks.map(s => ppt(s).split(':'));
         return;
       }
+      clearInterval(this.clockUpdate);
       const currentTurn = this.vr.turn;
       const currentMovesCount = this.game.moves.length;
       const colorIdx = ["w", "b"].indexOf(currentTurn);

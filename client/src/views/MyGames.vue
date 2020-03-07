@@ -11,12 +11,13 @@ main
         v-show="display=='live'"
         :games="liveGames"
         @show-game="showGame"
+        @abortgame="abortGame"
       )
       GameList(
         v-show="display=='corr'"
         :games="corrGames"
         @show-game="showGame"
-        @abort="abortGame"
+        @abortgame="abortGame"
       )
 </template>
 

@@ -241,7 +241,7 @@ module.exports = function(wss) {
         case "mabort": {
           const gamePg = "/game/" + obj.gid;
           if (!!clients[gamePg] && !!clients[gamePg][obj.target]) {
-            Object.keys(clients[gamePg][target]).forEach(x => {
+            Object.keys(clients[gamePg][obj.target]).forEach(x => {
               send(
                 clients[gamePg][obj.target][x],
                 { code: "abort" }

@@ -150,7 +150,7 @@ export default {
             : "Abort and remove game?";
         if (confirm(this.st.tr[message])) {
           const afterDelete = () => {
-            if (game.score == "*") this.$emit("abort", game);
+            if (game.score == "*") this.$emit("abortgame", game);
             this.$set(this.deleted, game.id, true);
           };
           if (game.type == "live")
