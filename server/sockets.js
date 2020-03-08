@@ -208,7 +208,7 @@ module.exports = function(wss) {
           ) {
             send(
               clients[page][obj.target[0]][obj.target[1]],
-              { code: "gotmove", data: obj.data }
+              { code: "gotmove" }
             );
           }
           break;
@@ -228,7 +228,7 @@ module.exports = function(wss) {
               Object.keys(clients[pg][s]).forEach(x => {
                 send(
                   clients[pg][s][x],
-                  { code: "mconnect", data: obj.data }
+                  { code: "mconnect", from: sid }
                 );
               });
             });

@@ -160,8 +160,6 @@ export default {
       opponentGotMove: false,
       connexionString: "",
       // Intervals from setInterval():
-      // TODO: limit them to e.g. 3 retries ?!
-      askIfPeerConnected: null,
       askLastate: null,
       retrySendmove: null,
       clockUpdate: null,
@@ -238,7 +236,6 @@ export default {
       this.gotLastate = false;
       this.gotMoveIdx = -1;
       this.opponentGotMove = false;
-      this.askIfPeerConnected = null;
       this.askLastate = null;
       this.retrySendmove = null;
       this.clockUpdate = null;
@@ -278,8 +275,6 @@ export default {
         socketInit(this.loadGame);
     },
     cleanBeforeDestroy: function() {
-      if (!!this.askIfPeerConnected)
-        clearInterval(this.askIfPeerConnected);
       if (!!this.askLastate)
         clearInterval(this.askLastate);
       if (!!this.retrySendmove)
@@ -369,27 +364,14 @@ export default {
       this.gameIsLoading = true;
       const currentUrl = document.location.href;
       const doAskGame = () => {
-        if (currentUrl != document.location.href) return; //page change
+        if (document.location.href != currentUrl) return; //page change
         if (!this.gameRef.rid)
           // This is my game: just reload.
           this.loadGame();
-        else {
+        else
           // Just ask fullgame again (once!), this is much simpler.
           // If this fails, the user could just reload page :/
           this.send("askfullgame", { target: this.gameRef.rid });
-          this.askIfPeerConnected = setInterval(
-            () => {
-              if (
-                !!this.people[this.gameRef.rid] &&
-                currentUrl != document.location.href
-              ) {
-                this.send("askfullgame", { target: this.gameRef.rid });
-                clearInterval(this.askIfPeerConnected);
-              }
-            },
-            1000
-          );
-        }
       };
       // Delay of at least 2s between two game requests
       const now = Date.now();
@@ -473,15 +455,23 @@ export default {
               this.game.players.some(p => p.sid == user.sid)
             ) {
               this.send("asklastate", { target: user.sid });
+              let counter = 1;
               this.askLastate = setInterval(
                 () => {
-                  // Ask until we got a reply (or opponent disconnect):
-                  if (!this.gotLastate && !!this.people[user.sid])
+                  // Ask at most 3 times:
+                  // if no reply after that there should be a network issue.
+                  if (
+                    counter < 3 &&
+                    !this.gotLastate &&
+                    !!this.people[user.sid]
+                  ) {
                     this.send("asklastate", { target: user.sid });
-                  else
+                    counter++;
+                  } else {
                     clearInterval(this.askLastate);
+                  }
                 },
-                1000
+                1500
               );
             }
           }
@@ -537,7 +527,7 @@ export default {
             const myIdx = ["w", "b"].indexOf(this.game.mycolor);
             const myLastate = {
               lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
-              addTime: L > 0 ? this.game.addTimes[L - 1] : undefined,
+              clock: this.game.clocks[myIdx],
               // Since we played a move (or abort or resign),
               // only drawOffer=="sent" is possible
               drawSent: this.drawOffer == "sent",
@@ -601,7 +591,7 @@ export default {
               this.processMove(
                 movePlus.move,
                 {
-                  addTime: movePlus.addTime,
+                  clock: movePlus.clock,
                   receiveMyMove: receiveMyMove
                 }
               );
@@ -611,6 +601,10 @@ export default {
         }
         case "gotmove": {
           this.opponentGotMove = true;
+          // Now his clock starts running:
+          const oppIdx = ['w','b'].indexOf(this.vr.turn);
+          this.game.initime[oppIdx] = Date.now();
+          this.re_setClocks();
           break;
         }
         case "resign":
@@ -660,12 +654,8 @@ export default {
       const L = this.game.moves.length;
       if (data.movesCount > L) {
         // Just got last move from him
-        this.$refs["basegame"].play(
-          data.lastMove,
-          "received",
-          null,
-          {addTime: data.addTime, initime: data.initime}
-        );
+        this.$refs["basegame"].play(data.lastMove, "received", null, true);
+        this.processMove(data.lastMove, { clock: data.clock });
       }
       if (data.drawSent) this.drawOffer = "received";
       if (data.score != "*") {
@@ -832,8 +822,7 @@ export default {
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
-            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid,
-            addTimes: [], //used for live games
+            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid
           },
           game,
         );
@@ -895,7 +884,6 @@ export default {
         this.virtualClocks = this.game.clocks.map(s => ppt(s).split(':'));
         return;
       }
-      clearInterval(this.clockUpdate);
       const currentTurn = this.vr.turn;
       const currentMovesCount = this.game.moves.length;
       const colorIdx = ["w", "b"].indexOf(currentTurn);
@@ -907,25 +895,28 @@ export default {
           i == colorIdx ? (Date.now() - this.game.initime[colorIdx]) / 1000 : 0;
         return ppt(this.game.clocks[i] - removeTime).split(':');
       });
-      this.clockUpdate = setInterval(() => {
-        if (
-          countdown < 0 ||
-          this.game.moves.length > currentMovesCount ||
-          this.game.score != "*"
-        ) {
-          clearInterval(this.clockUpdate);
-          if (countdown < 0)
-            this.gameOver(
-              currentTurn == "w" ? "0-1" : "1-0",
-              "Time"
+      this.clockUpdate = setInterval(
+        () => {
+          if (
+            countdown < 0 ||
+            this.game.moves.length > currentMovesCount ||
+            this.game.score != "*"
+          ) {
+            clearInterval(this.clockUpdate);
+            if (countdown < 0)
+              this.gameOver(
+                currentTurn == "w" ? "0-1" : "1-0",
+                "Time"
+              );
+          } else
+            this.$set(
+              this.virtualClocks,
+              colorIdx,
+              ppt(Math.max(0, --countdown)).split(':')
             );
-        } else
-          this.$set(
-            this.virtualClocks,
-            colorIdx,
-            ppt(Math.max(0, --countdown)).split(':')
-          );
-      }, 1000);
+        },
+        1000
+      );
     },
     // Update variables and storage after a move:
     processMove: function(move, data) {
@@ -935,10 +926,7 @@ export default {
         const colorIdx = ["w", "b"].indexOf(moveCol);
         const nextIdx = 1 - colorIdx;
         const origMovescount = this.game.moves.length;
-        let addTime =
-          this.game.type == "live"
-            ? (data.addTime || 0)
-            : undefined;
+        let addTime = 0; //for live games
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw
@@ -951,6 +939,8 @@ export default {
         }
         // Update current game object:
         playMove(move, this.vr);
+        // The move is played: stop clock
+        clearInterval(this.clockUpdate);
         if (!data.score) {
           // Received move, score has not been computed in BaseGame (!!noemit)
           const score = this.vr.getCurrentScore();
@@ -958,18 +948,29 @@ export default {
         }
 // TODO: notifyTurn: "changeturn" message
         this.game.moves.push(move);
-        // (add)Time indication: useful in case of lastate infos requested
-        if (this.game.type == "live")
-          this.game.addTimes.push(addTime);
         this.game.fen = this.vr.getFen();
-        if (this.game.type == "live") this.game.clocks[colorIdx] += addTime;
+        if (this.game.type == "live") {
+          if (!!data.clock) this.game.clocks[colorIdx] = data.clock;
+          else this.game.clocks[colorIdx] += addTime;
+        }
         // In corr games, just reset clock to mainTime:
-        else this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
-        // data.initime is set only when I receive a "lastate" move from opponent
-        this.game.initime[nextIdx] = data.initime || Date.now();
+        else {
+          this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
+        }
+        // NOTE: opponent's initime is reset after "gotmove" is received
+        if (
+          !this.game.mycolor ||
+          moveCol != this.game.mycolor ||
+          !!data.receiveMyMove
+        ) {
+          this.game.initime[nextIdx] = Date.now();
+        }
         // If repetition detected, consider that a draw offer was received:
         const fenObj = this.vr.getFenForRepeat();
-        this.repeat[fenObj] = this.repeat[fenObj] ? this.repeat[fenObj] + 1 : 1;
+        this.repeat[fenObj] =
+          !!this.repeat[fenObj]
+            ? this.repeat[fenObj] + 1
+            : 1;
         if (this.repeat[fenObj] >= 3) this.drawOffer = "threerep";
         else if (this.drawOffer == "threerep") this.drawOffer = "";
         if (!!this.game.mycolor && !data.receiveMyMove) {
@@ -1027,20 +1028,29 @@ export default {
         }
         // Send move ("newmove" event) to people in the room (if our turn)
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
-          const sendMove = {
+          let sendMove = {
             move: filtered_move,
             index: origMovescount,
             // color is required to check if this is my move (if several tabs opened)
             color: moveCol,
-            addTime: addTime, //undefined for corr games
             cancelDrawOffer: this.drawOffer == ""
           };
+          if (this.game.type == "live")
+            sendMove["clock"] = this.game.clocks[colorIdx];
           this.opponentGotMove = false;
           this.send("newmove", {data: sendMove});
           // If the opponent doesn't reply gotmove soon enough, re-send move:
+          // Do this at most 2 times, because mpore would mean network issues,
+          // opponent would then be expected to disconnect/reconnect.
+          let counter = 1;
+          const currentUrl = document.location.href;
           this.retrySendmove = setInterval(
             () => {
-              if (this.opponentGotMove) {
+              if (
+                counter >= 3 ||
+                this.opponentGotMove ||
+                document.location.href != currentUrl //page change
+              ) {
                 clearInterval(this.retrySendmove);
                 return;
               }
@@ -1053,11 +1063,17 @@ export default {
               if (!oppsid || !this.people[oppsid])
                 // Opponent is disconnected: he'll ask last state
                 clearInterval(this.retrySendmove);
-              else this.send("newmove", {data: sendMove, target: oppsid});
+              else {
+                this.send("newmove", { data: sendMove, target: oppsid });
+                counter++;
+              }
             },
-            1000
+            1500
           );
         }
+        else
+          // Not my move or I'm an observer: just start other player's clock
+          this.re_setClocks();
       };
       if (
         this.game.type == "corr" &&
@@ -1069,7 +1085,6 @@ export default {
           if (this.st.settings.gotonext && this.nextIds.length > 0)
             this.showNextGame();
           else {
-            this.re_setClocks();
             // The board might have been hidden:
             let boardDiv = document.querySelector(".game");
             if (boardDiv.style.visibility == "hidden")
@@ -1123,13 +1138,9 @@ export default {
       }
       else {
         // Normal situation
-        const afterSetScore = () => {
-          doProcessMove();
-          this.re_setClocks();
-        };
         if (!!data.score && data.score != "*")
-          this.gameOver(data.score, null, afterSetScore);
-        else afterSetScore();
+          this.gameOver(data.score, null, doProcessMove);
+        else doProcessMove();
       }
     },
     cancelMove: function() {
