@@ -21,14 +21,17 @@ export default {
     ajax(
       "/logout",
       "GET",
-      () => {
-        this.logoutOk = true;
-        this.st.user.id = 0;
-        this.st.user.name = "";
-        this.st.user.email = "";
-        this.st.user.notify = false;
-        localStorage.removeItem("myid");
-        localStorage.removeItem("myname");
+      {
+        credentials: true,
+        success: () => {
+          this.logoutOk = true;
+          this.st.user.id = 0;
+          this.st.user.name = "";
+          this.st.user.email = "";
+          this.st.user.notify = false;
+          localStorage.removeItem("myid");
+          localStorage.removeItem("myname");
+        }
       }
     );
   }

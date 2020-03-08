@@ -13,12 +13,23 @@ export const store = {
   },
   socketCloseListener: null,
   initialize() {
+    const headers = {
+      "Content-Type": "application/json;charset=UTF-8",
+      "X-Requested-With": "XMLHttpRequest"
+    };
     fetch(
       params.serverUrl + "/variants",
-      {method: "GET"},
+      {
+        method: "GET",
+        headers: headers
+      }
     )
     .then(res => res.json())
     .then(json => {
+      if (!Array.isArray(json.variantArray)) {
+        alert("Variants loading failed: reload the page");
+        return;
+      }
       this.state.variants = json.variantArray.sort(
         (v1,v2) => v1.name.localeCompare(v2.name));
     });
@@ -42,6 +53,7 @@ export const store = {
       params.serverUrl + "/whoami",
       {
         method: "GET",
+        headers: headers,
         credentials: params.credentials
       }
     )

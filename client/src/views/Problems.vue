@@ -145,34 +145,47 @@ export default {
     };
   },
   created: function() {
-    ajax("/problems", "GET", res => {
-      // Show newest problem first:
-      this.problems = res.problems.sort((p1, p2) => p2.added - p1.added);
-      if (this.st.variants.length > 0)
-        this.problems.forEach(p => this.setVname(p));
-      // Retrieve all problems' authors' names
-      let names = {};
-      this.problems.forEach(p => {
-        if (p.uid != this.st.user.id) names[p.uid] = "";
-        else p.uname = this.st.user.name;
-      });
-      const showOneIfPid = () => {
-        const pid = this.$route.query["id"];
-        if (pid) this.showProblem(this.problems.find(p => p.id == pid));
-      };
-      if (Object.keys(names).length > 0) {
-        ajax("/users", "GET", { ids: Object.keys(names).join(",") }, res2 => {
-          res2.users.forEach(u => {
-            names[u.id] = u.name;
-          });
+    ajax(
+      "/problems",
+      "GET",
+      {
+        success: (res) => {
+          // Show newest problem first:
+          this.problems = res.problems.sort((p1, p2) => p2.added - p1.added);
+          if (this.st.variants.length > 0)
+            this.problems.forEach(p => this.setVname(p));
+          // Retrieve all problems' authors' names
+          let names = {};
           this.problems.forEach(p => {
-            if (!p.uname)
-              p.uname = names[p.uid];
+            if (p.uid != this.st.user.id) names[p.uid] = "";
+            else p.uname = this.st.user.name;
           });
-          showOneIfPid();
-        });
-      } else showOneIfPid();
-    });
+          const showOneIfPid = () => {
+            const pid = this.$route.query["id"];
+            if (pid) this.showProblem(this.problems.find(p => p.id == pid));
+          };
+          if (Object.keys(names).length > 0) {
+            ajax(
+              "/users",
+              "GET",
+              {
+                data: { ids: Object.keys(names).join(",") },
+                success: (res2) => {
+                  res2.users.forEach(u => {
+                    names[u.id] = u.name;
+                  });
+                  this.problems.forEach(p => {
+                    if (!p.uname)
+                      p.uname = names[p.uid];
+                  });
+                  showOneIfPid();
+                }
+              }
+            );
+          } else showOneIfPid();
+        }
+      }
+    );
   },
   mounted: function() {
     document
@@ -322,22 +335,24 @@ export default {
       ajax(
         "/problems",
         edit ? "PUT" : "POST",
-        { prob: this.curproblem },
-        ret => {
-          if (edit) {
-            let editedP = this.problems.find(p => p.id == this.curproblem.id);
-            this.copyProblem(this.curproblem, editedP);
-            this.showProblem(editedP);
+        {
+          data: { prob: this.curproblem },
+          success: (ret) => {
+            if (edit) {
+              let editedP = this.problems.find(p => p.id == this.curproblem.id);
+              this.copyProblem(this.curproblem, editedP);
+              this.showProblem(editedP);
+            }
+            else {
+              let newProblem = Object.assign({}, this.curproblem);
+              newProblem.id = ret.id;
+              newProblem.uid = this.st.user.id;
+              newProblem.uname = this.st.user.name;
+              this.problems = [newProblem].concat(this.problems);
+            }
+            document.getElementById("modalNewprob").checked = false;
+            this.infoMsg = "";
           }
-          else {
-            let newProblem = Object.assign({}, this.curproblem);
-            newProblem.id = ret.id;
-            newProblem.uid = this.st.user.id;
-            newProblem.uname = this.st.user.name;
-            this.problems = [newProblem].concat(this.problems);
-          }
-          document.getElementById("modalNewprob").checked = false;
-          this.infoMsg = "";
         }
       );
     },
@@ -349,10 +364,17 @@ export default {
     },
     deleteProblem: function(prob) {
       if (confirm(this.st.tr["Are you sure?"])) {
-        ajax("/problems", "DELETE", { id: prob.id }, () => {
-          ArrayFun.remove(this.problems, p => p.id == prob.id);
-          this.backToList();
-        });
+        ajax(
+          "/problems",
+          "DELETE",
+          {
+            data: { id: prob.id },
+            success: () => {
+              ArrayFun.remove(this.problems, p => p.id == prob.id);
+              this.backToList();
+            }
+          }
+        );
       }
     }
   }

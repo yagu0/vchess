@@ -238,61 +238,72 @@ export default {
     ajax(
       "/games",
       "GET",
-      { uid: this.st.user.id, excluded: true },
-      response => {
-        this.games = this.games.concat(
-          response.games.map(g => {
-            const type = this.classifyObject(g);
-            const vname = this.getVname(g.vid);
-            return Object.assign({}, g, { type: type, vname: vname });
-          })
-        );
+      {
+        data: { uid: this.st.user.id, excluded: true },
+        success: (response) => {
+          this.games = this.games.concat(
+            response.games.map(g => {
+              const type = this.classifyObject(g);
+              const vname = this.getVname(g.vid);
+              return Object.assign({}, g, { type: type, vname: vname });
+            })
+          );
+        }
       }
     );
     // Also ask for corr challenges (open + sent by/to me)
-    ajax("/challenges", "GET", { uid: this.st.user.id }, response => {
-      // Gather all senders names, and then retrieve full identity:
-      // (TODO [perf]: some might be online...)
-      let names = {};
-      response.challenges.forEach(c => {
-        if (c.uid != this.st.user.id) names[c.uid] = "";
-        else if (!!c.target && c.target != this.st.user.id)
-          names[c.target] = "";
-      });
-      const addChallenges = () => {
-        names[this.st.user.id] = this.st.user.name; //in case of
-        this.challenges = this.challenges.concat(
-          response.challenges.map(c => {
-            const from = { name: names[c.uid], id: c.uid }; //or just name
-            const type = this.classifyObject(c);
-            const vname = this.getVname(c.vid);
-            return Object.assign(
-              {},
-              {
-                type: type,
-                vname: vname,
-                from: from,
-                to: c.target ? names[c.target] : ""
-              },
-              c
+    ajax(
+      "/challenges",
+      "GET",
+      {
+        data: { uid: this.st.user.id },
+        success: (response) => {
+          // Gather all senders names, and then retrieve full identity:
+          // (TODO [perf]: some might be online...)
+          let names = {};
+          response.challenges.forEach(c => {
+            if (c.uid != this.st.user.id) names[c.uid] = "";
+            else if (!!c.target && c.target != this.st.user.id)
+              names[c.target] = "";
+          });
+          const addChallenges = () => {
+            names[this.st.user.id] = this.st.user.name; //in case of
+            this.challenges = this.challenges.concat(
+              response.challenges.map(c => {
+                const from = { name: names[c.uid], id: c.uid }; //or just name
+                const type = this.classifyObject(c);
+                const vname = this.getVname(c.vid);
+                return Object.assign(
+                  {},
+                  {
+                    type: type,
+                    vname: vname,
+                    from: from,
+                    to: c.target ? names[c.target] : ""
+                  },
+                  c
+                );
+              })
             );
-          })
-        );
-      };
-      if (Object.keys(names).length > 0) {
-        ajax(
-          "/users",
-          "GET",
-          { ids: Object.keys(names).join(",") },
-          response2 => {
-            response2.users.forEach(u => {
-              names[u.id] = u.name;
-            });
-            addChallenges();
-          }
-        );
-      } else addChallenges();
-    });
+          };
+          if (Object.keys(names).length > 0) {
+            ajax(
+              "/users",
+              "GET",
+              {
+                data: { ids: Object.keys(names).join(",") },
+                success: (response2) => {
+                  response2.users.forEach(u => {
+                    names[u.id] = u.name;
+                  });
+                  addChallenges();
+                }
+              }
+            );
+          } else addChallenges();
+        }
+      }
+    );
     const connectAndPoll = () => {
       this.send("connect");
       this.send("pollclientsandgamers");
@@ -751,7 +762,11 @@ export default {
           // Delete current challenge (will be replaced now)
           this.send("deletechallenge", { data: this.challenges[cIdx].id });
           if (ctype == "corr") {
-            ajax("/challenges", "DELETE", { id: this.challenges[cIdx].id });
+            ajax(
+              "/challenges",
+              "DELETE",
+              { data: { id: this.challenges[cIdx].id } }
+            );
           }
           this.challenges.splice(cIdx, 1);
         }
@@ -788,9 +803,16 @@ export default {
         finishAddChallenge(null);
       } else {
         // Correspondance game: send challenge to server
-        ajax("/challenges", "POST", { chall: chall }, response => {
-          finishAddChallenge(response.cid);
-        });
+        ajax(
+          "/challenges",
+          "POST",
+          {
+            data: { chall: chall },
+            success: (response) => {
+              finishAddChallenge(response.cid);
+            }
+          }
+        );
       }
     },
     // Callback function after a diagram was showed to accept
@@ -813,8 +835,13 @@ export default {
         const oppsid = this.getOppsid(c);
         if (!!oppsid)
           this.send("refusechallenge", { data: c.id, target: oppsid });
-        if (c.type == "corr")
-          ajax("/challenges", "DELETE", { id: c.id });
+        if (c.type == "corr") {
+          ajax(
+            "/challenges",
+            "DELETE",
+            { data: { id: c.id } }
+          );
+        }
       }
       this.send("deletechallenge", { data: c.id });
     },
@@ -853,8 +880,13 @@ export default {
       }
       else {
         // My challenge
-        if (c.type == "corr")
-          ajax("/challenges", "DELETE", { id: c.id });
+        if (c.type == "corr") {
+          ajax(
+            "/challenges",
+            "DELETE",
+            { data: { id: c.id } }
+          );
+        }
         this.send("deletechallenge", { data: c.id });
       }
       // In all cases, the challenge is consumed:
@@ -889,11 +921,14 @@ export default {
         ajax(
           "/games",
           "POST",
-          { gameInfo: gameInfo, cid: c.id }, //cid useful to delete challenge
-          response => {
-            gameInfo.id = response.gameId;
-            notifyNewgame();
-            this.$router.push("/game/" + response.gameId);
+          {
+            // cid is useful to delete the challenge:
+            data: { gameInfo: gameInfo, cid: c.id },
+            success: (response) => {
+              gameInfo.id = response.gameId;
+              notifyNewgame();
+              this.$router.push("/game/" + response.gameId);
+            }
           }
         );
       }

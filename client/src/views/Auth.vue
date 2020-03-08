@@ -21,15 +21,18 @@ export default {
     ajax(
       "/authenticate",
       "GET",
-      { token: this.$route.params["token"] },
-      res => {
-        this.authOk = true;
-        this.st.user.id = res.id;
-        this.st.user.name = res.name;
-        this.st.user.email = res.email;
-        this.st.user.notify = res.notify;
-        localStorage["myname"] = res.name;
-        localStorage["myid"] = res.id;
+      {
+        credentials: true,
+        data: { token: this.$route.params["token"] },
+        success: (res) => {
+          this.authOk = true;
+          this.st.user.id = res.id;
+          this.st.user.name = res.name;
+          this.st.user.email = res.email;
+          this.st.user.notify = res.notify;
+          localStorage["myname"] = res.name;
+          localStorage["myid"] = res.id;
+        }
       }
     );
   }

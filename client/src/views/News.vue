@@ -56,11 +56,18 @@ export default {
     };
   },
   created: function() {
-    ajax("/news", "GET", { cursor: this.cursor }, res => {
-      this.newsList = res.newsList.sort((n1, n2) => n2.added - n1.added);
-      const L = res.newsList.length;
-      if (L > 0) this.cursor = this.newsList[0].id;
-    });
+    ajax(
+      "/news",
+      "GET",
+      {
+        data: { cursor: this.cursor },
+        success: (res) => {
+          this.newsList = res.newsList.sort((n1, n2) => n2.added - n1.added);
+          const L = res.newsList.length;
+          if (L > 0) this.cursor = this.newsList[0].id;
+        }
+      }
+    );
   },
   mounted: function() {
     document
@@ -99,23 +106,30 @@ export default {
     sendNews: function() {
       const edit = this.curnews.id > 0;
       this.infoMsg = "Processing... Please wait";
-      ajax("/news", edit ? "PUT" : "POST", { news: this.curnews }, res => {
-        if (edit) {
-          let n = this.newsList.find(n => n.id == this.curnews.id);
-          if (n) n.content = this.curnews.content;
-        } else {
-          const newNews = {
-            content: this.curnews.content,
-            added: Date.now(),
-            uid: this.st.user.id,
-            id: res.id
-          };
-          this.newsList = [newNews].concat(this.newsList);
+      ajax(
+        "/news",
+        edit ? "PUT" : "POST",
+        {
+          data: { news: this.curnews },
+          success: (res) => {
+            if (edit) {
+              let n = this.newsList.find(n => n.id == this.curnews.id);
+              if (n) n.content = this.curnews.content;
+            } else {
+              const newNews = {
+                content: this.curnews.content,
+                added: Date.now(),
+                uid: this.st.user.id,
+                id: res.id
+              };
+              this.newsList = [newNews].concat(this.newsList);
+            }
+            document.getElementById("modalNews").checked = false;
+            this.infoMsg = "";
+            this.resetCurnews();
+          }
         }
-        document.getElementById("modalNews").checked = false;
-        this.infoMsg = "";
-        this.resetCurnews();
-      });
+      );
     },
     editNews: function(n) {
       this.curnews.content = n.content;
@@ -126,22 +140,36 @@ export default {
     deleteNews: function(n) {
       if (confirm(this.st.tr["Are you sure?"])) {
         this.infoMsg = "Processing... Please wait";
-        ajax("/news", "DELETE", { id: n.id }, () => {
-          const nIdx = this.newsList.findIndex(nw => nw.id == n.id);
-          this.newsList.splice(nIdx, 1);
-          this.infoMsg = "";
-          document.getElementById("modalNews").checked = false;
-        });
+        ajax(
+          "/news",
+          "DELETE",
+          {
+            data: { id: n.id },
+            success: () => {
+              const nIdx = this.newsList.findIndex(nw => nw.id == n.id);
+              this.newsList.splice(nIdx, 1);
+              this.infoMsg = "";
+              document.getElementById("modalNews").checked = false;
+            }
+          }
+        );
       }
     },
     loadMore: function() {
-      ajax("/news", "GET", { cursor: this.cursor }, res => {
-        if (res.newsList.length > 0) {
-          this.newsList = this.newsList.concat(res.newsList);
-          const L = res.newsList.length;
-          if (L > 0) this.cursor = res.newsList[L - 1].id;
-        } else this.hasMore = false;
-      });
+      ajax(
+        "/news",
+        "GET",
+        {
+          data: { cursor: this.cursor },
+          success: (res) => {
+            if (res.newsList.length > 0) {
+              this.newsList = this.newsList.concat(res.newsList);
+              const L = res.newsList.length;
+              if (L > 0) this.cursor = res.newsList[L - 1].id;
+            } else this.hasMore = false;
+          }
+        }
+      );
     }
   }
 };

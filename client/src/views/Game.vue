@@ -331,8 +331,13 @@ export default {
     clearChat: function() {
       // Nothing more to do if game is live (chats not recorded)
       if (this.game.type == "corr") {
-        if (!!this.game.mycolor)
-          ajax("/chats", "DELETE", {gid: this.game.id});
+        if (!!this.game.mycolor) {
+          ajax(
+            "/chats",
+            "DELETE",
+            { data: { gid: this.game.id } }
+          );
+        }
         this.$set(this.game, "chats", []);
       }
     },
@@ -639,11 +644,13 @@ export default {
         "/games",
         "PUT",
         {
-          gid: this.gameRef.id,
-          newObj: obj
-        },
-        () => {
-          if (!!callback) callback();
+          data: {
+            gid: this.gameRef.id,
+            newObj: obj
+          },
+          success: () => {
+            if (!!callback) callback();
+          }
         }
       );
     },
@@ -865,13 +872,20 @@ export default {
         const gid = this.gameRef.id;
         if (Number.isInteger(gid) || !isNaN(parseInt(gid))) {
           // corr games identifiers are integers
-          ajax("/games", "GET", { gid: gid }, res => {
-            let g = res.game;
-            g.moves.forEach(m => {
-              m.squares = JSON.parse(m.squares);
-            });
-            afterRetrieval(g);
-          });
+          ajax(
+            "/games",
+            "GET",
+            {
+              data: { gid: gid },
+              success: (res) => {
+                let g = res.game;
+                g.moves.forEach(m => {
+                  m.squares = JSON.parse(m.squares);
+                });
+                afterRetrieval(g);
+              }
+            }
+          );
         }
         else
           // Local game

@@ -78,17 +78,17 @@ export default {
       if (!this.gameInfo.vname) return ""; //variant not set yet
       // (AJAX) Request to get rules content (plain text, HTML)
       return (
-        require("raw-loader!@/translations/rules/" +
-          this.gameInfo.vname +
-          "/" +
-          this.st.lang +
-          ".pug")
-          // Next two lines fix a weird issue after last update (2019-11)
-          .replace(/\\n/g, " ")
-          .replace(/\\"/g, '"')
-          .replace('module.exports = "', "")
-          .replace(/"$/, "")
-          .replace(/(fen:)([^:]*):/g, this.replaceByDiag)
+        require(
+          "raw-loader!@/translations/rules/" +
+          this.gameInfo.vname + "/" +
+          this.st.lang + ".pug"
+        )
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ")
+        .replace(/\\"/g, '"')
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
+        .replace(/(fen:)([^:]*):/g, this.replaceByDiag)
       );
     }
   },

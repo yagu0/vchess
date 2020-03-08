@@ -34,7 +34,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
 });
 
 // NOTE: this method is safe because the sessionToken must be guessed
-router.get("/whoami", (req,res) => {
+router.get("/whoami", access.ajax, (req,res) => {
   const callback = (user) => {
     res.json({
       name: user.name,

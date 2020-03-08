@@ -168,10 +168,12 @@ export default {
               "/games",
               "PUT",
               {
-                gid: game.id,
-                newObj: { removeFlag: true }
-              },
-              afterDelete
+                data: {
+                  gid: game.id,
+                  newObj: { removeFlag: true }
+                },
+                success: afterDelete
+              }
             );
           }
         }

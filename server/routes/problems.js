@@ -22,7 +22,7 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
     res.json({});
 });
 
-router.get("/problems", (req,res) => {
+router.get("/problems", access.ajax, (req,res) => {
   const probId = req.query["pid"];
   if (probId && probId.match(/^[0-9]+$/))
   {

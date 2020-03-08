@@ -23,7 +23,7 @@ div
 </template>
 
 <script>
-import { ajax } from "../utils/ajax";
+import { ajax } from "@/utils/ajax";
 import { store } from "@/store";
 import { checkNameEmail } from "@/data/userCheck";
 export default {
@@ -66,14 +66,17 @@ export default {
         "/messages",
         "POST",
         {
-          email: email.value,
-          subject: subject.value,
-          content: content.value
-        },
-        () => {
-          this.infoMsg = "Email sent!";
-          subject.value = "";
-          content.value = "";
+          nocredentials: true,
+          data: {
+            email: email.value,
+            subject: subject.value,
+            content: content.value
+          },
+          success: () => {
+            this.infoMsg = "Email sent!";
+            subject.value = "";
+            content.value = "";
+          }
         }
       );
     }

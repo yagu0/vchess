@@ -28,7 +28,10 @@ else
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'static'))); //client "prod" files
+// Client "prod" files:
+app.use(express.static(path.join(__dirname, 'static')));
+// Update in progress:
+app.use(express.static(path.join(__dirname, 'while_update')));
 
 // In development stage the client side has its own server
 if (params.cors.enable)
@@ -36,9 +39,14 @@ if (params.cors.enable)
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", params.cors.allowedOrigin);
     res.header("Access-Control-Allow-Credentials", true); //for cookies
-    res.header("Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, OPTIONS, PUT, DELETE"
+    );
     next();
   });
 }
@@ -47,12 +55,12 @@ if (params.cors.enable)
 const routes = require(path.join(__dirname, "routes", "all"));
 app.use('/', routes);
 
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Error handler
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   if (app.get('env') === 'development')

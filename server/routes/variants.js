@@ -4,7 +4,7 @@ let router = require("express").Router();
 const VariantModel = require("../models/Variant");
 const access = require("../utils/access");
 
-router.get('/variants', function(req, res) {
+router.get('/variants', access.ajax, function(req, res) {
   VariantModel.getAll((err,variants) => {
     res.json(err || {variantArray:variants});
   });

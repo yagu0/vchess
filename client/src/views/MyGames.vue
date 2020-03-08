@@ -53,18 +53,21 @@ export default {
       ajax(
         "/games",
         "GET",
-        { uid: this.st.user.id },
-        res => {
-          let serverGames = res.games.filter(g => {
-            const mySide =
-              g.players[0].uid == this.st.user.id
-                ? "White"
-                : "Black";
-            return !g["deletedBy" + mySide];
-          });
-          serverGames.forEach(g => g.type = "corr");
-          this.corrGames = serverGames;
-      });
+        {
+          data: { uid: this.st.user.id },
+          success: (res) => {
+            let serverGames = res.games.filter(g => {
+              const mySide =
+                g.players[0].uid == this.st.user.id
+                  ? "White"
+                  : "Black";
+              return !g["deletedBy" + mySide];
+            });
+            serverGames.forEach(g => g.type = "corr");
+            this.corrGames = serverGames;
+          }
+        }
+      );
     }
     // Initialize connection
     this.connexionString =
@@ -157,10 +160,12 @@ export default {
           "/games",
           "PUT",
           {
-            gid: game.id,
-            newObj: {
-              score: "?",
-              scoreMsg: getScoreMessage("?")
+            data: {
+              gid: game.id,
+              newObj: {
+                score: "?",
+                scoreMsg: getScoreMessage("?")
+              }
             }
           }
         );

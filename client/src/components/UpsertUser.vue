@@ -165,21 +165,26 @@ export default {
       ajax(
         this.ajaxUrl(),
         this.ajaxMethod(),
-        this.stage == "Login"
-          ? { nameOrEmail: this.nameOrEmail }
-          : this.user,
-        () => {
-          this.infoMsg = this.infoMessage();
-          if (this.stage != "Update") this.nameOrEmail = "";
-          else {
-            this.st.user.name = this.user.name;
-            this.st.user.email = this.user.email;
-            this.st.user.notify = this.user.notify;
+        {
+          credentials: true,
+          data: (
+            this.stage == "Login"
+              ? { nameOrEmail: this.nameOrEmail }
+              : this.user
+          ),
+          success: () => {
+            this.infoMsg = this.infoMessage();
+            if (this.stage != "Update") this.nameOrEmail = "";
+            else {
+              this.st.user.name = this.user.name;
+              this.st.user.email = this.user.email;
+              this.st.user.notify = this.user.notify;
+            }
+          },
+          error: (err) => {
+            this.infoMsg = "";
+            alert(err);
           }
-        },
-        err => {
-          this.infoMsg = "";
-          alert(err);
         }
       );
     },
