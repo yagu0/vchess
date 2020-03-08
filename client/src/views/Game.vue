@@ -1340,8 +1340,6 @@ span.yourturn
 
 .diagram
   margin: 0 auto
-  max-width: 400px
-  // width: 100% required for Firefox
   width: 100%
 
 #buttonsConfirm
