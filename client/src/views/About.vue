@@ -13,10 +13,10 @@ export default {
     content: function() {
       return (
         require("raw-loader!@/translations/about/" + store.state.lang + ".pug")
-          // Next two lines fix a weird issue after last update (2019-11)
-          .replace(/\\[n"]/g, " ")
-          .replace('module.exports = "', "")
-          .replace(/"$/, "")
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\[n"]/g, " ")
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
       );
     }
   }
