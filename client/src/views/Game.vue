@@ -14,10 +14,12 @@ main
         span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
         span(
           v-for="p in Object.values(people)"
-          v-if="p.name"
+          v-if="p.focus && !!p.name"
         )
           | {{ p.name }} 
-        span.anonymous(v-if="Object.values(people).some(p => !p.name && p.id === 0)")
+        span.anonymous(
+          v-if="Object.values(people).some(p => p.focus && !p.name)"
+        )
           | + @nonymous
       Chat(
         ref="chatcomp"
@@ -202,6 +204,7 @@ export default {
     this.atCreation();
   },
   mounted: function() {
+    document.addEventListener('visibilitychange', this.visibilityChange);
     document
       .getElementById("chatWrap")
       .addEventListener("click", processModalClick);
@@ -213,9 +216,18 @@ export default {
     }
   },
   beforeDestroy: function() {
+    document.removeEventListener('visibilitychange', this.visibilityChange);
     this.cleanBeforeDestroy();
   },
   methods: {
+    visibilityChange: function() {
+      // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
+      this.send(
+        document.visibilityState == "visible"
+          ? "getfocus"
+          : "losefocus"
+      );
+    },
     atCreation: function() {
       // 0] (Re)Set variables
       this.gameRef.id = this.$route.params["id"];
@@ -226,7 +238,15 @@ export default {
       this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
       // Always add myself to players' list
       const my = this.st.user;
-      this.$set(this.people, my.sid, { id: my.id, name: my.name });
+      this.$set(
+        this.people,
+        my.sid,
+        {
+          id: my.id,
+          name: my.name,
+          focus: true
+        }
+      );
       this.game = {
         players: [{ name: "" }, { name: "" }],
         chats: [],
@@ -310,7 +330,7 @@ export default {
     },
     isConnected: function(index) {
       const player = this.game.players[index];
-      // Is it me ?
+      // Is it me ? In this case no need to bother with focus
       if (this.st.user.sid == player.sid || this.st.user.id == player.uid)
         // Still have to check for name (because of potential multi-accounts
         // on same browser, although this should be rare...)
@@ -318,13 +338,15 @@ export default {
       // Try to find a match in people:
       return (
         (
-          player.sid &&
-          Object.keys(this.people).some(sid => sid == player.sid)
+          !!player.sid &&
+          Object.keys(this.people).some(sid =>
+            sid == player.sid && this.people[sid].focus)
         )
         ||
         (
           player.uid &&
-          Object.values(this.people).some(p => p.id == player.uid)
+          Object.values(this.people).some(p =>
+            p.id == player.uid && p.focus)
         )
       );
     },
@@ -400,12 +422,15 @@ export default {
       switch (data.code) {
         case "pollclients":
           data.sockIds.forEach(sid => {
-            if (sid != this.st.user.sid)
+            if (sid != this.st.user.sid) {
+              this.people[sid] = { focus: true };
               this.send("askidentity", { target: sid });
+            }
           });
           break;
         case "connect":
           if (!this.people[data.from]) {
+            this.people[data.from] = { focus: true };
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from });
           }
@@ -429,6 +454,22 @@ export default {
         case "mdisconnect":
           ArrayFun.remove(this.onMygames, sid => sid == data.from);
           break;
+        case "getfocus": {
+          let player = this.people[data.from];
+          if (!!player) {
+            player.focus = true;
+            this.$forceUpdate(); //TODO: shouldn't be required
+          }
+          break;
+        }
+        case "losefocus": {
+          let player = this.people[data.from];
+          if (!!player) {
+            player.focus = false;
+            this.$forceUpdate(); //TODO: shouldn't be required
+          }
+          break;
+        }
         case "killed":
           // I logged in elsewhere:
           this.conn = null;
@@ -447,7 +488,11 @@ export default {
         }
         case "identity": {
           const user = data.data;
-          this.$set(this.people, user.sid, { name: user.name, id: user.id });
+          let player = this.people[user.sid];
+          // player.focus is already set
+          player.name = user.name;
+          player.id = user.id;
+          this.$forceUpdate(); //TODO: shouldn't be required
           // If I multi-connect, kill current connexion if no mark (I'm older)
           if (this.newConnect[user.sid]) {
             if (

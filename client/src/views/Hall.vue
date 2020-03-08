@@ -100,7 +100,7 @@ main
             )
               | {{ st.tr["Observe"] }}
             button.player-action(
-              v-else-if="st.user.id > 0 && sid != st.user.sid"
+              v-else-if="isFocusedOnHall(sid)"
               @click="challenge(sid)"
             )
               | {{ st.tr["Challenge"] }}
@@ -233,7 +233,15 @@ export default {
     if (this.st.variants.length > 0 && this.newchallenge.vid > 0)
       this.loadNewchallVariant();
     const my = this.st.user;
-    this.$set(this.people, my.sid, { id: my.id, name: my.name, pages: ["/"] });
+    this.$set(
+      this.people,
+      my.sid,
+      {
+        id: my.id,
+        name: my.name,
+        pages: [{ path: "/", focus: true }]
+      }
+    );
     // Ask server for current corr games (all but mines)
     ajax(
       "/games",
@@ -324,6 +332,7 @@ export default {
     this.conn.onclose = this.socketCloseListener;
   },
   mounted: function() {
+    document.addEventListener('visibilitychange', this.visibilityChange);
     ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
       let elt = document.getElementById(eltName);
       elt.addEventListener("click", processModalClick);
@@ -342,9 +351,18 @@ export default {
     this.setDisplay("g", showGtype);
   },
   beforeDestroy: function() {
+    document.removeEventListener('visibilitychange', this.visibilityChange);
     this.send("disconnect");
   },
   methods: {
+    visibilityChange: function() {
+      // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
+      this.send(
+        document.visibilityState == "visible"
+          ? "getfocus"
+          : "losefocus"
+      );
+    },
     // Helpers:
     cadenceFocusIfOpened: function() {
       if (event.target.checked)
@@ -386,7 +404,16 @@ export default {
       else elt.nextElementSibling.classList.remove("active");
     },
     isGamer: function(sid) {
-      return this.people[sid].pages.some(p => p.indexOf("/game/") >= 0);
+      return this.people[sid].pages
+        .some(p => p.focus && p.path.indexOf("/game/") >= 0);
+    },
+    isFocusedOnHall: function(sid) {
+      return (
+        // This is meant to challenge people, thus the next 2 conditions:
+        this.st.user.id > 0 &&
+        sid != this.st.user.sid &&
+        this.people[sid].pages.some(p => p.path == "/" && p.focus)
+      );
     },
     challenge: function(sid) {
       // Available, in Hall (only)
@@ -398,8 +425,10 @@ export default {
       // In some game, maybe playing maybe not: show a random one
       let gids = [];
       this.people[sid].pages.forEach(p => {
-        const matchGid = p.match(/[a-zA-Z0-9]+$/);
-        if (!!matchGid) gids.push(matchGid[0]);
+        if (p.focus) {
+          const matchGid = p.path.match(/[a-zA-Z0-9]+$/);
+          if (!!matchGid) gids.push(matchGid[0]);
+        }
       });
       const gid = gids[Math.floor(Math.random() * gids.length)];
       const game = this.games.find(g => g.id == gid);
@@ -445,11 +474,12 @@ export default {
               this.send("askidentity", { target: s.sid, page: page });
               identityAsked[s.sid] = true;
             }
-            if (!this.people[s.sid])
+            if (!this.people[s.sid]) {
               // Do not set name or id: identity unknown yet
-              this.$set(this.people, s.sid, { pages: [page] });
-            else if (this.people[s.sid].pages.indexOf(page) < 0)
-              this.people[s.sid].pages.push(page);
+              this.people[s.sid] = { pages: [{path: page, focus: true}] };
+            }
+            else if (!(this.people[s.sid].pages.find(p => p.path == page)))
+              this.people[s.sid].pages.push({ path: page, focus: true });
             if (!s.page)
               // Peer is in Hall
               this.send("askchallenge", { target: s.sid });
@@ -461,18 +491,16 @@ export default {
         case "connect":
         case "gconnect": {
           const page = data.page || "/";
-          // NOTE: player could have been polled earlier, but might have logged in then
-          // So it's a good idea to ask identity if he was anonymous.
-          // But only ask game / challenge if currently disconnected.
+          // Only ask game / challenge if first connexion:
           if (!this.people[data.from]) {
-            this.$set(this.people, data.from, { pages: [page] });
+            this.people[data.from] = { pages: [{ path: page, focus: true }] };
             if (data.code == "connect")
               this.send("askchallenge", { target: data.from });
             else this.send("askgame", { target: data.from, page: page });
           } else {
             // Append page if not already in list
-            if (this.people[data.from].pages.indexOf(page) < 0)
-              this.people[data.from].pages.push(page);
+            if (!(this.people[data.from].pages.find(p => p.path == page)))
+              this.people[data.from].pages.push({ path: page, focus: true });
           }
           if (!this.people[data.from].name && this.people[data.from].id !== 0) {
             // Identity not known yet
@@ -510,11 +538,26 @@ export default {
             }
           }
           const page = data.page || "/";
-          ArrayFun.remove(this.people[data.from].pages, p => p == page);
+          ArrayFun.remove(this.people[data.from].pages, p => p.path == page);
           if (this.people[data.from].pages.length == 0)
             this.$delete(this.people, data.from);
           break;
         }
+        case "getfocus":
+          // If user reload a page, focus may arrive earlier than connect
+          if (!!this.people[data.from]) {
+            this.people[data.from].pages
+              .find(p => p.path == data.page).focus = true;
+            this.$forceUpdate(); //TODO: shouldn't be required
+          }
+          break;
+        case "losefocus":
+          if (!!this.people[data.from]) {
+            this.people[data.from].pages
+              .find(p => p.path == data.page).focus = false;
+            this.$forceUpdate(); //TODO: shouldn't be required
+          }
+          break;
         case "killed":
           // I logged in elsewhere:
           this.conn = null;
@@ -533,11 +576,13 @@ export default {
         }
         case "identity": {
           const user = data.data;
-          this.$set(this.people, user.sid, {
-            id: user.id,
-            name: user.name,
-            pages: this.people[user.sid].pages
-          });
+          let player = this.people[user.sid];
+          // player.pages is already set
+          player.id = user.id;
+          player.name = user.name;
+          // TODO: this.$set(people, ...) fails. So forceUpdate.
+          //       But this shouldn't be like that!
+          this.$forceUpdate();
           // If I multi-connect, kill current connexion if no mark (I'm older)
           if (this.newConnect[user.sid]) {
             if (
