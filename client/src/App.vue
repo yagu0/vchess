@@ -112,6 +112,9 @@ header
 .text-center
   text-align: center
 
+.bold
+  font-weight: bold
+
 .clearer
   clear: both
 

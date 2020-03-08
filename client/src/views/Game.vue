@@ -30,7 +30,15 @@ main
   input#modalConfirm.modal(type="checkbox")
   div#confirmDiv(role="dialog")
     .card
-      .diagram(v-html="curDiag")
+      .diagram(
+        v-if="!!vr && ['all','byrow'].includes(vr.showMoves)"
+        v-html="curDiag"
+      )
+      p.text-center(v-else)
+        span {{ st.tr["Move played:"] + " " }}
+        span.bold {{ moveNotation }}
+        br
+        span {{ st.tr["Are you sure?"] }}
       .button-group#buttonsConfirm
         // onClick for acceptBtn: set dynamically
         button.acceptBtn
@@ -159,6 +167,8 @@ export default {
       // If newmove got no pingback, send again:
       opponentGotMove: false,
       connexionString: "",
+      // Incomplete info games: show move played
+      moveNotation: "",
       // Intervals from setInterval():
       askLastate: null,
       retrySendmove: null,
@@ -537,6 +547,7 @@ export default {
               // only drawOffer=="sent" is possible
               drawSent: this.drawOffer == "sent",
               score: this.game.score,
+              score: this.game.scoreMsg,
               movesCount: L,
               initime: this.game.initime[1 - myIdx] //relevant only if I played
             };
@@ -668,8 +679,7 @@ export default {
       if (data.score != "*") {
         this.drawOffer = "";
         if (this.game.score == "*")
-          // TODO: also pass scoreMsg in lastate
-          this.gameOver(data.score);
+          this.gameOver(data.score, data.scoreMsg);
       }
     },
     clickDraw: function() {
@@ -1094,61 +1104,47 @@ export default {
         moveCol == this.game.mycolor &&
         !data.receiveMyMove
       ) {
+        let boardDiv = document.querySelector(".game");
         const afterSetScore = () => {
           doProcessMove();
           if (this.st.settings.gotonext && this.nextIds.length > 0)
             this.showNextGame();
           else {
             // The board might have been hidden:
-            let boardDiv = document.querySelector(".game");
             if (boardDiv.style.visibility == "hidden")
               boardDiv.style.visibility = "visible";
           }
         };
+        let el = document.querySelector("#buttonsConfirm > .acceptBtn");
+        // We may play several moves in a row: in case of, remove listener:
+        let elClone = el.cloneNode(true);
+        el.parentNode.replaceChild(elClone, el);
+        elClone.addEventListener(
+          "click",
+          () => {
+            document.getElementById("modalConfirm").checked = false;
+            if (!!data.score && data.score != "*")
+              // Set score first
+              this.gameOver(data.score, null, afterSetScore);
+            else afterSetScore();
+          }
+        );
+        // PlayOnBoard is enough, and more appropriate for Synchrone Chess
+        V.PlayOnBoard(this.vr.board, move);
+        const position = this.vr.getBaseFen();
+        V.UndoOnBoard(this.vr.board, move);
         if (["all","byrow"].includes(V.ShowMoves)) {
-          let el = document.querySelector("#buttonsConfirm > .acceptBtn");
-          // We may play several moves in a row: in case of, remove listener:
-          let elClone = el.cloneNode(true);
-          el.parentNode.replaceChild(elClone, el);
-          elClone.addEventListener(
-            "click",
-            () => {
-              document.getElementById("modalConfirm").checked = false;
-              if (!!data.score && data.score != "*")
-                // Set score first
-                this.gameOver(data.score, null, afterSetScore);
-              else afterSetScore();
-            }
-          );
-          // PlayOnBoard is enough, and more appropriate for Synchrone Chess
-          V.PlayOnBoard(this.vr.board, move);
-          const position = this.vr.getBaseFen();
-          V.UndoOnBoard(this.vr.board, move);
           this.curDiag = getDiagram({
             position: position,
             orientation: V.CanFlip ? this.game.mycolor : "w"
           });
-          document.getElementById("modalConfirm").checked = true;
         } else {
           // Incomplete information: just ask confirmation
-          // Hide the board, because otherwise it could be revealed (TODO?)
-          let boardDiv = document.querySelector(".game");
+          // Hide the board, because otherwise it could reveal infos
           boardDiv.style.visibility = "hidden";
-          if (
-            !confirm(
-              this.st.tr["Move played:"] + " " +
-              getFullNotation(move) + "\n" +
-              this.st.tr["Are you sure?"]
-            )
-          ) {
-            this.$refs["basegame"].cancelLastMove();
-            boardDiv.style.visibility = "visible";
-            return;
-          }
-          if (!!data.score && data.score != "*")
-            this.gameOver(data.score, null, afterSetScore);
-          else afterSetScore();
+          this.moveNotation = getFullNotation(move);
         }
+        document.getElementById("modalConfirm").checked = true;
       }
       else {
         // Normal situation
@@ -1158,6 +1154,9 @@ export default {
       }
     },
     cancelMove: function() {
+      let boardDiv = document.querySelector(".game");
+      if (boardDiv.style.visibility == "hidden")
+        boardDiv.style.visibility = "visible";
       document.getElementById("modalConfirm").checked = false;
       this.$refs["basegame"].cancelLastMove();
     },
@@ -1165,6 +1164,7 @@ export default {
     gameOver: function(score, scoreMsg, callback) {
       this.game.score = score;
       if (!scoreMsg) scoreMsg = getScoreMessage(score);
+      this.game.scoreMsg = scoreMsg;
       this.$set(this.game, "scoreMsg", scoreMsg);
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.uid == this.st.user.id;
