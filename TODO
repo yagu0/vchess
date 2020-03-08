@@ -15,9 +15,6 @@ Show count of remaining units as a red digit printed on the piece
 (can it reach 10? theoretically yes... but then maybe we can just show "0" ?)
 Grey "disabled" style for reserve pieces if none available.
 
-Finir de remplacer AJAX par fetch, puis supprimer le "preflight issue with AJAX get --> return {}"
-sur le server : faire une page "index" indiquant "Mise à jour du serveur en cours - un peu de patience".
-
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
 https://www.chessvariants.com/rules/8-piece-chess "Eightpieces"
