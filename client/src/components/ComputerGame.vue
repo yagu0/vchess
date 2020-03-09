@@ -92,6 +92,9 @@ export default {
         this.gameOver(scoreObj.score);
         return;
       }
+      if (this.game.score != "*")
+        // The game already ended, probably because of a user action
+        return;
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove", move]);
       if (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)

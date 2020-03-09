@@ -1,20 +1,3 @@
-# Enhancements:
-On Game page "mconnect" events =>
-  send lastate to them (because they have the game infos) or just "your turn" - if their turn
-  remember them to send next "newmove" (or just "it's your turn") later - if not their turn
-  (=> listen for "mdisconnect" as well, and gameover, and newgame)
-From MyGames page: send "mconnect" to all online players (me included: potential multi-tabs)
-  When quit, send mdisconnect (relayed by server if no other MyGames tab).
-
-Rematch button (change colors, re-apply randomness params (which should be saved somehow somewhere))
-  --> need a bit more duplicated logic: in Game page, listen for newgame, and add a "launchGame" function
-Will need a 'rematch' field in Game on server
-
-Put reserve pieces above and below the board. Center them.
-Show count of remaining units as a red digit printed on the piece
-(can it reach 10? theoretically yes... but then maybe we can just show "0" ?)
-Grey "disabled" style for reserve pieces if none available.
-
 # New variants
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
 https://www.chessvariants.com/rules/8-piece-chess "Eightpieces"

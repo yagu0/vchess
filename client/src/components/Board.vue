@@ -77,6 +77,7 @@ export default {
       );
     };
     // Create board element (+ reserves if needed by variant)
+    let elementArray = [];
     const gameDiv = h(
       "div",
       {
@@ -154,18 +155,19 @@ export default {
         );
       })
     );
-    let elementArray = [gameDiv];
-    const playingColor = this.userColor || "w"; //default for an observer
-    if (this.vr.reserve) {
+    if (!!this.vr.reserve) {
+      const playingColor = this.userColor || "w"; //default for an observer
       const shiftIdx = playingColor == "w" ? 0 : 1;
       let myReservePiecesArray = [];
       for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+        const qty = this.vr.reserve[playingColor][V.RESERVE_PIECES[i]];
         myReservePiecesArray.push(
           h(
             "div",
             {
               class: { board: true, ["board" + sizeY]: true },
-              attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) }
+              attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) },
+              style: { opacity: qty > 0 ? 1 : 0.35 }
             },
             [
               h("img", {
@@ -177,9 +179,7 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { class: { "reserve-count": true } }, [
-                this.vr.reserve[playingColor][V.RESERVE_PIECES[i]]
-              ])
+              h("sup", { class: { "reserve-count": true } }, [ qty ])
             ]
           )
         );
@@ -187,12 +187,14 @@ export default {
       let oppReservePiecesArray = [];
       const oppCol = V.GetOppCol(playingColor);
       for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+        const qty = this.vr.reserve[oppCol][V.RESERVE_PIECES[i]];
         oppReservePiecesArray.push(
           h(
             "div",
             {
               class: { board: true, ["board" + sizeY]: true },
-              attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) }
+              attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) },
+              style: { opacity: qty > 0 ? 1 : 0.35 }
             },
             [
               h("img", {
@@ -204,37 +206,72 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { class: { "reserve-count": true } }, [
-                this.vr.reserve[oppCol][V.RESERVE_PIECES[i]]
-              ])
+              h("sup", { class: { "reserve-count": true } }, [ qty ])
             ]
           )
         );
       }
-      let reserves = h(
-        "div",
-        {
-          class: {
-            game: true,
-            "reserve-div": true
-          }
-        },
-        [
-          h(
-            "div",
-            {
-              class: {
-                row: true,
-                "reserve-row-1": true
-              }
-            },
-            myReservePiecesArray
-          ),
-          h("div", { class: { row: true } }, oppReservePiecesArray)
-        ]
+      const myReserveTop = (
+        (playingColor == 'w' && orientation == 'b') ||
+        (playingColor == 'b' && orientation == 'w')
       );
-      elementArray.push(reserves);
+      // Center reserves, assuming same number of pieces for each side:
+      const nbReservePieces = myReservePiecesArray.length;
+      const marginLeft = ((100 - nbReservePieces * (100 / sizeY)) / 2) + "%";
+      const reserveTop =
+        h(
+          "div",
+          {
+            class: {
+              game: true,
+              "reserve-div": true
+            },
+            style: {
+              "margin-left": marginLeft
+            }
+          },
+          [
+            h(
+              "div",
+              {
+                class: {
+                  row: true,
+                  "reserve-row": true
+                }
+              },
+              myReserveTop ? myReservePiecesArray : oppReservePiecesArray
+            )
+          ]
+        );
+      var reserveBottom =
+        h(
+          "div",
+          {
+            class: {
+              game: true,
+              "reserve-div": true
+            },
+            style: {
+              "margin-left": marginLeft
+            }
+          },
+          [
+            h(
+              "div",
+              {
+                class: {
+                  row: true,
+                  "reserve-row": true
+                }
+              },
+              myReserveTop ? oppReservePiecesArray : myReservePiecesArray
+            )
+          ]
+        );
+      elementArray.push(reserveTop);
     }
+    elementArray.push(gameDiv);
+    if (!!this.vr.reserve) elementArray.push(reserveBottom);
     const boardElt = document.querySelector(".game");
     if (this.choices.length > 0 && !!boardElt) {
       //no choices to show at first drawing
@@ -399,7 +436,7 @@ export default {
 .reserve-count
   padding-left: 40%
 
-.reserve-row-1
+.reserve-row
   margin-bottom: 15px
 
 // NOTE: no variants with reserve of size != 8

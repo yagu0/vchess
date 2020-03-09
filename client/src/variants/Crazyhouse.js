@@ -118,6 +118,14 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
   getReservePpath(index, color) {
     return color + V.RESERVE_PIECES[index];
   }
+//  // Version if some day I have pieces with numbers printed on it:
+//  getReservePpath(index, color) {
+//    return (
+//      "Crazyhouse/" +
+//      color + V.RESERVE_PIECES[index] +
+//      "_" + this.vr.reserve[playingColor][V.RESERVE_PIECES[i]]
+//    );
+//  }
 
   // Ordering on reserve pieces
   static get RESERVE_PIECES() {
