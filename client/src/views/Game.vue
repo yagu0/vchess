@@ -161,6 +161,7 @@ export default {
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
+      infoMessage: "",
       rematchOffer: "",
       people: {}, //players + observers
       onMygames: [], //opponents (or me) on "MyGames" page

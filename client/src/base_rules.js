@@ -204,7 +204,7 @@ export const ChessRules = class ChessRules {
       Math.abs(s.x - e.x) == 2 &&
       s.y == e.y &&
       move.vanish[0].p == V.PAWN &&
-      ["w", "b"].includes(move.appear[0].c)
+      ["w", "b"].includes(move.vanish[0].c)
     ) {
       return {
         x: (s.x + e.x) / 2,
