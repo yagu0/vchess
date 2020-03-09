@@ -15,8 +15,11 @@ main
         span.variantName {{ curChallToAccept.vname }} 
         span {{ curChallToAccept.cadence }} 
         span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
-      .diagram(v-html="tchallDiag")
-      .button-group#buttonsTchall
+      .diagram(
+        v-if="!!curChallToAccept.fen"
+        v-html="tchallDiag"
+      )
+      .button-group#buttonsTchall(:style="tchallButtonsMargin()")
         button.acceptBtn(@click="decisionChallenge(true)")
           span {{ st.tr["Accept challenge?"] }}
         button.refuseBtn(@click="decisionChallenge(false)")
@@ -117,7 +120,7 @@ main
       .button-group
         button#peopleBtn(onClick="window.doClick('modalPeople')")
           | {{ st.tr["Who's there?"] }}
-        button(onClick="window.doClick('modalNewgame')")
+        button(@click="showNewchallengeForm()")
           | {{ st.tr["New game"] }}
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
@@ -363,7 +366,20 @@ export default {
           : "losefocus"
       );
     },
-    // Helpers:
+    partialResetNewchallenge: function() {
+      // Reset potential target and custom FEN:
+      this.newchallenge.to = "";
+      this.newchallenge.fen = "";
+      this.newchallenge.diag = "";
+    },
+    showNewchallengeForm: function() {
+      this.partialResetNewchallenge();
+      window.doClick("modalNewgame");
+    },
+    tchallButtonsMargin: function() {
+      if (!!this.curChallToAccept.fen) return { "margin-top": "10px" };
+      return {};
+    },
     cadenceFocusIfOpened: function() {
       if (event.target.checked)
         document.getElementById("cadence").focus();
@@ -416,7 +432,8 @@ export default {
       );
     },
     challenge: function(sid) {
-      // Available, in Hall (only)
+      this.partialResetNewchallenge();
+      // Available, in Hall
       this.newchallenge.to = this.people[sid].name;
       document.getElementById("modalPeople").checked = false;
       window.doClick("modalNewgame");
@@ -911,17 +928,11 @@ export default {
               position: parsedFen.position,
               orientation: c.mycolor
             });
-            this.curChallToAccept = c;
-            document.getElementById("modalAccept").checked = true;
           }
-          else {
-            if (!confirm(this.st.tr["Accept challenge?"]))
-              c.accepted = false;
-            this.finishProcessingChallenge(c);
-          }
+          this.curChallToAccept = c;
+          document.getElementById("modalAccept").checked = true;
         }
-        else
-          this.finishProcessingChallenge(c);
+        else this.finishProcessingChallenge(c);
       }
       else {
         // My challenge
@@ -1071,7 +1082,7 @@ button.refuseBtn
   background-color: red
 
 #buttonsTchall
-  margin-top: 10px
+  // margin-top set dynamically (depends if diagram showed or not)
   & > button > span
     width: 100%
     text-align: center

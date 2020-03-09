@@ -11,7 +11,7 @@ main
     .card
       label.modal-close(for="modalChat")
       #participants
-        span {{ Object.keys(people).length + " " + st.tr["participant(s):"] }} 
+        span {{ st.tr["Participant(s):"] }} 
         span(
           v-for="p in Object.values(people)"
           v-if="p.focus && !!p.name"

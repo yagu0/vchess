@@ -11,9 +11,11 @@ new Vue({
     return h(App);
   },
   created: function() {
+    // Several interactions on clicks on elements:
     window.doClick = elemId => {
       document.getElementById(elemId).click();
     };
+    // Esc key can close modals:
     document.addEventListener("keydown", e => {
       if (e.code === "Escape") {
         let modalBoxes = document.querySelectorAll("[id^='modal']");

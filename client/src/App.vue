@@ -64,7 +64,6 @@ export default {
   },
   methods: {
     hideDrawer: function(e) {
-      if (e.target.innerText == "Forum") return; //external link
       e.preventDefault(); //TODO: why is this needed?
       document.getElementsByClassName("drawer")[0].checked = false;
     }

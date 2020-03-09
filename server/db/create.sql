@@ -58,6 +58,7 @@ create table Games (
   score varchar default '*',
   scoreMsg varchar,
   cadence varchar,
+  randomness integer, --for rematch
   created datetime,
   drawOffer character default '',
   rematchOffer character default '',
