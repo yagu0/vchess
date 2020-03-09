@@ -1183,6 +1183,8 @@ export default {
             position: position,
             orientation: V.CanFlip ? this.game.mycolor : "w"
           });
+          document.querySelector("#confirmDiv > .card").style.width =
+            boardDiv.offsetWidth + "px";
         } else {
           // Incomplete information: just ask confirmation
           // Hide the board, because otherwise it could reveal infos
