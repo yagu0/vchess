@@ -42,10 +42,10 @@ module.exports = function(wss) {
       });
     };
     // For focus events: no need to target self
-    const notifyAllButMe = (page,code,obj={}) => {
+    const notifyAllBut = (page,code,obj={},except) => {
       if (!clients[page]) return;
       Object.keys(clients[page]).forEach(k => {
-        if (k == sid) return;
+        if (except.includes(k)) return;
         Object.keys(clients[page][k]).forEach(x => {
           send(
             clients[page][k][x].socket,
