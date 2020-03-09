@@ -90,7 +90,7 @@ function setAndSendLoginToken(subject, to, res)
   const token = genToken(params.token.length);
   UserModel.setLoginToken(token, to.id);
   const body =
-    "Hello " + to.name + "!" + `
+    "Hello " + to.name + " !" + `
 ` +
     "Access your account here: " +
     params.siteURL + "/#/authenticate/" + token + `
