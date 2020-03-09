@@ -682,9 +682,8 @@ export default {
         }
         case "game": //individual request
         case "newgame": {
-          // NOTE: it may be live or correspondance
           const game = data.data;
-          // Ignore games where I play (corr games)
+          // Ignore games where I play (will go in MyGames page)
           if (game.players.every(p =>
             p.sid != this.st.user.sid || p.id != this.st.user.id))
           {
@@ -720,7 +719,7 @@ export default {
           break;
         }
         case "startgame": {
-          // New game just started: data contain all information
+          // New game just started, I'm involved
           const gameInfo = data.data;
           if (this.classifyObject(gameInfo) == "live")
             this.startNewGame(gameInfo);
@@ -733,8 +732,7 @@ export default {
               "#/game/" +
               gameInfo.id +
               "</a>";
-            let modalBox = document.getElementById("modalInfo");
-            modalBox.checked = true;
+            document.getElementById("modalInfo").checked = true;
           }
           break;
         }
@@ -964,16 +962,17 @@ export default {
       const notifyNewgame = () => {
         const oppsid = this.getOppsid(c);
         if (!!oppsid)
-          //opponent is online
+          // Opponent is online
           this.send("startgame", { data: gameInfo, target: oppsid });
-        // Send game info (only if live) to everyone except me in this tab
-        this.send("newgame", { data: gameInfo });
+        // Send game info (only if live) to everyone except me and opponent
+        // TODO: this double message send could be avoided.
+        this.send("newgame", { data: gameInfo, oppsid: oppsid });
       };
       if (c.type == "live") {
         notifyNewgame();
         this.startNewGame(gameInfo);
-      } //corr: game only on server
-      else {
+      } else {
+        // corr: game only on server
         ajax(
           "/games",
           "POST",
@@ -991,25 +990,36 @@ export default {
     },
     // NOTE: for live games only (corr games start on the server)
     startNewGame: function(gameInfo) {
-      const game = Object.assign({}, gameInfo, {
-        // (other) Game infos: constant
-        fenStart: gameInfo.fen,
-        vname: this.getVname(gameInfo.vid),
-        created: Date.now(),
-        // Game state (including FEN): will be updated
-        moves: [],
-        clocks: [-1, -1], //-1 = unstarted
-        initime: [0, 0], //initialized later
-        score: "*"
-      });
-      GameStorage.add(game, (err) => {
-        // If an error occurred, game is not added: abort
-        if (!err) {
-          if (this.st.settings.sound)
-            new Audio("/sounds/newgame.flac").play().catch(() => {});
-          this.$router.push("/game/" + gameInfo.id);
+      const game = Object.assign(
+        {},
+        gameInfo,
+        {
+          // (other) Game infos: constant
+          fenStart: gameInfo.fen,
+          vname: this.getVname(gameInfo.vid),
+          created: Date.now(),
+          // Game state (including FEN): will be updated
+          moves: [],
+          clocks: [-1, -1], //-1 = unstarted
+          initime: [0, 0], //initialized later
+          score: "*"
         }
-      });
+      );
+      setTimeout(
+        () => {
+          GameStorage.add(game, (err) => {
+            // If an error occurred, game is not added: a tab already
+            // added the game and (if focused) is redirected toward it.
+            // If no error and the tab is hidden: do not show anything.
+            if (!err && !document.hidden) {
+              if (this.st.settings.sound)
+                new Audio("/sounds/newgame.flac").play().catch(() => {});
+              this.$router.push("/game/" + gameInfo.id);
+            }
+          });
+        },
+        document.hidden ? 500 + 1000 * Math.random() : 0
+      );
     }
   }
 };

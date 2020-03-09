@@ -8,14 +8,15 @@ const params = require("../config/parameters");
 // From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
   const gameInfo = req.body.gameInfo;
+  // Challenge ID is provided if game start from Hall:
   const cid = req.body.cid;
   if (
     Array.isArray(gameInfo.players) &&
     gameInfo.players.some(p => p.id == req.userId) &&
-    cid.toString().match(/^[0-9]+$/) &&
+    (!cid || cid.toString().match(/^[0-9]+$/)) &&
     GameModel.checkGameInfo(gameInfo)
   ) {
-    ChallengeModel.remove(cid);
+    if (!!cid) ChallengeModel.remove(cid);
     GameModel.create(
       gameInfo.vid, gameInfo.fen, gameInfo.cadence, gameInfo.players,
       (err,ret) => {

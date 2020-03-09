@@ -1,5 +1,13 @@
 <template lang="pug">
 main
+  input#modalInfo.modal(type="checkbox")
+  div#infoDiv(
+    role="dialog"
+    data-checkbox="modalInfo"
+  )
+    .card.text-center
+      label.modal-close(for="modalInfo")
+      p(v-html="infoMessage")
   input#modalChat.modal(
     type="checkbox"
     @click="resetChatColor()"
@@ -82,7 +90,8 @@ main
           img(src="/images/icons/resign.svg")
       button.tooltip(
         v-else-if="!!game.mycolor"
-        @click="rematch()"
+        @click="clickRematch()"
+        :class="{['rematch-' + rematchOffer]: true}"
         :aria-label="st.tr['Rematch']"
       )
         img(src="/images/icons/rematch.svg")
@@ -152,6 +161,7 @@ export default {
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
+      rematchOffer: "",
       people: {}, //players + observers
       onMygames: [], //opponents (or me) on "MyGames" page
       lastate: undefined, //used if opponent send lastate before game is ready
@@ -257,6 +267,7 @@ export default {
       this.virtualClocks = [[0,0], [0,0]];
       this.vr = null;
       this.drawOffer = "";
+      this.rematchOffer = "";
       this.onMygames = [];
       this.lastate = undefined;
       this.newChat = "";
@@ -350,6 +361,17 @@ export default {
         )
       );
     },
+    getOppsid: function() {
+      let oppsid = this.game.oppsid;
+      if (!oppsid) {
+        oppsid = Object.keys(this.people).find(
+          sid => this.people[sid].id == this.game.oppid
+        );
+      }
+      // oppsid is useful only if opponent is online:
+      if (!!oppsid && !!this.people[oppsid]) return oppsid;
+      return null;
+    },
     resetChatColor: function() {
       // TODO: this is called twice, once on opening an once on closing
       document.getElementById("chatBtn").classList.remove("somethingnew");
@@ -392,10 +414,6 @@ export default {
       const nextGid = this.nextIds.pop();
       this.$router.push(
         "/game/" + nextGid + "/?next=" + JSON.stringify(this.nextIds));
-    },
-    rematch: function() {
-      alert("Unimplemented yet (soon :) )");
-      // TODO: same logic as for draw, but re-click remove rematch offer (toggle)
     },
     askGameAgain: function() {
       this.gameIsLoading = true;
@@ -560,7 +578,7 @@ export default {
             .filter(k =>
               [
                 "id","fen","players","vid","cadence","fenStart","vname",
-                "moves","clocks","initime","score","drawOffer"
+                "moves","clocks","initime","score","drawOffer","rematchOffer"
               ].includes(k))
             .reduce(
               (obj, k) => {
@@ -580,7 +598,8 @@ export default {
           if (
             (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
             this.game.score != "*" ||
-            this.drawOffer == "sent"
+            this.drawOffer == "sent" ||
+            this.rematchOffer == "sent"
           ) {
             // Send our "last state" informations to opponent
             const L = this.game.moves.length;
@@ -591,6 +610,7 @@ export default {
               // Since we played a move (or abort or resign),
               // only drawOffer=="sent" is possible
               drawSent: this.drawOffer == "sent",
+              rematchSent: this.rematchOffer == "sent",
               score: this.game.score,
               score: this.game.scoreMsg,
               movesCount: L,
@@ -683,6 +703,41 @@ export default {
           // NOTE: observers don't know who offered draw
           this.drawOffer = "received";
           break;
+        case "rematchoffer":
+          // NOTE: observers don't know who offered rematch
+          this.rematchOffer = data.data ? "received" : "";
+          break;
+        case "newgame": {
+          // A game started, redirect if I'm playing in
+          const gameInfo = data.data;
+          if (
+            gameInfo.players.some(p =>
+              p.sid == this.st.user.sid || p.uid == this.st.user.id)
+          ) {
+            this.$router.push("/game/" + gameInfo.id);
+          } else {
+            let urlRid = "";
+            if (gameInfo.cadence.indexOf('d') === -1) {
+              urlRid = "/?rid=";
+              // Select sid of any of the online players:
+              let onlineSid = [];
+              gameInfo.players.forEach(p => {
+                if (!!this.people[p.sid]) onlineSid.push(p.sid);
+              });
+              urlRid += onlineSid[Math.floor(Math.random() * onlineSid.length)];
+            }
+            this.infoMessage =
+              this.st.tr["Rematch in progress:"] +
+              " <a href='#/game/" +
+              gameInfo.id + urlRid +
+              "'>" +
+              "#/game/" +
+              gameInfo.id + urlRid +
+              "</a>";
+            document.getElementById("modalInfo").checked = true;
+          }
+          break;
+        }
         case "newchat":
           this.newChat = data.data;
           if (!document.getElementById("modalChat").checked)
@@ -721,6 +776,7 @@ export default {
         this.processMove(data.lastMove, { clock: data.clock });
       }
       if (data.drawSent) this.drawOffer = "received";
+      if (data.rematchSent) this.rematchOffer = "received";
       if (data.score != "*") {
         this.drawOffer = "";
         if (this.game.score == "*")
@@ -752,6 +808,80 @@ export default {
             { drawOffer: this.game.mycolor }
           );
         } else this.updateCorrGame({ drawOffer: this.game.mycolor });
+      }
+    },
+    clickRematch: function() {
+      if (!this.game.mycolor) return; //I'm just spectator
+      if (this.rematchOffer == "received") {
+        // Start a new game!
+        let gameInfo = {
+          id: getRandString(), //ignored if corr
+          fen: V.GenRandInitFen(this.game.randomness),
+          players: this.game.players.reverse(),
+          vid: this.game.vid,
+          cadence: this.game.cadence
+        };
+        let oppsid = this.getOppsid(); //may be null
+        this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
+        if (this.game.type == "live") {
+          const game = Object.assign(
+            {},
+            gameInfo,
+            {
+              // (other) Game infos: constant
+              fenStart: gameInfo.fen,
+              vname: this.game.vname,
+              created: Date.now(),
+              // Game state (including FEN): will be updated
+              moves: [],
+              clocks: [-1, -1], //-1 = unstarted
+              initime: [0, 0], //initialized later
+              score: "*"
+            }
+          );
+          GameStorage.add(game, (err) => {
+            // No error expected.
+            if (!err) {
+              if (this.st.settings.sound)
+                new Audio("/sounds/newgame.flac").play().catch(() => {});
+              this.$router.push("/game/" + gameInfo.id);
+            }
+          });
+        }
+        else {
+          // corr game
+          ajax(
+            "/games",
+            "POST",
+            {
+              // cid is useful to delete the challenge:
+              data: { gameInfo: gameInfo },
+              success: (response) => {
+                gameInfo.id = response.gameId;
+                this.$router.push("/game/" + response.gameId);
+              }
+            }
+          );
+        }
+      } else if (this.rematchOffer == "") {
+        this.rematchOffer = "sent";
+        this.send("rematchoffer", { data: true });
+        if (this.game.type == "live") {
+          GameStorage.update(
+            this.gameRef.id,
+            { rematchOffer: this.game.mycolor }
+          );
+        } else this.updateCorrGame({ rematchOffer: this.game.mycolor });
+      } else if (this.rematchOffer == "sent") {
+        // Toggle rematch offer (on --> off)
+        this.rematchOffer = "";
+        this.send("rematchoffer", { data: false });
+        if (this.game.type == "live") {
+          GameStorage.update(
+            this.gameRef.id,
+            { rematchOffer: '' }
+          );
+        } else this.updateCorrGame({ rematchOffer: 'n' });
       }
     },
     abortGame: function() {
@@ -845,6 +975,7 @@ export default {
             }
           }
         }
+        // TODO: merge next 2 "if" conditions
         if (!!game.drawOffer) {
           if (game.drawOffer == "t")
             // Three repetitions
@@ -861,6 +992,18 @@ export default {
                 this.drawOffer = "sent";
               else this.drawOffer = "received";
             }
+          }
+        }
+        if (!!game.rematchOffer) {
+          if (myIdx < 0) this.rematchOffer = "received";
+          else {
+            // I play in this game:
+            if (
+              (game.rematchOffer == "w" && myIdx == 0) ||
+              (game.rematchOffer == "b" && myIdx == 1)
+            )
+              this.rematchOffer = "sent";
+            else this.rematchOffer = "received";
           }
         }
         this.repeat = {}; //reset: scan past moves' FEN:
@@ -1123,13 +1266,8 @@ export default {
                 clearInterval(this.retrySendmove);
                 return;
               }
-              let oppsid = this.game.players[nextIdx].sid;
-              if (!oppsid) {
-                oppsid = Object.keys(this.people).find(
-                  sid => this.people[sid].id == this.game.players[nextIdx].uid
-                );
-              }
-              if (!oppsid || !this.people[oppsid])
+              const oppsid = this.getOppsid();
+              if (!oppsid)
                 // Opponent is disconnected: he'll ask last state
                 clearInterval(this.retrySendmove);
               else {
@@ -1237,6 +1375,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+#infoDiv > .card
+  padding: 15px 0
+  max-width: 430px
+
 .connected
   background-color: lightgreen
 
@@ -1336,6 +1478,12 @@ span.yourturn
 
 .draw-threerep, .draw-threerep:hover
   background-color: #e4d1fc
+
+.rematch-sent, .rematch-sent:hover
+  background-color: lightyellow
+
+.rematch-received, .rematch-received:hover
+  background-color: lightgreen
 
 .somethingnew
   background-color: #c5fefe

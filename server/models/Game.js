@@ -213,6 +213,8 @@ const GameModel =
       ) && (
         !obj.drawOffer || !!(obj.drawOffer.match(/^[wbtn]$/))
       ) && (
+        !obj.rematchOffer || !!(obj.rematchOffer.match(/^[wbn]$/))
+      ) && (
         !obj.fen || !!(obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
       ) && (
         !obj.score || !!(obj.score.match(/^[012?*\/-]+$/))
@@ -234,11 +236,17 @@ const GameModel =
       let modifs = "";
       // NOTE: if drawOffer is set, we should check that it's player's turn
       // A bit overcomplicated. Let's trust the client on that for now...
-      if (obj.drawOffer)
+      if (!!obj.drawOffer)
       {
-        if (obj.drawOffer == "n") //Special "None" update
+        if (obj.drawOffer == "n") //special "None" update
           obj.drawOffer = "";
         modifs += "drawOffer = '" + obj.drawOffer + "',";
+      }
+      if (!!obj.rematchOffer)
+      {
+        if (obj.rematchOffer == "n") //special "None" update
+          obj.rematchOffer = "";
+        modifs += "rematchOffer = '" + obj.rematchOffer + "',";
       }
       if (!!obj.fen)
         modifs += "fen = '" + obj.fen + "',";

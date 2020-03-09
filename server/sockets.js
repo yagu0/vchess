@@ -190,13 +190,24 @@ module.exports = function(wss) {
         // Notify all room: mostly game events
         case "newchat":
         case "newchallenge":
-        case "newgame":
         case "deletechallenge":
+        case "newgame":
         case "resign":
         case "abort":
         case "drawoffer":
+        case "rematchoffer":
         case "draw":
-          notifyRoom(page, obj.code, {data: obj.data});
+          if (!!obj.oppsid)
+            // "newgame" message from Hall: do not target players
+            notifyAllBut(page, "newgame", {data: obj.data}, [sid, obj.oppsid]);
+          else notifyRoom(page, obj.code, {data: obj.data});
+          break;
+
+        case "rnewgame":
+          // A rematch game started: players are already informed
+          notifyAllBut(page, "newgame", {data: obj.data}, [sid, obj.oppsid]);
+          notifyAllBut("/", "newgame", {data: obj.data}, [sid, obj.oppsid]);
+          notifyRoom("/mygames", "newgame", {data: obj.data});
           break;
 
         case "newmove": {
@@ -267,11 +278,11 @@ module.exports = function(wss) {
 
         case "getfocus":
         case "losefocus":
-          if (page == "/") notifyAllButMe("/", obj.code, { page: "/" });
+          if (page == "/") notifyAllBut("/", obj.code, { page: "/" }, [sid]);
           else {
             // Notify game room + Hall:
-            notifyAllButMe(page, obj.code);
-            notifyAllButMe("/", obj.code, { page: page });
+            notifyAllBut(page, obj.code, {}, [sid]);
+            notifyAllBut("/", obj.code, { page: page }, [sid]);
           }
           break;
 

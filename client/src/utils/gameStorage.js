@@ -43,13 +43,16 @@ export const GameStorage = {
   // Optional callback to get error status
   add: function(game, callback) {
     dbOperation((err,db) => {
-      if (err) {
+      if (!!err) {
         callback("error");
         return;
       }
       let transaction = db.transaction("games", "readwrite");
       transaction.oncomplete = function() {
         callback(); //everything's fine
+      };
+      transaction.onerror = function(err) {
+        callback(err); //duplicate key error (most likely)
       };
       let objectStore = transaction.objectStore("games");
       objectStore.add(game);

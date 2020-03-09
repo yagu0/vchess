@@ -66,11 +66,11 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     let res = "";
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.promoted[i][j]) res += V.CoordsToSquare({ x: i, y: j });
+        if (this.promoted[i][j]) res += V.CoordsToSquare({ x: i, y: j }) + ",";
       }
     }
+    // Remove last comma:
     if (res.length > 0) res = res.slice(0, -1);
-    //remove last comma
     else res = "-";
     return res;
   }
@@ -98,8 +98,8 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     this.promoted = ArrayFun.init(V.size.x, V.size.y, false);
     if (fenParsed.promoted != "-") {
       for (let square of fenParsed.promoted.split(",")) {
-        const [x, y] = V.SquareToCoords(square);
-        this.promoted[x][y] = true;
+        const coords = V.SquareToCoords(square);
+        this.promoted[coords.x][coords.y] = true;
       }
     }
   }
