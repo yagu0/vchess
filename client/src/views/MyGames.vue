@@ -141,11 +141,17 @@ export default {
             {
               vname: vname,
               type: type,
-              score: "*"
+              score: "*",
+              turn: "w"
             },
             gameInfo
           );
-          this[type + "Games"].push(game);
+          // TODO: the new game isn't sorted. Maybe apply a different strategy:
+          // 1) Sort all at loading,
+          // 2) Insert in place when new games arrive,
+          // 3) Change position when score or turn change.
+          // And GameList just show list unsorted.
+          this[type + "Games"].unshift(game);
           this.tryShowNewsIndicator(type);
           break;
         }
@@ -165,6 +171,7 @@ export default {
           g.players[0].sid == this.st.user.sid
             ? "w"
             : "b";
+        if (!!g.turn) return g.turn == myColor;
         const rem = g.movesCount % 2;
         return (
           (rem == 0 && myColor == "w") ||
