@@ -324,6 +324,8 @@ export default {
       params.socketUrl +
       "/?sid=" +
       this.st.user.sid +
+      "&id=" +
+      this.st.user.id +
       "&tmpId=" +
       getRandString() +
       "&page=" +
@@ -977,6 +979,16 @@ export default {
         // Send game info (only if live) to everyone except me and opponent
         // TODO: this double message send could be avoided.
         this.send("newgame", { data: gameInfo, oppsid: oppsid });
+        // Also to MyGames page:
+        this.send(
+          "notifynewgame",
+          {
+            data: gameInfo,
+            targets: gameInfo.players.map(p => {
+              return { sid: p.sid, uid: p.uid };
+            })
+          }
+        );
       };
       if (c.type == "live") {
         notifyNewgame();

@@ -82,7 +82,7 @@ export default {
                 : "b";
             if (g.score == "*") {
               priority++;
-              if (isMyTurn(g, myColor)) priority++;
+              if (g.turn == myColor || isMyTurn(g, myColor)) priority++;
             }
           }
           if (g.created < minCreated) minCreated = g.created;

@@ -24,9 +24,12 @@ module.exports = function(wss) {
   // or "/mygames" for Mygames page (simpler: no 'people' array).
   // tmpId is required if a same user (browser) has different tabs
   let clients = {};
+  let sidToPages = {};
+  let idToSid = {};
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
+    const id = query["id"];
     const tmpId = query["tmpId"];
     const page = query["page"];
     const notifyRoom = (page,code,obj={}) => {
@@ -60,14 +63,22 @@ module.exports = function(wss) {
       delete clients[page][sid][tmpId];
       if (Object.keys(clients[page][sid]).length == 0) {
         delete clients[page][sid];
+        const pgIndex = sidToPages[sid].findIndex(pg => pg == page);
+        sidToPages[sid].splice(pgIndex, 1);
         if (Object.keys(clients[page]).length == 0)
           delete clients[page];
+        // Am I totally offline?
+        if (sidToPages[sid].length == 0) {
+          delete sidToPages[sid];
+          delete idToSid[id];
+        }
       }
     };
 
     const doDisconnect = () => {
       deleteConnexion();
-      if (!clients[page] || !clients[page][sid]) {
+      // Nothing to notify when disconnecting from MyGames page:
+      if (page != "/mygames" && (!clients[page] || !clients[page][sid])) {
         // I effectively disconnected from this page:
         notifyRoom(page, "disconnect");
         if (page.indexOf("/game/") >= 0)
@@ -139,7 +150,7 @@ module.exports = function(wss) {
           });
           // NOTE: a "gamer" could also just be an observer
           Object.keys(clients).forEach(p => {
-            if (p != "/") {
+            if (p.indexOf("/game/") >= 0) {
               Object.keys(clients[p]).forEach(k => {
                 // 'page' indicator is needed for gamers
                 if (k != sid) sockIds.push({ sid:k, page:p });
@@ -243,26 +254,6 @@ module.exports = function(wss) {
           notifyRoom("/", "result", { gid: obj.gid, score: obj.score });
           break;
 
-        case "mconnect":
-          // Special case: notify some game rooms that
-          // I'm watching game state from MyGames
-          // TODO: this code is ignored for now
-          obj.gids.forEach(gid => {
-            const pg = "/game/" + gid;
-            Object.keys(clients[pg]).forEach(s => {
-              Object.keys(clients[pg][s]).forEach(x => {
-                send(
-                  clients[pg][s][x].socket,
-                  { code: "mconnect", from: sid }
-                );
-              });
-            });
-          });
-          break;
-        case "mdisconnect":
-          // TODO
-          // Also TODO: pass newgame to MyGames, and gameover (result)
-          break;
         case "mabort": {
           const gamePg = "/game/" + obj.gid;
           if (!!clients[gamePg] && !!clients[gamePg][obj.target]) {
@@ -275,6 +266,24 @@ module.exports = function(wss) {
           }
           break;
         }
+
+        case "notifyscore":
+        case "notifyturn":
+        case "notifynewgame":
+          if (!!clients["/mygames"]) {
+            obj.targets.forEach(t => {
+              const k = t.sid || idToSid[t.uid];
+              if (!!clients["/mygames"][k]) {
+                Object.keys(clients["/mygames"][k]).forEach(x => {
+                  send(
+                    clients["/mygames"][k][x].socket,
+                    { code: obj.code, data: obj.data }
+                  );
+                });
+              }
+            });
+          }
+          break;
 
         case "getfocus":
         case "losefocus":
@@ -319,6 +328,11 @@ module.exports = function(wss) {
       clients[page][sid] = { [tmpId]: newElt };
     else
       clients[page][sid][tmpId] = newElt;
+    // Also update helper correspondances
+    if (!idToSid[id]) idToSid[id] = sid;
+    if (!sidToPages[sid]) sidToPages[sid] = [];
+    const pgIndex = sidToPages[sid].findIndex(pg => pg == page);
+    if (pgIndex === -1) sidToPages[sid].push(page);
     socket.on("message", messageListener);
     socket.on("close", closeListener);
   });

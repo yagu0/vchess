@@ -19,6 +19,7 @@ export default {
   ],
   data: function() {
     return {
+      mobileBrowser: ("ontouchstart" in window),
       possibleMoves: [], //filled after each valid click/dragstart
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
@@ -292,7 +293,7 @@ export default {
     }
     let onEvents = {};
     // NOTE: click = mousedown + mouseup
-    if ("ontouchstart" in window) {
+    if (this.mobileBrowser) {
       onEvents = {
         on: {
           touchstart: this.mousedown,
@@ -343,9 +344,10 @@ export default {
     mousemove: function(e) {
       if (!this.selectedPiece) return;
       // There is an active element: move it around
-      const [offsetX, offsetY] = e.clientX
-        ? [e.clientX, e.clientY] //desktop browser
-        : [e.changedTouches[0].pageX, e.changedTouches[0].pageY]; //smartphone
+      const [offsetX, offsetY] =
+        this.mobileBrowser
+          ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
+          : [e.clientX, e.clientY];
       this.selectedPiece.style.left = offsetX - this.start.x + "px";
       this.selectedPiece.style.top = offsetY - this.start.y + "px";
     },
@@ -353,9 +355,10 @@ export default {
       if (!this.selectedPiece) return;
       // There is an active element: obtain the move from start and end squares
       this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coords
-      const [offsetX, offsetY] = e.clientX
-        ? [e.clientX, e.clientY]
-        : [e.changedTouches[0].pageX, e.changedTouches[0].pageY];
+      const [offsetX, offsetY] =
+        this.mobileBrowser
+          ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
+          : [e.clientX, e.clientY];
       let landing = document.elementFromPoint(offsetX, offsetY);
       this.selectedPiece.style.zIndex = 3000;
       // Next condition: classList.contains(piece) fails because of marks

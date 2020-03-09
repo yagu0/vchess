@@ -74,6 +74,8 @@ export default {
       params.socketUrl +
       "/?sid=" +
       this.st.user.sid +
+      "&id=" +
+      this.st.user.id +
       "&tmpId=" +
       getRandString() +
       "&page=" +
@@ -100,9 +102,59 @@ export default {
         elt.previousElementSibling.classList.remove("active");
       else elt.nextElementSibling.classList.remove("active");
     },
-    // TODO: classifyObject is redundant (see Hall.vue)
-    classifyObject: function(o) {
-      return o.cadence.indexOf("d") === -1 ? "live" : "corr";
+    tryShowNewsIndicator: function(type) {
+      if (
+        (type == "live" && this.display == "corr") ||
+        (type == "corr" && this.display == "live")
+      ) {
+        document
+          .getElementById(type + "Games")
+          .classList.add("somethingnew");
+      }
+    },
+    socketMessageListener: function(msg) {
+      const data = JSON.parse(msg.data);
+      switch (data.code) {
+        // NOTE: no need to increment movesCount: unused if turn is provided
+        case "notifyturn":
+        case "notifyscore": {
+          const info = data.data;
+          let games =
+            !!parseInt(info.gid)
+              ? this.corrGames
+              : this.liveGames;
+          let g = games.find(g => g.id == info.gid);
+          // "notifything" --> "thing":
+          const thing = data.code.substr(6);
+          this.$set(g, thing, info[thing]);
+          this.tryShowNewsIndicator(g.type);
+          break;
+        }
+        case "notifynewgame": {
+          const gameInfo = data.data;
+          // st.variants might be uninitialized,
+          // if unlucky and newgame right after connect:
+          const v = this.st.variants.find(v => v.id == gameInfo.vid);
+          const vname = !!v ? v.name : "";
+          const type = gameInfo.cadence.indexOf('d') >= 0 ? "corr": "live";
+          const game = Object.assign(
+            {
+              vname: vname,
+              type: type,
+              score: "*"
+            },
+            gameInfo
+          );
+          this[type + "Games"].push(game);
+          this.tryShowNewsIndicator(type);
+          break;
+        }
+      }
+    },
+    socketCloseListener: function() {
+      this.conn = new WebSocket(this.connexionString);
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.conn.addEventListener("close", this.socketCloseListener);
     },
     showGame: function(game) {
       // TODO: "isMyTurn" is duplicated (see GameList component). myColor also
@@ -170,30 +222,6 @@ export default {
           }
         );
       }
-    },
-    socketMessageListener: function(msg) {
-      const data = JSON.parse(msg.data);
-      if (data.code == "changeturn") {
-        let games = !!parseInt(data.gid)
-          ? this.corrGames
-          : this.liveGames;
-        // NOTE: new move itself is not received, because it wouldn't be used.
-        let g = games.find(g => g.id == data.gid);
-        this.$set(g, "movesCount", g.movesCount + 1);
-        if (
-          (g.type == "live" && this.display == "corr") ||
-          (g.type == "corr" && this.display == "live")
-        ) {
-          document
-            .getElementById(g.type + "Games")
-            .classList.add("somethingnew");
-        }
-      }
-    },
-    socketCloseListener: function() {
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener("message", this.socketMessageListener);
-      this.conn.addEventListener("close", this.socketCloseListener);
     }
   }
 };

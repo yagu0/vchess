@@ -165,7 +165,6 @@ export default {
       rematchOffer: "",
       lastateAsked: false,
       people: {}, //players + observers
-      onMygames: [], //opponents (or me) on "MyGames" page
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
       curDiag: "", //for corr moves confirmation
@@ -271,7 +270,6 @@ export default {
       this.drawOffer = "";
       this.lastateAsked = false;
       this.rematchOffer = "";
-      this.onMygames = [];
       this.lastate = undefined;
       this.newChat = "";
       this.roomInitialized = false;
@@ -290,6 +288,8 @@ export default {
         params.socketUrl +
         "/?sid=" +
         this.st.user.sid +
+        "&id=" +
+        this.st.user.id +
         "&tmpId=" +
         getRandString() +
         "&page=" +
@@ -401,17 +401,17 @@ export default {
     getGameType: function(game) {
       return game.cadence.indexOf("d") >= 0 ? "corr" : "live";
     },
-    // Notify turn after a new move (to opponent and me on MyGames page)
-    notifyTurn: function(sid) {
-      const player = this.people[sid];
-      const colorIdx = this.game.players.findIndex(
-        p => p.sid == sid || p.uid == player.id);
-      const color = ["w","b"][colorIdx];
-      const movesCount = this.game.moves.length;
-      const yourTurn =
-        (color == "w" && movesCount % 2 == 0) ||
-        (color == "b" && movesCount % 2 == 1);
-      this.send("turnchange", { target: sid, yourTurn: yourTurn });
+    // Notify something after a new move (to opponent and me on MyGames page)
+    notifyMyGames: function(thing, data) {
+      this.send(
+        "notify" + thing,
+        {
+          data: data,
+          targets: this.game.players.map(p => {
+            return { sid: p.sid, uid: p.uid };
+          })
+        }
+      );
     },
     showNextGame: function() {
       // Did I play in current game? If not, add it to nextIds list
@@ -461,22 +461,6 @@ export default {
           break;
         case "disconnect":
           this.$delete(this.people, data.from);
-          break;
-        case "mconnect": {
-          // TODO: from MyGames page : send mconnect message with the list of gid (live and corr)
-          // Either me (another tab) or opponent
-          const sid = data.from;
-          if (!this.onMygames.some(s => s == sid))
-          {
-            this.onMygames.push(sid);
-            this.notifyTurn(sid); //TODO: this may require server ID (so, notify after receiving identity)
-          }
-          break;
-          if (!this.people[sid])
-            this.send("askidentity", { target: sid });
-        }
-        case "mdisconnect":
-          ArrayFun.remove(this.onMygames, sid => sid == data.from);
           break;
         case "getfocus": {
           let player = this.people[data.from];
@@ -867,6 +851,8 @@ export default {
         const notifyNewGame = () => {
           let oppsid = this.getOppsid(); //may be null
           this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
+          // Also to MyGames page:
+          this.notifyMyGames("newgame", gameInfo);
         };
         if (this.game.type == "live")
           this.addAndGotoLiveGame(gameInfo, notifyNewGame);
@@ -1185,7 +1171,6 @@ export default {
           const score = this.vr.getCurrentScore();
           if (score != "*") this.gameOver(score);
         }
-// TODO: notifyTurn: "changeturn" message
         this.game.moves.push(move);
         this.game.fen = this.vr.getFen();
         if (this.game.type == "live") {
@@ -1215,6 +1200,16 @@ export default {
         if (!!this.game.mycolor && !data.receiveMyMove) {
           // NOTE: 'var' to see that variable outside this block
           var filtered_move = getFilteredMove(move);
+        }
+        if (moveCol == this.game.mycolor && !data.receiveMyMove) {
+          // Notify turn on MyGames page:
+          this.notifyMyGames(
+            "turn",
+            {
+              gid: this.gameRef.id,
+              turn: this.vr.turn
+            }
+          );
         }
         // Since corr games are stored at only one location, update should be
         // done only by one player for each move:
@@ -1394,6 +1389,14 @@ export default {
         else this.updateCorrGame(scoreObj, callback);
         // Notify the score to main Hall. TODO: only one player (currently double send)
         this.send("result", { gid: this.game.id, score: score });
+        // Also to MyGames page (TODO: doubled as well...)
+        this.notifyMyGames(
+          "score",
+          {
+            gid: this.gameRef.id,
+            score: score
+          }
+        );
       }
       else if (!!callback) callback();
     }
