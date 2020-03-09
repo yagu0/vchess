@@ -12,7 +12,7 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
   const cid = req.body.cid;
   if (
     Array.isArray(gameInfo.players) &&
-    gameInfo.players.some(p => p.id == req.userId) &&
+    gameInfo.players.some(p => p.uid == req.userId) &&
     (!cid || cid.toString().match(/^[0-9]+$/)) &&
     GameModel.checkGameInfo(gameInfo)
   ) {

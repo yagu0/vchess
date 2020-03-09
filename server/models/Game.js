@@ -39,7 +39,7 @@ const GameModel =
       g.cadence.match(/^[0-9dhms +]+$/) &&
       g.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
       g.players.length == 2 &&
-      g.players.every(p => p.id.toString().match(/^[0-9]+$/))
+      g.players.every(p => p.uid.toString().match(/^[0-9]+$/))
     );
   },
 
@@ -60,7 +60,7 @@ const GameModel =
             const color = (idx==0 ? "w" : "b");
             query =
               "INSERT INTO Players VALUES " +
-              "(" + this.lastID + "," + p.id + ",'" + color + "')";
+              "(" + this.lastID + "," + p.uid + ",'" + color + "')";
             db.run(query);
           });
           cb(null, {gid: this.lastID});
@@ -99,7 +99,8 @@ const GameModel =
               "FROM Chats " +
               "WHERE gid = " + id;
             db.all(query, (err4, chats) => {
-              const game = Object.assign({},
+              const game = Object.assign(
+                {},
                 gameInfo,
                 {
                   players: players,
@@ -140,7 +141,8 @@ const GameModel =
             "FROM Moves " +
             "WHERE gid = " + id;
           db.get(query, (err,ret) => {
-            const game = Object.assign({},
+            const game = Object.assign(
+              {},
               gameInfo,
               {
                 players: players,

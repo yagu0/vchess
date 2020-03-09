@@ -163,6 +163,7 @@ export default {
       drawOffer: "",
       infoMessage: "",
       rematchOffer: "",
+      lastateAsked: false,
       people: {}, //players + observers
       onMygames: [], //opponents (or me) on "MyGames" page
       lastate: undefined, //used if opponent send lastate before game is ready
@@ -268,6 +269,7 @@ export default {
       this.virtualClocks = [[0,0], [0,0]];
       this.vr = null;
       this.drawOffer = "";
+      this.lastateAsked = false;
       this.rematchOffer = "";
       this.onMygames = [];
       this.lastate = undefined;
@@ -395,6 +397,9 @@ export default {
         }
         this.$set(this.game, "chats", []);
       }
+    },
+    getGameType: function(game) {
+      return game.cadence.indexOf("d") >= 0 ? "corr" : "live";
     },
     // Notify turn after a new move (to opponent and me on MyGames page)
     notifyTurn: function(sid) {
@@ -596,31 +601,9 @@ export default {
           break;
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"
-          if (
-            (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
-            this.game.score != "*" ||
-            this.drawOffer == "sent" ||
-            this.rematchOffer == "sent"
-          ) {
-            // Send our "last state" informations to opponent
-            const L = this.game.moves.length;
-            const myIdx = ["w", "b"].indexOf(this.game.mycolor);
-            const myLastate = {
-              lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
-              clock: this.game.clocks[myIdx],
-              // Since we played a move (or abort or resign),
-              // only drawOffer=="sent" is possible
-              drawSent: this.drawOffer == "sent",
-              rematchSent: this.rematchOffer == "sent",
-              score: this.game.score,
-              score: this.game.scoreMsg,
-              movesCount: L,
-              initime: this.game.initime[1 - myIdx] //relevant only if I played
-            };
-            this.send("lastate", { data: myLastate, target: data.from });
-          } else {
-            this.send("lastate", { data: {nothing: true}, target: data.from });
-          }
+          // If the game or moves aren't loaded yet, delay the sending:
+          if (!this.game || !this.game.moves) this.lastateAsked = true;
+          else this.sendLastate(data.from);
           break;
         case "lastate": {
           // Got opponent infos about last move
@@ -711,9 +694,15 @@ export default {
         case "newgame": {
           // A game started, redirect if I'm playing in
           const gameInfo = data.data;
+          const gameType = this.getGameType(gameInfo);
           if (
-            gameInfo.players.some(p =>
-              p.sid == this.st.user.sid || p.uid == this.st.user.id)
+            gameType == "live" &&
+            gameInfo.players.some(p => p.sid == this.st.user.sid)
+          ) {
+            this.addAndGotoLiveGame(gameInfo);
+          } else if (
+            gameType == "corr" &&
+            gameInfo.players.some(p => p.uid == this.st.user.id)
           ) {
             this.$router.push("/game/" + gameInfo.id);
           } else {
@@ -766,6 +755,33 @@ export default {
         }
       );
     },
+    sendLastate: function(target) {
+      if (
+        (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
+        this.game.score != "*" ||
+        this.drawOffer == "sent" ||
+        this.rematchOffer == "sent"
+      ) {
+        // Send our "last state" informations to opponent
+        const L = this.game.moves.length;
+        const myIdx = ["w", "b"].indexOf(this.game.mycolor);
+        const myLastate = {
+          lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
+          clock: this.game.clocks[myIdx],
+          // Since we played a move (or abort or resign),
+          // only drawOffer=="sent" is possible
+          drawSent: this.drawOffer == "sent",
+          rematchSent: this.rematchOffer == "sent",
+          score: this.game.score,
+          score: this.game.scoreMsg,
+          movesCount: L,
+          initime: this.game.initime[1 - myIdx] //relevant only if I played
+        };
+        this.send("lastate", { data: myLastate, target: target });
+      } else {
+        this.send("lastate", { data: {nothing: true}, target: target });
+      }
+    },
     // lastate was received, but maybe game wasn't ready yet:
     processLastate: function() {
       const data = this.lastate;
@@ -811,6 +827,32 @@ export default {
         } else this.updateCorrGame({ drawOffer: this.game.mycolor });
       }
     },
+    addAndGotoLiveGame: function(gameInfo, callback) {
+      const game = Object.assign(
+        {},
+        gameInfo,
+        {
+          // (other) Game infos: constant
+          fenStart: gameInfo.fen,
+          vname: this.game.vname,
+          created: Date.now(),
+          // Game state (including FEN): will be updated
+          moves: [],
+          clocks: [-1, -1], //-1 = unstarted
+          initime: [0, 0], //initialized later
+          score: "*"
+        }
+      );
+      GameStorage.add(game, (err) => {
+        // No error expected.
+        if (!err) {
+          if (this.st.settings.sound)
+            new Audio("/sounds/newgame.flac").play().catch(() => {});
+          callback();
+          this.$router.push("/game/" + gameInfo.id);
+        }
+      });
+    },
     clickRematch: function() {
       if (!this.game.mycolor) return; //I'm just spectator
       if (this.rematchOffer == "received") {
@@ -822,33 +864,12 @@ export default {
           vid: this.game.vid,
           cadence: this.game.cadence
         };
-        let oppsid = this.getOppsid(); //may be null
-        this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
-        if (this.game.type == "live") {
-          const game = Object.assign(
-            {},
-            gameInfo,
-            {
-              // (other) Game infos: constant
-              fenStart: gameInfo.fen,
-              vname: this.game.vname,
-              created: Date.now(),
-              // Game state (including FEN): will be updated
-              moves: [],
-              clocks: [-1, -1], //-1 = unstarted
-              initime: [0, 0], //initialized later
-              score: "*"
-            }
-          );
-          GameStorage.add(game, (err) => {
-            // No error expected.
-            if (!err) {
-              if (this.st.settings.sound)
-                new Audio("/sounds/newgame.flac").play().catch(() => {});
-              this.$router.push("/game/" + gameInfo.id);
-            }
-          });
-        }
+        const notifyNewGame = () => {
+          let oppsid = this.getOppsid(); //may be null
+          this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
+        };
+        if (this.game.type == "live")
+          this.addAndGotoLiveGame(gameInfo, notifyNewGame);
         else {
           // corr game
           ajax(
@@ -859,6 +880,7 @@ export default {
               data: { gameInfo: gameInfo },
               success: (response) => {
                 gameInfo.id = response.gameId;
+                notifyNewGame();
                 this.$router.push("/game/" + response.gameId);
               }
             }
@@ -903,11 +925,11 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game, callback) {
-      const afterRetrieval = async game => {
+      const afterRetrieval = async (game) => {
         const vModule = await import("@/variants/" + game.vname + ".js");
         window.V = vModule.VariantRules;
         this.vr = new V(game.fen);
-        const gtype = game.cadence.indexOf("d") >= 0 ? "corr" : "live";
+        const gtype = this.getGameType(game);
         const tc = extractTime(game.cadence);
         const myIdx = game.players.findIndex(p => {
           return p.sid == this.st.user.sid || p.uid == this.st.user.id;
@@ -1050,6 +1072,10 @@ export default {
           // Did lastate arrive before game was rendered?
           if (this.lastate) this.processLastate();
         });
+        if (this.lastateAsked) {
+          this.lastateAsked = false;
+          this.sendLastate(game.oppsid);
+        }
         if (this.gameIsLoading) {
           this.gameIsLoading = false;
           if (this.gotMoveIdx >= game.moves.length)

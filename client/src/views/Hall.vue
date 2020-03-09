@@ -685,7 +685,7 @@ export default {
           const game = data.data;
           // Ignore games where I play (will go in MyGames page)
           if (game.players.every(p =>
-            p.sid != this.st.user.sid || p.id != this.st.user.id))
+            p.sid != this.st.user.sid || p.uid != this.st.user.id))
           {
             let locGame = this.games.find(g => g.id == game.id);
             if (!locGame) {
@@ -948,6 +948,16 @@ export default {
     },
     // NOTE: when launching game, the challenge is already being deleted
     launchGame: function(c) {
+      let players =
+        !!c.mycolor
+          ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
+          : shuffle([c.from, c.seat]);
+      // Convention for players IDs in stored games is 'uid'
+      players.forEach(p => {
+        let pWithUid = p;
+        pWithUid["uid"] = p.id;
+        delete pWithUid["id"];
+      });
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),

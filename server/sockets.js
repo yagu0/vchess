@@ -205,7 +205,7 @@ module.exports = function(wss) {
 
         case "rnewgame":
           // A rematch game started: players are already informed
-          notifyAllBut(page, "newgame", {data: obj.data}, [sid, obj.oppsid]);
+          notifyAllBut(page, "newgame", {data: obj.data}, [sid]);
           notifyAllBut("/", "newgame", {data: obj.data}, [sid, obj.oppsid]);
           notifyRoom("/mygames", "newgame", {data: obj.data});
           break;
