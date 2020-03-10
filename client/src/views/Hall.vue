@@ -1272,6 +1272,10 @@ tr > td
   &.random-2
     background-color: #33B42B
 
+@media screen and (max-width: 767px)
+  h4
+    margin: 5px 0
+
 td.remove-preset
   background-color: lightgrey
   text-align: center
