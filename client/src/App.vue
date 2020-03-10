@@ -34,6 +34,7 @@
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
+        a.menuitem(href="https://discord.gg/a9ZFKBe") Discord
         router-link.menuitem(to="/news") {{ st.tr["News"] }}
         p.clickable(onClick="window.doClick('modalContact')")
           | {{ st.tr["Contact"] }}
