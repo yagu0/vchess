@@ -133,6 +133,10 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
     );
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   static GenRandInitFen(randomness) {
     return ChessRules.GenRandInitFen(randomness)
       .replace("w 0 1111 -", "w 0 1111")

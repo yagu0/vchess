@@ -212,6 +212,10 @@ export const VariantRules = class EnpassantRules extends ChessRules {
     );
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   static get VALUES() {
     return {
       p: 1,

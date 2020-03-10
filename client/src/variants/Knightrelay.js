@@ -88,6 +88,10 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
     };
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   getNotation(move) {
     if (move.appear.length == 2 && move.appear[0].p == V.KING)
       // Castle

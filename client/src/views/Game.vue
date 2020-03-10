@@ -757,7 +757,7 @@ export default {
           drawSent: this.drawOffer == "sent",
           rematchSent: this.rematchOffer == "sent",
           score: this.game.score,
-          score: this.game.scoreMsg,
+          scoreMsg: this.game.scoreMsg,
           movesCount: L,
           initime: this.game.initime[1 - myIdx] //relevant only if I played
         };

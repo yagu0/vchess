@@ -284,7 +284,7 @@ export const VariantRules = class Allmate1Rules extends ChessRules {
   }
 
   static get SEARCH_DEPTH() {
-    return 2;
+    return 1;
   }
 
   getNotation(move) {

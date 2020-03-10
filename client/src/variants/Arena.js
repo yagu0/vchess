@@ -153,4 +153,8 @@ export const VariantRules = class ArenaRules extends ChessRules {
     }
     return "*";
   }
+
+  static get SEARCH_DEPTH() {
+    return 4;
+  }
 };

@@ -81,4 +81,8 @@ export const VariantRules = class UpsidedownRules extends ChessRules {
       " w 0"
     ); //no castle, no en-passant
   }
+
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
 };

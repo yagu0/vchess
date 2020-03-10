@@ -279,7 +279,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     const oppCol = V.GetOppCol(this.turn);
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        // NOTE: just testing == color isn't enough because of checkred pieces
+        // NOTE: just testing == color isn't enough because of checkered pieces
         if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
           const moves = this.getPotentialMovesFrom([i, j]);
           if (moves.length > 0) {
@@ -412,6 +412,10 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   undo(move) {
     this.cmoves.pop();
     super.undo(move);
+  }
+
+  static get SEARCH_DEPTH() {
+    return 2;
   }
 
   getNotation(move) {

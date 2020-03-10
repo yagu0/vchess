@@ -134,6 +134,10 @@ export const VariantRules = class CylinderRules extends ChessRules {
     return false;
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   static get VALUES() {
     return {
       p: 1,

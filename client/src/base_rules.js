@@ -1128,16 +1128,18 @@ export const ChessRules = class ChessRules {
   getComputerMove() {
     const maxeval = V.INFINITY;
     const color = this.turn;
-    // Some variants may show a bigger moves list to the human (Switching),
-    // thus the argument "computer" below (which is generally ignored)
     let moves1 = this.getAllValidMoves();
 
     if (moves1.length == 0)
       // TODO: this situation should not happen
       return null;
 
-    // Rank moves using a min-max at depth 2
+    // Rank moves using a min-max at depth 2 (if search_depth >= 2!)
     for (let i = 0; i < moves1.length; i++) {
+      if (V.SEARCH_DEPTH == 1) {
+        moves1[i].eval = this.evalPosition();
+        continue;
+      }
       // Initial self evaluation is very low: "I'm checkmated"
       moves1[i].eval = (color == "w" ? -1 : 1) * maxeval;
       this.play(moves1[i]);
@@ -1185,19 +1187,9 @@ export const ChessRules = class ChessRules {
     });
 //    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
 
-    let candidates = [0]; //indices of candidates moves
-    for (let j = 1; j < moves1.length && moves1[j].eval == moves1[0].eval; j++)
-      candidates.push(j);
-    let currentBest = moves1[candidates[randInt(candidates.length)]];
-
     // Skip depth 3+ if we found a checkmate (or if we are checkmated in 1...)
     if (V.SEARCH_DEPTH >= 3 && Math.abs(moves1[0].eval) < V.THRESHOLD_MATE) {
-      // From here, depth >= 3: may take a while, so we control time
-      const timeStart = Date.now();
       for (let i = 0; i < moves1.length; i++) {
-        if (Date.now() - timeStart >= 5000)
-          //more than 5 seconds
-          return currentBest; //depth 2 at least
         this.play(moves1[i]);
         // 0.1 * oldEval : heuristic to avoid some bad moves (not all...)
         moves1[i].eval =
@@ -1208,10 +1200,9 @@ export const ChessRules = class ChessRules {
       moves1.sort((a, b) => {
         return (color == "w" ? 1 : -1) * (b.eval - a.eval);
       });
-    } else return currentBest;
-//    console.log(moves1.map(m => { return [this.getNotation(m), m.eval]; }));
+    }
 
-    candidates = [0];
+    let candidates = [0];
     for (let j = 1; j < moves1.length && moves1[j].eval == moves1[0].eval; j++)
       candidates.push(j);
     return moves1[candidates[randInt(candidates.length)]];

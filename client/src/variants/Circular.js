@@ -246,4 +246,8 @@ export const VariantRules = class CircularRules extends ChessRules {
       k: 1000
     };
   }
+
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
 };

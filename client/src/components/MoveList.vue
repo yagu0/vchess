@@ -27,6 +27,12 @@ div
       :aria-label="st.tr['Resize board']"
     )
       img.inline(src="/images/icons/resize.svg")
+    button.tooltip(
+      v-if="canAnalyze"
+      @click="$emit('analyze')"
+      :aria-label="st.tr['Analyse']"
+    )
+      img.inline(src="/images/icons/analyse.svg")
     #downloadDiv(v-if="canDownload")
       a#download(href="#")
       button.tooltip(
@@ -34,12 +40,6 @@ div
         :aria-label="st.tr['Download'] + ' PGN'"
       )
         img.inline(src="/images/icons/download.svg")
-    button.tooltip(
-      v-if="canAnalyze"
-      @click="$emit('analyze')"
-      :aria-label="st.tr['Analyse']"
-    )
-      img.inline(src="/images/icons/analyse.svg")
   #scoreInfo(v-if="score!='*'")
     span.score {{ score }}
     span.score-msg {{ st.tr[message] }}

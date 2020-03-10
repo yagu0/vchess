@@ -222,4 +222,8 @@ export const VariantRules = class AntikingRules extends ChessRules {
       " w 0 1111 -"
     );
   }
+
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
 };

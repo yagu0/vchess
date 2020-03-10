@@ -201,4 +201,8 @@ export const VariantRules = class MagneticRules extends ChessRules {
   static get THRESHOLD_MATE() {
     return 500; //checkmates evals may be slightly below 1000
   }
+
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
 };

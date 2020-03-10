@@ -296,6 +296,10 @@ export const VariantRules = class AliceRules extends ChessRules {
     );
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   getNotation(move) {
     if (move.appear.length == 2 && move.appear[0].p == V.KING) {
       if (move.end.y < move.start.y) return "0-0-0";

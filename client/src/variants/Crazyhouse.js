@@ -234,7 +234,6 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
   }
 
   static get SEARCH_DEPTH() {
-    // High branching factor
     return 2;
   }
 

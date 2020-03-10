@@ -66,13 +66,20 @@ main
             option(value="1") {{ st.tr["Symmetric random"] }}
             option(value="2") {{ st.tr["Asymmetric random"] }}
         fieldset
-          label(for="memorizeChall") {{ st.tr["Memorize?"] }}
+          label(for="memorizeChall") {{ st.tr["Memorize"] }}
           input#memorizeChall(
             type="checkbox"
             v-model="newchallenge.memorize"
           )
         fieldset(v-if="st.user.id > 0")
-          label(for="selectPlayers") {{ st.tr["Play with?"] }}
+          label(for="selectPlayers") {{ st.tr["Play with"] }}
+          select#selectPlayersInList(v-model="newchallenge.to")
+            option(value="")
+            option(
+              v-for="p in Object.values(people)"
+              :value="p.name"
+            )
+              | {{ p.name }}
           input#selectPlayers(
             type="text"
             v-model="newchallenge.to"
