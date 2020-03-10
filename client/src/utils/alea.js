@@ -22,9 +22,7 @@ export function sample(arr, n) {
   let cpArr = arr.map(e => e);
   for (let index = 0; index < n; index++) {
     const rand = randInt(index, arr.length);
-    const temp = cpArr[index];
-    cpArr[index] = cpArr[rand];
-    cpArr[rand] = temp;
+    [ cpArr[index], cpArr[rand] ] = [ cpArr[rand], cpArr[index] ];
   }
   return cpArr.slice(0, n);
 }

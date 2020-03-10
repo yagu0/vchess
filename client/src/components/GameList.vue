@@ -11,7 +11,7 @@ div
       tr(
         v-for="g in sortedGames"
         @click="$emit('show-game',g)"
-        :class="{'my-turn': g.myTurn}"
+        :class="{'my-turn': !!g.myTurn}"
       )
         td {{ g.vname }}
         td {{ player_s(g) }}
@@ -54,52 +54,20 @@ export default {
   },
   computed: {
     sortedGames: function() {
-      // Show in order: games where it's my turn, my running games, my games, other games
+      // Show in order: it's my turn, running games, completed games
       let minCreated = Number.MAX_SAFE_INTEGER;
       let maxCreated = 0;
-      const isMyTurn = (g, myColor) => {
-        const rem = g.movesCount % 2;
-        return (
-          (rem == 0 && myColor == "w") ||
-          (rem == 1 && myColor == "b")
-        );
-      };
-      let augmentedGames = this.games
-        .filter(g => !this.deleted[g.id])
-        .map(g => {
-          let priority = 0;
-          let myColor = undefined;
-          if (
-            g.players.some(
-              p => p.uid == this.st.user.id || p.sid == this.st.user.sid
-            )
-          ) {
-            priority++;
-            myColor =
-              g.players[0].uid == this.st.user.id ||
-              g.players[0].sid == this.st.user.sid
-                ? "w"
-                : "b";
-            if (g.score == "*") {
-              priority++;
-              if (g.turn == myColor || isMyTurn(g, myColor)) priority++;
-            }
-          }
-          if (g.created < minCreated) minCreated = g.created;
-          if (g.created > maxCreated) maxCreated = g.created;
-          return Object.assign({}, g, {
-            priority: priority,
-            myTurn: priority == 3,
-            myColor: myColor
-          });
-        });
+      this.games.forEach(g => {
+        if (g.created < minCreated) minCreated = g.created;
+        if (g.created > maxCreated) maxCreated = g.created;
+      });
       const deltaCreated = maxCreated - minCreated;
-      return augmentedGames.sort((g1, g2) => {
+      return this.games.sort((g1, g2) => {
         return (
           g2.priority - g1.priority + (g2.created - g1.created) / deltaCreated
         );
       });
-    }
+    },
   },
   methods: {
     player_s: function(g) {

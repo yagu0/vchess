@@ -197,14 +197,10 @@ export const ChessRules = class ChessRules {
     const move = moveOrSquare;
     const s = move.start,
           e = move.end;
-    // NOTE: next conditions are first for Crazyhouse, and last for Checkered
-    // TODO: Checkered exceptions are too weird and should move in its own file.
     if (
-      move.vanish.length > 0 &&
       Math.abs(s.x - e.x) == 2 &&
       s.y == e.y &&
-      move.vanish[0].p == V.PAWN &&
-      ["w", "b"].includes(move.vanish[0].c)
+      move.appear[0].p == V.PAWN
     ) {
       return {
         x: (s.x + e.x) / 2,
@@ -645,7 +641,6 @@ export const ChessRules = class ChessRules {
     const firstRank = color == "w" ? sizeX - 1 : 0;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
-    const pawnColor = this.getColor(x, y); //can be different for checkered
 
     // NOTE: next condition is generally true (no pawn on last rank)
     if (x + shiftX >= 0 && x + shiftX < sizeX) {
@@ -658,7 +653,7 @@ export const ChessRules = class ChessRules {
         for (let piece of finalPieces) {
           moves.push(
             this.getBasicMove([x, y], [x + shiftX, y], {
-              c: pawnColor,
+              c: color,
               p: piece
             })
           );
@@ -683,7 +678,7 @@ export const ChessRules = class ChessRules {
           for (let piece of finalPieces) {
             moves.push(
               this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-                c: pawnColor,
+                c: color,
                 p: piece
               })
             );
@@ -1001,7 +996,7 @@ export const ChessRules = class ChessRules {
   // After move is played, update variables + flags
   updateVariables(move) {
     let piece = undefined;
-    // TODO: update variables before move is played, and just use this.turn ?
+    // TODO: update variables before move is played, and just use this.turn?
     // (doesn't work in general, think MarseilleChess)
     let c = undefined;
     if (move.vanish.length >= 1) {

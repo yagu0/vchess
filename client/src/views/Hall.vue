@@ -256,7 +256,15 @@ export default {
             response.games.map(g => {
               const type = this.classifyObject(g);
               const vname = this.getVname(g.vid);
-              return Object.assign({}, g, { type: type, vname: vname });
+              return Object.assign(
+                {},
+                g,
+                {
+                  type: type,
+                  vname: vname,
+                  priority: g.score == "*" ? 1 : 0 //for display
+                }
+              );
             })
           );
         }
@@ -694,9 +702,11 @@ export default {
               let newGame = game;
               newGame.type = this.classifyObject(game);
               newGame.vname = this.getVname(game.vid);
+              newGame.priority = 0;
               if (!game.score)
-                //if new game from Hall
+                // New game from Hall
                 newGame.score = "*";
+              if (newGame.score == "*") newGame.priority++;
               newGame.rids = [game.rid];
               delete newGame["rid"];
               this.games.push(newGame);
@@ -717,7 +727,10 @@ export default {
         }
         case "result": {
           let g = this.games.find(g => g.id == data.gid);
-          if (!!g) g.score = data.score;
+          if (!!g) {
+            g.score = data.score;
+            g.priority = 0;
+          }
           break;
         }
         case "startgame": {
@@ -907,6 +920,7 @@ export default {
       }
       this.send("deletechallenge", { data: c.id });
     },
+    // TODO: if several players click same challenge at the same time: problem
     clickChallenge: async function(c) {
       const myChallenge =
         c.from.sid == this.st.user.sid || //live

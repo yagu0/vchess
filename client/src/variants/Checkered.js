@@ -90,6 +90,13 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     this.pawnFlags = flags[1];
   }
 
+  getEpSquare(moveOrSquare) {
+    if (typeof moveOrSquare !== "object" || move.appear[0].c != 'c')
+      return super.getEpSquare(moveOrSquare);
+    // Checkered move: no en-passant
+    return undefined;
+  }
+
   getCmove(move) {
     if (move.appear[0].c == "c" && move.vanish.length == 1)
       return { start: move.start, end: move.end };
@@ -146,6 +153,77 @@ export const VariantRules = class CheckeredRules extends ChessRules {
         }
       }
     });
+    return moves;
+  }
+
+  getPotentialPawnMoves([x, y]) {
+    const color = this.turn;
+    let moves = [];
+    const [sizeX, sizeY] = [V.size.x, V.size.y];
+    const shiftX = color == "w" ? -1 : 1;
+    const startRank = color == "w" ? sizeX - 2 : 1;
+    const lastRank = color == "w" ? 0 : sizeX - 1;
+    const pawnColor = this.getColor(x, y); //can be  checkered
+
+    const finalPieces =
+      x + shiftX == lastRank
+        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+        : [V.PAWN];
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      // One square forward
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y], {
+            c: pawnColor,
+            p: piece
+          })
+        );
+      }
+      if (
+        x == startRank &&
+        this.board[x + 2 * shiftX][y] == V.EMPTY
+      ) {
+        // Two squares jump
+        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+      }
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
+        for (let piece of finalPieces) {
+          moves.push(
+            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
+              c: pawnColor,
+              p: piece
+            })
+          );
+        }
+      }
+    }
+
+    // En passant
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: "p",
+        c: this.getColor(x, epSquare.y)
+      });
+      moves.push(enpassantMove);
+    }
+
     return moves;
   }
 

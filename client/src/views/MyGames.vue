@@ -47,6 +47,7 @@ export default {
   created: function() {
     GameStorage.getAll(true, localGames => {
       localGames.forEach(g => g.type = "live");
+      this.decorate(localGames);
       this.liveGames = localGames;
     });
     if (this.st.user.id > 0) {
@@ -64,6 +65,7 @@ export default {
               return !g["deletedBy" + mySide];
             });
             serverGames.forEach(g => g.type = "corr");
+            this.decorate(serverGames);
             this.corrGames = serverGames;
           }
         }
@@ -112,22 +114,47 @@ export default {
           .classList.add("somethingnew");
       }
     },
+    // Called at loading to augment games with priority + myTurn infos
+    decorate: function(games) {
+      games.forEach(g => {
+        g.priority = 0;
+        if (g.score == "*") {
+          g.priority++;
+          const myColor =
+            (g.type == "corr" && g.players[0].uid == this.st.user.id) ||
+            (g.type == "live" && g.players[0].sid == this.st.user.sid)
+              ? 'w'
+              : 'b';
+          const rem = g.movesCount % 2;
+          if ((rem == 0 && myColor == 'w') || (rem == 1 && myColor == 'b')) {
+            g.myTurn = true;
+            g.priority++;
+          }
+        }
+      });
+    },
     socketMessageListener: function(msg) {
       const data = JSON.parse(msg.data);
+      let gamesArrays = {
+        "corr": this.corrGames,
+        "live": this.liveGames
+      };
       switch (data.code) {
-        // NOTE: no need to increment movesCount: unused if turn is provided
         case "notifyturn":
         case "notifyscore": {
           const info = data.data;
-          let games =
-            !!parseInt(info.gid)
-              ? this.corrGames
-              : this.liveGames;
-          let g = games.find(g => g.id == info.gid);
+          const type = (!!parseInt(info.gid) ? "corr" : "live");
+          let game = gamesArrays[type].find(g => g.id == info.gid);
           // "notifything" --> "thing":
           const thing = data.code.substr(6);
-          this.$set(g, thing, info[thing]);
-          this.tryShowNewsIndicator(g.type);
+          game[thing] = info[thing];
+          if (thing == "score") game.priority = 0;
+          else {
+            game.priority = 3 - game.priority; //toggle turn
+            game.myTurn = !game.myTurn;
+          }
+          this.$forceUpdate();
+          this.tryShowNewsIndicator(type);
           break;
         }
         case "notifynewgame": {
@@ -136,22 +163,27 @@ export default {
           // if unlucky and newgame right after connect:
           const v = this.st.variants.find(v => v.id == gameInfo.vid);
           const vname = !!v ? v.name : "";
-          const type = gameInfo.cadence.indexOf('d') >= 0 ? "corr": "live";
-          const game = Object.assign(
+          const type = (gameInfo.cadence.indexOf('d') >= 0 ? "corr": "live");
+          let game = Object.assign(
             {
               vname: vname,
               type: type,
               score: "*",
-              turn: "w"
+              created: Date.now()
             },
             gameInfo
           );
-          // TODO: the new game isn't sorted. Maybe apply a different strategy:
-          // 1) Sort all at loading,
-          // 2) Insert in place when new games arrive,
-          // 3) Change position when score or turn change.
-          // And GameList just show list unsorted.
-          this[type + "Games"].unshift(game);
+          // Compute priority:
+          game.priority = 1; //at least: my running game
+          if (
+            (type == "corr" && game.players[0].uid == this.st.user.id) ||
+            (type == "live" && game.players[0].sid == this.st.user.sid)
+          ) {
+            game.priority++;
+            game.myTurn = true;
+          }
+          gamesArrays[type].push(game);
+          this.$forceUpdate();
           this.tryShowNewsIndicator(type);
           break;
         }
@@ -163,29 +195,14 @@ export default {
       this.conn.addEventListener("close", this.socketCloseListener);
     },
     showGame: function(game) {
-      // TODO: "isMyTurn" is duplicated (see GameList component). myColor also
-      const isMyTurn = (g) => {
-        if (g.score != "*") return false;
-        const myColor =
-          g.players[0].uid == this.st.user.id ||
-          g.players[0].sid == this.st.user.sid
-            ? "w"
-            : "b";
-        if (!!g.turn) return g.turn == myColor;
-        const rem = g.movesCount % 2;
-        return (
-          (rem == 0 && myColor == "w") ||
-          (rem == 1 && myColor == "b")
-        );
-      };
-      if (game.type == "live" || !isMyTurn(game)) {
+      if (game.type == "live" || !game.myTurn) {
         this.$router.push("/game/" + game.id);
         return;
       }
       // It's my turn in this game. Are there others?
       let nextIds = "";
-      let otherCorrGamesMyTurn = this.corrGames.filter(
-        g => g.id != game.id && isMyTurn(g));
+      let otherCorrGamesMyTurn = this.corrGames.filter(g =>
+        g.id != game.id && !!g.myTurn);
       if (otherCorrGamesMyTurn.length > 0) {
         nextIds += "/?next=[";
         otherCorrGamesMyTurn.forEach(g => { nextIds += g.id + ","; });

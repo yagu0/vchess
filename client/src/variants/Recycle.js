@@ -18,6 +18,13 @@ export const VariantRules = class RecycleRules extends ChessRules {
     });
   }
 
+  getEpSquare(moveOrSquare) {
+    if (typeof moveOrSquare !== "object" || move.vanish.length > 0)
+      return super.getEpSquare(moveOrSquare);
+    // Landing move: no en-passant
+    return undefined;
+  }
+
   static GenRandInitFen(randomness) {
     return ChessRules.GenRandInitFen(randomness) + " 0000000000";
   }
