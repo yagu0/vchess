@@ -79,8 +79,8 @@ export default {
       processModalClick);
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
-      document.getElementsByClassName("tooltip").forEach(elt => {
-        elt.classList.remove("tooltip");
+      document.querySelectorAll("#aboveMoves .tooltip").forEach(elt => {
+        elt.classList.remove("tooltip")
       });
     }
     // Take full width on small screens:

@@ -221,8 +221,8 @@ export default {
       .addEventListener("click", processModalClick);
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
-      document.getElementsByClassName("tooltip").forEach(elt => {
-        elt.classList.remove("tooltip");
+      document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
+        elt.classList.remove("tooltip")
       });
     }
   },
