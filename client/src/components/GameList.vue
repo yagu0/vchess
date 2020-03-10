@@ -57,12 +57,13 @@ export default {
       // Show in order: it's my turn, running games, completed games
       let minCreated = Number.MAX_SAFE_INTEGER;
       let maxCreated = 0;
-      this.games.forEach(g => {
+      let remGames = this.games.filter(g => !this.deleted[g.id]);
+      remGames.forEach(g => {
         if (g.created < minCreated) minCreated = g.created;
         if (g.created > maxCreated) maxCreated = g.created;
       });
       const deltaCreated = maxCreated - minCreated;
-      return this.games.sort((g1, g2) => {
+      return remGames.sort((g1, g2) => {
         return (
           g2.priority - g1.priority + (g2.created - g1.created) / deltaCreated
         );
