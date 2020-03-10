@@ -89,7 +89,7 @@ main
         )
           img(src="/images/icons/resign.svg")
       button.tooltip(
-        v-else-if="!!game.mycolor"
+        v-else
         @click="clickRematch()"
         :class="{['rematch-' + rematchOffer]: true}"
         :aria-label="st.tr['Rematch']"

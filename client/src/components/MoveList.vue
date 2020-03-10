@@ -160,6 +160,7 @@ export default {
 
 <style lang="sass" scoped>
 .moves-list
+  user-select: none
   cursor: pointer
   min-height: 1px
   max-height: 500px

@@ -34,7 +34,7 @@ main
   )
     .card
       label#closeNewgame.modal-close(for="modalNewgame")
-      div(@keyup.enter="newChallenge()")
+      div(@keyup.enter="issueNewChallenge()")
         fieldset
           label(for="selectVariant") {{ st.tr["Variant"] }} *
           select#selectVariant(
@@ -65,6 +65,12 @@ main
             option(value="0") {{ st.tr["Deterministic"] }}
             option(value="1") {{ st.tr["Symmetric random"] }}
             option(value="2") {{ st.tr["Asymmetric random"] }}
+        fieldset
+          label(for="memorizeChall") {{ st.tr["Memorize?"] }}
+          input#memorizeChall(
+            type="checkbox"
+            v-model="newchallenge.memorize"
+          )
         fieldset(v-if="st.user.id > 0")
           label(for="selectPlayers") {{ st.tr["Play with?"] }}
           input#selectPlayers(
@@ -79,7 +85,7 @@ main
             v-model="newchallenge.fen"
           )
         .diagram(v-html="newchallenge.diag")
-      button(@click="newChallenge()") {{ st.tr["Send challenge"] }}
+      button(@click="issueNewChallenge()") {{ st.tr["Send challenge"] }}
   input#modalPeople.modal(
     type="checkbox"
     @click="resetSocialColor()"
@@ -122,6 +128,26 @@ main
           | {{ st.tr["Who's there?"] }}
         button(@click="showNewchallengeForm()")
           | {{ st.tr["New game"] }}
+  .row(v-if="presetChalls.length > 0")
+    .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+      h4.text-center {{ st.tr["Preset challenges"] }}
+      table
+        thead
+          tr
+            th {{ st.tr["Variant"] }}
+            th {{ st.tr["Cadence"] }}
+            th {{ st.tr["Random?"] }}
+            th
+        tbody
+          tr(
+            v-for="pc in presetChalls"
+            @click="newChallFromPreset(pc)"
+          )
+            td {{ pc.vname }}
+            td {{ pc.cadence }}
+            td(:class="getRandomnessClass(pc)")
+            td.remove-preset(@click="removePresetChall($event, pc)")
+              img(src="/images/icons/delete.svg")
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       div#div2
@@ -199,10 +225,12 @@ export default {
         // diagrams of targetted challenges:
         V: null,
         vname: "",
-        diag: "" //visualizing FEN
+        diag: "", //visualizing FEN
+        memorize: false //put settings in localStorage
       },
       tchallDiag: "",
       curChallToAccept: {from: {}},
+      presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
       newChat: "",
       conn: null,
       connexionString: "",
@@ -261,8 +289,7 @@ export default {
                 g,
                 {
                   type: type,
-                  vname: vname,
-                  priority: g.score == "*" ? 1 : 0 //for display
+                  vname: vname
                 }
               );
             })
@@ -368,6 +395,11 @@ export default {
     this.send("disconnect");
   },
   methods: {
+    getRandomnessClass: function(pc) {
+      return {
+        ["random-" + pc.randomness]: true
+      };
+    },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
       this.send(
@@ -381,10 +413,36 @@ export default {
       this.newchallenge.to = "";
       this.newchallenge.fen = "";
       this.newchallenge.diag = "";
+      this.newchallenge.memorize = false;
     },
     showNewchallengeForm: function() {
       this.partialResetNewchallenge();
       window.doClick("modalNewgame");
+    },
+    addPresetChall: function(chall) {
+      // Add only if not already existing:
+      if (this.presetChalls.some(c =>
+        c.vid == chall.vid &&
+        c.cadence == chall.cadence &&
+        c.randomness == chall.randomness
+      )) {
+        return;
+      }
+      const L = this.presetChalls.length;
+      this.presetChalls.push({
+        index: L,
+        vid: chall.vid,
+        vname: chall.vname, //redundant, but easier
+        cadence: chall.cadence,
+        randomness: chall.randomness
+      });
+      localStorage.setItem("presetChalls", JSON.stringify(this.presetChalls));
+    },
+    removePresetChall: function(e, pchall) {
+      e.stopPropagation();
+      const pchallIdx = this.presetChalls.findIndex(pc => pc.index == pchall.index);
+      this.presetChalls.splice(pchallIdx, 1);
+      localStorage.setItem("presetChalls", JSON.stringify(this.presetChalls));
     },
     tchallButtonsMargin: function() {
       if (!!this.curChallToAccept.fen) return { "margin-top": "10px" };
@@ -411,7 +469,7 @@ export default {
       return this.games.filter(g => g.type == type);
     },
     classifyObject: function(o) {
-      //challenge or game
+      // o: challenge or game
       return o.cadence.indexOf("d") === -1 ? "live" : "corr";
     },
     setDisplay: function(letter, type, e) {
@@ -445,6 +503,7 @@ export default {
       this.partialResetNewchallenge();
       // Available, in Hall
       this.newchallenge.to = this.people[sid].name;
+      // TODO: also store target sid to not re-search for it
       document.getElementById("modalPeople").checked = false;
       window.doClick("modalNewgame");
     },
@@ -509,7 +568,7 @@ export default {
               this.people[s.sid].pages.push({ path: page, focus: true });
             if (!s.page)
               // Peer is in Hall
-              this.send("askchallenge", { target: s.sid });
+              this.send("askchallenges", { target: s.sid });
             // Peer is in Game
             else this.send("askgame", { target: s.sid, page: page });
           });
@@ -518,11 +577,11 @@ export default {
         case "connect":
         case "gconnect": {
           const page = data.page || "/";
-          // Only ask game / challenge if first connexion:
+          // Only ask game / challenges if first connexion:
           if (!this.people[data.from]) {
             this.people[data.from] = { pages: [{ path: page, focus: true }] };
             if (data.code == "connect")
-              this.send("askchallenge", { target: data.from });
+              this.send("askchallenges", { target: data.from });
             else this.send("askgame", { target: data.from, page: page });
           } else {
             // Append page if not already in list
@@ -544,10 +603,11 @@ export default {
           if (!this.people[data.from]) return;
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect") {
-            // Remove the live challenge sent by this player:
+            // Remove the live challenges sent by this player:
             ArrayFun.remove(
               this.challenges,
-              c => c.type == "live" && c.from.sid == data.from
+              c => c.type == "live" && c.from.sid == data.from,
+              "all"
             );
           } else {
             // Remove the matching live game if now unreachable
@@ -625,69 +685,56 @@ export default {
           }
           break;
         }
-        case "askchallenge": {
-          // Send my current live challenge (if any)
-          const cIdx = this.challenges.findIndex(
-            c => c.from.sid == this.st.user.sid && c.type == "live"
-          );
-          if (cIdx >= 0) {
-            const c = this.challenges[cIdx];
-            // NOTE: in principle, should only send targeted challenge to the target.
-            // But we may not know yet the identity of the target (just name),
-            // so cannot decide if data.from is the target or not.
-            const myChallenge = {
-              id: c.id,
-              from: this.st.user.sid,
-              to: c.to,
-              randomness: c.randomness,
-              fen: c.fen,
-              vid: c.vid,
-              cadence: c.cadence,
-              added: c.added
-            };
-            this.send("challenge", { data: myChallenge, target: data.from });
-          }
+        case "askchallenges": {
+          // Send my current live challenges (if any)
+          const myChallenges = this.challenges
+            .filter(c =>
+              c.from.sid == this.st.user.sid && c.type == "live"
+            )
+            .map(c => {
+              // NOTE: in principle, should only send targeted challenge to the target.
+              // But we may not know yet the identity of the target (just name),
+              // so cannot decide if data.from is the target or not.
+              return {
+                id: c.id,
+                from: this.st.user.sid,
+                to: c.to,
+                randomness: c.randomness,
+                fen: c.fen,
+                vid: c.vid,
+                cadence: c.cadence,
+                added: c.added
+              };
+            });
+          if (myChallenges.length > 0)
+            this.send("challenges", { data: myChallenges, target: data.from });
           break;
         }
-        case "challenge": //after "askchallenge"
-        case "newchallenge": {
-          // NOTE about next condition: see "askchallenge" case.
-          const chall = data.data;
-          if (
-            !chall.to ||
-            (this.people[chall.from].id > 0 &&
-              (chall.from == this.st.user.sid || chall.to == this.st.user.name))
-          ) {
-            let newChall = Object.assign({}, chall);
-            newChall.type = this.classifyObject(chall);
-            newChall.randomness = chall.randomness;
-            newChall.added = Date.now();
-            let fromValues = Object.assign({}, this.people[chall.from]);
-            delete fromValues["pages"]; //irrelevant in this context
-            newChall.from = Object.assign({ sid: chall.from }, fromValues);
-            newChall.vname = this.getVname(newChall.vid);
-            this.challenges.push(newChall);
-            if (
-              (newChall.type == "live" && this.cdisplay == "corr") ||
-              (newChall.type == "corr" && this.cdisplay == "live")
-            ) {
-              document
-                .getElementById("btnC" + newChall.type)
-                .classList.add("somethingnew");
-            }
-          }
+        case "challenges": //after "askchallenges"
+          data.data.forEach(this.addChallenge);
           break;
-        }
+        case "newchallenge":
+          this.addChallenge(data.data);
+          break;
         case "refusechallenge": {
           const cid = data.data;
           ArrayFun.remove(this.challenges, c => c.id == cid);
           alert(this.st.tr["Challenge declined"]);
           break;
         }
-        case "deletechallenge": {
-          // NOTE: the challenge may be already removed
-          const cid = data.data;
-          ArrayFun.remove(this.challenges, c => c.id == cid);
+        case "deletechallenge_s": {
+          // NOTE: the challenge(s) may be already removed
+          const cref = data.data;
+          if (!!cref.cid) ArrayFun.remove(this.challenges, c => c.id == cref.cid);
+          else if (!!cref.sids) {
+            cref.sids.forEach(s => {
+              ArrayFun.remove(
+                this.challenges,
+                c => c.type == "live" && c.from.sid == s,
+                "all"
+              );
+            });
+          }
           break;
         }
         case "game": //individual request
@@ -702,11 +749,9 @@ export default {
               let newGame = game;
               newGame.type = this.classifyObject(game);
               newGame.vname = this.getVname(game.vid);
-              newGame.priority = 0;
               if (!game.score)
                 // New game from Hall
                 newGame.score = "*";
-              if (newGame.score == "*") newGame.priority++;
               newGame.rids = [game.rid];
               delete newGame["rid"];
               this.games.push(newGame);
@@ -727,10 +772,7 @@ export default {
         }
         case "result": {
           let g = this.games.find(g => g.id == data.gid);
-          if (!!g) {
-            g.score = data.score;
-            g.priority = 0;
-          }
+          if (!!g) g.score = data.score;
           break;
         }
         case "startgame": {
@@ -765,6 +807,32 @@ export default {
       this.conn.addEventListener("close", this.socketCloseListener);
     },
     // Challenge lifecycle:
+    addChallenge: function(chall) {
+      // NOTE about next condition: see "askchallenges" case.
+      if (
+        !chall.to ||
+        (this.people[chall.from].id > 0 &&
+          (chall.from == this.st.user.sid || chall.to == this.st.user.name))
+      ) {
+        let newChall = Object.assign({}, chall);
+        newChall.type = this.classifyObject(chall);
+        newChall.randomness = chall.randomness;
+        newChall.added = Date.now();
+        let fromValues = Object.assign({}, this.people[chall.from]);
+        delete fromValues["pages"]; //irrelevant in this context
+        newChall.from = Object.assign({ sid: chall.from }, fromValues);
+        newChall.vname = this.getVname(newChall.vid);
+        this.challenges.push(newChall);
+        if (
+          (newChall.type == "live" && this.cdisplay == "corr") ||
+          (newChall.type == "corr" && this.cdisplay == "live")
+        ) {
+          document
+            .getElementById("btnC" + newChall.type)
+            .classList.add("somethingnew");
+        }
+      }
+    },
     loadNewchallVariant: async function(cb) {
       const vname = this.getVname(this.newchallenge.vid);
       const vModule = await import("@/variants/" + vname + ".js");
@@ -792,7 +860,14 @@ export default {
         });
       }
     },
-    newChallenge: async function() {
+    newChallFromPreset(pchall) {
+      this.partialResetNewchallenge();
+      this.newchallenge.vid = pchall.vid;
+      this.newchallenge.cadence = pchall.cadence;
+      this.newchallenge.randomness = pchall.randomness;
+      this.issueNewChallenge();
+    },
+    issueNewChallenge: async function() {
       if (!!(this.newchallenge.cadence.match(/^[0-9]+$/)))
         this.newchallenge.cadence += "+0"; //assume minutes, no increment
       const ctype = this.classifyObject(this.newchallenge);
@@ -823,27 +898,52 @@ export default {
       }
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
+      // Add only if not already issued (not counting target or FEN):
+      if (this.challenges.some(c =>
+        (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id) &&
+        c.vid == chall.vid &&
+        c.cadence == chall.cadence &&
+        c.randomness == chall.randomness
+      )) {
+        alert(this.st.tr["Challenge already exists"]);
+        return;
+      }
+      if (this.newchallenge.memorize) this.addPresetChall(this.newchallenge);
       delete chall["V"];
       delete chall["diag"];
       const finishAddChallenge = cid => {
         chall.id = cid || "c" + getRandString();
-        // Remove old challenge if any (only one at a time of a given type):
-        const cIdx = this.challenges.findIndex(
-          c =>
-            (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id) &&
-            c.type == ctype
-        );
-        if (cIdx >= 0) {
-          // Delete current challenge (will be replaced now)
-          this.send("deletechallenge", { data: this.challenges[cIdx].id });
+        const MAX_ALLOWED_CHALLS = 3;
+        // Remove oldest challenge if 3 found: only 3 at a time of a given type
+        let countMyChalls = 0;
+        let challToDelIdx = 0;
+        let oldestAdded = Number.MAX_SAFE_INTEGER;
+        for (let i=0; i<this.challenges.length; i++) {
+          const c = this.challenges[i];
+          if (
+            c.type == ctype &&
+            (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
+          ) {
+            countMyChalls++;
+            if (c.added < oldestAdded) {
+              challToDelIdx = i;
+              oldestAdded = c.added;
+            }
+          }
+        }
+        if (countMyChalls >= MAX_ALLOWED_CHALLS) {
+          this.send(
+            "deletechallenge_s",
+            { data: { cid: this.challenges[challToDelIdx].id } }
+          );
           if (ctype == "corr") {
             ajax(
               "/challenges",
               "DELETE",
-              { data: { id: this.challenges[cIdx].id } }
+              { data: { id: this.challenges[challToDelIdx].id } }
             );
           }
-          this.challenges.splice(cIdx, 1);
+          this.challenges.splice(challToDelIdx, 1);
         }
         this.send("newchallenge", {
           data: Object.assign({ from: this.st.user.sid }, chall)
@@ -906,6 +1006,12 @@ export default {
           name: this.st.user.name
         };
         this.launchGame(c);
+        if (c.type == "live")
+          // Remove all live challenges of both players
+          this.send("deletechallenge_s", { data: { sids: [c.from.sid, c.seat.sid] } });
+        else
+          // Corr challenge: just remove the challenge
+          this.send("deletechallenge_s", { data: { cid: c.id } });
       } else {
         const oppsid = this.getOppsid(c);
         if (!!oppsid)
@@ -917,8 +1023,8 @@ export default {
             { data: { id: c.id } }
           );
         }
+        this.send("deletechallenge_s", { data: { cid: c.id } });
       }
-      this.send("deletechallenge", { data: c.id });
     },
     // TODO: if several players click same challenge at the same time: problem
     clickChallenge: async function(c) {
@@ -957,7 +1063,7 @@ export default {
             { data: { id: c.id } }
           );
         }
-        this.send("deletechallenge", { data: c.id });
+        this.send("deletechallenge_s", { data: { cid: c.id } });
       }
       // In all cases, the challenge is consumed:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
@@ -1150,4 +1256,18 @@ button.refuseBtn
 @media screen and (max-width: 767px)
   #div2, #div3
     margin-top: 0
+
+tr > td
+  &.random-0
+    background-color: #FF5733
+  &.random-1
+    background-color: #2B63B4
+  &.random-2
+    background-color: #33B42B
+
+td.remove-preset
+  background-color: lightgrey
+  text-align: center
+  & > img
+    height: 1em
 </style>

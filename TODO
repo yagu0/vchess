@@ -34,3 +34,8 @@ Possibles passes : soit à une pièce, soit sur une case.
   --> selon le mode de déplacement standard (donc tout droit pour les pions)
 Pas de notion d'échec ou de mat (?)
 Si une pièce est mat elle donne le ballon (?)
+
+Landing pieces from empty board:
+https://www.chessvariants.com/diffsetup.dir/unachess.html
+
+Rugby http://www.echecspourtous.com/?page_id=7945

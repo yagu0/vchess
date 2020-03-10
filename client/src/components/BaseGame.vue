@@ -516,6 +516,7 @@ export default {
   display: inline-block
 
 #controls
+  user-select: none
   margin: 0 auto
   text-align: center
   display: flex

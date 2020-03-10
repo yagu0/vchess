@@ -165,7 +165,7 @@ module.exports = function(wss) {
         // but the requested resource can be from any tmpId (except current!)
         case "askidentity":
         case "asklastate":
-        case "askchallenge":
+        case "askchallenges":
         case "askgame":
         case "askfullgame": {
           const pg = obj.page || page; //required for askidentity and askgame
@@ -201,7 +201,7 @@ module.exports = function(wss) {
         // Notify all room: mostly game events
         case "newchat":
         case "newchallenge":
-        case "deletechallenge":
+        case "deletechallenge_s":
         case "newgame":
         case "resign":
         case "abort":
@@ -297,7 +297,7 @@ module.exports = function(wss) {
 
         // Passing, relaying something: from isn't needed,
         // but target is fully identified (sid + tmpId)
-        case "challenge":
+        case "challenges":
         case "fullgame":
         case "game":
         case "identity":

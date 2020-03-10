@@ -114,21 +114,19 @@ export default {
           .classList.add("somethingnew");
       }
     },
-    // Called at loading to augment games with priority + myTurn infos
+    // Called at loading to augment games with myColor + myTurn infos
     decorate: function(games) {
       games.forEach(g => {
-        g.priority = 0;
+        // If game is over, myColor and myTurn are ignored:
         if (g.score == "*") {
-          g.priority++;
-          const myColor =
+          g.myColor =
             (g.type == "corr" && g.players[0].uid == this.st.user.id) ||
             (g.type == "live" && g.players[0].sid == this.st.user.sid)
               ? 'w'
               : 'b';
           const rem = g.movesCount % 2;
-          if ((rem == 0 && myColor == 'w') || (rem == 1 && myColor == 'b')) {
+          if ((rem == 0 && g.myColor == 'w') || (rem == 1 && g.myColor == 'b')) {
             g.myTurn = true;
-            g.priority++;
           }
         }
       });
@@ -148,11 +146,7 @@ export default {
           // "notifything" --> "thing":
           const thing = data.code.substr(6);
           game[thing] = info[thing];
-          if (thing == "score") game.priority = 0;
-          else {
-            game.priority = 3 - game.priority; //toggle turn
-            game.myTurn = !game.myTurn;
-          }
+          if (thing == "turn") game.myTurn = !game.myTurn;
           this.$forceUpdate();
           this.tryShowNewsIndicator(type);
           break;
@@ -173,15 +167,9 @@ export default {
             },
             gameInfo
           );
-          // Compute priority:
-          game.priority = 1; //at least: my running game
-          if (
+          game.myTurn =
             (type == "corr" && game.players[0].uid == this.st.user.id) ||
-            (type == "live" && game.players[0].sid == this.st.user.sid)
-          ) {
-            game.priority++;
-            game.myTurn = true;
-          }
+            (type == "live" && game.players[0].sid == this.st.user.sid);
           gamesArrays[type].push(game);
           this.$forceUpdate();
           this.tryShowNewsIndicator(type);

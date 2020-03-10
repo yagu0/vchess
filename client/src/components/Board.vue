@@ -23,7 +23,8 @@ export default {
       possibleMoves: [], //filled after each valid click/dragstart
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
-      start: {}, //pixels coordinates + id of starting square (click or drag)
+      start: null, //pixels coordinates + id of starting square (click or drag)
+      click: "",
       settings: store.state.settings
     };
   },
@@ -351,76 +352,101 @@ export default {
   },
   methods: {
     mousedown: function(e) {
-      // Abort if a piece is already being processed, or target is not a piece.
-      // NOTE: just looking at classList[0] because piece is the first assigned class
-      if (!!this.selectedPiece || e.target.classList[0] != "piece") return;
-      e.preventDefault(); //disable native drag & drop
-      let parent = e.target.parentNode; //the surrounding square
-      // Next few lines to center the piece on mouse cursor
-      let rect = parent.getBoundingClientRect();
-      this.start = {
-        x: rect.x + rect.width / 2,
-        y: rect.y + rect.width / 2,
-        id: parent.id
-      };
-      this.selectedPiece = e.target.cloneNode();
-      let spStyle = this.selectedPiece.style;
-      spStyle.position = "absolute";
-      spStyle.top = 0;
-      spStyle.display = "inline-block";
-      spStyle.zIndex = 3000;
-      const startSquare = getSquareFromId(parent.id);
-      this.possibleMoves = [];
-      const color = this.analyze ? this.vr.turn : this.userColor;
-      if (this.vr.canIplay(color, startSquare))
-        this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-      // Next line add moving piece just after current image
-      // (required for Crazyhouse reserve)
-      parent.insertBefore(this.selectedPiece, e.target.nextSibling);
+      e.preventDefault();
+      if (!this.start) {
+        // Start square must contain a piece.
+        // NOTE: classList[0] is enough: 'piece' is the first assigned class
+        if (e.target.classList[0] != "piece") return;
+        let parent = e.target.parentNode; //surrounding square
+        // Show possible moves if current player allowed to play
+        const startSquare = getSquareFromId(parent.id);
+        this.possibleMoves = [];
+        const color = this.analyze ? this.vr.turn : this.userColor;
+        if (this.vr.canIplay(color, startSquare))
+          this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+        // For potential drag'n drop, remember start coordinates
+        // (to center the piece on mouse cursor)
+        let rect = parent.getBoundingClientRect();
+        this.start = {
+          x: rect.x + rect.width / 2,
+          y: rect.y + rect.width / 2,
+          id: parent.id
+        };
+        // Add the moving piece to the board, just after current image
+        this.selectedPiece = e.target.cloneNode();
+        Object.assign(
+          this.selectedPiece.style,
+          {
+            position: "absolute",
+            top: 0,
+            display: "inline-block",
+            zIndex: 3000
+          }
+        );
+        parent.insertBefore(this.selectedPiece, e.target.nextSibling);
+      } else {
+        this.processMoveAttempt(e);
+      }
     },
     mousemove: function(e) {
       if (!this.selectedPiece) return;
+      e.preventDefault();
       // There is an active element: move it around
       const [offsetX, offsetY] =
         this.mobileBrowser
           ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
           : [e.clientX, e.clientY];
-      this.selectedPiece.style.left = offsetX - this.start.x + "px";
-      this.selectedPiece.style.top = offsetY - this.start.y + "px";
+      Object.assign(
+        this.selectedPiece.style,
+        {
+          left: offsetX - this.start.x + "px",
+          top: offsetY - this.start.y + "px"
+        }
+      );
     },
     mouseup: function(e) {
       if (!this.selectedPiece) return;
-      // There is an active element: obtain the move from start and end squares
-      this.selectedPiece.style.zIndex = -3000; //HACK to find square from final coords
+      e.preventDefault();
+      // Drag'n drop. Selected piece is no longer needed:
+      this.selectedPiece.parentNode.removeChild(this.selectedPiece);
+      delete this.selectedPiece;
+      this.selectedPiece = null;
+      this.processMoveAttempt(e);
+    },
+    processMoveAttempt: function(e) {
+      // Obtain the move from start and end squares
       const [offsetX, offsetY] =
         this.mobileBrowser
           ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
           : [e.clientX, e.clientY];
       let landing = document.elementFromPoint(offsetX, offsetY);
-      this.selectedPiece.style.zIndex = 3000;
       // Next condition: classList.contains(piece) fails because of marks
       while (landing.tagName == "IMG") landing = landing.parentNode;
-      if (this.start.id == landing.id)
-        // One or multi clicks on same piece
+      if (this.start.id == landing.id) {
+        if (this.click == landing.id) {
+          // Second click on same square: cancel current move
+          this.possibleMoves = [];
+          this.start = null;
+          this.click = "";
+        } else this.click = landing.id;
         return;
+      }
+      this.start = null;
       // OK: process move attempt, landing is a square node
       let endSquare = getSquareFromId(landing.id);
       let moves = this.findMatchingMoves(endSquare);
       this.possibleMoves = [];
       if (moves.length > 1) this.choices = moves;
       else if (moves.length == 1) this.play(moves[0]);
-      // Else: impossible move
-      this.selectedPiece.parentNode.removeChild(this.selectedPiece);
-      delete this.selectedPiece;
-      this.selectedPiece = null;
+      // else: forbidden move attempt
     },
     findMatchingMoves: function(endSquare) {
       // Run through moves list and return the matching set (if promotions...)
-      let moves = [];
-      this.possibleMoves.forEach(function(m) {
-        if (endSquare[0] == m.end.x && endSquare[1] == m.end.y) moves.push(m);
-      });
-      return moves;
+      return (
+        this.possibleMoves.filter(m => {
+          return (endSquare[0] == m.end.x && endSquare[1] == m.end.y);
+        })
+      );
     },
     play: function(move) {
       this.$emit("play-move", move);
@@ -442,12 +468,14 @@ export default {
 // NOTE: no variants with reserve of size != 8
 
 .game
+  user-select: none
   width: 100%
   margin: 0
   .board
     cursor: pointer
 
 #choices
+  user-select: none
   margin: 0
   position: absolute
   z-index: 300
@@ -465,13 +493,8 @@ export default {
 
 img.ghost
   position: absolute
-  opacity: 0.4
+  opacity: 0.5
   top: 0
-
-.highlight-light
-  background-color: rgba(0, 204, 102, 0.7) !important
-.highlight-dark
-  background-color: rgba(0, 204, 102, 0.9) !important
 
 .incheck-light
   background-color: rgba(204, 51, 0, 0.7) !important
@@ -489,7 +512,25 @@ img.ghost
   background-color: #6f8f57;
 
 .light-square.chesstempo
-  background-color: #fdfdfd;
+  background-color: #dfdfdf;
 .dark-square.chesstempo
-  background-color: #88a0a8;
+  background-color: #7287b6;
+
+// TODO: no predefined highlight colors, but layers. How?
+
+.light-square.lichess.highlight-light
+  background-color: #cdd26a !important
+.dark-square.lichess.highlight-dark
+  background-color: #aaa23a !important
+
+.light-square.chesscom.highlight-light
+  background-color: #f7f783 !important
+.dark-square.chesscom.highlight-dark
+  background-color: #bacb44 !important
+
+.light-square.chesstempo.highlight-light
+  background-color: #9f9fff !important
+.dark-square.chesstempo.highlight-dark
+  background-color: #557fff !important
+
 </style>

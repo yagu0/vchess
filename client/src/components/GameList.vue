@@ -61,6 +61,12 @@ export default {
       remGames.forEach(g => {
         if (g.created < minCreated) minCreated = g.created;
         if (g.created > maxCreated) maxCreated = g.created;
+        g.priority = 0;
+        if (g.score == "*") {
+          g.priority++;
+          if (!!g.myColor) g.priority++;
+          if (!!g.myTurn) g.priority++;
+        }
       });
       const deltaCreated = maxCreated - minCreated;
       return remGames.sort((g1, g2) => {
