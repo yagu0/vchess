@@ -80,7 +80,7 @@ export default {
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveMoves .tooltip").forEach(elt => {
-        elt.classList.remove("tooltip")
+        elt.classList.remove("tooltip");
       });
     }
     // Take full width on small screens:

@@ -222,7 +222,7 @@ export default {
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
-        elt.classList.remove("tooltip")
+        elt.classList.remove("tooltip");
       });
     }
   },
