@@ -19,7 +19,7 @@ export const VariantRules = class RecycleRules extends ChessRules {
   }
 
   getEpSquare(moveOrSquare) {
-    if (typeof moveOrSquare !== "object" || move.vanish.length > 0)
+    if (typeof moveOrSquare !== "object" || moveOrSquare.vanish.length > 0)
       return super.getEpSquare(moveOrSquare);
     // Landing move: no en-passant
     return undefined;

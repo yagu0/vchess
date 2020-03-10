@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export const VariantRules = class RifleRules extends ChessRules {
   getEpSquare(moveOrSquare) {
-    if (typeof moveOrSquare !== "object" || move.appear.length > 0)
+    if (typeof moveOrSquare !== "object" || moveOrSquare.appear.length > 0)
       return super.getEpSquare(moveOrSquare);
     // Capturing move: no en-passant
     return undefined;

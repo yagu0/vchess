@@ -91,7 +91,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   }
 
   getEpSquare(moveOrSquare) {
-    if (typeof moveOrSquare !== "object" || move.appear[0].c != 'c')
+    if (typeof moveOrSquare !== "object" || moveOrSquare.appear[0].c != 'c')
       return super.getEpSquare(moveOrSquare);
     // Checkered move: no en-passant
     return undefined;
