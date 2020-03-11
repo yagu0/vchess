@@ -845,8 +845,7 @@ export default {
       const vModule = await import("@/variants/" + vname + ".js");
       this.newchallenge.V = vModule.VariantRules;
       this.newchallenge.vname = vname;
-      if (!!cb)
-        cb();
+      if (!!cb) cb();
     },
     trySetNewchallDiag: function() {
       if (!this.newchallenge.fen) {
@@ -872,7 +871,7 @@ export default {
       this.newchallenge.vid = pchall.vid;
       this.newchallenge.cadence = pchall.cadence;
       this.newchallenge.randomness = pchall.randomness;
-      this.issueNewChallenge();
+      this.loadNewchallVariant(this.issueNewChallenge);
     },
     issueNewChallenge: async function() {
       if (!!(this.newchallenge.cadence.match(/^[0-9]+$/)))
