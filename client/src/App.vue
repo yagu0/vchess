@@ -44,8 +44,7 @@
 import ContactForm from "@/components/ContactForm.vue";
 import Settings from "@/components/Settings.vue";
 import UpsertUser from "@/components/UpsertUser.vue";
-import { store } from "./store.js";
-import { processModalClick } from "./utils/modalClick.js";
+import { store } from "@/store.js";
 export default {
   components: {
     ContactForm,
@@ -56,12 +55,6 @@ export default {
     return {
       st: store.state
     };
-  },
-  mounted: function() {
-    let dialogs = document.querySelectorAll("div[role='dialog']");
-    dialogs.forEach(d => {
-      d.addEventListener("click", processModalClick);
-    });
   },
   methods: {
     hideDrawer: function(e) {

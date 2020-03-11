@@ -4,7 +4,7 @@ div
     type="checkbox"
     @change="trySetEnterTime($event)"
   )
-  div(
+  div#upsertDiv(
     role="dialog"
     data-checkbox="modalUser"
   )
@@ -59,6 +59,7 @@ div
 import { store } from "@/store";
 import { checkNameEmail } from "@/data/userCheck";
 import { ajax } from "@/utils/ajax";
+import { processModalClick } from "@/utils/modalClick.js";
 export default {
   name: "my-upsert-user",
   data: function() {
@@ -70,6 +71,10 @@ export default {
       st: store.state,
       user: {}
     };
+  },
+  mounted: function() {
+    document.getElementById("upsertDiv")
+      .addEventListener("click", processModalClick);
   },
   watch: {
     nameOrEmail: function(newValue) {

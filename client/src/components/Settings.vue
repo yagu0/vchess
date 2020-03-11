@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   input#modalSettings.modal(type="checkbox")
-  div(
+  div#settingsDiv(
     role="dialog"
     data-checkbox="modalSettings"
   )
@@ -27,14 +27,14 @@ div
           )
       div(@change="updateSettings($event)")
         fieldset
-          label(for="setHints") {{ st.tr["Show possible moves?"] }}
+          label(for="setHints") {{ st.tr["Show possible moves"] }}
           input#setHints(
             type="checkbox"
             v-model="st.settings.hints"
           )
         fieldset
           label(for="setHighlight")
-            | {{ st.tr["Highlight last move and checks?"] }}
+            | {{ st.tr["Highlight last move"] }}
           input#setHighlight(
             type="checkbox"
             v-model="st.settings.highlight"
@@ -47,14 +47,14 @@ div
             option(value="chesstempo") {{ st.tr["blue"] }}
         fieldset
           label(for="setSound")
-            | {{ st.tr["Sound alert when game starts?"] }}
+            | {{ st.tr["Sound alert at game start"] }}
           input#setSound(
             type="checkbox"
             v-model="st.settings.sound"
           )
         fieldset
           label(for="setGotonext")
-            | {{ st.tr["Show next game after move?"] }}
+            | {{ st.tr["Show next game after a move"] }}
           input#setGotonext(
             type="checkbox"
             v-model="st.settings.gotonext"
@@ -69,6 +69,7 @@ div
 
 <script>
 import { store } from "@/store.js";
+import { processModalClick } from "@/utils/modalClick.js";
 export default {
   name: "my-settings",
   data: function() {
@@ -77,6 +78,8 @@ export default {
     };
   },
   mounted: function() {
+    document.getElementById("settingsDiv")
+      .addEventListener("click", processModalClick);
     // NOTE: better style would be in pug directly, but how?
     document.querySelectorAll("#langSelect > option").forEach(opt => {
       if (opt.value == this.st.lang) opt.selected = true;

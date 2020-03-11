@@ -138,9 +138,8 @@ export default {
       baseGameDiv.addEventListener("keydown", this.handleKeys);
       baseGameDiv.addEventListener("wheel", this.handleScroll);
     }
-    document.getElementById("eogDiv").addEventListener(
-      "click",
-      processModalClick);
+    document.getElementById("eogDiv")
+      .addEventListener("click", processModalClick);
   },
   methods: {
     focusBg: function() {

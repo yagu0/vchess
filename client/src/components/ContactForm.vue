@@ -4,7 +4,7 @@ div
     type="checkbox"
     @change="trySetEnterTime($event)"
   )
-  div(
+  div#contactDiv(
     role="dialog"
     data-checkbox="modalContact"
   )
@@ -26,6 +26,7 @@ div
 import { ajax } from "@/utils/ajax";
 import { store } from "@/store";
 import { checkNameEmail } from "@/data/userCheck";
+import { processModalClick } from "@/utils/modalClick.js";
 export default {
   name: "my-contact-form",
   data: function() {
@@ -34,6 +35,10 @@ export default {
       st: store.state,
       infoMsg: ""
     };
+  },
+  mounted: function() {
+    document.getElementById("contactDiv")
+      .addEventListener("click", processModalClick);
   },
   methods: {
     trySetEnterTime: function(event) {

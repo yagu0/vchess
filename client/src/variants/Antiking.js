@@ -160,6 +160,7 @@ export const VariantRules = class AntikingRules extends ChessRules {
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
+        antikingPos['b'] = antikingPos['w'];
         break;
       }
 

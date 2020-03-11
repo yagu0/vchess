@@ -74,9 +74,8 @@ export default {
     };
   },
   mounted: function() {
-    document.getElementById("adjuster").addEventListener(
-      "click",
-      processModalClick);
+    document.getElementById("adjuster")
+      .addEventListener("click", processModalClick);
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveMoves .tooltip").forEach(elt => {
@@ -226,6 +225,6 @@ span#rulesBtn
 button
   margin: 0
 
-button.tooltip
+#aboveMoves button
   padding-bottom: 5px
 </style>

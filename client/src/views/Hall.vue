@@ -381,8 +381,8 @@ export default {
   mounted: function() {
     document.addEventListener('visibilitychange', this.visibilityChange);
     ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
-      let elt = document.getElementById(eltName);
-      elt.addEventListener("click", processModalClick);
+      document.getElementById(eltName)
+        .addEventListener("click", processModalClick);
     });
     document.querySelectorAll("#predefinedCadences > button").forEach(b => {
       b.addEventListener("click", () => {

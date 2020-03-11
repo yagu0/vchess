@@ -216,9 +216,10 @@ export default {
   },
   mounted: function() {
     document.addEventListener('visibilitychange', this.visibilityChange);
-    document
-      .getElementById("chatWrap")
-      .addEventListener("click", processModalClick);
+    ["chatWrap", "infoDiv"].forEach(eltName => {
+      document.getElementById(eltName)
+        .addEventListener("click", processModalClick);
+    });
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {

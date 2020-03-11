@@ -188,8 +188,7 @@ export default {
     );
   },
   mounted: function() {
-    document
-      .getElementById("newprobDiv")
+    document.getElementById("newprobDiv")
       .addEventListener("click", processModalClick);
   },
   watch: {
