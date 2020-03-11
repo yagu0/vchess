@@ -428,6 +428,7 @@ export const ChessRules = class ChessRules {
     this.INIT_COL_ROOK = { w: [-1, -1], b: [-1, -1] };
     this.kingPos = { w: [-1, -1], b: [-1, -1] }; //squares of white and black king
     const fenRows = V.ParseFen(fen).position.split("/");
+    const startRow = { 'w': V.size.x - 1, 'b': 0 };
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0; //column index on board
       for (let j = 0; j < fenRows[i].length; j++) {
@@ -441,12 +442,16 @@ export const ChessRules = class ChessRules {
             this.INIT_COL_KING["w"] = k;
             break;
           case "r":
-            if (this.INIT_COL_ROOK["b"][0] < 0) this.INIT_COL_ROOK["b"][0] = k;
-            else this.INIT_COL_ROOK["b"][1] = k;
+            if (i == startRow['b']) {
+              if (this.INIT_COL_ROOK["b"][0] < 0) this.INIT_COL_ROOK["b"][0] = k;
+              else this.INIT_COL_ROOK["b"][1] = k;
+            }
             break;
           case "R":
-            if (this.INIT_COL_ROOK["w"][0] < 0) this.INIT_COL_ROOK["w"][0] = k;
-            else this.INIT_COL_ROOK["w"][1] = k;
+            if (i == startRow['w']) {
+              if (this.INIT_COL_ROOK["w"][0] < 0) this.INIT_COL_ROOK["w"][0] = k;
+              else this.INIT_COL_ROOK["w"][1] = k;
+            }
             break;
           default: {
             const num = parseInt(fenRows[i].charAt(j));

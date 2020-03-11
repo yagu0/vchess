@@ -162,6 +162,7 @@ export const translations = {
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
   "Dangerous collisions": "Dangerous collisions",
+  "Each piece is unique": "Each piece is unique",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
   "In the shadow": "In the shadow",

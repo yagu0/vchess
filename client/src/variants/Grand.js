@@ -40,13 +40,7 @@ export const VariantRules = class GrandRules extends ChessRules {
   }
 
   getFenForRepeat() {
-    return (
-      this.getBaseFen() + "_" +
-      this.getTurnFen() + "_" +
-      this.getFlagsFen() + "_" +
-      this.getEnpassantFen() + "_" +
-      this.getCapturedFen()
-    );
+    return super.getFenForRepeat() + "_" + this.getCapturedFen();
   }
 
   getCapturedFen() {
@@ -328,8 +322,9 @@ export const VariantRules = class GrandRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0) {
-      return "rnbqkmcbnr/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR " +
-        "w 0 1111 - 00000000000000";
+      // No castling in the official initial setup
+      return "r8r/1nbqkmcbn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKMCBN1/R8R " +
+        "w 0 0000 - 00000000000000";
     }
 
     let pieces = { w: new Array(10), b: new Array(10) };

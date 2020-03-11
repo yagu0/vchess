@@ -41,16 +41,15 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
 
   getFen() {
     return (
-      super.getFen() + " " + this.getReserveFen() + " " + this.getPromotedFen()
+      super.getFen() + " " +
+      this.getReserveFen() + " " +
+      this.getPromotedFen()
     );
   }
 
   getFenForRepeat() {
     return (
-      this.getBaseFen() + "_" +
-      this.getTurnFen() + "_" +
-      this.getFlagsFen() + "_" +
-      this.getEnpassantFen() + "_" +
+      super.getFenForRepeat() + "_" +
       this.getReserveFen() + "_" +
       this.getPromotedFen()
     );

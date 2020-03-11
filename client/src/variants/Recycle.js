@@ -14,7 +14,7 @@ export const VariantRules = class RecycleRules extends ChessRules {
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
     return Object.assign(ChessRules.ParseFen(fen), {
-      reserve: fenParts[5],
+      reserve: fenParts[5]
     });
   }
 
@@ -30,19 +30,11 @@ export const VariantRules = class RecycleRules extends ChessRules {
   }
 
   getFen() {
-    return (
-      super.getFen() + " " + this.getReserveFen()
-    );
+    return super.getFen() + " " + this.getReserveFen();
   }
 
   getFenForRepeat() {
-    return (
-      this.getBaseFen() + "_" +
-      this.getTurnFen() + "_" +
-      this.getFlagsFen() + "_" +
-      this.getEnpassantFen() + "_" +
-      this.getReserveFen()
-    );
+    return super.getFenForRepeat() + "_" + this.getReserveFen();
   }
 
   getReserveFen() {
