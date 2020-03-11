@@ -2,29 +2,6 @@
 8-pieces https://www.youtube.com/watch?v=XZ8K02Da7Ps&list=PLRyjH8DPuzTBiym6lA0r84P8N0HnTtZyN&index=6&t=0s
 https://www.chessvariants.com/rules/8-piece-chess "Eightpieces"
 
-"Capture" Chess (idea of opperwezen, maybe not new): captures are forced,
-but the goal is still to checkmate (not lose all material).
-
-Cannibal Chess with forced captures.
-
-Knightrelay: implement "official" version as Knightrelay v1
-
-Antiking: implement v1 (deterministic) https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html
-
-Generator vatiant, called "Matrix" ?
-Peces on first rank never move but generate new pieces. Pawn don't generate.
-A generator captured and replaced by a similar piece does not generate.
-King does not generate. No castling. En passant possible?
-Goal is still checkmate.
-
-Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
-If a pawn taken: direction of the capturer.
-
-+ Maxima, Interweave, Roccoco, Dynamo, Synchrone
-Synchrone Chess: allow to anticipate en-passant capture as well :)
-
-S-chess https://en.wikipedia.org/wiki/Seirawan_chess
-
 "Ball" Chess: 9x9 board, ball on center square. 2 queens ?
 To take the ball when it's free you need to capture it.
 To take the ball when it's used, u need to take the piece.
@@ -39,3 +16,29 @@ Landing pieces from empty board:
 https://www.chessvariants.com/diffsetup.dir/unachess.html
 
 Rugby http://www.echecspourtous.com/?page_id=7945
+
+"Capture" Chess (idea of opperwezen, maybe not new): captures are forced,
+but the goal is still to checkmate (not lose all material).
+
+Cannibal Chess with forced captures.
+
+Knightrelay: implement "official" version as Knightrelay v1
+
+Antiking: implement v1 (deterministic) https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html
+
+S-chess https://en.wikipedia.org/wiki/Seirawan_chess
+
+Generator variant, called "Matrix" ?
+Peces on first rank never move but generate new pieces. Pawn don't generate.
+A generator captured and replaced by a similar piece does not generate.
+King does not generate. No castling. En passant possible?
+Goal is still checkmate.
+
+Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
+If a pawn taken: direction of the capturer.
+
+Maxima, Interweave, Roccoco
+
+Synchrone Chess: allow to anticipate en-passant capture as well :)
+
+Dynamo chess
