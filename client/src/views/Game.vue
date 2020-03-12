@@ -1041,11 +1041,8 @@ export default {
           },
           game,
         );
-        if (this.gameIsLoading)
-          // Re-load game because we missed some moves:
-          // artificially reset BaseGame (required if moves arrived in wrong order)
-          this.$refs["basegame"].re_setVariables();
-        else {
+        this.$refs["basegame"].re_setVariables(this.game);
+        if (!this.gameIsLoading) {
           // Initial loading:
           this.gotMoveIdx = game.moves.length - 1;
           // If we arrive here after 'nextGame' action, the board might be hidden
