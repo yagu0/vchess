@@ -165,8 +165,7 @@ export const VariantRules = class CircularRules extends ChessRules {
   filterValid(moves) {
     const filteredMoves = super.filterValid(moves);
     // If at least one full move made, everything is allowed:
-    if (this.movesCount >= 2)
-      return filteredMoves;
+    if (this.movesCount >= 2) return filteredMoves;
     // Else, forbid check:
     const oppCol = V.GetOppCol(this.turn);
     return filteredMoves.filter(m => {

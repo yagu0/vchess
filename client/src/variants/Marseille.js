@@ -39,7 +39,8 @@ export const VariantRules = class MarseilleRules extends ChessRules {
     // "w1" or "w2" white subturn 1 or 2, and same for black
     const fullTurn = V.ParseFen(fen).turn;
     this.turn = fullTurn[0];
-    this.subTurn = fullTurn[1] || 0; //"w0" = special code for first move in game
+    // At move 1, the subTurn doesn't need to be specified:
+    this.subTurn = fullTurn[1] || 1;
   }
 
   getPotentialPawnMoves([x, y]) {
@@ -134,23 +135,27 @@ export const VariantRules = class MarseilleRules extends ChessRules {
     move.turn = this.turn + this.subTurn;
     V.PlayOnBoard(this.board, move);
     const epSq = this.getEpSquare(move);
-    if (this.subTurn == 0) {
-      //first move in game
+    if (this.movesCount == 0) {
+      // First move in game
       this.turn = "b";
-      this.subTurn = 1;
       this.epSquares.push([epSq]);
+      this.movesCount = 1;
     }
     // Does this move give check on subturn 1? If yes, skip subturn 2
     else if (this.subTurn == 1 && this.underCheck(V.GetOppCol(this.turn))) {
       this.turn = V.GetOppCol(this.turn);
       this.epSquares.push([epSq]);
       move.checkOnSubturn1 = true;
+      this.movesCount++;
     } else {
       if (this.subTurn == 2) {
         this.turn = V.GetOppCol(this.turn);
         let lastEpsq = this.epSquares[this.epSquares.length - 1];
         lastEpsq.push(epSq);
-      } else this.epSquares.push([epSq]);
+      } else {
+        this.epSquares.push([epSq]);
+        this.movesCount++;
+      }
       this.subTurn = 3 - this.subTurn;
     }
     this.updateVariables(move);
@@ -159,10 +164,13 @@ export const VariantRules = class MarseilleRules extends ChessRules {
   undo(move) {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
-    if (move.turn[1] == "0" || move.checkOnSubturn1 || this.subTurn == 2)
+    if (this.movesCount == 1 || !!move.checkOnSubturn1 || this.subTurn == 2) {
+      // The move may not be full, but is fully undone:
       this.epSquares.pop();
-    else {
-      // this.subTurn == 1
+      // Moves counter was just incremented:
+      this.movesCount--;
+    } else {
+      // Undo the second half of a move
       let lastEpsq = this.epSquares[this.epSquares.length - 1];
       lastEpsq.pop();
     }
