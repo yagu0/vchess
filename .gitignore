@@ -1,8 +1,10 @@
 # Various files
-/hooks/post-update
 /server/db/vchess.sqlite
 /server/config/parameters.js
-/client/dist/
+/server/fallback/*
+!/server/fallback/README
+/client/dist/*
+!/client/dist/.gitkeep
 /client/src/parameters.js
 
 # Dependency directories#

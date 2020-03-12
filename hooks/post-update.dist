@@ -14,4 +14,5 @@ if [ $clientLines -ne 0 ]; then
 	cd client
 	npm run build
 fi
-# TOOD: also should restart the service if server code changes
+
+# NOTE: should also restart the service if server code changes

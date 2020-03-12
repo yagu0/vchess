@@ -31,7 +31,7 @@ app.use(cookieParser());
 // Client "prod" files:
 app.use(express.static(path.join(__dirname, 'static')));
 // Update in progress:
-app.use(express.static(path.join(__dirname, 'while_update')));
+app.use(express.static(path.join(__dirname, 'fallback')));
 
 // In development stage the client side has its own server
 if (params.cors.enable)
