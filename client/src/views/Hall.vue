@@ -227,10 +227,7 @@ export default {
         vid: parseInt(localStorage.getItem("vid")) || 0,
         to: "", //name of challenged player (if any)
         cadence: localStorage.getItem("cadence") || "",
-        randomness:
-          parseInt(localStorage.getItem("challRandomness")) ||
-          // Default to global randomness if no challenges issued yet:
-          this.st.settings.randomness,
+        randomness: parseInt(localStorage.getItem("challRandomness")) || 2,
         // VariantRules object, stored to not interfere with
         // diagrams of targetted challenges:
         V: null,
