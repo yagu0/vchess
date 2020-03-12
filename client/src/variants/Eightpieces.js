@@ -165,7 +165,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         return this.getPotentialJailerMoves([x, y]);
       case V.SENTRY:
         return this.getPotentialSentryMoves([x, y]);
-      case V.LANCER
+      case V.LANCER:
         return this.getPotentialLancerMoves([x, y]);
       default:
         return super.getPotentialMovesFrom([x, y]);
@@ -184,10 +184,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   getAllValidMoves() {
-    let moves = super.getAllValidMoves().filter(m =>
+    let moves = super.getAllValidMoves().filter(m => {
       // Remove jailer captures
-      m.vanish[0].p != V.JAILER || m.vanish.length == 1;
-    );
+      return m.vanish[0].p != V.JAILER || m.vanish.length == 1;
+    });
     const L = this.sentryPush.length;
     if (!!this.sentryPush[L-1] && this.subTurn == 1) {
       // Delete moves walking back on sentry push path
@@ -234,12 +234,14 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     // Augment with pass move is the king is immobilized:
     const jsq = this.isImmobilized([x, y]);
     if (!!jsq) {
-      moves.push(new Move({
-        appear: [],
-        vanish: [],
-        start: { x: x, y: y },
-        end: { x: jsq[0], y: jsq[1] }
-      });
+      moves.push(
+        new Move({
+          appear: [],
+          vanish: [],
+          start: { x: x, y: y },
+          end: { x: jsq[0], y: jsq[1] }
+        })
+      );
     }
     return moves;
   }
