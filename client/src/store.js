@@ -30,8 +30,9 @@ export const store = {
         alert("Variants loading failed: reload the page");
         return;
       }
-      this.state.variants = json.variantArray.sort(
-        (v1,v2) => v1.name.localeCompare(v2.name));
+      this.state.variants = json.variantArray
+        .filter(v => v.name != "Eightpieces") //TODO: not ready yet
+        .sort((v1,v2) => v1.name.localeCompare(v2.name));
     });
     let mysid = localStorage.getItem("mysid");
     // Assign mysid only once (until next time user clear browser data)
