@@ -22,7 +22,7 @@ div#baseGame
         @play-move="play"
       )
       #turnIndicator(v-if="showTurn") {{ turn }}
-      #controls
+      #controls.button-group
         button(@click="gotoBegin()")
           img.inline(src="/images/icons/fast-forward_rev.svg")
         button(@click="undo()")
@@ -86,13 +86,6 @@ export default {
       stackToPlay: []
     };
   },
-  watch: {
-    // game initial FEN changes when a new game starts.
-    // NOTE: when game ID change on Game page, fenStart may be temporarily undefined
-    "game.fenStart": function(fenStart) {
-      if (!!fenStart) this.re_setVariables();
-    },
-  },
   computed: {
     showMoves: function() {
       return this.game.score != "*"
@@ -127,7 +120,7 @@ export default {
     }
   },
   created: function() {
-    if (this.game.fenStart) this.re_setVariables();
+    if (!!this.game.fenStart) this.re_setVariables();
   },
   mounted: function() {
     if (!("ontouchstart" in window)) {
@@ -174,14 +167,15 @@ export default {
       //this.$router.push("/variants/" + this.game.vname);
       window.open("#/variants/" + this.game.vname, "_blank"); //better
     },
-    re_setVariables: function() {
+    re_setVariables: function(game) {
+      if (!game) game = this.game; //in case of...
       this.endgameMessage = "";
       // "w": default orientation for observed games
-      this.orientation = this.game.mycolor || "w";
-      this.moves = JSON.parse(JSON.stringify(this.game.moves || []));
+      this.orientation = game.mycolor || "w";
+      this.moves = JSON.parse(JSON.stringify(game.moves || []));
       // Post-processing: decorate each move with notation and FEN
-      this.vr = new V(this.game.fenStart);
-      const parsedFen = V.ParseFen(this.game.fenStart);
+      this.vr = new V(game.fenStart);
+      const parsedFen = V.ParseFen(game.fenStart);
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2);
       this.moves.forEach(move => {
@@ -516,12 +510,8 @@ export default {
 
 #controls
   user-select: none
-  margin: 0 auto
-  text-align: center
-  display: flex
   button
-    display: inline-block
-    width: 20%
+    border: none
     margin: 0
     padding-top: 5px
     padding-bottom: 5px

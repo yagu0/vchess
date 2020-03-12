@@ -97,6 +97,7 @@ main
           td {{ firstChars(p.instruction) }}
           td {{ p.id }}
   BaseGame(
+    ref="basegame"
     v-if="showOne"
     :game="game"
   )
@@ -162,7 +163,7 @@ export default {
           });
           const showOneIfPid = () => {
             const pid = this.$route.query["id"];
-            if (pid) this.showProblem(this.problems.find(p => p.id == pid));
+            if (!!pid) this.showProblem(this.problems.find(p => p.id == pid));
           };
           if (Object.keys(names).length > 0) {
             ajax(
@@ -200,7 +201,7 @@ export default {
     },
     $route: function(to) {
       const pid = to.query["id"];
-      if (pid) this.showProblem(this.problems.find(p => p.id == pid));
+      if (!!pid) this.showProblem(this.problems.find(p => p.id == pid));
       else this.showOne = false;
     }
   },
@@ -298,10 +299,13 @@ export default {
         // The FEN is already checked at this stage:
         this.game.vname = p.vname;
         this.game.mycolor = V.ParseFen(p.fen).turn; //diagram orientation
+        this.game.fenStart = p.fen;
         this.game.fen = p.fen;
-        this.$set(this.game, "fenStart", p.fen);
-        this.copyProblem(p, this.curproblem);
         this.showOne = true;
+        // $nextTick to be sure $refs["basegame"] exists
+        this.$nextTick(() => {
+          this.$refs["basegame"].re_setVariables(this.game); });
+        this.copyProblem(p, this.curproblem);
       });
     },
     gotoPrevNext: function(e, prob, dir) {

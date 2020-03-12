@@ -8,6 +8,7 @@ main
           @input="adjustFenSize(); tryGotoFen()"
         )
   BaseGame(
+    ref="basegame"
     :game="game"
     @fenchange="setFen"
   )
@@ -37,18 +38,13 @@ export default {
       curFen: ""
     };
   },
-  // NOTE: no watcher for $route change, because if fenStart doesn't change
-  // then it doesn't trigger BaseGame.re_init() and the result is weird.
-  created: function() {
-    this.gameRef.vname = this.$route.params["vname"];
-    const routeFen = this.$route.query["fen"];
-    if (!routeFen) this.alertAndQuit("Missing FEN");
-    else {
-      this.gameRef.fen = routeFen.replace(/_/g, " ");
-      // orientation is optional: taken from FEN if missing
-      const orientation = this.$route.query["side"];
-      this.initialize(orientation);
+  watch: {
+    $route: function() {
+      this.initFromUrl();
     }
+  },
+  created: function() {
+    this.initFromUrl();
   },
   methods: {
     alertAndQuit: function(text, wrongVname) {
@@ -59,6 +55,17 @@ export default {
         alert(this.st.tr[text] || text);
         this.$router.replace(newUrl);
       }, 500);
+    },
+    initFromUrl: function() {
+      this.gameRef.vname = this.$route.params["vname"];
+      const routeFen = this.$route.query["fen"];
+      if (!routeFen) this.alertAndQuit("Missing FEN");
+      else {
+        this.gameRef.fen = routeFen.replace(/_/g, " ");
+        // orientation is optional: taken from FEN if missing
+        const orientation = this.$route.query["side"];
+        this.initialize(orientation);
+      }
     },
     initialize: async function(orientation) {
       // Obtain VariantRules object
@@ -75,11 +82,12 @@ export default {
     loadGame: function(orientation) {
       // NOTE: no need to set score (~unused)
       this.game.vname = this.gameRef.vname;
+      this.game.fenStart = this.gameRef.fen;
       this.game.fen = this.gameRef.fen;
       this.curFen = this.game.fen;
       this.adjustFenSize();
       this.game.mycolor = orientation || V.ParseFen(this.gameRef.fen).turn;
-      this.$set(this.game, "fenStart", this.gameRef.fen);
+      this.$refs["basegame"].re_setVariables(this.game);
     },
     // Triggered by "fenchange" emitted in BaseGame:
     setFen: function(fen) {

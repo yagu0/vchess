@@ -66,7 +66,7 @@ export default {
           CompgameStorage.add(game);
       }
       if (this.gameInfo.mode == "versus" && !game.mycolor)
-        game.mycolor = Math.random() < 0.5 ? "w" : "b";
+        game.mycolor = (Math.random() < 0.5 ? "w" : "b");
       this.compWorker.postMessage(["init", game.fen]);
       this.vr = new V(game.fen);
       game.players = [{ name: "Myself" }, { name: "Computer" }];
@@ -74,6 +74,7 @@ export default {
       game.score = "*"; //finished games are removed
       this.currentUrl = document.location.href; //to avoid playing outside page
       this.game = game;
+      this.$refs["basegame"].re_setVariables(game);
       this.compWorker.postMessage(["init", game.fen]);
       if (this.gameInfo.mode == "auto" || game.mycolor != this.vr.turn)
         this.playComputerMove();
