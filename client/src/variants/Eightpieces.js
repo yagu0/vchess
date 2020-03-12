@@ -17,6 +17,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return ChessRules.PIECES.concat([V.JAILER, V.SENTRY, V.LANCER]);
   }
 
+  // Lancer directions *from white perspective*
   static get LANCER_DIRS() {
     return {
       'c': [-1, 0], //north
@@ -71,6 +72,8 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     super.setOtherVariables(fen);
     // subTurn == 2 only when a sentry moved, and is about to push something
     this.subTurn = 1;
+    // Pushing sentry position, updated after each push (subTurn == 1)
+    this.sentryPos = { x: -1, y: -1 };
     // Stack pieces' forbidden squares after a sentry move at each turn
     const parsedFen = V.ParseFen(fen);
     if (parsedFen.sentrypush == "-") this.sentryPush = [null];
@@ -99,7 +102,13 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'];
+        const lancerIdx = pieces['w'].findIndex(p => {
+          return Object.keys(V.LANCER_DIRS).includes(p);
+        });
+        pieces['b'] =
+          pieces['w'].slice(0, lancerIdx)
+          .concat(['g'])
+          .concat(pieces['w'].slice(lancerIdx + 1));
         break;
       }
 
@@ -222,6 +231,43 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return null;
   }
 
+  // Because of the lancers, getPiece() could be wrong:
+  // use board[x][y][1] instead (always valid).
+  getBasicMove([sx, sy], [ex, ey], tr) {
+    let mv = new Move({
+      appear: [
+        new PiPo({
+          x: ex,
+          y: ey,
+          c: tr ? tr.c : this.getColor(sx, sy),
+          p: tr ? tr.p : this.board[sx][sy][1]
+        })
+      ],
+      vanish: [
+        new PiPo({
+          x: sx,
+          y: sy,
+          c: this.getColor(sx, sy),
+          p: this.board[sx][sy][1]
+        })
+      ]
+    });
+
+    // The opponent piece disappears if we take it
+    if (this.board[ex][ey] != V.EMPTY) {
+      mv.vanish.push(
+        new PiPo({
+          x: ex,
+          y: ey,
+          c: this.getColor(ex, ey),
+          p: this.board[ex][ey][1]
+        })
+      );
+    }
+
+    return mv;
+  }
+
   getPotentialMovesFrom_aux([x, y]) {
     switch (this.getPiece(x, y)) {
       case V.JAILER:
@@ -238,50 +284,106 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   getPotentialMovesFrom([x,y]) {
     if (this.subTurn == 1) {
       if (!!this.isImmobilized([x, y])) return [];
-      return this.getPotentialMovesFrom_aux([x, y]);
+      let moves = this.getPotentialMovesFrom_aux([x, y]);
+      const L = this.sentryPush.length;
+      if (!!this.sentryPush[L-1]) {
+        // Delete moves walking back on sentry push path
+        moves = moves.filter(m => {
+          if (
+            m.vanish[0].p != V.PAWN &&
+            this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
+          ) {
+            return false;
+          }
+          return true;
+        });
+      }
+      return moves;
     }
     // subTurn == 2: only the piece pushed by the sentry is allowed to move,
     // as if the sentry didn't exist
     if (x != this.sentryPos.x && y != this.sentryPos.y) return [];
-    return this.getPotentialMovesFrom_aux([x, y]);
-  }
-
-  getAllValidMoves() {
-    let moves = super.getAllValidMoves().filter(m => {
-      // Remove jailer captures
-      return m.vanish[0].p != V.JAILER || m.vanish.length == 1;
-    });
-    const L = this.sentryPush.length;
-    if (!!this.sentryPush[L-1] && this.subTurn == 1) {
-      // Delete moves walking back on sentry push path
-      moves = moves.filter(m => {
-        if (
-          m.vanish[0].p != V.PAWN &&
-          this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
-        ) {
-          return false;
-        }
-        return true;
-      });
-    }
-    return moves;
-  }
-
-  filterValid(moves) {
-    // Disable check tests when subTurn == 2, because the move isn't finished
-    if (this.subTurn == 2) return moves;
-    const filteredMoves = super.filterValid(moves);
-    // If at least one full move made, everything is allowed:
-    if (this.movesCount >= 2) return filteredMoves;
-    // Else, forbid check and captures:
+    const moves2 = this.getPotentialMovesFrom_aux([x, y]);
+    // Don't forget to re-add the sentry on the board:
     const oppCol = V.GetOppCol(this.turn);
-    return filteredMoves.filter(m => {
-      if (m.vanish.length == 2 && m.appear.length == 1) return false;
-      this.play(m);
-      const res = !this.underCheck(oppCol);
-      this.undo(m);
-      return res;
+    return moves2.map(m => {
+      m.appear.push({x: x, y: y, p: V.SENTRY, c: oppCol});
+      return m;
     });
+  }
+
+  getPotentialPawnMoves([x, y]) {
+    const color = this.turn;
+    let moves = [];
+    const [sizeX, sizeY] = [V.size.x, V.size.y];
+    let shiftX = color == "w" ? -1 : 1;
+    // Special case of a sentry push: pawn goes in the capturer direction
+    if (this.subTurn == 2) shiftX *= -1;
+    const startRank = color == "w" ? sizeX - 2 : 1;
+    const lastRank = color == "w" ? 0 : sizeX - 1;
+
+    const finalPieces =
+      x + shiftX == lastRank
+        ?
+          [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER]
+          .concat(Object.keys(V.LANCER_DIRS))
+        : [V.PAWN];
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      // One square forward
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y], {
+            c: color,
+            p: piece
+          })
+        );
+      }
+      if (
+        x == startRank &&
+        this.board[x + 2 * shiftX][y] == V.EMPTY
+      ) {
+        // Two squares jump
+        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+      }
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
+        for (let piece of finalPieces) {
+          moves.push(
+            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
+              c: color,
+              p: piece
+            })
+          );
+        }
+      }
+    }
+
+    // En passant: no subTurn consideration here (always == 1)
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: "p",
+        c: this.getColor(x, epSquare.y)
+      });
+      moves.push(enpassantMove);
+    }
+
+    return moves;
   }
 
   // Obtain all lancer moves in "step" direction,
@@ -307,12 +409,13 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     let moves = [];
     // Add all lancer possible orientations, similar to pawn promotions.
     // Except if just after a push: allow all movements from init square then
-    if (!!this.sentryPath[L-1]) {
+    const L = this.sentryPush.length;
+    if (!!this.sentryPush[L-1]) {
       // Maybe I was pushed
-      const pl = this.sentryPath[L-1].length;
+      const pl = this.sentryPush[L-1].length;
       if (
-        this.sentryPath[L-1][pl-1].x == x &&
-        this.sentryPath[L-1][pl-1].y == y
+        this.sentryPush[L-1][pl-1].x == x &&
+        this.sentryPush[L-1][pl-1].y == y
       ) {
         // I was pushed: allow all directions (for this move only), but
         // do not change direction after moving.
@@ -343,7 +446,8 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   getPotentialSentryMoves([x, y]) {
     // The sentry moves a priori like a bishop:
     let moves = super.getPotentialBishopMoves([x, y]);
-    // ...but captures are replaced by special move
+    // ...but captures are replaced by special move, if and only if
+    // "captured" piece can move now, considered as the capturer unit.
     moves.forEach(m => {
       if (m.vanish.length == 2) {
         // Temporarily cancel the sentry capture:
@@ -351,12 +455,24 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         m.vanish.pop();
       }
     });
-    return moves;
+    // Can the pushed unit make any move?
+    this.subTurn = 2;
+    const fMoves = moves.filter(m => {
+      V.PlayOnBoard(this.board, m);
+      let res =
+        (this.filterValid(this.getPotentialMovesFrom([x, y])).length > 0);
+      V.UndoOnBoard(this.board, m);
+      return res;
+    });
+    this.subTurn = 1;
+    return fMoves;
   }
 
   getPotentialJailerMoves([x, y]) {
-    // Captures are removed afterward:
-    return super.getPotentialRookMoves([x, y]);
+    return super.getPotentialRookMoves([x, y]).filter(m => {
+      // Remove jailer captures
+      return m.vanish[0].p != V.JAILER || m.vanish.length == 1;
+    });
   }
 
   getPotentialKingMoves([x, y]) {
@@ -456,8 +572,70 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return moves;
   }
 
+  filterValid(moves) {
+    // Disable check tests when subTurn == 2, because the move isn't finished
+    if (this.subTurn == 2) return moves;
+    const filteredMoves = super.filterValid(moves);
+    // If at least one full move made, everything is allowed:
+    if (this.movesCount >= 2) return filteredMoves;
+    // Else, forbid check and captures:
+    const oppCol = V.GetOppCol(this.turn);
+    return filteredMoves.filter(m => {
+      if (m.vanish.length == 2 && m.appear.length == 1) return false;
+      this.play(m);
+      const res = !this.underCheck(oppCol);
+      this.undo(m);
+      return res;
+    });
+  }
+
   updateVariables(move) {
-    super.updateVariables(move);
+    const c = this.turn;
+    const piece = move.vanish[0].p;
+    const firstRank = c == "w" ? V.size.x - 1 : 0;
+
+    // Update king position + flags
+    if (piece == V.KING) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      this.castleFlags[c] = [false, false];
+      return;
+    }
+
+    // Update castling flags if rook or jailer moved (or is captured)
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    let flagIdx = 0;
+    if (
+      // Our rook moves?
+      move.start.x == firstRank &&
+      this.INIT_COL_ROOK[c] == move.start.y
+    ) {
+      if (this.INIT_COL_ROOK[c] > this.INIT_COL_JAILER[c]) flagIdx++;
+      this.castleFlags[c][flagIdx] = false;
+    } else if (
+      // Our jailer moves?
+      move.start.x == firstRank &&
+      this.INIT_COL_JAILER[c] == move.start.y
+    ) {
+      if (this.INIT_COL_JAILER[c] > this.INIT_COL_ROOK[c]) flagIdx++;
+      this.castleFlags[c][flagIdx] = false;
+    } else if (
+      // We took opponent's rook?
+      move.end.x == oppFirstRank &&
+      this.INIT_COL_ROOK[oppCol] == move.end.y
+    ) {
+      if (this.INIT_COL_ROOK[oppCol] > this.INIT_COL_JAILER[oppCol]) flagIdx++;
+      this.castleFlags[oppCol][flagIdx] = false;
+    } else if (
+      // We took opponent's jailer?
+      move.end.x == oppFirstRank &&
+      this.INIT_COL_JAILER[oppCol] == move.end.y
+    ) {
+      if (this.INIT_COL_JAILER[oppCol] > this.INIT_COL_ROOK[oppCol]) flagIdx++;
+      this.castleFlags[oppCol][flagIdx] = false;
+    }
+
     if (this.subTurn == 2) {
       // A piece is pushed: forbid array of squares between start and end
       // of move, included (except if it's a pawn)
@@ -488,24 +666,39 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     } else this.sentryPush.push(null);
   }
 
+  // TODO: cleaner (global) update/unupdate variables logic, rename...
+  unupdateVariables(move) {
+    super.unupdateVariables(move);
+    this.sentryPush.pop();
+  }
+
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
     this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     if (this.subTurn == 1) this.movesCount++;
     this.updateVariables(move);
-    // move.sentryPush indicates that sentry is *about to* push
-    move.sentryPush = (move.appear.length == 0 && move.vanish.length == 1);
-    // Turn changes only if not a sentry "pre-push" or subTurn == 2 (push)
-    if (!move.sentryPush || this.subTurn == 2)
+    if (move.appear.length == 0 && move.vanish.length == 1) {
+      // The sentry is about to push a piece:
+      this.sentryPos = { x: move.end.x, y: move.end.y };
+      this.subTurn = 2;
+    } else {
+      // Turn changes only if not a sentry "pre-push"
       this.turn = V.GetOppCol(this.turn);
+      this.subTurn = 1;
+      const L = this.sentryPush.length;
+      // Is it a sentry push? (useful for undo)
+      move.sentryPush = !!this.sentryPush[L-1];
+    }
   }
 
   undo(move) {
     this.epSquares.pop();
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
-    if (this.subTurn == 2) this.movesCount--;
+    const L = this.sentryPush.length;
+    // Decrement movesCount except if the move is a sentry push
+    if (!move.sentryPush) this.movesCount--;
     this.unupdateVariables(move);
     // Turn changes only if not undoing second part of a sentry push
     if (!move.sentryPush || this.subTurn == 1)

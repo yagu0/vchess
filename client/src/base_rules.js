@@ -1034,13 +1034,13 @@ export const ChessRules = class ChessRules {
         move.start.x == firstRank && //our rook moves?
         this.INIT_COL_ROOK[c].includes(move.start.y)
       ) {
-        const flagIdx = move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1;
+        const flagIdx = (move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1);
         this.castleFlags[c][flagIdx] = false;
       } else if (
         move.end.x == oppFirstRank && //we took opponent rook?
         this.INIT_COL_ROOK[oppCol].includes(move.end.y)
       ) {
-        const flagIdx = move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1;
+        const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
         this.castleFlags[oppCol][flagIdx] = false;
       }
     }
