@@ -44,7 +44,8 @@ export const VariantRules = class RacingkingsRules extends ChessRules {
       // at next move, then it should be a draw:
       if (color == "w" && this.kingPos['b'][0] == 1) {
         // Search for a move
-        const oppKingMoves = this.getPotentialKingMoves(this.kingPos['b']);
+        const oppKingMoves = this.filterValid(
+          this.getPotentialKingMoves(this.kingPos['b']));
         if (oppKingMoves.some(m => m.end.x == 0)) return "*";
       }
       return color == "w" ? "1-0" : "0-1";
