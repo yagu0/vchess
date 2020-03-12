@@ -153,7 +153,8 @@ export default {
     },
     gotoAnalyze: function() {
       this.$router.push(
-        "/analyse/" + this.gameInfo.vname + "/?fen=" + V.GenRandInitFen(2)
+        "/analyse/" + this.gameInfo.vname +
+        "/?fen=" + V.GenRandInitFen(this.st.settings.randomness)
       );
     }
   }

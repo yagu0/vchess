@@ -46,23 +46,23 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
     return Object.assign(ChessRules.ParseFen(fen), {
-      sentrypath: fenParts[5]
+      sentrypush: fenParts[5]
     });
   }
 
   getFen() {
-    return super.getFen() + " " + this.getSentrypathFen();
+    return super.getFen() + " " + this.getSentrypushFen();
   }
 
   getFenForRepeat() {
-    return super.getFenForRepeat() + "_" + this.getSentrypathFen();
+    return super.getFenForRepeat() + "_" + this.getSentrypushFen();
   }
 
-  getSentrypathFen() {
-    const L = this.sentryPath.length;
-    if (!this.sentryPath[L-1]) return "-";
+  getSentrypushFen() {
+    const L = this.sentryPush.length;
+    if (!this.sentryPush[L-1]) return "-";
     let res = "";
-    this.sentryPath[L-1].forEach(coords =>
+    this.sentryPush[L-1].forEach(coords =>
       res += V.CoordsToSquare(coords) + ",");
     return res.slice(0, -1);
   }
@@ -73,10 +73,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     this.subTurn = 1;
     // Stack pieces' forbidden squares after a sentry move at each turn
     const parsedFen = V.ParseFen(fen);
-    if (parsedFen.sentrypath == "-") this.sentryPath = [null];
+    if (parsedFen.sentrypush == "-") this.sentryPush = [null];
     else {
-      this.sentryPath = [
-        parsedFen.sentrypath.split(",").map(sq => {
+      this.sentryPush = [
+        parsedFen.sentrypush.split(",").map(sq => {
           return V.SquareToCoords(sq);
         })
       ];
@@ -91,7 +91,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    // TODO: special conditions
+    // TODO: special conditions for 960
     return "jsfqkbnr/pppppppp/8/8/8/8/PPPPPPPP/JSDQKBNR w 0 1111 - -";
   }
 
@@ -141,18 +141,107 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     }
   }
 
+  // Is piece on square (x,y) immobilized?
+  isImmobilized([x, y]) {
+    const color = this.getColor(x, y);
+    const oppCol = V.GetOppCol(color);
+    for (let step of V.steps[V.ROOK]) {
+      const [i, j] = [x + step[0], y + step[1]];
+      if (
+        V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
+        this.getColor(i, j) == oppCol
+      ) {
+        const oppPiece = this.getPiece(i, j);
+        if (oppPiece == V.JAILER) return [i, j];
+      }
+    }
+    return null;
+  }
+
+  getPotentialMovesFrom_aux([x, y]) {
+    switch (this.getPiece(x, y)) {
+      case V.JAILER:
+        return this.getPotentialJailerMoves([x, y]);
+      case V.SENTRY:
+        return this.getPotentialSentryMoves([x, y]);
+      case V.LANCER
+        return this.getPotentialLancerMoves([x, y]);
+      default:
+        return super.getPotentialMovesFrom([x, y]);
+    }
+  }
+
   getPotentialMovesFrom([x,y]) {
-    // if subturn == 1, normal situation, allow moves except walking back on sentryPath,
-    //   if last element isn't null in sentryPath array
-    // if subTurn == 2, allow only the end of the path (occupied by a piece) to move
-    //
-    // TODO: special pass move: take jailer with king, only if king immobilized
-    // Move(appear:[], vanish:[], start == king and end = jailer (for animation))
-    //
-    // TODO: post-processing if sentryPath forbid some moves.
-    // + add all lancer possible orientations
-    // (except if just after a push: allow all movements from init square then)
-    // Test if last sentryPath ends at our position: if yes, OK
+    if (this.subTurn == 1) {
+      if (!!this.isImmobilized([x, y])) return [];
+      return this.getPotentialMovesFrom_aux([x, y]);
+    }
+    // subTurn == 2: only the piece pushed by the sentry is allowed to move,
+    // as if the sentry didn't exist
+    if (x != this.sentryPos.x && y != this.sentryPos.y) return [];
+    return this.getPotentialMovesFrom_aux([x,y]);
+  }
+
+  getAllValidMoves() {
+    let moves = super.getAllValidMoves().filter(m =>
+      // Remove jailer captures
+      m.vanish[0].p != V.JAILER || m.vanish.length == 1;
+    );
+    const L = this.sentryPush.length;
+    if (!!this.sentryPush[L-1] && this.subTurn == 1) {
+      // Delete moves walking back on sentry push path
+      moves = moves.filter(m => {
+        if (
+          m.vanish[0].p != V.PAWN &&
+          this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
+        ) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return moves;
+  }
+
+  filterValid(moves) {
+    // Disable check tests when subTurn == 2, because the move isn't finished
+    if (this.subTurn == 2) return moves;
+    return super.filterValid(moves);
+  }
+
+  getPotentialLancerMoves([x, y]) {
+    // TODO: add all lancer possible orientations same as pawn promotions,
+    // except if just after a push: allow all movements from init square then
+    return [];
+  }
+
+  getPotentialSentryMoves([x, y]) {
+    // The sentry moves a priori like a bishop:
+    let moves = super.getPotentialBishopMoves([x, y]);
+    // ...but captures are replaced by special move
+    // "appear = [], vanish = init square" to let the pushed piece move then.
+    // TODO
+  }
+
+  getPotentialJailerMoves([x, y]) {
+    // Captures are removed afterward:
+    return super.getPotentialRookMoves([x, y]);
+  }
+
+  getPotentialKingMoves([x, y]) {
+    let moves = super.getPotentialKingMoves([x, y]);
+    // Augment with pass move is the king is immobilized:
+    const jsq = this.isImmobilized([x, y]);
+    if (!!jsq) {
+      moves.push(new Move({
+        appear: [],
+        vanish: [],
+        start: { x: x, y: y },
+        end: { x: jsq[0], y: jsq[1] }
+      });
+    }
+    return moves;
   }
 
   // Adapted: castle with jailer possible
@@ -241,10 +330,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       // A piece is pushed:
       // TODO: push array of squares between start and end of move, included
       // (except if it's a pawn)
-      this.sentryPath.push([]); //TODO
+      this.sentryPush.push([]); //TODO
       this.subTurn = 1;
     } else {
-      if (move.appear.length == 0  && move.vanish.length == 0) {
+      if (move.appear.length == 0  && move.vanish.length == 1) {
         // Special sentry move: subTurn <- 2, and then move pushed piece
         this.subTurn = 2;
       }
@@ -279,5 +368,11 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       { l: 4.8, s: 2.8, j: 3.8 }, //Jeff K. estimations
       ChessRules.VALUES
     );
+  }
+
+  getNotation(move) {
+    // Special case "king takes jailer" is a pass move
+    if (move.appear.length == 0 && move.vanish.length == 0) return "pass";
+    return super.getNotation(move);
   }
 };

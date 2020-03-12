@@ -85,8 +85,8 @@ export const VariantRules = class ExtinctionRules extends ChessRules {
     return true; //always at least one possible move
   }
 
-  underCheck() {
-    return false; //there is no check
+  filterValid(moves) {
+    return moves; //there is no check
   }
 
   getCheckSquares() {
@@ -117,7 +117,7 @@ export const VariantRules = class ExtinctionRules extends ChessRules {
 
   getCurrentScore() {
     if (this.atLeastOneMove()) {
-      // game not over?
+      // Game not over?
       const color = this.turn;
       if (
         Object.keys(this.material[color]).some(p => {

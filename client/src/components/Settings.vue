@@ -60,7 +60,7 @@ div
             v-model="st.settings.gotonext"
           )
         fieldset
-          label(for="setRandomness") {{ st.tr["Randomness against computer"] }}
+          label(for="setRandomness") {{ st.tr["Randomness"] }}
           select#setRandomness(v-model="st.settings.randomness")
             option(value="0") {{ st.tr["Deterministic"] }}
             option(value="1") {{ st.tr["Symmetric random"] }}
@@ -110,7 +110,7 @@ export default {
 
 <style lang="sass" scoped>
 [type="checkbox"].modal+div .card
-  max-width: 767px
+  max-width: 520px
   max-height: 100%
 #flagContainer
   display: inline-block

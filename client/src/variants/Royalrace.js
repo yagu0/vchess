@@ -21,7 +21,7 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "11/11/11/11/11/11/11/11/11/QRBNP1pnbrq/KRBNP1pnbrk w 0";
+      return "11/11/11/11/11/11/11/11/11/qrbnp1PNBRQ/krbnp1PNBRK w 0";
 
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and second rank
@@ -93,13 +93,13 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     const blackFen = pieces["b"].join("");
     return (
       "11/11/11/11/11/11/11/11/11/" +
-      whiteFen.substr(5).split("").reverse().join("") +
+      blackFen.substr(5).split("").reverse().join("") +
       "1" +
-      blackFen.substr(5).split("").join("") +
+      whiteFen.substr(5).split("").join("") +
       "/" +
-      whiteFen.substr(0,5) +
+      blackFen.substr(0,5) +
       "1" +
-      blackFen.substr(0,5).split("").reverse().join("") +
+      whiteFen.substr(0,5).split("").reverse().join("") +
       " w 0"
     );
   }
@@ -189,8 +189,7 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     if (this.kingPos[color][0] == 0)
       // The opposing edge is reached!
       return color == "w" ? "1-0" : "0-1";
-    if (this.atLeastOneMove())
-      return "*";
+    if (this.atLeastOneMove()) return "*";
     // Stalemate (will probably never happen)
     return "1/2";
   }

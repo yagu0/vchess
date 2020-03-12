@@ -1,28 +1,21 @@
 p.boxed
-  | Win by losing all your pieces. Capture is mandatory.
+  | Win by losing all your pieces except the king. Capture is mandatory.
 
 p.
-  The goal is to lose all pieces, or get stalemated like on the following diagram.
-  The king has no royal status: it can be taken as any other piece.
-  Thus, there is no castle rule, no checks.
-
-p Captures are mandatory, but when several capturing moves are possible you can choose.
+  The goal is to lose all pieces except the king, or get stalemated
+  or checkmated like on the following diagram.
+  All usual chess rules apply, but captures are mandatory.
+  When several captures are possible you can choose: from the
+  diagram position 1.Nf3?? and 1.g4?! allow respectively 1...Qxf3 and 1...Nxg4.
 
 figure.diagram-container
   .diagram
-    | fen:6nB/6P1/8/4p3/2p1P3/2P5/8/8:
-  figcaption White cannot move: 1-0.
-
-h3 Special moves
-
-p.
-  Castling is not possible, but en-passant captures are allowed.
-  Pawns may promote into king (so you can potentially have several kings on the board).
+    | fen:r1b1kb1r/p2ppp1p/2q2np1/8/7P/7R/PP1PPPP1/RNB1KBN1:
+  figcaption 1.g3 forces 1...Qxc1# checkmate
 
 h3 More information
 
 p
-  | This is a popular variant, played in many places on the web.
-  | A starting point can be the 
-  a(href="https://en.wikipedia.org/wiki/Losing_Chess") Wikipedia page
-  | .
+  | This variant can be played 
+  a(href="https://www.freechess.org/Help/HelpFiles/losers.html") on FICS
+  | . We follow their naming choice.

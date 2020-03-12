@@ -1058,7 +1058,7 @@ export const ChessRules = class ChessRules {
   play(move) {
     // DEBUG:
 //    if (!this.states) this.states = [];
-//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
 //    this.states.push(stateFen);
 
     if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
@@ -1078,7 +1078,7 @@ export const ChessRules = class ChessRules {
     this.unupdateVariables(move);
 
     // DEBUG:
-//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
+//    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
 //    if (stateFen != this.states[this.states.length-1]) debugger;
 //    this.states.pop();
   }

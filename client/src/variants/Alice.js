@@ -107,8 +107,7 @@ export const VariantRules = class AliceRules extends ChessRules {
     // Finally filter impossible moves
     const res = moves.filter(m => {
       if (m.appear.length == 2) {
-        //castle
-        // appear[i] must be an empty square on the other board
+        // Castle: appear[i] must be an empty square on the other board
         for (let psq of m.appear) {
           if (this.getSquareOccupation(psq.x, psq.y, 3 - mirrorSide) != V.EMPTY)
             return false;

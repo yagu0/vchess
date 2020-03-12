@@ -227,7 +227,10 @@ export default {
         vid: parseInt(localStorage.getItem("vid")) || 0,
         to: "", //name of challenged player (if any)
         cadence: localStorage.getItem("cadence") || "",
-        randomness: parseInt(localStorage.getItem("randomness")) || 2,
+        randomness:
+          parseInt(localStorage.getItem("challRandomness")) ||
+          // Default to global randomness if no challenges issued yet:
+          this.st.settings.randomness,
         // VariantRules object, stored to not interfere with
         // diagrams of targetted challenges:
         V: null,
@@ -969,7 +972,7 @@ export default {
         // Remember cadence  + vid for quicker further challenges:
         localStorage.setItem("cadence", chall.cadence);
         localStorage.setItem("vid", chall.vid);
-        localStorage.setItem("randomness", chall.randomness);
+        localStorage.setItem("challRandomness", chall.randomness);
         document.getElementById("modalNewgame").checked = false;
         // Show the challenge if not on current display
         if (

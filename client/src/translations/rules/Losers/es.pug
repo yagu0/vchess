@@ -1,30 +1,21 @@
 p.boxed
-  | Gana perdiendo todas tus piezas. Capturas obligatorias.
+  | Gana perdiendo todas tus piezas excepto el rey. Capturas obligatorias.
 
 p.
-  El objetivo es perder todas sus piezas (peones incluidos), o ser empate
-  como en el siguiente diagrama.
-  El rey no tiene un estado especial: puede ser capturado.
-  No hay noción de jaque, ni de enroque.
-
-p La captura es obligatoria, pero si es posible, puede elegir.
+  El objetivo es perder todas sus piezas excepto el rey, o ser empate
+  o jaque mate como en el siguiente diagrama.
+  Se aplican todas las reglas habituales, pero las capturas son obligatorias.
+  Cuando son posibles varias capturas, puede elegir: desde
+  posición del diagrama 1.Nf3?? y 1.g4?! permiten 1...Qxf3 y 1...Nxg4 respectivamente.
 
 figure.diagram-container
-  .diagram
-    | fen:6nB/6P1/8/4p3/2p1P3/2P5/8/8:
-  figcaption Las blancas no puede moverse: 1-0.
-
-h3 Movimientos especiales
-
-p.
-  El enroque no está permitido, pero las capturas al pasar son posibles.
-  Un peón puede ser promovido a rey (por lo que potencialmente puede haber
-  varios reyes en el tablero).
+  .diagrama
+    | fen:r1b1kb1r/p2ppp1p/2q2np1/8/7P/7R/PP1PPPP1/RNB1KBN1:
+  figcaption 1.g3 fuerza 1...Qxc1# jaque mate
 
 h3 Más información
 
 p
-  | Esta variante es muy popular y se juega en varios lugares en Internet.
-  | la 
-  a(href="https://en.wikipedia.org/wiki/Losing_Chess") página Wikipedia
-  | &nbsp;contiene varias referencias.
+  | Podemos jugar esta variante 
+  a(href="https://www.freechess.org/Help/HelpFiles/losers.html") en FICS
+  | . Seguimos su elección de nombre.

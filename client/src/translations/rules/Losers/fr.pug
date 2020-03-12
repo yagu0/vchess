@@ -1,30 +1,21 @@
 p.boxed
-  | Gagnez en perdant toutes vos pièces. Captures obligatoires.
+  | Gagnez en perdant toutes vos pièces sauf le roi. Captures obligatoires.
 
 p.
-  L'objectif est de perdre toutes ses pièces (pions inclus), ou d'être pat
-  comme sur le diagramme suivant.
-  Le roi n'a pas de statut particulier : il peut être capturé.
-  Il n'y a pas de notion d'échec, et pas de roque.
-
-p Les captures sont obligatoires, mais si plusieurs sont possibles vous pouvez choisir.
+  L'objectif est de perdre toutes ses pièces sauf le roi, ou d'être pat
+  ou mat comme sur le diagramme suivant.
+  Toutes les règles habituelles s'appliquent, mais les capturees sont obligatoires.
+  Quand plusieurs captures sont possibles vous pouvez choisir : depuis la
+  position du diagramme 1.Nf3?? et 1.g4?! permettent respectivement 1...Qxf3 et 1...Nxg4.
 
 figure.diagram-container
   .diagram
-    | fen:6nB/6P1/8/4p3/2p1P3/2P5/8/8:
-  figcaption Les blancs ne peuvent pas bouger : 1-0.
-
-h3 Coups spéciaux
-
-p.
-  Le roque n'est pas permis, mais les prises en passant sont possibles.
-  Un pion peut se promouvoir en roi (donc il peut potentiellement y avoir
-  plusieurs rois sur l'échiquier).
+    | fen:r1b1kb1r/p2ppp1p/2q2np1/8/7P/7R/PP1PPPP1/RNB1KBN1:
+  figcaption 1.g3 force 1...Qxc1# échec et mat
 
 h3 Plus d'information
 
 p
-  | Cette variante est très populaire, et est jouée en divers endroits sur internet.
-  | La 
-  a(href="https://en.wikipedia.org/wiki/Losing_Chess") page Wikipedia
-  | &nbsp;est un point de départ possible.
+  | On peut jouer à cette variante 
+  a(href="https://www.freechess.org/Help/HelpFiles/losers.html") sur FICS
+  | . Nous suivons leur choix de nom.

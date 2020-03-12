@@ -42,34 +42,7 @@ export const VariantRules = class LosersRules extends ChessRules {
     return moves;
   }
 
-  getCurrentScore() {
-    // If only my king remains, I win
-    const color = this.turn;
-    let onlyKing = true;
-    outerLoop: for (let i=0; i<V.size.x; i++) {
-      for (let j=0; j<V.size.y; j++) {
-        if (
-          this.board[i][j] != V.EMPTY &&
-          this.getColor(i,j) == color &&
-          this.getPiece(i,j) != V.KING
-        ) {
-          onlyKing = false;
-          break outerLoop;
-        }
-      }
-    }
-    if (onlyKing) return color == "w" ? "1-0" : "0-1";
-    if (this.atLeastOneMove()) return "*";
-    // No valid move: the side who cannot move (or is checkmated) wins
-    return this.turn == "w" ? "1-0" : "0-1";
-  }
-
   static get SEARCH_DEPTH() {
     return 4;
-  }
-
-  evalPosition() {
-    // Less material is better (more subtle in fact but...)
-    return -super.evalPosition();
   }
 };

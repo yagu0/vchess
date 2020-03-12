@@ -45,7 +45,7 @@ export default {
     };
   },
   created: function() {
-    GameStorage.getAll(true, localGames => {
+    GameStorage.getAll(localGames => {
       localGames.forEach(g => g.type = "live");
       this.decorate(localGames);
       this.liveGames = localGames;
@@ -117,17 +117,16 @@ export default {
     // Called at loading to augment games with myColor + myTurn infos
     decorate: function(games) {
       games.forEach(g => {
-        // If game is over, myColor and myTurn are ignored:
+        g.myColor =
+          (g.type == "corr" && g.players[0].uid == this.st.user.id) ||
+          (g.type == "live" && g.players[0].sid == this.st.user.sid)
+            ? 'w'
+            : 'b';
+        // If game is over, myTurn doesn't exist:
         if (g.score == "*") {
-          g.myColor =
-            (g.type == "corr" && g.players[0].uid == this.st.user.id) ||
-            (g.type == "live" && g.players[0].sid == this.st.user.sid)
-              ? 'w'
-              : 'b';
           const rem = g.movesCount % 2;
-          if ((rem == 0 && g.myColor == 'w') || (rem == 1 && g.myColor == 'b')) {
+          if ((rem == 0 && g.myColor == 'w') || (rem == 1 && g.myColor == 'b'))
             g.myTurn = true;
-          }
         }
       });
     },

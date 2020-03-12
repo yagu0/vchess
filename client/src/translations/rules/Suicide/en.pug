@@ -1,0 +1,30 @@
+p.boxed
+  | Win by losing all your pieces. Capture is mandatory.
+
+p.
+  The goal is to lose all pieces, or get stalemated like on the following diagram.
+  The king has no royal status: it can be taken as any other piece.
+  Thus, there is no castle rule, no checks.
+
+p Captures are mandatory, but when several capturing moves are possible you can choose.
+
+figure.diagram-container
+  .diagram
+    | fen:6nB/6P1/8/4p3/2p1P3/2P5/8/8:
+  figcaption White cannot move: 1-0.
+
+h3 Special moves
+
+p.
+  Castling is not possible, but en-passant captures are allowed.
+  Pawns may promote into king (so you can potentially have several kings on the board).
+
+h3 More information
+
+p
+  | This is a popular variant, played in many places on the web.
+  | A starting point can be the 
+  a(href="https://en.wikipedia.org/wiki/Losing_Chess") Wikipedia page
+  | . Note: this variant has several names, we choose here the same as 
+  a(href="https://www.freechess.org/Help/HelpFiles/suicide_chess.html") on FICS
+  | .
