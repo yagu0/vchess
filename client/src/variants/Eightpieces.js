@@ -86,13 +86,6 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     }
   }
 
-  canTake([x1,y1], [x2, y2]) {
-    if (this.subTurn == 2)
-      // Sentry push: pieces can capture own color (only)
-      return this.getColor(x1, y1) == this.getColor(x2, y2);
-    return super.canTake([x1,y1], [x2, y2]);
-  }
-
   static GenRandInitFen(randomness) {
     if (randomness == 0)
       // Deterministic:
@@ -224,8 +217,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         this.board[i][j] != V.EMPTY &&
         this.getColor(i, j) == oppCol
       ) {
-        const oppPiece = this.getPiece(i, j);
-        if (oppPiece == V.JAILER) return [i, j];
+        if (this.getPiece(i, j) == V.JAILER) return [i, j];
       }
     }
     return null;
@@ -268,65 +260,77 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return mv;
   }
 
-  getPotentialMovesFrom_aux([x, y]) {
-    switch (this.getPiece(x, y)) {
-      case V.JAILER:
-        return this.getPotentialJailerMoves([x, y]);
-      case V.SENTRY:
-        return this.getPotentialSentryMoves([x, y]);
-      case V.LANCER:
-        return this.getPotentialLancerMoves([x, y]);
-      default:
-        return super.getPotentialMovesFrom([x, y]);
-    }
+  canIplay(side, [x, y]) {
+    return (
+      (this.subTurn == 1 && this.turn == side && this.getColor(x, y) == side) ||
+      (this.subTurn == 2 && x == this.sentryPos.x && y == this.sentryPos.y)
+    );
   }
 
   getPotentialMovesFrom([x,y]) {
-    if (this.subTurn == 1) {
-      if (!!this.isImmobilized([x, y])) return [];
-      let moves = this.getPotentialMovesFrom_aux([x, y]);
-      const L = this.sentryPush.length;
-      if (!!this.sentryPush[L-1]) {
-        // Delete moves walking back on sentry push path
-        moves = moves.filter(m => {
-          if (
-            m.vanish[0].p != V.PAWN &&
-            this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
-          ) {
-            return false;
-          }
-          return true;
-        });
-      }
-      return moves;
+    // At subTurn == 2, jailers aren't effective (Jeff K)
+    if (this.subTurn == 1 && !!this.isImmobilized([x, y])) return [];
+    if (this.subTurn == 2) {
+      // Temporarily change pushed piece color.
+      // (Not using getPiece() because of lancers)
+      var oppCol = this.getColor(x, y);
+      var color = V.GetOppCol(oppCol);
+      var saveXYstate = this.board[x][y];
+      this.board[x][y] = color + this.board[x][y][1];
     }
-    // subTurn == 2: only the piece pushed by the sentry is allowed to move,
-    // as if the sentry didn't exist
-    if (x != this.sentryPos.x && y != this.sentryPos.y) return [];
-    const moves2 = this.getPotentialMovesFrom_aux([x, y]);
-    // Don't forget to re-add the sentry on the board:
-    const oppCol = V.GetOppCol(this.turn);
-    return moves2.map(m => {
-      m.appear.push({x: x, y: y, p: V.SENTRY, c: oppCol});
-      return m;
-    });
+    let moves = [];
+    switch (this.getPiece(x, y)) {
+      case V.JAILER:
+        moves = this.getPotentialJailerMoves([x, y]);
+        break;
+      case V.SENTRY:
+        moves = this.getPotentialSentryMoves([x, y]);
+        break;
+      case V.LANCER:
+        moves = this.getPotentialLancerMoves([x, y]);
+        break;
+      default:
+        moves = super.getPotentialMovesFrom([x, y]);
+        break;
+    }
+    const L = this.sentryPush.length;
+    if (!!this.sentryPush[L-1]) {
+      // Delete moves walking back on sentry push path
+      moves = moves.filter(m => {
+        if (
+          m.vanish[0].p != V.PAWN &&
+          this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
+        ) {
+          return false;
+        }
+        return true;
+      });
+    }
+    if (this.subTurn == 2) {
+      // Don't forget to re-add the sentry on the board:
+      // Also fix color of pushed piece afterward:
+      moves.forEach(m => {
+        m.appear.push({x: x, y: y, p: V.SENTRY, c: color});
+        m.appear[0].c = oppCol;
+        m.vanish[0].c = oppCol;
+      });
+    }
+    return moves;
   }
 
   getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
+    const color = this.getColor(x, y);
     let moves = [];
     const [sizeX, sizeY] = [V.size.x, V.size.y];
-    let shiftX = color == "w" ? -1 : 1;
-    // Special case of a sentry push: pawn goes in the capturer direction
-    if (this.subTurn == 2) shiftX *= -1;
+    const shiftX = color == "w" ? -1 : 1;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
 
     const finalPieces =
       x + shiftX == lastRank
         ?
-          [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER]
-          .concat(Object.keys(V.LANCER_DIRS))
+          Object.keys(V.LANCER_DIRS).concat(
+          [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER])
         : [V.PAWN];
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward
@@ -365,7 +369,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       }
     }
 
-    // En passant: no subTurn consideration here (always == 1)
+    // En passant:
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1]; //always at least one element
     if (
@@ -391,7 +395,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   getPotentialLancerMoves_aux([x, y], step) {
     let moves = [];
     // Add all moves to vacant squares until opponent is met:
-    const oppCol = V.GetOppCol(this.turn);
+    const oppCol = V.GetOppCol(this.getColor(x, y));
     let sq = [x + step[0], y + step[1]];
     while (V.OnBoard(sq[0], sq[1]) && this.getColor(sq[0], sq[1]) != oppCol) {
       if (this.board[sq[0]][sq[1]] == V.EMPTY)
@@ -432,15 +436,17 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     const dirCode = this.board[x][y][1];
     const monodirMoves =
       this.getPotentialLancerMoves_aux([x, y], V.LANCER_DIRS[dirCode]);
-    // Add all possible orientations aftermove:
-    monodirMoves.forEach(m => {
-      Object.keys(V.LANCER_DIRS).forEach(k => {
-        let mk = JSON.parse(JSON.stringify(m));
-        mk.appear[0].p = k;
-        moves.push(mk);
+    // Add all possible orientations aftermove except if I'm being pushed
+    if (this.subTurn == 1) {
+      monodirMoves.forEach(m => {
+        Object.keys(V.LANCER_DIRS).forEach(k => {
+          let mk = JSON.parse(JSON.stringify(m));
+          mk.appear[0].p = k;
+          moves.push(mk);
+        });
       });
-    });
-    return moves;
+      return moves;
+    } else return monodirMoves;
   }
 
   getPotentialSentryMoves([x, y]) {
@@ -455,16 +461,26 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         m.vanish.pop();
       }
     });
-    // Can the pushed unit make any move?
-    this.subTurn = 2;
+    // Can the pushed unit make any move? ...resulting in a non-self-check?
+    const color = this.getColor(x, y);
     const fMoves = moves.filter(m => {
-      V.PlayOnBoard(this.board, m);
-      let res =
-        (this.filterValid(this.getPotentialMovesFrom([x, y])).length > 0);
-      V.UndoOnBoard(this.board, m);
-      return res;
+      // Sentry push?
+      if (m.appear.length == 0) {
+        let res = false;
+        this.play(m);
+        let moves2 = this.filterValid(
+          this.getPotentialMovesFrom([m.end.x, m.end.y]));
+        for (let m2 of moves2) {
+          this.play(m2);
+          res = !this.underCheck(color);
+          this.undo(m2);
+          if (res) break;
+        }
+        this.undo(m);
+        return res;
+      }
+      return true;
     });
-    this.subTurn = 1;
     return fMoves;
   }
 
@@ -573,11 +589,18 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   filterValid(moves) {
-    // Disable check tests when subTurn == 2, because the move isn't finished
-    if (this.subTurn == 2) return moves;
-    const filteredMoves = super.filterValid(moves);
+    // Disable check tests for sentry pushes,
+    // because in this case the move isn't finished
+    let movesWithoutSentryPushes = [];
+    let movesWithSentryPushes = [];
+    moves.forEach(m => {
+      if (m.appear.length > 0) movesWithoutSentryPushes.push(m);
+      else movesWithSentryPushes.push(m);
+    });
+    const filteredMoves = super.filterValid(movesWithoutSentryPushes)
     // If at least one full move made, everything is allowed:
-    if (this.movesCount >= 2) return filteredMoves;
+    if (this.movesCount >= 2)
+      return filteredMoves.concat(movesWithSentryPushes);
     // Else, forbid check and captures:
     const oppCol = V.GetOppCol(this.turn);
     return filteredMoves.filter(m => {
@@ -586,7 +609,14 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       const res = !this.underCheck(oppCol);
       this.undo(m);
       return res;
-    });
+    }).concat(movesWithSentryPushes);
+  }
+
+  getAllValidMoves() {
+    if (this.subTurn == 1) return super.getAllValidMoves();
+    // Sentry push:
+    const sentrySq = [this.sentryPos.x, this.SentryPos.y];
+    return this.filterValid(this.getPotentialMovesFrom(sentrySq));
   }
 
   updateVariables(move) {
@@ -641,7 +671,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       // of move, included (except if it's a pawn)
       let squares = [];
       if (move.vanish[0].p != V.PAWN) {
-        if ([V.KNIGHT,V.KING].insludes(move.vanish[0].p))
+        if ([V.KNIGHT,V.KING].includes(move.vanish[0].p))
           // short-range pieces: just forbid initial square
           squares.push(move.start);
         else {
@@ -652,7 +682,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
             deltaY / Math.abs(deltaY) || 0
           ];
           for (
-            let sq = {x: x, y: y};
+            let sq = {x: move.start.x, y: move.start.y};
             sq.x != move.end.x && sq.y != move.end.y;
             sq.x += step[0], sq.y += step[1]
           ) {
@@ -677,7 +707,6 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     if (this.subTurn == 1) this.movesCount++;
-    this.updateVariables(move);
     if (move.appear.length == 0 && move.vanish.length == 1) {
       // The sentry is about to push a piece:
       this.sentryPos = { x: move.end.x, y: move.end.y };
@@ -690,6 +719,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       // Is it a sentry push? (useful for undo)
       move.sentryPush = !!this.sentryPush[L-1];
     }
+    this.updateVariables(move);
   }
 
   undo(move) {
@@ -699,10 +729,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     const L = this.sentryPush.length;
     // Decrement movesCount except if the move is a sentry push
     if (!move.sentryPush) this.movesCount--;
-    this.unupdateVariables(move);
     // Turn changes only if not undoing second part of a sentry push
     if (!move.sentryPush || this.subTurn == 1)
       this.turn = V.GetOppCol(this.turn);
+    this.unupdateVariables(move);
   }
 
   static get VALUES() {
