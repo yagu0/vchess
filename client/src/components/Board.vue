@@ -275,9 +275,10 @@ export default {
     if (!!this.vr.reserve) elementArray.push(reserveBottom);
     const boardElt = document.querySelector(".game");
     if (this.choices.length > 0 && !!boardElt) {
-      //no choices to show at first drawing
+      // No choices to show at first drawing
       const squareWidth = boardElt.offsetWidth / sizeY;
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
+      // TODO: multi-rows if more than V.size.y pieces (as inEightpieces)
       const choices = h(
         "div",
         {

@@ -31,7 +31,6 @@ export const store = {
         return;
       }
       this.state.variants = json.variantArray
-        .filter(v => v.name != "Eightpieces") //TODO: not ready yet
         .sort((v1,v2) => v1.name.localeCompare(v2.name));
     });
     let mysid = localStorage.getItem("mysid");

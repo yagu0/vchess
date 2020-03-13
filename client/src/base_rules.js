@@ -1141,44 +1141,48 @@ export const ChessRules = class ChessRules {
 
     // Rank moves using a min-max at depth 2 (if search_depth >= 2!)
     for (let i = 0; i < moves1.length; i++) {
-      if (V.SEARCH_DEPTH == 1) {
-        moves1[i].eval = this.evalPosition();
+      this.play(moves1[i]);
+      const score1 = this.getCurrentScore();
+      if (score1 != "*") {
+        moves1[i].eval =
+          score1 == "1/2"
+            ? 0
+            : (score1 == "1-0" ? 1 : -1) * maxeval;
+      }
+      if (V.SEARCH_DEPTH == 1 || score1 != "*") {
+        if (!moves1[i].eval) moves1[i].eval = this.evalPosition();
+        this.undo(moves1[i]);
         continue;
       }
       // Initial self evaluation is very low: "I'm checkmated"
       moves1[i].eval = (color == "w" ? -1 : 1) * maxeval;
-      this.play(moves1[i]);
-      const score1 = this.getCurrentScore();
-      let eval2 = undefined;
-      if (score1 == "*") {
-        // Initial enemy evaluation is very low too, for him
-        eval2 = (color == "w" ? 1 : -1) * maxeval;
-        // Second half-move:
-        let moves2 = this.getAllValidMoves();
-        for (let j = 0; j < moves2.length; j++) {
-          this.play(moves2[j]);
-          const score2 = this.getCurrentScore();
-          let evalPos = 0; //1/2 value
-          switch (score2) {
-            case "*":
-              evalPos = this.evalPosition();
-              break;
-            case "1-0":
-              evalPos = maxeval;
-              break;
-            case "0-1":
-              evalPos = -maxeval;
-              break;
-          }
-          if (
-            (color == "w" && evalPos < eval2) ||
-            (color == "b" && evalPos > eval2)
-          ) {
-            eval2 = evalPos;
-          }
-          this.undo(moves2[j]);
+      // Initial enemy evaluation is very low too, for him
+      let eval2 = (color == "w" ? 1 : -1) * maxeval;
+      // Second half-move:
+      let moves2 = this.getAllValidMoves();
+      for (let j = 0; j < moves2.length; j++) {
+        this.play(moves2[j]);
+        const score2 = this.getCurrentScore();
+        let evalPos = 0; //1/2 value
+        switch (score2) {
+          case "*":
+            evalPos = this.evalPosition();
+            break;
+          case "1-0":
+            evalPos = maxeval;
+            break;
+          case "0-1":
+            evalPos = -maxeval;
+            break;
         }
-      } else eval2 = score1 == "1/2" ? 0 : (score1 == "1-0" ? 1 : -1) * maxeval;
+        if (
+          (color == "w" && evalPos < eval2) ||
+          (color == "b" && evalPos > eval2)
+        ) {
+          eval2 = evalPos;
+        }
+        this.undo(moves2[j]);
+      }
       if (
         (color == "w" && eval2 > moves1[i].eval) ||
         (color == "b" && eval2 < moves1[i].eval)
