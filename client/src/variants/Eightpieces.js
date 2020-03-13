@@ -666,7 +666,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       this.castleFlags[oppCol][flagIdx] = false;
     }
 
-    if (this.subTurn == 2) {
+    if (move.appear.length == 0 && move.vanish.length == 1) {
+      // The sentry is about to push a piece:
+      this.sentryPos = { x: move.end.x, y: move.end.y };
+    } else if (this.subTurn == 2) {
       // A piece is pushed: forbid array of squares between start and end
       // of move, included (except if it's a pawn)
       let squares = [];
@@ -707,19 +710,17 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     if (this.subTurn == 1) this.movesCount++;
-    if (move.appear.length == 0 && move.vanish.length == 1) {
-      // The sentry is about to push a piece:
-      this.sentryPos = { x: move.end.x, y: move.end.y };
+    if (move.appear.length == 0 && move.vanish.length == 1)
       this.subTurn = 2;
-    } else {
+    else {
       // Turn changes only if not a sentry "pre-push"
       this.turn = V.GetOppCol(this.turn);
       this.subTurn = 1;
-      const L = this.sentryPush.length;
-      // Is it a sentry push? (useful for undo)
-      move.sentryPush = !!this.sentryPush[L-1];
     }
     this.updateVariables(move);
+    const L = this.sentryPush.length;
+    // Is it a sentry push? (useful for undo)
+    move.sentryPush = !!this.sentryPush[L-1];
   }
 
   undo(move) {
