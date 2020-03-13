@@ -294,7 +294,16 @@ export default {
           }
         },
         this.choices.map(m => {
-          //a "choice" is a move
+          // A "choice" is a move
+          const applyMove = (e) => {
+            e.stopPropagation();
+            this.play(m);
+            this.choices = [];
+          };
+          const onClick =
+            this.mobileBrowser
+              ? { touchend: applyMove }
+              : { mouseup: applyMove };
           return h(
             "div",
             {
@@ -316,12 +325,7 @@ export default {
                     ".svg"
                 },
                 class: { "choice-piece": true },
-                on: {
-                  click: () => {
-                    this.play(m);
-                    this.choices = [];
-                  }
-                }
+                on: onClick
               })
             ]
           );
