@@ -1,2 +1,49 @@
 p.boxed
-  | TODO
+  | Aparecen tres nuevas piezas. Cada pieza es única.
+
+p.
+  Solo hay una torre, un alfil y un caballo por lado en esta variante.
+  Esto explica el nombre. El rey y la dama también están presentes.
+  Las tres ubicaciones restantes están ocupadas por nuevas piezas:
+
+ul
+  li.
+    La lanza 'L' está orientada y solo puede moverse en la dirección
+    como señala, tantas casillas como desee, siempre que lo haga
+    no encontrar pieza opuesta.
+    Si se encuentra dicha pieza, se puede capturar.
+    Después de mover puedes redirigir la lanza.
+  li.
+    La centinela 'S' (del término inglés "Sentry") se mueve como un alfil
+    pero no puede capturar directamente.
+    Por otro lado, puede "empujar" piezas opuestas sobre
+    una casilla vacía o en otra pieza enemiga, que luego termina
+    (auto-)capturado.
+  li.
+    El carcelero 'J' (del término inglés "Jailer") se mueve como una torre
+    pero tampoco captura. Inmoviliza cualquier pieza opuesta adyacente
+    vertical u horizontalmente.
+
+p.
+  En el siguiente diagrama, la centinela blanca puede empujar la lanza negra
+  para capturar el peón negro en b4. Entonces, la lanza es inmovilizada por el
+  carcelero blanco en a4.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:7k/8/8/8/Jp3m2/8/3S4/K7:
+  .diagram.diag22
+    | fen:7k/8/8/8/Jm3S2/8/8/K7:
+  figcaption.
+    Izquierda: antes del movimiento blanco S"empuja"f4.
+    Derecha: después de esta jugada.
+
+h3 Reglas completas
+
+p
+  | Las reglas fueron inventadas por Jeff Kubach (2020), quien las describió
+  | mucho más específicamente en la 
+  a(href="https://www.chessvariants.com/rules/8-piece-chess") página chessvariants
+  | . El resumen anterior puede ser suficiente para comenzar a jugar,
+  | pero deberías leer todas las reglas para entender completamente
+  | esta variante.

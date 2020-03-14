@@ -119,7 +119,7 @@ export default {
                         this.userColor,
                         this.score,
                         this.orientation) +
-                      ".svg"
+                      V.IMAGE_EXTENSION
                   }
                 })
               );
@@ -284,65 +284,76 @@ export default {
       // No choices to show at first drawing
       const squareWidth = boardElt.offsetWidth / sizeY;
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
-      // TODO: multi-rows if more than V.size.y pieces (as inEightpieces)
+      const maxNbeltsPerRow = Math.min(this.choices.length, sizeY);
+      let topOffset = offset[0] + (sizeY / 2) * squareWidth - squareWidth / 2;
+      let choicesHeight = squareWidth;
+      if (this.choices.length >= sizeY) {
+        // A second row is required (Eightpieces variant)
+        topOffset -= squareWidth / 2;
+        choicesHeight *= 2;
+      }
       const choices = h(
         "div",
         {
           attrs: { id: "choices" },
           class: { row: true },
           style: {
-            top: offset[0] + (sizeY / 2) * squareWidth - squareWidth / 2 + "px",
+            top: topOffset + "px",
             left:
               offset[1] +
-              (squareWidth * (sizeY - this.choices.length)) / 2 +
+              (squareWidth * Math.max(sizeY - this.choices.length, 0)) / 2 +
               "px",
-            width: this.choices.length * squareWidth + "px",
-            height: squareWidth + "px"
+            width: (maxNbeltsPerRow * squareWidth) + "px",
+            height: choicesHeight + "px"
           }
         },
-        this.choices.map(m => {
-          // A "choice" is a move
-          const applyMove = (e) => {
-            e.stopPropagation();
-            // Force a delay between move is shown and clicked
-            // (otherwise a "double-click" bug might occur)
-            if (Date.now() - this.clickTime < 200) return;
-            this.play(m);
-            this.choices = [];
-          };
-          const onClick =
-            this.mobileBrowser
-              ? { touchend: applyMove }
-              : { mouseup: applyMove };
-          return h(
-            "div",
-            {
-              class: {
-                board: true,
-                ["board" + sizeY]: true
-              },
-              style: {
-                width: 100 / this.choices.length + "%",
-                "padding-bottom": 100 / this.choices.length + "%"
-              }
-            },
-            [
-              h("img", {
-                attrs: {
-                  src:
-                    "/images/pieces/" +
-                    this.vr.getPPpath(
-                      m.appear[0].c + m.appear[0].p,
-                      // Extra arg useful for some variants:
-                      this.orientation) +
-                    ".svg"
+        [ h(
+          "div",
+          { },
+          this.choices.map(m => {
+            // A "choice" is a move
+            const applyMove = (e) => {
+              e.stopPropagation();
+              // Force a delay between move is shown and clicked
+              // (otherwise a "double-click" bug might occur)
+              if (Date.now() - this.clickTime < 200) return;
+              this.play(m);
+              this.choices = [];
+            };
+            const onClick =
+              this.mobileBrowser
+                ? { touchend: applyMove }
+                : { mouseup: applyMove };
+            return h(
+              "div",
+              {
+                class: {
+                  board: true,
+                  ["board" + sizeY]: true
                 },
-                class: { "choice-piece": true },
-                on: onClick
-              })
-            ]
-          );
-        })
+                style: {
+                  width: (100 / maxNbeltsPerRow) + "%",
+                  "padding-bottom": (100 / maxNbeltsPerRow) + "%"
+                }
+              },
+              [
+                h("img", {
+                  attrs: {
+                    src:
+                      "/images/pieces/" +
+                      this.vr.getPPpath(
+                        m.appear[0].c + m.appear[0].p,
+                        // Extra arg useful for some variants:
+                        this.orientation) +
+                      V.IMAGE_EXTENSION
+                  },
+                  class: { "choice-piece": true },
+                  on: onClick
+                })
+              ]
+            );
+          })
+        ) ]
       );
       elementArray.unshift(choices);
     }

@@ -73,6 +73,11 @@ export const ChessRules = class ChessRules {
     return V.CanFlip;
   }
 
+  static get IMAGE_EXTENSION() {
+    // All pieces should be in the SVG format
+    return ".svg";
+  }
+
   // Turn "wb" into "B" (for FEN)
   static board2fen(b) {
     return b[0] == "w" ? b[1].toUpperCase() : b[1];

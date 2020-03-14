@@ -1,2 +1,42 @@
 p.boxed
-  | TODO
+  | Three new pieces appear. All pieces are unique.
+
+p.
+  There are only one rook, one bishop and one knight per side in this variant.
+  That explains the name. The king and queen are still there,
+  and the three remaining slots are taken by new pieces:
+
+ul
+  li.
+    The lancer 'L' is oriented and can only move in the direction it points,
+    by any number of squares as long as an enemy isn't met
+    (it can jump over friendly pieces). If an opponent' piece is found,
+    it can be captured. After moving you can reorient the lancer.
+  li.
+    The sentry 'S' moves like a bishop but doesn't capture directly.
+    It "pushes" enemy pieces instead, either on an empty square or on other
+    enemy pieces which are thus (self-)captured.
+  li.
+    The jailer 'J' moves like a rook but also doesn't capture.
+    It immobilizes enemy pieces which are vertically or horizontally adjacent.
+
+p.
+  On the following diagram the white sentry can push the black lancer to
+  capture the black pawn on b4. The lancer is then immobilized
+  by the white jailer at a4.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:7k/8/8/8/Jp3m2/8/3S4/K7:
+  .diagram.diag22
+    | fen:7k/8/8/8/Jm3S2/8/8/K7:
+  figcaption Left: before white move S"push"f4. Right: after this move.
+
+h3 Complete rules
+
+p
+  | The rules were invented by Jeff Kubach (2020), who described them much
+  | more precisely on the 
+  a(href="https://www.chessvariants.com/rules/8-piece-chess") chessvariants page
+  | . While the summary given above may suffice to start playing,
+  | you should read the complete rules to fully understand this variant.

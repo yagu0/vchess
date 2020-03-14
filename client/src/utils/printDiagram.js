@@ -88,8 +88,8 @@ export function getDiagram(args) {
         boardDiv +=
           "<img " +
           "src='/images/pieces/" +
-          vr.getPpath(board[i][j]) +
-          ".svg' " +
+          vr.getPpath(board[i][j], null, null, orientation) +
+          V.IMAGE_EXTENSION + "' " +
           "class='piece'/>";
       }
       if (markArray.length > 0 && markArray[i][j])

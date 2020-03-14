@@ -1,2 +1,46 @@
 p.boxed
-  | TODO
+  | Trois nouvelles pièces apparaissent. Chaque pièces est unique.
+
+p.
+  Il n'y a qu'une tour, un fou et un cavalier par camp dans cette variante.
+  Ceci explique le nom. Le roi et la dame sont également présents,
+  les trois emplacements restants étant pris par de nouvelles pièces :
+
+ul
+  li.
+    Le lancier 'L' est orienté et ne peut se déplacer que dans la direction
+    qu'il pointe, d'autant de cases qu'il le souhaite tant qu'il ne
+    rencontre pas de pièce adverse.
+    Si une telle pièce est trouvée, elle peut être capturée.
+    Après le déplacement vous pouvez réorienter le lancier.
+  li.
+    La sentinelle 'S' se déplace comme un fou mais ne peut pas capturer
+    directement. Elle peut en revanche "pousser" les pièces adverses sur
+    une case vide ou sur une autre pièce ennemie, qui se retrouve alors
+    (auto-)capturée.
+  li.
+    Le geôlier 'J' (du terme anglais "Jailer") se déplace comme une tour mais
+    ne capture pas non plus. Il immobilise toute pièce adverse adjacente
+    verticalement ou horizontalement.
+
+p.
+  Sur le diagramme suivant la sentinelle blanche peut pousser le lancier noir
+  pour capturer le pion noir en b4. Le lancier est alors immobilisé par le
+  geôlier blanc en a4.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:7k/8/8/8/Jp3m2/8/3S4/K7:
+  .diagram.diag22
+    | fen:7k/8/8/8/Jm3S2/8/8/K7:
+  figcaption Gauche : avant le coup blanc S"pousse"f4. Droite : après ce coup.
+
+h3 Règles complètes
+
+p
+  | Les règles ont été inventées par Jeff Kubach (2020), qui les a décrites
+  | beaucoup plus précisément sur la 
+  a(href="https://www.chessvariants.com/rules/8-piece-chess") page chessvariants
+  | . Le résumé donné ci-dessus peut suffire pour commencer à jouer,
+  | mais vous devriez lire l'intégralité des règles afin de bien comprendre
+  | cette variante.

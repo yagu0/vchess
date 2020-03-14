@@ -13,6 +13,11 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return "l";
   }
 
+  static get IMAGE_EXTENSION() {
+    // Temporarily, for the time SVG pieces are being designed:
+    return ".png";
+  }
+
   // Lancer directions *from white perspective*
   static get LANCER_DIRS() {
     return {
@@ -41,9 +46,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   getPpath(b, color, score, orientation) {
-    if ([V.JAILER, V.SENTRY].includes(b[1])) return "Eightpieces/" + b;
+    if ([V.JAILER, V.SENTRY].includes(b[1])) return "Eightpieces/tmp_png/" + b;
     if (Object.keys(V.LANCER_DIRS).includes(b[1])) {
-      if (orientation == 'w') return "Eightpieces/" + b;
+      if (orientation == 'w') return "Eightpieces/tmp_png/" + b;
       // Find opposite direction for adequate display:
       let oppDir = '';
       switch (b[1]) {
@@ -72,9 +77,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
           oppDir = 'f';
           break;
       }
-      return "Eightpieces/" + b[0] + oppDir;
+      return "Eightpieces/tmp_png/" + b[0] + oppDir;
     }
-    return b;
+    // TODO: after we have SVG pieces, remove the folder and next prefix:
+    return "Eightpieces/tmp_png/" + b;
   }
 
   getPPpath(b, orientation) {
