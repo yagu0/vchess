@@ -247,7 +247,7 @@ footer
       color: #2c3e50
       text-decoration: none
     & > img
-      height: 1.3em
+      height: 1.2em
       display: inline-block
       margin-left: 5px
   & > p

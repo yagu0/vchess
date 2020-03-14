@@ -106,7 +106,7 @@ textarea#mailContent
   margin-top: 7px
   text-align: center
   & > img
-    height: 1.3em
+    height: 1.2em
     display: inline-block
     margin-left: 5px
 
