@@ -103,11 +103,10 @@ textarea#mailContent
 
 #discordLink
   display: block
-  margin-top: 10px
+  margin-top: 7px
   text-align: center
-  font-size: 1.3em
   & > img
-    height: 1.5em
+    height: 1.3em
     display: inline-block
     margin-left: 5px
 
