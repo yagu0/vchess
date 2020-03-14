@@ -538,18 +538,18 @@ img.ghost
 // TODO: no predefined highlight colors, but layers. How?
 
 .light-square.lichess.highlight-light
-  background-color: #cdd26a !important
+  background-color: #cdd26a
 .dark-square.lichess.highlight-dark
-  background-color: #aaa23a !important
+  background-color: #aaa23a
 
 .light-square.chesscom.highlight-light
-  background-color: #f7f783 !important
+  background-color: #f7f783
 .dark-square.chesscom.highlight-dark
-  background-color: #bacb44 !important
+  background-color: #bacb44
 
 .light-square.chesstempo.highlight-light
-  background-color: #9f9fff !important
+  background-color: #9f9fff
 .dark-square.chesstempo.highlight-dark
-  background-color: #557fff !important
+  background-color: #557fff
 
 </style>

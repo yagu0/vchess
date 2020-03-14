@@ -238,9 +238,11 @@ export const ChessRules = class ChessRules {
 
   // On which squares is color under check ? (for interface)
   getCheckSquares(color) {
-    return this.isAttacked(this.kingPos[color], [V.GetOppCol(color)])
-      ? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
-      : [];
+    return (
+      this.underCheck(color)
+        ? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
+        : []
+    );
   }
 
   /////////////

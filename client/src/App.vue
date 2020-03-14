@@ -34,7 +34,9 @@
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
-        a.menuitem(href="https://discord.gg/a9ZFKBe") Discord
+        a.menuitem(href="https://github.com/yagu0/vchess")
+          span {{ st.tr["Code"] }}
+          img(src="/images/icons/github.svg")
         router-link.menuitem(to="/news") {{ st.tr["News"] }}
         p.clickable(onClick="window.doClick('modalContact')")
           | {{ st.tr["Contact"] }}
@@ -68,8 +70,8 @@ export default {
 <style lang="sass">
 html, *
   font-family: "Open Sans", Arial, sans-serif
-  --a-link-color: black
-  --a-visited-color: black
+  --a-link-color: darkred
+  --a-visited-color: darkred
 
 body
   padding: 0
@@ -236,13 +238,18 @@ footer
     color: #42b983 !important
     text-decoration: none
   & > .menuitem
-    display: inline-block
     margin: 0 12px
+    display: inline-flex;
+    align-self: center;
     &:link
       color: #2c3e50
     &:visited, &:hover
       color: #2c3e50
       text-decoration: none
+    & > img
+      height: 1.3em
+      display: inline-block
+      margin-left: 5px
   & > p
     display: inline-block
     margin: 0 12px

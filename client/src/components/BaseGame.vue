@@ -309,8 +309,6 @@ export default {
       const playSubmove = (smove) => {
         if (!navigate) smove.notation = this.vr.getNotation(smove);
         this.vr.play(smove);
-        // Is opponent in check?
-        this.incheck = this.vr.getCheckSquares(this.vr.turn);
         if (!navigate) {
           if (!this.inMultimove) {
             if (this.cursor < this.moves.length - 1)
@@ -356,6 +354,8 @@ export default {
           if (!smove.fen)
             // NOTE: only FEN of last sub-move is required (thus setting it here)
             smove.fen = this.vr.getFen();
+          // Is opponent in check?
+          this.incheck = this.vr.getCheckSquares(this.vr.turn);
           this.lastMove = smove;
           this.emitFenIfAnalyze();
           this.inMultimove = false;
@@ -442,7 +442,6 @@ export default {
           if (this.cursor < minCursor) return; //no more moves
           move = this.moves[this.cursor];
         }
-        // Caution; if multi-move, undo all submoves from last to first
         undoMove(move, this.vr);
         if (light) this.cursor--;
         else {

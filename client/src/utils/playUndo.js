@@ -5,6 +5,7 @@ export function playMove(move, vr) {
 
 export function undoMove(move, vr) {
   if (!Array.isArray(move)) move = [move];
+  // If multi-move, undo all submoves from last to first
   for (let i = move.length - 1; i >= 0; i--)
     vr.undo(move[i]);
 }

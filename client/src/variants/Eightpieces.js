@@ -214,6 +214,13 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     );
   }
 
+  canTake([x1, y1], [x2, y2]) {
+    if (this.subTurn == 2)
+      // Only self captures on this subturn:
+      return this.getColor(x1, y1) == this.getColor(x2, y2);
+    return super.canTake([x1, y1], [x2, y2]);
+  }
+
   // Is piece on square (x,y) immobilized?
   isImmobilized([x, y]) {
     const color = this.getColor(x, y);
@@ -295,14 +302,6 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         return moves;
       }
     }
-    if (this.subTurn == 2) {
-      // Temporarily change pushed piece color.
-      // (Not using getPiece() because of lancers)
-      var oppCol = this.getColor(x, y);
-      var color = V.GetOppCol(oppCol);
-      var saveXYstate = this.board[x][y];
-      this.board[x][y] = color + this.board[x][y].charAt(1);
-    }
     let moves = [];
     switch (this.getPiece(x, y)) {
       case V.JAILER:
@@ -330,16 +329,12 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         }
         return true;
       });
-    }
-    else if (this.subTurn == 2) {
-      // Don't forget to re-add the sentry on the board:
-      // Also fix color of pushed piece afterward:
+    } else if (this.subTurn == 2) {
+      // Put back the sentinel on board:
+      const color = this.turn;
       moves.forEach(m => {
-        m.appear.unshift({x: x, y: y, p: V.SENTRY, c: color});
-        m.appear[1].c = oppCol;
-        m.vanish[0].c = oppCol;
+        m.appear.push({x: x, y: y, p: V.SENTRY, c: color});
       });
-      this.board[x][y] = saveXYstate;
     }
     return moves;
   }
@@ -348,9 +343,13 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     const color = this.getColor(x, y);
     let moves = [];
     const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
+    let shiftX = color == "w" ? -1 : 1;
+    if (this.subTurn == 2) shiftX *= -1;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
+
+    // Pawns might be pushed on 1st rank and attempt to move again:
+    if (!V.OnBoard(x + shiftX, y)) return [];
 
     const finalPieces =
       // No promotions after pushes!
@@ -421,7 +420,12 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   getPotentialLancerMoves_aux([x, y], step, tr) {
     let moves = [];
     // Add all moves to vacant squares until opponent is met:
-    const oppCol = V.GetOppCol(this.getColor(x, y));
+    const color = this.getColor(x, y);
+    const oppCol =
+      this.subTurn == 1
+        ? V.GetOppCol(color)
+        // at subTurn == 2, consider own pieces as opponent
+        : color;
     let sq = [x + step[0], y + step[1]];
     while (V.OnBoard(sq[0], sq[1]) && this.getColor(sq[0], sq[1]) != oppCol) {
       if (this.board[sq[0]][sq[1]] == V.EMPTY)
@@ -451,7 +455,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         // do not change direction after moving, *except* if I keep the
         // same orientation in which I was pushed.
         const color = this.getColor(x, y);
-        const curDir = V.LANCER_DIRS[this.board[x][x].charAt(1)];
+        const curDir = V.LANCER_DIRS[this.board[x][y].charAt(1)];
         Object.values(V.LANCER_DIRS).forEach(step => {
           const dirCode = Object.keys(V.LANCER_DIRS).find(k => {
             return (
@@ -529,29 +533,13 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         m.vanish.pop();
       }
     });
-    // Can the pushed unit make any move? ...resulting in a non-self-check?
     const color = this.getColor(x, y);
     const fMoves = moves.filter(m => {
-      // Sentry push?
+      // Can the pushed unit make any move? ...resulting in a non-self-check?
       if (m.appear.length == 0) {
         let res = false;
         this.play(m);
-        let potentialMoves = this.getPotentialMovesFrom([m.end.x, m.end.y]);
-        // Add nudges (if any a priori possible)
-        for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
-          if (
-            V.OnBoard(m.end.x + step[0], m.end.y + step[1]) &&
-            this.board[m.end.x + step[0]][m.end.y + step[1]] == V.EMPTY
-          ) {
-            potentialMoves.push(
-              this.getBasicMove(
-                [m.end.x, m.end.y],
-                [m.end.x + step[0], m.end.y + step[1]]
-              )
-            );
-          }
-        }
-        let moves2 = this.filterValid(potentialMoves);
+        let moves2 = this.getPotentialMovesFrom([m.end.x, m.end.y]);
         for (let m2 of moves2) {
           this.play(m2);
           res = !this.underCheck(color);
@@ -571,6 +559,19 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       // Remove jailer captures
       return m.vanish[0].p != V.JAILER || m.vanish.length == 1;
     });
+  }
+
+  getPotentialKingMoves(sq) {
+    const moves = this.getSlideNJumpMoves(
+      sq,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+      "oneStep"
+    );
+    return (
+      this.subTurn == 1
+        ? moves.concat(this.getCastleMoves(sq))
+        : moves
+    );
   }
 
   // Adapted: castle with jailer possible
@@ -655,30 +656,40 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   filterValid(moves) {
+    if (moves.length == 0) return [];
+    const basicFilter = (m, c) => {
+      this.play(m);
+      const res = !this.underCheck(c);
+      this.undo(m);
+      return res;
+    };
     // Disable check tests for sentry pushes,
     // because in this case the move isn't finished
     let movesWithoutSentryPushes = [];
     let movesWithSentryPushes = [];
     moves.forEach(m => {
-      if (m.appear.length > 0) movesWithoutSentryPushes.push(m);
+      // Second condition below for special king "pass" moves
+      if (m.appear.length > 0 || m.vanish.length == 0)
+        movesWithoutSentryPushes.push(m);
       else movesWithSentryPushes.push(m);
     });
-
-    // TODO: if after move a sentry can take king in 2 times?!
-
-    const filteredMoves = super.filterValid(movesWithoutSentryPushes);
-    // If at least one full move made, everything is allowed:
-    if (this.movesCount >= 2)
-      return filteredMoves.concat(movesWithSentryPushes);
-    // Else, forbid checks and captures:
-    const oppCol = V.GetOppCol(this.turn);
-    return filteredMoves.filter(m => {
-      if (m.vanish.length == 2 && m.appear.length == 1) return false;
-      this.play(m);
-      const res = !this.underCheck(oppCol);
-      this.undo(m);
-      return res;
-    }).concat(movesWithSentryPushes);
+    const color = this.turn;
+    const oppCol = V.GetOppCol(color);
+    const filteredMoves =
+      movesWithoutSentryPushes.filter(m => basicFilter(m, color));
+    // If at least one full move made, everything is allowed.
+    // Else: forbid checks and captures.
+    return (
+      this.movesCount >= 2
+        ? filteredMoves
+        : filteredMoves.filter(m => {
+          return (
+            m.vanish.length <= 1 ||
+            m.appear.length != 1 ||
+            basicFilter(m, oppCol)
+          );
+        })
+    ).concat(movesWithSentryPushes);
   }
 
   getAllValidMoves() {
@@ -689,10 +700,10 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   prePlay(move) {
-    if (move.appear.length == 0 && move.vanish.length == 1) {
+    if (move.appear.length == 0 && move.vanish.length == 1)
       // The sentry is about to push a piece: subTurn goes from 1 to 2
       this.sentryPos = { x: move.end.x, y: move.end.y };
-    } else if (this.subTurn == 2 && move.vanish[0].p != V.PAWN) {
+    if (this.subTurn == 2 && move.vanish[0].p != V.PAWN) {
       // A piece is pushed: forbid array of squares between start and end
       // of move, included (except if it's a pawn)
       let squares = [];
@@ -708,7 +719,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         ];
         for (
           let sq = {x: move.start.x, y: move.start.y};
-          sq.x != move.end.x && sq.y != move.end.y;
+          sq.x != move.end.x || sq.y != move.end.y;
           sq.x += step[0], sq.y += step[1]
         ) {
           squares.push({ x: sq.x, y: sq.y });
@@ -721,9 +732,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   play(move) {
-//    if (!this.states) this.states = [];
-//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
-//    this.states.push(stateFen);
+    if (!this.states) this.states = [];
+    const stateFen = this.getFen();
+    this.states.push(stateFen);
 
     this.prePlay(move);
     move.flags = JSON.stringify(this.aggregateFlags());
@@ -742,10 +753,35 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   postPlay(move) {
-    if (move.vanish.length == 0)
-      // Special pass move of the king: nothing to update!
+    if (move.vanish.length == 0 || this.subTurn == 2)
+      // Special pass move of the king, or sentry pre-push: nothing to update
       return;
-    super.postPlay(move);
+    const c = move.vanish[0].c;
+    const piece = move.vanish[0].p;
+    const firstRank = c == "w" ? V.size.x - 1 : 0;
+
+    if (piece == V.KING) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      this.castleFlags[c] = [V.size.y, V.size.y];
+      return;
+    }
+    // Update castling flags if rooks are moved
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    if (
+      move.start.x == firstRank && //our rook moves?
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    } else if (
+      move.end.x == oppFirstRank && //we took opponent rook?
+      this.castleFlags[oppCol].includes(move.end.y)
+    ) {
+      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
+      this.castleFlags[oppCol][flagIdx] = V.size.y;
+    }
   }
 
   undo(move) {
@@ -761,9 +797,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     }
     this.postUndo(move);
 
-//    const stateFen = this.getBaseFen() + this.getTurnFen() + this.getFlagsFen();
-//    if (stateFen != this.states[this.states.length-1]) debugger;
-//    this.states.pop();
+    const stateFen = this.getFen();
+    if (stateFen != this.states[this.states.length-1]) debugger;
+    this.states.pop();
   }
 
   postUndo(move) {
@@ -777,6 +813,46 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       this.isAttackedByLancer(sq, colors) ||
       this.isAttackedBySentry(sq, colors)
     );
+  }
+
+  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        rx += step[0];
+        ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.getPiece(rx, ry) === piece &&
+        colors.includes(this.getColor(rx, ry)) &&
+        !this.isImmobilized([rx, ry])
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isAttackedByPawn([x, y], colors) {
+    for (let c of colors) {
+      const pawnShift = c == "w" ? 1 : -1;
+      if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
+        for (let i of [-1, 1]) {
+          if (
+            y + i >= 0 &&
+            y + i < V.size.y &&
+            this.getPiece(x + pawnShift, y + i) == V.PAWN &&
+            this.getColor(x + pawnShift, y + i) == c &&
+            !this.isImmobilized([x + pawnShift, y + i])
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   isAttackedByLancer([x, y], colors) {
@@ -793,8 +869,12 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
           colors.includes(this.getColor(coord.x, coord.y))
         )
       ) {
-        if (this.getPiece(coord.x, coord.y) == V.LANCER)
+        if (
+          this.getPiece(coord.x, coord.y) == V.LANCER &&
+          !this.isImmobilized([coord.x, coord.y])
+        ) {
           lancerPos.push({x: coord.x, y: coord.y});
+        }
         coord.x += step[0];
         coord.y += step[1];
       }
@@ -871,7 +951,8 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       for (let j=0; j<V.size.y; j++) {
         if (
           this.getPiece(i,j) == V.SENTRY &&
-          colors.includes(this.getColor(i,j))
+          colors.includes(this.getColor(i,j)) &&
+          !this.isImmobilized([i, j])
         ) {
           for (let step of V.steps[V.BISHOP]) {
             let sq = [ i + step[0], j + step[1] ];
@@ -962,11 +1043,19 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return (!choice.second ? choice : [choice, choice.second]);
   }
 
-  // TODO: if subTurn == 2, take some precautions, in particular pawn pushed on 1st rank.
-  // --> should indicate Sxb2,bxc1
   getNotation(move) {
     // Special case "king takes jailer" is a pass move
     if (move.appear.length == 0 && move.vanish.length == 0) return "pass";
+    if (this.subTurn == 2) {
+      // Do not consider appear[1] (sentry) for sentry pushes
+      const simpleMove = {
+        appear: [move.appear[0]],
+        vanish: move.vanish,
+        start: move.start,
+        end: move.end
+      };
+      return super.getNotation(simpleMove);
+    }
     return super.getNotation(move);
   }
 };

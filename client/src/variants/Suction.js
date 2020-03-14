@@ -6,9 +6,6 @@ export const VariantRules = class SuctionRules extends ChessRules {
   }
 
   setOtherVariables(fen) {
-
-console.log(fen);
-
     super.setOtherVariables(fen);
     // Local stack of "captures"
     this.cmoves = [];
