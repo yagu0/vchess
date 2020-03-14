@@ -683,11 +683,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       this.movesCount >= 2
         ? filteredMoves
         : filteredMoves.filter(m => {
-          return (
-            m.vanish.length <= 1 ||
-            m.appear.length != 1 ||
-            basicFilter(m, oppCol)
-          );
+          return (m.vanish.length <= 1 && basicFilter(m, oppCol));
         })
     ).concat(movesWithSentryPushes);
   }
