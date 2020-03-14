@@ -343,8 +343,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     const color = this.getColor(x, y);
     let moves = [];
     const [sizeX, sizeY] = [V.size.x, V.size.y];
-    let shiftX = color == "w" ? -1 : 1;
+    let shiftX = (color == "w" ? -1 : 1);
     if (this.subTurn == 2) shiftX *= -1;
+    const firstRank = color == "w" ? sizeX - 1 : 0;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
 
@@ -352,10 +353,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     if (!V.OnBoard(x + shiftX, y)) return [];
 
     const finalPieces =
-      // No promotions after pushes!
-      x + shiftX == lastRank && this.subTurn == 1
-        ?
-          Object.keys(V.LANCER_DIRS).concat(
+      // A push cannot put a pawn on last rank (it goes backward)
+      x + shiftX == lastRank
+        ? Object.keys(V.LANCER_DIRS).concat(
           [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER])
         : [V.PAWN];
     if (this.board[x + shiftX][y] == V.EMPTY) {
@@ -369,7 +369,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         );
       }
       if (
-        x == startRank &&
+        // 2-squares jumps forbidden if pawn push
+        this.subTurn == 1 &&
+        [startRank, firstRank].includes(x) &&
         this.board[x + 2 * shiftX][y] == V.EMPTY
       ) {
         // Two squares jump
@@ -395,10 +397,11 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       }
     }
 
-    // En passant:
+    // En passant: only on subTurn == 1
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1];
     if (
+      this.subTurn == 1 &&
       !!epSquare &&
       epSquare.x == x + shiftX &&
       Math.abs(epSquare.y - y) == 1
@@ -444,6 +447,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     // Add all lancer possible orientations, similar to pawn promotions.
     // Except if just after a push: allow all movements from init square then
     const L = this.sentryPush.length;
+    const color = this.getColor(x, y);
     if (!!this.sentryPush[L-1]) {
       // Maybe I was pushed
       const pl = this.sentryPush[L-1].length;
@@ -454,7 +458,6 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         // I was pushed: allow all directions (for this move only), but
         // do not change direction after moving, *except* if I keep the
         // same orientation in which I was pushed.
-        const color = this.getColor(x, y);
         const curDir = V.LANCER_DIRS[this.board[x][y].charAt(1)];
         Object.values(V.LANCER_DIRS).forEach(step => {
           const dirCode = Object.keys(V.LANCER_DIRS).find(k => {
@@ -507,10 +510,15 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
           V.OnBoard(x + step[0], y + step[1]) &&
           this.board[x + step[0]][y + step[1]] == V.EMPTY
         ) {
+          const newDirCode = Object.keys(V.LANCER_DIRS).find(k => {
+            const codeStep = V.LANCER_DIRS[k];
+            return (codeStep[0] == step[0] && codeStep[1] == step[1]);
+          });
           potentialNudges.push(
             this.getBasicMove(
               [x, y],
-              [x + step[0], y + step[1]]
+              [x + step[0], y + step[1]],
+              { c: color, p: newDirCode }
             )
           );
         }
@@ -728,9 +736,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   }
 
   play(move) {
-    if (!this.states) this.states = [];
-    const stateFen = this.getFen();
-    this.states.push(stateFen);
+//    if (!this.states) this.states = [];
+//    const stateFen = this.getFen();
+//    this.states.push(stateFen);
 
     this.prePlay(move);
     move.flags = JSON.stringify(this.aggregateFlags());
@@ -793,9 +801,9 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     }
     this.postUndo(move);
 
-    const stateFen = this.getFen();
-    if (stateFen != this.states[this.states.length-1]) debugger;
-    this.states.pop();
+//    const stateFen = this.getFen();
+//    if (stateFen != this.states[this.states.length-1]) debugger;
+//    this.states.pop();
   }
 
   postUndo(move) {
@@ -886,11 +894,18 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
   selfAttack([x1, y1], [x2, y2]) {
     const color = this.getColor(x1, y1);
     const sliderAttack = (allowedSteps, lancer) => {
-      const deltaX = x2 - x1;
-      const deltaY = y2 - y1;
-      const step = [ deltaX / Math.abs(deltaX), deltaY / Math.abs(deltaY) ];
-      if (allowedSteps.every(st => st[0] != step[0] || st[1] != step[1]))
+      const deltaX = x2 - x1,
+            absDeltaX = Math.abs(deltaX);
+      const deltaY = y2 - y1,
+            absDeltaY = Math.abs(deltaY);
+      const step = [ deltaX / absDeltaX, deltaY / absDeltaY ];
+      if (
+        // Check that the step is a priori valid:
+        (absDeltaX != absDeltaY && deltaX != 0 && deltaY != 0) ||
+        allowedSteps.every(st => st[0] != step[0] || st[1] != step[1])
+      ) {
         return false;
+      }
       let sq = [ x1 + step[0], y1 + step[1] ];
       while (sq[0] != x2 && sq[1] != y2) {
         if (
