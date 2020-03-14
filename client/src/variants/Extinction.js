@@ -93,8 +93,8 @@ export const VariantRules = class ExtinctionRules extends ChessRules {
     return [];
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     // Treat the promotion case: (not the capture part)
     if (move.appear[0].p != move.vanish[0].p) {
       this.material[move.appear[0].c][move.appear[0].p]++;
@@ -105,8 +105,8 @@ export const VariantRules = class ExtinctionRules extends ChessRules {
       this.material[move.vanish[1].c][move.vanish[1].p]--;
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     if (move.appear[0].p != move.vanish[0].p) {
       this.material[move.appear[0].c][move.appear[0].p]--;
       this.material[move.appear[0].c][V.PAWN]++;

@@ -5,7 +5,7 @@ import { randInt } from "@/utils/alea";
 export const VariantRules = class LosersRules extends ChessRules {
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
-    return moves.filter(m => m.vanish.length == 2);
+    return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
   }
 
 	// Stop at the first capture found (if any)

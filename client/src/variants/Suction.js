@@ -1,11 +1,18 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export const VariantRules = class SuctionRules extends ChessRules {
+  static get HasFlags() {
+    return false;
+  }
+
   setOtherVariables(fen) {
+
+console.log(fen);
+
     super.setOtherVariables(fen);
-    // Local stack of captures
+    // Local stack of "captures"
     this.cmoves = [];
-    const cmove = fen.split(" ")[5];
+    const cmove = V.ParseFen(fen).cmove;
     if (cmove == "-") this.cmoves.push(null);
     else {
       this.cmoves.push({
@@ -13,6 +20,12 @@ export const VariantRules = class SuctionRules extends ChessRules {
         end: ChessRules.SquareToCoords(cmove.substr(2))
       });
     }
+  }
+
+  static ParseFen(fen) {
+    return Object.assign({}, ChessRules.ParseFen(fen), {
+      cmove: fen.split(" ")[4]
+    });
   }
 
   static IsGoodFen(fen) {
@@ -171,27 +184,9 @@ export const VariantRules = class SuctionRules extends ChessRules {
     });
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
-    if (move.vanish.length == 2) {
-      // Was opponent king swapped?
-      if (move.vanish[1].p == V.KING)
-        this.kingPos[this.turn] = [move.appear[1].x, move.appear[1].y];
-    }
-  }
-
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
-    if (move.appear.length == 2) {
-      // Was opponent king swapped?
-      if (move.appear[1].p == V.KING)
-        this.kingPos[move.vanish[1].c] = [move.vanish[1].x,move.vanish[1].y];
-    }
-  }
-
   static GenRandInitFen(randomness) {
     // Add empty cmove:
-    return ChessRules.GenRandInitFen(randomness) + " -";
+    return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "- -";
   }
 
   getFen() {
@@ -203,14 +198,23 @@ export const VariantRules = class SuctionRules extends ChessRules {
     return super.getFen() + " " + cmoveFen;
   }
 
-  play(move) {
+  postPlay(move) {
+    super.postPlay(move);
+    if (move.vanish.length == 2) {
+      // Was opponent king swapped?
+      if (move.vanish[1].p == V.KING)
+        this.kingPos[this.turn] = [move.appear[1].x, move.appear[1].y];
+    }
     this.cmoves.push(this.getCmove(move));
-    super.play(move);
   }
 
-  undo(move) {
+  postUndo(move) {
+    super.postUndo(move);
+    if (move.appear.length == 2) {
+      if (move.appear[1].p == V.KING)
+        this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
+    }
     this.cmoves.pop();
-    super.undo(move);
   }
 
   atLeastOneMove() {

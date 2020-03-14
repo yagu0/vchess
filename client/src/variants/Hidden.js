@@ -74,7 +74,7 @@ export const VariantRules = class HiddenRules extends ChessRules {
   }
 
   // Scan board for kings positions (no castling)
-  scanKingsRooks(fen) {
+  scanKings(fen) {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     for (let i = 0; i < fenRows.length; i++) {
@@ -225,8 +225,8 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return [];
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (
       move.vanish.length >= 2 &&
       [V.KING,V.HIDDEN_CODE[V.KING]].includes(move.vanish[1].p)
@@ -236,8 +236,8 @@ export const VariantRules = class HiddenRules extends ChessRules {
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     const c = move.vanish[0].c;
     const oppCol = V.GetOppCol(c);
     if (this.kingPos[oppCol][0] < 0)

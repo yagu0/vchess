@@ -80,8 +80,8 @@ export const VariantRules = class AtomicRules extends ChessRules {
     );
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.appear.length == 0) {
       // Capture
       const firstRank = { w: 7, b: 0 };
@@ -92,29 +92,25 @@ export const VariantRules = class AtomicRules extends ChessRules {
           Math.abs(this.kingPos[c][1] - move.end.y) <= 1
         ) {
           this.kingPos[c] = [-1, -1];
-          this.castleFlags[c] = [false, false];
+          this.castleFlags[c] = [8, 8];
         } else {
           // Now check if init rook(s) exploded
           if (Math.abs(move.end.x - firstRank[c]) <= 1) {
-            if (Math.abs(move.end.y - this.INIT_COL_ROOK[c][0]) <= 1)
-              this.castleFlags[c][0] = false;
-            if (Math.abs(move.end.y - this.INIT_COL_ROOK[c][1]) <= 1)
-              this.castleFlags[c][1] = false;
+            if (Math.abs(move.end.y - this.castleFlags[c][0]) <= 1)
+              this.castleFlags[c][0] = 8;
+            if (Math.abs(move.end.y - this.castleFlags[c][1]) <= 1)
+              this.castleFlags[c][1] = 8;
           }
         }
       }
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
-    const c = move.vanish[0].c;
+  postUndo(move) {
+    super.postUndo(move);
+    const c = this.turn;
     const oppCol = V.GetOppCol(c);
-    if (
-      [this.kingPos[c][0], this.kingPos[oppCol][0]].some(e => {
-        return e < 0;
-      })
-    ) {
+    if ([this.kingPos[c][0], this.kingPos[oppCol][0]].some(e => e < 0)) {
       // There is a chance that last move blowed some king away..
       for (let psq of move.vanish) {
         if (psq.p == "k")

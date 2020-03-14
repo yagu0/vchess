@@ -111,8 +111,8 @@ export const VariantRules = class AntikingRules extends ChessRules {
     return res;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     const piece = move.vanish[0].p;
     const c = move.vanish[0].c;
     // Update antiking position
@@ -122,8 +122,8 @@ export const VariantRules = class AntikingRules extends ChessRules {
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     const c = move.vanish[0].c;
     if (move.vanish[0].p == V.ANTIKING)
       this.antikingPos[c] = [move.start.x, move.start.y];
@@ -153,14 +153,16 @@ export const VariantRules = class AntikingRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR w 0 1111 -";
+      return "rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
+    let flags = "";
     let antikingPos = { w: -1, b: -1 };
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
         antikingPos['b'] = antikingPos['w'];
+        flags += flags;
         break;
       }
 
@@ -201,6 +203,7 @@ export const VariantRules = class AntikingRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
+      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
     }
     const ranks23_black =
       "pppppppp/" +
@@ -220,7 +223,7 @@ export const VariantRules = class AntikingRules extends ChessRules {
       ranks23_white +
       "/" +
       pieces["w"].join("").toUpperCase() +
-      " w 0 1111 -"
+      " w 0 " + flags + " -"
     );
   }
 

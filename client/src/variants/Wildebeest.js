@@ -247,12 +247,14 @@ export const VariantRules = class WildebeestRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (!randomness) randomness = 2;
     if (randomness == 0)
-      return "rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w 0 1111 -";
+      return "rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w 0 akak -";
 
     let pieces = { w: new Array(10), b: new Array(10) };
+    let flags = "";
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
+        flags += flags;
         break;
       }
 
@@ -308,12 +310,13 @@ export const VariantRules = class WildebeestRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
+      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
     }
     return (
       pieces["b"].join("") +
       "/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
-      " w 0 1111 -"
+      " w 0 " + flags + " -"
     );
   }
 };

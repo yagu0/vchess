@@ -191,7 +191,8 @@ export default {
         this.moves.unshift({
           notation: "...",
           start: { x: -1, y: -1 },
-          end: { x: -1, y: -1 }
+          end: { x: -1, y: -1 },
+          fen: game.fenStart
         });
       }
       this.positionCursorTo(this.moves.length - 1);
@@ -207,9 +208,7 @@ export default {
         } else {
           this.lastMove = this.moves[index];
         }
-      }
-      else
-        this.lastMove = null;
+      } else this.lastMove = null;
     },
     analyzePosition: function() {
       let newUrl =
@@ -310,7 +309,6 @@ export default {
       const playSubmove = (smove) => {
         if (!navigate) smove.notation = this.vr.getNotation(smove);
         this.vr.play(smove);
-        this.lastMove = smove;
         // Is opponent in check?
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
         if (!navigate) {
@@ -355,11 +353,11 @@ export default {
       const afterMove = (smove, initurn) => {
         if (this.vr.turn != initurn) {
           // Turn has changed: move is complete
-          if (!smove.fen) {
+          if (!smove.fen)
             // NOTE: only FEN of last sub-move is required (thus setting it here)
             smove.fen = this.vr.getFen();
-            this.emitFenIfAnalyze();
-          }
+          this.lastMove = smove;
+          this.emitFenIfAnalyze();
           this.inMultimove = false;
           if (!noemit) {
             var score = this.vr.getCurrentScore();
@@ -437,7 +435,11 @@ export default {
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
       } else {
         if (!move) {
-          if (this.cursor < 0) return; //no more moves
+          const minCursor =
+            this.moves.length > 0 && this.moves[0].notation == "..."
+              ? 1
+              : 0;
+          if (this.cursor < minCursor) return; //no more moves
           move = this.moves[this.cursor];
         }
         // Caution; if multi-move, undo all submoves from last to first
@@ -469,15 +471,13 @@ export default {
     },
     gotoBegin: function() {
       if (this.inMultimove) this.cancelCurrentMultimove();
-      while (this.cursor >= 0)
-        this.undo(null, null, "light");
-      if (this.moves.length > 0 && this.moves[0].notation == "...") {
-        this.cursor = 0;
-        this.lastMove = this.moves[0];
-      } else {
-        this.lastMove = null;
-      }
-      this.incheck = [];
+      const minCursor =
+        this.moves.length > 0 && this.moves[0].notation == "..."
+          ? 1
+          : 0;
+      while (this.cursor >= minCursor) this.undo(null, null, "light");
+      this.lastMove = (minCursor == 1 ? this.moves[0] : null);
+      this.incheck = this.vr.getCheckSquares(this.vr.turn);
       this.emitFenIfAnalyze();
     },
     gotoEnd: function() {

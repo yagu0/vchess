@@ -25,6 +25,7 @@ export default {
       selectedPiece: null, //moving piece (or clicked piece)
       start: null, //pixels coordinates + id of starting square (click or drag)
       click: "",
+      clickTime: 0,
       settings: store.state.settings
     };
   },
@@ -112,7 +113,12 @@ export default {
                   attrs: {
                     src:
                       "/images/pieces/" +
-                      this.vr.getPpath(this.vr.board[ci][cj], this.userColor, this.score) +
+                      this.vr.getPpath(
+                        this.vr.board[ci][cj],
+                        // Extra args useful for some variants:
+                        this.userColor,
+                        this.score,
+                        this.orientation) +
                       ".svg"
                   }
                 })
@@ -298,6 +304,9 @@ export default {
           // A "choice" is a move
           const applyMove = (e) => {
             e.stopPropagation();
+            // Force a delay between move is shown and clicked
+            // (otherwise a "double-click" bug might occur)
+            if (Date.now() - this.clickTime < 200) return;
             this.play(m);
             this.choices = [];
           };
@@ -322,7 +331,10 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    this.vr.getPpath(m.appear[0].c + m.appear[0].p) +
+                    this.vr.getPPpath(
+                      m.appear[0].c + m.appear[0].p,
+                      // Extra arg useful for some variants:
+                      this.orientation) +
                     ".svg"
                 },
                 class: { "choice-piece": true },
@@ -441,8 +453,10 @@ export default {
       let endSquare = getSquareFromId(landing.id);
       let moves = this.findMatchingMoves(endSquare);
       this.possibleMoves = [];
-      if (moves.length > 1) this.choices = moves;
-      else if (moves.length == 1) this.play(moves[0]);
+      if (moves.length > 1) {
+        this.clickTime = Date.now();
+        this.choices = moves;
+      } else if (moves.length == 1) this.play(moves[0]);
       // else: forbidden move attempt
     },
     findMatchingMoves: function(endSquare) {

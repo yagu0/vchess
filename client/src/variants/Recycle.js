@@ -223,31 +223,23 @@ export const VariantRules = class RecycleRules extends ChessRules {
     return this.getPiece(x2, y2) != V.KING;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
-    const color = V.GetOppCol(this.turn);
-    if (move.vanish.length == 0) {
-      this.reserve[color][move.appear[0].p]--;
-      return;
-    }
-    else if (move.vanish.length == 2 && move.vanish[1].c == color) {
+    const color = move.appear[0].c;
+    if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]--;
+    else if (move.vanish.length == 2 && move.vanish[1].c == color)
       // Self-capture
       this.reserve[color][move.vanish[1].p]++;
-    }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = this.turn;
-    if (move.vanish.length == 0) {
-      this.reserve[color][move.appear[0].p]++;
-      return;
-    }
-    else if (move.vanish.length == 2 && move.vanish[1].c == color) {
+    if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]++;
+    else if (move.vanish.length == 2 && move.vanish[1].c == color)
       this.reserve[color][move.vanish[1].p]--;
-    }
   }
 
   static get SEARCH_DEPTH() {

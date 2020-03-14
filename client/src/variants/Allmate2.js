@@ -11,7 +11,7 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).replace(/ -$/, "");
+    return ChessRules.GenRandInitFen(randomness).slice(0, -2);
   }
 
   getPotentialMovesFrom([x, y]) {
@@ -38,7 +38,7 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
       }
 
       // 2) Among attacked pieces, which cannot escape capture?
-      // --> without (normal-)capturing: difference with Allmate variant
+      // --> without (normal-)capturing: difference with Allmate1 variant
       // Avoid "oppMoves = this.getAllValidMoves();" => infinite recursion
       outerLoop: for (let i=0; i<V.size.x; i++) {
         for (let j=0; j<V.size.y; j++) {
@@ -122,7 +122,7 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
       castleSide < 2;
       castleSide++ //large, then small
     ) {
-      if (!this.castleFlags[c][castleSide]) continue;
+      if (this.castleFlags[c][castleSide] >= 8) continue;
       // If this code is reached, rooks and king are on initial position
 
       // Nothing on the path of the king ? (and no checks)
@@ -141,10 +141,10 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
 
       // Nothing on the path to the rook?
       step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step) {
+      const rookPos = this.castleFlags[c][castleSide];
+      for (i = y + step; i != rookPos; i += step) {
         if (this.board[x][i] != V.EMPTY) continue castlingCheck;
       }
-      const rookPos = this.INIT_COL_ROOK[c][castleSide];
 
       // Nothing on final squares, except maybe king and castling rook?
       for (i = 0; i < 2; i++) {
@@ -242,34 +242,32 @@ export const VariantRules = class Allmate2Rules extends ChessRules {
     });
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
-    const color = V.GetOppCol(this.turn);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length >= 2 && move.appear.length == 1) {
-      move.vanish.forEach(v => {
-        if (v.c == color)
-          return;
+      for (let i = 1; i<move.vanish.length; i++) {
+        const v = move.vanish[i];
         // Did opponent king disappeared?
         if (v.p == V.KING)
           this.kingPos[this.turn] = [-1, -1];
         // Or maybe a rook?
         else if (v.p == V.ROOK) {
           if (v.y < this.INIT_COL_KING[v.c])
-            this.castleFlags[v.c][0] = false;
+            this.castleFlags[v.c][0] = 8;
           else
             // v.y > this.INIT_COL_KING[v.c]
-            this.castleFlags[v.c][1] = false;
+            this.castleFlags[v.c][1] = 8;
         }
-      });
+      }
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
-    const color = this.turn;
+  preUndo(move) {
+    super.preUndo(move);
+    const oppCol = this.turn;
     if (move.vanish.length >= 2 && move.appear.length == 1) {
       // Did opponent king disappeared?
-      const psq = move.vanish.find(v => v.p == V.KING && v.c != color)
+      const psq = move.vanish.find(v => v.p == V.KING && v.c == oppCol)
       if (psq)
         this.kingPos[psq.c] = [psq.x, psq.y];
     }

@@ -243,22 +243,23 @@ export const VariantRules = class AliceRules extends ChessRules {
     return res;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move); //standard king
+  postPlay(move) {
+    super.postPlay(move); //standard king
     const piece = move.vanish[0].p;
     const c = move.vanish[0].c;
     // "l" = Alice king
     if (piece == "l") {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
-      this.castleFlags[c] = [false, false];
+      this.castleFlags[c] = [8, 8];
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     const c = move.vanish[0].c;
-    if (move.vanish[0].p == "l") this.kingPos[c] = [move.start.x, move.start.y];
+    if (move.vanish[0].p == "l")
+      this.kingPos[c] = [move.start.x, move.start.y];
   }
 
   getCurrentScore() {

@@ -32,8 +32,8 @@ export const VariantRules = class ThreechecksRules extends ChessRules {
     return b;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     // Does this move give check?
     const oppCol = this.turn;
     if (this.underCheck(oppCol))
@@ -48,16 +48,14 @@ export const VariantRules = class ThreechecksRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness)
-      // Add check flags (at 0)
-      .replace(" w 0 1111", " w 0 111100");
+    // Add check flags (at 0)
+    return ChessRules.GenRandInitFen(randomness).slice(0, -2) + "00";
   }
 
   getFlagsFen() {
     let fen = super.getFlagsFen();
     // Add check flags
-    for (let c of ["w", "b"])
-      fen += this.checkFlags[c];
+    for (let c of ["w", "b"]) fen += this.checkFlags[c];
     return fen;
   }
 

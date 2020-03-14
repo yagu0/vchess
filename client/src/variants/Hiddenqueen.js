@@ -42,36 +42,30 @@ export const VariantRules = class HiddenqueenRules extends ChessRules {
     const color = move.vanish[0].c;
     const pawnShift = color == "w" ? -1 : 1;
     const startRank = color == "w" ? V.size.x - 2 : 1;
-    const lastRank = color == "w" ? 0 : V.size.x - 1;
     return (
-      // The queen is discovered if she reaches the 8th rank,
-      // even if this would be a technically valid pawn move.
-      move.end.x != lastRank &&
       (
+        move.end.x - move.start.x == pawnShift &&
         (
-          move.end.x - move.start.x == pawnShift &&
           (
-            (
-              // Normal move
-              move.end.y == move.start.y &&
-              this.board[move.end.x][move.end.y] == V.EMPTY
-            )
-            ||
-            (
-              // Capture
-              Math.abs(move.end.y - move.start.y) == 1 &&
-              this.board[move.end.x][move.end.y] != V.EMPTY
-            )
+            // Normal move
+            move.end.y == move.start.y &&
+            this.board[move.end.x][move.end.y] == V.EMPTY
+          )
+          ||
+          (
+            // Capture
+            Math.abs(move.end.y - move.start.y) == 1 &&
+            this.board[move.end.x][move.end.y] != V.EMPTY
           )
         )
-        ||
-        (
-          // Two-spaces initial jump
-          move.start.x == startRank &&
-          move.end.y == move.start.y &&
-          move.end.x - move.start.x == 2 * pawnShift &&
-          this.board[move.end.x][move.end.y] == V.EMPTY
-        )
+      )
+      ||
+      (
+        // Two-spaces initial jump
+        move.start.x == startRank &&
+        move.end.y == move.start.y &&
+        move.end.x - move.start.x == 2 * pawnShift &&
+        this.board[move.end.x][move.end.y] == V.EMPTY
       )
     );
   }
@@ -109,7 +103,7 @@ export const VariantRules = class HiddenqueenRules extends ChessRules {
         ? piece == V.PAWN
           ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
           : [V.QUEEN] //hidden queen revealed
-        : piece;
+        : [piece]; //V.PAWN
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward
       for (let p of finalPieces) {
@@ -147,24 +141,22 @@ export const VariantRules = class HiddenqueenRules extends ChessRules {
       }
     }
 
-    if (V.HasEnpassant) {
-      // En passant
-      const Lep = this.epSquares.length;
-      const epSquare = this.epSquares[Lep - 1]; //always at least one element
-      if (
-        !!epSquare &&
-        epSquare.x == x + shiftX &&
-        Math.abs(epSquare.y - y) == 1
-      ) {
-        let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-        enpassantMove.vanish.push({
-          x: x,
-          y: epSquare.y,
-          p: "p",
-          c: this.getColor(x, epSquare.y)
-        });
-        moves.push(enpassantMove);
-      }
+    // En passant
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: "p",
+        c: this.getColor(x, epSquare.y)
+      });
+      moves.push(enpassantMove);
     }
 
     return moves;
@@ -189,19 +181,18 @@ export const VariantRules = class HiddenqueenRules extends ChessRules {
     return fen;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       // We took opponent king
       this.kingPos[this.turn] = [-1, -1];
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
-    const c = move.vanish[0].c;
-    const oppCol = V.GetOppCol(c);
+  preUndo(move) {
+    super.preUndo(move);
+    const oppCol = this.turn;
     if (this.kingPos[oppCol][0] < 0)
-      // Last move took opponent's king:
+      // Move takes opponent's king:
       this.kingPos[oppCol] = [move.vanish[1].x, move.vanish[1].y];
   }
 

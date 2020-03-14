@@ -37,6 +37,11 @@ export const ChessRules = class ChessRules {
     return true;
   }
 
+  // Or castle
+  static get HasCastle() {
+    return V.HasFlags;
+  }
+
   // Some variants don't have en-passant
   static get HasEnpassant() {
     return true;
@@ -134,7 +139,8 @@ export const ChessRules = class ChessRules {
 
   // For FEN checking
   static IsGoodFlags(flags) {
-    return !!flags.match(/^[01]{4,4}$/);
+    // NOTE: a little too permissive to work with more variants
+    return !!flags.match(/^[a-z]{4,4}$/);
   }
 
   static IsGoodEnpassant(enpassant) {
@@ -173,6 +179,11 @@ export const ChessRules = class ChessRules {
   // Path to pieces
   getPpath(b) {
     return b; //usual pieces in pieces/ folder
+  }
+
+  // Path to promotion pieces (usually the same)
+  getPPpath(b) {
+    return this.getPpath(b);
   }
 
   // Aggregates flags into one object
@@ -239,13 +250,15 @@ export const ChessRules = class ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0)
       // Deterministic:
-      return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 1111 -";
+      return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
+    let flags = "";
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
+        flags += flags;
         break;
       }
 
@@ -289,13 +302,14 @@ export const ChessRules = class ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
+      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
     }
     // Add turn + flags + enpassant
     return (
       pieces["b"].join("") +
       "/pppppppp/8/8/8/8/PPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
-      " w 0 1111 -"
+      " w 0 " + flags + " -"
     );
   }
 
@@ -366,10 +380,9 @@ export const ChessRules = class ChessRules {
   // Flags part of the FEN string
   getFlagsFen() {
     let flags = "";
-    // Add castling flags
-    for (let i of ["w", "b"]) {
-      for (let j = 0; j < 2; j++) flags += this.castleFlags[i][j] ? "1" : "0";
-    }
+    // Castling flags
+    for (let c of ["w", "b"])
+      flags += this.castleFlags[c].map(V.CoordToColumn).join("");
     return flags;
   }
 
@@ -402,8 +415,10 @@ export const ChessRules = class ChessRules {
   setFlags(fenflags) {
     // white a-castle, h-castle, black a-castle, h-castle
     this.castleFlags = { w: [true, true], b: [true, true] };
-    for (let i = 0; i < 4; i++)
-      this.castleFlags[i < 2 ? "w" : "b"][i % 2] = fenflags.charAt(i) == "1";
+    for (let i = 0; i < 4; i++) {
+      this.castleFlags[i < 2 ? "w" : "b"][i % 2] =
+        V.ColumnToCoord(fenflags.charAt(i));
+    }
   }
 
   //////////////////
@@ -422,10 +437,9 @@ export const ChessRules = class ChessRules {
     this.setOtherVariables(fen);
   }
 
-  // Scan board for kings and rooks positions
-  scanKingsRooks(fen) {
+  // Scan board for kings positions
+  scanKings(fen) {
     this.INIT_COL_KING = { w: -1, b: -1 };
-    this.INIT_COL_ROOK = { w: [-1, -1], b: [-1, -1] };
     this.kingPos = { w: [-1, -1], b: [-1, -1] }; //squares of white and black king
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
@@ -440,18 +454,6 @@ export const ChessRules = class ChessRules {
           case "K":
             this.kingPos["w"] = [i, k];
             this.INIT_COL_KING["w"] = k;
-            break;
-          case "r":
-            if (i == startRow['b']) {
-              if (this.INIT_COL_ROOK["b"][0] < 0) this.INIT_COL_ROOK["b"][0] = k;
-              else this.INIT_COL_ROOK["b"][1] = k;
-            }
-            break;
-          case "R":
-            if (i == startRow['w']) {
-              if (this.INIT_COL_ROOK["w"][0] < 0) this.INIT_COL_ROOK["w"][0] = k;
-              else this.INIT_COL_ROOK["w"][1] = k;
-            }
             break;
           default: {
             const num = parseInt(fenRows[i].charAt(j));
@@ -475,8 +477,8 @@ export const ChessRules = class ChessRules {
           : undefined;
       this.epSquares = [epSq];
     }
-    // Search for king and rooks positions:
-    this.scanKingsRooks(fen);
+    // Search for kings positions:
+    this.scanKings(fen);
   }
 
   /////////////////////
@@ -741,7 +743,7 @@ export const ChessRules = class ChessRules {
   // What are the king moves from square x,y ?
   getPotentialKingMoves(sq) {
     // Initialize with normal moves
-    let moves = this.getSlideNJumpMoves(
+    const moves = this.getSlideNJumpMoves(
       sq,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
@@ -768,7 +770,7 @@ export const ChessRules = class ChessRules {
       castleSide < 2;
       castleSide++ //large, then small
     ) {
-      if (!this.castleFlags[c][castleSide]) continue;
+      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
       // If this code is reached, rooks and king are on initial position
 
       // Nothing on the path of the king ? (and no checks)
@@ -790,10 +792,10 @@ export const ChessRules = class ChessRules {
 
       // Nothing on the path to the rook?
       step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step) {
+      const rookPos = this.castleFlags[c][castleSide];
+      for (i = y + step; i != rookPos; i += step) {
         if (this.board[x][i] != V.EMPTY) continue castlingCheck;
       }
-      const rookPos = this.INIT_COL_ROOK[c][castleSide];
 
       // Nothing on final squares, except maybe king and castling rook?
       for (i = 0; i < 2; i++) {
@@ -998,62 +1000,7 @@ export const ChessRules = class ChessRules {
     for (let psq of move.vanish) board[psq.x][psq.y] = psq.c + psq.p;
   }
 
-  // After move is played, update variables + flags
-  updateVariables(move) {
-    let piece = undefined;
-    // TODO: update variables before move is played, and just use this.turn?
-    // (doesn't work in general, think MarseilleChess)
-    let c = undefined;
-    if (move.vanish.length >= 1) {
-      // Usual case, something is moved
-      piece = move.vanish[0].p;
-      c = move.vanish[0].c;
-    } else {
-      // Crazyhouse-like variants
-      piece = move.appear[0].p;
-      c = move.appear[0].c;
-    }
-    if (!['w','b'].includes(c)) {
-      // Checkered, for example
-      c = V.GetOppCol(this.turn);
-    }
-    const firstRank = c == "w" ? V.size.x - 1 : 0;
-
-    // Update king position + flags
-    if (piece == V.KING && move.appear.length > 0) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-      if (V.HasFlags) this.castleFlags[c] = [false, false];
-      return;
-    }
-    if (V.HasFlags) {
-      // Update castling flags if rooks are moved
-      const oppCol = V.GetOppCol(c);
-      const oppFirstRank = V.size.x - 1 - firstRank;
-      if (
-        move.start.x == firstRank && //our rook moves?
-        this.INIT_COL_ROOK[c].includes(move.start.y)
-      ) {
-        const flagIdx = (move.start.y == this.INIT_COL_ROOK[c][0] ? 0 : 1);
-        this.castleFlags[c][flagIdx] = false;
-      } else if (
-        move.end.x == oppFirstRank && //we took opponent rook?
-        this.INIT_COL_ROOK[oppCol].includes(move.end.y)
-      ) {
-        const flagIdx = (move.end.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1);
-        this.castleFlags[oppCol][flagIdx] = false;
-      }
-    }
-  }
-
-  // After move is undo-ed *and flags resetted*, un-update other variables
-  // TODO: more symmetry, by storing flags increment in move (?!)
-  unupdateVariables(move) {
-    // (Potentially) Reset king position
-    const c = this.getColor(move.start.x, move.start.y);
-    if (this.getPiece(move.start.x, move.start.y) == V.KING)
-      this.kingPos[c] = [move.start.x, move.start.y];
-  }
+  prePlay() {}
 
   play(move) {
     // DEBUG:
@@ -1061,26 +1008,78 @@ export const ChessRules = class ChessRules {
 //    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
 //    this.states.push(stateFen);
 
+    this.prePlay(move);
     if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
     if (V.HasEnpassant) this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     this.turn = V.GetOppCol(this.turn);
     this.movesCount++;
-    this.updateVariables(move);
+    this.postPlay(move);
   }
 
+  // After move is played, update variables + flags
+  postPlay(move) {
+    const c = V.GetOppCol(this.turn);
+    let piece = undefined;
+    if (move.vanish.length >= 1)
+      // Usual case, something is moved
+      piece = move.vanish[0].p;
+    else
+      // Crazyhouse-like variants
+      piece = move.appear[0].p;
+    const firstRank = c == "w" ? V.size.x - 1 : 0;
+
+    // Update king position + flags
+    if (piece == V.KING && move.appear.length > 0) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      if (V.HasCastle) this.castleFlags[c] = [V.size.y, V.size.y];
+      return;
+    }
+    if (V.HasCastle) {
+      // Update castling flags if rooks are moved
+      const oppCol = V.GetOppCol(c);
+      const oppFirstRank = V.size.x - 1 - firstRank;
+      if (
+        move.start.x == firstRank && //our rook moves?
+        this.castleFlags[c].includes(move.start.y)
+      ) {
+        const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+        this.castleFlags[c][flagIdx] = V.size.y;
+      } else if (
+        move.end.x == oppFirstRank && //we took opponent rook?
+        this.castleFlags[oppCol].includes(move.end.y)
+      ) {
+        const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
+        this.castleFlags[oppCol][flagIdx] = V.size.y;
+      }
+    }
+  }
+
+  preUndo() {}
+
   undo(move) {
+    this.preUndo(move);
     if (V.HasEnpassant) this.epSquares.pop();
     if (V.HasFlags) this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     this.turn = V.GetOppCol(this.turn);
     this.movesCount--;
-    this.unupdateVariables(move);
+    this.postUndo(move);
 
     // DEBUG:
 //    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
 //    if (stateFen != this.states[this.states.length-1]) debugger;
 //    this.states.pop();
+  }
+
+  // After move is undo-ed *and flags resetted*, un-update other variables
+  // TODO: more symmetry, by storing flags increment in move (?!)
+  postUndo(move) {
+    // (Potentially) Reset king position
+    const c = this.getColor(move.start.x, move.start.y);
+    if (this.getPiece(move.start.x, move.start.y) == V.KING)
+      this.kingPos[c] = [move.start.x, move.start.y];
   }
 
   ///////////////

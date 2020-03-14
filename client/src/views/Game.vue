@@ -938,14 +938,9 @@ export default {
           if (game.score == "*") {
             // Set clocks + initime
             game.initime = [0, 0];
-            if (L >= 1) {
-              const gameLastupdate = game.moves[L-1].played;
-              game.initime[L % 2] = gameLastupdate;
-              if (L >= 2) {
-                game.clocks[L % 2] =
-                  tc.mainTime - (Date.now() - gameLastupdate) / 1000;
-              }
-            }
+            if (L >= 1) game.initime[L % 2] = game.moves[L-1].played;
+            // NOTE: game.clocks shouldn't be computed right now:
+            // job will be done in re_setClocks() called soon below.
           }
           // Sort chat messages from newest to oldest
           game.chats.sort((c1, c2) => {

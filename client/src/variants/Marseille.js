@@ -34,7 +34,7 @@ export const VariantRules = class MarseilleRules extends ChessRules {
       if (sq != "-") return V.SquareToCoords(sq);
       return undefined;
     })];
-    this.scanKingsRooks(fen);
+    this.scanKings(fen);
     // Extract subTurn from turn indicator: "w" (first move), or
     // "w1" or "w2" white subturn 1 or 2, and same for black
     const fullTurn = V.ParseFen(fen).turn;
@@ -158,7 +158,35 @@ export const VariantRules = class MarseilleRules extends ChessRules {
       }
       this.subTurn = 3 - this.subTurn;
     }
-    this.updateVariables(move);
+    this.postPlay(move);
+  }
+
+  postPlay(move) {
+    const c = move.turn.charAt(0);
+    const piece = move.vanish[0].p;
+    const firstRank = c == "w" ? V.size.x - 1 : 0;
+
+    if (piece == V.KING && move.appear.length > 0) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      if (V.HasCastle) this.castleFlags[c] = [V.size.y, V.size.y];
+      return;
+    }
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    if (
+      move.start.x == firstRank && //our rook moves?
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    } else if (
+      move.end.x == oppFirstRank && //we took opponent rook?
+      this.castleFlags[oppCol].includes(move.end.y)
+    ) {
+      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
+      this.castleFlags[oppCol][flagIdx] = V.size.y;
+    }
   }
 
   undo(move) {
@@ -176,7 +204,7 @@ export const VariantRules = class MarseilleRules extends ChessRules {
     }
     this.turn = move.turn[0];
     this.subTurn = parseInt(move.turn[1]);
-    this.unupdateVariables(move);
+    super.postUndo(move);
   }
 
   // NOTE:  GenRandInitFen() is OK,

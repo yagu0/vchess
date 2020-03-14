@@ -114,8 +114,10 @@ export const VariantRules = class SuicideRules extends ChessRules {
   }
 
   // No variables update because no royal king + no castling
-  updateVariables() {}
-  unupdateVariables() {}
+  prePlay() {}
+  postPlay() {}
+  preUndo() {}
+  postUndo() {}
 
   getCurrentScore() {
     if (this.atLeastOneMove()) return "*";

@@ -3,6 +3,10 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
 export const VariantRules = class CircularRules extends ChessRules {
+  static get HasCastle() {
+    return false;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -222,15 +226,11 @@ export const VariantRules = class CircularRules extends ChessRules {
     return flags;
   }
 
-  updateVariables(move) {
+  postPlay(move) {
+    super.postPlay(move);
     const c = move.vanish[0].c;
-    const secondRank = {"w":6, "b":2};
-    // Update king position + flags
-    if (move.vanish[0].p == V.KING && move.appear.length > 0) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-    }
-    else if (move.vanish[0].p == V.PAWN && secondRank[c] == move.start.x)
+    const secondRank = { "w": 6, "b": 2 };
+    if (move.vanish[0].p == V.PAWN && secondRank[c] == move.start.x)
       // This move turns off a 2-squares pawn flag
       this.pawnFlags[c][move.start.y] = false;
   }

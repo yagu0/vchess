@@ -145,34 +145,37 @@ export const VariantRules = class MagneticRules extends ChessRules {
     return [];
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     const c = move.vanish[0].c;
     if (move.vanish.length >= 2 && move.vanish[1].p == V.KING) {
       // We took opponent king !
       const oppCol = V.GetOppCol(c);
       this.kingPos[oppCol] = [-1, -1];
-      this.castleFlags[oppCol] = [false, false];
+      this.castleFlags[oppCol] = [8, 8];
     }
     // Did we magnetically move our (init) rooks or opponents' ones ?
     const firstRank = c == "w" ? 7 : 0;
     const oppFirstRank = 7 - firstRank;
     const oppCol = V.GetOppCol(c);
     move.vanish.forEach(psq => {
-      if (psq.x == firstRank && this.INIT_COL_ROOK[c].includes(psq.y))
-        this.castleFlags[c][psq.y == this.INIT_COL_ROOK[c][0] ? 0 : 1] = false;
+      if (
+        psq.x == firstRank &&
+        this.castleFlags[c].includes(psq.y)
+      ) {
+        this.castleFlags[c][psq.y == this.castleFlags[c][0] ? 0 : 1] = 8;
+      }
       else if (
         psq.x == oppFirstRank &&
-        this.INIT_COL_ROOK[oppCol].includes(psq.y)
-      )
-        this.castleFlags[oppCol][
-          psq.y == this.INIT_COL_ROOK[oppCol][0] ? 0 : 1
-        ] = false;
+        this.castleFlags[oppCol].includes(psq.y)
+      ) {
+        this.castleFlags[oppCol][psq.y == this.castleFlags[oppCol][0] ? 0 : 1] = 8;
+      }
     });
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     const c = move.vanish[0].c;
     const oppCol = V.GetOppCol(c);
     if (this.kingPos[oppCol][0] < 0) {

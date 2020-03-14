@@ -1,14 +1,12 @@
 import { ChessRules } from "@/base_rules";
 
 export const VariantRules = class ArenaRules extends ChessRules {
-  static get hasFlags() {
+  static get HasFlags() {
     return false;
   }
 
   static GenRandInitFen(randomness) {
-    return ChessRules
-      .GenRandInitFen(randomness)
-      .replace("w 0 1111 -", "w 0 -");
+    return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "-";
   }
 
   static InArena(x) {

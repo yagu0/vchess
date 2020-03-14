@@ -96,11 +96,10 @@ export default {
     },
     adjustFenSize: function() {
       let fenInput = document.getElementById("fen");
-      fenInput.style.width = this.curFen.length + "ch";
+      fenInput.style.width = (this.curFen.length+1) + "ch";
     },
     tryGotoFen: function() {
-      if (V.IsGoodFen(this.curFen))
-      {
+      if (V.IsGoodFen(this.curFen)) {
         this.gameRef.fen = this.curFen;
         this.loadGame();
       }

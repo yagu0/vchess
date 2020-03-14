@@ -139,7 +139,7 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     return ChessRules.GenRandInitFen(randomness)
-      .replace("w 0 1111 -", "w 0 1111")
+      .slice(0, -2)
       .replace(
         "/pppppppp/8/8/8/8/PPPPPPPP/",
         "/gggggggg/pppppppp/8/8/PPPPPPPP/GGGGGGGG/"

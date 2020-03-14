@@ -278,6 +278,10 @@ export const VariantRules = class WormholeRules extends ChessRules {
     return this.turn == "w" ? "0-1" : "1-0";
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   evalPosition() {
     let evaluation = 0;
     for (let i = 0; i < V.size.x; i++) {

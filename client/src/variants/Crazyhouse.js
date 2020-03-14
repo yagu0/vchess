@@ -200,8 +200,8 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     return true;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
     const color = move.appear[0].c;
     if (move.vanish.length == 0) {
@@ -218,8 +218,8 @@ export const VariantRules = class CrazyhouseRules extends ChessRules {
     else if (move.vanish.length == 2) this.reserve[color][move.vanish[1].p]++;
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = this.turn;
     if (move.vanish.length == 0) {

@@ -19,7 +19,8 @@ export const VariantRules = class ShatranjRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).replace("w 1111 -", "w");
+    // Remove castle flags and en-passant indication
+    return ChessRules.GenRandInitFen(randomness).slice(0, -7);
   }
 
   getPotentialPawnMoves([x, y]) {

@@ -289,8 +289,8 @@ export const VariantRules = class GrandRules extends ChessRules {
     );
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length == 2 && move.appear.length == 1) {
       // Capture: update this.captured
       this.captured[move.vanish[1].c][move.vanish[1].p]++;
@@ -301,8 +301,8 @@ export const VariantRules = class GrandRules extends ChessRules {
     }
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     if (move.vanish.length == 2 && move.appear.length == 1)
       this.captured[move.vanish[1].c][move.vanish[1].p]--;
     if (move.vanish[0].p != move.appear[0].p)
@@ -324,7 +324,7 @@ export const VariantRules = class GrandRules extends ChessRules {
     if (randomness == 0) {
       // No castling in the official initial setup
       return "r8r/1nbqkmcbn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKMCBN1/R8R " +
-        "w 0 0000 - 00000000000000";
+        "w 0 zzzz - 00000000000000";
     }
 
     let pieces = { w: new Array(10), b: new Array(10) };

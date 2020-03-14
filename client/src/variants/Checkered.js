@@ -44,7 +44,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     super.setOtherVariables(fen);
     // Local stack of non-capturing checkered moves:
     this.cmoves = [];
-    const cmove = fen.split(" ")[5];
+    const cmove = V.ParseFen(fen).cmove;
     if (cmove == "-") this.cmoves.push(null);
     else {
       this.cmoves.push({
@@ -65,7 +65,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
 
   static IsGoodFlags(flags) {
     // 4 for castle + 16 for pawns
-    return !!flags.match(/^[01]{20,20}$/);
+    return !!flags.match(/^[a-z]{4,4}[01]{16,16}$/);
   }
 
   setFlags(fenflags) {
@@ -74,7 +74,7 @@ export const VariantRules = class CheckeredRules extends ChessRules {
       w: [...Array(8).fill(true)], //pawns can move 2 squares?
       b: [...Array(8).fill(true)]
     };
-    const flags = fenflags.substr(4); //skip first 4 digits, for castle
+    const flags = fenflags.substr(4); //skip first 4 letters, for castle
     for (let c of ["w", "b"]) {
       for (let i = 0; i < 8; i++)
         this.pawnFlags[c][i] = flags.charAt((c == "w" ? 0 : 8) + i) == "1";
@@ -331,12 +331,17 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     return res;
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     // Does this move turn off a 2-squares pawn flag?
-    const secondRank = [1, 6];
-    if (secondRank.includes(move.start.x) && move.vanish[0].p == V.PAWN)
+    if ([1, 6].includes(move.start.x) && move.vanish[0].p == V.PAWN)
       this.pawnFlags[move.start.x == 6 ? "w" : "b"][move.start.y] = false;
+    this.cmoves.push(this.getCmove(move));
+  }
+
+  postUndo(move) {
+    super.postUndo(move);
+    this.cmoves.pop();
   }
 
   getCurrentScore() {
@@ -374,9 +379,9 @@ export const VariantRules = class CheckeredRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
+    // Add 16 pawns flags + empty cmove:
     return ChessRules.GenRandInitFen(randomness)
-      // Add 16 pawns flags + empty cmove:
-      .replace(" w 0 1111", " w 0 11111111111111111111 -");
+      .slice(0, -2) + "1111111111111111 - -";
   }
 
   static ParseFen(fen) {
@@ -401,17 +406,6 @@ export const VariantRules = class CheckeredRules extends ChessRules {
       for (let i = 0; i < 8; i++) fen += this.pawnFlags[c][i] ? "1" : "0";
     }
     return fen;
-  }
-
-  // TODO (design): this cmove update here or in (un)updateVariables ?
-  play(move) {
-    this.cmoves.push(this.getCmove(move));
-    super.play(move);
-  }
-
-  undo(move) {
-    this.cmoves.pop();
-    super.undo(move);
   }
 
   static get SEARCH_DEPTH() {

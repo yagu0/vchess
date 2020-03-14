@@ -103,8 +103,8 @@ export const VariantRules = class DarkRules extends ChessRules {
     return [];
   }
 
-  updateVariables(move) {
-    super.updateVariables(move);
+  postPlay(move) {
+    super.postPlay(move);
     if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
       // We took opponent king (because if castle vanish[1] is a rook)
       this.kingPos[this.turn] = [-1, -1];
@@ -113,8 +113,8 @@ export const VariantRules = class DarkRules extends ChessRules {
     this.updateEnlightened();
   }
 
-  unupdateVariables(move) {
-    super.unupdateVariables(move);
+  postUndo(move) {
+    super.postUndo(move);
     const c = move.vanish[0].c;
     const oppCol = V.GetOppCol(c);
     if (this.kingPos[oppCol][0] < 0)

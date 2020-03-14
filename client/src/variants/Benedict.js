@@ -152,10 +152,10 @@ export const VariantRules = class BenedictRules extends ChessRules {
       castleSide < 2;
       castleSide++ //large, then small
     ) {
-      if (!this.castleFlags[c][castleSide]) continue;
+      if (this.castleFlags[c][castleSide] >= 8) continue;
       // If this code is reached, rooks and king are on initial position
 
-      const rookPos = this.INIT_COL_ROOK[c][castleSide];
+      const rookPos = this.castleFlags[c][castleSide];
       if (this.getColor(x, rookPos) != c)
         // Rook is here but changed color
         continue;
@@ -176,7 +176,7 @@ export const VariantRules = class BenedictRules extends ChessRules {
 
       // Nothing on the path to the rook?
       step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != this.INIT_COL_ROOK[c][castleSide]; i += step) {
+      for (i = y + step; i != rookPos; i += step) {
         if (this.board[x][i] != V.EMPTY) continue castlingCheck;
       }
 
