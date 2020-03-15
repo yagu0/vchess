@@ -81,6 +81,12 @@ router.put('/update', access.logged, access.ajax, (req,res) => {
   }
 });
 
+// Special route to update newsRead timestamp:
+router.put('/newsread', access.logged, access.ajax, (req,res) => {
+  UserModel.setNewsRead(req.userId);
+  res.json({});
+});
+
 // Authentication-related methods:
 
 // to: object user (to who we send an email)

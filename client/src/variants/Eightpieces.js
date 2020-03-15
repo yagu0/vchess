@@ -290,12 +290,14 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
 
   getPotentialMovesFrom([x, y]) {
     // At subTurn == 2, jailers aren't effective (Jeff K)
+    const piece = this.getPiece(x, y);
+    const L = this.sentryPush.length;
     if (this.subTurn == 1) {
       const jsq = this.isImmobilized([x, y]);
       if (!!jsq) {
         let moves = [];
         // Special pass move if king:
-        if (this.getPiece(x, y) == V.KING) {
+        if (piece == V.KING) {
           moves.push(
             new Move({
               appear: [],
@@ -305,11 +307,26 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
             })
           );
         }
+        else if (piece == V.LANCER && !!this.sentryPush[L-1]) {
+          // A pushed lancer next to the jailer: reorient
+          const color = this.getColor(x, y);
+          const curDir = this.board[x][y].charAt(1);
+          Object.keys(V.LANCER_DIRS).forEach(k => {
+            moves.push(
+              new Move({
+                appear: [{ x: x, y: y, c: color, p: k }],
+                vanish: [{ x: x, y: y, c: color, p: curDir }],
+                start: { x: x, y: y },
+                end: { x: jsq[0], y: jsq[1] }
+              })
+            );
+          });
+        }
         return moves;
       }
     }
     let moves = [];
-    switch (this.getPiece(x, y)) {
+    switch (piece) {
       case V.JAILER:
         moves = this.getPotentialJailerMoves([x, y]);
         break;
@@ -323,12 +340,15 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         moves = super.getPotentialMovesFrom([x, y]);
         break;
     }
-    const L = this.sentryPush.length;
     if (!!this.sentryPush[L-1]) {
-      // Delete moves walking back on sentry push path
+      // Delete moves walking back on sentry push path,
+      // only if not a pawn, and the piece is the pushed one.
+      const pl = this.sentryPush[L-1].length;
+      const finalPushedSq = this.sentryPush[L-1][pl-1];
       moves = moves.filter(m => {
         if (
           m.vanish[0].p != V.PAWN &&
+          m.start.x == finalPushedSq.x && m.start.y == finalPushedSq.y &&
           this.sentryPush[L-1].some(sq => sq.x == m.end.x && sq.y == m.end.y)
         ) {
           return false;

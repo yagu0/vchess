@@ -13,6 +13,7 @@ function toQueryString(data) {
 // TODO: use this syntax https://stackoverflow.com/a/29823632 ?
 // data, success, error: optional
 export function ajax(url, method, options) {
+  options = options || {};
   const data = options.data || {};
   // By default, do nothing on success and print errors:
   if (!options.success)

@@ -75,6 +75,17 @@ const UserModel =
     });
   },
 
+  setNewsRead: function(uid)
+  {
+    db.serialize(function() {
+      const query =
+        "UPDATE Users " +
+        "SET newsRead = " + Date.now() + " " +
+        "WHERE id = " + uid;
+      db.run(query);
+    });
+  },
+
   // Set session token only if empty (first login)
   // NOTE: weaker security (but avoid to re-login everywhere after each logout)
   // TODO: option would be to reset all tokens periodically, e.g. every 3 months

@@ -34,10 +34,13 @@
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
+        router-link.menuitem#newsMenu(to="/news") {{ st.tr["News"] }}
+        a.menuitem(href="https://discord.gg/a9ZFKBe")
+          span Discord
+          img(src="/images/icons/discord.svg")
         a.menuitem(href="https://github.com/yagu0/vchess")
           span {{ st.tr["Code"] }}
           img(src="/images/icons/github.svg")
-        router-link.menuitem(to="/news") {{ st.tr["News"] }}
         p.clickable(onClick="window.doClick('modalContact')")
           | {{ st.tr["Contact"] }}
 </template>
@@ -47,6 +50,7 @@ import ContactForm from "@/components/ContactForm.vue";
 import Settings from "@/components/Settings.vue";
 import UpsertUser from "@/components/UpsertUser.vue";
 import { store } from "@/store.js";
+import { ajax } from "@/utils/ajax.js";
 export default {
   components: {
     ContactForm,
@@ -54,9 +58,19 @@ export default {
     UpsertUser
   },
   data: function() {
-    return {
-      st: store.state
-    };
+    return { st: store.state };
+  },
+  mounted: function() {
+    ajax(
+      "/newsts",
+      "GET",
+      {
+        success: (res) => {
+          if (this.st.user.newsRead < res.timestamp)
+            document.getElementById("newsMenu").classList.add("somenews");
+        }
+      }
+    );
   },
   methods: {
     hideDrawer: function(e) {
@@ -257,6 +271,15 @@ footer
 @media screen and (max-width: 767px)
   footer
     border: none
+
+@media screen and (max-width: 420px)
+  footer
+    display: block
+
+.menuitem.somenews
+  color: red
+  &:link, &:visited, &:hover
+    color: red
 
 // Styles for diagrams and board (partial).
 // TODO: where to put that ?

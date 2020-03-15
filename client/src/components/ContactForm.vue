@@ -10,9 +10,6 @@ div
   )
     .card
       label.modal-close(for="modalContact")
-      a#discordLink(href="https://discord.gg/a9ZFKBe")
-        span {{ st.tr["Discord invitation"] }}
-        img(src="/images/icons/discord.svg")
       fieldset
         label(for="userEmail") {{ st.tr["Email"] }}
         input#userEmail(type="email" :value="st.user.email")
@@ -100,15 +97,6 @@ export default {
 textarea#mailContent
   width: 100%
   min-height: 100px
-
-#discordLink
-  display: block
-  margin-top: 7px
-  text-align: center
-  & > img
-    height: 1.2em
-    display: inline-block
-    margin-left: 5px
 
 #dialog
   padding: 5px

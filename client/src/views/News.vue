@@ -70,6 +70,10 @@ export default {
     );
   },
   mounted: function() {
+    // Mark that I've read the news:
+    localStorage.setItem("newsRead", Date.now());
+    if (this.st.user.id > 0) ajax("/newsread", "PUT");
+    document.getElementById("newsMenu").classList.remove("somenews");
     document
       .getElementById("newnewsDiv")
       .addEventListener("click", processModalClick);

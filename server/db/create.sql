@@ -14,7 +14,8 @@ create table Users (
   loginTime datetime,
   sessionToken varchar,
   created datetime,
-  notify boolean
+  notify boolean,
+  newsRead datetime
 );
 
 create table Problems (

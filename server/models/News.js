@@ -38,6 +38,20 @@ const NewsModel =
     });
   },
 
+  getTimestamp: function(cb)
+  {
+    db.serialize(function() {
+      const query =
+        "SELECT added " +
+        "FROM News " +
+        "ORDER BY added DESC " +
+        "LIMIT 1";
+      db.get(query, (err,ts) => {
+        cb(err, ts);
+      });
+    });
+  },
+
   update: function(news)
   {
     db.serialize(function() {
