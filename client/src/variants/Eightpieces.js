@@ -924,7 +924,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
             absDeltaX = Math.abs(deltaX);
       const deltaY = y2 - y1,
             absDeltaY = Math.abs(deltaY);
-      const step = [ deltaX / absDeltaX, deltaY / absDeltaY ];
+      const step = [ deltaX / absDeltaX || 0, deltaY / absDeltaY || 0 ];
       if (
         // Check that the step is a priori valid:
         (absDeltaX != absDeltaY && deltaX != 0 && deltaY != 0) ||
