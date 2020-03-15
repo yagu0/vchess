@@ -225,27 +225,32 @@ export const VariantRules = class BenedictRules extends ChessRules {
       let newAppear = [];
       let newVanish = [];
       V.PlayOnBoard(this.board, m);
-      // If castling, m.appear has 2 elements:
-      m.appear.forEach(a => {
-        const flipped = this.findCaptures([a.x, a.y]);
-        flipped.forEach(sq => {
-          const piece = this.getPiece(sq[0],sq[1]);
-          const pipoA = new PiPo({
-            x:sq[0],
-            y:sq[1],
-            c:color,
-            p:piece
+      // If castling, m.appear has 2 elements.
+      // In this case, consider the attacks of moving units only.
+      // (Sometimes the king or rook doesn't move).
+      for (let i = 0; i < m.appear.length; i++) {
+        const a  = m.appear[i];
+        if (m.vanish[i].x != a.x || m.vanish[i].y != a.y) {
+          const flipped = this.findCaptures([a.x, a.y]);
+          flipped.forEach(sq => {
+            const piece = this.getPiece(sq[0],sq[1]);
+            const pipoA = new PiPo({
+              x:sq[0],
+              y:sq[1],
+              c:color,
+              p:piece
+            });
+            const pipoV = new PiPo({
+              x:sq[0],
+              y:sq[1],
+              c:oppCol,
+              p:piece
+            });
+            newAppear.push(pipoA);
+            newVanish.push(pipoV);
           });
-          const pipoV = new PiPo({
-            x:sq[0],
-            y:sq[1],
-            c:oppCol,
-            p:piece
-          });
-          newAppear.push(pipoA);
-          newVanish.push(pipoV);
-        });
-      });
+        }
+      }
       Array.prototype.push.apply(m.appear, newAppear);
       Array.prototype.push.apply(m.vanish, newVanish);
       V.UndoOnBoard(this.board, m);
