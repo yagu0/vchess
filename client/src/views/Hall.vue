@@ -394,8 +394,31 @@ export default {
       dispCorr || localStorage.getItem("type-challenges") || "live";
     const showGtype =
       dispCorr || localStorage.getItem("type-games") || "live";
-    this.setDisplay("c", showCtype);
-    this.setDisplay("g", showGtype);
+    this.setDisplay('c', showCtype);
+    this.setDisplay('g', showGtype);
+    // Attempt to show something (at least a few correspondance challenges):
+    setTimeout(
+      () => {
+        const types = ["corr", "live"];
+        for (let i of [0,1]) {
+          if (
+            this.gdisplay == types[i] &&
+            this.games.length > 0 &&
+            this.games.every(g => g.type == types[1-i])
+          ) {
+            this.setDisplay('g', types[1-i]);
+          }
+          if (
+            this.cdisplay == types[i] &&
+            this.challenges.length > 0 &&
+            this.challenges.every(c => c.type == types[1-i])
+          ) {
+            this.setDisplay('c', types[1-i]);
+          }
+        }
+      },
+      1500
+    );
   },
   beforeDestroy: function() {
     document.removeEventListener('visibilitychange', this.visibilityChange);
