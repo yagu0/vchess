@@ -41,9 +41,16 @@ router.get("/whoami", access.ajax, (req,res) => {
       email: user.email,
       id: user.id,
       notify: user.notify,
+      newsRead: user.newsRead
     });
   };
-  const anonymous = {name:"", email:"", id:0, notify:false};
+  const anonymous = {
+    name: "",
+    email: "",
+    id: 0,
+    notify: false,
+    newsRead: 0
+  };
   if (!req.cookies.token)
     callback(anonymous);
   else if (req.cookies.token.match(/^[a-z0-9]+$/))
