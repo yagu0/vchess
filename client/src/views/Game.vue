@@ -7,7 +7,13 @@ main
   )
     .card.text-center
       label.modal-close(for="modalInfo")
-      p(v-html="infoMessage")
+      p
+        span {{ st.tr["Rematch in progress:"] }}
+        a(
+          :href="'#/game/' + rematchId"
+          onClick="document.getElementById('modalInfo').checked=false"
+        )
+          | {{ "#/game/" + rematchId }}
   input#modalChat.modal(
     type="checkbox"
     @click="resetChatColor()"
@@ -161,7 +167,7 @@ export default {
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
       drawOffer: "",
-      infoMessage: "",
+      rematchId: "",
       rematchOffer: "",
       lastateAsked: false,
       people: {}, //players + observers
@@ -701,14 +707,7 @@ export default {
               });
               urlRid += onlineSid[Math.floor(Math.random() * onlineSid.length)];
             }
-            this.infoMessage =
-              this.st.tr["Rematch in progress:"] +
-              " <a href='#/game/" +
-              gameInfo.id + urlRid +
-              "'>" +
-              "#/game/" +
-              gameInfo.id + urlRid +
-              "</a>";
+            this.rematchId = gameInfo.id + urlRid;
             document.getElementById("modalInfo").checked = true;
           }
           break;
@@ -833,7 +832,7 @@ export default {
         if (!err) {
           if (this.st.settings.sound)
             new Audio("/sounds/newgame.flac").play().catch(() => {});
-          callback();
+          if (!!callback) callback();
           this.$router.push("/game/" + gameInfo.id);
         }
       });

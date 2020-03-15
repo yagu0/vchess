@@ -9,7 +9,7 @@ div
         th {{ st.tr["Result"] }}
     tbody
       tr(
-        v-for="g in sortedGames"
+        v-for="g in sortedGames()"
         @click="$emit('show-game',g)"
         :class="{'my-turn': !!g.myTurn}"
       )
@@ -52,7 +52,21 @@ export default {
       }
     });
   },
-  computed: {
+  methods: {
+    player_s: function(g) {
+      if (this.showBoth)
+        return (
+          (g.players[0].name || "@nonymous") +
+          " - " +
+          (g.players[1].name || "@nonymous")
+        );
+      if (
+        this.st.user.sid == g.players[0].sid ||
+        this.st.user.id == g.players[0].uid
+      )
+        return g.players[1].name || "@nonymous";
+      return g.players[0].name || "@nonymous";
+    },
     sortedGames: function() {
       // Show in order: it's my turn, running games, completed games
       let minCreated = Number.MAX_SAFE_INTEGER;
@@ -74,22 +88,6 @@ export default {
           g2.priority - g1.priority + (g2.created - g1.created) / deltaCreated
         );
       });
-    },
-  },
-  methods: {
-    player_s: function(g) {
-      if (this.showBoth)
-        return (
-          (g.players[0].name || "@nonymous") +
-          " - " +
-          (g.players[1].name || "@nonymous")
-        );
-      if (
-        this.st.user.sid == g.players[0].sid ||
-        this.st.user.id == g.players[0].uid
-      )
-        return g.players[1].name || "@nonymous";
-      return g.players[0].name || "@nonymous";
     },
     scoreClass: function(g) {
       if (g.score == "*" || !g.myColor) return {};

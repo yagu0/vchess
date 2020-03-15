@@ -208,16 +208,13 @@ module.exports = function(wss) {
         case "drawoffer":
         case "rematchoffer":
         case "draw":
-          if (!!obj.oppsid)
-            // "newgame" message from Hall: do not target players
-            notifyAllBut(page, "newgame", {data: obj.data}, [sid, obj.oppsid]);
-          else notifyRoom(page, obj.code, {data: obj.data});
+          notifyRoom(page, obj.code, {data: obj.data});
           break;
 
         case "rnewgame":
-          // A rematch game started: players are already informed
+          // A rematch game started:
+          // NOTE: no need to explicitely notify Hall: the game will be sent
           notifyAllBut(page, "newgame", {data: obj.data}, [sid]);
-          notifyAllBut("/", "newgame", {data: obj.data}, [sid, obj.oppsid]);
           notifyRoom("/mygames", "newgame", {data: obj.data});
           break;
 

@@ -637,15 +637,14 @@ export default {
           } else {
             // Remove the matching live game if now unreachable
             const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
-            const gidx = this.games.findIndex(g => g.id == gid);
-            if (gidx >= 0) {
-              const game = this.games[gidx];
-              if (
-                game.type == "live" &&
-                game.rids.length == 1 &&
-                game.rids[0] == data.from
-              ) {
-                this.games.splice(gidx, 1);
+            // Corr games are always reachable:
+            if (!gid.match(/^[0-9]+$/)) {
+              const gidx = this.games.findIndex(g => g.id == gid);
+              // NOTE: gidx should always be >= 0 (TODO?)
+              if (gidx >= 0) {
+                const game = this.games[gidx];
+                ArrayFun.remove(game.rids, rid => rid == data.from);
+                if (game.rids.length == 0) this.games.splice(gidx, 1);
               }
             }
           }
@@ -676,7 +675,7 @@ export default {
           alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
         case "askidentity": {
-          // Request for identification (TODO: anonymous shouldn't need to reply)
+          // Request for identification
           const me = {
             // Decompose to avoid revealing email
             name: this.st.user.name,
@@ -762,12 +761,12 @@ export default {
           }
           break;
         }
-        case "game": //individual request
-        case "newgame": {
+        case "game": {
+          // Individual request
           const game = data.data;
           // Ignore games where I play (will go in MyGames page)
           if (game.players.every(p =>
-            p.sid != this.st.user.sid || p.uid != this.st.user.id))
+            p.sid != this.st.user.sid && p.uid != this.st.user.id))
           {
             let locGame = this.games.find(g => g.id == game.id);
             if (!locGame) {
@@ -907,8 +906,9 @@ export default {
         else if (
           ctype == "live" &&
           Object.values(this.people).every(p => p.name != this.newchallenge.to)
-        )
+        ) {
           error = this.newchallenge.to + " " + this.st.tr["is not online"];
+        }
       }
       if (error) {
         alert(error);
@@ -1120,10 +1120,7 @@ export default {
         if (!!oppsid)
           // Opponent is online
           this.send("startgame", { data: gameInfo, target: oppsid });
-        // Send game info (only if live) to everyone except me and opponent
-        // TODO: this double message send could be avoided.
-        this.send("newgame", { data: gameInfo, oppsid: oppsid });
-        // Also to MyGames page:
+        // Notify MyGames page:
         this.send(
           "notifynewgame",
           {
@@ -1133,6 +1130,8 @@ export default {
             })
           }
         );
+        // NOTE: no need to send the game to the room, since I'll connect
+        // on game just after, the main Hall will be notified.
       };
       if (c.type == "live") {
         notifyNewgame();

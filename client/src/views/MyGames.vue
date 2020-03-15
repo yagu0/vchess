@@ -8,12 +8,14 @@ main
         button.tabbtn#corrGames(@click="setDisplay('corr',$event)")
           | {{ st.tr["Correspondance games"] }}
       GameList(
+        ref="livegames"
         v-show="display=='live'"
         :games="liveGames"
         @show-game="showGame"
         @abortgame="abortGame"
       )
       GameList(
+        ref="corrgames"
         v-show="display=='corr'"
         :games="corrGames"
         @show-game="showGame"
@@ -45,32 +47,6 @@ export default {
     };
   },
   created: function() {
-    GameStorage.getAll(localGames => {
-      localGames.forEach(g => g.type = "live");
-      this.decorate(localGames);
-      this.liveGames = localGames;
-    });
-    if (this.st.user.id > 0) {
-      ajax(
-        "/games",
-        "GET",
-        {
-          data: { uid: this.st.user.id },
-          success: (res) => {
-            let serverGames = res.games.filter(g => {
-              const mySide =
-                g.players[0].uid == this.st.user.id
-                  ? "White"
-                  : "Black";
-              return !g["deletedBy" + mySide];
-            });
-            serverGames.forEach(g => g.type = "corr");
-            this.decorate(serverGames);
-            this.corrGames = serverGames;
-          }
-        }
-      );
-    }
     // Initialize connection
     this.connexionString =
       params.socketUrl +
@@ -87,8 +63,54 @@ export default {
     this.conn.onclose = this.socketCloseListener;
   },
   mounted: function() {
-    const showType = localStorage.getItem("type-myGames") || "live";
-    this.setDisplay(showType);
+    const adjustAndSetDisplay = () => {
+      // showType is the last type viwed by the user (default)
+      let showType = localStorage.getItem("type-myGames") || "live";
+      // Live games, my turn: highest priority:
+      if (this.liveGames.some(g => !!g.myTurn)) showType = "live";
+      // Then corr games, my turn:
+      else if (this.corrGames.some(g => !!g.myTurn)) showType = "corr";
+      else {
+        // If a listing is empty, try showing the other (if non-empty)
+        const types = ["corr", "live"];
+        for (let i of [0,1]) {
+          if (
+            this[types[i] + "Games"].length > 0 &&
+            this[types[1-i] + "Games"].length == 0
+          ) {
+            showType = types[i];
+          }
+        }
+      }
+      this.setDisplay(showType);
+    };
+    GameStorage.getAll(localGames => {
+      localGames.forEach(g => g.type = "live");
+      this.decorate(localGames);
+      this.liveGames = localGames;
+      if (this.st.user.id > 0) {
+        ajax(
+          "/games",
+          "GET",
+          {
+            data: { uid: this.st.user.id },
+            success: (res) => {
+              let serverGames = res.games.filter(g => {
+                const mySide =
+                  g.players[0].uid == this.st.user.id
+                    ? "White"
+                    : "Black";
+                return !g["deletedBy" + mySide];
+              });
+              serverGames.forEach(g => g.type = "corr");
+              this.decorate(serverGames);
+              this.corrGames = serverGames;
+              adjustAndSetDisplay();
+            }
+          }
+        );
+      } else adjustAndSetDisplay();
+    });
   },
   beforeDestroy: function() {
     this.conn.send(JSON.stringify({code: "disconnect"}));
@@ -145,9 +167,13 @@ export default {
           // "notifything" --> "thing":
           const thing = data.code.substr(6);
           game[thing] = info[thing];
-          if (thing == "turn") game.myTurn = !game.myTurn;
-          this.$forceUpdate();
-          this.tryShowNewsIndicator(type);
+          if (thing == "turn") {
+            game.myTurn = !game.myTurn;
+            if (game.myTurn) this.tryShowNewsIndicator(type);
+          }
+          // TODO: forcing refresh like that is ugly and wrong.
+          //       How to do it cleanly?
+          this.$refs[type + "games"].$forceUpdate();
           break;
         }
         case "notifynewgame": {
@@ -170,8 +196,9 @@ export default {
             (type == "corr" && game.players[0].uid == this.st.user.id) ||
             (type == "live" && game.players[0].sid == this.st.user.sid);
           gamesArrays[type].push(game);
-          this.$forceUpdate();
-          this.tryShowNewsIndicator(type);
+          if (game.myTurn) this.tryShowNewsIndicator(type);
+          // TODO: cleaner refresh
+          this.$refs[type + "games"].$forceUpdate();
           break;
         }
       }
