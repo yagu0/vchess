@@ -280,6 +280,45 @@ export default {
         pages: [{ path: "/", focus: true }]
       }
     );
+    const connectAndPoll = () => {
+      this.send("connect");
+      this.send("pollclientsandgamers");
+    };
+    // Initialize connection
+    this.connexionString =
+      params.socketUrl +
+      "/?sid=" +
+      this.st.user.sid +
+      "&id=" +
+      this.st.user.id +
+      "&tmpId=" +
+      getRandString() +
+      "&page=" +
+      // Hall: path is "/" (could be hard-coded as well)
+      encodeURIComponent(this.$route.path);
+    this.conn = new WebSocket(this.connexionString);
+    this.conn.onopen = connectAndPoll;
+    this.conn.onmessage = this.socketMessageListener;
+    this.conn.onclose = this.socketCloseListener;
+  },
+  mounted: function() {
+    document.addEventListener('visibilitychange', this.visibilityChange);
+    ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
+      document.getElementById(eltName)
+        .addEventListener("click", processModalClick);
+    });
+    document.querySelectorAll("#predefinedCadences > button").forEach(b => {
+      b.addEventListener("click", () => {
+        this.newchallenge.cadence = b.innerHTML;
+      });
+    });
+    const dispCorr = this.$route.query["disp"];
+    const showCtype =
+      dispCorr || localStorage.getItem("type-challenges") || "live";
+    const showGtype =
+      dispCorr || localStorage.getItem("type-games") || "live";
+    this.setDisplay('c', showCtype);
+    this.setDisplay('g', showGtype);
     // Ask server for current corr games (all but mines)
     ajax(
       "/games",
@@ -287,6 +326,15 @@ export default {
       {
         data: { uid: this.st.user.id, excluded: true },
         success: (response) => {
+          if (
+            response.games.length > 0 &&
+            this.games.length == 0 &&
+            this.gdisplay == "live"
+          ) {
+            document
+              .getElementById("btnGcorr")
+              .classList.add("somethingnew");
+          }
           this.games = this.games.concat(
             response.games.map(g => {
               const type = this.classifyObject(g);
@@ -311,6 +359,15 @@ export default {
       {
         data: { uid: this.st.user.id },
         success: (response) => {
+          if (
+            response.challenges.length > 0 &&
+            this.challenges.length == 0 &&
+            this.cdisplay == "live"
+          ) {
+            document
+              .getElementById("btnCcorr")
+              .classList.add("somethingnew");
+          }
           // Gather all senders names, and then retrieve full identity:
           // (TODO [perf]: some might be online...)
           let names = {};
@@ -356,68 +413,6 @@ export default {
           } else addChallenges();
         }
       }
-    );
-    const connectAndPoll = () => {
-      this.send("connect");
-      this.send("pollclientsandgamers");
-    };
-    // Initialize connection
-    this.connexionString =
-      params.socketUrl +
-      "/?sid=" +
-      this.st.user.sid +
-      "&id=" +
-      this.st.user.id +
-      "&tmpId=" +
-      getRandString() +
-      "&page=" +
-      // Hall: path is "/" (could be hard-coded as well)
-      encodeURIComponent(this.$route.path);
-    this.conn = new WebSocket(this.connexionString);
-    this.conn.onopen = connectAndPoll;
-    this.conn.onmessage = this.socketMessageListener;
-    this.conn.onclose = this.socketCloseListener;
-  },
-  mounted: function() {
-    document.addEventListener('visibilitychange', this.visibilityChange);
-    ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
-      document.getElementById(eltName)
-        .addEventListener("click", processModalClick);
-    });
-    document.querySelectorAll("#predefinedCadences > button").forEach(b => {
-      b.addEventListener("click", () => {
-        this.newchallenge.cadence = b.innerHTML;
-      });
-    });
-    const dispCorr = this.$route.query["disp"];
-    const showCtype =
-      dispCorr || localStorage.getItem("type-challenges") || "live";
-    const showGtype =
-      dispCorr || localStorage.getItem("type-games") || "live";
-    this.setDisplay('c', showCtype);
-    this.setDisplay('g', showGtype);
-    // Attempt to show something (at least a few correspondance challenges):
-    setTimeout(
-      () => {
-        const types = ["corr", "live"];
-        for (let i of [0,1]) {
-          if (
-            this.gdisplay == types[i] &&
-            this.games.length > 0 &&
-            this.games.every(g => g.type == types[1-i])
-          ) {
-            this.setDisplay('g', types[1-i]);
-          }
-          if (
-            this.cdisplay == types[i] &&
-            this.challenges.length > 0 &&
-            this.challenges.every(c => c.type == types[1-i])
-          ) {
-            this.setDisplay('c', types[1-i]);
-          }
-        }
-      },
-      1500
     );
   },
   beforeDestroy: function() {
