@@ -14,13 +14,18 @@ main
         @show-game="showGame"
         @abortgame="abortGame"
       )
-      GameList(
-        ref="corrgames"
-        v-show="display=='corr'"
-        :games="corrGames"
-        @show-game="showGame"
-        @abortgame="abortGame"
-      )
+      div(v-show="display=='corr'")
+        GameList(
+          ref="corrgames"
+          :games="corrGames"
+          @show-game="showGame"
+          @abortgame="abortGame"
+        )
+        button#loadMoreBtn(
+          v-if="hasMore"
+          @click="loadMore()"
+        )
+          | {{ st.tr["Load more"] }}
 </template>
 
 <script>
@@ -42,6 +47,10 @@ export default {
       display: "live",
       liveGames: [],
       corrGames: [],
+      // timestamp of last showed (oldest) corr game:
+      cursor: Number.MAX_SAFE_INTEGER,
+      // hasMore == TRUE: a priori there could be more games to load
+      hasMore: true,
       conn: null,
       connexionString: ""
     };
@@ -89,23 +98,35 @@ export default {
       this.decorate(localGames);
       this.liveGames = localGames;
       if (this.st.user.id > 0) {
+        // Ask running corr games first
         ajax(
-          "/games",
+          "/runninggames",
           "GET",
           {
-            data: { uid: this.st.user.id },
             success: (res) => {
-              let serverGames = res.games.filter(g => {
-                const mySide =
-                  g.players[0].uid == this.st.user.id
-                    ? "White"
-                    : "Black";
-                return !g["deletedBy" + mySide];
-              });
-              serverGames.forEach(g => g.type = "corr");
-              this.decorate(serverGames);
-              this.corrGames = serverGames;
-              adjustAndSetDisplay();
+              // These games are garanteed to not be deleted
+              this.corrGames = res.games;
+              this.corrGames.forEach(g => g.type = "corr");
+              this.decorate(this.corrGames);
+              // Now ask completed games (partial list)
+              ajax(
+                "/completedgames",
+                "GET",
+                {
+                  data: { cursor: this.cursor },
+                  success: (res2) => {
+                    if (res2.games.length > 0) {
+                      const L = res2.games.length;
+                      this.cursor = res2.games[L - 1].created;
+                      let completedGames = res2.games;
+                      completedGames.forEach(g => g.type = "corr");
+                      this.decorate(completedGames);
+                      this.corrGames = this.corrGames.concat(completedGames);
+                      adjustAndSetDisplay();
+                    }
+                  }
+                }
+              );
             }
           }
         );
@@ -140,7 +161,7 @@ export default {
     decorate: function(games) {
       games.forEach(g => {
         g.myColor =
-          (g.type == "corr" && g.players[0].uid == this.st.user.id) ||
+          (g.type == "corr" && g.players[0].id == this.st.user.id) ||
           (g.type == "live" && g.players[0].sid == this.st.user.sid)
             ? 'w'
             : 'b';
@@ -193,7 +214,7 @@ export default {
             gameInfo
           );
           game.myTurn =
-            (type == "corr" && game.players[0].uid == this.st.user.id) ||
+            (type == "corr" && game.players[0].id == this.st.user.id) ||
             (type == "live" && game.players[0].sid == this.st.user.sid);
           gamesArrays[type].push(game);
           if (game.myTurn) this.tryShowNewsIndicator(type);
@@ -260,6 +281,25 @@ export default {
           }
         );
       }
+    },
+    loadMore: function() {
+      ajax(
+        "/completedgames",
+        "GET",
+        {
+          data: { cursor: this.cursor },
+          success: (res) => {
+            if (res.games.length > 0) {
+              const L = res.games.length;
+              this.cursor = res.games[L - 1].created;
+              let moreGames = res.games;
+              moreGames.forEach(g => g.type = "corr");
+              this.decorate(moreGames);
+              this.corrGames = this.corrGames.concat(moreGames);
+            } else this.hasMore = false;
+          }
+        }
+      );
     }
   }
 };
@@ -274,6 +314,10 @@ export default {
 
 table.game-list
   max-height: 100%
+
+button#loadMoreBtn
+  margin-top: 0
+  margin-bottom: 0
 
 .somethingnew
   background-color: #c5fefe !important

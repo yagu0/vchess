@@ -11,12 +11,9 @@ let app = express();
 app.use(favicon(path.join(__dirname, "static", "favicon.ico")));
 
 if (app.get('env') === 'development')
-{
   // Full logging in development mode
   app.use(logger('dev'));
-}
-else
-{
+else {
   // http://dev.rdybarra.com/2016/06/23/Production-Logging-With-Morgan-In-Express/
   app.set('trust proxy', true);
   // In prod, only log error responses (https://github.com/expressjs/morgan)
@@ -34,8 +31,7 @@ app.use(express.static(path.join(__dirname, 'static')));
 app.use(express.static(path.join(__dirname, 'fallback')));
 
 // In development stage the client side has its own server
-if (params.cors.enable)
-{
+if (params.cors.enable) {
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", params.cors.allowedOrigin);
     res.header("Access-Control-Allow-Credentials", true); //for cookies
@@ -63,8 +59,7 @@ app.use(function(req, res, next) {
 // Error handler
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  if (app.get('env') === 'development')
-    console.log(err.stack);
+  if (app.get('env') === 'development') console.log(err.stack);
   res.send(
     "<h1>" + err.message + "</h1>" +
     "<h2>" + err.status + "</h2>"

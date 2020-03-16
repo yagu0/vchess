@@ -7,10 +7,8 @@ const db = require("../utils/database");
  *   description: varchar
  */
 
-const VariantModel =
-{
-  getAll: function(callback)
-  {
+const VariantModel = {
+  getAll: function(callback) {
     db.serialize(function() {
       const query =
         "SELECT * " +

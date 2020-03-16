@@ -1,24 +1,21 @@
 const nodemailer = require('nodemailer');
 const params = require("../config/parameters");
 
-module.exports = function(from, to, subject, body, cb)
-{
+module.exports = function(from, to, subject, body, cb) {
   // Avoid the actual sending in development mode
-  if (params.env === 'development')
-  {
+  if (params.env === 'development') {
     console.log("New mail: from " + from + " / to " + to);
     console.log("Subject: " + subject);
     console.log(body);
-    if (!cb)
-      cb = (err) => { if (err) console.log(err); }
+    if (!cb) cb = (err) => { if (err) console.log(err); }
     cb();
     return;
   }
 
   // Production-only code from here:
 
-  if (!cb)
-    cb = () => {}; //default: do nothing (TODO: log somewhere)
+  // Default: do nothing (TODO: log somewhere)
+  if (!cb) cb = () => {};
 
   // Create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({

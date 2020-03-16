@@ -48,8 +48,10 @@ export default {
     return {
       devs: [1], //for now the only dev is me
       st: store.state,
-      cursor: 0, //ID of last showed news
-      hasMore: true, //a priori there could be more news to load
+      // timestamp of oldest showed news:
+      cursor: Number.MAX_SAFE_INTEGER,
+      // hasMore == TRUE: a priori there could be more news to load
+      hasMore: true,
       curnews: { id: 0, content: "" },
       newsList: [],
       infoMsg: ""
@@ -62,9 +64,10 @@ export default {
       {
         data: { cursor: this.cursor },
         success: (res) => {
-          this.newsList = res.newsList.sort((n1, n2) => n2.added - n1.added);
+          // The returned list is sorted from most recent to oldest
+          this.newsList = res.newsList;
           const L = res.newsList.length;
-          if (L > 0) this.cursor = this.newsList[0].id;
+          if (L > 0) this.cursor = res.newsList[L - 1].added;
         }
       }
     );
@@ -169,7 +172,7 @@ export default {
             if (res.newsList.length > 0) {
               this.newsList = this.newsList.concat(res.newsList);
               const L = res.newsList.length;
-              if (L > 0) this.cursor = res.newsList[L - 1].id;
+              if (L > 0) this.cursor = res.newsList[L - 1].added;
             } else this.hasMore = false;
           }
         }

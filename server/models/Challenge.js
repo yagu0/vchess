@@ -13,21 +13,18 @@ const UserModel = require("./User");
  *   cadence: string (3m+2s, 7d ...)
  */
 
-const ChallengeModel =
-{
-  checkChallenge: function(c)
-  {
+const ChallengeModel = {
+  checkChallenge: function(c) {
     return (
       c.vid.toString().match(/^[0-9]+$/) &&
       c.cadence.match(/^[0-9dhms +]+$/) &&
       c.randomness.toString().match(/^[0-2]$/) &&
       c.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
-      (!c.to || UserModel.checkNameEmail({name: c.to}))
+      (!c.to || UserModel.checkNameEmail({ name: c.to }))
     );
   },
 
-  create: function(c, cb)
-  {
+  create: function(c, cb) {
     db.serialize(function() {
       const query =
         "INSERT INTO Challenges " +
@@ -37,14 +34,13 @@ const ChallengeModel =
           "(" + Date.now() + "," + c.uid + "," + (c.to ? c.to + "," : "") +
           c.vid + "," + c.randomness + ",'" + c.fen + "','" + c.cadence + "')";
       db.run(query, function(err) {
-        cb(err, {cid: this.lastID});
+        cb(err, { id: this.lastID });
       });
     });
   },
 
   // All challenges related to user with ID uid
-  getByUser: function(uid, cb)
-  {
+  getByUser: function(uid, cb) {
     db.serialize(function() {
       const query =
         "SELECT * " +
@@ -52,14 +48,13 @@ const ChallengeModel =
         "WHERE target IS NULL" +
           " OR uid = " + uid +
           " OR target = " + uid;
-      db.all(query, (err,challenges) => {
+      db.all(query, (err, challenges) => {
         cb(err, challenges);
       });
     });
   },
 
-  remove: function(id)
-  {
+  remove: function(id) {
     db.serialize(function() {
       const query =
         "DELETE FROM Challenges " +
@@ -68,8 +63,7 @@ const ChallengeModel =
     });
   },
 
-  safeRemove: function(id, uid)
-  {
+  safeRemove: function(id, uid) {
     db.serialize(function() {
       const query =
         "SELECT 1 " +

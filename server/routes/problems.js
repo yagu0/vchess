@@ -4,18 +4,16 @@ const ProblemModel = require("../models/Problem");
 const sanitizeHtml = require('sanitize-html');
 
 router.post("/problems", access.logged, access.ajax, (req,res) => {
-  if (ProblemModel.checkProblem(req.body.prob))
-  {
-    const problem =
-    {
+  if (ProblemModel.checkProblem(req.body.prob)) {
+    const problem = {
       vid: req.body.prob.vid,
       fen: req.body.prob.fen,
       uid: req.userId,
       instruction: sanitizeHtml(req.body.prob.instruction),
       solution: sanitizeHtml(req.body.prob.solution),
     };
-    ProblemModel.create(problem, (err,ret) => {
-      res.json(err || {id:ret.pid});
+    ProblemModel.create(problem, (err, ret) => {
+      res.json(err || ret);
     });
   }
   else
@@ -24,24 +22,20 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
 
 router.get("/problems", access.ajax, (req,res) => {
   const probId = req.query["pid"];
-  if (probId && probId.match(/^[0-9]+$/))
-  {
+  if (probId && probId.match(/^[0-9]+$/)) {
     ProblemModel.getOne(req.query["pid"], (err,problem) => {
       res.json(err || {problem: problem});
     });
-  }
-  else
-  {
+  } else {
     ProblemModel.getAll((err,problems) => {
-      res.json(err || {problems:problems});
+      res.json(err || { problems: problems });
     });
   }
 });
 
 router.put("/problems", access.logged, access.ajax, (req,res) => {
   let obj = req.body.prob;
-  if (ProblemModel.checkProblem(obj))
-  {
+  if (ProblemModel.checkProblem(obj)) {
     obj.instruction = sanitizeHtml(obj.instruction);
     obj.solution = sanitizeHtml(obj.solution);
     ProblemModel.safeUpdate(obj, req.userId);

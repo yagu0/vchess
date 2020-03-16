@@ -56,6 +56,8 @@ create table Games (
   vid integer,
   fenStart varchar, --initial state
   fen varchar, --current state
+  white integer,
+  black integer,
   score varchar default '*',
   scoreMsg varchar,
   cadence varchar,
@@ -65,7 +67,9 @@ create table Games (
   rematchOffer character default '',
   deletedByWhite boolean,
   deletedByBlack boolean,
-  foreign key (vid) references Variants(id)
+  foreign key (vid) references Variants(id),
+  foreign key (white) references Users(id),
+  foreign key (black) references Users(id)
 );
 
 create table Chats (
@@ -75,15 +79,6 @@ create table Chats (
   added datetime
 );
 
--- Store informations about players in a corr game
-create table Players (
-  gid integer,
-  uid integer,
-  color character,
-  foreign key (gid) references Games(id),
-  foreign key (uid) references Users(id)
-);
-
 create table Moves (
   gid integer,
   squares varchar, --description, appear/vanish/from/to
@@ -91,5 +86,7 @@ create table Moves (
   idx integer, --index of the move in the game
   foreign key (gid) references Games(id)
 );
+
+create index scoreIdx on Games(score);
 
 pragma foreign_keys = on;

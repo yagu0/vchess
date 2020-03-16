@@ -11,10 +11,8 @@ const db = require("../utils/database");
  *   solution: text
  */
 
-const ProblemModel =
-{
-  checkProblem: function(p)
-  {
+const ProblemModel = {
+  checkProblem: function(p) {
     return (
       p.id.toString().match(/^[0-9]+$/) &&
       p.vid.toString().match(/^[0-9]+$/) &&
@@ -22,8 +20,7 @@ const ProblemModel =
     );
   },
 
-  create: function(p, cb)
-  {
+  create: function(p, cb) {
     db.serialize(function() {
       const query =
         "INSERT INTO Problems " +
@@ -31,13 +28,12 @@ const ProblemModel =
           "VALUES " +
         "(" + Date.now() + "," + p.uid + "," + p.vid + ",'" + p.fen  + "',?,?)";
       db.run(query, [p.instruction,p.solution], function(err) {
-        cb(err, {pid: this.lastID});
+        cb(err, { id: this.lastID });
       });
     });
   },
 
-  getAll: function(cb)
-  {
+  getAll: function(cb) {
     db.serialize(function() {
       const query =
         "SELECT * " +
@@ -48,8 +44,7 @@ const ProblemModel =
     });
   },
 
-  getOne: function(id, cb)
-  {
+  getOne: function(id, cb) {
     db.serialize(function() {
       const query =
         "SELECT * " +
@@ -61,8 +56,7 @@ const ProblemModel =
     });
   },
 
-  safeUpdate: function(prob, uid)
-  {
+  safeUpdate: function(prob, uid) {
     db.serialize(function() {
       const query =
         "UPDATE Problems " +
@@ -76,8 +70,7 @@ const ProblemModel =
     });
   },
 
-  safeRemove: function(id, uid)
-  {
+  safeRemove: function(id, uid) {
     db.serialize(function() {
       const query =
         "DELETE FROM Problems " +

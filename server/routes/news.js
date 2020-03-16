@@ -5,19 +5,18 @@ const sanitizeHtml = require('sanitize-html');
 const devs = [1]; //hard-coded list of developers IDs, allowed to post news
 
 router.post("/news", access.logged, access.ajax, (req,res) => {
-  if (devs.includes(req.userId))
-  {
+  if (devs.includes(req.userId)) {
     const content = sanitizeHtml(req.body.news.content);
-    NewsModel.create(content, req.userId, (err,ret) => {
-      res.json(err || { id: ret.nid });
+    NewsModel.create(content, req.userId, (err, ret) => {
+      res.json(err || ret);
     });
   }
 });
 
 router.get("/news", access.ajax, (req,res) => {
   const cursor = req.query["cursor"];
-  if (cursor.match(/^[0-9]+$/)) {
-    NewsModel.getNext(cursor, (err,newsList) => {
+  if (!!cursor.match(/^[0-9]+$/)) {
+    NewsModel.getNext(cursor, (err, newsList) => {
       res.json(err || { newsList: newsList });
     });
   }

@@ -269,7 +269,7 @@ module.exports = function(wss) {
         case "notifynewgame":
           if (!!clients["/mygames"]) {
             obj.targets.forEach(t => {
-              const k = t.sid || idToSid[t.uid];
+              const k = t.sid || idToSid[t.id];
               if (!!clients["/mygames"][k]) {
                 Object.keys(clients["/mygames"][k]).forEach(x => {
                   send(

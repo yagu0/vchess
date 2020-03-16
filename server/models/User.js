@@ -13,34 +13,31 @@ const sendEmail = require('../utils/mailer');
  *   sessionToken: token in cookies for authentication
  *   notify: boolean (send email notifications for corr games)
  *   created: datetime
+ *   newsRead: datetime
  */
 
-const UserModel =
-{
-  checkNameEmail: function(o)
-  {
+const UserModel = {
+  checkNameEmail: function(o) {
     return (
       (!o.name || !!(o.name.match(/^[\w-]+$/))) &&
       (!o.email || !!(o.email.match(/^[\w.+-]+@[\w.+-]+$/)))
     );
   },
 
-  create: function(name, email, notify, cb)
-  {
+  create: function(name, email, notify, cb) {
     db.serialize(function() {
       const query =
         "INSERT INTO Users " +
         "(name, email, notify, created) VALUES " +
         "('" + name + "','" + email + "'," + notify + "," + Date.now() + ")";
       db.run(query, function(err) {
-        cb(err, {uid: this.lastID});
+        cb(err, { id: this.lastID });
       });
     });
   },
 
   // Find one user by id, name, email, or token
-  getOne: function(by, value, cb)
-  {
+  getOne: function(by, value, cb) {
     const delimiter = (typeof value === "string" ? "'" : "");
     db.serialize(function() {
       const query =
@@ -64,24 +61,22 @@ const UserModel =
   /////////
   // MODIFY
 
-  setLoginToken: function(token, uid)
-  {
+  setLoginToken: function(token, id) {
     db.serialize(function() {
       const query =
         "UPDATE Users " +
         "SET loginToken = '" + token + "',loginTime = " + Date.now() + " " +
-        "WHERE id = " + uid;
+        "WHERE id = " + id;
       db.run(query);
     });
   },
 
-  setNewsRead: function(uid)
-  {
+  setNewsRead: function(id) {
     db.serialize(function() {
       const query =
         "UPDATE Users " +
         "SET newsRead = " + Date.now() + " " +
-        "WHERE id = " + uid;
+        "WHERE id = " + id;
       db.run(query);
     });
   },
@@ -89,13 +84,12 @@ const UserModel =
   // Set session token only if empty (first login)
   // NOTE: weaker security (but avoid to re-login everywhere after each logout)
   // TODO: option would be to reset all tokens periodically, e.g. every 3 months
-  trySetSessionToken: function(uid, cb)
-  {
+  trySetSessionToken: function(id, cb) {
     db.serialize(function() {
       let query =
         "SELECT sessionToken " +
         "FROM Users " +
-        "WHERE id = " + uid;
+        "WHERE id = " + id;
       db.get(query, (err,ret) => {
         const token = ret.sessionToken || genToken(params.token.length);
         query =
@@ -103,15 +97,14 @@ const UserModel =
           // Also empty the login token to invalidate future attempts
           "SET loginToken = NULL" +
           (!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
-          "WHERE id = " + uid;
+          "WHERE id = " + id;
         db.run(query);
         cb(token);
       });
     });
   },
 
-  updateSettings: function(user)
-  {
+  updateSettings: function(user) {
     db.serialize(function() {
       const query =
         "UPDATE Users " +
@@ -126,27 +119,23 @@ const UserModel =
   /////////////////
   // NOTIFICATIONS
 
-  notify: function(user, message)
-  {
+  notify: function(user, message) {
     const subject = "vchess.club - notification";
     const body = "Hello " + user.name + " !" + `
 ` + message;
     sendEmail(params.mail.noreply, user.email, subject, body);
   },
 
-  tryNotify: function(id, message)
-  {
+  tryNotify: function(id, message) {
     UserModel.getOne("id", id, (err,user) => {
-      if (!err && user.notify)
-        UserModel.notify(user, message);
+      if (!err && user.notify) UserModel.notify(user, message);
     });
   },
 
   ////////////
   // CLEANING
 
-  cleanUsersDb: function()
-  {
+  cleanUsersDb: function() {
     const tsNow = Date.now();
     // 86400000 = 24 hours in milliseconds
     const day = 86400000;
@@ -155,8 +144,9 @@ const UserModel =
         "SELECT id, sessionToken, created, name, email " +
         "FROM Users";
       db.all(query, (err, users) => {
+        let toRemove = [];
         users.forEach(u => {
-          // Remove unlogged users for > 24h
+          // Remove users unlogged for > 24h
           if (!u.sessionToken && tsNow - u.created > day)
           {
             notify(
@@ -164,9 +154,14 @@ const UserModel =
               "Your account has been deleted because " +
               "you didn't log in for 24h after registration"
             );
-            db.run("DELETE FROM Users WHERE id = " + u.id);
           }
         });
+        if (toRemove.length > 0) {
+          db.run(
+            "DELETE FROM Users " +
+            "WHERE id IN (" + toRemove.join(",") + ")"
+          );
+        }
       });
     });
   },

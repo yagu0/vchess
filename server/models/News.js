@@ -19,7 +19,7 @@ const NewsModel =
           "VALUES " +
         "(" + Date.now() + "," + uid + ",?)";
       db.run(query, content, function(err) {
-        cb(err, {nid: this.lastID});
+        cb(err, { id: this.lastID });
       });
     });
   },
@@ -30,7 +30,8 @@ const NewsModel =
       const query =
         "SELECT * " +
         "FROM News " +
-        "WHERE id > " + cursor + " " +
+        "WHERE added < " + cursor + " " +
+        "ORDER BY added DESC " +
         "LIMIT 10"; //TODO: 10 currently hard-coded
       db.all(query, (err,newsList) => {
         cb(err, newsList);

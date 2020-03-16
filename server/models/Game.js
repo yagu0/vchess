@@ -7,16 +7,17 @@ const UserModel = require("./User");
  *   vid: integer (variant id)
  *   fenStart: varchar (initial position)
  *   fen: varchar (current position)
+ *   white: integer
+ *   black: integer
  *   cadence: string
  *   score: varchar (result)
  *   scoreMsg: varchar ("Time", "Mutual agreement"...)
  *   created: datetime
  *   drawOffer: char ('w','b' or '' for none)
- *
- * Structure table Players:
- *   gid: ref game id
- *   uid: ref user id
- *   color: character
+ *   rematchOffer: char (similar to drawOffer)
+ *   randomness: integer
+ *   deletedByWhite: boolean
+ *   deletedByBlack: boolean
  *
  * Structure table Moves:
  *   gid: ref game id
@@ -37,174 +38,234 @@ const GameModel =
     return (
       g.vid.toString().match(/^[0-9]+$/) &&
       g.cadence.match(/^[0-9dhms +]+$/) &&
+      g.randomness.match(/^[0-2]$/) &&
       g.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
       g.players.length == 2 &&
-      g.players.every(p => p.uid.toString().match(/^[0-9]+$/))
+      g.players.every(p => p.toString().match(/^[0-9]+$/))
     );
   },
 
-  create: function(vid, fen, cadence, players, cb)
-  {
+  create: function(vid, fen, randomness, cadence, players, cb) {
     db.serialize(function() {
       let query =
         "INSERT INTO Games " +
-        "(vid, fenStart, fen, cadence, created) " +
+        "(" +
+          "vid, fenStart, fen, randomness, " +
+          "white, black, " +
+          "cadence, created" +
+        ") " +
         "VALUES " +
-        "(" + vid + ",'" + fen + "','" + fen + "','" + cadence + "'," + Date.now() + ")";
+        "(" +
+          vid + ",'" + fen + "','" + fen + "'," + randomness + "," +
+          "'" + players[0] + "','" + players[1] + "," +
+          "'" + cadence + "'," + Date.now() +
+        ")";
       db.run(query, function(err) {
-        if (err)
-          cb(err)
-        else
-        {
-          players.forEach((p,idx) => {
-            const color = (idx==0 ? "w" : "b");
-            query =
-              "INSERT INTO Players VALUES " +
-              "(" + this.lastID + "," + p.uid + ",'" + color + "')";
-            db.run(query);
-          });
-          cb(null, {gid: this.lastID});
-        }
+        cb(err, { id: this.lastId });
       });
     });
   },
 
   // TODO: some queries here could be async
-  getOne: function(id, cb)
-  {
+  getOne: function(id, cb) {
     // NOTE: ignoring errors (shouldn't happen at this stage)
     db.serialize(function() {
       let query =
-        "SELECT g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, g.score, " +
-          "g.scoreMsg, g.drawOffer, g.rematchOffer, v.name AS vname " +
+        "SELECT " +
+          "g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, " +
+          "g.white, g.black, g.score, g.scoreMsg, " +
+          "g.drawOffer, g.rematchOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
         "WHERE g.id = " + id;
       db.get(query, (err, gameInfo) => {
         query =
-          "SELECT p.uid, p.color, u.name " +
-          "FROM Players p " +
-          "JOIN Users u " +
-          "  ON p.uid = u.id " +
-          "WHERE p.gid = " + id;
-        db.all(query, (err2, players) => {
+          "SELECT squares, played, idx " +
+          "FROM Moves " +
+          "WHERE gid = " + id;
+        db.all(query, (err3, moves) => {
           query =
-            "SELECT squares, played, idx " +
-            "FROM Moves " +
+            "SELECT msg, name, added " +
+            "FROM Chats " +
             "WHERE gid = " + id;
-          db.all(query, (err3, moves) => {
-            query =
-              "SELECT msg, name, added " +
-              "FROM Chats " +
-              "WHERE gid = " + id;
-            db.all(query, (err4, chats) => {
-              const game = Object.assign(
-                {},
-                gameInfo,
-                {
-                  players: players,
-                  moves: moves,
-                  chats: chats,
-                }
-              );
-              cb(null, game);
-            });
-          });
-        });
-      });
-    });
-  },
-
-  // For display on MyGames or Hall: no need for moves or chats
-  getByUser: function(uid, excluded, cb)
-  {
-    // Some fields are not required when showing a games list:
-    const getOneLight = (id, cb2) => {
-      let query =
-        "SELECT g.id, g.vid, g.fen, g.cadence, g.created, g.score, " +
-          "g.scoreMsg, g.deletedByWhite, g.deletedByBlack, v.name AS vname " +
-        "FROM Games g " +
-        "JOIN Variants v " +
-        "  ON g.vid = v.id " +
-        "WHERE g.id = " + id;
-      db.get(query, (err, gameInfo) => {
-        query =
-          "SELECT p.uid, p.color, u.name " +
-          "FROM Players p " +
-          "JOIN Users u " +
-          "  ON p.uid = u.id " +
-          "WHERE p.gid = " + id;
-        db.all(query, (err2, players) => {
-          query =
-            "SELECT COUNT(*) AS nbMoves " +
-            "FROM Moves " +
-            "WHERE gid = " + id;
-          db.get(query, (err,ret) => {
+          db.all(query, (err4, chats) => {
             const game = Object.assign(
               {},
               gameInfo,
               {
-                players: players,
-                movesCount: ret.nbMoves
+                moves: moves,
+                chats: chats
               }
             );
-            cb2(game);
+            cb(null, game);
           });
         });
-      });
-    };
-    db.serialize(function() {
-      let query = "";
-      if (uid == 0) {
-        // Special case anonymous user: show all games
-        query =
-          "SELECT id AS gid " +
-          "FROM Games";
-      }
-      else {
-        // Registered user:
-        query =
-          "SELECT gid " +
-          "FROM Players " +
-          "GROUP BY gid " +
-          "HAVING COUNT(uid = " + uid + " OR NULL) " +
-          (excluded ? " = 0" : " > 0");
-      }
-      db.all(query, (err,gameIds) => {
-        if (err || gameIds.length == 0) cb(err, []);
-        else {
-          let gameArray = [];
-          let gCounter = 0;
-          for (let i=0; i<gameIds.length; i++) {
-            getOneLight(gameIds[i]["gid"], (game) => {
-              gameArray.push(game);
-              gCounter++; //TODO: let's hope this is atomic?!
-              // Call callback function only when gameArray is complete:
-              if (gCounter == gameIds.length)
-                cb(null, gameArray);
-            });
-          }
-        }
       });
     });
   },
 
-  getPlayers: function(id, cb)
-  {
+  // For display on Hall: no need for moves or chats
+  getObserved: function(uid, cursor, cb) {
+    db.serialize(function() {
+      let query =
+        "SELECT g.id, g.vid, g.cadence, g.created, " +
+        "       g.score, g.white, g.black " +
+        "FROM Games g ";
+      if (uid > 0) query +=
+        "WHERE " +
+        "  created < " + cursor + " AND " +
+        "  white <> " + uid + " AND " +
+        "  black <> " + uid + " ";
+      query +=
+        "ORDER BY created DESC " +
+        "LIMIT 20"; //TODO: 20 hard-coded...
+      db.all(query, (err, games) => {
+        // Query players names
+        let pids = {};
+        games.forEach(g => {
+          if (!pids[g.white]) pids[g.white] = true;
+          if (!pids[g.black]) pids[g.black] = true;
+        });
+        UserModel.getByIds(Object.keys(pids), (err2, users) => {
+          let names = {};
+          users.forEach(u => { names[u.id] = u.name; });
+          cb(
+            games.map(
+              g => {
+                return {
+                  id: g.id,
+                  cadence: g.cadence,
+                  vname: g.vname,
+                  created: g.created,
+                  score: g.score,
+                  white: names[g.white],
+                  black: names[g.black]
+                };
+              }
+            )
+          );
+        });
+      });
+    });
+  },
+
+  // For display on MyGames: registered user only
+  getRunning: function(uid, cb) {
+    db.serialize(function() {
+      let query =
+        "SELECT g.id, g.cadence, g.created, g.score, " +
+          "g.white, g.black, v.name AS vname " +
+        "FROM Games g " +
+        "JOIN Variants v " +
+        "  ON g.vid = v.id " +
+        "WHERE white = " + uid + " OR black = " + uid;
+      db.all(query, (err, games) => {
+        // Get movesCount (could be done in // with next query)
+        query =
+          "SELECT gid, COUNT(*) AS nbMoves " +
+          "FROM Moves " +
+          "WHERE gid IN " + "(" + games.map(g => g.id).join(",") + ") " +
+          "GROUP BY gid";
+        db.all(query, (err, mstats) => {
+          let movesCounts = {};
+          mstats.forEach(ms => { movesCounts[ms.gid] = ms.nbMoves; });
+          // Query player names
+          let pids = {};
+          games.forEach(g => {
+            if (!pids[g.white]) pids[g.white] = true;
+            if (!pids[g.black]) pids[g.black] = true;
+          });
+          UserModel.getByIds(pids, (err2, users) => {
+            let names = {};
+            users.forEach(u => { names[u.id] = u.name; });
+            cb(
+              games.map(
+                g => {
+                  return {
+                    id: g.id,
+                    cadence: g.cadence,
+                    vname: g.vname,
+                    created: g.created,
+                    score: g.score,
+                    movesCount: movesCounts[g.id],
+                    white: names[g.white],
+                    black: names[g.black]
+                  };
+                }
+              )
+            );
+          });
+        });
+      });
+    });
+  },
+
+  // These games could be deleted on some side. movesCount not required
+  getCompleted: function(uid, cursor, cb) {
+    db.serialize(function() {
+      let query =
+        "SELECT g.id, g.cadence, g.created, g.score, g.scoreMsg, " +
+          "g.white, g.black, g.deletedByWhite, g.deletedByBlack, " +
+          "v.name AS vname " +
+        "FROM Games g " +
+        "JOIN Variants v " +
+        "  ON g.vid = v.id " +
+        "WHERE " +
+        "  created < " + cursor + " AND " +
+        "  (" +
+        "    (" + uid + " = white AND NOT deletedByWhite) OR " +
+        "    (" + uid + " = black AND NOT deletedByBlack)" +
+        "  ) ";
+      query +=
+        "ORDER BY created DESC " +
+        "LIMIT 20";
+      db.all(query, (err, games) => {
+        // Query player names
+        let pids = {};
+        games.forEach(g => {
+          if (!pids[g.white]) pids[g.white] = true;
+          if (!pids[g.black]) pids[g.black] = true;
+        });
+        UserModel.getByIds(pids, (err2, users) => {
+          let names = {};
+          users.forEach(u => { names[u.id] = u.name; });
+          cb(
+            games.map(
+              g => {
+                return {
+                  id: g.id,
+                  cadence: g.cadence,
+                  vname: g.vname,
+                  created: g.created,
+                  score: g.score,
+                  scoreMsg: g.scoreMsg,
+                  white: names[g.white],
+                  black: names[g.black],
+                  deletedByWhite: g.deletedByWhite,
+                  deletedByBlack: g.deletedByBlack
+                };
+              }
+            )
+          );
+        });
+      });
+    });
+  },
+
+  getPlayers: function(id, cb) {
     db.serialize(function() {
       const query =
-        "SELECT uid " +
-        "FROM Players " +
+        "SELECT white, black " +
+        "FROM Games " +
         "WHERE gid = " + id;
-      db.all(query, (err,players) => {
+      db.all(query, (err, players) => {
         return cb(err, players);
       });
     });
   },
 
-  checkGameUpdate: function(obj)
-  {
+  checkGameUpdate: function(obj) {
     // Check all that is possible (required) in obj:
     return (
       (
@@ -229,8 +290,7 @@ const GameModel =
   },
 
   // obj can have fields move, chat, fen, drawOffer and/or score + message
-  update: function(id, obj, cb)
-  {
+  update: function(id, obj, cb) {
     db.parallelize(function() {
       let query =
         "UPDATE Games " +
@@ -320,56 +380,72 @@ const GameModel =
     });
   },
 
-  remove: function(id)
-  {
+  remove: function(id_s) {
+    const suffix =
+      Array.isArray(id_s)
+        ? " IN (" + id_s.join(",") + ")"
+        : " = " + id_s;
     db.parallelize(function() {
       let query =
         "DELETE FROM Games " +
-        "WHERE id = " + id;
-      db.run(query);
-      query =
-        "DELETE FROM Players " +
-        "WHERE gid = " + id;
+        "WHERE id " + suffix;
       db.run(query);
       query =
         "DELETE FROM Moves " +
-        "WHERE gid = " + id;
+        "WHERE gid " + suffix;
       db.run(query);
       query =
         "DELETE FROM Chats " +
-        "WHERE gid = " + id;
+        "WHERE gid " + suffix;
       db.run(query);
     });
   },
 
-  cleanGamesDb: function()
-  {
+  cleanGamesDb: function() {
     const tsNow = Date.now();
     // 86400000 = 24 hours in milliseconds
     const day = 86400000;
     db.serialize(function() {
       let query =
         "SELECT id, created " +
-        "FROM Games ";
-      db.all(query, (err,games) => {
-        games.forEach(g => {
-          query =
-            "SELECT count(*) as nbMoves, max(played) AS lastMaj " +
-            "FROM Moves " +
-            "WHERE gid = " + g.id;
-          db.get(query, (err2,mstats) => {
-            // Remove games still not really started,
-            // with no action in the last 3 months:
-            if ((mstats.nbMoves == 0 && tsNow - g.created > 91*day) ||
-              (mstats.nbMoves == 1 && tsNow - mstats.lastMaj > 91*day))
-            {
-              GameModel.remove(g.id);
+        "FROM Games";
+      db.all(query, (err, games) => {
+        query =
+          "SELECT gid, count(*) AS nbMoves, MAX(played) AS lastMaj " +
+          "FROM Moves " +
+          "GROUP BY gid";
+        db.get(query, (err2, mstats) => {
+          // Reorganize moves data to avoid too many array lookups:
+          let movesGroups = {};
+          mstats.forEach(ms => {
+            movesGroups[ms.gid] = {
+              nbMoves: ms.nbMoves,
+              lastMaj: ms.lastMaj
+            };
+          });
+          // Remove games still not really started,
+          // with no action in the last 3 months:
+          let toRemove = [];
+          games.forEach(g => {
+            if (
+              (
+                !movesGroups[g.id] &&
+                tsNow - g.created > 91*day
+              )
+              ||
+              (
+                movesGroups[g.id].nbMoves == 1 &&
+                tsNow - movesGroups[g.id].lastMaj > 91*day
+              )
+            ) {
+              toRemove.push(g.id);
             }
           });
+          if (toRemove.length > 0) GameModel.remove(toRemove);
         });
       });
     });
-  },
+  }
 }
 
 module.exports = GameModel;

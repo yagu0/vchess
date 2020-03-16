@@ -62,7 +62,7 @@ export default {
         );
       if (
         this.st.user.sid == g.players[0].sid ||
-        this.st.user.id == g.players[0].uid
+        this.st.user.id == g.players[0].id
       )
         return g.players[1].name || "@nonymous";
       return g.players[0].name || "@nonymous";
@@ -113,8 +113,7 @@ export default {
       if (
         // My game ?
         game.players.some(p =>
-          p.sid == this.st.user.sid ||
-          p.uid == this.st.user.id
+          p.sid == this.st.user.sid || p.id == this.st.user.id
         )
       ) {
         const message =
@@ -131,7 +130,7 @@ export default {
             GameStorage.remove(game.id, afterDelete);
           else {
             const mySide =
-              game.players[0].uid == this.st.user.id
+              game.players[0].id == this.st.user.id
                 ? "White"
                 : "Black";
             game["deletedBy" + mySide] = true;

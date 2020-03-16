@@ -185,12 +185,17 @@ main
           :showBoth="true"
           @show-game="showGame"
         )
-        GameList(
-          v-show="gdisplay=='corr'"
-          :games="filterGames('corr')"
-          :showBoth="true"
-          @show-game="showGame"
-        )
+        div(v-show="gdisplay=='corr'")
+          GameList(
+            :games="filterGames('corr')"
+            :showBoth="true"
+            @show-game="showGame"
+          )
+          button#loadMoreBtn(
+            v-if="hasMore"
+            @click="loadMore()"
+          )
+            | {{ st.tr["Load more"] }}
 </template>
 
 <script>
@@ -218,6 +223,10 @@ export default {
       st: store.state,
       cdisplay: "live", //or corr
       gdisplay: "live",
+      // timestamp of last showed (oldest) corr game:
+      cursor: Number.MAX_SAFE_INTEGER,
+      // hasMore == TRUE: a priori there could be more games to load
+      hasMore: true,
       games: [],
       challenges: [],
       people: {},
@@ -321,10 +330,13 @@ export default {
     this.setDisplay('g', showGtype);
     // Ask server for current corr games (all but mines)
     ajax(
-      "/games",
+      "/observedgames",
       "GET",
       {
-        data: { uid: this.st.user.id, excluded: true },
+        data: {
+          uid: this.st.user.id,
+          cursor: this.cursor
+        },
         success: (response) => {
           if (
             response.games.length > 0 &&
@@ -337,13 +349,12 @@ export default {
           }
           this.games = this.games.concat(
             response.games.map(g => {
-              const type = this.classifyObject(g);
               const vname = this.getVname(g.vid);
               return Object.assign(
                 {},
                 g,
                 {
-                  type: type,
+                  type: "corr",
                   vname: vname
                 }
               );
@@ -766,7 +777,7 @@ export default {
           const game = data.data;
           // Ignore games where I play (will go in MyGames page)
           if (game.players.every(p =>
-            p.sid != this.st.user.sid && p.uid != this.st.user.id))
+            p.sid != this.st.user.sid && p.id != this.st.user.id))
           {
             let locGame = this.games.find(g => g.id == game.id);
             if (!locGame) {
@@ -829,6 +840,36 @@ export default {
       this.conn = new WebSocket(this.connexionString);
       this.conn.addEventListener("message", this.socketMessageListener);
       this.conn.addEventListener("close", this.socketCloseListener);
+    },
+    loadMore: function() {
+      ajax(
+        "/observedgames",
+        "GET",
+        {
+          data: {
+            uid: this.st.user.id,
+            cursor: this.cursor
+          },
+          success: (res) => {
+            if (res.games.length > 0) {
+              const L = res.games.length;
+              this.cursor = res.games[L - 1].created;
+              let moreGames = res.games.map(g => {
+                const vname = this.getVname(g.vid);
+                return Object.assign(
+                  {},
+                  g,
+                  {
+                    type: "corr",
+                    vname: vname
+                  }
+                );
+              });
+              this.games = this.games.concat(moreGames);
+            } else this.hasMore = false;
+          }
+        }
+      );
     },
     // Challenge lifecycle:
     addChallenge: function(chall) {
@@ -1098,16 +1139,11 @@ export default {
         !!c.mycolor
           ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
           : shuffle([c.from, c.seat]);
-      // Convention for players IDs in stored games is 'uid'
-      players.forEach(p => {
-        let pWithUid = p;
-        pWithUid["uid"] = p.id;
-        delete pWithUid["id"];
-      });
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),
         fen: c.fen || V.GenRandInitFen(c.randomness),
+        randomness: c.randomness, //for rematch
         // White player index 0, black player index 1:
         players: c.mycolor
           ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
@@ -1126,7 +1162,7 @@ export default {
           {
             data: gameInfo,
             targets: gameInfo.players.map(p => {
-              return { sid: p.sid, uid: p.uid };
+              return { sid: p.sid, id: p.id };
             })
           }
         );
@@ -1174,13 +1210,12 @@ export default {
         () => {
           GameStorage.add(game, (err) => {
             // If an error occurred, game is not added: a tab already
-            // added the game and (if focused) is redirected toward it.
-            // If no error and the tab is hidden: do not show anything.
-            if (!err && !document.hidden) {
-              if (this.st.settings.sound)
-                new Audio("/sounds/newgame.flac").play().catch(() => {});
-              this.$router.push("/game/" + gameInfo.id);
-            }
+            // added the game. Maybe a focused one, maybe not.
+            // We know for sure that it emitted the gong start sound.
+            // ==> Do not play it again.
+            if (!err && this.st.settings.sound)
+              new Audio("/sounds/newgame.flac").play().catch(() => {});
+            this.$router.push("/game/" + gameInfo.id);
           });
         },
         document.hidden ? 500 + 1000 * Math.random() : 0
@@ -1291,6 +1326,10 @@ tr > td
 @media screen and (max-width: 767px)
   h4
     margin: 5px 0
+
+button#loadMoreBtn
+  margin-top: 0
+  margin-bottom: 0
 
 td.remove-preset
   background-color: lightgrey

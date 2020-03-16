@@ -352,7 +352,7 @@ export default {
     isConnected: function(index) {
       const player = this.game.players[index];
       // Is it me ? In this case no need to bother with focus
-      if (this.st.user.sid == player.sid || this.st.user.id == player.uid)
+      if (this.st.user.sid == player.sid || this.st.user.id == player.id)
         // Still have to check for name (because of potential multi-accounts
         // on same browser, although this should be rare...)
         return (!this.st.user.name || this.st.user.name == player.name);
@@ -365,9 +365,9 @@ export default {
         )
         ||
         (
-          player.uid &&
+          player.id &&
           Object.values(this.people).some(p =>
-            p.id == player.uid && p.focus)
+            p.id == player.id && p.focus)
         )
       );
     },
@@ -415,7 +415,7 @@ export default {
         {
           data: data,
           targets: this.game.players.map(p => {
-            return { sid: p.sid, uid: p.uid };
+            return { sid: p.sid, id: p.id };
           })
         }
       );
@@ -693,7 +693,7 @@ export default {
             this.addAndGotoLiveGame(gameInfo);
           } else if (
             gameType == "corr" &&
-            gameInfo.players.some(p => p.uid == this.st.user.id)
+            gameInfo.players.some(p => p.id == this.st.user.id)
           ) {
             this.$router.push("/game/" + gameInfo.id);
           } else {
@@ -918,7 +918,7 @@ export default {
         const gtype = this.getGameType(game);
         const tc = extractTime(game.cadence);
         const myIdx = game.players.findIndex(p => {
-          return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+          return p.sid == this.st.user.sid || p.id == this.st.user.id;
         });
         const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
         if (!game.chats) game.chats = []; //live games don't have chat history
@@ -1031,7 +1031,7 @@ export default {
             // opponent sid not strictly required (or available), but easier
             // at least oppsid or oppid is available anyway:
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
-            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].uid
+            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].id
           },
           game,
         );
@@ -1085,6 +1085,9 @@ export default {
                 g.moves.forEach(m => {
                   m.squares = JSON.parse(m.squares);
                 });
+                g.players = [{ id: g.white }, { id: g.black }];
+                delete g["white"];
+                delete g["black"];
                 afterRetrieval(g);
               }
             }
@@ -1366,7 +1369,7 @@ export default {
       this.game.scoreMsg = scoreMsg;
       this.$set(this.game, "scoreMsg", scoreMsg);
       const myIdx = this.game.players.findIndex(p => {
-        return p.sid == this.st.user.sid || p.uid == this.st.user.id;
+        return p.sid == this.st.user.sid || p.id == this.st.user.id;
       });
       if (myIdx >= 0) {
         // OK, I play in this game

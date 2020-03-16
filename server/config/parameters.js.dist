@@ -1,5 +1,4 @@
-module.exports =
-{
+module.exports = {
   // For mail sending. NOTE: *no trailing slash*
   siteURL: "http://localhost:8080",
 

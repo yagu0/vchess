@@ -80,10 +80,10 @@ export default {
       .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
     },
     loadGame: function(orientation) {
-      // NOTE: no need to set score (~unused)
       this.game.vname = this.gameRef.vname;
       this.game.fenStart = this.gameRef.fen;
       this.game.fen = this.gameRef.fen;
+      this.game.score = "*"; //never change
       this.curFen = this.game.fen;
       this.adjustFenSize();
       this.game.mycolor = orientation || V.ParseFen(this.gameRef.fen).turn;
