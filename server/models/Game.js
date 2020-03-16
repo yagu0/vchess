@@ -232,11 +232,18 @@ const GameModel =
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
         "WHERE " +
-        "  score <> '*' AND " +
-        "  created < " + cursor + " AND " +
+        "  score <> '*' AND" +
+        "  created < " + cursor + " AND" +
         "  (" +
-        "    (" + uid + " = white AND NOT deletedByWhite) OR " +
-        "    (" + uid + " = black AND NOT deletedByBlack)" +
+        "    (" +
+        "      white = " + uid + " AND" +
+        "      (deletedByWhite IS NULL OR NOT deletedByWhite)" +
+        "    )" +
+        "    OR " +
+        "    (" +
+        "      black = " + uid + " AND" +
+        "      (deletedByBlack IS NULL OR NOT deletedByBlack)" +
+        "    )" +
         "  ) ";
       query +=
         "ORDER BY created DESC " +
