@@ -933,7 +933,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         return false;
       }
       let sq = [ x1 + step[0], y1 + step[1] ];
-      while (sq[0] != x2 && sq[1] != y2) {
+      while (sq[0] != x2 || sq[1] != y2) {
         if (
           // NOTE: no need to check OnBoard in this special case
           (!lancer && this.board[sq[0]][sq[1]] != V.EMPTY) ||
@@ -1080,9 +1080,24 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return (!choice.second ? choice : [choice, choice.second]);
   }
 
+  // For moves notation:
+  static get LANCER_DIRNAMES() {
+    return {
+      'c': "N",
+      'd': "NE",
+      'e': "E",
+      'f': "SE",
+      'g': "S",
+      'h': "SW",
+      'm': "W",
+      'o': "NW"
+    };
+  }
+
   getNotation(move) {
     // Special case "king takes jailer" is a pass move
     if (move.appear.length == 0 && move.vanish.length == 0) return "pass";
+    let notation = undefined;
     if (this.subTurn == 2) {
       // Do not consider appear[1] (sentry) for sentry pushes
       const simpleMove = {
@@ -1091,8 +1106,11 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         start: move.start,
         end: move.end
       };
-      return super.getNotation(simpleMove);
-    }
-    return super.getNotation(move);
+      notation = super.getNotation(simpleMove);
+    } else notation = super.getNotation(move);
+    if (Object.keys(V.LANCER_DIRNAMES).includes(move.vanish[0].p))
+      // Lancer: add direction info
+      notation += "=" + V.LANCER_DIRNAMES[move.appear[0].p];
+    return notation;
   }
 };

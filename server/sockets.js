@@ -32,24 +32,13 @@ module.exports = function(wss) {
     const id = query["id"];
     const tmpId = query["tmpId"];
     const page = query["page"];
-    const notifyRoom = (page,code,obj={}) => {
+    const notifyRoom = (page, code, obj={}, except) => {
       if (!clients[page]) return;
-      Object.keys(clients[page]).forEach(k => {
-        Object.keys(clients[page][k]).forEach(x => {
-          if (k == sid && x == tmpId) return;
-          send(
-            clients[page][k][x].socket,
-            Object.assign({ code: code, from: sid }, obj)
-          );
-        });
-      });
-    };
-    // For focus events: no need to target self
-    const notifyAllBut = (page,code,obj={},except) => {
-      if (!clients[page]) return;
+      except = except || [];
       Object.keys(clients[page]).forEach(k => {
         if (except.includes(k)) return;
         Object.keys(clients[page][k]).forEach(x => {
+          if (k == sid && x == tmpId) return;
           send(
             clients[page][k][x].socket,
             Object.assign({ code: code, from: sid }, obj)
@@ -208,14 +197,16 @@ module.exports = function(wss) {
         case "drawoffer":
         case "rematchoffer":
         case "draw":
-          notifyRoom(page, obj.code, {data: obj.data});
+          notifyRoom(page, obj.code, {data: obj.data}, obj.excluded);
           break;
 
         case "rnewgame":
           // A rematch game started:
-          // NOTE: no need to explicitely notify Hall: the game will be sent
-          notifyAllBut(page, "newgame", {data: obj.data}, [sid]);
-          notifyRoom("/mygames", "newgame", {data: obj.data});
+          notifyRoom(page, "newgame", {data: obj.data});
+          // Explicitely notify Hall if gametype == corr.
+          // Live games will be polled from Hall after gconnect event.
+          if (obj.data.cadence.indexOf('d') >= 0)
+            notifyRoom("/", "newgame", {data: obj.data});
           break;
 
         case "newmove": {
@@ -284,11 +275,11 @@ module.exports = function(wss) {
 
         case "getfocus":
         case "losefocus":
-          if (page == "/") notifyAllBut("/", obj.code, { page: "/" }, [sid]);
+          if (page == "/") notifyRoom("/", obj.code, { page: "/" }, [sid]);
           else {
             // Notify game room + Hall:
-            notifyAllBut(page, obj.code, {}, [sid]);
-            notifyAllBut("/", obj.code, { page: page }, [sid]);
+            notifyRoom(page, obj.code, {}, [sid]);
+            notifyRoom("/", obj.code, { page: page }, [sid]);
           }
           break;
 

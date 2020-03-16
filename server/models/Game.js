@@ -38,10 +38,10 @@ const GameModel =
     return (
       g.vid.toString().match(/^[0-9]+$/) &&
       g.cadence.match(/^[0-9dhms +]+$/) &&
-      g.randomness.match(/^[0-2]$/) &&
+      g.randomness.toString().match(/^[0-2]$/) &&
       g.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
       g.players.length == 2 &&
-      g.players.every(p => p.toString().match(/^[0-9]+$/))
+      g.players.every(p => p.id.toString().match(/^[0-9]+$/))
     );
   },
 
@@ -57,11 +57,11 @@ const GameModel =
         "VALUES " +
         "(" +
           vid + ",'" + fen + "','" + fen + "'," + randomness + "," +
-          "'" + players[0] + "','" + players[1] + "," +
+          players[0].id + "," + players[1].id + "," +
           "'" + cadence + "'," + Date.now() +
         ")";
       db.run(query, function(err) {
-        cb(err, { id: this.lastId });
+        cb(err, { id: this.lastID });
       });
     });
   },
@@ -72,7 +72,7 @@ const GameModel =
     db.serialize(function() {
       let query =
         "SELECT " +
-          "g.id, g.vid, g.fen, g.fenStart, g.cadence, g.created, " +
+          "g.id, g.fen, g.fenStart, g.cadence, g.created, " +
           "g.white, g.black, g.score, g.scoreMsg, " +
           "g.drawOffer, g.rematchOffer, v.name AS vname " +
         "FROM Games g " +
@@ -80,25 +80,40 @@ const GameModel =
         "  ON g.vid = v.id " +
         "WHERE g.id = " + id;
       db.get(query, (err, gameInfo) => {
+        if (!gameInfo) {
+          cb(err || { errmsg: "Game not found" }, undefined);
+          return;
+        }
         query =
-          "SELECT squares, played, idx " +
-          "FROM Moves " +
-          "WHERE gid = " + id;
-        db.all(query, (err3, moves) => {
+          "SELECT id, name " +
+          "FROM Users " +
+          "WHERE id IN (" + gameInfo.white + "," + gameInfo.black + ")";
+        db.all(query, (err2, players) => {
+          if (players[0].id == gameInfo.black) players = players.reverse();
+          // The original players' IDs info isn't required anymore
+          delete gameInfo["white"];
+          delete gameInfo["black"];
           query =
-            "SELECT msg, name, added " +
-            "FROM Chats " +
+            "SELECT squares, played, idx " +
+            "FROM Moves " +
             "WHERE gid = " + id;
-          db.all(query, (err4, chats) => {
-            const game = Object.assign(
-              {},
-              gameInfo,
-              {
-                moves: moves,
-                chats: chats
-              }
-            );
-            cb(null, game);
+          db.all(query, (err3, moves) => {
+            query =
+              "SELECT msg, name, added " +
+              "FROM Chats " +
+              "WHERE gid = " + id;
+            db.all(query, (err4, chats) => {
+              const game = Object.assign(
+                {},
+                gameInfo,
+                {
+                  players: players,
+                  moves: moves,
+                  chats: chats
+                }
+              );
+              cb(null, game);
+            });
           });
         });
       });
@@ -109,9 +124,8 @@ const GameModel =
   getObserved: function(uid, cursor, cb) {
     db.serialize(function() {
       let query =
-        "SELECT g.id, g.vid, g.cadence, g.created, " +
-        "       g.score, g.white, g.black " +
-        "FROM Games g ";
+        "SELECT id, vid, cadence, created, score, white, black " +
+        "FROM Games ";
       if (uid > 0) query +=
         "WHERE " +
         "  created < " + cursor + " AND " +
@@ -131,16 +145,19 @@ const GameModel =
           let names = {};
           users.forEach(u => { names[u.id] = u.name; });
           cb(
+            err,
             games.map(
               g => {
                 return {
                   id: g.id,
+                  vid: g.vid,
                   cadence: g.cadence,
-                  vname: g.vname,
                   created: g.created,
                   score: g.score,
-                  white: names[g.white],
-                  black: names[g.black]
+                  players: [
+                    { id: g.white, name: names[g.white] },
+                    { id: g.black, name: names[g.black] }
+                  ]
                 };
               }
             )
@@ -154,12 +171,12 @@ const GameModel =
   getRunning: function(uid, cb) {
     db.serialize(function() {
       let query =
-        "SELECT g.id, g.cadence, g.created, g.score, " +
+        "SELECT g.id, g.cadence, g.created, " +
           "g.white, g.black, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
-        "WHERE white = " + uid + " OR black = " + uid;
+        "WHERE score = '*' AND (white = " + uid + " OR black = " + uid + ")";
       db.all(query, (err, games) => {
         // Get movesCount (could be done in // with next query)
         query =
@@ -176,21 +193,24 @@ const GameModel =
             if (!pids[g.white]) pids[g.white] = true;
             if (!pids[g.black]) pids[g.black] = true;
           });
-          UserModel.getByIds(pids, (err2, users) => {
+          UserModel.getByIds(Object.keys(pids), (err2, users) => {
             let names = {};
             users.forEach(u => { names[u.id] = u.name; });
             cb(
+              null,
               games.map(
                 g => {
                   return {
                     id: g.id,
-                    cadence: g.cadence,
                     vname: g.vname,
+                    cadence: g.cadence,
                     created: g.created,
                     score: g.score,
-                    movesCount: movesCounts[g.id],
-                    white: names[g.white],
-                    black: names[g.black]
+                    movesCount: movesCounts[g.id] || 0,
+                    players: [
+                      { id: g.white, name: names[g.white] },
+                      { id: g.black, name: names[g.black] }
+                    ]
                   };
                 }
               )
@@ -212,6 +232,7 @@ const GameModel =
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
         "WHERE " +
+        "  score <> '*' AND " +
         "  created < " + cursor + " AND " +
         "  (" +
         "    (" + uid + " = white AND NOT deletedByWhite) OR " +
@@ -227,21 +248,24 @@ const GameModel =
           if (!pids[g.white]) pids[g.white] = true;
           if (!pids[g.black]) pids[g.black] = true;
         });
-        UserModel.getByIds(pids, (err2, users) => {
+        UserModel.getByIds(Object.keys(pids), (err2, users) => {
           let names = {};
           users.forEach(u => { names[u.id] = u.name; });
           cb(
+            null,
             games.map(
               g => {
                 return {
                   id: g.id,
-                  cadence: g.cadence,
                   vname: g.vname,
+                  cadence: g.cadence,
                   created: g.created,
                   score: g.score,
                   scoreMsg: g.scoreMsg,
-                  white: names[g.white],
-                  black: names[g.black],
+                  players: [
+                    { id: g.white, name: names[g.white] },
+                    { id: g.black, name: names[g.black] }
+                  ],
                   deletedByWhite: g.deletedByWhite,
                   deletedByBlack: g.deletedByBlack
                 };
@@ -258,8 +282,8 @@ const GameModel =
       const query =
         "SELECT white, black " +
         "FROM Games " +
-        "WHERE gid = " + id;
-      db.all(query, (err, players) => {
+        "WHERE id = " + id;
+      db.get(query, (err, players) => {
         return cb(err, players);
       });
     });
@@ -292,71 +316,83 @@ const GameModel =
   // obj can have fields move, chat, fen, drawOffer and/or score + message
   update: function(id, obj, cb) {
     db.parallelize(function() {
-      let query =
+      let updateQuery =
         "UPDATE Games " +
         "SET ";
       let modifs = "";
       // NOTE: if drawOffer is set, we should check that it's player's turn
       // A bit overcomplicated. Let's trust the client on that for now...
-      if (!!obj.drawOffer)
-      {
-        if (obj.drawOffer == "n") //special "None" update
+      if (!!obj.drawOffer) {
+        if (obj.drawOffer == "n")
+          // Special "None" update
           obj.drawOffer = "";
         modifs += "drawOffer = '" + obj.drawOffer + "',";
       }
-      if (!!obj.rematchOffer)
-      {
-        if (obj.rematchOffer == "n") //special "None" update
+      if (!!obj.rematchOffer) {
+        if (obj.rematchOffer == "n")
+          // Special "None" update
           obj.rematchOffer = "";
         modifs += "rematchOffer = '" + obj.rematchOffer + "',";
       }
-      if (!!obj.fen)
-        modifs += "fen = '" + obj.fen + "',";
-      if (!!obj.score)
-        modifs += "score = '" + obj.score + "',";
-      if (!!obj.scoreMsg)
-        modifs += "scoreMsg = '" + obj.scoreMsg + "',";
+      if (!!obj.fen) modifs += "fen = '" + obj.fen + "',";
       if (!!obj.deletedBy) {
         const myColor = obj.deletedBy == 'w' ? "White" : "Black";
         modifs += "deletedBy" + myColor + " = true,";
       }
-      modifs = modifs.slice(0,-1); //remove last comma
-      if (modifs.length > 0)
-      {
-        query += modifs + " WHERE id = " + id;
-        db.run(query);
+      if (!!obj.score) {
+        modifs += "score = '" + obj.score + "'," +
+                  "scoreMsg = '" + obj.scoreMsg + "',";
       }
-      // NOTE: move, chat and delchat are mutually exclusive
-      if (!!obj.move)
-      {
-        // Security: only update moves if index is right
-        query =
-          "SELECT MAX(idx) AS maxIdx " +
+      const finishAndSendQuery = () => {
+        modifs = modifs.slice(0, -1); //remove last comma
+        if (modifs.length > 0) {
+          updateQuery += modifs + " WHERE id = " + id;
+          db.run(updateQuery);
+        }
+        cb(null);
+      };
+      if (!!obj.move || (!!obj.score && obj.scoreMsg == "Time")) {
+        // Security: only update moves if index is right,
+        // and score with scoreMsg "Time" if really lost on time.
+        let query =
+          "SELECT MAX(idx) AS maxIdx, MAX(played) AS lastPlayed " +
           "FROM Moves " +
           "WHERE gid = " + id;
-        db.get(query, (err,ret) => {
-          const m = obj.move;
-          if (!ret.maxIdx || ret.maxIdx + 1 == m.idx) {
-            query =
-              "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
-              "(" + id + ",?," + m.played + "," + m.idx + ")";
-            db.run(query, JSON.stringify(m.squares));
-            cb(null);
+        db.get(query, (err, ret) => {
+          if (!!obj.move ) {
+            if (!ret.maxIdx || ret.maxIdx + 1 == obj.move.idx) {
+              query =
+                "INSERT INTO Moves (gid, squares, played, idx) VALUES " +
+                "(" + id + ",?," + Date.now() + "," + obj.move.idx + ")";
+              db.run(query, JSON.stringify(obj.move.squares));
+              finishAndSendQuery();
+            } else cb({ errmsg: "Wrong move index" });
+          } else {
+            if (ret.maxIdx < 2) cb({ errmsg: "Time not over" });
+            else {
+              // We also need the game cadence
+              query =
+                "SELECT cadence " +
+                "FROM Games " +
+                "WHERE id = " + id;
+              db.get(query, (err2, ret2) => {
+                const daysTc = parseInt(ret2.cadence.match(/\(^[0-9]+\)/)[0]);
+                if (Date.now() - ret.lastPlayed > daysTc * 24 * 3600 * 1000)
+                  finishAndSendQuery();
+                else cb({ errmsg: "Time not over" });
+              });
+            }
           }
-          else cb({errmsg:"Wrong move index"});
         });
-      }
-      else cb(null);
-      if (!!obj.chat)
-      {
-        query =
+      } else finishAndSendQuery();
+      // NOTE: chat and delchat are mutually exclusive
+      if (!!obj.chat) {
+        const query =
           "INSERT INTO Chats (gid, msg, name, added) VALUES ("
             + id + ",?,'" + obj.chat.name + "'," + Date.now() + ")";
         db.run(query, obj.chat.msg);
-      }
-      else if (obj.delchat)
-      {
-        query =
+      } else if (obj.delchat) {
+        const query =
           "DELETE " +
           "FROM Chats " +
           "WHERE gid = " + id;
@@ -368,7 +404,7 @@ const GameModel =
           "deletedBy" +
           (obj.deletedBy == 'w' ? "Black" : "White") +
           " AS deletedByOpp";
-        query =
+        const query =
           "SELECT " + selection + " " +
           "FROM Games " +
           "WHERE id = " + id;

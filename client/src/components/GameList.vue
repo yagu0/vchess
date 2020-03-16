@@ -85,7 +85,9 @@ export default {
       const deltaCreated = maxCreated - minCreated;
       return remGames.sort((g1, g2) => {
         return (
-          g2.priority - g1.priority + (g2.created - g1.created) / deltaCreated
+          g2.priority - g1.priority +
+          // Modulate with creation time (value in ]0,1[)
+          (g2.created - g1.created) / (deltaCreated + 1)
         );
       });
     },

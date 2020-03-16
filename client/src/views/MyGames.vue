@@ -103,16 +103,21 @@ export default {
           "/runninggames",
           "GET",
           {
+            credentials: true,
             success: (res) => {
               // These games are garanteed to not be deleted
               this.corrGames = res.games;
-              this.corrGames.forEach(g => g.type = "corr");
+              this.corrGames.forEach(g => {
+                g.type = "corr";
+                g.score = "*";
+              });
               this.decorate(this.corrGames);
               // Now ask completed games (partial list)
               ajax(
                 "/completedgames",
                 "GET",
                 {
+                  credentials: true,
                   data: { cursor: this.cursor },
                   success: (res2) => {
                     if (res2.games.length > 0) {
@@ -191,7 +196,7 @@ export default {
           if (thing == "turn") {
             game.myTurn = !game.myTurn;
             if (game.myTurn) this.tryShowNewsIndicator(type);
-          }
+          } else game.myTurn = false;
           // TODO: forcing refresh like that is ugly and wrong.
           //       How to do it cleanly?
           this.$refs[type + "games"].$forceUpdate();
@@ -287,6 +292,7 @@ export default {
         "/completedgames",
         "GET",
         {
+          credentials: true,
           data: { cursor: this.cursor },
           success: (res) => {
             if (res.games.length > 0) {
@@ -316,8 +322,8 @@ table.game-list
   max-height: 100%
 
 button#loadMoreBtn
-  margin-top: 0
-  margin-bottom: 0
+  display: block
+  margin: 0 auto
 
 .somethingnew
   background-color: #c5fefe !important

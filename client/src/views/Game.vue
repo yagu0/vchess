@@ -7,13 +7,11 @@ main
   )
     .card.text-center
       label.modal-close(for="modalInfo")
-      p
-        span {{ st.tr["Rematch in progress:"] }}
-        a(
-          :href="'#/game/' + rematchId"
-          onClick="document.getElementById('modalInfo').checked=false"
-        )
-          | {{ "#/game/" + rematchId }}
+      a(
+        :href="'#/game/' + rematchId"
+        onClick="document.getElementById('modalInfo').checked=false"
+      )
+        | {{ st.tr["Rematch in progress"] }}
   input#modalChat.modal(
     type="checkbox"
     @click="resetChatColor()"
@@ -365,7 +363,7 @@ export default {
         )
         ||
         (
-          player.id &&
+          !!player.id &&
           Object.values(this.people).some(p =>
             p.id == player.id && p.focus)
         )
@@ -849,8 +847,11 @@ export default {
           cadence: this.game.cadence
         };
         const notifyNewGame = () => {
-          let oppsid = this.getOppsid(); //may be null
+          const oppsid = this.getOppsid(); //may be null
           this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
+          // To main Hall if corr game:
+          if (this.game.type == "corr")
+            this.send("newgame", { data: gameInfo });
           // Also to MyGames page:
           this.notifyMyGames("newgame", gameInfo);
         };
@@ -923,20 +924,13 @@ export default {
         const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
         if (!game.chats) game.chats = []; //live games don't have chat history
         if (gtype == "corr") {
-          if (game.players[0].color == "b") {
-            // Adopt the same convention for live and corr games: [0] = white
-            [game.players[0], game.players[1]] = [
-              game.players[1],
-              game.players[0]
-            ];
-          }
           // NOTE: clocks in seconds, initime in milliseconds
           game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
           game.clocks = [tc.mainTime, tc.mainTime];
           const L = game.moves.length;
           if (game.score == "*") {
             // Set clocks + initime
-            game.initime = [0, 0];
+            game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
             if (L >= 1) game.initime[L % 2] = game.moves[L-1].played;
             // NOTE: game.clocks shouldn't be computed right now:
             // job will be done in re_setClocks() called soon below.
@@ -966,17 +960,15 @@ export default {
           game.moves = game.moves.map(m => m.squares);
         }
         if (gtype == "live" && game.clocks[0] < 0) {
-          // Game is unstarted
+          // Game is unstarted. clocks and initime are ignored until move 2
           game.clocks = [tc.mainTime, tc.mainTime];
-          if (game.score == "*") {
-            game.initime[0] = Date.now();
-            if (myIdx >= 0) {
-              // I play in this live game; corr games don't have clocks+initime
-              GameStorage.update(game.id, {
-                clocks: game.clocks,
-                initime: game.initime
-              });
-            }
+          game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+          if (myIdx >= 0) {
+            // I play in this live game
+            GameStorage.update(game.id, {
+              clocks: game.clocks,
+              initime: game.initime
+            });
           }
         }
         // TODO: merge next 2 "if" conditions
@@ -1085,9 +1077,6 @@ export default {
                 g.moves.forEach(m => {
                   m.squares = JSON.parse(m.squares);
                 });
-                g.players = [{ id: g.white }, { id: g.black }];
-                delete g["white"];
-                delete g["black"];
                 afterRetrieval(g);
               }
             }

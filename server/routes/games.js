@@ -13,12 +13,13 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
   if (
     Array.isArray(gameInfo.players) &&
     gameInfo.players.some(p => p.id == req.userId) &&
-    (!cid || cid.toString().match(/^[0-9]+$/)) &&
+    (!cid || !!cid.toString().match(/^[0-9]+$/)) &&
     GameModel.checkGameInfo(gameInfo)
   ) {
     if (!!cid) ChallengeModel.remove(cid);
     GameModel.create(
-      gameInfo.vid, gameInfo.fen, gameInfo.cadence, gameInfo.players,
+      gameInfo.vid, gameInfo.fen, gameInfo.randomness,
+      gameInfo.cadence, gameInfo.players,
       (err, ret) => {
         const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
         const oppId = gameInfo.players[oppIdx].id;
@@ -35,7 +36,7 @@ router.get("/games", access.ajax, (req,res) => {
   const gameId = req.query["gid"];
   if (!!gameId && gameId.match(/^[0-9]+$/)) {
     GameModel.getOne(gameId, (err, game) => {
-      res.json({ game: game });
+      res.json(err || { game: game });
     });
   }
 });
@@ -45,20 +46,20 @@ router.get("/observedgames", access.ajax, (req,res) => {
   const userId = req.query["uid"];
   const cursor = req.query["cursor"];
   if (!!userId.match(/^[0-9]+$/) && !!cursor.match(/^[0-9]+$/)) {
-    GameModel.getObserved(userId, (err, games) => {
+    GameModel.getObserved(userId, cursor, (err, games) => {
       res.json({ games: games });
     });
   }
 });
 
 // Get by user ID, for MyGames page
-router.get("/runninggames", access.ajax, access.logged, (req,res) => {
+router.get("/runninggames", access.logged, access.ajax, (req,res) => {
   GameModel.getRunning(req.userId, (err, games) => {
     res.json({ games: games });
   });
 });
 
-router.get("/completedgames", access.ajax, access.logged, (req,res) => {
+router.get("/completedgames", access.logged, access.ajax, (req,res) => {
   const cursor = req.query["cursor"];
   if (!!cursor.match(/^[0-9]+$/)) {
     GameModel.getCompleted(req.userId, cursor, (err, games) => {
@@ -72,7 +73,7 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
   const gid = req.body.gid;
   let obj = req.body.newObj;
   if (gid.toString().match(/^[0-9]+$/) && GameModel.checkGameUpdate(obj)) {
-    GameModel.getPlayers(gid, (err,players) => {
+    GameModel.getPlayers(gid, (err, players) => {
       let myColor = '';
       if (players.white == req.userId) myColor = 'w';
       else if (players.black == req.userId) myColor = 'b';
@@ -88,8 +89,8 @@ router.put("/games", access.logged, access.ajax, (req,res) => {
             const oppid = (myColor == 'w' ? players.black : players.white);
             const messagePrefix =
               !!obj.move
-                ? "New move in game: "
-                : "Game ended: ";
+                ? "New move in game : "
+                : "Game ended : ";
             UserModel.tryNotify(
               oppid,
               messagePrefix + params.siteURL + "/#/game/" + gid

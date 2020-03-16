@@ -29,7 +29,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
           if (user.notify)
             UserModel.notify(
               user,
-              "New challenge: " + params.siteURL + "/#/?disp=corr");
+              "New challenge : " + params.siteURL + "/#/?disp=corr");
         }
       });
     } else insertChallenge();

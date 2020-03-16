@@ -274,7 +274,9 @@ footer
 
 @media screen and (max-width: 420px)
   footer
+    height: 55px
     display: block
+    padding: 5px 0
 
 .menuitem.somenews
   color: red

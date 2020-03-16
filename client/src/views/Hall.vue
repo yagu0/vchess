@@ -338,14 +338,14 @@ export default {
           cursor: this.cursor
         },
         success: (response) => {
-          if (
-            response.games.length > 0 &&
-            this.games.length == 0 &&
-            this.gdisplay == "live"
-          ) {
-            document
-              .getElementById("btnGcorr")
-              .classList.add("somethingnew");
+          const L = response.games.length;
+          if (L > 0) {
+            this.cursor = response.games[L - 1].created;
+            if (this.games.length == 0 && this.gdisplay == "live") {
+              document
+                .getElementById("btnGcorr")
+                .classList.add("somethingnew");
+            }
           }
           this.games = this.games.concat(
             response.games.map(g => {
@@ -605,8 +605,9 @@ export default {
             if (!s.page)
               // Peer is in Hall
               this.send("askchallenges", { target: s.sid });
-            // Peer is in Game
-            else this.send("askgame", { target: s.sid, page: page });
+            // Peer is in Game: ask only if live game
+            else if (!page.match(/\/[0-9]+$/))
+              this.send("askgame", { target: s.sid, page: page });
           });
           break;
         }
@@ -618,7 +619,9 @@ export default {
             this.people[data.from] = { pages: [{ path: page, focus: true }] };
             if (data.code == "connect")
               this.send("askchallenges", { target: data.from });
-            else this.send("askgame", { target: data.from, page: page });
+            // Ask game only if live:
+            else if (!page.match(/\/[0-9]+$/))
+              this.send("askgame", { target: data.from, page: page });
           } else {
             // Append page if not already in list
             if (!(this.people[data.from].pages.find(p => p.path == page)))
@@ -772,8 +775,8 @@ export default {
           }
           break;
         }
-        case "game": {
-          // Individual request
+        case "game": // Individual request
+        case "newgame": {
           const game = data.data;
           // Ignore games where I play (will go in MyGames page)
           if (game.players.every(p =>
@@ -1015,7 +1018,6 @@ export default {
         });
         // Add new challenge:
         chall.from = {
-          // Decompose to avoid revealing email
           sid: this.st.user.sid,
           id: this.st.user.id,
           name: this.st.user.name
@@ -1049,7 +1051,7 @@ export default {
           {
             data: { chall: chall },
             success: (response) => {
-              finishAddChallenge(response.cid);
+              finishAddChallenge(response.id);
             }
           }
         );
@@ -1065,7 +1067,6 @@ export default {
     finishProcessingChallenge: function(c) {
       if (c.accepted) {
         c.seat = {
-          // Again, avoid c.seat = st.user to not reveal email
           sid: this.st.user.sid,
           id: this.st.user.id,
           name: this.st.user.name
@@ -1135,7 +1136,8 @@ export default {
     },
     // NOTE: when launching game, the challenge is already being deleted
     launchGame: function(c) {
-      let players =
+      // White player index 0, black player index 1:
+      const players =
         !!c.mycolor
           ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
           : shuffle([c.from, c.seat]);
@@ -1144,10 +1146,7 @@ export default {
         id: getRandString(),
         fen: c.fen || V.GenRandInitFen(c.randomness),
         randomness: c.randomness, //for rematch
-        // White player index 0, black player index 1:
-        players: c.mycolor
-          ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
-          : shuffle([c.from, c.seat]),
+        players: players,
         vid: c.vid,
         cadence: c.cadence
       };
@@ -1156,14 +1155,22 @@ export default {
         if (!!oppsid)
           // Opponent is online
           this.send("startgame", { data: gameInfo, target: oppsid });
+        // If new corr game, notify Hall (except opponent and me)
+        if (c.type == "corr") {
+          this.send(
+            "newgame",
+            {
+              data: gameInfo,
+              excluded: [this.st.user.sid, oppsid]
+            }
+          );
+        }
         // Notify MyGames page:
         this.send(
           "notifynewgame",
           {
             data: gameInfo,
-            targets: gameInfo.players.map(p => {
-              return { sid: p.sid, id: p.id };
-            })
+            targets: gameInfo.players
           }
         );
         // NOTE: no need to send the game to the room, since I'll connect
@@ -1179,11 +1186,14 @@ export default {
           "POST",
           {
             // cid is useful to delete the challenge:
-            data: { gameInfo: gameInfo, cid: c.id },
+            data: {
+              gameInfo: gameInfo,
+              cid: c.id
+            },
             success: (response) => {
-              gameInfo.id = response.gameId;
+              gameInfo.id = response.id;
               notifyNewgame();
-              this.$router.push("/game/" + response.gameId);
+              this.$router.push("/game/" + response.id);
             }
           }
         );
@@ -1328,8 +1338,8 @@ tr > td
     margin: 5px 0
 
 button#loadMoreBtn
-  margin-top: 0
-  margin-bottom: 0
+  display: block
+  margin: 0 auto
 
 td.remove-preset
   background-color: lightgrey

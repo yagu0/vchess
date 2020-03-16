@@ -309,6 +309,7 @@ export default {
       const playSubmove = (smove) => {
         if (!navigate) smove.notation = this.vr.getNotation(smove);
         this.vr.play(smove);
+        this.lastMove = smove;
         if (!navigate) {
           if (!this.inMultimove) {
             if (this.cursor < this.moves.length - 1)
@@ -356,7 +357,6 @@ export default {
             smove.fen = this.vr.getFen();
           // Is opponent in check?
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
-          this.lastMove = smove;
           this.emitFenIfAnalyze();
           this.inMultimove = false;
           if (!noemit) {

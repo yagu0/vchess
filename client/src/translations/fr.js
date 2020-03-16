@@ -109,7 +109,7 @@ export const translations = {
   Register: "S'enregistrer",
   "Registration complete! Please check your emails now": "Enregistrement terminé ! Allez voir vos emails maintenant",
   Rematch: "Rejouer",
-  "Rematch in progress:": "Revanche en cours :",
+  "Rematch in progress": "Revanche en cours",
   "Remove game?": "Supprimer la partie ?",
   Resign: "Abandonner",
   "Resign the game?": "Abandonner la partie ?",
