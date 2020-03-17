@@ -148,7 +148,7 @@ export const VariantRules = class BerolinaRules extends ChessRules {
         notation = startSquare + finalSquare;
       }
       if (move.appear[0].p != V.PAWN)
-        //promotion
+        // Promotion
         notation += "=" + move.appear[0].p.toUpperCase();
       return notation;
     }
