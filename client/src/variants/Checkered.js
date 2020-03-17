@@ -1,4 +1,4 @@
-import { ChessRules } from "@/base_rules";
+import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export const VariantRules = class CheckeredRules extends ChessRules {
   static board2fen(b) {
@@ -227,6 +227,86 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     return moves;
   }
 
+  // Same as in base_rules but with an array given to isAttacked:
+  getCastleMoves([x, y]) {
+    const c = this.getColor(x, y);
+    if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
+      return []; //x isn't first rank, or king has moved (shortcut)
+
+    // Castling ?
+    const oppCol = V.GetOppCol(c);
+    let moves = [];
+    let i = 0;
+    // King, then rook:
+    const finalSquares = [
+      [2, 3],
+      [V.size.y - 2, V.size.y - 3]
+    ];
+    castlingCheck: for (
+      let castleSide = 0;
+      castleSide < 2;
+      castleSide++ //large, then small
+    ) {
+      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
+      // If this code is reached, rooks and king are on initial position
+
+      // Nothing on the path of the king ? (and no checks)
+      const finDist = finalSquares[castleSide][0] - y;
+      let step = finDist / Math.max(1, Math.abs(finDist));
+      i = y;
+      do {
+        if (
+          this.isAttacked([x, i], [oppCol]) ||
+          (this.board[x][i] != V.EMPTY &&
+            // NOTE: next check is enough, because of chessboard constraints
+            (this.getColor(x, i) != c ||
+              ![V.KING, V.ROOK].includes(this.getPiece(x, i))))
+        ) {
+          continue castlingCheck;
+        }
+        i += step;
+      } while (i != finalSquares[castleSide][0]);
+
+      // Nothing on the path to the rook?
+      step = castleSide == 0 ? -1 : 1;
+      const rookPos = this.castleFlags[c][castleSide];
+      for (i = y + step; i != rookPos; i += step) {
+        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
+      }
+
+      // Nothing on final squares, except maybe king and castling rook?
+      for (i = 0; i < 2; i++) {
+        if (
+          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
+          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
+          finalSquares[castleSide][i] != rookPos
+        ) {
+          continue castlingCheck;
+        }
+      }
+
+      // If this code is reached, castle is valid
+      moves.push(
+        new Move({
+          appear: [
+            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
+            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
+          ],
+          vanish: [
+            new PiPo({ x: x, y: y, p: V.KING, c: c }),
+            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+          ],
+          end:
+            Math.abs(y - rookPos) <= 2
+              ? { x: x, y: rookPos }
+              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
+        })
+      );
+    }
+
+    return moves;
+  }
+
   canIplay(side, [x, y]) {
     return side == this.turn && [side, "c"].includes(this.getColor(x, y));
   }
@@ -293,9 +373,21 @@ export const VariantRules = class CheckeredRules extends ChessRules {
     return false;
   }
 
+  // colors: array, generally 'w' and 'c' or 'b' and 'c'
+  isAttacked(sq, colors) {
+    return (
+      this.isAttackedByPawn(sq, colors) ||
+      this.isAttackedByRook(sq, colors) ||
+      this.isAttackedByKnight(sq, colors) ||
+      this.isAttackedByBishop(sq, colors) ||
+      this.isAttackedByQueen(sq, colors) ||
+      this.isAttackedByKing(sq, colors)
+    );
+  }
+
   isAttackedByPawn([x, y], colors) {
     for (let c of colors) {
-      const color = c == "c" ? this.turn : c;
+      const color = (c == "c" ? this.turn : c);
       let pawnShift = color == "w" ? 1 : -1;
       if (x + pawnShift >= 0 && x + pawnShift < 8) {
         for (let i of [-1, 1]) {
@@ -311,6 +403,62 @@ export const VariantRules = class CheckeredRules extends ChessRules {
       }
     }
     return false;
+  }
+
+  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        rx += step[0];
+        ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.getPiece(rx, ry) === piece &&
+        colors.includes(this.getColor(rx, ry))
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isAttackedByRook(sq, colors) {
+    return this.isAttackedBySlideNJump(sq, colors, V.ROOK, V.steps[V.ROOK]);
+  }
+
+  isAttackedByKnight(sq, colors) {
+    return this.isAttackedBySlideNJump(
+      sq,
+      colors,
+      V.KNIGHT,
+      V.steps[V.KNIGHT],
+      "oneStep"
+    );
+  }
+
+  isAttackedByBishop(sq, colors) {
+    return this.isAttackedBySlideNJump(sq, colors, V.BISHOP, V.steps[V.BISHOP]);
+  }
+
+  isAttackedByQueen(sq, colors) {
+    return this.isAttackedBySlideNJump(
+      sq,
+      colors,
+      V.QUEEN,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
+    );
+  }
+
+  isAttackedByKing(sq, colors) {
+    return this.isAttackedBySlideNJump(
+      sq,
+      colors,
+      V.KING,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+      "oneStep"
+    );
   }
 
   underCheck(color) {

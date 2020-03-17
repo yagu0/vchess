@@ -33,12 +33,15 @@ const ProblemModel = {
     });
   },
 
-  getAll: function(cb) {
+  getNext: function(cursor, cb) {
     db.serialize(function() {
       const query =
         "SELECT * " +
-        "FROM Problems";
-      db.all(query, (err,problems) => {
+        "FROM Problems " +
+        "WHERE added < " + cursor + " " +
+        "ORDER BY added DESC " +
+        "LIMIT 20"; //TODO: 20 is arbitrary
+      db.all(query, (err, problems) => {
         cb(err, problems);
       });
     });
@@ -50,7 +53,7 @@ const ProblemModel = {
         "SELECT * " +
         "FROM Problems " +
         "WHERE id = " + id;
-      db.get(query, (err,problem) => {
+      db.get(query, (err, problem) => {
         cb(err, problem);
       });
     });
@@ -66,7 +69,7 @@ const ProblemModel = {
           "instruction = ?," +
           "solution = ? " +
         "WHERE id = " + prob.id + " AND uid = " + uid;
-      db.run(query, [prob.instruction,prob.solution]);
+      db.run(query, [prob.instruction, prob.solution]);
     });
   },
 

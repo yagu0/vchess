@@ -97,25 +97,23 @@ export const VariantRules = class CylinderRules extends ChessRules {
     return moves;
   }
 
-  isAttackedByPawn([x, y], colors) {
-    for (let c of colors) {
-      let pawnShift = c == "w" ? 1 : -1;
-      if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-        for (let i of [-1, 1]) {
-          const nextFile = V.ComputeY(y + i);
-          if (
-            this.getPiece(x + pawnShift, nextFile) == V.PAWN &&
-            this.getColor(x + pawnShift, nextFile) == c
-          ) {
-            return true;
-          }
+  isAttackedByPawn([x, y], color) {
+    let pawnShift = (color == "w" ? 1 : -1);
+    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
+      for (let i of [-1, 1]) {
+        const nextFile = V.ComputeY(y + i);
+        if (
+          this.getPiece(x + pawnShift, nextFile) == V.PAWN &&
+          this.getColor(x + pawnShift, nextFile) == color
+        ) {
+          return true;
         }
       }
     }
     return false;
   }
 
-  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
     for (let step of steps) {
       let rx = x + step[0],
           ry = V.ComputeY(y + step[1]);
@@ -125,8 +123,8 @@ export const VariantRules = class CylinderRules extends ChessRules {
       }
       if (
         V.OnBoard(rx, ry) &&
-        this.getPiece(rx, ry) === piece &&
-        colors.includes(this.getColor(rx, ry))
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color
       ) {
         return true;
       }

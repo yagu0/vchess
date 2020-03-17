@@ -68,28 +68,31 @@ export const VariantRules = class AntikingRules extends ChessRules {
     );
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      super.isAttacked(sq, colors) || this.isAttackedByAntiking(sq, colors)
+      super.isAttacked(sq, color) ||
+      this.isAttackedByAntiking(sq, color)
     );
   }
 
-  isAttackedByKing([x, y], colors) {
-    if (this.getPiece(x, y) == V.ANTIKING) return false; //antiking is not attacked by king
+  isAttackedByKing([x, y], color) {
+    // Antiking is not attacked by king:
+    if (this.getPiece(x, y) == V.ANTIKING) return false;
     return this.isAttackedBySlideNJump(
       [x, y],
-      colors,
+      color,
       V.KING,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
     );
   }
 
-  isAttackedByAntiking([x, y], colors) {
-    if ([V.KING, V.ANTIKING].includes(this.getPiece(x, y))) return false; //(anti)king is not attacked by antiking
+  isAttackedByAntiking([x, y], color) {
+    // (Anti)King is not attacked by antiking
+    if ([V.KING, V.ANTIKING].includes(this.getPiece(x, y))) return false;
     return this.isAttackedBySlideNJump(
       [x, y],
-      colors,
+      color,
       V.ANTIKING,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
@@ -99,14 +102,14 @@ export const VariantRules = class AntikingRules extends ChessRules {
   underCheck(color) {
     const oppCol = V.GetOppCol(color);
     let res =
-      this.isAttacked(this.kingPos[color], [oppCol]) ||
-      !this.isAttacked(this.antikingPos[color], [oppCol]);
+      this.isAttacked(this.kingPos[color], oppCol) ||
+      !this.isAttacked(this.antikingPos[color], oppCol);
     return res;
   }
 
   getCheckSquares(color) {
     let res = super.getCheckSquares(color);
-    if (!this.isAttacked(this.antikingPos[color], [V.GetOppCol(color)]))
+    if (!this.isAttacked(this.antikingPos[color], V.GetOppCol(color)))
       res.push(JSON.parse(JSON.stringify(this.antikingPos[color])));
     return res;
   }
@@ -136,8 +139,8 @@ export const VariantRules = class AntikingRules extends ChessRules {
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
     if (
-      !this.isAttacked(this.kingPos[color], [oppCol]) &&
-      this.isAttacked(this.antikingPos[color], [oppCol])
+      !this.isAttacked(this.kingPos[color], oppCol) &&
+      this.isAttacked(this.antikingPos[color], oppCol)
     ) {
       return "1/2";
     }

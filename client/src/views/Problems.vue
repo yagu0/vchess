@@ -96,6 +96,11 @@ main
           td {{ p.vname }}
           td {{ firstChars(p.instruction) }}
           td {{ p.id }}
+      button#loadMoreBtn(
+        v-if="hasMore"
+        @click="loadMore()"
+      )
+        | {{ st.tr["Load more"] }}
   BaseGame(
     ref="basegame"
     v-if="showOne"
@@ -136,6 +141,10 @@ export default {
       loadedVar: 0, //corresponding to loaded V
       selectedVar: 0, //to filter problems based on variant
       problems: [],
+      // timestamp of oldest showed problem:
+      cursor: Number.MAX_SAFE_INTEGER,
+      // hasMore == TRUE: a priori there could be more problems to load
+      hasMore: true,
       onlyMines: false,
       showOne: false,
       infoMsg: "",
@@ -150,40 +159,18 @@ export default {
       "/problems",
       "GET",
       {
+        data: { cursor: this.cursor },
         success: (res) => {
-          // Show newest problem first:
-          this.problems = res.problems.sort((p1, p2) => p2.added - p1.added);
-          if (this.st.variants.length > 0)
-            this.problems.forEach(p => this.setVname(p));
-          // Retrieve all problems' authors' names
-          let names = {};
-          this.problems.forEach(p => {
-            if (p.uid != this.st.user.id) names[p.uid] = "";
-            else p.uname = this.st.user.name;
-          });
+          // The returned list is sorted from most recent to oldest
+          this.problems = res.problems;
+          const L = res.problems.length;
+          if (L > 0) this.cursor = res.problems[L - 1].added;
+          else this.hasMore = false;
           const showOneIfPid = () => {
             const pid = this.$route.query["id"];
             if (!!pid) this.showProblem(this.problems.find(p => p.id == pid));
           };
-          if (Object.keys(names).length > 0) {
-            ajax(
-              "/users",
-              "GET",
-              {
-                data: { ids: Object.keys(names).join(",") },
-                success: (res2) => {
-                  res2.users.forEach(u => {
-                    names[u.id] = u.name;
-                  });
-                  this.problems.forEach(p => {
-                    if (!p.uname)
-                      p.uname = names[p.uid];
-                  });
-                  showOneIfPid();
-                }
-              }
-            );
-          } else showOneIfPid();
+          this.decorate(this.problems, showOneIfPid);
         }
       }
     );
@@ -214,6 +201,36 @@ export default {
     },
     setVname: function(prob) {
       prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
+    },
+    // Add vname and user names:
+    decorate: function(problems, callback) {
+      if (this.st.variants.length > 0)
+        problems.forEach(p => this.setVname(p));
+      // Retrieve all problems' authors' names
+      let names = {};
+      problems.forEach(p => {
+        if (p.uid != this.st.user.id) names[p.uid] = "";
+        else p.uname = this.st.user.name;
+      });
+      if (Object.keys(names).length > 0) {
+        ajax(
+          "/users",
+          "GET",
+          {
+            data: { ids: Object.keys(names).join(",") },
+            success: (res2) => {
+              res2.users.forEach(u => {
+                names[u.id] = u.name;
+              });
+              problems.forEach(p => {
+                if (!p.uname)
+                  p.uname = names[p.uid];
+              });
+              if (!!callback) callback();
+            }
+          }
+        );
+      } else if (!!callback) callback();
     },
     firstChars: function(text) {
       let preparedText = text
@@ -379,6 +396,23 @@ export default {
           }
         );
       }
+    },
+    loadMore: function() {
+      ajax(
+        "/problems",
+        "GET",
+        {
+          data: { cursor: this.cursor },
+          success: (res) => {
+            const L = res.problems.length;
+            if (L > 0) {
+              this.decorate(res.problems);
+              this.problems = this.problems.concat(res.problems);
+              this.cursor = res.problems[L - 1].added;
+            } else this.hasMore = false;
+          }
+        }
+      );
     }
   }
 };
@@ -401,6 +435,10 @@ textarea
 
 table#tProblems
   max-height: 100%
+
+button#loadMoreBtn
+  display: block
+  margin: 0 auto
 
 #controls
   margin: 0

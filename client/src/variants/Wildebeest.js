@@ -196,28 +196,28 @@ export const VariantRules = class WildebeestRules extends ChessRules {
     );
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      super.isAttacked(sq, colors) ||
-      this.isAttackedByCamel(sq, colors) ||
-      this.isAttackedByWildebeest(sq, colors)
+      super.isAttacked(sq, color) ||
+      this.isAttackedByCamel(sq, color) ||
+      this.isAttackedByWildebeest(sq, color)
     );
   }
 
-  isAttackedByCamel(sq, colors) {
+  isAttackedByCamel(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.CAMEL,
       V.steps[V.CAMEL],
       "oneStep"
     );
   }
 
-  isAttackedByWildebeest(sq, colors) {
+  isAttackedByWildebeest(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.WILDEBEEST,
       V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]),
       "oneStep"

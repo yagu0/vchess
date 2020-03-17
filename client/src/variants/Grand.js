@@ -255,20 +255,20 @@ export const VariantRules = class GrandRules extends ChessRules {
     );
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      super.isAttacked(sq, colors) ||
-      this.isAttackedByMarshall(sq, colors) ||
-      this.isAttackedByCardinal(sq, colors)
+      super.isAttacked(sq, color) ||
+      this.isAttackedByMarshall(sq, color) ||
+      this.isAttackedByCardinal(sq, color)
     );
   }
 
-  isAttackedByMarshall(sq, colors) {
+  isAttackedByMarshall(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, colors, V.MARSHALL, V.steps[V.ROOK]) ||
+      this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
         sq,
-        colors,
+        color,
         V.MARSHALL,
         V.steps[V.KNIGHT],
         "oneStep"
@@ -276,12 +276,12 @@ export const VariantRules = class GrandRules extends ChessRules {
     );
   }
 
-  isAttackedByCardinal(sq, colors) {
+  isAttackedByCardinal(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, colors, V.CARDINAL, V.steps[V.BISHOP]) ||
+      this.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
         sq,
-        colors,
+        color,
         V.CARDINAL,
         V.steps[V.KNIGHT],
         "oneStep"

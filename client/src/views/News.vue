@@ -68,6 +68,7 @@ export default {
           this.newsList = res.newsList;
           const L = res.newsList.length;
           if (L > 0) this.cursor = res.newsList[L - 1].added;
+          else this.hasMore = false;
         }
       }
     );
@@ -169,10 +170,10 @@ export default {
         {
           data: { cursor: this.cursor },
           success: (res) => {
-            if (res.newsList.length > 0) {
+            const L = res.newsList.length;
+            if (L > 0) {
               this.newsList = this.newsList.concat(res.newsList);
-              const L = res.newsList.length;
-              if (L > 0) this.cursor = res.newsList[L - 1].added;
+              this.cursor = res.newsList[L - 1].added;
             } else this.hasMore = false;
           }
         }

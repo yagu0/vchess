@@ -98,20 +98,20 @@ export const VariantRules = class ShatranjRules extends ChessRules {
     );
   }
 
-  isAttackedByBishop(sq, colors) {
+  isAttackedByBishop(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.BISHOP,
       V.ElephantSteps,
       "oneStep"
     );
   }
 
-  isAttackedByQueen(sq, colors) {
+  isAttackedByQueen(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.QUEEN,
       V.steps[V.BISHOP],
       "oneStep"
@@ -157,7 +157,7 @@ export const VariantRules = class ShatranjRules extends ChessRules {
       // 2 enemy units or more: I lose
       return getScoreLost();
     // I don't have any piece, my opponent have one: can I take it?
-    if (this.isAttacked(piecesLeft[oppCol].square, [color]))
+    if (this.isAttacked(piecesLeft[oppCol].square, color))
       // Yes! But I still need to take it
       return "*";
     // No :(

@@ -180,6 +180,8 @@ export const translations = {
   "Mate any piece (v2)": "Mate any piece (v2)",
   "Mate the knight": "Mate the knight",
   "Middle battle": "Middle battle",
+  "Move like a knight (v1)": "Move like a knight (v1)",
+  "Move like a knight (v2)": "Move like a knight (v2)",
   "Move twice": "Move twice",
   "Neverending rows": "Neverending rows",
   "Pawns move diagonally": "Pawns move diagonally",
@@ -191,6 +193,5 @@ export const translations = {
   "Shoot pieces": "Shoot pieces",
   "Squares disappear": "Squares disappear",
   "Standard rules": "Standard rules",
-  "The knight transfers its powers": "The knight transfers its powers",
   "Unidentified pieces": "Unidentified pieces"
 };

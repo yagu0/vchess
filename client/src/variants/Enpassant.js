@@ -203,10 +203,10 @@ export const VariantRules = class EnpassantRules extends ChessRules {
     return filteredMoves.filter(m => m.vanish.length == 1);
   }
 
-  isAttackedByKnight(sq, colors) {
+  isAttackedByKnight(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.KNIGHT,
       V.steps[V.KNIGHT]
     );

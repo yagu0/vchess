@@ -15,7 +15,7 @@ router.post("/news", access.logged, access.ajax, (req,res) => {
 
 router.get("/news", access.ajax, (req,res) => {
   const cursor = req.query["cursor"];
-  if (!!cursor.match(/^[0-9]+$/)) {
+  if (!!cursor && !!cursor.match(/^[0-9]+$/)) {
     NewsModel.getNext(cursor, (err, newsList) => {
       res.json(err || { newsList: newsList });
     });

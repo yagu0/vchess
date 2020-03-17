@@ -22,12 +22,13 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
 
 router.get("/problems", access.ajax, (req,res) => {
   const probId = req.query["pid"];
-  if (probId && probId.match(/^[0-9]+$/)) {
-    ProblemModel.getOne(req.query["pid"], (err,problem) => {
+  const cursor = req.query["cursor"];
+  if (!!probId && !!probId.match(/^[0-9]+$/)) {
+    ProblemModel.getOne(req.query["pid"], (err, problem) => {
       res.json(err || {problem: problem});
     });
-  } else {
-    ProblemModel.getAll((err,problems) => {
+  } else if (!!cursor && !!cursor.match(/^[0-9]+$/)) {
+    ProblemModel.getNext(cursor, (err, problems) => {
       res.json(err || { problems: problems });
     });
   }

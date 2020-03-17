@@ -362,7 +362,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
 
   // isAttacked() is OK because the immobilizer doesn't take
 
-  isAttackedByPawn([x, y], colors) {
+  isAttackedByPawn([x, y], color) {
     // Square (x,y) must be surroundable by two enemy pieces,
     // and one of them at least should be a pawn (moving).
     const dirs = [
@@ -375,12 +375,17 @@ export const VariantRules = class BaroqueRules extends ChessRules {
       const [i2, j2] = [x + dir[0], y + dir[1]]; //"after"
       if (V.OnBoard(i1, j1) && V.OnBoard(i2, j2)) {
         if (
-          (this.board[i1][j1] != V.EMPTY &&
-            colors.includes(this.getColor(i1, j1)) &&
-            this.board[i2][j2] == V.EMPTY) ||
-          (this.board[i2][j2] != V.EMPTY &&
-            colors.includes(this.getColor(i2, j2)) &&
-            this.board[i1][j1] == V.EMPTY)
+          (
+            this.board[i1][j1] != V.EMPTY &&
+            this.getColor(i1, j1) == color &&
+            this.board[i2][j2] == V.EMPTY
+          )
+          ||
+          (
+            this.board[i2][j2] != V.EMPTY &&
+            this.getColor(i2, j2) == color &&
+            this.board[i1][j1] == V.EMPTY
+          )
         ) {
           // Search a movable enemy pawn landing on the empty square
           for (let step of steps) {
@@ -392,7 +397,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
             }
             if (
               V.OnBoard(i3, j3) &&
-              colors.includes(this.getColor(i3, j3)) &&
+              this.getColor(i3, j3) == color &&
               this.getPiece(i3, j3) == V.PAWN &&
               !this.isImmobilized([i3, j3])
             ) {
@@ -405,19 +410,18 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  isAttackedByRook([x, y], colors) {
+  isAttackedByRook([x, y], color) {
     // King must be on same column or row,
     // and a rook should be able to reach a capturing square
-    // colors contains only one element, giving the oppCol and thus king position
-    const sameRow = x == this.kingPos[colors[0]][0];
-    const sameColumn = y == this.kingPos[colors[0]][1];
+    const sameRow = x == this.kingPos[color][0];
+    const sameColumn = y == this.kingPos[color][1];
     if (sameRow || sameColumn) {
       // Look for the enemy rook (maximum 1)
       for (let i = 0; i < V.size.x; i++) {
         for (let j = 0; j < V.size.y; j++) {
           if (
             this.board[i][j] != V.EMPTY &&
-            colors.includes(this.getColor(i, j)) &&
+            this.getColor(i, j) == color &&
             this.getPiece(i, j) == V.ROOK
           ) {
             if (this.isImmobilized([i, j])) return false; //because only one rook
@@ -438,7 +442,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  isAttackedByKnight([x, y], colors) {
+  isAttackedByKnight([x, y], color) {
     // Square (x,y) must be on same line as a knight,
     // and there must be empty square(s) behind.
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
@@ -453,7 +457,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
             j -= step[1];
           }
           if (V.OnBoard(i, j)) {
-            if (colors.includes(this.getColor(i, j))) {
+            if (this.getColor(i, j) == color) {
               if (
                 this.getPiece(i, j) == V.KNIGHT &&
                 !this.isImmobilized([i, j])
@@ -473,7 +477,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  isAttackedByBishop([x, y], colors) {
+  isAttackedByBishop([x, y], color) {
     // We cheat a little here: since this function is used exclusively for
     // the king, it's enough to check the immediate surrounding of the square.
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
@@ -482,7 +486,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
       if (
         V.OnBoard(i, j) &&
         this.board[i][j] != V.EMPTY &&
-        colors.includes(this.getColor(i, j)) &&
+        this.getColor(i, j) == color &&
         this.getPiece(i, j) == V.BISHOP
       ) {
         return true; //bishops are never immobilized
@@ -491,7 +495,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  isAttackedByQueen([x, y], colors) {
+  isAttackedByQueen([x, y], color) {
     // Square (x,y) must be adjacent to a queen, and the queen must have
     // some free space in the opposite direction from (x,y)
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
@@ -501,7 +505,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
         const sq1 = [x + step[0], y + step[1]];
         if (
           this.board[sq1[0]][sq1[1]] != V.EMPTY &&
-          colors.includes(this.getColor(sq1[0], sq1[1])) &&
+          this.getColor(sq1[0], sq1[1]) == color &&
           this.getPiece(sq1[0], sq1[1]) == V.QUEEN &&
           !this.isImmobilized(sq1)
         ) {
@@ -512,7 +516,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
-  isAttackedByKing([x, y], colors) {
+  isAttackedByKing([x, y], color) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     for (let step of steps) {
       let rx = x + step[0],
@@ -520,7 +524,7 @@ export const VariantRules = class BaroqueRules extends ChessRules {
       if (
         V.OnBoard(rx, ry) &&
         this.getPiece(rx, ry) === V.KING &&
-        colors.includes(this.getColor(rx, ry)) &&
+        this.getColor(rx, ry) == color &&
         !this.isImmobilized([rx, ry])
       ) {
         return true;

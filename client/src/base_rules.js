@@ -88,7 +88,7 @@ export const ChessRules = class ChessRules {
     return f.charCodeAt() <= 90 ? "w" + f.toLowerCase() : "b" + f;
   }
 
-  // Check if FEN describe a board situation correctly
+  // Check if FEN describes a board situation correctly
   static IsGoodFen(fen) {
     const fenParsed = V.ParseFen(fen);
     // 1) Check position
@@ -786,7 +786,7 @@ export const ChessRules = class ChessRules {
       i = y;
       do {
         if (
-          this.isAttacked([x, i], [oppCol]) ||
+          this.isAttacked([x, i], oppCol) ||
           (this.board[x][i] != V.EMPTY &&
             // NOTE: next check is enough, because of chessboard constraints
             (this.getColor(x, i) != c ||
@@ -893,21 +893,21 @@ export const ChessRules = class ChessRules {
     return false;
   }
 
-  // Check if pieces of color in 'colors' are attacking (king) on square x,y
-  isAttacked(sq, colors) {
+  // Check if pieces of given color are attacking (king) on square x,y
+  isAttacked(sq, color) {
     return (
-      this.isAttackedByPawn(sq, colors) ||
-      this.isAttackedByRook(sq, colors) ||
-      this.isAttackedByKnight(sq, colors) ||
-      this.isAttackedByBishop(sq, colors) ||
-      this.isAttackedByQueen(sq, colors) ||
-      this.isAttackedByKing(sq, colors)
+      this.isAttackedByPawn(sq, color) ||
+      this.isAttackedByRook(sq, color) ||
+      this.isAttackedByKnight(sq, color) ||
+      this.isAttackedByBishop(sq, color) ||
+      this.isAttackedByQueen(sq, color) ||
+      this.isAttackedByKing(sq, color)
     );
   }
 
   // Generic method for non-pawn pieces ("sliding or jumping"):
-  // is x,y attacked by a piece of color in array 'colors' ?
-  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+  // is x,y attacked by a piece of given color ?
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
     for (let step of steps) {
       let rx = x + step[0],
           ry = y + step[1];
@@ -917,8 +917,8 @@ export const ChessRules = class ChessRules {
       }
       if (
         V.OnBoard(rx, ry) &&
-        this.getPiece(rx, ry) === piece &&
-        colors.includes(this.getColor(rx, ry))
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color
       ) {
         return true;
       }
@@ -926,62 +926,60 @@ export const ChessRules = class ChessRules {
     return false;
   }
 
-  // Is square x,y attacked by 'colors' pawns ?
-  isAttackedByPawn([x, y], colors) {
-    for (let c of colors) {
-      const pawnShift = c == "w" ? 1 : -1;
-      if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-        for (let i of [-1, 1]) {
-          if (
-            y + i >= 0 &&
-            y + i < V.size.y &&
-            this.getPiece(x + pawnShift, y + i) == V.PAWN &&
-            this.getColor(x + pawnShift, y + i) == c
-          ) {
-            return true;
-          }
+  // Is square x,y attacked by 'color' pawns ?
+  isAttackedByPawn([x, y], color) {
+    const pawnShift = (color == "w" ? 1 : -1);
+    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
+      for (let i of [-1, 1]) {
+        if (
+          y + i >= 0 &&
+          y + i < V.size.y &&
+          this.getPiece(x + pawnShift, y + i) == V.PAWN &&
+          this.getColor(x + pawnShift, y + i) == color
+        ) {
+          return true;
         }
       }
     }
     return false;
   }
 
-  // Is square x,y attacked by 'colors' rooks ?
-  isAttackedByRook(sq, colors) {
-    return this.isAttackedBySlideNJump(sq, colors, V.ROOK, V.steps[V.ROOK]);
+  // Is square x,y attacked by 'color' rooks ?
+  isAttackedByRook(sq, color) {
+    return this.isAttackedBySlideNJump(sq, color, V.ROOK, V.steps[V.ROOK]);
   }
 
-  // Is square x,y attacked by 'colors' knights ?
-  isAttackedByKnight(sq, colors) {
+  // Is square x,y attacked by 'color' knights ?
+  isAttackedByKnight(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.KNIGHT,
       V.steps[V.KNIGHT],
       "oneStep"
     );
   }
 
-  // Is square x,y attacked by 'colors' bishops ?
-  isAttackedByBishop(sq, colors) {
-    return this.isAttackedBySlideNJump(sq, colors, V.BISHOP, V.steps[V.BISHOP]);
+  // Is square x,y attacked by 'color' bishops ?
+  isAttackedByBishop(sq, color) {
+    return this.isAttackedBySlideNJump(sq, color, V.BISHOP, V.steps[V.BISHOP]);
   }
 
-  // Is square x,y attacked by 'colors' queens ?
-  isAttackedByQueen(sq, colors) {
+  // Is square x,y attacked by 'color' queens ?
+  isAttackedByQueen(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.QUEEN,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP])
     );
   }
 
-  // Is square x,y attacked by 'colors' king(s) ?
-  isAttackedByKing(sq, colors) {
+  // Is square x,y attacked by 'color' king(s) ?
+  isAttackedByKing(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.KING,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
@@ -1100,10 +1098,10 @@ export const ChessRules = class ChessRules {
     // Game over
     const color = this.turn;
     // No valid move: stalemate or checkmate?
-    if (!this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]))
+    if (!this.isAttacked(this.kingPos[color], V.GetOppCol(color)))
       return "1/2";
     // OK, checkmate
-    return color == "w" ? "0-1" : "1-0";
+    return (color == "w" ? "0-1" : "1-0");
   }
 
   ///////////////

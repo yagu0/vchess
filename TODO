@@ -1,14 +1,3 @@
-#Enhancements
-
-In Hall: at loading, if something in a tab and nothing in another (e.g. live/corr challenges),
-show the other even if settings say to show the empty one.
-
-tabs "running" and  "completed" for MyGames page (default to running if any and my turn)
-"load more" option for completed games (act on corr games).
-
-"load more" option for problems as well: similar to news page.
-Also on corr challenges.
-
 # New variants
 Landing pieces from empty board:
 https://www.chessvariants.com/diffsetup.dir/unachess.html

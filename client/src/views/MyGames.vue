@@ -120,8 +120,8 @@ export default {
                   credentials: true,
                   data: { cursor: this.cursor },
                   success: (res2) => {
-                    if (res2.games.length > 0) {
-                      const L = res2.games.length;
+                    const L = res2.games.length;
+                    if (L > 0) {
                       this.cursor = res2.games[L - 1].created;
                       let completedGames = res2.games;
                       completedGames.forEach(g => g.type = "corr");
@@ -295,8 +295,8 @@ export default {
           credentials: true,
           data: { cursor: this.cursor },
           success: (res) => {
-            if (res.games.length > 0) {
-              const L = res.games.length;
+            const L = res.games.length;
+            if (L > 0) {
               this.cursor = res.games[L - 1].created;
               let moreGames = res.games;
               moreGames.forEach(g => g.type = "corr");

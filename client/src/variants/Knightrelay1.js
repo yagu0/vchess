@@ -1,12 +1,16 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class KnightrelayRules extends ChessRules {
+export const VariantRules = class Knightrelay1Rules extends ChessRules {
+  static get HasEnpassant() {
+    return false;
+  }
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 
-    // Expand possible moves if guarded by a knight:
+    // Expand possible moves if guarded by a knight, and is not a king:
     const piece = this.getPiece(x,y);
-    if (piece != V.KNIGHT) {
+    if (![V.KNIGHT,V.KING].includes(piece)) {
       const color = this.turn;
       let guardedByKnight = false;
       for (const step of V.steps[V.KNIGHT]) {
@@ -20,60 +24,72 @@ export const VariantRules = class KnightrelayRules extends ChessRules {
         }
       }
       if (guardedByKnight) {
-        const lastRank = color == "w" ? 0 : V.size.x - 1;
+        const lastRank = (color == "w" ? 0 : V.size.x - 1);
         for (const step of V.steps[V.KNIGHT]) {
           if (
             V.OnBoard(x+step[0],y+step[1]) &&
-            this.getColor(x+step[0],y+step[1]) != color
+            this.getColor(x+step[0],y+step[1]) != color &&
+            // Pawns cannot promote by knight-relay
+            (piece != V.PAWN || x+step[0] != lastRank)
           ) {
-            // Potential promotions:
-            const finalPieces = piece == V.PAWN && x + step[0] == lastRank
-              ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-              : [piece];
-            for (let p of finalPieces) {
-              moves.push(
-                this.getBasicMove([x,y], [x+step[0],y+step[1]], {
-                  c: color,
-                  p: p
-                })
-              );
+            moves.push(this.getBasicMove([x,y], [x+step[0],y+step[1]]));
+          }
+        }
+      }
+    }
+
+    // Forbid captures of knights (invincible in this variant)
+    return moves.filter(m => {
+      return (
+        m.vanish.length == 1 ||
+        m.appear.length == 2 ||
+        m.vanish[1].p != V.KNIGHT
+      );
+    });
+  }
+
+  getPotentialKnightMoves(sq) {
+    // Knights don't capture:
+    return super.getPotentialKnightMoves(sq).filter(m => m.vanish.length == 1);
+  }
+
+  isAttacked(sq, color) {
+    if (super.isAttacked(sq, color)) return true;
+
+    // Check if a (non-knight) piece at knight distance
+    // is guarded by a knight (and thus attacking)
+    // --> Except for pawns targetting last rank.
+    const x = sq[0],
+          y = sq[1];
+    // Last rank for me, that is to say oppCol of color:
+    const lastRank = (color == 'w' ? V.size.x - 1 : 0);
+    for (const step of V.steps[V.KNIGHT]) {
+      if (
+        V.OnBoard(x+step[0],y+step[1]) &&
+        this.getColor(x+step[0],y+step[1]) == color
+      ) {
+        const piece = this.getPiece(x+step[0],y+step[1]);
+        if (piece != V.KNIGHT && (piece != V.PAWN || x != lastRank)) {
+          for (const step2 of V.steps[V.KNIGHT]) {
+            const xx = x+step[0]+step2[0],
+                  yy = y+step[1]+step2[1];
+            if (
+              V.OnBoard(xx,yy) &&
+              this.getColor(xx,yy) == color &&
+              this.getPiece(xx,yy) == V.KNIGHT
+            ) {
+              return true;
             }
           }
         }
       }
     }
 
-    return moves;
+    return false;
   }
 
-  isAttacked(sq, colors) {
-    if (super.isAttacked(sq, colors))
-      return true;
-
-    // Check if a (non-knight) piece at knight distance
-    // is guarded by a knight (and thus attacking)
-    const x = sq[0],
-          y = sq[1];
-    for (const step of V.steps[V.KNIGHT]) {
-      if (
-        V.OnBoard(x+step[0],y+step[1]) &&
-        colors.includes(this.getColor(x+step[0],y+step[1])) &&
-        this.getPiece(x+step[0],y+step[1]) != V.KNIGHT
-      ) {
-        for (const step2 of V.steps[V.KNIGHT]) {
-          const xx = x+step[0]+step2[0],
-                yy = y+step[1]+step2[1];
-          if (
-            V.OnBoard(xx,yy) &&
-            colors.includes(this.getColor(xx,yy)) &&
-            this.getPiece(xx,yy) == V.KNIGHT
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-
+  isAttackedByKnight(sq, color) {
+    // Knights don't attack
     return false;
   }
 

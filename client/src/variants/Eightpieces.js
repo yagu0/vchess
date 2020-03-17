@@ -635,7 +635,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       i = y;
       do {
         if (
-          this.isAttacked([x, i], [oppCol]) ||
+          this.isAttacked([x, i], oppCol) ||
           (this.board[x][i] != V.EMPTY &&
             (this.getColor(x, i) != c ||
               ![V.KING, V.ROOK, V.JAILER].includes(this.getPiece(x, i))))
@@ -837,15 +837,15 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     this.sentryPush.pop();
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      super.isAttacked(sq, colors) ||
-      this.isAttackedByLancer(sq, colors) ||
-      this.isAttackedBySentry(sq, colors)
+      super.isAttacked(sq, color) ||
+      this.isAttackedByLancer(sq, color) ||
+      this.isAttackedBySentry(sq, color)
     );
   }
 
-  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
     for (let step of steps) {
       let rx = x + step[0],
           ry = y + step[1];
@@ -855,8 +855,8 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
       }
       if (
         V.OnBoard(rx, ry) &&
-        this.getPiece(rx, ry) === piece &&
-        colors.includes(this.getColor(rx, ry)) &&
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color &&
         !this.isImmobilized([rx, ry])
       ) {
         return true;
@@ -865,27 +865,25 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return false;
   }
 
-  isAttackedByPawn([x, y], colors) {
-    for (let c of colors) {
-      const pawnShift = c == "w" ? 1 : -1;
-      if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-        for (let i of [-1, 1]) {
-          if (
-            y + i >= 0 &&
-            y + i < V.size.y &&
-            this.getPiece(x + pawnShift, y + i) == V.PAWN &&
-            this.getColor(x + pawnShift, y + i) == c &&
-            !this.isImmobilized([x + pawnShift, y + i])
-          ) {
-            return true;
-          }
+  isAttackedByPawn([x, y], color) {
+    const pawnShift = (color == "w" ? 1 : -1);
+    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
+      for (let i of [-1, 1]) {
+        if (
+          y + i >= 0 &&
+          y + i < V.size.y &&
+          this.getPiece(x + pawnShift, y + i) == V.PAWN &&
+          this.getColor(x + pawnShift, y + i) == color &&
+          !this.isImmobilized([x + pawnShift, y + i])
+        ) {
+          return true;
         }
       }
     }
     return false;
   }
 
-  isAttackedByLancer([x, y], colors) {
+  isAttackedByLancer([x, y], color) {
     for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
       // If in this direction there are only enemy pieces and empty squares,
       // and we meet a lancer: can he reach us?
@@ -896,7 +894,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
         V.OnBoard(coord.x, coord.y) &&
         (
           this.board[coord.x][coord.y] == V.EMPTY ||
-          colors.includes(this.getColor(coord.x, coord.y))
+          this.getColor(coord.x, coord.y) == color
         )
       ) {
         if (
@@ -978,17 +976,17 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
     return false;
   }
 
-  isAttackedBySentry([x, y], colors) {
+  isAttackedBySentry([x, y], color) {
     // Attacked by sentry means it can self-take our king.
     // Just check diagonals of enemy sentry(ies), and if it reaches
     // one of our pieces: can I self-take?
-    const color = V.GetOppCol(colors[0]);
+    const myColor = V.GetOppCol(color);
     let candidates = [];
     for (let i=0; i<V.size.x; i++) {
       for (let j=0; j<V.size.y; j++) {
         if (
           this.getPiece(i,j) == V.SENTRY &&
-          colors.includes(this.getColor(i,j)) &&
+          this.getColor(i,j) == color &&
           !this.isImmobilized([i, j])
         ) {
           for (let step of V.steps[V.BISHOP]) {
@@ -1002,7 +1000,7 @@ export const VariantRules = class EightpiecesRules extends ChessRules {
             }
             if (
               V.OnBoard(sq[0], sq[1]) &&
-              this.getColor(sq[0], sq[1]) == color
+              this.getColor(sq[0], sq[1]) == myColor
             ) {
               candidates.push([ sq[0], sq[1] ]);
             }

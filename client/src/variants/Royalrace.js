@@ -155,16 +155,16 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     });
   }
 
-  isAttackedByPawn([x, y], colors) {
-    const pawnShift = 1;
-    if (x + pawnShift < V.size.x) {
-      for (let c of colors) {
+  isAttackedByPawn([x, y], color) {
+    // Pawns can capture forward and backward:
+    for (let pawnShift of [-1, 1]) {
+      if (0 < x + pawnShift && x + pawnShift < V.size.x) {
         for (let i of [-1, 1]) {
           if (
             y + i >= 0 &&
             y + i < V.size.y &&
             this.getPiece(x + pawnShift, y + i) == V.PAWN &&
-            this.getColor(x + pawnShift, y + i) == c
+            this.getColor(x + pawnShift, y + i) == color
           ) {
             return true;
           }
@@ -174,10 +174,10 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     return false;
   }
 
-  isAttackedByKnight(sq, colors) {
+  isAttackedByKnight(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.KNIGHT,
       V.steps[V.KNIGHT]
     );

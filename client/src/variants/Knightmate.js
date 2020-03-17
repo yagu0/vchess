@@ -41,31 +41,31 @@ export const VariantRules = class KnightmateRules extends ChessRules {
     return super.getPotentialKnightMoves(sq).concat(super.getCastleMoves(sq));
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      this.isAttackedByCommoner(sq, colors) ||
-      this.isAttackedByPawn(sq, colors) ||
-      this.isAttackedByRook(sq, colors) ||
-      this.isAttackedByBishop(sq, colors) ||
-      this.isAttackedByQueen(sq, colors) ||
-      this.isAttackedByKing(sq, colors)
+      this.isAttackedByCommoner(sq, color) ||
+      this.isAttackedByPawn(sq, color) ||
+      this.isAttackedByRook(sq, color) ||
+      this.isAttackedByBishop(sq, color) ||
+      this.isAttackedByQueen(sq, color) ||
+      this.isAttackedByKing(sq, color)
     );
   }
 
-  isAttackedByKing(sq, colors) {
+  isAttackedByKing(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.KING,
       V.steps[V.KNIGHT],
       "oneStep"
     );
   }
 
-  isAttackedByCommoner(sq, colors) {
+  isAttackedByCommoner(sq, color) {
     return this.isAttackedBySlideNJump(
       sq,
-      colors,
+      color,
       V.COMMONER,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"

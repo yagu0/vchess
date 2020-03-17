@@ -65,18 +65,21 @@ export const VariantRules = class AtomicRules extends ChessRules {
     return moves.concat(this.getCastleMoves([x, y]));
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     if (
       this.getPiece(sq[0], sq[1]) == V.KING &&
-      this.isAttackedByKing(sq, colors)
-    )
-      return false; //king cannot take...
+      this.isAttackedByKing(sq, color)
+    ) {
+      // A king next to the enemy king is immune to attacks
+      return false;
+    }
     return (
-      this.isAttackedByPawn(sq, colors) ||
-      this.isAttackedByRook(sq, colors) ||
-      this.isAttackedByKnight(sq, colors) ||
-      this.isAttackedByBishop(sq, colors) ||
-      this.isAttackedByQueen(sq, colors)
+      this.isAttackedByPawn(sq, color) ||
+      this.isAttackedByRook(sq, color) ||
+      this.isAttackedByKnight(sq, color) ||
+      this.isAttackedByBishop(sq, color) ||
+      this.isAttackedByQueen(sq, color)
+      // No "attackedByKing": it cannot take
     );
   }
 
@@ -127,7 +130,7 @@ export const VariantRules = class AtomicRules extends ChessRules {
     // If opponent king disappeared, move is valid
     else if (this.kingPos[oppCol][0] < 0) res = false;
     // Otherwise, if we remain under check, move is not valid
-    else res = this.isAttacked(this.kingPos[color], [oppCol]);
+    else res = this.isAttacked(this.kingPos[color], oppCol);
     return res;
   }
 
@@ -135,7 +138,7 @@ export const VariantRules = class AtomicRules extends ChessRules {
     let res = [];
     if (
       this.kingPos[color][0] >= 0 && //king might have exploded
-      this.isAttacked(this.kingPos[color], [V.GetOppCol(color)])
+      this.isAttacked(this.kingPos[color], V.GetOppCol(color))
     ) {
       res = [JSON.parse(JSON.stringify(this.kingPos[color]))];
     }
@@ -150,7 +153,7 @@ export const VariantRules = class AtomicRules extends ChessRules {
       return color == "w" ? "0-1" : "1-0";
     if (this.atLeastOneMove())
       return "*";
-    if (!this.isAttacked(kp, [V.GetOppCol(color)])) return "1/2";
+    if (!this.isAttacked(kp, V.GetOppCol(color))) return "1/2";
     return color == "w" ? "0-1" : "1-0"; //checkmate
   }
 };

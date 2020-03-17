@@ -180,25 +180,23 @@ export const VariantRules = class CircularRules extends ChessRules {
     });
   }
 
-  isAttackedByPawn([x, y], colors) {
-    const pawnShift = 1;
-    const attackerRow = V.ComputeX(x + pawnShift);
-    for (let c of colors) {
-      for (let i of [-1, 1]) {
-        if (
-          y + i >= 0 &&
-          y + i < V.size.y &&
-          this.getPiece(attackerRow, y + i) == V.PAWN &&
-          this.getColor(attackerRow, y + i) == c
-        ) {
-          return true;
-        }
+  isAttackedByPawn([x, y], color) {
+    // pawn shift is always 1 (all pawns go the same way)
+    const attackerRow = V.ComputeX(x + 1);
+    for (let i of [-1, 1]) {
+      if (
+        y + i >= 0 &&
+        y + i < V.size.y &&
+        this.getPiece(attackerRow, y + i) == V.PAWN &&
+        this.getColor(attackerRow, y + i) == color
+      ) {
+        return true;
       }
     }
     return false;
   }
 
-  isAttackedBySlideNJump([x, y], colors, piece, steps, oneStep) {
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
     for (let step of steps) {
       let rx = V.ComputeX(x + step[0]),
           ry = y + step[1];
@@ -208,8 +206,8 @@ export const VariantRules = class CircularRules extends ChessRules {
       }
       if (
         V.OnBoard(rx, ry) &&
-        this.getPiece(rx, ry) === piece &&
-        colors.includes(this.getColor(rx, ry))
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color
       ) {
         return true;
       }

@@ -201,13 +201,13 @@ export const VariantRules = class WormholeRules extends ChessRules {
     return this.getJumpMoves(sq, V.steps[V.KING]);
   }
 
-  isAttackedByJump([x, y], colors, piece, steps) {
+  isAttackedByJump([x, y], color, piece, steps) {
     for (let step of steps) {
       const sq = this.getSquareAfter([x,y], step);
       if (
         sq &&
-        this.getPiece(sq[0], sq[1]) === piece &&
-        colors.includes(this.getColor(sq[0], sq[1]))
+        this.getPiece(sq[0], sq[1]) == piece &&
+        this.getColor(sq[0], sq[1]) == color
       ) {
         return true;
       }
@@ -215,53 +215,51 @@ export const VariantRules = class WormholeRules extends ChessRules {
     return false;
   }
 
-  isAttackedByPawn([x, y], colors) {
-    for (let c of colors) {
-      const pawnShift = c == "w" ? 1 : -1;
-      for (let i of [-1, 1]) {
-        const sq = this.getSquareAfter([x,y], [pawnShift,i]);
-        if (
-          sq &&
-          this.getPiece(sq[0], sq[1]) == V.PAWN &&
-          this.getColor(sq[0], sq[1]) == c
-        ) {
-          return true;
-        }
+  isAttackedByPawn([x, y], color) {
+    const pawnShift = (color == "w" ? 1 : -1);
+    for (let i of [-1, 1]) {
+      const sq = this.getSquareAfter([x,y], [pawnShift,i]);
+      if (
+        sq &&
+        this.getPiece(sq[0], sq[1]) == V.PAWN &&
+        this.getColor(sq[0], sq[1]) == color
+      ) {
+        return true;
       }
     }
     return false;
   }
 
-  isAttackedByRook(sq, colors) {
-    return this.isAttackedByJump(sq, colors, V.ROOK, V.steps[V.ROOK]);
+  isAttackedByRook(sq, color) {
+    return this.isAttackedByJump(sq, color, V.ROOK, V.steps[V.ROOK]);
   }
 
-  isAttackedByKnight(sq, colors) {
+  isAttackedByKnight(sq, color) {
     // NOTE: knight attack is not symmetric in this variant:
     // steps order need to be reversed.
     return this.isAttackedByJump(
       sq,
-      colors,
+      color,
       V.KNIGHT,
       V.steps[V.KNIGHT].map(s => s.reverse())
     );
   }
 
-  isAttackedByBishop(sq, colors) {
-    return this.isAttackedByJump(sq, colors, V.BISHOP, V.steps[V.BISHOP]);
+  isAttackedByBishop(sq, color) {
+    return this.isAttackedByJump(sq, color, V.BISHOP, V.steps[V.BISHOP]);
   }
 
-  isAttackedByQueen(sq, colors) {
+  isAttackedByQueen(sq, color) {
     return this.isAttackedByJump(
       sq,
-      colors,
+      color,
       V.QUEEN,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP])
     );
   }
 
-  isAttackedByKing(sq, colors) {
-    return this.isAttackedByJump(sq, colors, V.KING, V.steps[V.KING]);
+  isAttackedByKing(sq, color) {
+    return this.isAttackedByJump(sq, color, V.KING, V.steps[V.KING]);
   }
 
   // NOTE: altering move in getBasicMove doesn't work and wouldn't be logical.

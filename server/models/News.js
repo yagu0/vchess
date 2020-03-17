@@ -33,7 +33,7 @@ const NewsModel =
         "WHERE added < " + cursor + " " +
         "ORDER BY added DESC " +
         "LIMIT 10"; //TODO: 10 currently hard-coded
-      db.all(query, (err,newsList) => {
+      db.all(query, (err, newsList) => {
         cb(err, newsList);
       });
     });
@@ -47,7 +47,7 @@ const NewsModel =
         "FROM News " +
         "ORDER BY added DESC " +
         "LIMIT 1";
-      db.get(query, (err,ts) => {
+      db.get(query, (err, ts) => {
         cb(err, ts);
       });
     });

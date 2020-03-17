@@ -854,8 +854,8 @@ export default {
             cursor: this.cursor
           },
           success: (res) => {
-            if (res.games.length > 0) {
-              const L = res.games.length;
+            const L = res.games.length;
+            if (L > 0) {
               this.cursor = res.games[L - 1].created;
               let moreGames = res.games.map(g => {
                 const vname = this.getVname(g.vid);

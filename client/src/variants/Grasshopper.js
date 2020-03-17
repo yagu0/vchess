@@ -91,14 +91,14 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
     return moves;
   }
 
-  isAttacked(sq, colors) {
+  isAttacked(sq, color) {
     return (
-      super.isAttacked(sq, colors) ||
-      this.isAttackedByGrasshopper(sq, colors)
+      super.isAttacked(sq, color) ||
+      this.isAttackedByGrasshopper(sq, color)
     );
   }
 
-  isAttackedByGrasshopper([x, y], colors) {
+  isAttackedByGrasshopper([x, y], color) {
     // Reversed process: is there an adjacent obstacle,
     // and a grasshopper next in the same line?
     for (const step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
@@ -116,7 +116,7 @@ export const VariantRules = class GrasshopperRules extends ChessRules {
         if (
           V.OnBoard(i, j) &&
           this.getPiece(i, j) == V.GRASSHOPPER &&
-          colors.includes(this.getColor(i, j))
+          this.getColor(i, j) == color
         ) {
           return true;
         }

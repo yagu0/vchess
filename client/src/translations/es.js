@@ -180,6 +180,8 @@ export const translations = {
   "Mate any piece (v2)": "Matar cualquier pieza (v2)",
   "Mate the knight": "Matar el caballo",
   "Middle battle": "Batalla media",
+  "Move like a knight (v1)": "Moverse como un caballo (v1)",
+  "Move like a knight (v2)": "Moverse como un caballo (v2)",
   "Move twice": "Mover dos veces",
   "Neverending rows": "Filas interminables",
   "Pawns move diagonally": "Peones se mueven en diagonal",
@@ -191,6 +193,5 @@ export const translations = {
   "Shoot pieces": "Tirar de las piezas",
   "Squares disappear": "Las casillas desaparecen",
   "Standard rules": "Reglas estandar",
-  "The knight transfers its powers": "El caballo transfiere sus poderes",
   "Unidentified pieces": "Piezas no identificadas"
 };
