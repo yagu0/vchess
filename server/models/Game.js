@@ -300,10 +300,7 @@ const GameModel =
     // Check all that is possible (required) in obj:
     return (
       (
-        !obj.move || (
-          !!(obj.move.played.toString().match(/^[0-9]+$/)) &&
-          !!(obj.move.idx.toString().match(/^[0-9]+$/))
-        )
+        !obj.move || !!(obj.move.idx.toString().match(/^[0-9]+$/))
       ) && (
         !obj.drawOffer || !!(obj.drawOffer.match(/^[wbtn]$/))
       ) && (

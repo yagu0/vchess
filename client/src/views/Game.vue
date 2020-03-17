@@ -14,7 +14,7 @@ main
         | {{ st.tr["Rematch in progress"] }}
   input#modalChat.modal(
     type="checkbox"
-    @click="resetChatColor()"
+    @click="toggleChat()"
   )
   div#chatWrap(
     role="dialog"
@@ -37,7 +37,6 @@ main
         ref="chatcomp"
         :players="game.players"
         :pastChats="game.chats"
-        :newChat="newChat"
         @mychat="processChat"
         @chatcleared="clearChat"
       )
@@ -172,7 +171,6 @@ export default {
       lastate: undefined, //used if opponent send lastate before game is ready
       repeat: {}, //detect position repetition
       curDiag: "", //for corr moves confirmation
-      newChat: "",
       conn: null,
       roomInitialized: false,
       // If newmove has wrong index: ask fullgame again:
@@ -276,7 +274,6 @@ export default {
       this.lastateAsked = false;
       this.rematchOffer = "";
       this.lastate = undefined;
-      this.newChat = "";
       this.roomInitialized = false;
       this.askGameTime = 0;
       this.gameIsLoading = false;
@@ -380,8 +377,12 @@ export default {
       if (!!oppsid && !!this.people[oppsid]) return oppsid;
       return null;
     },
-    resetChatColor: function() {
-      // TODO: this is called twice, once on opening an once on closing
+    toggleChat: function() {
+      if (document.getElementById("modalChat").checked)
+        // Entering chat
+        document.getElementById("inputChat").focus();
+      // TODO: next line is only required when exiting chat,
+      // but the event for now isn't well detected.
       document.getElementById("chatBtn").classList.remove("somethingnew");
     },
     processChat: function(chat) {
@@ -711,7 +712,7 @@ export default {
           break;
         }
         case "newchat":
-          this.newChat = data.data;
+          this.$refs["chatcomp"].newChat(data.data);
           if (!document.getElementById("modalChat").checked)
             document.getElementById("chatBtn").classList.add("somethingnew");
           break;
@@ -1025,7 +1026,7 @@ export default {
             oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
             oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].id
           },
-          game,
+          game
         );
         this.$refs["basegame"].re_setVariables(this.game);
         if (!this.gameIsLoading) {
@@ -1160,9 +1161,8 @@ export default {
         if (this.game.type == "live") {
           if (!!data.clock) this.game.clocks[colorIdx] = data.clock;
           else this.game.clocks[colorIdx] += addTime;
-        }
-        // In corr games, just reset clock to mainTime:
-        else {
+        } else {
+          // In corr games, just reset clock to mainTime:
           this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
         }
         // NOTE: opponent's initime is reset after "gotmove" is received
@@ -1220,7 +1220,6 @@ export default {
               fen: this.game.fen,
               move: {
                 squares: filtered_move,
-                played: Date.now(),
                 idx: origMovescount
               },
               // Code "n" for "None" to force reset (otherwise it's ignored)

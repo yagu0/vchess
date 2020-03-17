@@ -21,18 +21,12 @@ import { store } from "@/store";
 export default {
   name: "my-chat",
   // Prop 'pastChats' for corr games where chats are on server
-  props: ["players", "pastChats", "newChat"],
+  props: ["players", "pastChats"],
   data: function() {
     return {
       st: store.state,
       chats: [] //chat messages after human game
     };
-  },
-  watch: {
-    newChat: function(chat) {
-      if (chat.msg != "")
-        this.chats.unshift({ msg: chat.msg, name: chat.name || "@nonymous" });
-    }
   },
   methods: {
     classObject: function(chat) {
@@ -53,6 +47,10 @@ export default {
       const chat = { msg: chatTxt, name: this.st.user.name || "@nonymous" };
       this.$emit("mychat", chat);
       this.chats.unshift(chat);
+    },
+    newChat: function(chat) {
+      if (chat.msg != "")
+        this.chats.unshift({ msg: chat.msg, name: chat.name || "@nonymous" });
     },
     clearHistory: function() {
       this.chats = [];
