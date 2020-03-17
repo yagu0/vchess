@@ -901,10 +901,13 @@ export default {
     },
     loadNewchallVariant: async function(cb) {
       const vname = this.getVname(this.newchallenge.vid);
-      const vModule = await import("@/variants/" + vname + ".js");
-      this.newchallenge.V = vModule.VariantRules;
-      this.newchallenge.vname = vname;
-      if (!!cb) cb();
+      await import("@/variants/" + vname + ".js")
+      .then((vModule) => {
+        window.V = vModule[vname + "Rules"];
+        this.newchallenge.V = window.V;
+        this.newchallenge.vname = vname;
+        if (!!cb) cb();
+      });
     },
     trySetNewchallDiag: function() {
       if (!this.newchallenge.fen) {
@@ -1101,22 +1104,24 @@ export default {
           return;
         }
         c.accepted = true;
-        const vModule = await import("@/variants/" + c.vname + ".js");
-        window.V = vModule.VariantRules;
-        if (!!c.to) {
-          // c.to == this.st.user.name (connected)
-          if (!!c.fen) {
-            const parsedFen = V.ParseFen(c.fen);
-            c.mycolor = V.GetOppCol(parsedFen.turn);
-            this.tchallDiag = getDiagram({
-              position: parsedFen.position,
-              orientation: c.mycolor
-            });
+        await import("@/variants/" + c.vname + ".js")
+        .then((vModule) => {
+          window.V = vModule[c.vname + "Rules"];
+          if (!!c.to) {
+            // c.to == this.st.user.name (connected)
+            if (!!c.fen) {
+              const parsedFen = V.ParseFen(c.fen);
+              c.mycolor = V.GetOppCol(parsedFen.turn);
+              this.tchallDiag = getDiagram({
+                position: parsedFen.position,
+                orientation: c.mycolor
+              });
+            }
+            this.curChallToAccept = c;
+            document.getElementById("modalAccept").checked = true;
           }
-          this.curChallToAccept = c;
-          document.getElementById("modalAccept").checked = true;
-        }
-        else this.finishProcessingChallenge(c);
+          else this.finishProcessingChallenge(c);
+        });
       }
       else {
         // My challenge

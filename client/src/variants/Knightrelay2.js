@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class Knightrelay2Rules extends ChessRules {
+export class Knightrelay2Rules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 

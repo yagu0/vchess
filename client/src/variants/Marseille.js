@@ -1,7 +1,7 @@
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class MarseilleRules extends ChessRules {
+export class MarseilleRules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
     const squares = enpassant.split(",");
     if (squares.length > 2) return false;
@@ -43,52 +43,8 @@ export const VariantRules = class MarseilleRules extends ChessRules {
     this.subTurn = fullTurn[1] || 1;
   }
 
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
+  getEnpassantCaptures([x, y], shiftX) {
     let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const firstRank = color == "w" ? sizeX - 1 : 0;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-    const finalPieces =
-      x + shiftX == lastRank ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN] : [V.PAWN];
-
-    // One square forward
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      for (let piece of finalPieces) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], { c: color, p: piece })
-        );
-      }
-      // Next condition because pawns on 1st rank can generally jump
-      if (
-        [startRank, firstRank].includes(x) &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-      }
-    }
-
     // En passant: always OK if subturn 1,
     // OK on subturn 2 only if enPassant was played at subturn 1
     // (and if there are two e.p. squares available).
@@ -99,7 +55,7 @@ export const VariantRules = class MarseilleRules extends ChessRules {
       if (sq) epSqs.push(sq);
     });
     if (epSqs.length == 0) return moves;
-    const oppCol = V.GetOppCol(color);
+    const oppCol = V.GetOppCol(this.getColor(x, y));
     for (let sq of epSqs) {
       if (
         this.subTurn == 1 ||
@@ -126,7 +82,6 @@ export const VariantRules = class MarseilleRules extends ChessRules {
         }
       }
     }
-
     return moves;
   }
 

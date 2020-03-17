@@ -1,8 +1,8 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
-import { randInt } from "@/utils/alea";
+import { shuffle } from "@/utils/alea";
 
-export const VariantRules = class BaroqueRules extends ChessRules {
+export class BaroqueRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
@@ -558,46 +558,10 @@ export const VariantRules = class BaroqueRules extends ChessRules {
         break;
       }
 
-      let positions = ArrayFun.range(8);
       // Get random squares for every piece, totally freely
-
-      let randIndex = randInt(8);
-      const bishop1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(7);
-      const bishop2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(6);
-      const knight1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(5);
-      const knight2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(4);
-      const queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(3);
-      const kingPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(2);
-      const rookPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      const immobilizerPos = positions[0];
-
-      pieces[c][bishop1Pos] = "b";
-      pieces[c][bishop2Pos] = "b";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][rookPos] = "r";
-      pieces[c][immobilizerPos] = "m";
+      let positions = shuffle(ArrayFun.range(8));
+      const composition = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'm'];
+      for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
     }
     return (
       pieces["b"].join("") +

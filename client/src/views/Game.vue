@@ -913,156 +913,161 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game, callback) {
-      const afterRetrieval = async (game) => {
-        const vModule = await import("@/variants/" + game.vname + ".js");
-        window.V = vModule.VariantRules;
-        this.vr = new V(game.fen);
-        const gtype = this.getGameType(game);
-        const tc = extractTime(game.cadence);
-        const myIdx = game.players.findIndex(p => {
-          return p.sid == this.st.user.sid || p.id == this.st.user.id;
-        });
-        const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
-        if (!game.chats) game.chats = []; //live games don't have chat history
-        if (gtype == "corr") {
-          // NOTE: clocks in seconds, initime in milliseconds
-          game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
-          game.clocks = [tc.mainTime, tc.mainTime];
-          const L = game.moves.length;
-          if (game.score == "*") {
-            // Set clocks + initime
-            game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
-            if (L >= 1) game.initime[L % 2] = game.moves[L-1].played;
-            // NOTE: game.clocks shouldn't be computed right now:
-            // job will be done in re_setClocks() called soon below.
-          }
-          // Sort chat messages from newest to oldest
-          game.chats.sort((c1, c2) => {
-            return c2.added - c1.added;
-          });
-          if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
-            // Did a chat message arrive after my last move?
-            let dtLastMove = 0;
-            if (L == 1 && myIdx == 0)
-              dtLastMove = game.moves[0].played;
-            else if (L >= 2) {
-              if (L % 2 == 0) {
-                // It's now white turn
-                dtLastMove = game.moves[L-1-(1-myIdx)].played;
-              } else {
-                // Black turn:
-                dtLastMove = game.moves[L-1-myIdx].played;
-              }
-            }
-            if (dtLastMove < game.chats[0].added)
-              document.getElementById("chatBtn").classList.add("somethingnew");
-          }
-          // Now that we used idx and played, re-format moves as for live games
-          game.moves = game.moves.map(m => m.squares);
-        }
-        if (gtype == "live" && game.clocks[0] < 0) {
-          // Game is unstarted. clocks and initime are ignored until move 2
-          game.clocks = [tc.mainTime, tc.mainTime];
+      this.vr = new V(game.fen);
+      const gtype = this.getGameType(game);
+      const tc = extractTime(game.cadence);
+      const myIdx = game.players.findIndex(p => {
+        return p.sid == this.st.user.sid || p.id == this.st.user.id;
+      });
+      const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
+      if (!game.chats) game.chats = []; //live games don't have chat history
+      if (gtype == "corr") {
+        // NOTE: clocks in seconds, initime in milliseconds
+        game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
+        game.clocks = [tc.mainTime, tc.mainTime];
+        const L = game.moves.length;
+        if (game.score == "*") {
+          // Set clocks + initime
           game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
-          if (myIdx >= 0) {
-            // I play in this live game
-            GameStorage.update(game.id, {
-              clocks: game.clocks,
-              initime: game.initime
-            });
-          }
+          if (L >= 1) game.initime[L % 2] = game.moves[L-1].played;
+          // NOTE: game.clocks shouldn't be computed right now:
+          // job will be done in re_setClocks() called soon below.
         }
-        // TODO: merge next 2 "if" conditions
-        if (!!game.drawOffer) {
-          if (game.drawOffer == "t")
-            // Three repetitions
-            this.drawOffer = "threerep";
-          else {
-            // Draw offered by any of the players:
-            if (myIdx < 0) this.drawOffer = "received";
-            else {
-              // I play in this game:
-              if (
-                (game.drawOffer == "w" && myIdx == 0) ||
-                (game.drawOffer == "b" && myIdx == 1)
-              )
-                this.drawOffer = "sent";
-              else this.drawOffer = "received";
+        // Sort chat messages from newest to oldest
+        game.chats.sort((c1, c2) => {
+          return c2.added - c1.added;
+        });
+        if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
+          // Did a chat message arrive after my last move?
+          let dtLastMove = 0;
+          if (L == 1 && myIdx == 0)
+            dtLastMove = game.moves[0].played;
+          else if (L >= 2) {
+            if (L % 2 == 0) {
+              // It's now white turn
+              dtLastMove = game.moves[L-1-(1-myIdx)].played;
+            } else {
+              // Black turn:
+              dtLastMove = game.moves[L-1-myIdx].played;
             }
           }
+          if (dtLastMove < game.chats[0].added)
+            document.getElementById("chatBtn").classList.add("somethingnew");
         }
-        if (!!game.rematchOffer) {
-          if (myIdx < 0) this.rematchOffer = "received";
+        // Now that we used idx and played, re-format moves as for live games
+        game.moves = game.moves.map(m => m.squares);
+      }
+      if (gtype == "live" && game.clocks[0] < 0) {
+        // Game is unstarted. clocks and initime are ignored until move 2
+        game.clocks = [tc.mainTime, tc.mainTime];
+        game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+        if (myIdx >= 0) {
+          // I play in this live game
+          GameStorage.update(game.id, {
+            clocks: game.clocks,
+            initime: game.initime
+          });
+        }
+      }
+      // TODO: merge next 2 "if" conditions
+      if (!!game.drawOffer) {
+        if (game.drawOffer == "t")
+          // Three repetitions
+          this.drawOffer = "threerep";
+        else {
+          // Draw offered by any of the players:
+          if (myIdx < 0) this.drawOffer = "received";
           else {
             // I play in this game:
             if (
-              (game.rematchOffer == "w" && myIdx == 0) ||
-              (game.rematchOffer == "b" && myIdx == 1)
+              (game.drawOffer == "w" && myIdx == 0) ||
+              (game.drawOffer == "b" && myIdx == 1)
             )
-              this.rematchOffer = "sent";
-            else this.rematchOffer = "received";
+              this.drawOffer = "sent";
+            else this.drawOffer = "received";
           }
         }
-        this.repeat = {}; //reset: scan past moves' FEN:
-        let repIdx = 0;
-        let vr_tmp = new V(game.fenStart);
-        let curTurn = "n";
-        game.moves.forEach(m => {
-          playMove(m, vr_tmp);
-          const fenIdx = vr_tmp.getFen().replace(/ /g, "_");
-          this.repeat[fenIdx] = this.repeat[fenIdx]
-            ? this.repeat[fenIdx] + 1
-            : 1;
+      }
+      if (!!game.rematchOffer) {
+        if (myIdx < 0) this.rematchOffer = "received";
+        else {
+          // I play in this game:
+          if (
+            (game.rematchOffer == "w" && myIdx == 0) ||
+            (game.rematchOffer == "b" && myIdx == 1)
+          )
+            this.rematchOffer = "sent";
+          else this.rematchOffer = "received";
+        }
+      }
+      this.repeat = {}; //reset: scan past moves' FEN:
+      let repIdx = 0;
+      let vr_tmp = new V(game.fenStart);
+      let curTurn = "n";
+      game.moves.forEach(m => {
+        playMove(m, vr_tmp);
+        const fenIdx = vr_tmp.getFen().replace(/ /g, "_");
+        this.repeat[fenIdx] = this.repeat[fenIdx]
+          ? this.repeat[fenIdx] + 1
+          : 1;
+      });
+      if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
+      this.game = Object.assign(
+        // NOTE: assign mycolor here, since BaseGame could also be VS computer
+        {
+          type: gtype,
+          increment: tc.increment,
+          mycolor: mycolor,
+          // opponent sid not strictly required (or available), but easier
+          // at least oppsid or oppid is available anyway:
+          oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
+          oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].id
+        },
+        game
+      );
+      this.$refs["basegame"].re_setVariables(this.game);
+      if (!this.gameIsLoading) {
+        // Initial loading:
+        this.gotMoveIdx = game.moves.length - 1;
+        // If we arrive here after 'nextGame' action, the board might be hidden
+        let boardDiv = document.querySelector(".game");
+        if (!!boardDiv && boardDiv.style.visibility == "hidden")
+          boardDiv.style.visibility = "visible";
+      }
+      this.re_setClocks();
+      this.$nextTick(() => {
+        this.game.rendered = true;
+        // Did lastate arrive before game was rendered?
+        if (this.lastate) this.processLastate();
+      });
+      if (this.lastateAsked) {
+        this.lastateAsked = false;
+        this.sendLastate(game.oppsid);
+      }
+      if (this.gameIsLoading) {
+        this.gameIsLoading = false;
+        if (this.gotMoveIdx >= game.moves.length)
+          // Some moves arrived meanwhile...
+          this.askGameAgain();
+      }
+      if (!!callback) callback();
+    },
+    fetchGame: function(game, callback) {
+      const afterRetrieval = async (game) => {
+        await import("@/variants/" + game.vname + ".js")
+        .then((vModule) => {
+          window.V = vModule[game.vname + "Rules"];
+          this.loadGame(game, callback);
         });
-        if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
-        this.game = Object.assign(
-          // NOTE: assign mycolor here, since BaseGame could also be VS computer
-          {
-            type: gtype,
-            increment: tc.increment,
-            mycolor: mycolor,
-            // opponent sid not strictly required (or available), but easier
-            // at least oppsid or oppid is available anyway:
-            oppsid: myIdx < 0 ? undefined : game.players[1 - myIdx].sid,
-            oppid: myIdx < 0 ? undefined : game.players[1 - myIdx].id
-          },
-          game
-        );
-        this.$refs["basegame"].re_setVariables(this.game);
-        if (!this.gameIsLoading) {
-          // Initial loading:
-          this.gotMoveIdx = game.moves.length - 1;
-          // If we arrive here after 'nextGame' action, the board might be hidden
-          let boardDiv = document.querySelector(".game");
-          if (!!boardDiv && boardDiv.style.visibility == "hidden")
-            boardDiv.style.visibility = "visible";
-        }
-        this.re_setClocks();
-        this.$nextTick(() => {
-          this.game.rendered = true;
-          // Did lastate arrive before game was rendered?
-          if (this.lastate) this.processLastate();
-        });
-        if (this.lastateAsked) {
-          this.lastateAsked = false;
-          this.sendLastate(game.oppsid);
-        }
-        if (this.gameIsLoading) {
-          this.gameIsLoading = false;
-          if (this.gotMoveIdx >= game.moves.length)
-            // Some moves arrived meanwhile...
-            this.askGameAgain();
-        }
-        if (!!callback) callback();
       };
       if (!!game) {
         afterRetrieval(game);
         return;
       }
-      if (this.gameRef.rid) {
+      if (this.gameRef.rid)
         // Remote live game: forgetting about callback func... (TODO: design)
         this.send("askfullgame", { target: this.gameRef.rid });
-      } else {
+      else {
         // Local or corr game on server.
         // NOTE: afterRetrieval() is never called if game not found
         const gid = this.gameRef.id;
@@ -1074,11 +1079,10 @@ export default {
             {
               data: { gid: gid },
               success: (res) => {
-                let g = res.game;
-                g.moves.forEach(m => {
+                res.game.moves.forEach(m => {
                   m.squares = JSON.parse(m.squares);
                 });
-                afterRetrieval(g);
+                afterRetrieval(res.game);
               }
             }
           );

@@ -4,7 +4,7 @@ import { randInt } from "@/utils/alea";
 
 // NOTE: initial setup differs from the original; see
 // https://www.chessvariants.com/large.dir/freeling.html
-export const VariantRules = class GrandRules extends ChessRules {
+export class GrandRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -223,7 +223,7 @@ export const VariantRules = class GrandRules extends ChessRules {
       for (let epsq of epSquare) {
         // TODO: some redundant checks
         if (epsq.x == x + shiftX && Math.abs(epsq.y - y) == 1) {
-          var enpassantMove = this.getBasicMove([x, y], [epsq.x, epsq.y]);
+          let enpassantMove = this.getBasicMove([x, y], [epsq.x, epsq.y]);
           // WARNING: the captured pawn may be diagonally behind us,
           // if it's a 3-squares jump and we take on 1st passing square
           const px = this.board[x][epsq.y] != V.EMPTY ? x : x - shiftX;

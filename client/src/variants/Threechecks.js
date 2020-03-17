@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ThreechecksRules extends ChessRules {
+export class ThreechecksRules extends ChessRules {
   static IsGoodFlags(flags) {
     // 4 for castle + 2 for checks (0,1 or 2)
     return !!flags.match(/^[01]{4,4}[012]{2,2}$/);

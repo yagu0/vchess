@@ -1,6 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class Allmate1Rules extends ChessRules {
+export class Allmate1Rules extends ChessRules {
   static get HasEnpassant() {
     return false;
   }
@@ -32,7 +32,7 @@ export const VariantRules = class Allmate1Rules extends ChessRules {
       let attacked = {};
       for (let i=0; i<V.size.x; i++) {
         for (let j=0; j<V.size.y; j++) {
-          if (this.getColor(i,j) == oppCol && this.isAttacked([i,j], [color]))
+          if (this.getColor(i,j) == oppCol && this.isAttacked([i,j], color))
             attacked[i+"_"+j] = [i,j];
         }
       }
@@ -70,7 +70,7 @@ export const VariantRules = class Allmate1Rules extends ChessRules {
                 if (om.start.x == sq[0] && om.start.y == sq[1])
                   // Piece moved:
                   sq = [om.appear[0].x, om.appear[0].y];
-                if (!this.isAttacked(sq, [color]))
+                if (!this.isAttacked(sq, color))
                   delete attacked[origSq[0]+"_"+origSq[1]];
               });
               V.UndoOnBoard(this.board, om);
@@ -222,7 +222,7 @@ export const VariantRules = class Allmate1Rules extends ChessRules {
                 if (em.start.x == attacked[0] && em.start.y == attacked[1])
                   // King moved:
                   sq = [em.appear[0].x, em.appear[0].y];
-                if (!this.isAttacked(sq, [oppCol]))
+                if (!this.isAttacked(sq, oppCol))
                   res = true;
                 V.UndoOnBoard(this.board, em);
                 if (res)

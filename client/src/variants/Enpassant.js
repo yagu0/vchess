@@ -1,7 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class EnpassantRules extends ChessRules {
-
+export class EnpassantRules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
     if (enpassant != "-") {
       const squares = enpassant.split(",");
@@ -113,60 +112,10 @@ export const VariantRules = class EnpassantRules extends ChessRules {
     return moves;
   }
 
-  // TODO: this getPotentialPawnMovesFrom() is mostly duplicated:
-  // it could be split in "capture", "promotion", "enpassant"...
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
-    const finalPieces =
-      x + shiftX == lastRank
-        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-        : [V.PAWN];
-    // One square forward
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      for (let piece of finalPieces) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], {
-            c: color,
-            p: piece
-          })
-        );
-      }
-      if (
-        x == startRank &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-      }
-    }
-
-    // En passant
+  getEnpassantCaptures([x, y], shiftX) {
     const Lep = this.epSquares.length;
     const squares = this.epSquares[Lep - 1];
+    let moves = [];
     if (!!squares) {
       const S = squares.length;
       const taken = squares[S-1];
@@ -185,7 +134,6 @@ export const VariantRules = class EnpassantRules extends ChessRules {
         }
       });
     }
-
     return moves;
   }
 

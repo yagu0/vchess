@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class HiddenRules extends ChessRules {
+export class HiddenRules extends ChessRules {
   static get HasFlags() {
     return false;
   }

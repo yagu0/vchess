@@ -1,8 +1,16 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ArenaRules extends ChessRules {
+export class ArenaRules extends ChessRules {
   static get HasFlags() {
     return false;
+  }
+
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      { captureBackward: true }
+    );
   }
 
   static GenRandInitFen(randomness) {
@@ -24,60 +32,6 @@ export const VariantRules = class ArenaRules extends ChessRules {
         (!startInArena && endInArena)
       );
     });
-
-    return moves;
-  }
-
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      // One square forward
-      moves.push(this.getBasicMove([x, y], [x + shiftX, y]));
-      // Next condition because pawns on 1st rank can generally jump
-      if (
-        x == startRank &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures: also possible backward
-    for (let shiftY of [-1, 1]) {
-      if (y + shiftY >= 0 && y + shiftY < sizeY) {
-        for (let direction of [-1,1]) {
-          if (
-            this.board[x + direction][y + shiftY] != V.EMPTY &&
-            this.canTake([x, y], [x + direction, y + shiftY])
-          ) {
-            moves.push(this.getBasicMove([x, y], [x + direction, y + shiftY]));
-          }
-        }
-      }
-    }
-
-    // En passant
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1]; //always at least one element
-    if (
-      !!epSquare &&
-      epSquare.x == x + shiftX &&
-      Math.abs(epSquare.y - y) == 1
-    ) {
-      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-      enpassantMove.vanish.push({
-        x: x,
-        y: epSquare.y,
-        p: "p",
-        c: this.getColor(x, epSquare.y)
-      });
-      moves.push(enpassantMove);
-    }
 
     return moves;
   }

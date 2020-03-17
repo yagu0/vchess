@@ -1,10 +1,15 @@
 import { ChessRules } from "@/base_rules";
+import { BerolinaRules } from "@/variants/Berolina";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class Antiking1Rules extends ChessRules {
-  static get HasEnpassant() {
-    return false;
+export class Antiking1Rules extends BerolinaRules {
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      { twoSquares: false }
+    );
   }
 
   static get HasCastle() {
@@ -110,43 +115,6 @@ export const VariantRules = class Antiking1Rules extends ChessRules {
     return moves;
   }
 
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-    const finalPieces =
-      x + shiftX == lastRank ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN] : [V.PAWN];
-
-    // One square diagonally
-    for (let shiftY of [-1, 1]) {
-      if (this.board[x + shiftX][y + shiftY] == V.EMPTY) {
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-      }
-    }
-    // Capture
-    if (
-      this.board[x + shiftX][y] != V.EMPTY &&
-      this.canTake([x, y], [x + shiftX, y])
-    ) {
-      for (let piece of finalPieces)
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], { c: color, p: piece })
-        );
-    }
-
-    return moves;
-  }
-
   getPotentialAntikingMoves(sq) {
     // The antiking moves like a king (only captured colors differ)
     return this.getSlideNJumpMoves(
@@ -161,19 +129,6 @@ export const VariantRules = class Antiking1Rules extends ChessRules {
       super.isAttacked(sq, color) ||
       this.isAttackedByAntiking(sq, color)
     );
-  }
-
-  isAttackedByPawn([x, y], color) {
-    let pawnShift = (color == "w" ? 1 : -1);
-    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-      if (
-        this.getPiece(x + pawnShift, y) == V.PAWN &&
-        this.getColor(x + pawnShift, y) == color
-      ) {
-        return true;
-      }
-    }
-    return false;
   }
 
   isAttackedByKing([x, y], color) {
@@ -266,28 +221,5 @@ export const VariantRules = class Antiking1Rules extends ChessRules {
 
   static get SEARCH_DEPTH() {
     return 2;
-  }
-
-  // TODO: notation copied from Berolina
-  getNotation(move) {
-    const piece = this.getPiece(move.start.x, move.start.y);
-    if (piece == V.PAWN) {
-      // Pawn move
-      const finalSquare = V.CoordsToSquare(move.end);
-      let notation = "";
-      if (move.vanish.length == 2)
-        //capture
-        notation = "Px" + finalSquare;
-      else {
-        // No capture: indicate the initial square for potential ambiguity
-        const startSquare = V.CoordsToSquare(move.start);
-        notation = startSquare + finalSquare;
-      }
-      if (move.appear[0].p != V.PAWN)
-        // Promotion
-        notation += "=" + move.appear[0].p.toUpperCase();
-      return notation;
-    }
-    return super.getNotation(move); //all other pieces are orthodox
   }
 };

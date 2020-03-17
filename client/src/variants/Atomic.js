@@ -1,6 +1,6 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
-export const VariantRules = class AtomicRules extends ChessRules {
+export class AtomicRules extends ChessRules {
   getEpSquare(moveOrSquare) {
     if (typeof moveOrSquare !== "object" || moveOrSquare.appear.length > 0)
       return super.getEpSquare(moveOrSquare);

@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
-export const VariantRules = class CylinderRules extends ChessRules {
+export class CylinderRules extends ChessRules {
   // Output basically x % 8 (circular board)
   static ComputeY(y) {
     let res = y % V.size.y;

@@ -1,7 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
-export const VariantRules = class CrazyhouseRules extends ChessRules {
+export class CrazyhouseRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);

@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class BerolinaRules extends ChessRules {
+export class BerolinaRules extends ChessRules {
   // En-passant after 2-sq jump
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
@@ -76,6 +76,7 @@ export const VariantRules = class BerolinaRules extends ChessRules {
           );
         }
         if (
+          V.PawnSpecs.twoSquares &&
           x == startRank &&
           y + 2 * shiftY >= 0 &&
           y + 2 * shiftY < sizeY &&
@@ -99,22 +100,25 @@ export const VariantRules = class BerolinaRules extends ChessRules {
         );
     }
 
-    // En passant
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1]; //always at least one element
-    if (
-      !!epSquare &&
-      epSquare[0].x == x + shiftX &&
-      epSquare[0].y == y
-    ) {
-      let enpassantMove = this.getBasicMove([x, y], [x + shiftX, y]);
-      enpassantMove.vanish.push({
-        x: x,
-        y: epSquare[1],
-        p: "p",
-        c: this.getColor(x, epSquare[1])
-      });
-      moves.push(enpassantMove);
+    // Next condition so that other variants could inherit from this class
+    if (V.PawnSpecs.enPassant) {
+      // En passant
+      const Lep = this.epSquares.length;
+      const epSquare = this.epSquares[Lep - 1]; //always at least one element
+      if (
+        !!epSquare &&
+        epSquare[0].x == x + shiftX &&
+        epSquare[0].y == y
+      ) {
+        let enpassantMove = this.getBasicMove([x, y], [x + shiftX, y]);
+        enpassantMove.vanish.push({
+          x: x,
+          y: epSquare[1],
+          p: "p",
+          c: this.getColor(x, epSquare[1])
+        });
+        moves.push(enpassantMove);
+      }
     }
 
     return moves;
@@ -131,6 +135,10 @@ export const VariantRules = class BerolinaRules extends ChessRules {
       }
     }
     return false;
+  }
+
+  static get SEARCH_DEPTH() {
+    return 2;
   }
 
   getNotation(move) {

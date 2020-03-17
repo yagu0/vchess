@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class DarkRules extends ChessRules {
+export class DarkRules extends ChessRules {
   // Analyse in Dark mode makes no sense
   static get CanAnalyze() {
     return false;

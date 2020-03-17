@@ -284,10 +284,12 @@ export default {
       // Condition: vid is a valid variant ID
       this.loadedVar = 0;
       const variant = this.st.variants.find(v => v.id == vid);
-      const vModule = await import("@/variants/" + variant.name + ".js");
-      window.V = vModule.VariantRules;
-      this.loadedVar = vid;
-      cb();
+      await import("@/variants/" + variant.name + ".js")
+      .then((vModule) => {
+        window.V = vModule[variant.name + "Rules"];
+        this.loadedVar = vid;
+        cb();
+      });
     },
     trySetDiagram: function(prob) {
       // Problem edit: FEN could be wrong or incomplete,

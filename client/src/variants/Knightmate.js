@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class KnightmateRules extends ChessRules {
+export class KnightmateRules extends ChessRules {
   static get COMMONER() {
     return "c";
   }

@@ -71,7 +71,7 @@ export default {
       // Obtain VariantRules object
       await import("@/variants/" + this.gameRef.vname + ".js")
       .then((vModule) => {
-        window.V = vModule.VariantRules;
+        window.V = vModule[this.gameRef.vname + "Rules"];
         if (!V.CanAnalyze)
           // Late check, in case the user tried to enter URL by hand
           this.alertAndQuit("Analysis disabled for this variant");

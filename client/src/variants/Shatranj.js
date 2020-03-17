@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ShatranjRules extends ChessRules {
+export class ShatranjRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
@@ -11,6 +11,17 @@ export const VariantRules = class ShatranjRules extends ChessRules {
 
   static get HasEnpassant() {
     return false;
+  }
+
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      {
+        twoSquares: false,
+        promotions: [V.QUEEN]
+      }
+    );
   }
 
   static get ElephantSteps() {
@@ -25,45 +36,6 @@ export const VariantRules = class ShatranjRules extends ChessRules {
   static GenRandInitFen(randomness) {
     // Remove castle flags and en-passant indication
     return ChessRules.GenRandInitFen(randomness).slice(0, -7);
-  }
-
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-    // Promotion in minister (queen) only:
-    const finalPiece = x + shiftX == lastRank ? V.QUEEN : V.PAWN;
-
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      // One square forward
-      moves.push(
-        this.getBasicMove([x, y], [x + shiftX, y], {
-          c: color,
-          p: finalPiece
-        })
-      );
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-            c: color,
-            p: finalPiece
-          })
-        );
-      }
-    }
-
-    return moves;
   }
 
   getPotentialBishopMoves(sq) {

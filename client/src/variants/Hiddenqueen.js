@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class HiddenqueenRules extends ChessRules {
+export class HiddenqueenRules extends ChessRules {
   // Analyse in Hiddenqueen mode makes no sense
   static get CanAnalyze() {
     return false;
@@ -87,79 +87,13 @@ export const VariantRules = class HiddenqueenRules extends ChessRules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
-  // TODO: find a more general way to describe pawn movements to avoid
-  // re-writing almost the same function for several variants.
   getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
     const piece = this.getPiece(x, y);
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
-    const finalPieces =
-      x + shiftX == lastRank
-        ? piece == V.PAWN
-          ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-          : [V.QUEEN] //hidden queen revealed
-        : [piece]; //V.PAWN
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      // One square forward
-      for (let p of finalPieces) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], {
-            c: color,
-            p: p
-          })
-        );
-      }
-      if (
-        x == startRank &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        for (let p of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: p
-            })
-          );
-        }
-      }
-    }
-
-    // En passant
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1]; //always at least one element
-    if (
-      !!epSquare &&
-      epSquare.x == x + shiftX &&
-      Math.abs(epSquare.y - y) == 1
-    ) {
-      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-      enpassantMove.vanish.push({
-        x: x,
-        y: epSquare.y,
-        p: "p",
-        c: this.getColor(x, epSquare.y)
-      });
-      moves.push(enpassantMove);
-    }
-
-    return moves;
+    const promotions =
+      piece == V.PAWN
+        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+        : [V.QUEEN]; //hidden queen revealed
+    return super.getPotentialPawnMoves([x, y], promotions);
   }
 
   getPossibleMovesFrom(sq) {

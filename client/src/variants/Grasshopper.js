@@ -2,9 +2,20 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class GrasshopperRules extends ChessRules {
+export class GrasshopperRules extends ChessRules {
   static get HasEnpassant() {
     return false;
+  }
+
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      {
+        twoSquares: false,
+        promotions: ChessRules.PawnSpecs.promotions.concat([V.GRASSHOPPER])
+      }
+    );
   }
 
   static get GRASSHOPPER() {

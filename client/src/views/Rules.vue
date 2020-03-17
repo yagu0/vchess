@@ -114,7 +114,7 @@ export default {
     re_setVariant: async function(vname) {
       await import("@/variants/" + vname + ".js")
       .then((vModule) => {
-        this.V = window.V = vModule.VariantRules;
+        this.V = window.V = vModule[vname + "Rules"];
         this.gameInfo.vname = vname;
       })
       .catch((err) => {
@@ -176,12 +176,13 @@ figure.diagram-container
   display: block
   .diagram
     display: block
-    width: 40%
+    width: 50%
     min-width: 240px
     margin-left: auto
     margin-right: auto
   .diag12
     float: left
+    width: 40%
     margin-left: calc(10% - 20px)
     margin-right: 40px
     @media screen and (max-width: 630px)
@@ -189,6 +190,7 @@ figure.diagram-container
       margin: 0 auto 10px auto
   .diag22
     float: left
+    width: 40%
     margin-right: calc(10% - 20px)
     @media screen and (max-width: 630px)
       float: none

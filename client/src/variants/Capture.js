@@ -1,8 +1,6 @@
 import { ChessRules } from "@/base_rules";
-import { ArrayFun } from "@/utils/array";
-import { randInt } from "@/utils/alea";
 
-export const VariantRules = class LosersRules extends ChessRules {
+export class CaptureRules extends ChessRules {
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
     return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
@@ -17,8 +15,8 @@ export const VariantRules = class LosersRules extends ChessRules {
         if (
           this.board[i][j] != V.EMPTY &&
           this.getColor(i, j) != oppCol &&
-          this.getPotentialMovesFrom([i, j]).some(m =>
-            // Warning: duscard castle moves
+          this.filterValid(this.getPotentialMovesFrom([i, j])).some(m =>
+            // Warning: discard castle moves
             m.vanish.length == 2 && m.appear.length == 1)
         ) {
           return true;

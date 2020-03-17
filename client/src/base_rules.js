@@ -42,7 +42,19 @@ export const ChessRules = class ChessRules {
     return V.HasFlags;
   }
 
-  // Some variants don't have en-passant
+  // Pawns specifications
+  static get PawnSpecs() {
+    return {
+      directions: { 'w': -1, 'b': 1 },
+      twoSquares: true,
+      promotions: [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN],
+      canCapture: true,
+      captureBackward: false,
+      bidirectional: false
+    };
+  }
+
+  // En-passant captures need a stack of squares:
   static get HasEnpassant() {
     return true;
   }
@@ -646,82 +658,115 @@ export const ChessRules = class ChessRules {
     return moves;
   }
 
+  // Special case of en-passant captures: treated separately
+  getEnpassantCaptures([x, y], shiftX) {
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    let enpassantMove = null;
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: "p",
+        c: this.getColor(x, epSquare.y)
+      });
+    }
+    return !!enpassantMove ? [enpassantMove] : [];
+  }
+
   // What are the pawn moves from square x,y ?
-  getPotentialPawnMoves([x, y]) {
+  getPotentialPawnMoves([x, y], promotions) {
     const color = this.turn;
-    let moves = [];
     const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
+    const pawnShiftX = V.PawnSpecs.directions[color];
     const firstRank = color == "w" ? sizeX - 1 : 0;
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
 
-    // NOTE: next condition is generally true (no pawn on last rank)
-    if (x + shiftX >= 0 && x + shiftX < sizeX) {
-      const finalPieces =
-        x + shiftX == lastRank
-          ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-          : [V.PAWN];
-      if (this.board[x + shiftX][y] == V.EMPTY) {
-        // One square forward
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-        // Next condition because pawns on 1st rank can generally jump
-        if (
-          [startRank, firstRank].includes(x) &&
-          this.board[x + 2 * shiftX][y] == V.EMPTY
-        ) {
-          // Two squares jump
-          moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-        }
+    // Consider all potential promotions:
+    const addMoves = ([x1, y1], [x2, y2], moves) => {
+      let finalPieces = [V.PAWN];
+      if (x2 == lastRank) {
+        // promotions arg: special override for Hiddenqueen variant
+        if (!!promotions) finalPieces = promotions;
+        else if (!!V.PawnSpecs.promotions)
+          finalPieces = V.PawnSpecs.promotions;
       }
-      // Captures
-      for (let shiftY of [-1, 1]) {
-        if (
-          y + shiftY >= 0 &&
-          y + shiftY < sizeY &&
-          this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-          this.canTake([x, y], [x + shiftX, y + shiftY])
-        ) {
-          for (let piece of finalPieces) {
-            moves.push(
-              this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-                c: color,
-                p: piece
-              })
-            );
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x1, y1], [x2, y2], {
+            c: color,
+            p: piece
+          })
+        );
+      }
+    }
+
+    // Pawn movements in shiftX direction:
+    const getPawnMoves = (shiftX) => {
+      let moves = [];
+      // NOTE: next condition is generally true (no pawn on last rank)
+      if (x + shiftX >= 0 && x + shiftX < sizeX) {
+        if (this.board[x + shiftX][y] == V.EMPTY) {
+          // One square forward
+          addMoves([x, y], [x + shiftX, y], moves);
+          // Next condition because pawns on 1st rank can generally jump
+          if (
+            V.PawnSpecs.twoSquares &&
+            [startRank, firstRank].includes(x) &&
+            this.board[x + 2 * shiftX][y] == V.EMPTY
+          ) {
+            // Two squares jump
+            moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+          }
+        }
+        // Captures
+        if (V.PawnSpecs.canCapture) {
+          for (let shiftY of [-1, 1]) {
+            if (
+              y + shiftY >= 0 &&
+              y + shiftY < sizeY
+            ) {
+              if (
+                this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+                this.canTake([x, y], [x + shiftX, y + shiftY])
+              ) {
+                addMoves([x, y], [x + shiftX, y + shiftY], moves);
+              }
+              if (
+                V.PawnSpecs.captureBackward &&
+                x - shiftX >= 0 && x - shiftX < V.size.x &&
+                this.board[x - shiftX][y + shiftY] != V.EMPTY &&
+                this.canTake([x, y], [x - shiftX, y + shiftY])
+              ) {
+                addMoves([x, y], [x + shiftX, y + shiftY], moves);
+              }
+            }
           }
         }
       }
+      return moves;
     }
+
+    let pMoves = getPawnMoves(pawnShiftX);
+    if (V.PawnSpecs.bidirectional)
+      pMoves = pMoves.concat(getPawnMoves(-pawnShiftX));
 
     if (V.HasEnpassant) {
-      // En passant
-      const Lep = this.epSquares.length;
-      const epSquare = this.epSquares[Lep - 1]; //always at least one element
-      if (
-        !!epSquare &&
-        epSquare.x == x + shiftX &&
-        Math.abs(epSquare.y - y) == 1
-      ) {
-        let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-        enpassantMove.vanish.push({
-          x: x,
-          y: epSquare.y,
-          p: "p",
-          c: this.getColor(x, epSquare.y)
-        });
-        moves.push(enpassantMove);
-      }
+      // NOTE: backward en-passant captures are not considered
+      // because no rules define them (for now).
+      Array.prototype.push.apply(
+        pMoves,
+        this.getEnpassantCaptures([x, y], pawnShiftX)
+      );
     }
 
-    return moves;
+    return pMoves;
   }
 
   // What are the rook moves from square x,y ?
@@ -781,6 +826,11 @@ export const ChessRules = class ChessRules {
       if (this.castleFlags[c][castleSide] >= V.size.y) continue;
       // If this code is reached, rooks and king are on initial position
 
+      const rookPos = this.castleFlags[c][castleSide];
+      if (this.getColor(x, rookPos) != c)
+        // Rook is here but changed color (see Benedict)
+        continue;
+
       // Nothing on the path of the king ? (and no checks)
       const finDist = finalSquares[castleSide][0] - y;
       let step = finDist / Math.max(1, Math.abs(finDist));
@@ -800,7 +850,6 @@ export const ChessRules = class ChessRules {
 
       // Nothing on the path to the rook?
       step = castleSide == 0 ? -1 : 1;
-      const rookPos = this.castleFlags[c][castleSide];
       for (i = y + step; i != rookPos; i += step) {
         if (this.board[x][i] != V.EMPTY) continue castlingCheck;
       }

@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ZenRules extends ChessRules {
+export class ZenRules extends ChessRules {
   // NOTE: enPassant, if enabled, would need to redefine carefully getEpSquare
   static get HasEnpassant() {
     return false;

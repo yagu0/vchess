@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class Antiking2Rules extends ChessRules {
+export class Antiking2Rules extends ChessRules {
   static get ANTIKING() {
     return "a";
   }

@@ -1,6 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class RifleRules extends ChessRules {
+export class RifleRules extends ChessRules {
   getEpSquare(moveOrSquare) {
     if (typeof moveOrSquare !== "object" || moveOrSquare.appear.length > 0)
       return super.getEpSquare(moveOrSquare);
@@ -49,54 +49,8 @@ export const VariantRules = class RifleRules extends ChessRules {
     return mv;
   }
 
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
+  getEnpassantCaptures([x, y], shiftX) {
     let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
-    const finalPieces =
-      x + shiftX == lastRank
-        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
-        : [V.PAWN];
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      for (let piece of finalPieces) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], {
-            c: color,
-            p: piece
-          })
-        );
-      }
-      if (
-        x == startRank &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-      }
-    }
-
-    // En passant
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1]; //always at least one element
     if (
@@ -118,7 +72,10 @@ export const VariantRules = class RifleRules extends ChessRules {
       });
       moves.push(enpassantMove);
     }
-
     return moves;
+  }
+
+  static get SEARCH_DEPTH() {
+    return 2;
   }
 };

@@ -1,8 +1,8 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
-import { randInt, shuffle } from "@/utils/alea";
+import { shuffle } from "@/utils/alea";
 
-export const VariantRules = class CircularRules extends ChessRules {
+export class CircularRules extends ChessRules {
   static get HasCastle() {
     return false;
   }
@@ -39,53 +39,25 @@ export const VariantRules = class CircularRules extends ChessRules {
       return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR w 0 1111111111111111";
 
     let pieces = { w: new Array(8), b: new Array(8) };
-    // Shuffle pieces on first and fifth rank
+    // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }
 
-      let positions = ArrayFun.range(8);
-
-      // Get random squares for bishops
-      let randIndex = 2 * randInt(4);
-      const bishop1Pos = positions[randIndex];
-      // The second bishop must be on a square of different color
-      let randIndex_tmp = 2 * randInt(4) + 1;
-      const bishop2Pos = positions[randIndex_tmp];
-      // Remove chosen squares
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
-
-      // Get random squares for knights
-      randIndex = randInt(6);
-      const knight1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(5);
-      const knight2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Get random square for queen
-      randIndex = randInt(4);
-      const queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Rooks and king positions are now fixed,
-      // because of the ordering rook-king-rook
-      const rook1Pos = positions[0];
-      const kingPos = positions[1];
-      const rook2Pos = positions[2];
-
-      // Finally put the shuffled pieces in the board array
-      pieces[c][rook1Pos] = "r";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][bishop1Pos] = "b";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][bishop2Pos] = "b";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][rook2Pos] = "r";
+      // Get random squares for every piece, totally freely
+      let positions = shuffle(ArrayFun.range(8));
+      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'k', 'q'];
+      const rem2 = positions[0] % 2;
+      if (rem2 == positions[1] % 2) {
+        // Fix bishops (on different colors)
+        for (let i=2; i<8; i++) {
+          if (positions[i] % 2 != rem2)
+            [positions[1], positions[i]] = [positions[i], positions[1]];
+        }
+      }
+      for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
     }
     return (
       "8/8/pppppppp/" +

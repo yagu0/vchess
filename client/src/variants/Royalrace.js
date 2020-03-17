@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
-export const VariantRules = class RoyalraceRules extends ChessRules {
+export class RoyalraceRules extends ChessRules {
   static get HasFlags() {
     return false;
   }

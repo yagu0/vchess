@@ -1,6 +1,6 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
-export const VariantRules = class MagneticRules extends ChessRules {
+export class MagneticRules extends ChessRules {
   static get HasEnpassant() {
     return false;
   }

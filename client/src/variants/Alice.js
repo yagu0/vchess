@@ -3,7 +3,7 @@ import { ArrayFun } from "@/utils/array";
 
 // NOTE: alternative implementation, probably cleaner = use only 1 board
 // TODO? atLeastOneMove() would be more efficient if rewritten here (less sideBoard computations)
-export const VariantRules = class AliceRules extends ChessRules {
+export class AliceRules extends ChessRules {
   static get ALICE_PIECES() {
     return {
       s: "p",

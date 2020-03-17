@@ -2,7 +2,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class EightpiecesRules extends ChessRules {
+export class EightpiecesRules extends ChessRules {
   static get JAILER() {
     return "j";
   }

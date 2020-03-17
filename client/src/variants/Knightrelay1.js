@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class Knightrelay1Rules extends ChessRules {
+export class Knightrelay1Rules extends ChessRules {
   static get HasEnpassant() {
     return false;
   }

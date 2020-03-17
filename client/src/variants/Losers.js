@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class LosersRules extends ChessRules {
+export class LosersRules extends ChessRules {
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
     return moves.filter(m => m.vanish.length == 2);

@@ -1,7 +1,15 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
-export const VariantRules = class RecycleRules extends ChessRules {
+export class RecycleRules extends ChessRules {
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      { promotions: [V.PAWN] } //in fact, none
+    );
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -131,66 +139,13 @@ export const VariantRules = class RecycleRules extends ChessRules {
   }
 
   getPotentialPawnMoves([x, y]) {
+    let moves = super.getPotentialPawnMoves([x, y]);
+    // Remove pawns on 8th rank ("fallen"):
     const color = this.turn;
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
-    const shiftX = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
-    // One square forward
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      moves.push(
-        this.getBasicMove([x, y], [x + shiftX, y])
-      );
-      // Next condition because pawns on 1st rank can generally jump
-      if (
-        x == startRank &&
-        this.board[x + 2 * shiftX][y] == V.EMPTY
-      ) {
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-      }
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y + shiftY])
-        );
-      }
-    }
-
-    // En passant
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1]; //always at least one element
-    if (
-      !!epSquare &&
-      epSquare.x == x + shiftX &&
-      Math.abs(epSquare.y - y) == 1
-    ) {
-      let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-      enpassantMove.vanish.push({
-        x: x,
-        y: epSquare.y,
-        p: "p",
-        c: this.getColor(x, epSquare.y)
-      });
-      moves.push(enpassantMove);
-    }
-
-    // Post-processing: remove falling pawns
-    if (x + shiftX == lastRank) {
-      moves.forEach(m => {
-        m.appear.pop();
-      });
-    }
-
+    const lastRank = (color == "w" ? 0 : V.size.x - 1);
+    moves.forEach(m => {
+      if (m.appear[0].x == lastRank) m.appear.pop();
+    });
     return moves;
   }
 
@@ -223,10 +178,10 @@ export const VariantRules = class RecycleRules extends ChessRules {
     return this.getPiece(x2, y2) != V.KING;
   }
 
-  postPlay(move) {
-    super.postPlay(move);
+  prePlay(move) {
+    super.prePlay(move);
     if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
-    const color = move.appear[0].c;
+    const color = this.turn;
     if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]--;
     else if (move.vanish.length == 2 && move.vanish[1].c == color)
       // Self-capture

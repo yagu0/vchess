@@ -2,8 +2,8 @@
 onmessage = async function(e) {
   switch (e.data[0]) {
     case "scripts": {
-      const vModule = await import("@/variants/" + e.data[1] + ".js");
-      self.V = vModule.VariantRules;
+      await import("@/variants/" + e.data[1] + ".js")
+      .then((vModule) => { self.V = vModule[e.data[1] + "Rules"]; });
       break;
     }
     case "init": {

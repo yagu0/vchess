@@ -1,8 +1,16 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export const VariantRules = class BenedictRules extends ChessRules {
+export class BenedictRules extends ChessRules {
   static get HasEnpassant() {
     return false;
+  }
+
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      { canCapture: false }
+    );
   }
 
   // TODO(?): some duplicated code in 2 next functions
@@ -64,126 +72,6 @@ export const VariantRules = class BenedictRules extends ChessRules {
     return squares;
   }
 
-  getPotentialPawnMoves([x, y]) {
-    const color = this.getColor(x, y);
-    let moves = [];
-    const sizeY = V.size.y;
-    const shift = color == "w" ? -1 : 1;
-    const startRank = color == "w" ? sizeY - 2 : 1;
-    const firstRank = color == "w" ? sizeY - 1 : 0;
-    const lastRank = color == "w" ? 0 : sizeY - 1;
-
-    if (x + shift != lastRank) {
-      // Normal moves
-      if (this.board[x + shift][y] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [x + shift, y]));
-        if (
-          [startRank, firstRank].includes(x) &&
-          this.board[x + 2 * shift][y] == V.EMPTY
-        ) {
-          // Two squares jump
-          moves.push(this.getBasicMove([x, y], [x + 2 * shift, y]));
-        }
-      }
-    }
-    else {
-      // Promotion
-      let promotionPieces = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
-      promotionPieces.forEach(p => {
-        // Normal move
-        if (this.board[x + shift][y] == V.EMPTY)
-          moves.push(
-            this.getBasicMove([x, y], [x + shift, y], { c: color, p: p })
-          );
-      });
-    }
-
-    // No en passant here
-
-    return moves;
-  }
-
-  // No "under check" verifications:
-  getCastleMoves([x, y]) {
-    const c = this.getColor(x, y);
-    if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
-      return []; //x isn't first rank, or king has moved (shortcut)
-
-    // Castling ?
-    const oppCol = V.GetOppCol(c);
-    let moves = [];
-    let i = 0;
-    // King, then rook:
-    const finalSquares = [
-      [2, 3],
-      [V.size.y - 2, V.size.y - 3]
-    ];
-    castlingCheck: for (
-      let castleSide = 0;
-      castleSide < 2;
-      castleSide++ //large, then small
-    ) {
-      if (this.castleFlags[c][castleSide] >= 8) continue;
-      // If this code is reached, rooks and king are on initial position
-
-      const rookPos = this.castleFlags[c][castleSide];
-      if (this.getColor(x, rookPos) != c)
-        // Rook is here but changed color
-        continue;
-
-      // Nothing on the path of the king ?
-      const finDist = finalSquares[castleSide][0] - y;
-      let step = finDist / Math.max(1, Math.abs(finDist));
-      for (let i = y; i != finalSquares[castleSide][0]; i += step) {
-        if (
-          this.board[x][i] != V.EMPTY &&
-            // NOTE: next check is enough, because of chessboard constraints
-            (this.getColor(x, i) != c ||
-              ![V.KING, V.ROOK].includes(this.getPiece(x, i)))
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // Nothing on the path to the rook?
-      step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != rookPos; i += step) {
-        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-      }
-
-      // Nothing on final squares, except maybe king and castling rook?
-      for (i = 0; i < 2; i++) {
-        if (
-          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
-          finalSquares[castleSide][i] != rookPos
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // If this code is reached, castle is valid
-      moves.push(
-        new Move({
-          appear: [
-            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
-          ],
-          end:
-            Math.abs(y - rookPos) <= 2
-              ? { x: x, y: rookPos }
-              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
-        })
-      );
-    }
-
-    return moves;
-  }
-
   // TODO: appear/vanish description of a move is too verbose for Benedict.
   // => Would need a new "flipped" array, to be passed in Game.vue...
   getPotentialMovesFrom([x, y]) {
@@ -232,6 +120,11 @@ export const VariantRules = class BenedictRules extends ChessRules {
   // Moves cannot flip our king's color, so all are valid
   filterValid(moves) {
     return moves;
+  }
+
+  // Since it's used just for the king, and there are no captures:
+  isAttacked(sq, color) {
+    return false;
   }
 
   // No notion of check here:

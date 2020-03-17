@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { sample, randInt } from "@/utils/alea";
 
-export const VariantRules = class WildebeestRules extends ChessRules {
+export class WildebeestRules extends ChessRules {
   static get size() {
     return { x: 10, y: 11 };
   }

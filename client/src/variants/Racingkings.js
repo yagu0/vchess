@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class RacingkingsRules extends ChessRules {
+export class RacingkingsRules extends ChessRules {
   static get HasFlags() {
     return false;
   }

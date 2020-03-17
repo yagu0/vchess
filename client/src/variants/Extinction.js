@@ -1,6 +1,14 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class ExtinctionRules extends ChessRules {
+export class ExtinctionRules extends ChessRules {
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      { promotions: ChessRules.PawnSpecs.promotions.concat([V.KING]) }
+    );
+  }
+
   static IsGoodPosition(position) {
     if (!ChessRules.IsGoodPosition(position))
       return false;
@@ -41,43 +49,6 @@ export const VariantRules = class ExtinctionRules extends ChessRules {
         [V.PAWN]: pos.match(/p/g).length
       }
     };
-  }
-
-  getPotentialPawnMoves([x, y]) {
-    let moves = super.getPotentialPawnMoves([x, y]);
-    // Add potential promotions into king
-    const color = this.turn;
-    const shift = color == "w" ? -1 : 1;
-    const lastRank = color == "w" ? 0 : V.size.x - 1;
-
-    if (x + shift == lastRank) {
-      // Normal move
-      if (this.board[x + shift][y] == V.EMPTY)
-        moves.push(
-          this.getBasicMove([x, y], [x + shift, y], { c: color, p: V.KING })
-        );
-      // Captures
-      if (
-        y > 0 &&
-        this.board[x + shift][y - 1] != V.EMPTY &&
-        this.canTake([x, y], [x + shift, y - 1])
-      ) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shift, y - 1], { c: color, p: V.KING })
-        );
-      }
-      if (
-        y < V.size.y - 1 &&
-        this.board[x + shift][y + 1] != V.EMPTY &&
-        this.canTake([x, y], [x + shift, y + 1])
-      ) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shift, y + 1], { c: color, p: V.KING })
-        );
-      }
-    }
-
-    return moves;
   }
 
   // TODO: verify this assertion

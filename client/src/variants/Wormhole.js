@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export const VariantRules = class WormholeRules extends ChessRules {
+export class WormholeRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
