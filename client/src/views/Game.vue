@@ -208,7 +208,7 @@ export default {
         this.gameRef.id = to.params["id"];
         this.gameRef.rid = to.query["rid"];
         this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
-        this.loadGame();
+        this.fetchGame();
       }
     }
   },
@@ -308,17 +308,17 @@ export default {
         else
           // Socket not ready yet (initial loading)
           // NOTE: it's important to call callback without arguments,
-          // otherwise first arg is Websocket object and loadGame fails.
+          // otherwise first arg is Websocket object and fetchGame fails.
           this.conn.onopen = () => callback();
       };
       if (!this.gameRef.rid)
         // Game stored locally or on server
-        this.loadGame(null, () => socketInit(this.roomInit));
+        this.fetchGame(null, () => socketInit(this.roomInit));
       else
         // Game stored remotely: need socket to retrieve it
         // NOTE: the callback "roomInit" will be lost, so we don't provide it.
         // --> It will be given when receiving "fullgame" socket event.
-        socketInit(this.loadGame);
+        socketInit(this.fetchGame);
     },
     cleanBeforeDestroy: function() {
       if (!!this.askLastate)
@@ -434,7 +434,7 @@ export default {
         if (document.location.href != currentUrl) return; //page change
         if (!this.gameRef.rid)
           // This is my game: just reload.
-          this.loadGame();
+          this.fetchGame();
         else
           // Just ask fullgame again (once!), this is much simpler.
           // If this fails, the user could just reload page :/
@@ -587,7 +587,7 @@ export default {
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
-          this.loadGame(data.data, this.roomInit);
+          this.fetchGame(data.data, this.roomInit);
           break;
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"
