@@ -1,0 +1,55 @@
+p.boxed.
+  Vous disposez d'un roi et d'un "antiroi". Le roi ne peut pas se retrouver
+  en échec à la fin d'un tour, mais l'antiroi doit lui toujours être en échec.
+  Ce dernier capture les pièces de sa couleur.
+
+p.
+  Une nouvelle pièce fait son apparition : l'antiroi, noté par la lettre 'A'.
+  Cette pièce doit toujour rester en échec (orthodoxe) :
+  elle est considérée en (anti-)échec lorsqu'elle n'est attaquée
+  par aucune pièce ennemie. Dans ce cas, l'antiroi doit immédiatement
+  rejoindre une case attaquée.
+
+p.
+  L'antiroi est une pièce royale, elle ne peut donc pas être capturée.
+  Elle capture seulement les pièces de sa couleur.
+  Les antirois ne donnent pas échec, et les rois n'attaquent pas les antirois.
+
+
+figure.diagram-container
+  .diagram
+    | fen:2prbkqA/2p1nnbr/2pppppp/8/8/PPPPPP2/RBNN1P2/aQKBRP2:
+  figcaption Position initiale : les antirois sont dans les coins.
+
+h3 Coups inhabituels
+
+ul
+  li.
+    Les pions sont des pions Berolina, qui se déplacent en diagonale d'une
+    case et capturent en avançant verticalement.
+  li.
+    Si un roi ou antiroi n'a pas encore bougé, il peut effectuer
+    un saut de cavalier vers une case vide.
+
+h3 Fin de partie
+
+p Il y a trois façons de gagner :
+ol
+  li Mater le roi adverse
+  li "Anti-mater" l'anti-roi adverse
+  li Donner un échec double, comme sur le diagramme suivant
+
+figure.diagram-container
+  .diagram
+    | fen:2pr3A/2pb1qbr/2p1pkQp/2pnp1n1/1PPN4/PPB1PPN1/1K2RP2/a2BRP2:
+  figcaption Après Qb1xg6#
+
+h3 Plus d'information
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+    | variante Antiking
+  | &nbsp;sur chessvariants.com.
+
+p Inventeur : Peter Aronson (2002)

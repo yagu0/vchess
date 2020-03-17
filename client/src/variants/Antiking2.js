@@ -2,7 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export const VariantRules = class AntikingRules extends ChessRules {
+export const VariantRules = class Antiking2Rules extends ChessRules {
   static get ANTIKING() {
     return "a";
   }
@@ -46,8 +46,10 @@ export const VariantRules = class AntikingRules extends ChessRules {
     const color2 = this.getColor(x2, y2);
     return (
       piece2 != "a" &&
-      ((piece1 != "a" && color1 != color2) ||
-        (piece1 == "a" && color1 == color2))
+      (
+        (piece1 != "a" && color1 != color2) ||
+        (piece1 == "a" && color1 == color2)
+      )
     );
   }
 
@@ -61,6 +63,7 @@ export const VariantRules = class AntikingRules extends ChessRules {
   }
 
   getPotentialAntikingMoves(sq) {
+    // The antiking moves like a king (only captured colors differ)
     return this.getSlideNJumpMoves(
       sq,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
@@ -78,13 +81,7 @@ export const VariantRules = class AntikingRules extends ChessRules {
   isAttackedByKing([x, y], color) {
     // Antiking is not attacked by king:
     if (this.getPiece(x, y) == V.ANTIKING) return false;
-    return this.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.KING,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+    return super.isAttackedByKing([x, y], color);
   }
 
   isAttackedByAntiking([x, y], color) {
@@ -108,8 +105,11 @@ export const VariantRules = class AntikingRules extends ChessRules {
   }
 
   getCheckSquares(color) {
-    let res = super.getCheckSquares(color);
-    if (!this.isAttacked(this.antikingPos[color], V.GetOppCol(color)))
+    let res = [];
+    const oppCol = V.GetOppCol(color);
+    if (this.isAttacked(this.kingPos[color], oppCol))
+      res.push(JSON.parse(JSON.stringify(this.kingPos[color])));
+    if (!this.isAttacked(this.antikingPos[color], oppCol))
       res.push(JSON.parse(JSON.stringify(this.antikingPos[color])));
     return res;
   }

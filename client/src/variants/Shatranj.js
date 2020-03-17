@@ -5,6 +5,10 @@ export const VariantRules = class ShatranjRules extends ChessRules {
     return false;
   }
 
+  static get HasCastle() {
+    return false;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -87,14 +91,6 @@ export const VariantRules = class ShatranjRules extends ChessRules {
         V.steps[V.ROOK],
         "oneStep"
       ).filter(m => m.vanish.length == 1)
-    );
-  }
-
-  getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
     );
   }
 

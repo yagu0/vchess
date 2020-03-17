@@ -103,35 +103,6 @@ export const VariantRules = class BenedictRules extends ChessRules {
     return moves;
   }
 
-  getPotentialRookMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]);
-  }
-
-  getPotentialKnightMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
-  }
-
-  getPotentialBishopMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]);
-  }
-
-  getPotentialQueenMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    );
-  }
-
-  getPotentialKingMoves(sq) {
-    // Initialize with normal (non-capturing) moves
-    let noCaptures = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
-    return noCaptures.concat(this.getCastleMoves(sq));
-  }
-
   // No "under check" verifications:
   getCastleMoves([x, y]) {
     const c = this.getColor(x, y);

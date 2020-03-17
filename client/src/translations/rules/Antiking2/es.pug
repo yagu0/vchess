@@ -4,39 +4,28 @@ p.boxed.
   piezas de su color.
 
 p.
-  Se presenta una nueva pieza: el antirey, denotado por la letra 'A' en los
-  diagramas y PGNs. Esta pieza debe estar siempre en jaque (ortodoxo): se
+  Se presenta una nueva pieza: el antirey, denotado por la letra 'A'.
+  Esta pieza debe estar siempre en jaque (ortodoxo): se
   considera en (anti-)jaque cuando no es atacada por ninguna pieza enemiga.
   En este caso, el antirey debe unirse inmediatamente a una casilla atacada.
 
 p.
   El antirey es una pieza real, por lo que no puede ser capturado.
-  Ella captura solo las piezas de su color (esto ayuda a mate el anti-rey del
-  oponente, pero complica el mate ortodoxo).
+  Ella captura solo las piezas de su color.
+  Los antireyes no dan jaque, y los reyes no atacan a los antireyes.
 
 figure.diagram-container
   .diagram
     | fen:rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR c5,d5,e5:
   figcaption Las casillas mostradas no son legales jugadas de antirey.
 
-ul
-  li.
-    Aunque el antirey captura las piezas de su color, no da jaque a su rey,
-    ni tampoco al rey contrario.
-  li.
-    Los reyes no atacan a los antireyes (de color opuesto). De hecho, esto
-    permitiría aplicar un método simple para nunca estar en "anti-jaque":
-    permanecer pegado al rey contrario.
-
 h3 Fin de la partida
 
-p Hay dos maneras de ganar:
+p Hay tres maneras de ganar:
 ol
   li Mater el rey contrario
   li "Anti-mater" el antirey contrario
-p.
-  ...O haga ambas cosas al mismo tiempo, como se muestra en el siguiente
-  diagrama después de 3.Qxf7# (el antirey negro estaba en g3).
+  li Dar un doble jaque, como en el siguiente diagrama
 
 figure.diagram-container
   .diagram

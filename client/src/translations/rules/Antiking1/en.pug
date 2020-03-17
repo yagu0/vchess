@@ -1,0 +1,51 @@
+p.boxed.
+  You have a king and an antiking. King cannot be let in check, but antiking
+  must always stay under check. Antiking captures his own kind.
+
+p.
+  A new piece is introduced: the antiking, noted by the letter 'A'.
+  This piece must always remain under (orthodox) check: it is
+  considered in (anti-)check when not attacked by any enemy piece. In such a
+  situation, the antiking must move immediately to an attacked square.
+
+p.
+  The antiking is a royal figure, and thus cannot be captured.
+  It captures only the pieces of his color.
+  Antikings don't give check, and kings do not attack antikings.
+
+figure.diagram-container
+  .diagram
+    | fen:2prbkqA/2p1nnbr/2pppppp/8/8/PPPPPP2/RBNN1P2/aQKBRP2:
+  figcaption Initial setup: antikings stand in the corners.
+
+h3 Unusual moves
+
+ul
+  li.
+    Pawns are Berolina Pawns, which move diagonally forward one square
+    without capturing, or move one square straight forward to capture.
+  li.
+    If a King or Anti-King has not yet moved, it may make as its first
+    move a Knight's leap to an empty square.
+
+h3 End of the game
+
+p There are three ways to win:
+ol
+  li Checkmate opponent king
+  li Anti-checkmate opponent antiking
+  li Give a double check, as on the following diagram
+
+figure.diagram-container
+  .diagram
+    | fen:2pr3A/2pb1qbr/2p1pkQp/2pnp1n1/1PPN4/PPB1PPN1/1K2RP2/a2BRP2:
+  figcaption After Qb1xg6#
+
+h3 More information
+
+p
+  a(href="https://www.chessvariants.com/diffobjective.dir/anti-king-chess.html")
+    | Antiking chess
+  | &nbsp;on chessvariants.com.
+
+p Inventor: Peter Aronson (2002)

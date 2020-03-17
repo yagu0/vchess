@@ -7,6 +7,10 @@ export const VariantRules = class HiddenRules extends ChessRules {
     return false;
   }
 
+  static get HasCastle() {
+    return false;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -141,16 +145,6 @@ export const VariantRules = class HiddenRules extends ChessRules {
     }
 
     return mv;
-  }
-
-  // What are the king moves from square x,y ?
-  getPotentialKingMoves(sq) {
-    // No castling:
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
   }
 
   filterValid(moves) {

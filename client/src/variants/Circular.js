@@ -158,14 +158,6 @@ export const VariantRules = class CircularRules extends ChessRules {
     return moves;
   }
 
-  getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
-  }
-
   filterValid(moves) {
     const filteredMoves = super.filterValid(moves);
     // If at least one full move made, everything is allowed:

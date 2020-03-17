@@ -7,6 +7,10 @@ export const VariantRules = class SuicideRules extends ChessRules {
     return false;
   }
 
+  static get HasCastle() {
+    return false;
+  }
+
   getPotentialPawnMoves([x, y]) {
     let moves = super.getPotentialPawnMoves([x, y]);
 
@@ -42,15 +46,6 @@ export const VariantRules = class SuicideRules extends ChessRules {
     }
 
     return moves;
-  }
-
-  getPotentialKingMoves(sq) {
-    // No castle:
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
   }
 
   // Trim all non-capturing moves (not the most efficient, but easy)

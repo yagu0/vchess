@@ -750,12 +750,13 @@ export const ChessRules = class ChessRules {
   // What are the king moves from square x,y ?
   getPotentialKingMoves(sq) {
     // Initialize with normal moves
-    const moves = this.getSlideNJumpMoves(
+    let moves = this.getSlideNJumpMoves(
       sq,
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
     );
-    return moves.concat(this.getCastleMoves(sq));
+    if (V.HasCastle) moves = moves.concat(this.getCastleMoves(sq));
+    return moves;
   }
 
   getCastleMoves([x, y]) {

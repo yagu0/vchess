@@ -7,17 +7,12 @@ export const VariantRules = class UpsidedownRules extends ChessRules {
     return false;
   }
 
-  static get HasEnpassant() {
+  static get HasCastle() {
     return false;
   }
 
-  getPotentialKingMoves(sq) {
-    // No castle
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+  static get HasEnpassant() {
+    return false;
   }
 
   static GenRandInitFen(randomness) {

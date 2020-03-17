@@ -7,6 +7,10 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
     return false;
   }
 
+  static get HasCastle() {
+    return false;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -131,15 +135,6 @@ export const VariantRules = class RoyalraceRules extends ChessRules {
   getPotentialKnightMoves(sq) {
     // Knight becomes knightrider:
     return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT]);
-  }
-
-  // What are the king moves from square x,y ?
-  getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
   }
 
   filterValid(moves) {

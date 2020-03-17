@@ -7,6 +7,10 @@ export const VariantRules = class BaroqueRules extends ChessRules {
     return false;
   }
 
+  static get HasCastle() {
+    return false;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -350,14 +354,6 @@ export const VariantRules = class BaroqueRules extends ChessRules {
   getPotentialImmobilizerMoves(sq) {
     // Immobilizer doesn't capture
     return super.getPotentialQueenMoves(sq);
-  }
-
-  getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
   }
 
   // isAttacked() is OK because the immobilizer doesn't take
