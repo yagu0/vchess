@@ -152,7 +152,7 @@ table
     vertical-align: middle
   & > img
     padding: 0
-    height: 24px
+    height: 1.2em
     vertical-align: middle
 
 @media screen and (max-width: 767px)
