@@ -120,7 +120,7 @@ main
               @click="challenge(sid)"
             )
               | {{ st.tr["Challenge"] }}
-          p.anonymous @nonymous ({{ anonymousCount }})
+          p.anonymous @nonymous ({{ anonymousCount() }})
         #chat
           Chat(
             :newChat="newChat"
@@ -264,16 +264,6 @@ export default {
       });
       if (!this.newchallenge.V && this.newchallenge.vid > 0)
         this.loadNewchallVariant();
-    }
-  },
-  computed: {
-    anonymousCount: function() {
-      let count = 0;
-      Object.values(this.people).forEach(p => {
-        // Do not cound people who did not send their identity yet:
-        count += (!p.name && p.id === 0) ? 1 : 0;
-      });
-      return count;
     }
   },
   created: function() {
@@ -435,6 +425,14 @@ export default {
       return {
         ["random-" + pc.randomness]: true
       };
+    },
+    anonymousCount: function() {
+      let count = 0;
+      Object.values(this.people).forEach(p => {
+        // Do not cound people who did not send their identity yet:
+        count += (!p.name && p.id === 0) ? 1 : 0;
+      });
+      return count;
     },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27

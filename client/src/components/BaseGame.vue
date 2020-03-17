@@ -291,7 +291,7 @@ export default {
       if (this.game.mode == "analyze") {
         this.$emit(
           "fenchange",
-          this.lastMove ? this.lastMove.fen : this.game.fenStart
+          !!this.lastMove ? this.lastMove.fen : this.game.fenStart
         );
       }
     },
