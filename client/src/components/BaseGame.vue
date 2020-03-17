@@ -307,28 +307,26 @@ export default {
       }
       const navigate = !move;
       const playSubmove = (smove) => {
-        if (!navigate) smove.notation = this.vr.getNotation(smove);
+        smove.notation = this.vr.getNotation(smove);
         this.vr.play(smove);
         this.lastMove = smove;
-        if (!navigate) {
-          if (!this.inMultimove) {
-            if (this.cursor < this.moves.length - 1)
-              this.moves = this.moves.slice(0, this.cursor + 1);
-            this.moves.push(smove);
-            this.inMultimove = true; //potentially
-            this.cursor++;
-          } else {
-            // Already in the middle of a multi-move
-            const L = this.moves.length;
-            if (!Array.isArray(this.moves[L-1]))
-              this.$set(this.moves, L-1, [this.moves[L-1], smove]);
-            else
-              this.$set(this.moves, L-1, this.moves.concat([smove]));
-          }
+        if (!this.inMultimove) {
+          if (this.cursor < this.moves.length - 1)
+            this.moves = this.moves.slice(0, this.cursor + 1);
+          this.moves.push(smove);
+          this.inMultimove = true; //potentially
+          this.cursor++;
+        } else {
+          // Already in the middle of a multi-move
+          const L = this.moves.length;
+          if (!Array.isArray(this.moves[L-1]))
+            this.$set(this.moves, L-1, [this.moves[L-1], smove]);
+          else
+            this.$set(this.moves, L-1, this.moves.concat([smove]));
         }
       };
       const playMove = () => {
-        const animate = V.ShowMoves == "all" && (received || navigate);
+        const animate = (V.ShowMoves == "all" && !!received);
         if (!Array.isArray(move)) move = [move];
         let moveIdx = 0;
         let self = this;
@@ -349,6 +347,15 @@ export default {
           }
         })();
       };
+      const computeScore = () => {
+        const score = this.vr.getCurrentScore();
+        if (score != "*" && this.game.mode == "analyze") {
+          const message = getScoreMessage(score);
+          // Just show score on screen (allow undo)
+          this.showEndgameMsg(score + " . " + this.st.tr[message]);
+        }
+        return score;
+      };
       const afterMove = (smove, initurn) => {
         if (this.vr.turn != initurn) {
           // Turn has changed: move is complete
@@ -359,15 +366,8 @@ export default {
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
           this.emitFenIfAnalyze();
           this.inMultimove = false;
-          if (!noemit) {
-            var score = this.vr.getCurrentScore();
-            if (score != "*" && this.game.mode == "analyze") {
-              const message = getScoreMessage(score);
-              // Just show score on screen (allow undo)
-              this.showEndgameMsg(score + " . " + this.st.tr[message]);
-            }
-          }
-          if (!navigate && this.game.mode != "analyze") {
+          if (!noemit) var score = computeScore();
+          if (this.game.mode != "analyze") {
             const L = this.moves.length;
             if (!noemit)
               // Post-processing (e.g. computer play).
@@ -388,13 +388,12 @@ export default {
         // The move to navigate to is necessarily full:
         if (this.cursor == this.moves.length - 1) return; //no more moves
         move = this.moves[this.cursor + 1];
-        if (light) {
-          // Just play the move, nothing else:
-          if (!Array.isArray(move)) move = [move];
-          for (let i=0; i < move.length; i++) this.vr.play(move[i]);
-        }
-        else {
-          playMove();
+        // Just play the move:
+        if (!Array.isArray(move)) move = [move];
+        for (let i=0; i < move.length; i++) this.vr.play(move[i]);
+        if (!light) {
+          this.lastMove = move[move.length-1];
+          computeScore();
           this.emitFenIfAnalyze();
         }
         this.cursor++;
