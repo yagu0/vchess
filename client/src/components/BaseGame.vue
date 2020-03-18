@@ -393,6 +393,7 @@ export default {
         for (let i=0; i < move.length; i++) this.vr.play(move[i]);
         if (!light) {
           this.lastMove = move[move.length-1];
+          this.incheck = this.vr.getCheckSquares(this.vr.turn);
           computeScore();
           this.emitFenIfAnalyze();
         }
