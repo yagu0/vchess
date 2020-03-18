@@ -149,7 +149,7 @@ const UserModel = {
           // Remove users unlogged for > 24h
           if (!u.sessionToken && tsNow - u.created > day)
           {
-            notify(
+            UserModel.notify(
               u,
               "Your account has been deleted because " +
               "you didn't log in for 24h after registration"

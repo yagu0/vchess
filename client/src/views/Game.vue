@@ -663,8 +663,8 @@ export default {
           break;
         }
         case "resign":
-          const score = data.side == "b" ? "1-0" : "0-1";
-          const side = data.side == "w" ? "White" : "Black";
+          const score = (data.data == "b" ? "1-0" : "0-1");
+          const side = (data.data == "w" ? "White" : "Black");
           this.gameOver(score, side + " surrender");
           break;
         case "abort":
@@ -904,8 +904,8 @@ export default {
       if (!this.game.mycolor || !confirm(this.st.tr["Resign the game?"]))
         return;
       this.send("resign", { data: this.game.mycolor });
-      const score = this.game.mycolor == "w" ? "0-1" : "1-0";
-      const side = this.game.mycolor == "w" ? "White" : "Black";
+      const score = (this.game.mycolor == "w" ? "0-1" : "1-0");
+      const side = (this.game.mycolor == "w" ? "White" : "Black");
       this.gameOver(score, side + " surrender");
     },
     // 3 cases for loading a game:
