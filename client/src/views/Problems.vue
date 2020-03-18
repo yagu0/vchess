@@ -71,11 +71,12 @@ main
       #controls
         button#newProblem(@click="prepareNewProblem()")
           | {{ st.tr["New problem"] }}
-        label(for="checkboxMine") {{ st.tr["My problems"] }}
-        input#checkboxMine(
-          type="checkbox"
-          v-model="onlyMines"
-        )
+        div#myProblems(v-if="st.user.id > 0")
+          label(for="checkboxMine") {{ st.tr["My problems"] }}
+          input#checkboxMine(
+            type="checkbox"
+            v-model="onlyMine"
+          )
         label(for="selectVariant") {{ st.tr["Variant"] }}
         select#selectVariant(v-model="selectedVar")
           option(
@@ -89,16 +90,16 @@ main
           th {{ st.tr["Instructions"] }}
           th {{ st.tr["Number"] }}
         tr(
-          v-for="p in problems"
-          v-show="displayProblem(p)"
+          v-for="p in problems[onlyMine ? 'mine' : 'others']"
+          v-show="onlyMine || !selectedVar || p.vid == selectedVar"
           @click="setHrefPid(p)"
         )
           td {{ p.vname }}
           td {{ firstChars(p.instruction) }}
           td {{ p.id }}
       button#loadMoreBtn(
-        v-if="hasMore"
-        @click="loadMore()"
+        v-if="hasMore[onlyMine ? 'mine' : 'others']"
+        @click="loadMore(onlyMine ? 'mine' : 'others')"
       )
         | {{ st.tr["Load more"] }}
   BaseGame(
@@ -140,12 +141,15 @@ export default {
       },
       loadedVar: 0, //corresponding to loaded V
       selectedVar: 0, //to filter problems based on variant
-      problems: [],
+      problems: { "mine": [], "others": [] },
       // timestamp of oldest showed problem:
-      cursor: Number.MAX_SAFE_INTEGER,
+      cursor: {
+        "mine": Number.MAX_SAFE_INTEGER,
+        "others": Number.MAX_SAFE_INTEGER
+      },
       // hasMore == TRUE: a priori there could be more problems to load
-      hasMore: true,
-      onlyMines: false,
+      hasMore: { "mine": true, "others": true },
+      onlyMine: false,
       showOne: false,
       infoMsg: "",
       game: {
@@ -155,25 +159,9 @@ export default {
     };
   },
   created: function() {
-    ajax(
-      "/problems",
-      "GET",
-      {
-        data: { cursor: this.cursor },
-        success: (res) => {
-          // The returned list is sorted from most recent to oldest
-          this.problems = res.problems;
-          const L = res.problems.length;
-          if (L > 0) this.cursor = res.problems[L - 1].added;
-          else this.hasMore = false;
-          const showOneIfPid = () => {
-            const pid = this.$route.query["id"];
-            if (!!pid) this.showProblem(this.problems.find(p => p.id == pid));
-          };
-          this.decorate(this.problems, showOneIfPid);
-        }
-      }
-    );
+    const pid = this.$route.query["id"];
+    if (!!pid) this.showProblem(pid);
+    else this.loadMore("others", () => { this.loadMore("mine"); });
   },
   mounted: function() {
     document.getElementById("newprobDiv")
@@ -183,13 +171,20 @@ export default {
     // st.variants changes only once, at loading from [] to [...]
     "st.variants": function() {
       // Set problems vname (either all are set or none)
-      if (this.problems.length > 0 && this.problems[0].vname == "")
-        this.problems.forEach(p => this.setVname(p));
+      let problems = this.problems["others"].concat(this.problems["mine"]);
+      if (problems.length > 0 && problems[0].vname == "")
+        problems.forEach(p => this.setVname(p));
     },
     $route: function(to) {
       const pid = to.query["id"];
-      if (!!pid) this.showProblem(this.problems.find(p => p.id == pid));
-      else this.showOne = false;
+      if (!!pid) this.showProblem(pid);
+      else {
+        if (this.cursor["others"] == Number.MAX_SAFE_INTEGER)
+          // Back from a single problem view at initial loading:
+          // problems lists are empty!
+          this.loadMore("others", () => { this.loadMore("mine"); });
+        this.showOne = false;
+      }
     }
   },
   methods: {
@@ -306,41 +301,56 @@ export default {
       };
       prob.diag = getDiagram(args);
     },
-    displayProblem: function(p) {
-      return (
-        (!this.selectedVar || p.vid == this.selectedVar) &&
-        ((this.onlyMines && p.uid == this.st.user.id) ||
-          (!this.onlyMines && p.uid != this.st.user.id))
-      );
-    },
-    showProblem: function(p) {
-      this.loadVariant(p.vid, () => {
-        // The FEN is already checked at this stage:
-        this.game.vname = p.vname;
-        this.game.mycolor = V.ParseFen(p.fen).turn; //diagram orientation
-        this.game.fenStart = p.fen;
-        this.game.fen = p.fen;
-        this.showOne = true;
-        // $nextTick to be sure $refs["basegame"] exists
-        this.$nextTick(() => {
-          this.$refs["basegame"].re_setVariables(this.game); });
-        this.copyProblem(p, this.curproblem);
-      });
+    showProblem: function(p_id) {
+      const processWhenWeHaveProb = () => {
+        this.loadVariant(p.vid, () => {
+          this.onlyMine = (p.uid == this.st.user.id);
+          // The FEN is already checked at this stage:
+          this.game.vname = p.vname;
+          this.game.mycolor = V.ParseFen(p.fen).turn; //diagram orientation
+          this.game.fenStart = p.fen;
+          this.game.fen = p.fen;
+          this.showOne = true;
+          // $nextTick to be sure $refs["basegame"] exists
+          this.$nextTick(() => {
+            this.$refs["basegame"].re_setVariables(this.game); });
+          this.copyProblem(p, this.curproblem);
+        });
+      };
+      let p = undefined;
+      if (typeof p_id == "object") p = p_id;
+      else {
+        const problems = this.problems["others"].concat(this.problems["mine"]);
+        p = problems.find(prob => prob.id == p_id);
+      }
+      if (!p) {
+        // Bad luck: problem not in list. Get from server
+        ajax(
+          "/problems",
+          "GET",
+          {
+            data: { id: p_id },
+            success: (res) => {
+              this.decorate([res.problem], () => {
+                p = res.problem;
+                const mode = (p.uid == this.st.user.id ? "mine" : "others");
+                this.problems[mode].push(p);
+                processWhenWeHaveProb();
+              });
+            }
+          }
+        );
+      } else processWhenWeHaveProb();
     },
     gotoPrevNext: function(e, prob, dir) {
-      const startIdx = this.problems.findIndex(p => p.id == prob.id);
-      let nextIdx = startIdx + dir;
-      while (
-        nextIdx >= 0 &&
-        nextIdx < this.problems.length &&
-        ((this.onlyMines && this.problems[nextIdx].uid != this.st.user.id) ||
-          (!this.onlyMines && this.problems[nextIdx].uid == this.st.user.id))
-      )
-        nextIdx += dir;
-      if (nextIdx >= 0 && nextIdx < this.problems.length)
-        this.setHrefPid(this.problems[nextIdx]);
-      else
-        alert(this.st.tr["No more problems"]);
+      const mode = (this.onlyMine ? "mine" : "others");
+      const problems = this.problems[mode];
+      const startIdx = problems.findIndex(p => p.id == prob.id);
+      const nextIdx = startIdx + dir;
+      if (nextIdx >= 0 && nextIdx < problems.length)
+        this.setHrefPid(problems[nextIdx]);
+      else if (this.hasMore[mode]) this.loadMore(mode);
+      else alert(this.st.tr["No more problems"]);
     },
     prepareNewProblem: function() {
       this.resetCurProb();
@@ -370,7 +380,7 @@ export default {
               newProblem.id = ret.id;
               newProblem.uid = this.st.user.id;
               newProblem.uname = this.st.user.name;
-              this.problems = [newProblem].concat(this.problems);
+              this.problems["mine"] = [newProblem].concat(this.problems["mine"]);
             }
             document.getElementById("modalNewprob").checked = false;
             this.infoMsg = "";
@@ -392,26 +402,35 @@ export default {
           {
             data: { id: prob.id },
             success: () => {
-              ArrayFun.remove(this.problems, p => p.id == prob.id);
+              const mode = prob.uid == (this.st.user.id ? "mine" : "others");
+              ArrayFun.remove(this.problems[mode], p => p.id == prob.id);
               this.backToList();
             }
           }
         );
       }
     },
-    loadMore: function() {
+    loadMore: function(mode, cb) {
       ajax(
         "/problems",
         "GET",
         {
-          data: { cursor: this.cursor },
+          data: {
+            uid: this.st.user.id,
+            mode: mode,
+            cursor: this.cursor[mode]
+          },
           success: (res) => {
             const L = res.problems.length;
             if (L > 0) {
+              this.cursor[mode] = res.problems[L - 1].added;
+              // Remove potential duplicates:
+              const pids = this.problems[mode].map(p => p.id);
+              ArrayFun.remove(res.problems, p => pids.includes(p.id), "all");
               this.decorate(res.problems);
-              this.problems = this.problems.concat(res.problems);
-              this.cursor = res.problems[L - 1].added;
-            } else this.hasMore = false;
+              this.problems[mode] = this.problems[mode].concat(res.problems);
+            } else this.hasMore[mode] = false;
+            if (!!cb) cb();
           }
         }
       );
@@ -453,6 +472,9 @@ p.oneInstructions
   margin: 0
   padding: 2px 5px
   background-color: lightgreen
+
+#myProblems
+  display: inline-block
 
 #topPage
   span.vname

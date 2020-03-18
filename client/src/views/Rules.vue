@@ -72,7 +72,7 @@ export default {
   },
   computed: {
     showAnalyzeBtn: function() {
-      return this.V && this.V.CanAnalyze;
+      return !!this.V && this.V.CanAnalyze;
     },
     content: function() {
       if (!this.gameInfo.vname) return ""; //variant not set yet

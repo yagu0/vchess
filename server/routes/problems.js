@@ -21,14 +21,16 @@ router.post("/problems", access.logged, access.ajax, (req,res) => {
 });
 
 router.get("/problems", access.ajax, (req,res) => {
-  const probId = req.query["pid"];
+  const probId = req.query["id"];
   const cursor = req.query["cursor"];
   if (!!probId && !!probId.match(/^[0-9]+$/)) {
-    ProblemModel.getOne(req.query["pid"], (err, problem) => {
+    ProblemModel.getOne(probId, (err, problem) => {
       res.json(err || {problem: problem});
     });
   } else if (!!cursor && !!cursor.match(/^[0-9]+$/)) {
-    ProblemModel.getNext(cursor, (err, problems) => {
+    const onlyMine = (req.query["mode"] == "mine");
+    const uid = parseInt(req.query["uid"]);
+    ProblemModel.getNext(uid, onlyMine, cursor, (err, problems) => {
       res.json(err || { problems: problems });
     });
   }

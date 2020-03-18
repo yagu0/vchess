@@ -33,12 +33,16 @@ const ProblemModel = {
     });
   },
 
-  getNext: function(cursor, cb) {
+  getNext: function(uid, onlyMine, cursor, cb) {
+    let condition = "";
+    if (onlyMine) condition = "AND uid = " + uid + " ";
+    else if (!!uid) condition = "AND uid <> " + uid + " ";
     db.serialize(function() {
       const query =
         "SELECT * " +
         "FROM Problems " +
         "WHERE added < " + cursor + " " +
+        condition +
         "ORDER BY added DESC " +
         "LIMIT 20"; //TODO: 20 is arbitrary
       db.all(query, (err, problems) => {
