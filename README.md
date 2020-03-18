@@ -15,3 +15,7 @@ All contributions are welcome! For example,
 If you wanna help, you can contact me with the form on the website,
 so that we can discuss what to do and how :)
 If you feel comfortable with the code a pull request is a good start too.
+
+### Running the website locally
+
+Follow the instructions in server/README.md first, and then in client/README.md.
