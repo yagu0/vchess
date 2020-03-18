@@ -12,6 +12,7 @@ insert or ignore into Variants (name,description) values
   ('Baroque', 'Exotic captures'),
   ('Benedict', 'Change colors'),
   ('Berolina', 'Pawns move diagonally'),
+  ('Cannibal', 'Capture powers'),
   ('Capture', 'Mandatory captures'),
   ('Checkered', 'Shared pieces'),
   ('Chess960', 'Standard rules'),
