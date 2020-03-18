@@ -195,5 +195,6 @@ export const translations = {
   "Shoot pieces": "Tirez sur les pièces",
   "Squares disappear": "Les cases disparaissent",
   "Standard rules": "Règles usuelles",
+  "Transform an essay": "Transformer un essai",
   "Unidentified pieces": "Pièces non identifiées"
 };
