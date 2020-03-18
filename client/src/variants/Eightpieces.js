@@ -247,21 +247,23 @@ export class EightpiecesRules extends ChessRules {
   // Because of the lancers, getPiece() could be wrong:
   // use board[x][y][1] instead (always valid).
   getBasicMove([sx, sy], [ex, ey], tr) {
+    const initColor = this.getColor(sx, sy);
+    const initPiece = this.board[sx][sy].charAt(1);
     let mv = new Move({
       appear: [
         new PiPo({
           x: ex,
           y: ey,
-          c: tr ? tr.c : this.getColor(sx, sy),
-          p: tr ? tr.p : this.board[sx][sy].charAt(1)
+          c: tr ? tr.c : initColor,
+          p: tr ? tr.p : initPiece
         })
       ],
       vanish: [
         new PiPo({
           x: sx,
           y: sy,
-          c: this.getColor(sx, sy),
-          p: this.board[sx][sy].charAt(1)
+          c: initColor,
+          p: initPiece
         })
       ]
     });

@@ -605,21 +605,23 @@ export const ChessRules = class ChessRules {
   // Build a regular move from its initial and destination squares.
   // tr: transformation
   getBasicMove([sx, sy], [ex, ey], tr) {
+    const initColor = this.getColor(sx, sy);
+    const initPiece = this.getPiece(sx, sy);
     let mv = new Move({
       appear: [
         new PiPo({
           x: ex,
           y: ey,
-          c: tr ? tr.c : this.getColor(sx, sy),
-          p: tr ? tr.p : this.getPiece(sx, sy)
+          c: tr ? tr.c : initColor,
+          p: tr ? tr.p : initPiece
         })
       ],
       vanish: [
         new PiPo({
           x: sx,
           y: sy,
-          c: this.getColor(sx, sy),
-          p: this.getPiece(sx, sy)
+          c: initColor,
+          p: initPiece
         })
       ]
     });
@@ -679,33 +681,31 @@ export const ChessRules = class ChessRules {
     return !!enpassantMove ? [enpassantMove] : [];
   }
 
+  // Consider all potential promotions:
+  addPawnMoves([x1, y1], [x2, y2], moves, promotions) {
+    let finalPieces = [V.PAWN];
+    const color = this.turn;
+    const lastRank = (color == "w" ? 0 : V.size.x - 1);
+    if (x2 == lastRank) {
+      // promotions arg: special override for Hiddenqueen variant
+      if (!!promotions) finalPieces = promotions;
+      else if (!!V.PawnSpecs.promotions)
+        finalPieces = V.PawnSpecs.promotions;
+    }
+    let tr = null;
+    for (let piece of finalPieces) {
+      tr = (piece != V.PAWN ? { c: color, p: piece } : null);
+      moves.push(this.getBasicMove([x1, y1], [x2, y2], tr));
+    }
+  }
+
   // What are the pawn moves from square x,y ?
   getPotentialPawnMoves([x, y], promotions) {
     const color = this.turn;
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const pawnShiftX = V.PawnSpecs.directions[color];
-    const firstRank = color == "w" ? sizeX - 1 : 0;
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
-    // Consider all potential promotions:
-    const addMoves = ([x1, y1], [x2, y2], moves) => {
-      let finalPieces = [V.PAWN];
-      if (x2 == lastRank) {
-        // promotions arg: special override for Hiddenqueen variant
-        if (!!promotions) finalPieces = promotions;
-        else if (!!V.PawnSpecs.promotions)
-          finalPieces = V.PawnSpecs.promotions;
-      }
-      for (let piece of finalPieces) {
-        moves.push(
-          this.getBasicMove([x1, y1], [x2, y2], {
-            c: color,
-            p: piece
-          })
-        );
-      }
-    }
+    const firstRank = (color == "w" ? sizeX - 1 : 0);
+    const startRank = (color == "w" ? sizeX - 2 : 1);
 
     // Pawn movements in shiftX direction:
     const getPawnMoves = (shiftX) => {
@@ -714,7 +714,7 @@ export const ChessRules = class ChessRules {
       if (x + shiftX >= 0 && x + shiftX < sizeX) {
         if (this.board[x + shiftX][y] == V.EMPTY) {
           // One square forward
-          addMoves([x, y], [x + shiftX, y], moves);
+          this.addPawnMoves([x, y], [x + shiftX, y], moves, promotions);
           // Next condition because pawns on 1st rank can generally jump
           if (
             V.PawnSpecs.twoSquares &&
@@ -736,7 +736,10 @@ export const ChessRules = class ChessRules {
                 this.board[x + shiftX][y + shiftY] != V.EMPTY &&
                 this.canTake([x, y], [x + shiftX, y + shiftY])
               ) {
-                addMoves([x, y], [x + shiftX, y + shiftY], moves);
+                this.addPawnMoves(
+                  [x, y], [x + shiftX, y + shiftY],
+                  moves, promotions
+                );
               }
               if (
                 V.PawnSpecs.captureBackward &&
@@ -744,7 +747,10 @@ export const ChessRules = class ChessRules {
                 this.board[x - shiftX][y + shiftY] != V.EMPTY &&
                 this.canTake([x, y], [x - shiftX, y + shiftY])
               ) {
-                addMoves([x, y], [x + shiftX, y + shiftY], moves);
+                this.addPawnMoves(
+                  [x, y], [x + shiftX, y + shiftY],
+                  moves, promotions
+                );
               }
             }
           }
@@ -1038,7 +1044,7 @@ export const ChessRules = class ChessRules {
 
   // Is color under check after his move ?
   underCheck(color) {
-    return this.isAttacked(this.kingPos[color], [V.GetOppCol(color)]);
+    return this.isAttacked(this.kingPos[color], V.GetOppCol(color));
   }
 
   /////////////////
@@ -1060,7 +1066,7 @@ export const ChessRules = class ChessRules {
   play(move) {
     // DEBUG:
 //    if (!this.states) this.states = [];
-//    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
+//    const stateFen = this.getFen() + JSON.stringify(this.kingPos);
 //    this.states.push(stateFen);
 
     this.prePlay(move);
@@ -1070,6 +1076,27 @@ export const ChessRules = class ChessRules {
     this.turn = V.GetOppCol(this.turn);
     this.movesCount++;
     this.postPlay(move);
+  }
+
+  updateCastleFlags(move) {
+    const c = V.GetOppCol(this.turn);
+    const firstRank = (c == "w" ? V.size.x - 1 : 0);
+    // Update castling flags if rooks are moved
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    if (
+      move.start.x == firstRank && //our rook moves?
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    } else if (
+      move.end.x == oppFirstRank && //we took opponent rook?
+      this.castleFlags[oppCol].includes(move.end.y)
+    ) {
+      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
+      this.castleFlags[oppCol][flagIdx] = V.size.y;
+    }
   }
 
   // After move is played, update variables + flags
@@ -1082,7 +1109,6 @@ export const ChessRules = class ChessRules {
     else
       // Crazyhouse-like variants
       piece = move.appear[0].p;
-    const firstRank = c == "w" ? V.size.x - 1 : 0;
 
     // Update king position + flags
     if (piece == V.KING && move.appear.length > 0) {
@@ -1091,24 +1117,7 @@ export const ChessRules = class ChessRules {
       if (V.HasCastle) this.castleFlags[c] = [V.size.y, V.size.y];
       return;
     }
-    if (V.HasCastle) {
-      // Update castling flags if rooks are moved
-      const oppCol = V.GetOppCol(c);
-      const oppFirstRank = V.size.x - 1 - firstRank;
-      if (
-        move.start.x == firstRank && //our rook moves?
-        this.castleFlags[c].includes(move.start.y)
-      ) {
-        const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-        this.castleFlags[c][flagIdx] = V.size.y;
-      } else if (
-        move.end.x == oppFirstRank && //we took opponent rook?
-        this.castleFlags[oppCol].includes(move.end.y)
-      ) {
-        const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
-        this.castleFlags[oppCol][flagIdx] = V.size.y;
-      }
-    }
+    if (V.HasCastle) this.updateCastleFlags(move);
   }
 
   preUndo() {}
@@ -1123,7 +1132,7 @@ export const ChessRules = class ChessRules {
     this.postUndo(move);
 
     // DEBUG:
-//    const stateFen = this.getBaseFen() + this.getTurnFen();// + this.getFlagsFen();
+//    const stateFen = this.getFen() + JSON.stringify(this.kingPos);
 //    if (stateFen != this.states[this.states.length-1]) debugger;
 //    this.states.pop();
   }
