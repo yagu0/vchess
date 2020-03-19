@@ -149,6 +149,7 @@ table
   padding: 0 10px 0 0
   height: 100%
   & > span
+    padding-right: 5px
     vertical-align: middle
   & > img
     padding: 0
