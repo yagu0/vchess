@@ -38,7 +38,7 @@ insert or ignore into Variants (name,description) values
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),
   ('Royalrace', 'Kings cross the 11x11 board'),
-  ('Rugby', 'Score a try'),
+  ('Rugby', 'Transform an essay'),
   ('Shatranj', 'Ancient rules'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
