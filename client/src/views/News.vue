@@ -26,10 +26,10 @@ main
         :class="{margintop:idx>0}"
       )
         span.ndt {{ formatDatetime(n.added) }}
-        div(v-if="devs.includes(st.user.id)")
+        .dev-buttons(v-if="devs.includes(st.user.id)")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
-        p(v-html="parseHtml(n.content)")
+        .news-content(v-html="parseHtml(n.content)")
       button#loadMoreBtn(
         v-if="hasMore"
         @click="loadMore()"
@@ -211,8 +211,10 @@ span.ndt
 
 .news
   padding-top: 10px
-  & > div
+  & > .dev-buttons
     display: inline-block
+  & > .news-content
+    margin: 0
 
 .margintop
   margin-top: 25px
