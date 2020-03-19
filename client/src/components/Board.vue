@@ -317,8 +317,8 @@ export default {
               // Force a delay between move is shown and clicked
               // (otherwise a "double-click" bug might occur)
               if (Date.now() - this.clickTime < 200) return;
-              this.play(m);
               this.choices = [];
+              this.play(m);
             };
             const onClick =
               this.mobileBrowser
