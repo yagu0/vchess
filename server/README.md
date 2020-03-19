@@ -13,7 +13,7 @@ Instructions to run the server locally.
 
 ```
 cd server/db
-sqlite3 vchess.sqlite.db
+sqlite3 vchess.sqlite
 sqlite> .read create.sql
 sqlite> .read populate.sql
 sqlite> .exit
