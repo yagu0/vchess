@@ -84,11 +84,12 @@ export class PerfectRules extends ChessRules {
 
   isAttackedByAmazon(sq, color) {
     return (
-      super.isAttackedByQueen(sq, color) ||
+      this.isAttackedBySlideNJump(sq, color, V.AMAZON, V.steps[V.BISHOP]) ||
+      this.isAttackedBySlideNJump(sq, color, V.AMAZON, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
         sq,
         color,
-        V.MARSHALL,
+        V.AMAZON,
         V.steps[V.KNIGHT],
         "oneStep"
       )
@@ -97,11 +98,11 @@ export class PerfectRules extends ChessRules {
 
   isAttackedByEmpress(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.ROOK]) ||
+      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
         sq,
         color,
-        V.MARSHALL,
+        V.EMPRESS,
         V.steps[V.KNIGHT],
         "oneStep"
       )
@@ -110,11 +111,11 @@ export class PerfectRules extends ChessRules {
 
   isAttackedByPrincess(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.BISHOP]) ||
+      this.isAttackedBySlideNJump(sq, color, V.PRINCESS, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
         sq,
         color,
-        V.CARDINAL,
+        V.PRINCESS,
         V.steps[V.KNIGHT],
         "oneStep"
       )
