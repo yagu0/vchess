@@ -166,7 +166,8 @@ export class CannibalRules extends ChessRules {
 
   getAllValidMoves() {
     const moves = super.getAllValidMoves();
-    if (moves.some(m => m.vanish.length == 2)) return V.KeepCaptures(moves);
+    if (moves.some(m => m.vanish.length == 2 && m.appear.length == 1))
+      return V.KeepCaptures(moves);
     return moves;
   }
 
