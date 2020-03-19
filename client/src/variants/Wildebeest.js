@@ -225,10 +225,7 @@ export class WildebeestRules extends ChessRules {
   }
 
   getCurrentScore() {
-    if (this.atLeastOneMove())
-      // game not over
-      return "*";
-
+    if (this.atLeastOneMove()) return "*";
     // No valid move: game is lost (stalemate is a win)
     return this.turn == "w" ? "0-1" : "1-0";
   }

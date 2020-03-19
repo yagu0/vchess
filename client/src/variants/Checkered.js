@@ -357,10 +357,7 @@ export class CheckeredRules extends ChessRules {
   }
 
   getCurrentScore() {
-    if (this.atLeastOneMove())
-      // game not over
-      return "*";
-
+    if (this.atLeastOneMove()) return "*";
     const color = this.turn;
     // Artifically change turn, for checkered pawns
     this.turn = V.GetOppCol(this.turn);

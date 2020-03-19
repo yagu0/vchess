@@ -270,8 +270,7 @@ export class WormholeRules extends ChessRules {
   }
 
   getCurrentScore() {
-    if (this.atLeastOneMove())
-      return "*";
+    if (this.atLeastOneMove()) return "*";
     // No valid move: I lose
     return this.turn == "w" ? "0-1" : "1-0";
   }

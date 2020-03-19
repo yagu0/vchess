@@ -263,10 +263,7 @@ export class AliceRules extends ChessRules {
   }
 
   getCurrentScore() {
-    if (this.atLeastOneMove())
-      // game not over
-      return "*";
-
+    if (this.atLeastOneMove()) return "*";
     const pieces = Object.keys(V.ALICE_CODES);
     const color = this.turn;
     const kp = this.kingPos[color];

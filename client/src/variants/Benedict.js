@@ -154,8 +154,7 @@ export class BenedictRules extends ChessRules {
     const kp = this.kingPos[color];
     if (this.getColor(kp[0], kp[1]) != color)
       return color == "w" ? "0-1" : "1-0";
-    if (this.atLeastOneMove())
-      return "*";
+    if (this.atLeastOneMove()) return "*";
     // Stalemate:
     return "1/2";
   }

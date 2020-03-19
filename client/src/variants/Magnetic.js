@@ -196,7 +196,7 @@ export class MagneticRules extends ChessRules {
       // King disappeared
       return color == "w" ? "0-1" : "1-0";
     if (this.atLeastOneMove())
-      // game not over
+      // Game not over
       return "*";
     return "1/2"; //no moves but kings still there
   }

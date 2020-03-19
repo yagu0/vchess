@@ -181,7 +181,7 @@ export class CannibalRules extends ChessRules {
       this.castleFlags[c] = [V.size.y, V.size.y];
       return;
     }
-    super.updateCastleFlags(move);
+    super.updateCastleFlags(move, piece);
   }
 
   postUndo(move) {

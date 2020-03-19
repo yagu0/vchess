@@ -99,7 +99,6 @@ export class ExtinctionRules extends ChessRules {
       }
       return "*";
     }
-
     return this.turn == "w" ? "0-1" : "1-0"; //NOTE: currently unreachable...
   }
 

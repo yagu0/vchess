@@ -132,21 +132,6 @@ export class Antiking2Rules extends ChessRules {
       this.antikingPos[c] = [move.start.x, move.start.y];
   }
 
-  getCurrentScore() {
-    if (this.atLeastOneMove())
-      return "*";
-
-    const color = this.turn;
-    const oppCol = V.GetOppCol(color);
-    if (
-      !this.isAttacked(this.kingPos[color], oppCol) &&
-      this.isAttacked(this.antikingPos[color], oppCol)
-    ) {
-      return "1/2";
-    }
-    return color == "w" ? "0-1" : "1-0";
-  }
-
   static get VALUES() {
     return Object.assign(
       { a: 1000 },

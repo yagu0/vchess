@@ -151,8 +151,7 @@ export class AtomicRules extends ChessRules {
     if (kp[0] < 0)
       // King disappeared
       return color == "w" ? "0-1" : "1-0";
-    if (this.atLeastOneMove())
-      return "*";
+    if (this.atLeastOneMove()) return "*";
     if (!this.isAttacked(kp, V.GetOppCol(color))) return "1/2";
     return color == "w" ? "0-1" : "1-0"; //checkmate
   }

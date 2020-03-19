@@ -132,8 +132,7 @@ export const ChessRules = class ChessRules {
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        if (['K','k'].includes(row[i]))
-          kings[row[i]] = true;
+        if (['K','k'].includes(row[i])) kings[row[i]] = true;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
           const num = parseInt(row[i]);
@@ -144,8 +143,7 @@ export const ChessRules = class ChessRules {
       if (sumElts != V.size.y) return false;
     }
     // Both kings should be on board:
-    if (Object.keys(kings).length != 2)
-      return false;
+    if (Object.keys(kings).length != 2) return false;
     return true;
   }
 
@@ -433,7 +431,7 @@ export const ChessRules = class ChessRules {
   // Extract (relevant) flags from fen
   setFlags(fenflags) {
     // white a-castle, h-castle, black a-castle, h-castle
-    this.castleFlags = { w: [true, true], b: [true, true] };
+    this.castleFlags = { w: [-1, -1], b: [-1, -1] };
     for (let i = 0; i < 4; i++) {
       this.castleFlags[i < 2 ? "w" : "b"][i % 2] =
         V.ColumnToCoord(fenflags.charAt(i));
@@ -1081,13 +1079,15 @@ export const ChessRules = class ChessRules {
     this.postPlay(move);
   }
 
-  updateCastleFlags(move) {
+  updateCastleFlags(move, piece) {
     const c = V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     // Update castling flags if rooks are moved
     const oppCol = V.GetOppCol(c);
     const oppFirstRank = V.size.x - 1 - firstRank;
-    if (
+    if (piece == V.KING && move.appear.length > 0)
+      this.castleFlags[c] = [V.size.y, V.size.y];
+    else if (
       move.start.x == firstRank && //our rook moves?
       this.castleFlags[c].includes(move.start.y)
     ) {
@@ -1117,10 +1117,9 @@ export const ChessRules = class ChessRules {
     if (piece == V.KING && move.appear.length > 0) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
-      if (V.HasCastle) this.castleFlags[c] = [V.size.y, V.size.y];
       return;
     }
-    if (V.HasCastle) this.updateCastleFlags(move);
+    if (V.HasCastle) this.updateCastleFlags(move, piece);
   }
 
   preUndo() {}
@@ -1154,14 +1153,11 @@ export const ChessRules = class ChessRules {
 
   // What is the score ? (Interesting if game is over)
   getCurrentScore() {
-    if (this.atLeastOneMove())
-      return "*";
-
+    if (this.atLeastOneMove()) return "*";
     // Game over
     const color = this.turn;
     // No valid move: stalemate or checkmate?
-    if (!this.isAttacked(this.kingPos[color], V.GetOppCol(color)))
-      return "1/2";
+    if (!this.underCheck(color)) return "1/2";
     // OK, checkmate
     return (color == "w" ? "0-1" : "1-0");
   }

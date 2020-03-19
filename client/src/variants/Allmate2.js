@@ -207,8 +207,7 @@ export class Allmate2Rules extends ChessRules {
     if (kp[0] < 0)
       // King disappeared
       return color == "w" ? "0-1" : "1-0";
-    if (this.atLeastOneMove())
-      return "*";
+    if (this.atLeastOneMove()) return "*";
     // Kings still there, no moves:
     return "1/2";
   }
