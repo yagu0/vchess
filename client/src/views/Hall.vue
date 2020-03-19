@@ -123,7 +123,7 @@ main
           p.anonymous @nonymous ({{ anonymousCount() }})
         #chat
           Chat(
-            :newChat="newChat"
+            ref="chatcomp"
             @mychat="processChat"
             :pastChats="[]"
           )
@@ -131,7 +131,7 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button#peopleBtn(onClick="window.doClick('modalPeople')")
+        button#peopleBtn(@click="openModalPeople()")
           | {{ st.tr["Who's there?"] }}
         button(@click="showNewchallengeForm()")
           | {{ st.tr["New game"] }}
@@ -193,7 +193,7 @@ main
           )
           button#loadMoreBtn(
             v-if="hasMore"
-            @click="loadMore()"
+            @click="loadMoreCorr()"
           )
             | {{ st.tr["Load more"] }}
 </template>
@@ -247,7 +247,6 @@ export default {
       tchallDiag: "",
       curChallToAccept: {from: {}},
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
-      newChat: "",
       conn: null,
       connexionString: "",
       // Related to (killing of) self multi-connects:
@@ -319,41 +318,9 @@ export default {
     this.setDisplay('c', showCtype);
     this.setDisplay('g', showGtype);
     // Ask server for current corr games (all but mines)
-    ajax(
-      "/observedgames",
-      "GET",
-      {
-        data: {
-          uid: this.st.user.id,
-          cursor: this.cursor
-        },
-        success: (response) => {
-          const L = response.games.length;
-          if (L > 0) {
-            this.cursor = response.games[L - 1].created;
-            if (this.games.length == 0 && this.gdisplay == "live") {
-              document
-                .getElementById("btnGcorr")
-                .classList.add("somethingnew");
-            }
-          }
-          this.games = this.games.concat(
-            response.games.map(g => {
-              const vname = this.getVname(g.vid);
-              return Object.assign(
-                {},
-                g,
-                {
-                  type: "corr",
-                  vname: vname
-                }
-              );
-            })
-          );
-        }
-      }
-    );
+    this.loadMoreCorr();
     // Also ask for corr challenges (open + sent by/to me)
+    // List them all, because they are not supposed to be that many (TODO?)
     ajax(
       "/challenges",
       "GET",
@@ -425,6 +392,10 @@ export default {
       return {
         ["random-" + pc.randomness]: true
       };
+    },
+    openModalPeople: function() {
+      window.doClick("modalPeople");
+      document.getElementById("inputChat").focus();
     },
     anonymousCount: function() {
       let count = 0;
@@ -824,7 +795,7 @@ export default {
           break;
         }
         case "newchat":
-          this.newChat = data.data;
+          this.$refs["chatcomp"].newChat(data.data);
           if (!document.getElementById("modalPeople").checked)
             document.getElementById("peopleBtn").classList.add("somethingnew");
           break;
@@ -836,7 +807,7 @@ export default {
       this.conn.addEventListener("message", this.socketMessageListener);
       this.conn.addEventListener("close", this.socketCloseListener);
     },
-    loadMore: function() {
+    loadMoreCorr: function() {
       ajax(
         "/observedgames",
         "GET",
@@ -848,6 +819,16 @@ export default {
           success: (res) => {
             const L = res.games.length;
             if (L > 0) {
+              if (
+                this.cursor == Number.MAX_SAFE_INTEGER &&
+                this.games.length == 0 &&
+                this.gdisplay == "live"
+              ) {
+                // First loading: show indicators
+                document
+                  .getElementById("btnGcorr")
+                  .classList.add("somethingnew");
+              }
               this.cursor = res.games[L - 1].created;
               let moreGames = res.games.map(g => {
                 const vname = this.getVname(g.vid);

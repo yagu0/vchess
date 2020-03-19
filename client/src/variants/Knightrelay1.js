@@ -97,7 +97,7 @@ export class Knightrelay1Rules extends ChessRules {
     return {
       p: 1,
       r: 5,
-      n: 7, //the knight is valuable
+      n: 0, //the knight isn't captured - value doesn't matter
       b: 3,
       q: 9,
       k: 1000

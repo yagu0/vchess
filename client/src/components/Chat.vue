@@ -42,6 +42,7 @@ export default {
     sendChat: function() {
       let chatInput = document.getElementById("inputChat");
       const chatTxt = chatInput.value.trim();
+      chatInput.focus(); //required on smartphones
       if (chatTxt == "") return; //nothing to send
       chatInput.value = "";
       const chat = { msg: chatTxt, name: this.st.user.name || "@nonymous" };
