@@ -23,19 +23,22 @@ function dbOperation(callback) {
 
   DBOpenRequest.onerror = function(event) {
     alert(store.state.tr["Database error: stop private browsing, or update your browser"]);
-    callback("error",null);
+    callback("error", null);
   };
 
   DBOpenRequest.onsuccess = function() {
     db = DBOpenRequest.result;
-    callback(null,db);
+    callback(null, db);
     db.close();
   };
 
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
     let objectStore = db.createObjectStore("games", { keyPath: "id" });
-    objectStore.createIndex("score", "score"); //to search by game result
+    // To sarch games by score (useful for running games)
+    objectStore.createIndex("score", "score", { unique: false });
+    // To search by date intervals. Two games cannot start at the same time
+    objectStore.createIndex("created", "created", { unique: true });
   };
 }
 
@@ -49,13 +52,14 @@ export const GameStorage = {
       }
       let transaction = db.transaction("games", "readwrite");
       transaction.oncomplete = function() {
-        callback(); //everything's fine
+        // Everything's fine
+        callback();
       };
       transaction.onerror = function(err) {
-        callback(err); //duplicate key error (most likely)
+        // Duplicate key error (most likely)
+        callback(err);
       };
-      let objectStore = transaction.objectStore("games");
-      objectStore.add(game);
+      transaction.objectStore("games").add(game);
     });
   },
 
@@ -82,15 +86,20 @@ export const GameStorage = {
     });
   },
 
-  // Retrieve all local games (running, completed, imported...)
-  getAll: function(callback) {
+  // Retrieve (all) running local games
+  getRunning: function(callback) {
     dbOperation((err,db) => {
-      let objectStore = db.transaction("games").objectStore("games");
+      let objectStore = db
+        .transaction("games", "readonly")
+        .objectStore("games");
+      let index = objectStore.index("score");
+      const range = IDBKeyRange.only("*");
       let games = [];
-      objectStore.openCursor().onsuccess = function(event) {
+      index.openCursor(range).onsuccess = function(event) {
         let cursor = event.target.result;
-        // if there is still another cursor to go, keep running this code
-        if (cursor) {
+        if (!cursor) callback(games);
+        else {
+          // If there is still another cursor to go, keep running this code
           let g = cursor.value;
           // Do not retrieve moves or clocks (unused in list mode)
           g.movesCount = g.moves.length;
@@ -99,7 +108,41 @@ export const GameStorage = {
           delete g.initime;
           games.push(g);
           cursor.continue();
-        } else callback(games);
+        }
+      };
+    });
+  },
+
+  // Retrieve completed local games
+  getNext: function(upperDt, callback) {
+    dbOperation((err,db) => {
+      let objectStore = db
+        .transaction("games", "readonly")
+        .objectStore("games");
+      let index = objectStore.index("created");
+      const range = IDBKeyRange.upperBound(upperDt);
+      let games = [];
+      index.openCursor(range).onsuccess = function(event) {
+        let cursor = event.target.result;
+        if (!cursor) {
+          // Most recent games first:
+          games = games.sort((g1, g2) => g2.created - g1.created);
+          // TODO: 20 games showed per request is arbitrary
+          callback(games.slice(0, 20));
+        }
+        else {
+          // If there is still another cursor to go, keep running this code
+          let g = cursor.value;
+          if (g.score != "*") {
+            // Do not retrieve moves or clocks (unused in list mode)
+            g.movesCount = g.moves.length;
+            delete g.moves;
+            delete g.clocks;
+            delete g.initime;
+            games.push(g);
+          }
+          cursor.continue();
+        }
       };
     });
   },
@@ -121,7 +164,7 @@ export const GameStorage = {
   remove: function(gameId, callback) {
     dbOperation((err,db) => {
       if (!err) {
-        let transaction = db.transaction(["games"], "readwrite");
+        let transaction = db.transaction("games", "readwrite");
         transaction.oncomplete = function() {
           callback(); //everything's fine
         };

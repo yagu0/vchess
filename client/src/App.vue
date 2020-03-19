@@ -279,9 +279,18 @@ footer
     padding: 5px 0
 
 .menuitem.somenews
+  animation: blinkNews 1s infinite;
   color: red
   &:link, &:visited, &:hover
     color: red
+
+@keyframes blinkNews
+  0%, 49%
+    background-color: yellow
+    padding: 3px
+  50%, 100%
+    background-color: grey
+    padding: 3px
 
 // Styles for diagrams and board (partial).
 // TODO: where to put that ?

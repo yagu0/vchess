@@ -14,18 +14,18 @@ main
         @show-game="showGame"
         @abortgame="abortGame"
       )
-      div(v-show="display=='corr'")
-        GameList(
-          ref="corrgames"
-          :games="corrGames"
-          @show-game="showGame"
-          @abortgame="abortGame"
-        )
-        button#loadMoreBtn(
-          v-if="hasMore"
-          @click="loadMore()"
-        )
-          | {{ st.tr["Load more"] }}
+      GameList(
+        v-show="display=='corr'"
+        ref="corrgames"
+        :games="corrGames"
+        @show-game="showGame"
+        @abortgame="abortGame"
+      )
+      button#loadMoreBtn(
+        v-show="hasMore[display]"
+        @click="loadMore(display)"
+      )
+        | {{ st.tr["Load more"] }}
 </template>
 
 <script>
@@ -47,10 +47,13 @@ export default {
       display: "live",
       liveGames: [],
       corrGames: [],
-      // timestamp of last showed (oldest) corr game:
-      cursor: Number.MAX_SAFE_INTEGER,
+      // timestamp of last showed (oldest) game:
+      cursor: {
+        live: Number.MAX_SAFE_INTEGER,
+        corr: Number.MAX_SAFE_INTEGER
+      },
       // hasMore == TRUE: a priori there could be more games to load
-      hasMore: true,
+      hasMore: { live: true, corr: true },
       conn: null,
       connexionString: ""
     };
@@ -93,7 +96,7 @@ export default {
       }
       this.setDisplay(showType);
     };
-    GameStorage.getAll(localGames => {
+    GameStorage.getRunning(localGames => {
       localGames.forEach(g => g.type = "live");
       this.decorate(localGames);
       this.liveGames = localGames;
@@ -113,29 +116,19 @@ export default {
               });
               this.decorate(this.corrGames);
               // Now ask completed games (partial list)
-              ajax(
-                "/completedgames",
-                "GET",
-                {
-                  credentials: true,
-                  data: { cursor: this.cursor },
-                  success: (res2) => {
-                    const L = res2.games.length;
-                    if (L > 0) {
-                      this.cursor = res2.games[L - 1].created;
-                      let completedGames = res2.games;
-                      completedGames.forEach(g => g.type = "corr");
-                      this.decorate(completedGames);
-                      this.corrGames = this.corrGames.concat(completedGames);
-                      adjustAndSetDisplay();
-                    }
-                  }
-                }
+              this.loadMore(
+                "live",
+                () => this.loadMore("corr", adjustAndSetDisplay)
               );
             }
           }
         );
-      } else adjustAndSetDisplay();
+      } else {
+        this.loadMore(
+          "live",
+          () => this.loadMore("corr", adjustAndSetDisplay)
+        );
+      }
     });
   },
   beforeDestroy: function() {
@@ -287,25 +280,40 @@ export default {
         );
       }
     },
-    loadMore: function() {
-      ajax(
-        "/completedgames",
-        "GET",
-        {
-          credentials: true,
-          data: { cursor: this.cursor },
-          success: (res) => {
-            const L = res.games.length;
-            if (L > 0) {
-              this.cursor = res.games[L - 1].created;
-              let moreGames = res.games;
-              moreGames.forEach(g => g.type = "corr");
-              this.decorate(moreGames);
-              this.corrGames = this.corrGames.concat(moreGames);
-            } else this.hasMore = false;
+    loadMore: function(type, cb) {
+      if (type == "corr") {
+        ajax(
+          "/completedgames",
+          "GET",
+          {
+            credentials: true,
+            data: { cursor: this.cursor["corr"] },
+            success: (res) => {
+              const L = res.games.length;
+              if (L > 0) {
+                this.cursor["corr"] = res.games[L - 1].created;
+                let moreGames = res.games;
+                moreGames.forEach(g => g.type = "corr");
+                this.decorate(moreGames);
+                this.corrGames = this.corrGames.concat(moreGames);
+              } else this.hasMore["corr"] = false;
+              if (!!cb) cb();
+            }
           }
-        }
-      );
+        );
+      } else if (type == "live") {
+        GameStorage.getNext(this.cursor["live"], localGames => {
+          const L = localGames.length;
+          if (L > 0) {
+            // Add "-1" because IDBKeyRange.upperBound seems to include boundary
+            this.cursor["live"] = localGames[L - 1].created - 1;
+            localGames.forEach(g => g.type = "live");
+            this.decorate(localGames);
+            this.liveGames = this.liveGames.concat(localGames);
+          } else this.hasMore["live"] = false;
+          if (!!cb) cb();
+        });
+      }
     }
   }
 };

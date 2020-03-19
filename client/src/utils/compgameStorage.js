@@ -16,28 +16,28 @@ function dbOperation(callback) {
 
   DBOpenRequest.onerror = function(event) {
     alert(store.state.tr["Database error: stop private browsing, or update your browser"]);
-    callback("error",null);
+    callback("error", null);
   };
 
   DBOpenRequest.onsuccess = function(event) {
     db = DBOpenRequest.result;
-    callback(null,db);
+    callback(null, db);
     db.close();
   };
 
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
-    let objectStore = db.createObjectStore("compgames", { keyPath: "vname" });
+    db.createObjectStore("compgames", { keyPath: "vname" });
   };
 }
 
 export const CompgameStorage = {
   add: function(game) {
     dbOperation((err,db) => {
-      if (err)
-        return;
-      let transaction = db.transaction("compgames", "readwrite");
-      let objectStore = transaction.objectStore("compgames");
+      if (err) return;
+      let objectStore = db
+        .transaction("compgames", "readwrite")
+        .objectStore("compgames");
       objectStore.add(game);
     });
   },
@@ -66,7 +66,9 @@ export const CompgameStorage = {
   // NOTE: need callback because result is obtained asynchronously
   get: function(gameId, callback) {
     dbOperation((err,db) => {
-      let objectStore = db.transaction("compgames").objectStore("compgames");
+      let objectStore = db
+        .transaction("compgames", "readonly")
+        .objectStore("compgames");
       objectStore.get(gameId).onsuccess = function(event) {
         callback(event.target.result);
       };
@@ -77,8 +79,9 @@ export const CompgameStorage = {
   remove: function(gameId) {
     dbOperation((err,db) => {
       if (!err) {
-        let transaction = db.transaction(["compgames"], "readwrite");
-        transaction.objectStore("compgames").delete(gameId);
+        db.transaction("compgames", "readwrite")
+          .objectStore("compgames")
+          .delete(gameId);
       }
     });
   }

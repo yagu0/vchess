@@ -585,6 +585,8 @@ export default {
           // Since people can be both in Hall and Game,
           // need to track "askIdentity" requests:
           let identityAsked = {};
+          // TODO: shuffling and random filtering on server, if
+          // the room is really crowded.
           data.sockIds.forEach(s => {
             const page = s.page || "/";
             if (s.sid != this.st.user.sid && !identityAsked[s.sid]) {

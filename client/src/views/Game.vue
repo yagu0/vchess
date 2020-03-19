@@ -445,6 +445,8 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code) {
         case "pollclients":
+          // TODO: shuffling and random filtering on server, if
+          // the room is really crowded.
           data.sockIds.forEach(sid => {
             if (sid != this.st.user.sid) {
               this.people[sid] = { focus: true };

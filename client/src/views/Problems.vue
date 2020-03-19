@@ -144,11 +144,11 @@ export default {
       problems: { "mine": [], "others": [] },
       // timestamp of oldest showed problem:
       cursor: {
-        "mine": Number.MAX_SAFE_INTEGER,
-        "others": Number.MAX_SAFE_INTEGER
+        mine: Number.MAX_SAFE_INTEGER,
+        others: Number.MAX_SAFE_INTEGER
       },
       // hasMore == TRUE: a priori there could be more problems to load
-      hasMore: { "mine": true, "others": true },
+      hasMore: { mine: true, others: true },
       onlyMine: false,
       showOne: false,
       infoMsg: "",
