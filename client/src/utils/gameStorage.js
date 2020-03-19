@@ -111,8 +111,8 @@ export const GameStorage = {
     dbOperation((err,db) => {
       let objectStore = db.transaction("games").objectStore("games");
       objectStore.get(gameId).onsuccess = function(event) {
-        if (event.target.result)
-          callback(event.target.result);
+        // event.target.result is null if game not found
+        callback(event.target.result);
       };
     });
   },

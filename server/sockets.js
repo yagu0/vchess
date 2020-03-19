@@ -155,22 +155,42 @@ module.exports = function(wss) {
         case "askidentity":
         case "asklastate":
         case "askchallenges":
-        case "askgame":
-        case "askfullgame": {
+        case "askgame": {
           const pg = obj.page || page; //required for askidentity and askgame
-          // In cas askfullgame to wrong SID for example, would crash:
           if (!!clients[pg] && !!clients[pg][obj.target]) {
-            const tmpIds = Object.keys(clients[pg][obj.target]);
+            let tmpIds = Object.keys(clients[pg][obj.target]);
             if (obj.target == sid) {
               // Targetting myself
               const idx_myTmpid = tmpIds.findIndex(x => x == tmpId);
               if (idx_myTmpid >= 0) tmpIds.splice(idx_myTmpid, 1);
             }
-            const tmpId_idx = Math.floor(Math.random() * tmpIds.length);
-            send(
-              clients[pg][obj.target][tmpIds[tmpId_idx]].socket,
-              { code: obj.code, from: [sid,tmpId,page] }
-            );
+            if (tmpIds.length > 0) {
+              const ttmpId = tmpIds[Math.floor(Math.random() * tmpIds.length)];
+              send(
+                clients[pg][obj.target][ttmpId].socket,
+                { code: obj.code, from: [sid,tmpId,page] }
+              );
+            }
+          }
+          break;
+        }
+
+        // Special situation of the previous "case":
+        // Full game can be asked to any observer.
+        case "askfullgame": {
+          if (!!clients[page]) {
+            let sids = Object.keys(clients[page]).filter(k => k != sid);
+            if (sids.length > 0) {
+              // Pick a SID at random in this set, and ask full game:
+              const rid = sids[Math.floor(Math.random() * sids.length)];
+              // ..to a random tmpId:
+              const tmpIds = Object.keys(clients[page][rid]);
+              const rtmpId = tmpIds[Math.floor(Math.random() * tmpIds.length)];
+              send(
+                clients[page][rid][rtmpId].socket,
+                { code: "askfullgame", from: [sid,tmpId] }
+              );
+            }
           }
           break;
         }

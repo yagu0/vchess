@@ -153,11 +153,8 @@ export default {
   data: function() {
     return {
       st: store.state,
-      gameRef: {
-        // rid = remote (socket) ID
-        id: "",
-        rid: ""
-      },
+      // gameRef can point to a corr game, local game or remote live game
+      gameRef: "",
       nextIds: [],
       game: {}, //passed to BaseGame
       // virtualClocks will be initialized from true game.clocks
@@ -205,10 +202,8 @@ export default {
         this.atCreation();
       } else {
         // Same game ID
-        this.gameRef.id = to.params["id"];
-        this.gameRef.rid = to.query["rid"];
         this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
-        this.fetchGame();
+        this.loadGame(this.game);
       }
     }
   },
@@ -244,11 +239,8 @@ export default {
     },
     atCreation: function() {
       // 0] (Re)Set variables
-      this.gameRef.id = this.$route.params["id"];
-      // rid = remote ID to find an observed live game,
-      // next = next corr games IDs to navigate faster
-      // (Both might be undefined)
-      this.gameRef.rid = this.$route.query["rid"];
+      this.gameRef = this.$route.params["id"];
+      // next = next corr games IDs to navigate faster (if applicable)
       this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
       // Always add myself to players' list
       const my = this.st.user;
@@ -307,18 +299,18 @@ export default {
           callback();
         else
           // Socket not ready yet (initial loading)
-          // NOTE: it's important to call callback without arguments,
-          // otherwise first arg is Websocket object and fetchGame fails.
+          // NOTE: first arg is Websocket object, unused here:
           this.conn.onopen = () => callback();
       };
-      if (!this.gameRef.rid)
-        // Game stored locally or on server
-        this.fetchGame(null, () => socketInit(this.roomInit));
-      else
-        // Game stored remotely: need socket to retrieve it
-        // NOTE: the callback "roomInit" will be lost, so we don't provide it.
-        // --> It will be given when receiving "fullgame" socket event.
-        socketInit(this.fetchGame);
+      this.fetchGame((game) => {
+        if (!!game)
+          this.loadVariantThenGame(game, () => socketInit(this.roomInit));
+        else
+          // Live game stored remotely: need socket to retrieve it
+          // NOTE: the callback "roomInit" will be lost, so we don't provide it.
+          // --> It will be given when receiving "fullgame" socket event.
+          socketInit(() => { this.send("askfullgame"); });
+      });
     },
     cleanBeforeDestroy: function() {
       if (!!this.askLastate)
@@ -432,13 +424,15 @@ export default {
       const currentUrl = document.location.href;
       const doAskGame = () => {
         if (document.location.href != currentUrl) return; //page change
-        if (!this.gameRef.rid)
-          // This is my game: just reload.
-          this.fetchGame();
-        else
-          // Just ask fullgame again (once!), this is much simpler.
-          // If this fails, the user could just reload page :/
-          this.send("askfullgame", { target: this.gameRef.rid });
+        this.fetchGame((game) => {
+          if (!!game)
+            // This is my game: just reload.
+            this.loadGame(game);
+          else
+            // Just ask fullgame again (once!), this is much simpler.
+            // If this fails, the user could just reload page :/
+            this.send("askfullgame");
+        });
       };
       // Delay of at least 2s between two game requests
       const now = Date.now();
@@ -563,8 +557,7 @@ export default {
               players: this.game.players,
               vid: this.game.vid,
               cadence: this.game.cadence,
-              score: this.game.score,
-              rid: this.st.user.sid //useful in Hall if I'm an observer
+              score: this.game.score
             };
             this.send("game", { data: myGame, target: data.from });
           }
@@ -587,7 +580,7 @@ export default {
           break;
         case "fullgame":
           // Callback "roomInit" to poll clients only after game is loaded
-          this.fetchGame(data.data, this.roomInit);
+          this.loadVariantThenGame(data.data, this.roomInit);
           break;
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"
@@ -639,7 +632,7 @@ export default {
                   !!this.game.mycolor &&
                   !receiveMyMove
                 ) {
-                  GameStorage.update(this.gameRef.id, { drawOffer: "" });
+                  GameStorage.update(this.gameRef, { drawOffer: "" });
                 }
               }
               this.$refs["basegame"].play(movePlus.move, "received", null, true);
@@ -676,10 +669,22 @@ export default {
         case "drawoffer":
           // NOTE: observers don't know who offered draw
           this.drawOffer = "received";
+          if (this.game.type == "live") {
+            GameStorage.update(
+              this.gameRef,
+              { drawOffer: V.GetOppCol(this.game.mycolor) }
+            );
+          }
           break;
         case "rematchoffer":
           // NOTE: observers don't know who offered rematch
           this.rematchOffer = data.data ? "received" : "";
+          if (this.game.type == "live") {
+            GameStorage.update(
+              this.gameRef,
+              { rematchOffer: V.GetOppCol(this.game.mycolor) }
+            );
+          }
           break;
         case "newgame": {
           // A game started, redirect if I'm playing in
@@ -696,17 +701,7 @@ export default {
           ) {
             this.$router.push("/game/" + gameInfo.id);
           } else {
-            let urlRid = "";
-            if (gameInfo.cadence.indexOf('d') === -1) {
-              urlRid = "/?rid=";
-              // Select sid of any of the online players:
-              let onlineSid = [];
-              gameInfo.players.forEach(p => {
-                if (!!this.people[p.sid]) onlineSid.push(p.sid);
-              });
-              urlRid += onlineSid[Math.floor(Math.random() * onlineSid.length)];
-            }
-            this.rematchId = gameInfo.id + urlRid;
+            this.rematchId = gameInfo.id;
             document.getElementById("modalInfo").checked = true;
           }
           break;
@@ -729,7 +724,7 @@ export default {
         "PUT",
         {
           data: {
-            gid: this.gameRef.id,
+            gid: this.gameRef,
             newObj: obj
           },
           success: () => {
@@ -804,7 +799,7 @@ export default {
         this.send("drawoffer");
         if (this.game.type == "live") {
           GameStorage.update(
-            this.gameRef.id,
+            this.gameRef,
             { drawOffer: this.game.mycolor }
           );
         } else this.updateCorrGame({ drawOffer: this.game.mycolor });
@@ -879,7 +874,7 @@ export default {
         this.send("rematchoffer", { data: true });
         if (this.game.type == "live") {
           GameStorage.update(
-            this.gameRef.id,
+            this.gameRef,
             { rematchOffer: this.game.mycolor }
           );
         } else this.updateCorrGame({ rematchOffer: this.game.mycolor });
@@ -889,7 +884,7 @@ export default {
         this.send("rematchoffer", { data: false });
         if (this.game.type == "live") {
           GameStorage.update(
-            this.gameRef.id,
+            this.gameRef,
             { rematchOffer: '' }
           );
         } else this.updateCorrGame({ rematchOffer: 'n' });
@@ -908,10 +903,6 @@ export default {
       const side = (this.game.mycolor == "w" ? "White" : "Black");
       this.gameOver(score, side + " surrender");
     },
-    // 3 cases for loading a game:
-    //  - from indexedDB (running or completed live game I play)
-    //  - from server (one correspondance game I play[ed] or not)
-    //  - from remote peer (one live game I don't play, finished or not)
     loadGame: function(game, callback) {
       this.vr = new V(game.fen);
       const gtype = this.getGameType(game);
@@ -1052,45 +1043,36 @@ export default {
       }
       if (!!callback) callback();
     },
-    fetchGame: function(game, callback) {
-      const afterRetrieval = async (game) => {
-        await import("@/variants/" + game.vname + ".js")
-        .then((vModule) => {
-          window.V = vModule[game.vname + "Rules"];
-          this.loadGame(game, callback);
-        });
-      };
-      if (!!game) {
-        afterRetrieval(game);
-        return;
-      }
-      if (this.gameRef.rid)
-        // Remote live game: forgetting about callback func... (TODO: design)
-        this.send("askfullgame", { target: this.gameRef.rid });
-      else {
-        // Local or corr game on server.
-        // NOTE: afterRetrieval() is never called if game not found
-        const gid = this.gameRef.id;
-        if (Number.isInteger(gid) || !isNaN(parseInt(gid))) {
-          // corr games identifiers are integers
-          ajax(
-            "/games",
-            "GET",
-            {
-              data: { gid: gid },
-              success: (res) => {
-                res.game.moves.forEach(m => {
-                  m.squares = JSON.parse(m.squares);
-                });
-                afterRetrieval(res.game);
-              }
+    loadVariantThenGame: async function(game, callback) {
+      await import("@/variants/" + game.vname + ".js")
+      .then((vModule) => {
+        window.V = vModule[game.vname + "Rules"];
+        this.loadGame(game, callback);
+      });
+    },
+    // 3 cases for loading a game:
+    //  - from indexedDB (running or completed live game I play)
+    //  - from server (one correspondance game I play[ed] or not)
+    //  - from remote peer (one live game I don't play, finished or not)
+    fetchGame: function(callback) {
+      if (Number.isInteger(this.gameRef) || !isNaN(parseInt(this.gameRef))) {
+        // corr games identifiers are integers
+        ajax(
+          "/games",
+          "GET",
+          {
+            data: { gid: this.gameRef },
+            success: (res) => {
+              res.game.moves.forEach(m => {
+                m.squares = JSON.parse(m.squares);
+              });
+              callback(res.game);
             }
-          );
-        }
-        else
-          // Local game
-          GameStorage.get(this.gameRef.id, afterRetrieval);
-      }
+          }
+        );
+      } else
+        // Local game (or live remote)
+        GameStorage.get(this.gameRef, callback);
     },
     re_setClocks: function() {
       if (this.game.moves.length < 2 || this.game.score != "*") {
@@ -1155,11 +1137,11 @@ export default {
         playMove(move, this.vr);
         // The move is played: stop clock
         clearInterval(this.clockUpdate);
-        if (!data.score) {
-          // Received move, score has not been computed in BaseGame (!!noemit)
-          const score = this.vr.getCurrentScore();
-          if (score != "*") this.gameOver(score);
-        }
+        if (!data.score)
+          // Received move, score is computed in BaseGame, but maybe not yet.
+          // ==> Compute it here, although this is redundant (TODO)
+          data.score = this.vr.getCurrentScore();
+        if (data.score != "*") this.gameOver(data.score);
         this.game.moves.push(move);
         this.game.fen = this.vr.getFen();
         if (this.game.type == "live") {
@@ -1194,7 +1176,7 @@ export default {
           this.notifyMyGames(
             "turn",
             {
-              gid: this.gameRef.id,
+              gid: this.gameRef,
               turn: this.vr.turn
             }
           );
@@ -1232,7 +1214,7 @@ export default {
           }
           else {
             const updateStorage = () => {
-              GameStorage.update(this.gameRef.id, {
+              GameStorage.update(this.gameRef, {
                 fen: this.game.fen,
                 move: filtered_move,
                 moveIdx: origMovescount,
@@ -1370,7 +1352,7 @@ export default {
           scoreMsg: scoreMsg
         };
         if (this.game.type == "live") {
-          GameStorage.update(this.gameRef.id, scoreObj);
+          GameStorage.update(this.gameRef, scoreObj);
           if (!!callback) callback();
         }
         else this.updateCorrGame(scoreObj, callback);
@@ -1380,7 +1362,7 @@ export default {
         this.notifyMyGames(
           "score",
           {
-            gid: this.gameRef.id,
+            gid: this.gameRef,
             score: score
           }
         );

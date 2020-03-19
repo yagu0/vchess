@@ -178,12 +178,15 @@ export default {
       const parsedFen = V.ParseFen(game.fenStart);
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2);
+      let L = this.moves.length;
       this.moves.forEach(move => {
         // Strategy working also for multi-moves:
         if (!Array.isArray(move)) move = [move];
-        move.forEach(m => {
+        move.forEach((m,idx) => {
           m.notation = this.vr.getNotation(m);
           this.vr.play(m);
+          if (idx < L - 1 && this.vr.getCheckSquares(this.vr.turn).length > 0)
+            m.notation += "+";
         });
       });
       if (firstMoveColor == "b") {
@@ -194,9 +197,15 @@ export default {
           end: { x: -1, y: -1 },
           fen: game.fenStart
         });
+        L++;
       }
       this.positionCursorTo(this.moves.length - 1);
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      const score = this.vr.getCurrentScore();
+      if (["1-0","0-1"].includes(score))
+        this.moves[L - 1].notation += "#";
+      else if (this.vr.getCheckSquares(this.vr.turn).length > 0)
+        this.moves[L - 1].notation += "+";
     },
     positionCursorTo: function(index) {
       this.cursor = index;
@@ -349,6 +358,12 @@ export default {
       };
       const computeScore = () => {
         const score = this.vr.getCurrentScore();
+        if (!navigate) {
+          if (["1-0","0-1"].includes(score))
+            this.lastMove.notation += "#";
+          else if (this.vr.getCheckSquares(this.vr.turn).length > 0)
+            this.lastMove.notation += "+";
+        }
         if (score != "*" && this.game.mode == "analyze") {
           const message = getScoreMessage(score);
           // Just show score on screen (allow undo)
@@ -366,15 +381,15 @@ export default {
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
           this.emitFenIfAnalyze();
           this.inMultimove = false;
-          if (!noemit) var score = computeScore();
+          this.score = computeScore();
           if (this.game.mode != "analyze") {
-            const L = this.moves.length;
-            if (!noemit)
+            if (!noemit) {
               // Post-processing (e.g. computer play).
+              const L = this.moves.length;
               // NOTE: always emit the score, even in unfinished,
               // to tell Game::processMove() that it's not a received move.
-              this.$emit("newmove", this.moves[L-1], { score: score });
-            else {
+              this.$emit("newmove", this.moves[L-1], { score: this.score });
+            } else {
               this.inPlay = false;
               if (this.stackToPlay.length > 0)
                 // Move(s) arrived in-between
@@ -394,7 +409,7 @@ export default {
         if (!light) {
           this.lastMove = move[move.length-1];
           this.incheck = this.vr.getCheckSquares(this.vr.turn);
-          computeScore();
+          this.score = computeScore();
           this.emitFenIfAnalyze();
         }
         this.cursor++;

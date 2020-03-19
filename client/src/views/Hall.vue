@@ -558,10 +558,7 @@ export default {
     showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
       // ==> Moves sent by connected remote player(s) if live game
-      let url = "/game/" + g.id;
-      if (g.type == "live")
-        url += "?rid=" + g.rids[Math.floor(Math.random() * g.rids.length)];
-      this.$router.push(url);
+      this.$router.push("/game/" + g.id);
     },
     resetSocialColor: function() {
       // TODO: this is called twice, once on opening an once on closing
@@ -612,15 +609,17 @@ export default {
         case "connect":
         case "gconnect": {
           const page = data.page || "/";
-          // Only ask game / challenges if first connexion:
-          if (!this.people[data.from]) {
-            this.people[data.from] = { pages: [{ path: page, focus: true }] };
-            if (data.code == "connect")
+          if (data.code == "connect") {
+            // Ask challenges only on first connexion:
+            if (!this.people[data.from])
               this.send("askchallenges", { target: data.from });
-            // Ask game only if live:
-            else if (!page.match(/\/[0-9]+$/))
-              this.send("askgame", { target: data.from, page: page });
-          } else {
+          }
+          // Ask game only if live:
+          else if (!page.match(/\/[0-9]+$/))
+            this.send("askgame", { target: data.from, page: page });
+          if (!this.people[data.from])
+            this.people[data.from] = { pages: [{ path: page, focus: true }] };
+          else {
             // Append page if not already in list
             if (!(this.people[data.from].pages.find(p => p.path == page)))
               this.people[data.from].pages.push({ path: page, focus: true });
@@ -638,6 +637,10 @@ export default {
           // the first reload won't have time to connect but will trigger a "close" event anyway.
           // ==> Next check is required.
           if (!this.people[data.from]) return;
+          const page = data.page || "/";
+          ArrayFun.remove(this.people[data.from].pages, p => p.path == page);
+          if (this.people[data.from].pages.length == 0)
+            this.$delete(this.people, data.from);
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect") {
             // Remove the live challenges sent by this player:
@@ -648,22 +651,16 @@ export default {
             );
           } else {
             // Remove the matching live game if now unreachable
-            const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
+            const gid = page.match(/[a-zA-Z0-9]+$/)[0];
             // Corr games are always reachable:
             if (!gid.match(/^[0-9]+$/)) {
-              const gidx = this.games.findIndex(g => g.id == gid);
-              // NOTE: gidx should always be >= 0 (TODO?)
-              if (gidx >= 0) {
-                const game = this.games[gidx];
-                ArrayFun.remove(game.rids, rid => rid == data.from);
-                if (game.rids.length == 0) this.games.splice(gidx, 1);
+              // Live games are reachable as long as someone is on the game page
+              if (Object.values(this.people).every(p =>
+                p.pages.every(pg => pg.path != page))) {
+                ArrayFun.remove(this.games, g => g.id == gid);
               }
             }
           }
-          const page = data.page || "/";
-          ArrayFun.remove(this.people[data.from].pages, p => p.path == page);
-          if (this.people[data.from].pages.length == 0)
-            this.$delete(this.people, data.from);
           break;
         }
         case "getfocus":
@@ -776,32 +773,27 @@ export default {
         case "game": // Individual request
         case "newgame": {
           const game = data.data;
-          // Ignore games where I play (will go in MyGames page)
-          if (game.players.every(p =>
-            p.sid != this.st.user.sid && p.id != this.st.user.id))
-          {
-            let locGame = this.games.find(g => g.id == game.id);
-            if (!locGame) {
-              let newGame = game;
-              newGame.type = this.classifyObject(game);
-              newGame.vname = this.getVname(game.vid);
-              if (!game.score)
-                // New game from Hall
-                newGame.score = "*";
-              newGame.rids = [game.rid];
-              delete newGame["rid"];
-              this.games.push(newGame);
-              if (
-                (newGame.type == "live" && this.gdisplay == "corr") ||
-                (newGame.type == "corr" && this.gdisplay == "live")
-              ) {
-                document
-                  .getElementById("btnG" + newGame.type)
-                  .classList.add("somethingnew");
-              }
-            } else {
-              // Append rid (if not already in list)
-              if (!locGame.rids.includes(game.rid)) locGame.rids.push(game.rid);
+          // Ignore games where I play (will go in MyGames page),
+          // and also games that I already received.
+          if (
+            game.players.every(p =>
+              p.sid != this.st.user.sid && p.id != this.st.user.id) &&
+            this.games.findIndex(g => g.id == game.id) == -1
+          ) {
+            let newGame = game;
+            newGame.type = this.classifyObject(game);
+            newGame.vname = this.getVname(game.vid);
+            if (!game.score)
+              // New game from Hall
+              newGame.score = "*";
+            this.games.push(newGame);
+            if (
+              (newGame.type == "live" && this.gdisplay == "corr") ||
+              (newGame.type == "corr" && this.gdisplay == "live")
+            ) {
+              document
+                .getElementById("btnG" + newGame.type)
+                .classList.add("somethingnew");
             }
           }
           break;
