@@ -27,7 +27,11 @@ function dbOperation(callback) {
 
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
-    db.createObjectStore("compgames", { keyPath: "vname" });
+    let upgradeTransaction = event.target.transaction;
+    if (!db.objectStoreNames.contains("compgames"))
+      db.createObjectStore("compgames", { keyPath: "vname" });
+    else
+      upgradeTransaction.objectStore("compgames");
   };
 }
 

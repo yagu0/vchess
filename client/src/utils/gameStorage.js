@@ -34,11 +34,18 @@ function dbOperation(callback) {
 
   DBOpenRequest.onupgradeneeded = function(event) {
     let db = event.target.result;
-    let objectStore = db.createObjectStore("games", { keyPath: "id" });
-    // To sarch games by score (useful for running games)
-    objectStore.createIndex("score", "score", { unique: false });
-    // To search by date intervals. Two games cannot start at the same time
-    objectStore.createIndex("created", "created", { unique: true });
+    let upgradeTransaction = event.target.transaction;
+    let objectStore = undefined;
+    if (!db.objectStoreNames.contains("games"))
+      objectStore = db.createObjectStore("games", { keyPath: "id" });
+    else
+      objectStore = upgradeTransaction.objectStore("games");
+    if (!objectStore.indexNames.contains("score"))
+      // To sarch games by score (useful for running games)
+      objectStore.createIndex("score", "score", { unique: false });
+    if (!objectStore.indexNames.contains("created"))
+      // To search by date intervals. Two games cannot start at the same time
+      objectStore.createIndex("created", "created", { unique: true });
   };
 }
 
