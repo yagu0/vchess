@@ -200,11 +200,9 @@ export default {
           // In case of incomplete information variant:
           boardDiv.style.visibility = "hidden";
         this.atCreation();
-      } else {
+      } else
         // Same game ID
         this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
-        this.loadGame(this.game);
-      }
     }
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
@@ -1120,9 +1118,9 @@ export default {
     processMove: function(move, data) {
       if (!data) data = {};
       const moveCol = this.vr.turn;
+      const colorIdx = ["w", "b"].indexOf(moveCol);
+      const nextIdx = 1 - colorIdx;
       const doProcessMove = () => {
-        const colorIdx = ["w", "b"].indexOf(moveCol);
-        const nextIdx = 1 - colorIdx;
         const origMovescount = this.game.moves.length;
         let addTime = 0; //for live games
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
@@ -1242,6 +1240,7 @@ export default {
           };
           if (this.game.type == "live")
             sendMove["clock"] = this.game.clocks[colorIdx];
+          // (Live) Clocks will re-start when the opponent pingback arrive
           this.opponentGotMove = false;
           this.send("newmove", {data: sendMove});
           // If the opponent doesn't reply gotmove soon enough, re-send move:
@@ -1289,6 +1288,10 @@ export default {
             // The board might have been hidden:
             if (boardDiv.style.visibility == "hidden")
               boardDiv.style.visibility = "visible";
+            if (data.score == "*") {
+              this.game.initime[nextIdx] = Date.now();
+              this.re_setClocks();
+            }
           }
         };
         let el = document.querySelector("#buttonsConfirm > .acceptBtn");
