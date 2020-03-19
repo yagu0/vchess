@@ -87,12 +87,15 @@ export class GrandRules extends ChessRules {
     return { x: 10, y: 10 };
   }
 
+  // Rook + knight:
   static get MARSHALL() {
     return "m";
-  } //rook+knight
+  }
+
+  // Bishop + knight
   static get CARDINAL() {
     return "c";
-  } //bishop+knight
+  }
 
   static get PIECES() {
     return ChessRules.PIECES.concat([V.MARSHALL, V.CARDINAL]);

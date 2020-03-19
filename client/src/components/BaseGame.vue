@@ -11,6 +11,7 @@ div#baseGame
   #gameContainer
     #boardContainer
       Board(
+        ref="board"
         :vr="vr"
         :last-move="lastMove"
         :analyze="game.mode=='analyze'"
@@ -306,6 +307,8 @@ export default {
     },
     // "light": if gotoMove() or gotoEnd()
     play: function(move, received, light, noemit) {
+      // Freeze while choices are shown:
+      if (this.$refs["board"].choices.length > 0) return;
       if (!!noemit) {
         if (this.inPlay) {
           // Received moves in observed games can arrive too fast:
@@ -445,6 +448,8 @@ export default {
     },
     // "light": if gotoMove() or gotoBegin()
     undo: function(move, light) {
+      // Freeze while choices are shown:
+      if (this.$refs["board"].choices.length > 0) return;
       if (this.inMultimove) {
         this.cancelCurrentMultimove();
         this.incheck = this.vr.getCheckSquares(this.vr.turn);
@@ -467,6 +472,7 @@ export default {
       }
     },
     gotoMove: function(index) {
+      if (this.$refs["board"].choices.length > 0) return;
       if (this.inMultimove) this.cancelCurrentMultimove();
       if (index == this.cursor) return;
       if (index < this.cursor) {
@@ -484,6 +490,7 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoBegin: function() {
+      if (this.$refs["board"].choices.length > 0) return;
       if (this.inMultimove) this.cancelCurrentMultimove();
       const minCursor =
         this.moves.length > 0 && this.moves[0].notation == "..."
@@ -495,11 +502,13 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoEnd: function() {
+      if (this.$refs["board"].choices.length > 0) return;
       if (this.cursor == this.moves.length - 1) return;
       this.gotoMove(this.moves.length - 1);
       this.emitFenIfAnalyze();
     },
     flip: function() {
+      if (this.$refs["board"].choices.length > 0) return;
       this.orientation = V.GetOppCol(this.orientation);
     }
   }

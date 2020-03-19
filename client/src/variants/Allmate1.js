@@ -99,80 +99,8 @@ export class Allmate1Rules extends ChessRules {
   }
 
   // No "under check" conditions in castling
-  getCastleMoves([x, y]) {
-    const c = this.getColor(x, y);
-    if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
-      return []; //x isn't first rank, or king has moved (shortcut)
-
-    // Castling ?
-    const oppCol = V.GetOppCol(c);
-    let moves = [];
-    let i = 0;
-    // King, then rook:
-    const finalSquares = [
-      [2, 3],
-      [V.size.y - 2, V.size.y - 3]
-    ];
-    castlingCheck: for (
-      let castleSide = 0;
-      castleSide < 2;
-      castleSide++ //large, then small
-    ) {
-      if (this.castleFlags[c][castleSide] >= 8) continue;
-      // If this code is reached, rooks and king are on initial position
-
-      // Nothing on the path of the king ? (and no checks)
-      const finDist = finalSquares[castleSide][0] - y;
-      let step = finDist / Math.max(1, Math.abs(finDist));
-      for (let i = y; i != finalSquares[castleSide][0]; i += step) {
-        if (
-          this.board[x][i] != V.EMPTY &&
-            // NOTE: next check is enough, because of chessboard constraints
-            (this.getColor(x, i) != c ||
-              ![V.KING, V.ROOK].includes(this.getPiece(x, i)))
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // Nothing on the path to the rook?
-      step = castleSide == 0 ? -1 : 1;
-      const rookPos = this.castleFlags[c][castleSide];
-      for (i = y + step; i != rookPos; i += step) {
-        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-      }
-
-      // Nothing on final squares, except maybe king and castling rook?
-      for (i = 0; i < 2; i++) {
-        if (
-          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
-          finalSquares[castleSide][i] != rookPos
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // If this code is reached, castle is valid
-      moves.push(
-        new Move({
-          appear: [
-            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
-          ],
-          end:
-            Math.abs(y - rookPos) <= 2
-              ? { x: x, y: rookPos }
-              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
-        })
-      );
-    }
-
-    return moves;
+  getCastleMoves(sq) {
+    return super.getCastleMoves(sq, "castleInCheck");
   }
 
   // TODO: allow pieces to "commit suicide"? (Currently yes except king)

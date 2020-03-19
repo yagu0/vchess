@@ -187,6 +187,7 @@ export const translations = {
   "Move twice": "Move twice",
   "Neverending rows": "Neverending rows",
   "Pawns move diagonally": "Pawns move diagonally",
+  "Powerful pieces": "Powerful pieces",
   "Queen disguised as a pawn": "Queen disguised as a pawn",
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",

@@ -195,7 +195,7 @@ export class EightpiecesRules extends ChessRules {
       positions.splice(randIndex, 1);
 
       // Rook, jailer and king positions are now almost fixed,
-      // only the ordering rook-> jailer or jailer->rook must be decided.
+      // only the ordering rook->jailer or jailer->rook must be decided.
       let rookPos = positions[0];
       let jailerPos = positions[2];
       const kingPos = positions[1];
@@ -610,81 +610,6 @@ export class EightpiecesRules extends ChessRules {
     );
   }
 
-  // Adapted: castle with jailer possible
-  getCastleMoves([x, y]) {
-    const c = this.getColor(x, y);
-    const firstRank = (c == "w" ? V.size.x - 1 : 0);
-    if (x != firstRank || y != this.INIT_COL_KING[c])
-      return [];
-
-    const oppCol = V.GetOppCol(c);
-    let moves = [];
-    let i = 0;
-    // King, then rook or jailer:
-    const finalSquares = [
-      [2, 3],
-      [V.size.y - 2, V.size.y - 3]
-    ];
-    castlingCheck: for (
-      let castleSide = 0;
-      castleSide < 2;
-      castleSide++
-    ) {
-      if (this.castleFlags[c][castleSide] >= 8) continue;
-      // Rook (or jailer) and king are on initial position
-      const finDist = finalSquares[castleSide][0] - y;
-      let step = finDist / Math.max(1, Math.abs(finDist));
-      i = y;
-      do {
-        if (
-          this.isAttacked([x, i], oppCol) ||
-          (this.board[x][i] != V.EMPTY &&
-            (this.getColor(x, i) != c ||
-              ![V.KING, V.ROOK, V.JAILER].includes(this.getPiece(x, i))))
-        ) {
-          continue castlingCheck;
-        }
-        i += step;
-      } while (i != finalSquares[castleSide][0]);
-      step = castleSide == 0 ? -1 : 1;
-      const rookOrJailerPos = this.castleFlags[c][castleSide];
-      for (i = y + step; i != rookOrJailerPos; i += step)
-        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-
-      // Nothing on final squares, except maybe king and castling rook or jailer?
-      for (i = 0; i < 2; i++) {
-        if (
-          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
-          finalSquares[castleSide][i] != rookOrJailerPos
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // If this code is reached, castle is valid
-      const castlingPiece = this.getPiece(firstRank, rookOrJailerPos);
-      moves.push(
-        new Move({
-          appear: [
-            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: castlingPiece, c: c })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookOrJailerPos, p: castlingPiece, c: c })
-          ],
-          end:
-            Math.abs(y - rookOrJailerPos) <= 2
-              ? { x: x, y: rookOrJailerPos }
-              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
-        })
-      );
-    }
-
-    return moves;
-  }
-
   atLeastOneMove() {
     // If in second-half of a move, we already know that a move is possible
     if (this.subTurn == 2) return true;
@@ -764,10 +689,6 @@ export class EightpiecesRules extends ChessRules {
   }
 
   play(move) {
-//    if (!this.states) this.states = [];
-//    const stateFen = this.getFen();
-//    this.states.push(stateFen);
-
     this.prePlay(move);
     move.flags = JSON.stringify(this.aggregateFlags());
     this.epSquares.push(this.getEpSquare(move));
@@ -828,10 +749,6 @@ export class EightpiecesRules extends ChessRules {
       if (move.sentryPush) this.subTurn = 2;
     }
     this.postUndo(move);
-
-//    const stateFen = this.getFen();
-//    if (stateFen != this.states[this.states.length-1]) debugger;
-//    this.states.pop();
   }
 
   postUndo(move) {

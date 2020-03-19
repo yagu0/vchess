@@ -33,6 +33,7 @@ insert or ignore into Variants (name,description) values
   ('Losers', 'Get strong at self-mate'),
   ('Magnetic', 'Laws of attraction'),
   ('Marseille', 'Move twice'),
+  ('Perfect', 'Powerful pieces'),
   ('Racingkings', 'Kings cross the 8x8 board'),
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),

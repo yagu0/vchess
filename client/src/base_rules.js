@@ -810,7 +810,8 @@ export const ChessRules = class ChessRules {
     return moves;
   }
 
-  getCastleMoves([x, y]) {
+  // "castleInCheck" arg to let some variants castle under check
+  getCastleMoves([x, y], castleInCheck) {
     const c = this.getColor(x, y);
     if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
       return []; //x isn't first rank, or king has moved (shortcut)
@@ -832,7 +833,9 @@ export const ChessRules = class ChessRules {
       if (this.castleFlags[c][castleSide] >= V.size.y) continue;
       // If this code is reached, rooks and king are on initial position
 
+      // NOTE: in some variants this is not a rook, but let's keep variable name
       const rookPos = this.castleFlags[c][castleSide];
+      const castlingPiece = this.getPiece(x, rookPos);
       if (this.getColor(x, rookPos) != c)
         // Rook is here but changed color (see Benedict)
         continue;
@@ -843,11 +846,11 @@ export const ChessRules = class ChessRules {
       i = y;
       do {
         if (
-          this.isAttacked([x, i], oppCol) ||
+          (!castleInCheck && this.isAttacked([x, i], oppCol)) ||
           (this.board[x][i] != V.EMPTY &&
             // NOTE: next check is enough, because of chessboard constraints
             (this.getColor(x, i) != c ||
-              ![V.KING, V.ROOK].includes(this.getPiece(x, i))))
+              ![V.KING, castlingPiece].includes(this.getPiece(x, i))))
         ) {
           continue castlingCheck;
         }
@@ -876,11 +879,11 @@ export const ChessRules = class ChessRules {
         new Move({
           appear: [
             new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
+            new PiPo({ x: x, y: finalSquares[castleSide][1], p: castlingPiece, c: c })
           ],
           vanish: [
             new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+            new PiPo({ x: x, y: rookPos, p: castlingPiece, c: c })
           ],
           end:
             Math.abs(y - rookPos) <= 2
