@@ -10,10 +10,25 @@ Instructions to run the server locally.
 ## Installation
 
  1. Execute db/\*.sql scripts to create and fill db/vchess.sqlite
- 2. Rename and edit config/parameters.js.dist into parameters.js
- 3. npm install
 
-Then run with the command
+```
+cd server/db
+sqlite3 vchess.sqlite.db
+sqlite> .read create.sql
+sqlite> .read populate.sql
+sqlite> .exit
+```
+
+ 2. Rename and edit `config/parameters.js.dist` into `config/parameters.js`
+
+ 3. Install npm modules
+ 
+ ```
+ npm install
+ ```
+
+ ## Running
+
 ```
 npm start
 ```
