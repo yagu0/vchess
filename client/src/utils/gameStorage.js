@@ -19,7 +19,7 @@ import { store } from "@/store";
 
 function dbOperation(callback) {
   let db = null;
-  let DBOpenRequest = window.indexedDB.open("vchess", 4);
+  let DBOpenRequest = window.indexedDB.open("vchess", 5);
 
   DBOpenRequest.onerror = function(event) {
     alert(store.state.tr["Database error: stop private browsing, or update your browser"]);
