@@ -761,6 +761,7 @@ export class EightpiecesRules extends ChessRules {
       super.isAttacked(sq, color) ||
       this.isAttackedByLancer(sq, color) ||
       this.isAttackedBySentry(sq, color)
+      // The jailer doesn't capture.
     );
   }
 
@@ -836,6 +837,7 @@ export class EightpiecesRules extends ChessRules {
   // Helper to check sentries attacks:
   selfAttack([x1, y1], [x2, y2]) {
     const color = this.getColor(x1, y1);
+    const oppCol = V.GetOppCol(color);
     const sliderAttack = (allowedSteps, lancer) => {
       const deltaX = x2 - x1,
             absDeltaX = Math.abs(deltaX);
@@ -854,7 +856,7 @@ export class EightpiecesRules extends ChessRules {
         if (
           // NOTE: no need to check OnBoard in this special case
           (!lancer && this.board[sq[0]][sq[1]] != V.EMPTY) ||
-          (!!lancer && this.getColor(sq[0], sq[1]) != color)
+          (!!lancer && this.getColor(sq[0], sq[1]) == oppCol)
         ) {
           return false;
         }
