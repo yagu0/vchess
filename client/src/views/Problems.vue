@@ -371,7 +371,7 @@ export default {
           data: { prob: this.curproblem },
           success: (ret) => {
             if (edit) {
-              let editedP = this.problems.find(p => p.id == this.curproblem.id);
+              let editedP = this.problems["mine"].find(p => p.id == this.curproblem.id);
               this.copyProblem(this.curproblem, editedP);
               this.showProblem(editedP);
             }
