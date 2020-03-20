@@ -1,2 +1,51 @@
 p.boxed
-  | TODO
+  | Checkmating the queen wins too. A queen cannot go or stay under check.
+
+p Just as the king, the queen can be checked and mated. This means that
+ul
+  li It is not allowed to make a move such that the queen can be captured.
+  li.
+    When your queen is attacked, you must play a move such that the queen
+    is no longer attacked.
+  li If it's impossible, then you lose.
+
+p.
+  Since the king remains royal, this allows a new way to win: check both
+  royal pieces at the same time, like on the following diagram.
+
+figure.diagram-container
+  .diagram
+    | fen:4Q3/4K3/8/8/3N4/5k2/2q5/8:
+  figcaption Both black king and queen are in check: white wins.
+
+h3 Special moves
+
+p.
+  If a pawn promotes into a queen, the latter is royal as well.
+  So under-promotions might be wiser.
+
+p.
+  You can castle with the queen or the king and any of the two rooks,
+  under the same conditions as orthodox castling.
+  Here is the resulting position after two white small castles and
+  one black large castle with the queen:
+
+figure.diagram-container
+  .diagram
+    | fen:r4rq1/ppppppkp/6p1/8/8/8/PPPPPPPP/1QR2RK1:
+  figcaption After two white small castles and one black large castle.
+
+p.
+  Note: to castle in a game you need to select
+  the king or queen first, and then move it to a rook.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/winning.dir/coregal.html") Coregal Chess
+  | &nbsp;on chessvariants.com.
+  | This variant can be played too 
+  a(href="https://greenchess.net/rules.php?v=coregal") on greenchess.net
+  | .
+
+p Inventor: Vernon R. Parton (1970)

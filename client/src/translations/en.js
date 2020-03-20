@@ -197,5 +197,6 @@ export const translations = {
   "Squares disappear": "Squares disappear",
   "Standard rules": "Standard rules",
   "Transform an essay": "Transform an essay",
+  "Two royal pieces": "Two royal pieces",
   "Unidentified pieces": "Unidentified pieces"
 };

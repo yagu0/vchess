@@ -1,10 +1,11 @@
-import { ChessRules } from "@/base_rules";
+import { ChessRules, Move, PiPo } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt, sample } from "@/utils/alea";
 
 export class CoregalRules extends ChessRules {
   static IsGoodPosition(position) {
     if (!super.IsGoodPosition(position)) return false;
+    const rows = position.split("/");
     // Check that at least one queen of each color is there:
     let queens = {};
     for (let row of rows) {
@@ -19,11 +20,37 @@ export class CoregalRules extends ChessRules {
     return !!flags.match(/^[a-z]{8,8}$/);
   }
 
+  // Scanning king position for faster updates is still interesting,
+  // but no need for INIT_COL_KING because it's given in castle flags.
+  scanKings(fen) {
+    this.kingPos = { w: [-1, -1], b: [-1, -1] };
+    const fenRows = V.ParseFen(fen).position.split("/");
+    const startRow = { 'w': V.size.x - 1, 'b': 0 };
+    for (let i = 0; i < fenRows.length; i++) {
+      let k = 0;
+      for (let j = 0; j < fenRows[i].length; j++) {
+        switch (fenRows[i].charAt(j)) {
+          case "k":
+            this.kingPos["b"] = [i, k];
+            break;
+          case "K":
+            this.kingPos["w"] = [i, k];
+            break;
+          default: {
+            const num = parseInt(fenRows[i].charAt(j));
+            if (!isNaN(num)) k += num - 1;
+          }
+        }
+        k++;
+      }
+    }
+  }
+
   getCheckSquares(color) {
     let squares = [];
     const oppCol = V.GetOppCol(color);
     if (this.isAttacked(this.kingPos[color], oppCol))
-      squares.push(this.kingPos[color]);
+      squares.push(JSON.parse(JSON.stringify(this.kingPos[color])));
     for (let i=0; i<V.size.x; i++) {
       for (let j=0; j<V.size.y; j++) {
         if (
@@ -113,8 +140,8 @@ export class CoregalRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
-      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(queenPos) +
-               V.CoordToColumn(kingPos) + V.CoordToColumn(rook2Pos);
+      flags +=
+        [rook1Pos, queenPos, kingPos, rook2Pos].sort().map(V.CoordToColumn).join("");
     }
     // Add turn + flags + enpassant
     return (
@@ -126,11 +153,11 @@ export class CoregalRules extends ChessRules {
   }
 
   setFlags(fenflags) {
-    // white a-castle, h-castle, black a-castle, h-castle
+    // white pieces positions, then black pieces positions
     this.castleFlags = { w: [...Array(4)], b: [...Array(4)] };
     for (let i = 0; i < 8; i++) {
       this.castleFlags[i < 4 ? "w" : "b"][i % 4] =
-        V.ColumnToCoord(fenflags.charAt(i));
+        V.ColumnToCoord(fenflags.charAt(i))
     }
   }
 
@@ -138,90 +165,90 @@ export class CoregalRules extends ChessRules {
     return super.getPotentialQueenMoves(sq).concat(this.getCastleMoves(sq));
   }
 
-  getCastleMoves([x, y], castleInCheck) {
-    return [];
-//    const c = this.getColor(x, y);
-//    if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
-//      return []; //x isn't first rank, or king has moved (shortcut)
-//
-//    // Castling ?
-//    const oppCol = V.GetOppCol(c);
-//    let moves = [];
-//    let i = 0;
-//    // King, then rook:
-//    const finalSquares = [
-//      [2, 3],
-//      [V.size.y - 2, V.size.y - 3]
-//    ];
-//    castlingCheck: for (
-//      let castleSide = 0;
-//      castleSide < 2;
-//      castleSide++ //large, then small
-//    ) {
-//      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
-//      // If this code is reached, rooks and king are on initial position
-//
-//      // NOTE: in some variants this is not a rook, but let's keep variable name
-//      const rookPos = this.castleFlags[c][castleSide];
-//      const castlingPiece = this.getPiece(x, rookPos);
-//      if (this.getColor(x, rookPos) != c)
-//        // Rook is here but changed color (see Benedict)
-//        continue;
-//
-//      // Nothing on the path of the king ? (and no checks)
-//      const finDist = finalSquares[castleSide][0] - y;
-//      let step = finDist / Math.max(1, Math.abs(finDist));
-//      i = y;
-//      do {
-//        if (
-//          (!castleInCheck && this.isAttacked([x, i], oppCol)) ||
-//          (this.board[x][i] != V.EMPTY &&
-//            // NOTE: next check is enough, because of chessboard constraints
-//            (this.getColor(x, i) != c ||
-//              ![V.KING, castlingPiece].includes(this.getPiece(x, i))))
-//        ) {
-//          continue castlingCheck;
-//        }
-//        i += step;
-//      } while (i != finalSquares[castleSide][0]);
-//
-//      // Nothing on the path to the rook?
-//      step = castleSide == 0 ? -1 : 1;
-//      for (i = y + step; i != rookPos; i += step) {
-//        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-//      }
-//
-//      // Nothing on final squares, except maybe king and castling rook?
-//      for (i = 0; i < 2; i++) {
-//        if (
-//          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-//          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
-//          finalSquares[castleSide][i] != rookPos
-//        ) {
-//          continue castlingCheck;
-//        }
-//      }
-//
-//      // If this code is reached, castle is valid
-//      moves.push(
-//        new Move({
-//          appear: [
-//            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-//            new PiPo({ x: x, y: finalSquares[castleSide][1], p: castlingPiece, c: c })
-//          ],
-//          vanish: [
-//            new PiPo({ x: x, y: y, p: V.KING, c: c }),
-//            new PiPo({ x: x, y: rookPos, p: castlingPiece, c: c })
-//          ],
-//          end:
-//            Math.abs(y - rookPos) <= 2
-//              ? { x: x, y: rookPos }
-//              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
-//        })
-//      );
-//    }
-//
-//    return moves;
+  getCastleMoves([x, y]) {
+    const c = this.getColor(x, y);
+    if (
+      x != (c == "w" ? V.size.x - 1 : 0) ||
+      !this.castleFlags[c].slice(1, 3).includes(y)
+    ) {
+      // x isn't first rank, or piece moved
+      return [];
+    }
+    const castlingPiece = this.getPiece(x, y);
+
+    // Relative position of the selected piece: left or right ?
+    // If left: small castle left, large castle right.
+    // If right: usual situation.
+    const relPos = (this.castleFlags[c][1] == y ? "left" : "right");
+
+    // Castling ?
+    const oppCol = V.GetOppCol(c);
+    let moves = [];
+    let i = 0;
+    // Castling piece, then rook:
+    const finalSquares = {
+      0: (relPos == "left" ? [1, 2] : [2, 3]),
+      3: (relPos == "right" ? [6, 5] : [5, 4])
+    };
+
+    // Left, then right castle:
+    castlingCheck: for (let castleSide of [0, 3]) {
+      if (this.castleFlags[c][castleSide] >= 8) continue;
+
+      // Rook and castling piece are on initial position
+      const rookPos = this.castleFlags[c][castleSide];
+
+      // Nothing on the path of the king ? (and no checks)
+      const finDist = finalSquares[castleSide][0] - y;
+      let step = finDist / Math.max(1, Math.abs(finDist));
+      i = y;
+      do {
+        if (
+          this.isAttacked([x, i], oppCol) ||
+          (this.board[x][i] != V.EMPTY &&
+            // NOTE: next check is enough, because of chessboard constraints
+            (this.getColor(x, i) != c ||
+              ![castlingPiece, V.ROOK].includes(this.getPiece(x, i))))
+        ) {
+          continue castlingCheck;
+        }
+        i += step;
+      } while (i != finalSquares[castleSide][0]);
+
+      // Nothing on the path to the rook?
+      step = castleSide == 0 ? -1 : 1;
+      for (i = y + step; i != rookPos; i += step) {
+        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
+      }
+
+      // Nothing on final squares, except maybe castling piece and rook?
+      for (i = 0; i < 2; i++) {
+        if (
+          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
+          ![y, rookPos].includes(finalSquares[castleSide][i])
+        ) {
+          continue castlingCheck;
+        }
+      }
+
+      // If this code is reached, castle is valid
+      moves.push(
+        new Move({
+          appear: [
+            new PiPo({ x: x, y: finalSquares[castleSide][0], p: castlingPiece, c: c }),
+            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
+          ],
+          vanish: [
+            new PiPo({ x: x, y: y, p: castlingPiece, c: c }),
+            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+          ],
+          // In this variant, always castle by playing onto the rook
+          end: { x: x, y: rookPos }
+        })
+      );
+    }
+
+    return moves;
   }
 
   underCheck(color) {
@@ -242,27 +269,55 @@ export class CoregalRules extends ChessRules {
   }
 
   updateCastleFlags(move, piece) {
-//    const c = V.GetOppCol(this.turn);
-//    const firstRank = (c == "w" ? V.size.x - 1 : 0);
-//    // Update castling flags if rooks are moved
-//    const oppCol = V.GetOppCol(c);
-//    const oppFirstRank = V.size.x - 1 - firstRank;
-//    if (piece == V.KING && move.appear.length > 0)
-//      this.castleFlags[c] = [V.size.y, V.size.y];
-//    else if (
-//      move.start.x == firstRank && //our rook moves?
-//      this.castleFlags[c].includes(move.start.y)
-//    ) {
-//      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-//      this.castleFlags[c][flagIdx] = V.size.y;
-//    } else if (
-//      move.end.x == oppFirstRank && //we took opponent rook?
-//      this.castleFlags[oppCol].includes(move.end.y)
-//    ) {
-//      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
-//      this.castleFlags[oppCol][flagIdx] = V.size.y;
-//    }
+    const c = V.GetOppCol(this.turn);
+    const firstRank = (c == "w" ? V.size.x - 1 : 0);
+    // Update castling flags if castling pieces moved or were captured
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    if (move.start.x == firstRank && [V.KING, V.QUEEN].includes(piece)) {
+      if (this.castleFlags[c][1] == move.start.y)
+        this.castleFlags[c][1] = 8;
+      else if (this.castleFlags[c][2] == move.start.y)
+        this.castleFlags[c][2] = 8;
+      // Else: the flag is already turned off
+    }
+    else if (
+      move.start.x == firstRank && //our rook moves?
+      [this.castleFlags[c][0], this.castleFlags[c][3]].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 3);
+      this.castleFlags[c][flagIdx] = 8;
+    } else if (
+      move.end.x == oppFirstRank && //we took opponent rook?
+      [this.castleFlags[oppCol][0], this.castleFlags[oppCol][3]].includes(move.end.y)
+    ) {
+      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 3);
+      this.castleFlags[oppCol][flagIdx] = 8;
+    }
   }
 
   // NOTE: do not set queen value to 1000 or so, because there may be several.
+
+  getNotation(move) {
+    if (move.appear.length == 2) {
+      // Castle: determine the right notation
+      const color = move.appear[0].c;
+      let symbol = (move.appear[0].p == V.QUEEN ? "Q" : "") + "0-0";
+      if (
+        (
+          this.castleFlags[color][1] == move.vanish[0].y &&
+          move.end.y > move.start.y
+        )
+        ||
+        (
+          this.castleFlags[color][2] == move.vanish[0].y &&
+          move.end.y < move.start.y
+        )
+      ) {
+        symbol += "-0";
+      }
+      return symbol;
+    }
+    return super.getNotation(move);
+  }
 };

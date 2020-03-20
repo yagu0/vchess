@@ -296,8 +296,8 @@ export default {
       encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onopen = connectAndPoll;
-    this.conn.onmessage = this.socketMessageListener;
-    this.conn.onclose = this.socketCloseListener;
+    this.conn.addEventListener("message", this.socketMessageListener);
+    this.conn.addEventListener("close", this.socketCloseListener);
   },
   mounted: function() {
     document.addEventListener('visibilitychange', this.visibilityChange);
@@ -653,6 +653,8 @@ export default {
           break;
         case "killed":
           // I logged in elsewhere:
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn.removeEventListener("close", this.socketCloseListener);
           this.conn = null;
           alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
@@ -1190,7 +1192,6 @@ export default {
           // Game state (including FEN): will be updated
           moves: [],
           clocks: [-1, -1], //-1 = unstarted
-          initime: [0, 0], //initialized later
           score: "*"
         }
       );

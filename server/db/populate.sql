@@ -17,6 +17,7 @@ insert or ignore into Variants (name,description) values
   ('Checkered', 'Shared pieces'),
   ('Chess960', 'Standard rules'),
   ('Circular', 'Run forward'),
+  ('Coregal', 'Two royal pieces'),
   ('Crazyhouse', 'Captures reborn'),
   ('Cylinder', 'Neverending rows'),
   ('Dark', 'In the shadow'),

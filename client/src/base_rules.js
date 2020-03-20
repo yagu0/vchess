@@ -829,7 +829,7 @@ export const ChessRules = class ChessRules {
       castleSide++ //large, then small
     ) {
       if (this.castleFlags[c][castleSide] >= V.size.y) continue;
-      // If this code is reached, rooks and king are on initial position
+      // If this code is reached, rook and king are on initial position
 
       // NOTE: in some variants this is not a rook, but let's keep variable name
       const rookPos = this.castleFlags[c][castleSide];

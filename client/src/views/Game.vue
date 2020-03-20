@@ -288,11 +288,11 @@ export default {
         // Discard potential "/?next=[...]" for page indication:
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
       this.conn = new WebSocket(this.connexionString);
-      this.conn.onmessage = this.socketMessageListener;
-      this.conn.onclose = this.socketCloseListener;
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.conn.addEventListener("close", this.socketCloseListener);
       // Socket init required before loading remote game:
       const socketInit = callback => {
-        if (!!this.conn && this.conn.readyState == 1)
+        if (this.conn.readyState == 1)
           // 1 == OPEN state
           callback();
         else
@@ -480,6 +480,8 @@ export default {
         }
         case "killed":
           // I logged in elsewhere:
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn.removeEventListener("close", this.socketCloseListener);
           this.conn = null;
           alert(this.st.tr["New connexion detected: tab now offline"]);
           break;
@@ -567,7 +569,7 @@ export default {
             .filter(k =>
               [
                 "id","fen","players","vid","cadence","fenStart","vname",
-                "moves","clocks","initime","score","drawOffer","rematchOffer"
+                "moves","clocks","score","drawOffer","rematchOffer"
               ].includes(k))
             .reduce(
               (obj, k) => {
@@ -591,13 +593,11 @@ export default {
         case "lastate": {
           // Got opponent infos about last move
           this.gotLastate = true;
-          if (!data.data.nothing) {
-            this.lastate = data.data;
-            if (this.game.rendered)
-              // Game is rendered (Board component)
-              this.processLastate();
-            // Else: will be processed when game is ready
-          }
+          this.lastate = data.data;
+          if (this.game.rendered)
+            // Game is rendered (Board component)
+            this.processLastate();
+          // Else: will be processed when game is ready
           break;
         }
         case "newmove": {
@@ -636,12 +636,11 @@ export default {
                 }
               }
               this.$refs["basegame"].play(movePlus.move, "received", null, true);
+              const moveColIdx = ["w", "b"].indexOf(movePlus.color);
+              this.game.clocks[moveColIdx] = movePlus.clock;
               this.processMove(
                 movePlus.move,
-                {
-                  clock: movePlus.clock,
-                  receiveMyMove: receiveMyMove
-                }
+                { receiveMyMove: receiveMyMove }
               );
             }
           }
@@ -649,9 +648,8 @@ export default {
         }
         case "gotmove": {
           this.opponentGotMove = true;
-          // Now his clock starts running:
+          // Now his clock starts running on my side:
           const oppIdx = ['w','b'].indexOf(this.vr.turn);
-          this.game.initime[oppIdx] = Date.now();
           this.re_setClocks();
           break;
         }
@@ -734,45 +732,43 @@ export default {
       );
     },
     sendLastate: function(target) {
-      if (
-        (this.game.moves.length > 0 && this.vr.turn != this.game.mycolor) ||
-        this.game.score != "*" ||
-        this.drawOffer == "sent" ||
-        this.rematchOffer == "sent"
-      ) {
-        // Send our "last state" informations to opponent
-        const L = this.game.moves.length;
-        const myIdx = ["w", "b"].indexOf(this.game.mycolor);
-        const myLastate = {
-          lastMove: L > 0 ? this.game.moves[L - 1] : undefined,
-          clock: this.game.clocks[myIdx],
-          // Since we played a move (or abort or resign),
-          // only drawOffer=="sent" is possible
-          drawSent: this.drawOffer == "sent",
-          rematchSent: this.rematchOffer == "sent",
-          score: this.game.score,
-          scoreMsg: this.game.scoreMsg,
-          movesCount: L,
-          initime: this.game.initime[1 - myIdx] //relevant only if I played
-        };
-        this.send("lastate", { data: myLastate, target: target });
-      } else {
-        this.send("lastate", { data: {nothing: true}, target: target });
-      }
+      // Send our "last state" informations to opponent
+      const L = this.game.moves.length;
+      const myIdx = ["w", "b"].indexOf(this.game.mycolor);
+      const myLastate = {
+        lastMove:
+          (L > 0 && this.vr.turn != this.game.mycolor)
+            ? this.game.moves[L - 1]
+            : undefined,
+        clock: this.game.clocks[myIdx],
+        // Since we played a move (or abort or resign),
+        // only drawOffer=="sent" is possible
+        drawSent: this.drawOffer == "sent",
+        rematchSent: this.rematchOffer == "sent",
+        score: this.game.score != "*" ? this.game.score : undefined,
+        scoreMsg: this.game.score != "*" ? this.game.scoreMsg : undefined,
+        movesCount: L
+      };
+      this.send("lastate", { data: myLastate, target: target });
     },
     // lastate was received, but maybe game wasn't ready yet:
     processLastate: function() {
       const data = this.lastate;
       this.lastate = undefined; //security...
       const L = this.game.moves.length;
+      const oppIdx = 1 - ["w", "b"].indexOf(this.game.mycolor);
+      this.game.clocks[oppIdx] = data.clock;
       if (data.movesCount > L) {
         // Just got last move from him
         this.$refs["basegame"].play(data.lastMove, "received", null, true);
-        this.processMove(data.lastMove, { clock: data.clock });
+        this.processMove(data.lastMove);
+      } else {
+        clearInterval(this.clockUpdate);
+        this.re_setClocks();
       }
       if (data.drawSent) this.drawOffer = "received";
       if (data.rematchSent) this.rematchOffer = "received";
-      if (data.score != "*") {
+      if (!!data.score) {
         this.drawOffer = "";
         if (this.game.score == "*")
           this.gameOver(data.score, data.scoreMsg);
@@ -817,7 +813,6 @@ export default {
           // Game state (including FEN): will be updated
           moves: [],
           clocks: [-1, -1], //-1 = unstarted
-          initime: [0, 0], //initialized later
           score: "*"
         }
       );
@@ -913,16 +908,16 @@ export default {
       const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
       if (!game.chats) game.chats = []; //live games don't have chat history
       if (gtype == "corr") {
-        // NOTE: clocks in seconds, initime in milliseconds
+        // NOTE: clocks in seconds
         game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
         game.clocks = [tc.mainTime, tc.mainTime];
         const L = game.moves.length;
         if (game.score == "*") {
-          // Set clocks + initime
-          game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
-          if (L >= 1) game.initime[L % 2] = game.moves[L-1].played;
-          // NOTE: game.clocks shouldn't be computed right now:
-          // job will be done in re_setClocks() called soon below.
+          // Adjust clocks
+          if (L >= 2) {
+            game.clocks[L % 2] -=
+              (Date.now() - game.moves[L-1].played) / 1000;
+          }
         }
         // Sort chat messages from newest to oldest
         game.chats.sort((c1, c2) => {
@@ -948,16 +943,20 @@ export default {
         // Now that we used idx and played, re-format moves as for live games
         game.moves = game.moves.map(m => m.squares);
       }
-      if (gtype == "live" && game.clocks[0] < 0) {
-        // Game is unstarted. clocks and initime are ignored until move 2
-        game.clocks = [tc.mainTime, tc.mainTime];
-        game.initime = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
-        if (myIdx >= 0) {
-          // I play in this live game
-          GameStorage.update(game.id, {
-            clocks: game.clocks,
-            initime: game.initime
-          });
+      if (gtype == "live") {
+        if (game.clocks[0] < 0) {
+          // Game is unstarted. clock is ignored until move 2
+          game.clocks = [tc.mainTime, tc.mainTime];
+          if (myIdx >= 0) {
+            // I play in this live game
+            GameStorage.update(game.id, {
+              clocks: game.clocks
+            });
+          }
+        } else {
+          if (!!game.initime)
+            // It's my turn: clocks not updated yet
+            game.clocks[myIdx] -= (Date.now() - game.initime) / 1000;
         }
       }
       // TODO: merge next 2 "if" conditions
@@ -1075,41 +1074,34 @@ export default {
         GameStorage.get(this.gameRef, callback);
     },
     re_setClocks: function() {
+      this.virtualClocks = this.game.clocks.map(s => ppt(s).split(':'));
       if (this.game.moves.length < 2 || this.game.score != "*") {
         // 1st move not completed yet, or game over: freeze time
-        this.virtualClocks = this.game.clocks.map(s => ppt(s).split(':'));
         return;
       }
       const currentTurn = this.vr.turn;
       const currentMovesCount = this.game.moves.length;
       const colorIdx = ["w", "b"].indexOf(currentTurn);
-      let countdown =
-        this.game.clocks[colorIdx] -
-        (Date.now() - this.game.initime[colorIdx]) / 1000;
-      this.virtualClocks = [0, 1].map(i => {
-        const removeTime =
-          i == colorIdx ? (Date.now() - this.game.initime[colorIdx]) / 1000 : 0;
-        return ppt(this.game.clocks[i] - removeTime).split(':');
-      });
       this.clockUpdate = setInterval(
         () => {
           if (
-            countdown < 0 ||
+            this.game.clocks[colorIdx] < 0 ||
             this.game.moves.length > currentMovesCount ||
             this.game.score != "*"
           ) {
             clearInterval(this.clockUpdate);
-            if (countdown < 0)
+            if (this.game.clocks[colorIdx] < 0)
               this.gameOver(
                 currentTurn == "w" ? "0-1" : "1-0",
                 "Time"
               );
-          } else
+          } else {
             this.$set(
               this.virtualClocks,
               colorIdx,
-              ppt(Math.max(0, --countdown)).split(':')
+              ppt(Math.max(0, --this.game.clocks[colorIdx])).split(':')
             );
+          }
         },
         1000
       );
@@ -1122,21 +1114,28 @@ export default {
       const nextIdx = 1 - colorIdx;
       const doProcessMove = () => {
         const origMovescount = this.game.moves.length;
-        let addTime = 0; //for live games
+        // The move is (about to be) played: stop clock
+        clearInterval(this.clockUpdate);
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw
             this.drawOffer = "";
           if (this.game.type == "live" && origMovescount >= 2) {
-            const elapsed = Date.now() - this.game.initime[colorIdx];
-            // elapsed time is measured in milliseconds
-            addTime = this.game.increment - elapsed / 1000;
+            this.game.clocks[colorIdx] += this.game.increment;
+            // For a correct display in casqe of disconnected opponent:
+            this.$set(
+              this.virtualClocks,
+              colorIdx,
+              ppt(this.game.clocks[colorIdx]).split(':')
+            );
+            GameStorage.update(this.gameRef, {
+              // It's not my turn anymore:
+              initime: null
+            });
           }
         }
         // Update current game object:
         playMove(move, this.vr);
-        // The move is played: stop clock
-        clearInterval(this.clockUpdate);
         if (!data.score)
           // Received move, score is computed in BaseGame, but maybe not yet.
           // ==> Compute it here, although this is redundant (TODO)
@@ -1144,20 +1143,9 @@ export default {
         if (data.score != "*") this.gameOver(data.score);
         this.game.moves.push(move);
         this.game.fen = this.vr.getFen();
-        if (this.game.type == "live") {
-          if (!!data.clock) this.game.clocks[colorIdx] = data.clock;
-          else this.game.clocks[colorIdx] += addTime;
-        } else {
+        if (this.game.type == "corr") {
           // In corr games, just reset clock to mainTime:
           this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
-        }
-        // NOTE: opponent's initime is reset after "gotmove" is received
-        if (
-          !this.game.mycolor ||
-          moveCol != this.game.mycolor ||
-          !!data.receiveMyMove
-        ) {
-          this.game.initime[nextIdx] = Date.now();
         }
         // If repetition detected, consider that a draw offer was received:
         const fenObj = this.vr.getFenForRepeat();
@@ -1183,6 +1171,19 @@ export default {
         }
         // Since corr games are stored at only one location, update should be
         // done only by one player for each move:
+        if (
+          this.game.type == "live" &&
+          !!this.game.mycolor &&
+          moveCol != this.game.mycolor &&
+          this.game.moves.length >= 2
+        ) {
+          // Receive a move: update initime
+          this.game.initime = Date.now();
+          GameStorage.update(this.gameRef, {
+            // It's my turn now!
+            initime: this.game.initime
+          });
+        }
         if (
           !!this.game.mycolor &&
           !data.receiveMyMove &&
@@ -1219,7 +1220,6 @@ export default {
                 move: filtered_move,
                 moveIdx: origMovescount,
                 clocks: this.game.clocks,
-                initime: this.game.initime,
                 drawOffer: drawCode
               });
             };
@@ -1288,10 +1288,7 @@ export default {
             // The board might have been hidden:
             if (boardDiv.style.visibility == "hidden")
               boardDiv.style.visibility = "visible";
-            if (data.score == "*") {
-              this.game.initime[nextIdx] = Date.now();
-              this.re_setClocks();
-            }
+            if (data.score == "*") this.re_setClocks();
           }
         };
         let el = document.querySelector("#buttonsConfirm > .acceptBtn");
