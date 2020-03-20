@@ -24,8 +24,8 @@ router.get("/news", access.ajax, (req,res) => {
 
 router.get("/newsts", access.ajax, (req,res) => {
   // Special query for footer: just return timestamp of last news
-  NewsModel.getTimestamp((err,ts) => {
-    res.json(err || { timestamp: ts.added });
+  NewsModel.getTimestamp((err, ts) => {
+    res.json(err || { timestamp: !!ts ? ts.added : 0 });
   });
 });
 
