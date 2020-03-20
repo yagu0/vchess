@@ -80,11 +80,11 @@ export class CoregalRules extends ChessRules {
       }
 
       // Get random squares for king and queen between b and g files
-      let randIndex = randInt(6);
-      let kingPos = randIndex + 1;
-      randIndex = randInt(5);
+      let randIndex = randInt(6) + 1;
+      let kingPos = randIndex;
+      randIndex = randInt(5) + 1;
       if (randIndex >= kingPos) randIndex++;
-      let queenPos = randIndex + 1;
+      let queenPos = randIndex;
 
       // Get random squares for rooks to the left and right of the queen
       // and king: not all squares of the same colors (for bishops).
