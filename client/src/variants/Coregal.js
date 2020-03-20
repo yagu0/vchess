@@ -268,18 +268,21 @@ export class CoregalRules extends ChessRules {
     return false;
   }
 
-  updateCastleFlags(move, piece) {
+  // "twoKings" arg for the similar Twokings variant.
+  updateCastleFlags(move, piece, twoKings) {
     const c = V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     // Update castling flags if castling pieces moved or were captured
     const oppCol = V.GetOppCol(c);
     const oppFirstRank = V.size.x - 1 - firstRank;
-    if (move.start.x == firstRank && [V.KING, V.QUEEN].includes(piece)) {
-      if (this.castleFlags[c][1] == move.start.y)
-        this.castleFlags[c][1] = 8;
-      else if (this.castleFlags[c][2] == move.start.y)
-        this.castleFlags[c][2] = 8;
-      // Else: the flag is already turned off
+    if (move.start.x == firstRank) {
+      if (piece == V.KING || (!twoKings && piece == V.QUEEN)) {
+        if (this.castleFlags[c][1] == move.start.y)
+          this.castleFlags[c][1] = 8;
+        else if (this.castleFlags[c][2] == move.start.y)
+          this.castleFlags[c][2] = 8;
+        // Else: the flag is already turned off
+      }
     }
     else if (
       move.start.x == firstRank && //our rook moves?

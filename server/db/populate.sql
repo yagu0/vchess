@@ -44,6 +44,7 @@ insert or ignore into Variants (name,description) values
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
   ('Threechecks', 'Give three checks'),
+  ('Twokings', 'Two kings'),
   ('Upsidedown', 'Board upside down'),
   ('Wildebeest', 'Balanced sliders & leapers'),
   ('Wormhole', 'Squares disappear'),
