@@ -298,6 +298,10 @@ export class CoregalRules extends ChessRules {
 
   // NOTE: do not set queen value to 1000 or so, because there may be several.
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   getNotation(move) {
     if (move.appear.length == 2) {
       // Castle: determine the right notation
