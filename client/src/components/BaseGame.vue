@@ -465,6 +465,7 @@ export default {
       // Sufficient condition because Board already knows which turn it is.
       if (
         this.game.mode != "analyze" &&
+        !navigate &&
         !received &&
         (this.game.score != "*" || this.cursor < this.moves.length - 1)
       ) {
