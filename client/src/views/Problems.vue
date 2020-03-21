@@ -273,6 +273,7 @@ export default {
       this.loadVariant(prob.vid, () => {
         // Set FEN if possible (might not be correct yet)
         if (V.IsGoodFen(prob.fen)) this.setDiagram(prob);
+        else prob.diag = "";
       });
     },
     loadVariant: async function(vid, cb) {
@@ -291,6 +292,7 @@ export default {
       // variant could not be ready, or not defined
       if (prob.vid > 0 && this.loadedVar == prob.vid && V.IsGoodFen(prob.fen))
         this.setDiagram(prob);
+      else prob.diag = "";
     },
     setDiagram: function(prob) {
       // Condition: prob.fen is correct and global V is ready

@@ -454,7 +454,7 @@ const GameModel =
           "SELECT gid, count(*) AS nbMoves, MAX(played) AS lastMaj " +
           "FROM Moves " +
           "GROUP BY gid";
-        db.get(query, (err2, mstats) => {
+        db.all(query, (err2, mstats) => {
           // Reorganize moves data to avoid too many array lookups:
           let movesGroups = {};
           mstats.forEach(ms => {
@@ -464,18 +464,18 @@ const GameModel =
             };
           });
           // Remove games still not really started,
-          // with no action in the last 3 months:
+          // with no action in the last 2 weeks:
           let toRemove = [];
           games.forEach(g => {
             if (
               (
                 !movesGroups[g.id] &&
-                tsNow - g.created > 91*day
+                tsNow - g.created > 14*day
               )
               ||
               (
                 movesGroups[g.id].nbMoves == 1 &&
-                tsNow - movesGroups[g.id].lastMaj > 91*day
+                tsNow - movesGroups[g.id].lastMaj > 14*day
               )
             ) {
               toRemove.push(g.id);

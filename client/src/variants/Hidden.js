@@ -54,7 +54,7 @@ export class HiddenRules extends ChessRules {
   }
 
   static get PIECES() {
-    return ChessRules.PIECES.concat(Object.values(V.HIDDEN_CODE));
+    return ChessRules.PIECES.concat(Object.keys(V.HIDDEN_DECODE));
   }
 
   // Pieces can be hidden :)

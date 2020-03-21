@@ -25,7 +25,7 @@ export class RoyalraceRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "11/11/11/11/11/11/11/11/11/qrbnp1PNBRQ/krbnp1PNBRK w 0";
+      return "92/92/92/92/92/92/92/92/92/qrbnp1PNBRQ/krbnp1PNBRK w 0";
 
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and second rank
@@ -96,7 +96,7 @@ export class RoyalraceRules extends ChessRules {
     const whiteFen = pieces["w"].join("").toUpperCase();
     const blackFen = pieces["b"].join("");
     return (
-      "11/11/11/11/11/11/11/11/11/" +
+      "92/92/92/92/92/92/92/92/92/" +
       blackFen.substr(5).split("").reverse().join("") +
       "1" +
       whiteFen.substr(5).split("").join("") +

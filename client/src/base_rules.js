@@ -128,11 +128,11 @@ export const ChessRules = class ChessRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kings = {};
+    let kings = { "k": 0, "K": 0 };
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        if (['K','k'].includes(row[i])) kings[row[i]] = true;
+        if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
           const num = parseInt(row[i]);
@@ -142,8 +142,8 @@ export const ChessRules = class ChessRules {
       }
       if (sumElts != V.size.y) return false;
     }
-    // Both kings should be on board:
-    if (Object.keys(kings).length != 2) return false;
+    // Both kings should be on board. Exactly one per color.
+    if (Object.values(kings).some(v => v != 1)) return false;
     return true;
   }
 
@@ -367,6 +367,13 @@ export const ChessRules = class ChessRules {
 
   // Position part of the FEN string
   getBaseFen() {
+    const format = (count) => {
+      // if more than 9 consecutive free spaces, break the integer,
+      // otherwise FEN parsing will fail.
+      if (count <= 9) return count;
+      // Currently only boards of size up to 11 or 12:
+      return "9" + (count - 9);
+    };
     let position = "";
     for (let i = 0; i < V.size.x; i++) {
       let emptyCount = 0;
@@ -375,7 +382,7 @@ export const ChessRules = class ChessRules {
         else {
           if (emptyCount > 0) {
             // Add empty squares in-between
-            position += emptyCount;
+            position += format(emptyCount);
             emptyCount = 0;
           }
           position += V.board2fen(this.board[i][j]);
@@ -383,7 +390,7 @@ export const ChessRules = class ChessRules {
       }
       if (emptyCount > 0) {
         // "Flush remainder"
-        position += emptyCount;
+        position += format(emptyCount);
       }
       if (i < V.size.x - 1) position += "/"; //separate rows
     }
@@ -672,7 +679,7 @@ export const ChessRules = class ChessRules {
       enpassantMove.vanish.push({
         x: x,
         y: epSquare.y,
-        p: "p",
+        p: this.getPiece(x, epSquare.y),
         c: this.getColor(x, epSquare.y)
       });
     }
@@ -1187,7 +1194,7 @@ export const ChessRules = class ChessRules {
     return V.INFINITY;
   }
 
-  // Search depth: 2 for high branching factor, 4 for small (Loser chess, eg.)
+  // Search depth: 1,2 for high branching factor, 4 for small (Loser chess, eg.)
   static get SEARCH_DEPTH() {
     return 3;
   }

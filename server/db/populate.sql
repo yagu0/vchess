@@ -9,6 +9,7 @@ insert or ignore into Variants (name,description) values
   ('Antimatter', 'Dangerous collisions'),
   ('Arena', 'Middle battle'),
   ('Atomic', 'Explosive captures'),
+  ('Ball', 'Score a goal'),
   ('Baroque', 'Exotic captures'),
   ('Benedict', 'Change colors'),
   ('Berolina', 'Pawns move diagonally'),

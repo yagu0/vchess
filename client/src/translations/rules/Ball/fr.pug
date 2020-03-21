@@ -1,0 +1,52 @@
+p.boxed
+  | Capturez la balle, faites la passer entre vos pièces et amenez la
+  | au centre de la dernière rangée.
+
+p.
+  Au début, il y a un ballon au milieu de l'échiquier 9x9.
+  Il ne bouge pas. La première pièce à le capturer détiendra alors le ballon.
+
+ul
+  li.
+    Capturer une pièce ennemie possédant le ballon lui vole
+    tout en la faisant disparaître.
+  li "Capturer" une pièce amie lui passe le ballon.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkwbnr/ppppp1ppp/9/5p3/4a4/9/2N3N2/PPPPPPPPP/R1BQKWB1R:
+  .diagram.diag22
+    | fen:rnbqkwbnr/ppppp1ppp/9/9/4s4/9/2N3N2/PPPPPPPPP/R1BQKWB1R:
+  figcaption Gauche : avant ...fxe5 (prenant le ballon). Droite : après ...fxe5.
+
+p.
+  La pièce située à droite du roi est un gnou (W).
+  Il se déplace en effectuant des sauts en L comme le cavalier,
+  ou bien un peu plus allongés : trois cases puis une sur le côté.
+
+h3 Fin de la partie
+
+p.
+  L'objectif est d'amener une pièce en possession du ballon sur une des
+  trois cases centrales de la dernière rangée (colonnes d, e ou f).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wW1p1/4S4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  .diagram.diag22
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wY1p1/4P4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  figcaption.
+    Gauche : avant e5Pf6 (passant le ballon).
+    Droite : après le coup. Ensuite Wxe9# ne peut être empêché.
+
+p.
+  Les blancs passent la balle du pion e5 vers le gnou en f6.
+  Ensuite, puisque le fou noir ne peut pas bouger la victoire est assurée
+  en le capturant par Wxe9€.
+
+h3 Source
+
+p.
+  Cette variante s'inspire d'une idée qu'on a eue avec une amie en 2019, qui
+  consistait à frapper la balle pour l'envoyer de l'autre côté de l'échiquier.
+  La version actuelle évite certains bloquages observés alors.

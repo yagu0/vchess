@@ -192,6 +192,7 @@ export const translations = {
   "Reuse pieces": "Réutiliser les pièces",
   "Reverse captures": "Captures inversées",
   "Run forward": "Courir vers l'avant",
+  "Score a goal": "Marquer un but",
   "Shared pieces": "Pièces partagées",
   "Shoot pieces": "Tirez sur les pièces",
   "Squares disappear": "Les cases disparaissent",

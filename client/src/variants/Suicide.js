@@ -19,6 +19,33 @@ export class SuicideRules extends ChessRules {
     );
   }
 
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    // Just check that at least one piece of each color is there:
+    let pieces = { "w": 0, "b": 0 };
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        const lowerRi = row[i].toLowerCase();
+        if (V.PIECES.includes(lowerRi)) {
+          pieces[row[i] == lowerRi ? "b" : "w"]++;
+          sumElts++;
+        } else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    if (Object.values(pieces).some(v => v == 0)) return false;
+    return true;
+  }
+
+  scanKings() {}
+
   // Trim all non-capturing moves (not the most efficient, but easy)
   static KeepCaptures(moves) {
     return moves.filter(m => m.vanish.length == 2);
@@ -116,7 +143,6 @@ export class SuicideRules extends ChessRules {
       return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
-    // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];

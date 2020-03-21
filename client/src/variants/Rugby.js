@@ -14,6 +14,8 @@ export class RugbyRules extends ChessRules {
     );
   }
 
+  scanKings() {}
+
   getPotentialMovesFrom(sq) {
     // There are only pawns:
     return this.getPotentialPawnMoves(sq);
@@ -43,6 +45,10 @@ export class RugbyRules extends ChessRules {
   postPlay() {}
   preUndo() {}
   postUndo() {}
+
+  getCheckSquares() {
+    return [];
+  }
 
   getCurrentScore() {
     // Turn has changed:

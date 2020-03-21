@@ -13,6 +13,37 @@ export class ArenaRules extends ChessRules {
     );
   }
 
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    // At most and at least one king or queen per color
+    let royals = { "k": 0, "K": 0, "q": 0, "Q": 0 };
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (['K','k','Q','q'].includes(row[i])) royals[row[i]]++;
+        if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    if (
+      Object.values(royals).some(v => v >= 2) ||
+      royals['K'] + royals['Q'] == 0 ||
+      royals['k'] + royals['q'] == 0
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  scanKings() {}
+
   static GenRandInitFen(randomness) {
     return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "-";
   }

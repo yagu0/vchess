@@ -13,7 +13,7 @@ export class HiddenqueenRules extends ChessRules {
   }
 
   static get PIECES() {
-    return ChessRules.PIECES.concat(Object.values(V.HIDDEN_CODE));
+    return ChessRules.PIECES.concat([V.HIDDEN_QUEEN]);
   }
 
   getPiece(i, j) {

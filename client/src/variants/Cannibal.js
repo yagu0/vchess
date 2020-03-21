@@ -33,6 +33,34 @@ export class CannibalRules extends ChessRules {
     return (Object.keys(V.KING_DECODE).includes(b[1]) ? "Cannibal/" : "") + b;
   }
 
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    let kings = { "w": 0, "b": 0 };
+    const allPiecesCodes = V.PIECES.concat(Object.keys(V.KING_DECODE));
+    const kingBlackCodes = Object.keys(V.KING_DECODE).concat(['k']);
+    const kingWhiteCodes =
+      Object.keys(V.KING_DECODE).map(k => k.toUpperCase()).concat(['K']);
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (kingBlackCodes.includes(row[i])) kings['b']++;
+        else if (kingWhiteCodes.includes(row[i])) kings['w']++;
+        if (allPiecesCodes.includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    // Both kings should be on board, only one of each color:
+    if (Object.values(kings).some(v => v != 1)) return false;
+    return true;
+  }
+
   // Kings may be disguised:
   setOtherVariables(fen) {
     super.setOtherVariables(fen);

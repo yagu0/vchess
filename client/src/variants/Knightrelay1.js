@@ -5,6 +5,8 @@ export class Knightrelay1Rules extends ChessRules {
     return false;
   }
 
+  // TODO: IsGoodPosition to check that 2 knights are on the board...
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 

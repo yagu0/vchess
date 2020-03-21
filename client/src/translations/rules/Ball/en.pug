@@ -1,0 +1,52 @@
+p.boxed
+  | Capture the ball, pass it among your pieces and bring it to the
+  | center of the last rank.
+
+p.
+  At the beginning, there is a ball in the center of the 9x9 board.
+  It doesn't move. The first piece to capture it will then hold the ball.
+
+ul
+  li.
+    Capturing an enemy unit holding the ball both make the piece
+    disappear and grab the ball.
+  li "Capturing" a friendly unit pass the ball to it.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkwbnr/ppppp1ppp/9/5p3/4a4/9/2N3N2/PPPPPPPPP/R1BQKWB1R:
+  .diagram.diag22
+    | fen:rnbqkwbnr/ppppp1ppp/9/9/4s4/9/2N3N2/PPPPPPPPP/R1BQKWB1R:
+  figcaption Left: before ...fxe5 (taking ball). Right: after ...fxe5.
+
+p.
+  The piece sitting to the right of the king is a wildebeest (W).
+  It moves by jumping in L like a knight, or a little bit further:
+  three squares in one direction then one aside.
+
+h3 End of the game
+
+p.
+  The goal is to bring a piece holding the ball in one of the three
+  central squares of the opposite side (files d, e or f).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wW1p1/4S4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  .diagram.diag22
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wY1p1/4P4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  figcaption.
+    Left: before e5Pf6 (passing the ball).
+    Right: after the move. Then Wxe9# cannot be prevented.
+
+p.
+  White pass the ball from the pawn at e5 to the wildebeest at f6.
+  Then, since the black bishop on e8 cannot move white will win by taking it: Wxe9#.
+
+h3 Source
+
+p.
+  A friend and I talked some day (in 2019) about a variant where pieces
+  would hit a ball to bring it to the opposite side.
+  This version is inspired by these preliminary trials,
+  because hitting the ball led to somewhat blocked situations.

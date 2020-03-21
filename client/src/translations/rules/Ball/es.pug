@@ -1,0 +1,54 @@
+p.boxed
+  | Captura la pelota, pásala entre tus piezas y tráela
+  | en el centro de la última fila.
+
+p.
+  Al principio, hay una pelota en el medio del tablero 9x9.
+  No se mueve. La primera pieza que capturarla sostendrá la pelota.
+
+ul
+  li.
+    Capturar una pieza enemiga con el globo lo roba
+    mientras lo hace desaparecer.
+  li "Capturar" una pieza amiga le pasa la pelota.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkwbnr/ppppp1ppp/9/5p3/4a4/9/2N3N2/PPPPPPPPPP/R1BQKWB1R:
+  .diagram.diag22
+    | fen:rnbqkwbnr/ppppp1ppp/9/9/4s4/9/2N3N2/PPPPPPPPPP/R1BQKWB1R:
+  figcaption.
+    Izquierda: antes de ...fxe5 (tomando la pelota).
+    Derecha: después de ...fxe5.
+
+p.
+  La pieza a la derecha del rey es un ñu (W).
+  Se mueve realizando saltos en forma de L como el caballo,
+  o un poco más alargado: tres casillas y luego una en el lateral.
+
+h3 Fin de la partida
+
+p.
+  El objetivo es traer una pieza en posesión de la pelota en uno de los
+  tres casillas centrales en la última fila (columnas d, e o f).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wW1p1/4S4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  .diagram.diag22
+    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wY1p1/4P4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+  figcaption.
+    Izquierda: antes de e5Pf6 (pasando el globo).
+    Derecha: después del movimiento. Entonces Wxe9# no se puede prevenir.
+
+p.
+  Las blancas pasan la pelota del peón e5 al ñu en f6.
+  Entonces, como el alfil negro no puede moverse,
+  la victoria está asegurada capturándolo con Wxe9#.
+
+h3 Fuente
+
+p.
+  Esta variante está inspirada por una idea que tuvimos con una amiga en 2019,
+  lo que implicaba golpear la pelota para enviarla desde el otro lado del tablero.
+  La versión actual evita ciertos bloqueos observados entonces.

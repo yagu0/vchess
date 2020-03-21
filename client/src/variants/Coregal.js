@@ -4,7 +4,7 @@ import { randInt, sample } from "@/utils/alea";
 
 export class CoregalRules extends ChessRules {
   static IsGoodPosition(position) {
-    if (!super.IsGoodPosition(position)) return false;
+    if (!ChessRules.IsGoodPosition(position)) return false;
     const rows = position.split("/");
     // Check that at least one queen of each color is there:
     let queens = {};

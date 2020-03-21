@@ -15,6 +15,19 @@ export class Antiking2Rules extends ChessRules {
     return b[1] == "a" ? "Antiking/" + b : b;
   }
 
+  static IsGoodPosition(position) {
+    if (!ChessRules.IsGoodPosition(position)) return false;
+    const rows = position.split("/");
+    // Check that exactly one antiking of each color is there:
+    let antikings = { 'a': 0, 'A': 0 };
+    for (let row of rows) {
+      for (let i = 0; i < row.length; i++)
+        if (['A','a'].includes(row[i])) antikings[row[i]]++;
+    }
+    if (Object.values(antikings).some(v => v != 1)) return false;
+    return true;
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     this.antikingPos = { w: [-1, -1], b: [-1, -1] };

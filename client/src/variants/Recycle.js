@@ -21,9 +21,10 @@ export class RecycleRules extends ChessRules {
 
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
-    return Object.assign(ChessRules.ParseFen(fen), {
-      reserve: fenParts[5]
-    });
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { reserve: fenParts[5] }
+    );
   }
 
   getEpSquare(moveOrSquare) {

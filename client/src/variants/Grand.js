@@ -28,7 +28,10 @@ export class GrandRules extends ChessRules {
 
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
-    return Object.assign(ChessRules.ParseFen(fen), { captured: fenParts[5] });
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { captured: fenParts[5] }
+    );
   }
 
   getPpath(b) {
@@ -326,15 +329,17 @@ export class GrandRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0) {
       // No castling in the official initial setup
-      return "r8r/1nbqkmcbn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKMCBN1/R8R " +
+      return "r8r/1nbqkmcbn1/pppppppppp/91/91/91/91/PPPPPPPPPP/1NBQKMCBN1/R8R " +
         "w 0 zzzz - 00000000000000";
     }
 
     let pieces = { w: new Array(10), b: new Array(10) };
+    let flags = "";
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
         pieces['b'] = pieces['w'];
+        flags += flags;
         break;
       }
 
@@ -389,12 +394,13 @@ export class GrandRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
+      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
     }
     return (
       pieces["b"].join("") +
-      "/pppppppppp/10/10/10/10/10/10/PPPPPPPPPP/" +
+      "/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
-      " w 0 1111 - 00000000000000"
+      " w 0 " + flags + " - 00000000000000"
     );
   }
 };

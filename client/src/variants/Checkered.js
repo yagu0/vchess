@@ -394,9 +394,10 @@ export class CheckeredRules extends ChessRules {
   }
 
   static ParseFen(fen) {
-    return Object.assign({}, ChessRules.ParseFen(fen), {
-      cmove: fen.split(" ")[5]
-    });
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { cmove: fen.split(" ")[5] }
+    );
   }
 
   getFen() {

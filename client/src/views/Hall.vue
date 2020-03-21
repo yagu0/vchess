@@ -73,7 +73,10 @@ main
           )
         fieldset(v-if="st.user.id > 0")
           label(for="selectPlayers") {{ st.tr["Play with"] }}
-          select#selectPlayersInList(v-model="newchallenge.to")
+          select#selectPlayersInList(
+            v-model="newchallenge.to"
+            @change="changeChallTarget()"
+          )
             option(value="")
             option(
               v-for="p in Object.values(people)"
@@ -452,6 +455,13 @@ export default {
     tchallButtonsMargin: function() {
       if (!!this.curChallToAccept.fen) return { "margin-top": "10px" };
       return {};
+    },
+    changeChallTarget: function() {
+      if (!this.newchallenge.to) {
+        // Reset potential FEN + diagram
+        this.newchallenge.fen = "";
+        this.newchallenge.diag = "";
+      }
     },
     cadenceFocusIfOpened: function() {
       if (event.target.checked)
@@ -903,7 +913,7 @@ export default {
           position: parsedFen.position,
           orientation: parsedFen.turn
         });
-      }
+      } else this.newchallenge.diag = "";
     },
     newChallFromPreset(pchall) {
       this.partialResetNewchallenge();

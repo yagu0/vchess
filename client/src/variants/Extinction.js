@@ -10,8 +10,7 @@ export class ExtinctionRules extends ChessRules {
   }
 
   static IsGoodPosition(position) {
-    if (!ChessRules.IsGoodPosition(position))
-      return false;
+    if (!ChessRules.IsGoodPosition(position)) return false;
     // Also check that each piece type is present
     const rows = position.split("/");
     let pieces = {};
@@ -21,10 +20,11 @@ export class ExtinctionRules extends ChessRules {
           pieces[row[i]] = true;
       }
     }
-    if (Object.keys(pieces).length != 12)
-      return false;
+    if (Object.keys(pieces).length != 12) return false;
     return true;
   }
+
+  scanKings() {}
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);

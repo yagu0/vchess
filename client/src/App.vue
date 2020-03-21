@@ -312,6 +312,10 @@ div.board8
   width: 12.5%
   padding-bottom: 12.5%
 
+div.board9
+  width: 11.1%
+  padding-bottom: 11.1%
+
 div.board10
   width: 10%
   padding-bottom: 10%

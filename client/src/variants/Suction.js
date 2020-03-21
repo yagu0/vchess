@@ -20,9 +20,10 @@ export class SuctionRules extends ChessRules {
   }
 
   static ParseFen(fen) {
-    return Object.assign({}, ChessRules.ParseFen(fen), {
-      cmove: fen.split(" ")[4]
-    });
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { cmove: fen.split(" ")[4] }
+    );
   }
 
   static IsGoodFen(fen) {

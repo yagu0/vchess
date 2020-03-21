@@ -20,7 +20,9 @@ export class WildebeestRules extends ChessRules {
 
   static get steps() {
     return Object.assign(
-      ChessRules.steps, //add camel moves:
+      {},
+      ChessRules.steps,
+      // Add camel moves:
       {
         c: [
           [-3, -1],
@@ -244,9 +246,9 @@ export class WildebeestRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (!randomness) randomness = 2;
     if (randomness == 0)
-      return "rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w 0 akak -";
+      return "rnccwkqbbnr/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/RNBBQKWCCNR w 0 akak -";
 
-    let pieces = { w: new Array(10), b: new Array(10) };
+    let pieces = { w: new Array(11), b: new Array(11) };
     let flags = "";
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
@@ -311,7 +313,7 @@ export class WildebeestRules extends ChessRules {
     }
     return (
       pieces["b"].join("") +
-      "/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/" +
+      "/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
       " w 0 " + flags + " -"
     );
