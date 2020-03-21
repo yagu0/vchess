@@ -679,6 +679,7 @@ export const ChessRules = class ChessRules {
       enpassantMove.vanish.push({
         x: x,
         y: epSquare.y,
+        // Captured piece is usually a pawn, but next line seems harmless
         p: this.getPiece(x, epSquare.y),
         c: this.getColor(x, epSquare.y)
       });
