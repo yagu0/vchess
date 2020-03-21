@@ -1409,7 +1409,7 @@ button
   margin: 0
   display: inline-flex
   img
-    height: 24px
+    height: 22px
     display: flex
     @media screen and (max-width: 767px)
       height: 18px

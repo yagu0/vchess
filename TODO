@@ -13,16 +13,6 @@ Goal is still checkmate.
 Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
 If a pawn taken: direction of the capturer.
 
-"Ball" Chess: 9x9 board, ball on center square. 2 queens ?
-To take the ball when it's free you need to capture it.
-To take the ball when it's used, u need to take the piece.
-Goal: bring ball to final rank.
-Possibles passes : soit à une pièce, soit sur une case.
-  --> remplace un déplacement de pièce. Par exemple pion a2 passe à cavalier a4 = 1 coup.
-  --> selon le mode de déplacement standard (donc tout droit pour les pions)
-Pas de notion d'échec ou de mat (?)
-Si une pièce est mat elle donne le ballon (?)
-
 Maxima, Interweave, Roccoco
 
 Synchrone Chess: allow to anticipate en-passant capture as well :)

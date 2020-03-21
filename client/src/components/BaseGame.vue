@@ -30,6 +30,11 @@ div#baseGame
           img.inline(src="/images/icons/play_rev.svg")
         button(v-if="canFlip" @click="flip()")
           img.inline(src="/images/icons/flip.svg")
+        button(
+          @click="runAutoplay()"
+          :class="{'in-autoplay': autoplay}"
+        )
+          img.inline(src="/images/icons/autoplay.svg")
         button(@click="play()")
           img.inline(src="/images/icons/play.svg")
         button(@click="gotoEnd()")
@@ -83,6 +88,8 @@ export default {
       firstMoveNumber: 0, //for printing
       incheck: [], //for Board
       inMultimove: false,
+      autoplay: false,
+      autoplayLoop: null,
       inPlay: false,
       stackToPlay: []
     };
@@ -134,6 +141,9 @@ export default {
     }
     document.getElementById("eogDiv")
       .addEventListener("click", processModalClick);
+  },
+  beforeDestroy: function() {
+    if (!!this.autoplayLoop) clearInterval(this.autoplayLoop);
   },
   methods: {
     focusBg: function() {
@@ -263,6 +273,29 @@ export default {
       this.endgameMessage = message;
       document.getElementById("modalEog").checked = true;
     },
+    runAutoplay: function() {
+      const infinitePlay = () => {
+        if (this.cursor == this.moves.length - 1) {
+          clearInterval(this.autoplayLoop);
+          this.autoplayLoop = null;
+          this.autoplay = false;
+          return;
+        }
+        if (this.inPlay || this.inMultimove)
+          // Wait next tick
+          return;
+        this.play();
+      };
+      if (this.autoplay) {
+        this.autoplay = false;
+        clearInterval(this.autoplayLoop);
+        this.autoplayLoop = null;
+      } else {
+        this.autoplay = true;
+        infinitePlay();
+        this.autoplayLoop = setInterval(infinitePlay, 1500);
+      }
+    },
     // Animate an elementary move
     animateMove: function(move, callback) {
       let startSquare = document.getElementById(getSquareId(move.start));
@@ -325,12 +358,15 @@ export default {
         this.vr.play(smove);
         this.lastMove = smove;
         if (!this.inMultimove) {
-          if (this.cursor < this.moves.length - 1)
-            this.moves = this.moves.slice(0, this.cursor + 1);
-          this.moves.push(smove);
+          // Condition is "!navigate" but we mean "!this.autoplay"
+          if (!navigate) {
+            if (this.cursor < this.moves.length - 1)
+              this.moves = this.moves.slice(0, this.cursor + 1);
+            this.moves.push(smove);
+          }
           this.inMultimove = true; //potentially
           this.cursor++;
-        } else {
+        } else if (!navigate) {
           // Already in the middle of a multi-move
           const L = this.moves.length;
           if (!Array.isArray(this.moves[L-1]))
@@ -340,7 +376,10 @@ export default {
         }
       };
       const playMove = () => {
-        const animate = (V.ShowMoves == "all" && !!received);
+        const animate = (
+          V.ShowMoves == "all" &&
+          (this.autoplay || !!received)
+        );
         if (!Array.isArray(move)) move = [move];
         let moveIdx = 0;
         let self = this;
@@ -387,7 +426,7 @@ export default {
           this.emitFenIfAnalyze();
           this.inMultimove = false;
           this.score = computeScore();
-          if (this.game.mode != "analyze") {
+          if (this.game.mode != "analyze" && !navigate) {
             if (!noemit) {
               // Post-processing (e.g. computer play).
               const L = this.moves.length;
@@ -408,17 +447,19 @@ export default {
         // The move to navigate to is necessarily full:
         if (this.cursor == this.moves.length - 1) return; //no more moves
         move = this.moves[this.cursor + 1];
-        // Just play the move:
-        if (!Array.isArray(move)) move = [move];
-        for (let i=0; i < move.length; i++) this.vr.play(move[i]);
-        if (!light) {
-          this.lastMove = move[move.length-1];
-          this.incheck = this.vr.getCheckSquares(this.vr.turn);
-          this.score = computeScore();
-          this.emitFenIfAnalyze();
+        if (!this.autoplay) {
+          // Just play the move:
+          if (!Array.isArray(move)) move = [move];
+          for (let i=0; i < move.length; i++) this.vr.play(move[i]);
+          if (!light) {
+            this.lastMove = move[move.length-1];
+            this.incheck = this.vr.getCheckSquares(this.vr.turn);
+            this.score = computeScore();
+            this.emitFenIfAnalyze();
+          }
+          this.cursor++;
+          return;
         }
-        this.cursor++;
-        return;
       }
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
@@ -541,8 +582,11 @@ export default {
     padding-top: 5px
     padding-bottom: 5px
 
+.in-autoplay
+  background-color: #FACF8C
+
 img.inline
-  height: 24px
+  height: 22px
   padding-top: 5px
   @media screen and (max-width: 767px)
     height: 18px

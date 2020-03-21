@@ -193,7 +193,7 @@ export default {
   padding: 5px
 
 img.inline
-  height: 24px
+  height: 22px
   @media screen and (max-width: 767px)
     height: 18px
 
