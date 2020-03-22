@@ -398,7 +398,10 @@ export default {
     cleanBeforeDestroy: function() {
       document.removeEventListener('visibilitychange', this.visibilityChange);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
+      this.conn.removeEventListener("message", this.socketMessageListener);
+      this.conn.removeEventListener("close", this.socketCloseListener);
       this.send("disconnect");
+      this.conn = null;
     },
     getRandomnessClass: function(pc) {
       return {

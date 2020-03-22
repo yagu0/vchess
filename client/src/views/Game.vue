@@ -236,7 +236,10 @@ export default {
         clearInterval(this.retrySendmove);
       if (!!this.clockUpdate)
         clearInterval(this.clockUpdate);
+      this.conn.removeEventListener("message", this.socketMessageListener);
+      this.conn.removeEventListener("close", this.socketCloseListener);
       this.send("disconnect");
+      this.conn = null;
     },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27

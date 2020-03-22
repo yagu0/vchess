@@ -143,7 +143,10 @@ export default {
   methods: {
     cleanBeforeDestroy: function() {
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
+      this.conn.removeEventListener("message", this.socketMessageListener);
+      this.conn.removeEventListener("close", this.socketCloseListener);
       this.conn.send(JSON.stringify({code: "disconnect"}));
+      this.conn = null;
     },
     setDisplay: function(type, e) {
       this.display = type;
@@ -182,6 +185,7 @@ export default {
       });
     },
     socketMessageListener: function(msg) {
+      if (!this.conn) return;
       const data = JSON.parse(msg.data);
       let gamesArrays = {
         "corr": this.corrGames,
@@ -262,16 +266,18 @@ export default {
           game.players[0].sid == this.st.user.sid
             ? game.players[1].sid
             : game.players[0].sid;
-        this.conn.send(
-          JSON.stringify(
-            {
-              code: "mabort",
-              gid: game.id,
-              // NOTE: target might not be online
-              target: oppsid
-            }
-          )
-        );
+        if (!!this.conn) {
+          this.conn.send(
+            JSON.stringify(
+              {
+                code: "mabort",
+                gid: game.id,
+                // NOTE: target might not be online
+                target: oppsid
+              }
+            )
+          );
+        }
       }
       else if (!game.deletedByWhite || !game.deletedByBlack) {
         // Set score if game isn't deleted on server:
