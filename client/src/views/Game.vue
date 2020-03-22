@@ -460,6 +460,9 @@ export default {
             this.people[data.from] = { focus: true };
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from });
+          } else if (!this.people[data.from].focus) {
+            this.people[data.from].focus = true;
+            this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
         case "disconnect":

@@ -613,8 +613,11 @@ export default {
             this.people[data.from] = { pages: [{ path: page, focus: true }] };
           else {
             // Append page if not already in list
-            if (!(this.people[data.from].pages.find(p => p.path == page)))
+            let ppage = this.people[data.from].pages.find(p => p.path == page);
+            if (!ppage)
               this.people[data.from].pages.push({ path: page, focus: true });
+            else ppage.focus = true;
+            this.$forceUpdate(); //TODO: shouldn't be required
           }
           if (!this.people[data.from].name && this.people[data.from].id !== 0) {
             // Identity not known yet
@@ -633,6 +636,7 @@ export default {
           ArrayFun.remove(this.people[data.from].pages, p => p.path == page);
           if (this.people[data.from].pages.length == 0)
             this.$delete(this.people, data.from);
+          else this.$forceUpdate(); //TODO: shouldn't be required
           // Disconnect means no more tmpIds:
           if (data.code == "disconnect") {
             // Remove the live challenges sent by this player:
