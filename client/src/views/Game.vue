@@ -456,19 +456,17 @@ export default {
           });
           break;
         case "connect":
-          console.log("connect " + data.from + " " + !!this.people[data.from]);
           if (!this.people[data.from]) {
             this.people[data.from] = { focus: true };
+            this.$forceUpdate(); //TODO: shouldn't be required
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from });
           }
           break;
         case "disconnect":
-          console.log("disconnect " + data.from);
           this.$delete(this.people, data.from);
           break;
         case "getfocus": {
-          console.log("get focus " + data.from + " " + !!this.people[data.from]);
           let player = this.people[data.from];
           if (!!player) {
             player.focus = true;
@@ -477,7 +475,6 @@ export default {
           break;
         }
         case "losefocus": {
-          console.log("lose focus " + data.from + " " + !!this.people[data.from]);
           let player = this.people[data.from];
           if (!!player) {
             player.focus = false;
@@ -526,6 +523,7 @@ export default {
           if (!this.killed[this.st.user.sid]) {
             // Ask potentially missed last state, if opponent and I play
             if (
+              !this.gotLastate &&
               !!this.game.mycolor &&
               this.game.type == "live" &&
               this.game.score == "*" &&
