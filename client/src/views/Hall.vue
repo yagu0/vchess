@@ -80,6 +80,7 @@ main
             option(value="")
             option(
               v-for="p in Object.values(people)"
+              v-if="!!p.name"
               :value="p.name"
             )
               | {{ p.name }}

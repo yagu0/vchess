@@ -1,0 +1,42 @@
+p.boxed
+  | Tienes dos piezas en tu bolsillo, que pueden aparecer después
+  | cualquier movimiento inicial de una pieza.
+
+p.
+  Cuando una pieza se mueve por la primera vez, una pieza nueva
+  se puede colocar en su casilla inicial.
+  Tienes dos piezas que también pueden ingresar al juego:
+ul
+  li El Aguila (H): se mueve como un alfil + caballo.
+  li El Elefante (E): se mueve como una torre + caballo.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/REBQKBNR:
+  figcaption.
+    Posición después de 1.Nc3/E. Las blancas mueven su caballo de b1 a c3
+    y colocar el elefante en b1.
+
+p.
+  Después de haberse enrocado, se puede colocar una nueva pieza en la
+  casilla inicial del rey (si no está ocupado), o en el espacio inicial de
+  la torre, pero no en ambos.
+
+p.
+  Si un movimiento deja al rey en jaque, entonces está prohibido,
+  incluso si colocar una nueva pieza hubiera sido el jaque.
+
+h3 Fuente
+
+p
+  | Algunas explicaciones sobre las reglas, así como un enlace para comprar
+  | un conjunto de piezas de S-Chess en el
+  a(href="http://www.seirawanchess.com/") página Seirawan Chess
+  | . Esta variante se puede jugar en 
+  a(href="https://www.pychess.org/variant/seirawan") pychess-variantes
+  | &nbsp;con un módulo disponible para análisis. Ver también la 
+  a(href= "https://www.pousseurdebois.fr/variantes-du-jeu-dechecs/echecsseirawan/")
+  a(href="https://en.wikipedia.org/wiki/Seirawan_chess") página Wikipedia
+  | .
+
+p Inventores: Yasser Seirawan y Bruce Harper (2008)

@@ -234,4 +234,19 @@ export class CannibalRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 4;
   }
+
+  getNotation(move) {
+    let notation = super.getNotation(move);
+    const lastRank = (move.appear[0].c == "w" ? 0 : 7);
+    if (
+      move.end.x != lastRank &&
+      this.getPiece(move.start.x, move.start.y) == V.PAWN &&
+      move.vanish.length == 2 &&
+      move.appear[0].p != V.PAWN
+    ) {
+      // Fix "promotion" (transform indicator) from base_rules notation
+      notation = notation.slice(0, -2);
+    }
+    return notation;
+  }
 };

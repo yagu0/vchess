@@ -1,0 +1,40 @@
+p.boxed
+  | You have two new pieces in a pocket, which can appear after any
+  | first piece movement.
+
+p.
+  When a piece is moved for the first time, it is possible to place a new
+  piece at its initial square.
+  You have two pieces that can enter the game like this:
+ul
+  li The Hawk (H): moving like a bishop + knight.
+  li The Elephant (E): moving like a rook + knight.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/REBQKBNR:
+  figcaption.
+    Position after 1.Nc3/E. White moved his knight from b1 to c3 and placed
+    the elephant on b1.
+
+p.
+  After castling, a new piece can be put at the initial king square
+  (if not occupied), or at the initial rook square - but not both.
+
+p.
+  If a move let the king under check, then it is forbidden,
+  even if placing a pocket piece would have covered the check.
+
+h3 Source
+
+p
+  | Some explanations about the rules and a link to buy a physical S-Chess set
+  | on the 
+  a(href="http://www.seirawanchess.com/") Seirawan Chess page
+  | . This variant is playable on 
+  a(href="https://www.pychess.org/variant/seirawan") pychess-variants
+  | &nbsp;with an engine available for analysis. See also the 
+  a(href="https://en.wikipedia.org/wiki/Seirawan_chess") Wikipedia page
+  | .
+
+p Inventors: Yasser Seirawan and Bruce Harper (2008)

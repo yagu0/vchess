@@ -54,8 +54,50 @@ export class TwokingsRules extends CoregalRules {
   }
 
   static GenRandInitFen(randomness) {
-    const fen = CoregalRules.GenRandInitFen(randomness);
-    return fen.replace("q", "k").replace("Q", "K");
+    if (randomness == 0)
+      return "rnqkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNQKKBNR w 0 adehadeh -";
+
+    const replaceBishop = (fen, first, ch1, ch2) => {
+      // Remove and re-add final part:
+      const suffix = fen.substr(-15);
+      fen = fen.slice(0, -15);
+      if (first) fen = fen.replace(ch1, ch2);
+      else {
+        fen =
+          fen.split("").reverse().join("")
+          .replace(ch1, ch2)
+          .split("").reverse().join("")
+      }
+      return fen + suffix;
+    };
+
+    const sameIndexReplace = (fen) => {
+      const first = (Math.random() < 0.5);
+      return replaceBishop(
+        replaceBishop(fen, first, 'B', 'Q'),
+        first,
+        'b',
+        'q'
+      );
+    };
+
+    const fen =
+      CoregalRules.GenRandInitFen(randomness)
+      .replace("q", "k").replace("Q", "K");
+    // Now replace a bishop by the queen,
+    // so that bishops are of different colors:
+    if (randomness == 1) return sameIndexReplace(fen);
+    const wOdd = fen.indexOf('B') % 2;
+    const bOdd = fen.indexOf('b') % 2;
+    // Since there are 7 slashes, different oddities means symmetric
+    if (wOdd != bOdd) return sameIndexReplace(fen);
+    const wFirst = (Math.random() < 0.5);
+    return replaceBishop(
+      replaceBishop(fen, wFirst, 'B', 'Q'),
+      !wFirst,
+      'b',
+      'q'
+    );
   }
 
   underCheck(color) {

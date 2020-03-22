@@ -193,6 +193,7 @@ export const translations = {
   "Reverse captures": "Reverse captures",
   "Run forward": "Run forward",
   "Score a goal": "Score a goal",
+  "Seirawan-Harper Chess": "Seirawan-Harper Chess",
   "Shared pieces": "Shared pieces",
   "Shoot pieces": "Shoot pieces",
   "Squares disappear": "Squares disappear",

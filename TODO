@@ -2,8 +2,6 @@
 Landing pieces from empty board:
 https://www.chessvariants.com/diffsetup.dir/unachess.html
 
-S-chess https://en.wikipedia.org/wiki/Seirawan_chess
-
 Generator variant, called "Matrix" ?
 Peces on first rank never move but generate new pieces. Pawn don't generate.
 A generator captured and replaced by a similar piece does not generate.

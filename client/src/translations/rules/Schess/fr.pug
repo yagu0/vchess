@@ -1,0 +1,41 @@
+p.boxed
+  | Vous avez deux pièces en poche, qui peuvent apparaitre après
+  | n'importe quel déplacement initial d'une pièce.
+
+p.
+  Quand une pièce est déplacée pour la première fois, une nouvelle pièce
+  peut être placée sur sa case de départ.
+  Vous avez deux pièces pouvant entrer dans le jeu ainsi :
+ul
+  li L'Aigle (H) : se déplace comme un fou + cavalier.
+  li L'Éléphant (E) : se déplace comme une tour + cavalier.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/REBQKBNR:
+  figcaption.
+    Position après 1.Nc3/E. Les blancs déplacent leur cavalier de b1 à c3
+    et placent l'éléphant en b1.
+
+p.
+  Après avoir roqué, une nouvelle pièce peut être placée sur la case
+  initiale du roi (si elle n'est pas occupée), ou sur la case initiale de la
+  tour - mais pas sur les deux.
+
+p.
+  Si un coup laisse le roi en échec, alors il est interdit,
+  même si le placement d'une nouvelle pièce aurait paré l'échec.
+
+h3 Source
+
+p
+  | Quelques explications sur les règles ainsi qu'un lien pour acheter
+  | un jeu de pièces de S-Chess sur la 
+  a(href="http://www.seirawanchess.com/") page Seirawan Chess
+  | . Cette variante est jouable sur 
+  a(href="https://www.pychess.org/variant/seirawan") pychess-variants
+  | &nbsp;avec un module disponible pour l'analyse. Voir aussi 
+  a(href="https://www.pousseurdebois.fr/variantes-du-jeu-dechecs/echecsseirawan/")
+    | cette page.
+
+p Inventeurs : Yasser Seirawan et Bruce Harper (2008)

@@ -129,7 +129,7 @@ export class BallRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "rnbqkwbnr/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/RNBQKWBNR w 0 -";
+      return "rnbqkwnbr/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/RNBQKWNBR w 0 -";
 
     let pieces = { w: new Array(9), b: new Array(9) };
     for (let c of ["w", "b"]) {

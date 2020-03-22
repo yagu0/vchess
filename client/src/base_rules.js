@@ -191,9 +191,9 @@ export const ChessRules = class ChessRules {
     return V.CoordToColumn(coords.y) + (V.size.x - coords.x);
   }
 
-  // Path to pieces
+  // Path to pieces (standard ones in pieces/ folder)
   getPpath(b) {
-    return b; //usual pieces in pieces/ folder
+    return b;
   }
 
   // Path to promotion pieces (usually the same)
@@ -1101,7 +1101,9 @@ export const ChessRules = class ChessRules {
     ) {
       const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
       this.castleFlags[c][flagIdx] = V.size.y;
-    } else if (
+    }
+    // NOTE: not "else if" because a rook could take an opposing rook
+    if (
       move.end.x == oppFirstRank && //we took opponent rook?
       this.castleFlags[oppCol].includes(move.end.y)
     ) {

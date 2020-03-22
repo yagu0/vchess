@@ -71,8 +71,8 @@ export class CheckeredRules extends ChessRules {
   setFlags(fenflags) {
     super.setFlags(fenflags); //castleFlags
     this.pawnFlags = {
-      w: [...Array(8).fill(true)], //pawns can move 2 squares?
-      b: [...Array(8).fill(true)]
+      w: [...Array(8)], //pawns can move 2 squares?
+      b: [...Array(8)]
     };
     const flags = fenflags.substr(4); //skip first 4 letters, for castle
     for (let c of ["w", "b"]) {
@@ -402,19 +402,19 @@ export class CheckeredRules extends ChessRules {
 
   getFen() {
     const L = this.cmoves.length;
-    const cmoveFen = !this.cmoves[L - 1]
-      ? "-"
-      : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
-        ChessRules.CoordsToSquare(this.cmoves[L - 1].end);
+    const cmoveFen =
+      !this.cmoves[L - 1]
+        ? "-"
+        : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
+          ChessRules.CoordsToSquare(this.cmoves[L - 1].end);
     return super.getFen() + " " + cmoveFen;
   }
 
   getFlagsFen() {
     let fen = super.getFlagsFen();
     // Add pawns flags
-    for (let c of ["w", "b"]) {
-      for (let i = 0; i < 8; i++) fen += this.pawnFlags[c][i] ? "1" : "0";
-    }
+    for (let c of ["w", "b"])
+      for (let i = 0; i < 8; i++) fen += (this.pawnFlags[c][i] ? "1" : "0");
     return fen;
   }
 
