@@ -458,7 +458,6 @@ export default {
         case "connect":
           if (!this.people[data.from]) {
             this.people[data.from] = { focus: true };
-            this.$forceUpdate(); //TODO: shouldn't be required
             this.newConnect[data.from] = true; //for self multi-connects tests
             this.send("askidentity", { target: data.from });
           }
