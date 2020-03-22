@@ -79,7 +79,10 @@ export class CircularRules extends ChessRules {
 
   getSlideNJumpMoves([x, y], steps, oneStep) {
     let moves = [];
+    // Don't add move twice when running on an infinite file:
+    let infiniteSteps = {};
     outerLoop: for (let step of steps) {
+      if (!!infiniteSteps[(-step[0]) + "." + (-step[1])]) continue;
       let i = V.ComputeX(x + step[0]);
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
@@ -88,8 +91,13 @@ export class CircularRules extends ChessRules {
         i = V.ComputeX(i + step[0]);
         j += step[1];
       }
-      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
+      if (V.OnBoard(i, j)) {
+        if (i == x && j == y)
+          // Looped back onto initial square
+          infiniteSteps[step[0] + "." + step[1]] = true;
+        else if (this.canTake([x, y], [i, j]))
+          moves.push(this.getBasicMove([x, y], [i, j]));
+      }
     }
     return moves;
   }
