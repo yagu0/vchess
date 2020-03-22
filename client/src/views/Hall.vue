@@ -267,9 +267,14 @@ export default {
       });
       if (!this.newchallenge.V && this.newchallenge.vid > 0)
         this.loadNewchallVariant();
+    },
+    $route: function(to, from) {
+      if (to.path != "/") this.cleanBeforeDestroy();
     }
   },
   created: function() {
+    document.addEventListener('visibilitychange', this.visibilityChange);
+    window.addEventListener("beforeunload", this.cleanBeforeDestroy);
     if (this.st.variants.length > 0 && this.newchallenge.vid > 0)
       this.loadNewchallVariant();
     const my = this.st.user;
@@ -304,7 +309,6 @@ export default {
     this.conn.addEventListener("close", this.socketCloseListener);
   },
   mounted: function() {
-    document.addEventListener('visibilitychange', this.visibilityChange);
     ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
       document.getElementById(eltName)
         .addEventListener("click", processModalClick);
@@ -388,10 +392,14 @@ export default {
     );
   },
   beforeDestroy: function() {
-    document.removeEventListener('visibilitychange', this.visibilityChange);
-    this.send("disconnect");
+    this.cleanBeforeDestroy();
   },
   methods: {
+    cleanBeforeDestroy: function() {
+      document.removeEventListener('visibilitychange', this.visibilityChange);
+      window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
+      this.send("disconnect");
+    },
     getRandomnessClass: function(pc) {
       return {
         ["random-" + pc.randomness]: true

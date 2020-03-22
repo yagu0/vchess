@@ -192,7 +192,10 @@ export default {
   },
   watch: {
     $route: function(to, from) {
-      if (from.params["id"] != to.params["id"]) {
+      if (to.path.length < 6 || to.path.substr(6) != "/game/")
+        // Page change
+        this.cleanBeforeDestroy();
+      else if (from.params["id"] != to.params["id"]) {
         // Change everything:
         this.cleanBeforeDestroy();
         let boardDiv = document.querySelector(".game");
@@ -210,7 +213,6 @@ export default {
     this.atCreation();
   },
   mounted: function() {
-    document.addEventListener('visibilitychange', this.visibilityChange);
     ["chatWrap", "infoDiv"].forEach(eltName => {
       document.getElementById(eltName)
         .addEventListener("click", processModalClick);
@@ -223,10 +225,19 @@ export default {
     }
   },
   beforeDestroy: function() {
-    document.removeEventListener('visibilitychange', this.visibilityChange);
     this.cleanBeforeDestroy();
   },
   methods: {
+    cleanBeforeDestroy: function() {
+      document.removeEventListener('visibilitychange', this.visibilityChange);
+      if (!!this.askLastate)
+        clearInterval(this.askLastate);
+      if (!!this.retrySendmove)
+        clearInterval(this.retrySendmove);
+      if (!!this.clockUpdate)
+        clearInterval(this.clockUpdate);
+      this.send("disconnect");
+    },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
       this.send(
@@ -236,6 +247,7 @@ export default {
       );
     },
     atCreation: function() {
+      document.addEventListener('visibilitychange', this.visibilityChange);
       // 0] (Re)Set variables
       this.gameRef = this.$route.params["id"];
       // next = next corr games IDs to navigate faster (if applicable)
@@ -309,15 +321,6 @@ export default {
           // --> It will be given when receiving "fullgame" socket event.
           socketInit(() => { this.send("askfullgame"); });
       });
-    },
-    cleanBeforeDestroy: function() {
-      if (!!this.askLastate)
-        clearInterval(this.askLastate);
-      if (!!this.retrySendmove)
-        clearInterval(this.retrySendmove);
-      if (!!this.clockUpdate)
-        clearInterval(this.clockUpdate);
-      this.send("disconnect");
     },
     roomInit: function() {
       if (!this.roomInitialized) {

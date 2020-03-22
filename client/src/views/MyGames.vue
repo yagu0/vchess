@@ -58,7 +58,13 @@ export default {
       connexionString: ""
     };
   },
+  watch: {
+    $route: function(to, from) {
+      if (to.path != "/mygames") this.cleanBeforeDestroy();
+    }
+  },
   created: function() {
+    window.addEventListener("beforeunload", this.cleanBeforeDestroy);
     // Initialize connection
     this.connexionString =
       params.socketUrl +
@@ -132,9 +138,13 @@ export default {
     });
   },
   beforeDestroy: function() {
-    this.conn.send(JSON.stringify({code: "disconnect"}));
+    this.cleanBeforeDestroy();
   },
   methods: {
+    cleanBeforeDestroy: function() {
+      window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
+      this.conn.send(JSON.stringify({code: "disconnect"}));
+    },
     setDisplay: function(type, e) {
       this.display = type;
       localStorage.setItem("type-myGames", type);

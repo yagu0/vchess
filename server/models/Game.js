@@ -380,7 +380,7 @@ const GameModel =
                 "FROM Games " +
                 "WHERE id = " + id;
               db.get(query, (err2, ret2) => {
-                const daysTc = parseInt(ret2.cadence.match(/\(^[0-9]+\)/)[0]);
+                const daysTc = parseInt(ret2.cadence.match(/^[0-9]+/)[0]);
                 if (Date.now() - ret.lastPlayed > daysTc * 24 * 3600 * 1000)
                   finishAndSendQuery();
                 else cb({ errmsg: "Time not over" });
