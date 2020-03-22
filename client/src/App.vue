@@ -274,6 +274,8 @@ footer
     border: none
 
 @media screen and (max-width: 420px)
+  .container
+    min-height: calc(100vh - 55px)
   footer
     height: 55px
     display: block

@@ -20,12 +20,16 @@ export class SchessRules extends ChessRules {
     return 'e';
   }
 
+  static get NOTHING() {
+    return 'o';
+  }
+
   static get PIECES() {
     return ChessRules.PIECES.concat([V.HAWK, V.ELEPHANT]);
   }
 
   getPpath(b) {
-    if ([V.HAWK, V.ELEPHANT].includes(b[1])) return "Schess/" + b;
+    if ([V.HAWK, V.ELEPHANT, V.NOTHING].includes(b[1])) return "Schess/" + b;
     return b;
   }
 
@@ -141,12 +145,22 @@ export class SchessRules extends ChessRules {
       default:
         moves = super.getPotentialMovesFrom([x, y]);
     }
+    // For moves presentation when choices:
+    const unshiftNothing = (m) => {
+      const a = m.appear[0];
+      m.appear.unshift(new PiPo({
+        p: V.NOTHING,
+        c: 'o',
+        x: a.x,
+        y: a.y
+      }));
+    };
     // Post-processing: add choices for hawk and elephant,
     // except for moves letting the king under check.
     const color = this.turn;
     if (Object.values(this.pocket[color]).some(v => v > 0)) {
       const firstRank = (color == "w" ? 7 : 0);
-      let pocketMoves = [];
+      let validMoves = [];
       moves.forEach(m => {
         let inCheckAfter = false;
         this.play(m);
@@ -155,16 +169,18 @@ export class SchessRules extends ChessRules {
         if (!inCheckAfter) {
           for (let pp of ['h', 'e']) {
             if (this.pocket[color][pp] > 0) {
+              let shift = (m.appear[0].p == V.NOTHING ? 1 : 0);
               if (
                 m.start.x == firstRank &&
                 this.pieceFlags[color][m.start.y] &&
                 (
-                  m.appear.length == 1 ||
+                  m.appear.length == shift+1 ||
                   // Special castle case: is initial king square free?
-                  ![m.appear[0].y, m.appear[1].y].includes(m.vanish[0].y)
+                  ![m.appear[shift].y, m.appear[shift+1].y].includes(m.vanish[0].y)
                 )
               ) {
                 let pMove = JSON.parse(JSON.stringify(m));
+                if (shift == 1) pMove.appear.shift();
                 // NOTE: unshift instead of push, for choices presentation
                 pMove.appear.unshift(new PiPo({
                   p: pp,
@@ -172,28 +188,34 @@ export class SchessRules extends ChessRules {
                   x: x,
                   y: y
                 }));
-                pocketMoves.push(pMove);
+                validMoves.push(pMove);
+                if (shift == 0) unshiftNothing(m);
               }
+              shift = (m.appear[0].p == V.NOTHING ? 1 : 0);
               if (
-                m.appear.length == 2 &&
-                ![m.appear[0].y, m.appear[1].y].includes(m.vanish[1].y)
+                m.appear.length >= 2 &&
+                m.vanish.length == 2 &&
+                ![m.appear[shift].y, m.appear[shift+1].y].includes(m.vanish[1].y)
               ) {
                 // Special castle case: rook flag was necessarily on
                 let pMove = JSON.parse(JSON.stringify(m));
+                if (shift == 1) pMove.appear.shift();
                 pMove.appear.unshift(new PiPo({
                   p: pp,
                   c: color,
                   x: m.vanish[1].x,
                   y: m.vanish[1].y
                 }));
-                pocketMoves.push(pMove);
+                validMoves.push(pMove);
+                if (shift == 0) unshiftNothing(m);
               }
             }
           }
+          // Unshift, to show the empty square on the left:
+          validMoves.unshift(m);
         }
       });
-      // NOTE: the order matter, for presentation on screen
-      moves = moves.concat(pocketMoves);
+      moves = validMoves;
     }
     return moves;
   }
@@ -244,6 +266,13 @@ export class SchessRules extends ChessRules {
     );
   }
 
+  filterValid(moves) {
+    if (Object.values(this.pocket[this.turn]).some(v => v > 0))
+      // Undercheck tests done in getPotentialMovesFrom()
+      return moves;
+    return super.filterValid(moves);
+  }
+
   prePlay(move) {
     super.prePlay(move);
     if (move.appear.length >= 2) {
@@ -256,8 +285,18 @@ export class SchessRules extends ChessRules {
   }
 
   postPlay(move) {
-    super.postPlay(move);
     const color = move.vanish[0].c;
+    const piece = move.vanish[0].p;
+    // Update king position + flags
+    if (piece == V.KING) {
+      const shift =
+        ([V.HAWK, V.ELEPHANT, V.NOTHING].includes(move.appear[0].p) ? 1 : 0);
+      this.kingPos[color][0] = move.appear[shift].x;
+      this.kingPos[color][1] = move.appear[shift].y;
+      return;
+    }
+    this.updateCastleFlags(move, piece);
+
     const oppCol = V.GetOppCol(color);
     const firstRank = (color == 'w' ? 7 : 0);
     const oppFirstRank = 7 - firstRank;
@@ -266,7 +305,7 @@ export class SchessRules extends ChessRules {
       if (this.pieceFlags[color][move.start.y])
         this.pieceFlags[color][move.start.y] = false;
       // Special castle case:
-      if (move.appear.length >= 2) {
+      if (move.appear.length >= 2 && move.vanish.length == 2) {
         const L = move.appear.length;
         if (move.appear[L-1].p == V.ROOK)
           this.pieceFlags[color][move.vanish[1].y] = false;
@@ -300,14 +339,16 @@ export class SchessRules extends ChessRules {
   }
 
   getNotation(move) {
-    if (
-      move.appear.length >= 2 &&
-      [V.HAWK, V.ELEPHANT].includes(move.appear[0].p)
-    ) {
-      const suffix = "/" + move.appear[0].p.toUpperCase();
-      let cmove = JSON.parse(JSON.stringify(move));
-      cmove.appear.shift();
-      return super.getNotation(cmove) + suffix;
+    if (move.appear.length >= 2) {
+      const pPieceAppear = [V.HAWK, V.ELEPHANT].includes(move.appear[0].p);
+      const nothingAppear = (move.appear[0].p == V.NOTHING);
+      if (pPieceAppear || nothingAppear) {
+        let suffix = "";
+        if (pPieceAppear) suffix = "/" + move.appear[0].p.toUpperCase();
+        let cmove = JSON.parse(JSON.stringify(move));
+        cmove.appear.shift();
+        return super.getNotation(cmove) + suffix;
+      }
     }
     return super.getNotation(move);
   }
