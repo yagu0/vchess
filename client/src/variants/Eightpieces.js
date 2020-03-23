@@ -175,7 +175,8 @@ export class EightpiecesRules extends ChessRules {
       if (c == 'b') {
         // Check if white sentry is on the same color as ours.
         // If yes: swap bishop and sentry positions.
-        if ((pieces['w'].indexOf('s') - sentryPos) % 2 == 0)
+        // NOTE: test % 2 == 1 because there are 7 slashes.
+        if ((pieces['w'].indexOf('s') - sentryPos) % 2 == 1)
           [bishopPos, sentryPos] = [sentryPos, bishopPos];
       }
       positions.splice(Math.max(randIndex, randIndex_tmp), 1);
@@ -1030,6 +1031,13 @@ export class EightpiecesRules extends ChessRules {
     if (Object.keys(V.LANCER_DIRNAMES).includes(move.vanish[0].p))
       // Lancer: add direction info
       notation += "=" + V.LANCER_DIRNAMES[move.appear[0].p];
+    else if (
+      move.vanish[0].p == V.PAWN &&
+      Object.keys(V.LANCER_DIRNAMES).includes(move.appear[0].p)
+    ) {
+      // Fix promotions in lancer:
+      notation = notation.slice(0, -1) + "L:" + V.LANCER_DIRNAMES[move.appear[0].p];
+    }
     return notation;
   }
 };

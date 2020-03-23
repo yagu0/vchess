@@ -68,12 +68,9 @@ export default {
     // Initialize connection
     this.connexionString =
       params.socketUrl +
-      "/?sid=" +
-      this.st.user.sid +
-      "&id=" +
-      this.st.user.id +
-      "&tmpId=" +
-      getRandString() +
+      "/?sid=" + this.st.user.sid +
+      "&id=" + this.st.user.id +
+      "&tmpId=" + getRandString() +
       "&page=" +
       encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
