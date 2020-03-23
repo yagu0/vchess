@@ -24,6 +24,7 @@ module.exports = function(wss) {
   // or "/mygames" for Mygames page (simpler: no 'people' array).
   // tmpId is required if a same user (browser) has different tabs
   let clients = {};
+  // NOTE: only purpose of sidToPages = know when to delete keys in idToSid
   let sidToPages = {};
   let idToSid = {};
   wss.on("connection", (socket, req) => {
@@ -41,7 +42,7 @@ module.exports = function(wss) {
           if (k == sid && x == tmpId) return;
           send(
             clients[page][k][x].socket,
-            Object.assign({ code: code, from: sid }, obj)
+            Object.assign({ code: code, from: [sid, tmpId] }, obj)
           );
         });
       });
@@ -67,11 +68,10 @@ module.exports = function(wss) {
     const doDisconnect = () => {
       deleteConnexion();
       // Nothing to notify when disconnecting from MyGames page:
-      if (page != "/mygames" && (!clients[page] || !clients[page][sid])) {
-        // I effectively disconnected from this page:
+      if (page != "/mygames") {
         notifyRoom(page, "disconnect");
         if (page.indexOf("/game/") >= 0)
-          notifyRoom("/", "gdisconnect", { page:page });
+          notifyRoom("/", "gdisconnect", { page: page });
       }
     };
     const messageListener = (objtxt) => {
@@ -83,7 +83,7 @@ module.exports = function(wss) {
         case "connect": {
           notifyRoom(page, "connect");
           if (page.indexOf("/game/") >= 0)
-            notifyRoom("/", "gconnect", { page:page });
+            notifyRoom("/", "gconnect", { page: page });
           break;
         }
         case "disconnect":
@@ -121,28 +121,48 @@ module.exports = function(wss) {
           break;
         }
         case "pollclients": {
-          // From Hall or Game
-          let sockIds = [];
+          // From Game
+          let sockIds = {};
           Object.keys(clients[page]).forEach(k => {
             // Avoid polling myself: no new information to get
-            if (k != sid) sockIds.push(k);
+            if (k != sid) {
+              sockIds[k] = {};
+              Object.keys(clients[page][k]).forEach(x => {
+                sockIds[k][x] = { focus: clients[page][k][x].focus };
+              });
+            }
           });
           send(socket, { code: "pollclients", sockIds: sockIds });
           break;
         }
         case "pollclientsandgamers": {
           // From Hall
-          let sockIds = [];
+          let sockIds = {};
           Object.keys(clients["/"]).forEach(k => {
             // Avoid polling myself: no new information to get
-            if (k != sid) sockIds.push({sid:k});
+            if (k != sid) {
+              sockIds[k] = {};
+              Object.keys(clients[page][k]).forEach(x => {
+                sockIds[k][x] = {
+                  page: "/",
+                  focus: clients[page][k][x].focus
+                };
+              });
+            }
           });
           // NOTE: a "gamer" could also just be an observer
           Object.keys(clients).forEach(p => {
             if (p.indexOf("/game/") >= 0) {
               Object.keys(clients[p]).forEach(k => {
-                // 'page' indicator is needed for gamers
-                if (k != sid) sockIds.push({ sid:k, page:p });
+                if (k != sid) {
+                  if (!sockIds[k]) sockIds[k] = {};
+                  Object.keys(clients[p][k]).forEach(x => {
+                    sockIds[k][x] = {
+                      page: p,
+                      focus: clients[p][k][x].focus
+                    };
+                  });
+                }
               });
             }
           });
@@ -217,7 +237,8 @@ module.exports = function(wss) {
         case "drawoffer":
         case "rematchoffer":
         case "draw":
-          notifyRoom(page, obj.code, {data: obj.data}, obj.excluded);
+          // "newgame" message can provide a page (corr Game --> Hall)
+          notifyRoom(obj.page || page, obj.code, {data: obj.data}, obj.excluded);
           break;
 
         case "rnewgame":
@@ -295,6 +316,7 @@ module.exports = function(wss) {
 
         case "getfocus":
         case "losefocus":
+          clients[page][sid][tmpId].focus = (obj.code == "getfocus");
           if (page == "/") notifyRoom("/", obj.code, { page: "/" }, [sid]);
           else {
             // Notify game room + Hall:

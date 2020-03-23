@@ -26,13 +26,10 @@ main
         span {{ st.tr["Participant(s):"] }} 
         span(
           v-for="p in Object.values(people)"
-          v-if="p.focus && !!p.name"
+          v-if="participateInChat(p)"
         )
           | {{ p.name }} 
-        span.anonymous(
-          v-if="Object.values(people).some(p => p.focus && !p.name)"
-        )
-          | + @nonymous
+        span.anonymous(v-if="someAnonymousPresent()") + @nonymous
       Chat(
         ref="chatcomp"
         :players="game.players"
@@ -192,7 +189,7 @@ export default {
   },
   watch: {
     $route: function(to, from) {
-      if (to.path.length < 6 || to.path.substr(6) != "/game/")
+      if (to.path.length < 6 || to.path.substr(0, 6) != "/game/")
         // Page change
         this.cleanBeforeDestroy();
       else if (from.params["id"] != to.params["id"]) {
@@ -230,12 +227,9 @@ export default {
   methods: {
     cleanBeforeDestroy: function() {
       document.removeEventListener('visibilitychange', this.visibilityChange);
-      if (!!this.askLastate)
-        clearInterval(this.askLastate);
-      if (!!this.retrySendmove)
-        clearInterval(this.retrySendmove);
-      if (!!this.clockUpdate)
-        clearInterval(this.clockUpdate);
+      if (!!this.askLastate) clearInterval(this.askLastate);
+      if (!!this.retrySendmove) clearInterval(this.retrySendmove);
+      if (!!this.clockUpdate) clearInterval(this.clockUpdate);
       this.conn.removeEventListener("message", this.socketMessageListener);
       this.conn.removeEventListener("close", this.socketCloseListener);
       this.send("disconnect");
@@ -249,6 +243,16 @@ export default {
           : "losefocus"
       );
     },
+    participateInChat: function(p) {
+      return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
+    },
+    someAnonymousPresent: function() {
+      return (
+        Object.values(this.people).some(p =>
+          !p.name && Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus)
+        )
+      );
+    },
     atCreation: function() {
       document.addEventListener('visibilitychange', this.visibilityChange);
       // 0] (Re)Set variables
@@ -257,13 +261,16 @@ export default {
       this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
       // Always add myself to players' list
       const my = this.st.user;
+      const tmpId = getRandString();
       this.$set(
         this.people,
         my.sid,
         {
           id: my.id,
           name: my.name,
-          focus: true
+          tmpIds: {
+            tmpId: { focus: true }
+          }
         }
       );
       this.game = {
@@ -293,12 +300,9 @@ export default {
       // 1] Initialize connection
       this.connexionString =
         params.socketUrl +
-        "/?sid=" +
-        this.st.user.sid +
-        "&id=" +
-        this.st.user.id +
-        "&tmpId=" +
-        getRandString() +
+        "/?sid=" + this.st.user.sid +
+        "&id=" + this.st.user.id +
+        "&tmpId=" + tmpId +
         "&page=" +
         // Discard potential "/?next=[...]" for page indication:
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
@@ -351,14 +355,22 @@ export default {
       return (
         (
           !!player.sid &&
-          Object.keys(this.people).some(sid =>
-            sid == player.sid && this.people[sid].focus)
+          Object.keys(this.people).some(sid => {
+            return (
+              sid == player.sid &&
+              Object.values(this.people[sid].tmpIds).some(v => v.focus)
+            );
+          })
         )
         ||
         (
           !!player.id &&
-          Object.values(this.people).some(p =>
-            p.id == player.id && p.focus)
+          Object.values(this.people).some(p => {
+            return (
+              p.id == player.id &&
+              Object.values(p.tmpIds).some(v => v.focus)
+            );
+          })
         )
       );
     },
@@ -449,40 +461,54 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code) {
         case "pollclients":
-          // TODO: shuffling and random filtering on server, if
-          // the room is really crowded.
-          data.sockIds.forEach(sid => {
+          // TODO: shuffling and random filtering on server,
+          // if the room is really crowded.
+          Object.keys(data.sockIds).forEach(sid => {
+            // TODO: test sid != user.sid was already done on server
             if (sid != this.st.user.sid) {
-              this.people[sid] = { focus: true };
+              this.people[sid] = { tmpIds: data.sockIds[sid] };
               this.send("askidentity", { target: sid });
             }
           });
           break;
         case "connect":
-          if (!this.people[data.from]) {
-            this.people[data.from] = { focus: true };
+          if (!this.people[data.from[0]]) {
+            // focus depends on the tmpId (e.g. tab)
+            this.$set(
+              this.people,
+              data.from[0],
+              {
+                tmpIds: {
+                  [data.from[1]]: { focus: true }
+                }
+              }
+            );
             this.newConnect[data.from] = true; //for self multi-connects tests
-            this.send("askidentity", { target: data.from });
-          } else if (!this.people[data.from].focus) {
-            this.people[data.from].focus = true;
+            this.send("askidentity", { target: data.from[0] });
+          } else {
+            this.people[data.from[0]].tmpIds[data.from[1]] = { focus: true };
             this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
         case "disconnect":
-          this.$delete(this.people, data.from);
+          if (!this.people[data.from[0]]) return;
+          delete this.people[data.from[0]].tmpIds[data.from[1]];
+          if (Object.keys(this.people[data.from[0]].tmpIds).length == 0)
+            this.$delete(this.people, data.from[0]);
+          else this.$forceUpdate(); //TODO: shouldn't be required
           break;
         case "getfocus": {
-          let player = this.people[data.from];
+          let player = this.people[data.from[0]];
           if (!!player) {
-            player.focus = true;
+            player.tmpIds[data.from[1]].focus = true;
             this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
         }
         case "losefocus": {
-          let player = this.people[data.from];
+          let player = this.people[data.from[0]];
           if (!!player) {
-            player.focus = false;
+            player.tmpIds[data.from[1]].focus = false;
             this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
@@ -508,7 +534,7 @@ export default {
         case "identity": {
           const user = data.data;
           let player = this.people[user.sid];
-          // player.focus is already set
+          // player.tmpIds is already set
           player.name = user.name;
           player.id = user.id;
           this.$forceUpdate(); //TODO: shouldn't be required
@@ -597,6 +623,7 @@ export default {
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"
           // If the game or moves aren't loaded yet, delay the sending:
+          // TODO: since socket init after game load, the game is supposedly ready
           if (!this.game || !this.game.moves) this.lastateAsked = true;
           else this.sendLastate(data.from);
           break;
@@ -660,6 +687,9 @@ export default {
           this.opponentGotMove = true;
           // Now his clock starts running on my side:
           const oppIdx = ['w','b'].indexOf(this.vr.turn);
+          // NOTE: next line to avoid multi-resetClocks when several tabs
+          // on same game, resulting in a faster countdown.
+          if (!!this.clockUpdate) clearInterval(this.clockUpdate);
           this.re_setClocks();
           break;
         }
@@ -773,7 +803,7 @@ export default {
         this.$refs["basegame"].play(data.lastMove, "received", null, true);
         this.processMove(data.lastMove);
       } else {
-        clearInterval(this.clockUpdate);
+        if (!!this.clockUpdate) clearInterval(this.clockUpdate);
         this.re_setClocks();
       }
       if (data.drawSent) this.drawOffer = "received";
@@ -852,7 +882,7 @@ export default {
           this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
           // To main Hall if corr game:
           if (this.game.type == "corr")
-            this.send("newgame", { data: gameInfo });
+            this.send("newgame", { data: gameInfo, page: "/" });
           // Also to MyGames page:
           this.notifyMyGames("newgame", gameInfo);
         };
@@ -1100,6 +1130,7 @@ export default {
             this.game.score != "*"
           ) {
             clearInterval(this.clockUpdate);
+            this.clockUpdate = null;
             if (this.game.clocks[colorIdx] < 0)
               this.gameOver(
                 currentTurn == "w" ? "0-1" : "1-0",
@@ -1126,6 +1157,7 @@ export default {
         const origMovescount = this.game.moves.length;
         // The move is (about to be) played: stop clock
         clearInterval(this.clockUpdate);
+        this.clockUpdate = null;
         if (moveCol == this.game.mycolor && !data.receiveMyMove) {
           if (this.drawOffer == "received")
             // I refuse draw

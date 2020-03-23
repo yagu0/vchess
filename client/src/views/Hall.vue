@@ -208,7 +208,7 @@ import { checkChallenge } from "@/data/challengeCheck";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
 import params from "@/parameters";
-import { getRandString, shuffle } from "@/utils/alea";
+import { getRandString, shuffle, randInt } from "@/utils/alea";
 import { getDiagram } from "@/utils/printDiagram";
 import Chat from "@/components/Chat.vue";
 import GameList from "@/components/GameList.vue";
@@ -278,13 +278,16 @@ export default {
     if (this.st.variants.length > 0 && this.newchallenge.vid > 0)
       this.loadNewchallVariant();
     const my = this.st.user;
+    const tmpId = getRandString();
     this.$set(
       this.people,
       my.sid,
       {
         id: my.id,
         name: my.name,
-        pages: [{ path: "/", focus: true }]
+        tmpIds: {
+          tmpId: { page: "/", focus: true }
+        }
       }
     );
     const connectAndPoll = () => {
@@ -294,14 +297,11 @@ export default {
     // Initialize connection
     this.connexionString =
       params.socketUrl +
-      "/?sid=" +
-      this.st.user.sid +
-      "&id=" +
-      this.st.user.id +
-      "&tmpId=" +
-      getRandString() +
+      "/?sid=" + this.st.user.sid +
+      "&id=" + this.st.user.id +
+      "&tmpId=" + tmpId +
       "&page=" +
-      // Hall: path is "/" (could be hard-coded as well)
+      // Hall: path is "/" (TODO: could be hard-coded as well)
       encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onopen = connectAndPoll;
@@ -515,15 +515,15 @@ export default {
       else elt.nextElementSibling.classList.remove("active");
     },
     isGamer: function(sid) {
-      return this.people[sid].pages
-        .some(p => p.focus && p.path.indexOf("/game/") >= 0);
+      return Object.values(this.people[sid].tmpIds)
+        .some(v => v.focus && v.page.indexOf("/game/") >= 0);
     },
     isFocusedOnHall: function(sid) {
       return (
         // This is meant to challenge people, thus the next 2 conditions:
         this.st.user.id > 0 &&
         sid != this.st.user.sid &&
-        this.people[sid].pages.some(p => p.path == "/" && p.focus)
+        Object.values(this.people[sid].tmpIds).some(v => v.focus && v.page == "/")
       );
     },
     challenge: function(sid) {
@@ -537,9 +537,9 @@ export default {
     watchGame: function(sid) {
       // In some game, maybe playing maybe not: show a random one
       let gids = [];
-      this.people[sid].pages.forEach(p => {
-        if (p.focus) {
-          const matchGid = p.path.match(/[a-zA-Z0-9]+$/);
+      Object.values(this.people[sid].tmpIds).forEach(v => {
+        if (v.focus) {
+          const matchGid = v.page.match(/[a-zA-Z0-9]+$/);
           if (!!matchGid) gids.push(matchGid[0]);
         }
       });
@@ -575,29 +575,39 @@ export default {
       const data = JSON.parse(msg.data);
       switch (data.code) {
         case "pollclientsandgamers": {
-          // Since people can be both in Hall and Game,
-          // need to track "askIdentity" requests:
-          let identityAsked = {};
-          // TODO: shuffling and random filtering on server, if
-          // the room is really crowded.
-          data.sockIds.forEach(s => {
-            const page = s.page || "/";
-            if (s.sid != this.st.user.sid && !identityAsked[s.sid]) {
-              this.send("askidentity", { target: s.sid, page: page });
-              identityAsked[s.sid] = true;
+          // TODO: shuffling and random filtering on server,
+          // if the room is really crowded.
+          Object.keys(data.sockIds).forEach(sid => {
+            // TODO: test sid != user.sid was already done on server
+            if (sid != this.st.user.sid) {
+              // Pick a target tmpId (+page) at random:
+              const pt = Object.values(data.sockIds[sid]);
+              const randPage = pt[randInt(pt.length)].page;
+              this.send(
+                "askidentity",
+                {
+                  target: sid,
+                  page: randPage
+                }
+              );
             }
-            if (!this.people[s.sid]) {
+            if (!this.people[sid])
               // Do not set name or id: identity unknown yet
-              this.people[s.sid] = { pages: [{path: page, focus: true}] };
-            }
-            else if (!(this.people[s.sid].pages.find(p => p.path == page)))
-              this.people[s.sid].pages.push({ path: page, focus: true });
-            if (!s.page)
+              this.people[sid] = { tmpIds: data.sockIds[sid] };
+            else
+              Object.assign(this.people[s.sid].tmpIds, data.sockIds[sid]);
+            if (Object.values(data.sockIds[sid]).some(v => v.page == "/"))
               // Peer is in Hall
-              this.send("askchallenges", { target: s.sid });
-            // Peer is in Game: ask only if live game
-            else if (!page.match(/\/[0-9]+$/))
-              this.send("askgame", { target: s.sid, page: page });
+              this.send("askchallenges", { target: sid });
+            Object.values(data.sockIds[sid]).forEach(v => {
+              if (
+                v.page.indexOf("/game/") >= 0 &&
+                !v.page.match(/\/[0-9]+$/)
+              ) {
+                // Peer is in Game: ask only if live game
+                this.send("askgame", { target: sid, page: v.page });
+              }
+            });
           });
           break;
         }
@@ -607,25 +617,27 @@ export default {
           if (data.code == "connect") {
             // Ask challenges only on first connexion:
             if (!this.people[data.from])
-              this.send("askchallenges", { target: data.from });
+              this.send("askchallenges", { target: data.from[0] });
           }
           // Ask game only if live:
           else if (!page.match(/\/[0-9]+$/))
-            this.send("askgame", { target: data.from, page: page });
-          if (!this.people[data.from])
-            this.people[data.from] = { pages: [{ path: page, focus: true }] };
-          else {
-            // Append page if not already in list
-            let ppage = this.people[data.from].pages.find(p => p.path == page);
-            if (!ppage)
-              this.people[data.from].pages.push({ path: page, focus: true });
-            else ppage.focus = true;
-            this.$forceUpdate(); //TODO: shouldn't be required
-          }
-          if (!this.people[data.from].name && this.people[data.from].id !== 0) {
-            // Identity not known yet
+            this.send("askgame", { target: data.from[0], page: page });
+          if (!this.people[data.from]) {
+            this.$set(
+              this.people,
+              data.from[0],
+              {
+                tmpIds: {
+                  [data.from[1]]: { page: page, focus: true }
+                }
+              }
+            );
             this.newConnect[data.from] = true; //for self multi-connects tests
-            this.send("askidentity", { target: data.from, page: page });
+            this.send("askidentity", { target: data.from[0], page: page });
+          } else {
+            this.people[data.from[0]].tmpIds[data.from[1]] =
+              { page: page, focus: true };
+            this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
         }
@@ -634,49 +646,50 @@ export default {
           // If the user reloads the page twice very quickly (experienced with Firefox),
           // the first reload won't have time to connect but will trigger a "close" event anyway.
           // ==> Next check is required.
-          if (!this.people[data.from]) return;
-          const page = data.page || "/";
-          ArrayFun.remove(this.people[data.from].pages, p => p.path == page);
-          if (this.people[data.from].pages.length == 0)
-            this.$delete(this.people, data.from);
+          if (!this.people[data.from[0]]) return;
+          delete this.people[data.from[0]].tmpIds[data.from[1]];
+          if (Object.keys(this.people[data.from[0]].tmpIds).length == 0)
+            this.$delete(this.people, data.from[0]);
           else this.$forceUpdate(); //TODO: shouldn't be required
-          // Disconnect means no more tmpIds:
           if (data.code == "disconnect") {
             // Remove the live challenges sent by this player:
             ArrayFun.remove(
               this.challenges,
-              c => c.type == "live" && c.from.sid == data.from,
+              c => c.type == "live" && c.from.sid == data.from[0],
               "all"
             );
           } else {
             // Remove the matching live game if now unreachable
-            const gid = page.match(/[a-zA-Z0-9]+$/)[0];
+            const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
             // Corr games are always reachable:
             if (!gid.match(/^[0-9]+$/)) {
               // Live games are reachable as long as someone is on the game page
               if (Object.values(this.people).every(p =>
-                p.pages.every(pg => pg.path != page))) {
+                Object.values(p.tmpIds).every(v => v.page != data.page))
+              ) {
                 ArrayFun.remove(this.games, g => g.id == gid);
               }
             }
           }
           break;
         }
-        case "getfocus":
+        case "getfocus": {
+          let player = this.people[data.from[0]];
           // If user reload a page, focus may arrive earlier than connect
-          if (!!this.people[data.from]) {
-            this.people[data.from].pages
-              .find(p => p.path == data.page).focus = true;
+          if (!!player) {
+            player.tmpIds[data.from[1]].focus = true;
             this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
-        case "losefocus":
-          if (!!this.people[data.from]) {
-            this.people[data.from].pages
-              .find(p => p.path == data.page).focus = false;
+        }
+        case "losefocus": {
+          let player = this.people[data.from[0]];
+          if (!!player) {
+            player.tmpIds[data.from[1]].focus = false;
             this.$forceUpdate(); //TODO: shouldn't be required
           }
           break;
+        }
         case "killed":
           // I logged in elsewhere:
           this.conn.removeEventListener("message", this.socketMessageListener);
@@ -698,7 +711,7 @@ export default {
         case "identity": {
           const user = data.data;
           let player = this.people[user.sid];
-          // player.pages is already set
+          // player.tmpIds is already set
           player.id = user.id;
           player.name = user.name;
           // TODO: this.$set(people, ...) fails. So forceUpdate.
@@ -811,13 +824,9 @@ export default {
             this.startNewGame(gameInfo);
           else {
             this.infoMessage =
-              this.st.tr["New correspondance game:"] +
-              " <a href='#/game/" +
-              gameInfo.id +
-              "'>" +
-              "#/game/" +
-              gameInfo.id +
-              "</a>";
+              this.st.tr["New correspondance game:"] + " " +
+              "<a href='#/game/" + gameInfo.id + "'>" +
+              "#/game/" + gameInfo.id + "</a>";
             document.getElementById("modalInfo").checked = true;
           }
           break;

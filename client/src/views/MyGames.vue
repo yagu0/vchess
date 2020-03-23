@@ -53,7 +53,7 @@ export default {
         corr: Number.MAX_SAFE_INTEGER
       },
       // hasMore == TRUE: a priori there could be more games to load
-      hasMore: { live: true, corr: true },
+      hasMore: { live: true, corr: store.state.user.id > 0 },
       conn: null,
       connexionString: ""
     };
@@ -129,12 +129,7 @@ export default {
             }
           }
         );
-      } else {
-        this.loadMore(
-          "live",
-          () => this.loadMore("corr", adjustAndSetDisplay)
-        );
-      }
+      } else this.loadMore("live", adjustAndSetDisplay);
     });
   },
   beforeDestroy: function() {
@@ -297,7 +292,7 @@ export default {
       }
     },
     loadMore: function(type, cb) {
-      if (type == "corr") {
+      if (type == "corr" && this.st.user.id > 0) {
         ajax(
           "/completedgames",
           "GET",
