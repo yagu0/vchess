@@ -65,10 +65,6 @@ export class LosersRules extends ChessRules {
     return this.turn == "w" ? "1-0" : "0-1";
   }
 
-  static get SEARCH_DEPTH() {
-    return 4;
-  }
-
   evalPosition() {
     // Less material is better (more subtle in fact but...)
     return -super.evalPosition();

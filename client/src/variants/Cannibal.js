@@ -231,10 +231,6 @@ export class CannibalRules extends ChessRules {
     };
   }
 
-  static get SEARCH_DEPTH() {
-    return 4;
-  }
-
   getNotation(move) {
     let notation = super.getNotation(move);
     const lastRank = (move.appear[0].c == "w" ? 0 : 7);

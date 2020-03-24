@@ -40,8 +40,4 @@ export class CaptureRules extends ChessRules {
       return V.KeepCaptures(moves);
     return moves;
   }
-
-  static get SEARCH_DEPTH() {
-    return 4;
-  }
 };
