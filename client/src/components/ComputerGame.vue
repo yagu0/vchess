@@ -65,8 +65,7 @@ export default {
         if (this.gameInfo.mode == "versus")
           CompgameStorage.add(game);
       }
-      if (this.gameInfo.mode == "versus" && !game.mycolor)
-        game.mycolor = (Math.random() < 0.5 ? "w" : "b");
+      if (!game.mycolor) game.mycolor = (Math.random() < 0.5 ? "w" : "b");
       this.compWorker.postMessage(["init", game.fen]);
       this.vr = new V(game.fen);
       game.players = [{ name: "Myself" }, { name: "Computer" }];

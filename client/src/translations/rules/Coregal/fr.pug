@@ -1,7 +1,10 @@
 p.boxed
-  | On peut gagner en matant la dame. Une dame ne peut aller ou rester en échec.
+  | On peut gagner en matant la dame.
+  | Une dame ne peut aller ou rester en échec.
 
-p Tout comme le roi, la dame peut être mise en échec et matée. C'est-à-dire que
+p.
+  Tout comme le roi, la dame peut être mise en échec et matée.
+  C'est-à-dire que
 ul
   li Un coup qui laisserait l'adversaire capturer la dame est interdit.
   li.
@@ -12,11 +15,13 @@ ul
 p.
   Puisque le roi reste royal, ceci ajoute une nouvelle manière de gagner :
   mettre en échc les deux pièces royales en même temps,
-  comme sur le diagramme suivant.
+  comme sur les diagrammes suivants.
 
 figure.diagram-container
-  .diagram
+  .diagram.diag12
     | fen:4Q3/4K3/8/8/3N4/5k2/2q5/8:
+  .diagram.diag22
+    | fen:n2rb1r1/1Qn2p2/5qp1/3p4/P1P2PNp/BP2k2P/R3P1P1/1K4RB:
   figcaption Les blancs gagnent car le roi et la dame noir sont en échec.
 
 h3 Coups spéciaux
@@ -44,7 +49,8 @@ h3 Source
 
 p
   | La 
-  a(href="https://www.chessvariants.com/winning.dir/coregal.html") variante Coregal
+  a(href="https://www.chessvariants.com/winning.dir/coregal.html")
+    | variante Coregal
   | &nbsp;sur chessvariants.com.
   | Cette variante est jouable également 
   a(href="https://greenchess.net/rules.php?v=coregal") sur greenchess.net

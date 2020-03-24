@@ -24,8 +24,6 @@ export class ExtinctionRules extends ChessRules {
     return true;
   }
 
-  scanKings() {}
-
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const pos = V.ParseFen(fen).position;

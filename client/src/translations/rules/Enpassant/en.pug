@@ -11,15 +11,25 @@ ul
     Even if the capturer gets captured en passant on next turn,
     the initial captured piece does not return to the board.
 
-p This is a generalisation of the pawn en passant capture, which is still possible.
+p.
+  This is a generalisation of en passant capture with the pawn, which is
+  still possible. It leads to some unexpected situations,
+  like on the following diagram after 1...Rb2-d2+: this is not a mate
+  since the king can capture the rook en passant on c2: 2.Kxc2 e.p.
+
+figure.diagram-container
+  .diagram
+    | fen:6k1/1p1p4/6p1/4P3/2n5/3nP1b1/3r1BP1/R2K1R1B:
+  figcaption After 1...Rb2-d2+: not a mate!
 
 h3 Special moves
 
 ul
   li.
-    Knights become knightriders, which may make multi knight-steps in the same direction.
-    For example in the standard initial position, the knightrider on g1
-    can go to e5 or capture d7 in addition to the knight moves (see diagram below).
+    Knights become knightriders, which may make multi knight-steps in the
+    same direction. For example in the standard initial position,
+    the knightrider on g1 can go to e5 or could capture on d7 in addition
+    to the knight moves (see diagram below).
   li The king can capture a piece en passant by making a knight move.
 
 figure.diagram-container
@@ -43,7 +53,8 @@ figure.diagram-container
 h3 Source
 
 p
-  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html") En Passant chess
+  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html")
+    | En Passant chess
   | &nbsp;on chessvariants.com.
 
 p Inventor: Andy Kurnia (1998)

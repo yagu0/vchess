@@ -100,6 +100,9 @@ export class ArenaRules extends ChessRules {
     return moves;
   }
 
+  postPlay() {} //no kingPos no castleFlags
+  postUndo() {}
+
   getCurrentScore() {
     const color = this.turn;
     if (!this.atLeastOneMove())

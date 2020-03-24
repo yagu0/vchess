@@ -1,5 +1,6 @@
 p.boxed
-  | Toutes les pièces peuvent être capturées en passant, par n'importe quelle pièce.
+  | Toutes les pièces peuvent être capturées en passant,
+  | par n'importe quelle pièce.
 
 p Plus précisément :
 ul
@@ -12,7 +13,16 @@ ul
     Même si le capturant se retrouve capturé au coup suivant, la pièce
     initialement capturée ne revient pas sur l'échiquier.
 
-p C'est une généralisation de la prise en passant des pions, qui reste possible.
+p.
+  C'est une généralisation de la prise en passant des pions,
+  qui reste possible. Cela mène à certaines situations inattendues, comme
+  sur le diagramme suivant après 1...Rb2-d2+ : ce n'est pas un mat puisque
+  le roi peut prendre la tour en passant en c2 : 2.Kxc2 e.p.
+
+figure.diagram-container
+  .diagram
+    | fen:6k1/1p1p4/6p1/4P3/2n5/3nP1b1/3r1BP1/R2K1R1B:
+  figcaption Après 1...Rb2-d2+ : pas un mat !
 
 h3 Coups spéciaux
 
@@ -20,9 +30,11 @@ ul
   li.
     Les cavaliers deviennent des chevaliers, pouvant effectuer plusieurs
     déplacements de cavalier dans la même direction.
-    Par exemple dans la position initiale, le chevalier en g1 peut aller en e5
-    ou prendre d7 en plus des coups de cavalier.
-  li Le roi peut capturer une pièce en passant en effectuant un coup de cavalier.
+    Par exemple dans la position initiale, le chevalier en g1 peut aller
+    en e5 ou pourrait prendre en d7 en plus des coups de cavalier.
+  li.
+    Le roi peut capturer une pièce en passant en effectuant
+    un coup de cavalier.
 
 figure.diagram-container
   .diagram
@@ -34,7 +46,7 @@ figure.diagram-container
 p.
   Les déplacements du cavalier étant augmentés, une capture,
   un échec ou même un mat seraient possibles au premier coup.
-  Sur le diagramme ci-dessous 1.Nxe7 fait mat, et les noirsau trait
+  Sur le diagramme ci-dessous 1.Nxe7 fait mat, et les noirs au trait
   pourraient jouer 1...Nxg2 piégeant la dame.
   C'est pourquoi les captures ne sont autorisées qu'à partir du second coup.
 
@@ -47,7 +59,8 @@ h3 Source
 
 p
   | La 
-  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html") variante En Passant
+  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html")
+    | variante En Passant
   | &nbsp;sur chessvariants.com.
 
 p Inventeur : Andy Kurnia (1998)

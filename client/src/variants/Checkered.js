@@ -429,37 +429,25 @@ export class CheckeredRules extends ChessRules {
       return "0-0";
     }
 
-    // Translate final square
     const finalSquare = V.CoordsToSquare(move.end);
-
     const piece = this.getPiece(move.start.x, move.start.y);
+    let notation = "";
     if (piece == V.PAWN) {
       // Pawn move
-      let notation = "";
       if (move.vanish.length > 1) {
         // Capture
         const startColumn = V.CoordToColumn(move.start.y);
-        notation =
-          startColumn +
-          "x" +
-          finalSquare +
-          "=" +
-          move.appear[0].p.toUpperCase();
-      } //no capture
-      else {
-        notation = finalSquare;
-        if (move.appear.length > 0 && piece != move.appear[0].p)
-          //promotion
-          notation += "=" + move.appear[0].p.toUpperCase();
-      }
-      return notation;
+        notation = startColumn + "x" + finalSquare;
+      } else notation = finalSquare;
+    } else {
+      // Piece movement
+      notation =
+        piece.toUpperCase() +
+        (move.vanish.length > 1 ? "x" : "") +
+        finalSquare;
     }
-    // Piece movement
-    return (
-      piece.toUpperCase() +
-      (move.vanish.length > 1 ? "x" : "") +
-      finalSquare +
-      (move.vanish.length > 1 ? "=" + move.appear[0].p.toUpperCase() : "")
-    );
+    if (move.appear[0].p != move.vanish[0].p)
+      notation += "=" + move.appear[0].p.toUpperCase();
+    return notation;
   }
 };

@@ -9,10 +9,19 @@ ul
     esta captura solo es posible inmediatamente después del movimiento
     (misma condición que para capturar peones en passant).
   li.
-    Incluso si el capturador se encuentra capturado en el siguiente movimiento,
-    la pieza inicialmente capturada no vuelve al tablero.
+    Incluso si el capturador se encuentra capturado en el siguiente
+    movimiento, la pieza inicialmente capturada no vuelve al tablero.
 
-p Es una generalización de la captura en passant de los peones, que sigue siendo posible.
+p.
+  Es una generalización de la captura en passant de los peones,
+  que sigue siendo posible. Esto lleva a algunas situaciones inesperadas,
+  como en el siguiente diagrama después de 1...Rb2-d2+: no es un mate desde
+  el rey puede tomar la torre en passant en c2: 2.Kxc2 e.p.
+
+figure.diagram-container
+  .diagram
+    | fen:6k1/1p1p4/6p1/4P3/2n5/3nP1b1/3r1BP1/R2K1R1B:
+  figcaption Despues de 1...Rb2-d2+: no es jaque mate!
 
 h3 Movimientos especiales
 
@@ -21,8 +30,10 @@ ul
     Los caballos se convierten en caballeros, capaces de realizar varias
     saltos en la misma dirección.
     Por ejemplo en la posición inicial, el caballero en g1 puede ir a e5
-    o tomar d7 además de los movimientos de caballo.
-  li El rey puede capturar una pieza en passant haciendo un movimiento de caballo.
+    o podría tomar en d7 además de los movimientos de caballo.
+  li.
+    El rey puede capturar una pieza en passant haciendo
+    un movimiento de caballo.
 
 figure.diagram-container
   .diagram
@@ -36,7 +47,8 @@ p.
   un jaque o incluso un jaque mate sería posible en el primer movimiento.
   En el diagrama a continuación 1.Nxe7 es mate, y las negras al turno
   podría jugar 1...Nxg2 atrapando a la dama.
-  Es por eso que las capturas solo están autorizadas desde el segundo movimiento.
+  Es por eso que las capturas solo están autorizadas
+  desde el segundo movimiento.
 
 figure.diagram-container
   .diagram
@@ -47,7 +59,8 @@ h3 Fuente
 
 p
   | La 
-  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html") variante En Passant
+  a(href="https://www.chessvariants.com/difftaking.dir/enpassant.html")
+    | variante En Passant
   | &nbsp;en chessvariants.com.
 
 p Inventor: Andy Kurnia (1998)

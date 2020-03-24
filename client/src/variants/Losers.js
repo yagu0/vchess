@@ -5,7 +5,7 @@ import { randInt } from "@/utils/alea";
 export class LosersRules extends ChessRules {
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
-    return moves.filter(m => m.vanish.length == 2);
+    return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
   }
 
 	// Stop at the first capture found (if any)
@@ -18,7 +18,7 @@ export class LosersRules extends ChessRules {
           this.board[i][j] != V.EMPTY &&
           this.getColor(i, j) != oppCol &&
           this.getPotentialMovesFrom([i, j]).some(m =>
-            // Warning: duscard castle moves
+            // Warning: discard castle moves
             m.vanish.length == 2 && m.appear.length == 1)
         ) {
           return true;

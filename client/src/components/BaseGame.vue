@@ -387,7 +387,7 @@ export default {
       };
       const playMove = () => {
         const animate = (
-          V.ShowMoves == "all" &&
+          ["all", "highlight"].includes(V.ShowMoves) &&
           (this.autoplay || !!received)
         );
         if (!Array.isArray(move)) move = [move];

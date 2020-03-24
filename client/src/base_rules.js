@@ -226,7 +226,7 @@ export const ChessRules = class ChessRules {
     if (
       Math.abs(s.x - e.x) == 2 &&
       s.y == e.y &&
-      move.appear[0].p == V.PAWN
+      (move.appear.length > 0 && move.appear[0].p == V.PAWN)
     ) {
       return {
         x: (s.x + e.x) / 2,
