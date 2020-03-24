@@ -1,0 +1,52 @@
+p.boxed
+  | Both players play a move "at the same time".
+  | Conflicts are resolved following a few simple rules.
+
+p.
+  In order to not rethink a big part of the code, the white move has to be
+  played before the black one. However, the black player doesn't see it.
+
+p So both players play "at the same time". Resolving rules:
+ul
+  li.
+    If both moves arrive on the same square, both pieces disappear except
+    if one is a king. In this case only the king remains.
+  li.
+    If a capture was intended but the target moved, the move is still played
+    but doesn't capture anything.
+p.
+  Such captures can be anticipated by capturing our own pieces.
+  If the enemy captures as predicted, his piece disappears.
+  If he doesn't, the self-capture isn't undone.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1kbnr/ppp1pppp/8/3qP3/8/8/PPPP1PPP/RNBQKBNR:
+  figcaption After 1.e4 d5 2.e5 Qxd5 (anticipating 2.exd5 which isn't played)
+
+h3 End of the game
+
+p.
+  Due to the simultaneity, it is possible that a king is captured for example
+  after escaping a check in a wrong way, as the following diagram shows.
+  So, capturing the king counts as a win, of highest priority.
+  A checkmate wins too, but if your king is captured and the other still on
+  the board (even if it is mated), you lose.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r3r1bb/ppqRkppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  .diagram.diag22
+    | fen:r3r1bb/pp1qRppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  figcaption.
+    Left: before Rxe7 (white) and Qxd7 (black)
+    Right: after the move (1-0)
+
+h3 Source
+
+p
+  a(href="http://www.hexenspiel.de/engl/synchronous-chess/") Synchronous chess
+  | , modified to allow en-passant captures
+  | and disable the "exchange of captures" stage. 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=synchro") Another description
+  | &nbsp;(in French).

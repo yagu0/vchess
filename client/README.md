@@ -32,8 +32,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Resources
 
- - Vue.js + Vue router + Webpack,
- - mini.css,
- - Google font 'Open Sans'
+- Vue.js + Vue router,
+- Webpack,
+- mini.css
 
 Sounds and pieces images where found at various locations.
+Fonts were found on Google Fonts.

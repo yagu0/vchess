@@ -146,7 +146,7 @@ export class EightpiecesRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0)
       // Deterministic:
-      return "jsfqkbnr/pppppppp/8/8/8/8/PPPPPPPP/JSDQKBNR w 0 ahah - -";
+      return "jfsqkbnr/pppppppp/8/8/8/8/PPPPPPPP/JDSQKBNR w 0 ahah - -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     let flags = "";
@@ -657,106 +657,6 @@ export class EightpiecesRules extends ChessRules {
     return this.filterValid(this.getPotentialMovesFrom(sentrySq));
   }
 
-  prePlay(move) {
-    if (move.appear.length == 0 && move.vanish.length == 1)
-      // The sentry is about to push a piece: subTurn goes from 1 to 2
-      this.sentryPos = { x: move.end.x, y: move.end.y };
-    if (this.subTurn == 2 && move.vanish[0].p != V.PAWN) {
-      // A piece is pushed: forbid array of squares between start and end
-      // of move, included (except if it's a pawn)
-      let squares = [];
-      if ([V.KNIGHT,V.KING].includes(move.vanish[0].p))
-        // short-range pieces: just forbid initial square
-        squares.push({ x: move.start.x, y: move.start.y });
-      else {
-        const deltaX = move.end.x - move.start.x;
-        const deltaY = move.end.y - move.start.y;
-        const step = [
-          deltaX / Math.abs(deltaX) || 0,
-          deltaY / Math.abs(deltaY) || 0
-        ];
-        for (
-          let sq = {x: move.start.x, y: move.start.y};
-          sq.x != move.end.x || sq.y != move.end.y;
-          sq.x += step[0], sq.y += step[1]
-        ) {
-          squares.push({ x: sq.x, y: sq.y });
-        }
-      }
-      // Add end square as well, to know if I was pushed (useful for lancers)
-      squares.push({ x: move.end.x, y: move.end.y });
-      this.sentryPush.push(squares);
-    } else this.sentryPush.push(null);
-  }
-
-  play(move) {
-    this.prePlay(move);
-    move.flags = JSON.stringify(this.aggregateFlags());
-    this.epSquares.push(this.getEpSquare(move));
-    V.PlayOnBoard(this.board, move);
-    // Is it a sentry push? (useful for undo)
-    move.sentryPush = (this.subTurn == 2);
-    if (this.subTurn == 1) this.movesCount++;
-    if (move.appear.length == 0 && move.vanish.length == 1) this.subTurn = 2;
-    else {
-      // Turn changes only if not a sentry "pre-push"
-      this.turn = V.GetOppCol(this.turn);
-      this.subTurn = 1;
-    }
-    this.postPlay(move);
-  }
-
-  postPlay(move) {
-    if (move.vanish.length == 0 || this.subTurn == 2)
-      // Special pass move of the king, or sentry pre-push: nothing to update
-      return;
-    const c = move.vanish[0].c;
-    const piece = move.vanish[0].p;
-    const firstRank = c == "w" ? V.size.x - 1 : 0;
-
-    if (piece == V.KING) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-      this.castleFlags[c] = [V.size.y, V.size.y];
-      return;
-    }
-    // Update castling flags if rooks are moved
-    const oppCol = V.GetOppCol(c);
-    const oppFirstRank = V.size.x - 1 - firstRank;
-    if (
-      move.start.x == firstRank && //our rook moves?
-      this.castleFlags[c].includes(move.start.y)
-    ) {
-      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-      this.castleFlags[c][flagIdx] = V.size.y;
-    } else if (
-      move.end.x == oppFirstRank && //we took opponent rook?
-      this.castleFlags[oppCol].includes(move.end.y)
-    ) {
-      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
-      this.castleFlags[oppCol][flagIdx] = V.size.y;
-    }
-  }
-
-  undo(move) {
-    this.epSquares.pop();
-    this.disaggregateFlags(JSON.parse(move.flags));
-    V.UndoOnBoard(this.board, move);
-    // Decrement movesCount except if the move is a sentry push
-    if (!move.sentryPush) this.movesCount--;
-    if (this.subTurn == 2) this.subTurn = 1;
-    else {
-      this.turn = V.GetOppCol(this.turn);
-      if (move.sentryPush) this.subTurn = 2;
-    }
-    this.postUndo(move);
-  }
-
-  postUndo(move) {
-    super.postUndo(move);
-    this.sentryPush.pop();
-  }
-
   isAttacked(sq, color) {
     return (
       super.isAttacked(sq, color) ||
@@ -936,6 +836,106 @@ export class EightpiecesRules extends ChessRules {
   }
 
   // Jailer doesn't capture or give check
+
+  prePlay(move) {
+    if (move.appear.length == 0 && move.vanish.length == 1)
+      // The sentry is about to push a piece: subTurn goes from 1 to 2
+      this.sentryPos = { x: move.end.x, y: move.end.y };
+    if (this.subTurn == 2 && move.vanish[0].p != V.PAWN) {
+      // A piece is pushed: forbid array of squares between start and end
+      // of move, included (except if it's a pawn)
+      let squares = [];
+      if ([V.KNIGHT,V.KING].includes(move.vanish[0].p))
+        // short-range pieces: just forbid initial square
+        squares.push({ x: move.start.x, y: move.start.y });
+      else {
+        const deltaX = move.end.x - move.start.x;
+        const deltaY = move.end.y - move.start.y;
+        const step = [
+          deltaX / Math.abs(deltaX) || 0,
+          deltaY / Math.abs(deltaY) || 0
+        ];
+        for (
+          let sq = {x: move.start.x, y: move.start.y};
+          sq.x != move.end.x || sq.y != move.end.y;
+          sq.x += step[0], sq.y += step[1]
+        ) {
+          squares.push({ x: sq.x, y: sq.y });
+        }
+      }
+      // Add end square as well, to know if I was pushed (useful for lancers)
+      squares.push({ x: move.end.x, y: move.end.y });
+      this.sentryPush.push(squares);
+    } else this.sentryPush.push(null);
+  }
+
+  play(move) {
+    this.prePlay(move);
+    move.flags = JSON.stringify(this.aggregateFlags());
+    this.epSquares.push(this.getEpSquare(move));
+    V.PlayOnBoard(this.board, move);
+    // Is it a sentry push? (useful for undo)
+    move.sentryPush = (this.subTurn == 2);
+    if (this.subTurn == 1) this.movesCount++;
+    if (move.appear.length == 0 && move.vanish.length == 1) this.subTurn = 2;
+    else {
+      // Turn changes only if not a sentry "pre-push"
+      this.turn = V.GetOppCol(this.turn);
+      this.subTurn = 1;
+    }
+    this.postPlay(move);
+  }
+
+  postPlay(move) {
+    if (move.vanish.length == 0 || this.subTurn == 2)
+      // Special pass move of the king, or sentry pre-push: nothing to update
+      return;
+    const c = move.vanish[0].c;
+    const piece = move.vanish[0].p;
+    const firstRank = c == "w" ? V.size.x - 1 : 0;
+
+    if (piece == V.KING) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      this.castleFlags[c] = [V.size.y, V.size.y];
+      return;
+    }
+    // Update castling flags if rooks are moved
+    const oppCol = V.GetOppCol(c);
+    const oppFirstRank = V.size.x - 1 - firstRank;
+    if (
+      move.start.x == firstRank && //our rook moves?
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    } else if (
+      move.end.x == oppFirstRank && //we took opponent rook?
+      this.castleFlags[oppCol].includes(move.end.y)
+    ) {
+      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
+      this.castleFlags[oppCol][flagIdx] = V.size.y;
+    }
+  }
+
+  undo(move) {
+    this.epSquares.pop();
+    this.disaggregateFlags(JSON.parse(move.flags));
+    V.UndoOnBoard(this.board, move);
+    // Decrement movesCount except if the move is a sentry push
+    if (!move.sentryPush) this.movesCount--;
+    if (this.subTurn == 2) this.subTurn = 1;
+    else {
+      this.turn = V.GetOppCol(this.turn);
+      if (move.sentryPush) this.subTurn = 2;
+    }
+    this.postUndo(move);
+  }
+
+  postUndo(move) {
+    super.postUndo(move);
+    this.sentryPush.pop();
+  }
 
   static get VALUES() {
     return Object.assign(

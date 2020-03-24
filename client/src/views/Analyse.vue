@@ -96,7 +96,7 @@ export default {
     },
     adjustFenSize: function() {
       let fenInput = document.getElementById("fen");
-      fenInput.style.width = (this.curFen.length+1) + "ch";
+      fenInput.style.width = (this.curFen.length+3) + "ch";
     },
     tryGotoFen: function() {
       if (V.IsGoodFen(this.curFen)) {
@@ -107,3 +107,9 @@ export default {
   }
 };
 </script>
+
+<style lang="sass" scoped=true>
+input#fen
+  // Use a Monospace font for input FEN width adjustment
+  font-family: "Fira Code"
+</style>

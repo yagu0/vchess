@@ -12,17 +12,21 @@ ul
     disappear and grab the ball.
   li "Capturing" a friendly unit pass the ball to it.
 
+p.
+  All pieces represent players on a field of some ball game,
+  so they can move up to two squares only for a better realism.
+
 figure.diagram-container
   .diagram.diag12
-    | fen:rnbqkwnbr/ppppp1ppp/9/5p3/4a4/9/2N4N1/PPPPPPPPP/R1BQKW1BR:
+    | fen:rnbhq1nbr/ppppppppp/5h3/9/4a4/5P3/9/PPPPP1PPP/RNBHQHNBR:
   .diagram.diag22
-    | fen:rnbqkwnbr/ppppp1ppp/9/9/4s4/9/2N4N1/PPPPPPPPP/R1BQKW1BR:
-  figcaption Left: before ...fxe5 (taking ball). Right: after ...fxe5.
+    | fen:rnbhq1nbr/ppppppppp/5h3/9/4S4/9/9/PPPPP1PPP/RNBHQHNBR:
+  figcaption Left: before fxe5 (taking ball). Right: after fxe5.
 
 p.
-  The piece sitting to the right of the king is a wildebeest (W).
-  It moves by jumping in L like a knight, or a little bit further:
-  three squares in one direction then one aside.
+  The piece sitting next to the queen is a champion (H).
+  It moves by jumping two squares in any direction (potentially over pieces),
+  or one square orthogonally.
 
 h3 End of the game
 
@@ -32,16 +36,16 @@ p.
 
 figure.diagram-container
   .diagram.diag12
-    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wW1p1/4S4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+    | fen:3rn1r2/1pp3pbp/2hp2n2/p1b1pp1p1/P6P1/2N3P1P/1PP2N3/1RB1qPd2/1R2BH1HQ:
   .diagram.diag22
-    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wY1p1/4P4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+    | fen:3rn1r2/1pp3pbp/2hp2n2/p1b1pp1p1/P6P1/2N3P1P/1PP2N3/1RB1tPh2/1R2BH1HQ:
   figcaption.
-    Left: before e5Pf6 (passing the ball).
-    Right: after the move. Then Wxe9# cannot be prevented.
+    Left: before g2Pe2 (passing the ball).
+    Right: after the move. Then ...Q(x)d1# cannot be prevented.
 
 p.
-  White pass the ball from the pawn at e5 to the wildebeest at f6.
-  Then, since the black bishop on e8 cannot move white will win by taking it: Wxe9#.
+  The black champion on g2 passes the ball to the black queen on e2.
+  Victory is then garanteed by playing a queen move on the first rank.
 
 h3 Source
 

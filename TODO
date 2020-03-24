@@ -1,4 +1,6 @@
 # New variants
+Doublearmy: 2 kings remaining get mated.
+
 Landing pieces from empty board:
 https://www.chessvariants.com/diffsetup.dir/unachess.html
 Parachute v1 & 2
@@ -12,10 +14,6 @@ Goal is still checkmate.
 Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
 If a pawn taken: direction of the capturer.
 
-Maxima, Interweave, Roccoco
-
-Synchrone Chess: allow to anticipate en-passant capture as well :)
-
 Dynamo chess
 
-Omega chess (ask first)
+Maxima, Interweave, Roccoco

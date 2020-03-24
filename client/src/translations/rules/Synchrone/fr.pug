@@ -1,0 +1,53 @@
+p.boxed
+  | Les deux joueurs jouent un coup "en même temps".
+  | Les conflits sont résolus par quelques règles simples.
+
+p.
+  Afin de ne pas repenser une grosse partie du code, le coup blanc doit être
+  joué avant le coup noir. Cependant, le joueur des noirs ne le voit pas.
+
+p Ainsi les deux joueurs jouent "en même temps". Règles de résolution :
+ul
+  li.
+    Si les deux coups arrivent sur la même case, alors les deux pièces
+    disparaissent sauf si l'une des deux est un roi.
+    Dans ce cas seul le roi reste.
+  li.
+    Si une capture est tentée mais que la cible bouge, le coup est tout
+    de même joué mais ne capture rien.
+p.
+  De telles captures peuvent être anticipées en capturant nos propres pièces.
+  Si l'adversaire capture comme prévu, alors sa pièce disparaît.
+  Sinon, l'auto-capture n'est pas défaite.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1kbnr/ppp1pppp/8/3qP3/8/8/PPPP1PPP/RNBQKBNR:
+  figcaption Après 1.e4 d5 2.e5 Qxd5 (anticipant 2.exd5 qui n'est pas joué)
+
+h3 Fin de la partie
+
+p.
+  À cause de la simultanéité, il est possible qu'un roi soit capturé par
+  exemple en couvrant un échec maladroitement, comme le montre
+  le diagramme suivant.
+  Un échec et mat gagne également, mais si votre roi est capturé tandis
+  que l'autre est encore sur l'échquier (même s'il est maté), vous perdez.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r3r1bb/ppqRkppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  .diagram.diag22
+    | fen:r3r1bb/pp1qRppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  figcaption.
+    Gauche : avant Rxe7 (blancs) et Qxd7 (noirs)
+    Droite : après le coup (1-0)
+
+h3 Source
+
+p
+  a(href="http://www.hexenspiel.de/engl/synchronous-chess/") Échecs synchronisés
+  | , modifés pour autoriser la prise en passant et annuler la phase
+  | "d'échange de captures". 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=synchro") Autre description
+  | .

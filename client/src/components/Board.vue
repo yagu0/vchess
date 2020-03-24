@@ -55,6 +55,10 @@ export default {
       this.settings.highlight &&
       ["all","highlight"].includes(V.ShowMoves)
     );
+    const showCheck = (
+      this.settings.highlight &&
+      ["all","highlight","byrow"].includes(V.ShowMoves)
+    );
     const orientation = !V.CanFlip ? "w" : this.orientation;
     // Ensure that squares colors do not change when board is flipped
     const lightSquareMod = (sizeX + sizeY) % 2;
@@ -149,8 +153,8 @@ export default {
                   "in-shadow": inShadow(ci, cj),
                   "highlight-light": inHighlight(ci, cj) && lightSquare,
                   "highlight-dark": inHighlight(ci, cj) && !lightSquare,
-                  "incheck-light": showLight && lightSquare && incheckSq[ci][cj],
-                  "incheck-dark": showLight && !lightSquare && incheckSq[ci][cj]
+                  "incheck-light": showCheck && lightSquare && incheckSq[ci][cj],
+                  "incheck-dark": showCheck && !lightSquare && incheckSq[ci][cj]
                 },
                 attrs: {
                   id: getSquareId({ x: ci, y: cj })

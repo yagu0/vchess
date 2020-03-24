@@ -1,0 +1,53 @@
+p.boxed
+  | Ambos jugadores hacen un movimiento "al mismo tiempo".
+  | Los conflictos se resuelven mediante unas pocas reglas simples.
+
+p.
+  Para no repensar una gran parte del código, el movimiento blanco debe ser
+  jugado antes del movimiento negro. Sin embargo, el jugador negro no lo ve.
+
+p Entonces los dos jugadores juegan "al mismo tiempo". Reglas de resolución:
+ul
+  li.
+    Si las dos jugadas alcanzan la mismo casilla, entonces las dos piezas
+    desaparecerá a menos que uno de ellos sea un rey.
+    En este caso solo queda el rey.
+  li.
+    Si se intenta una captura pero el objetivo se mueve, el movimiento
+    todavía se juega pero no capturó nada.
+p.
+  Tales capturas se pueden anticipar capturando nuestras propias piezas.
+  Si el oponente captura como se esperaba, entonces su pieza desaparece.
+  De lo contrario, la auto-captura no se deshace.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1kbnr/ppp1pppp/8/3qP3/8/8/PPPP1PPP/RNBQKBNR:
+  figcaption Después de 1.e4 d5 2.e5 Qxd5 (anticipando 2.exd5 que no se juega)
+
+h3 Fin de la partida
+
+p.
+  Debido a la simultaneidad, es posible que un rey sea capturado por
+  ejemplo cubriendo un jaque torpemente, como se muestra
+  el siguiente diagrama.
+  Jaque mate también gana, pero si tu rey es capturado mientras
+  que el otro todavía está en el tablero (incluso si es jaque mate), pierdes.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r3r1bb/ppqRkppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  .diagram.diag22
+    | fen:r3r1bb/pp1qRppp/8/2p1n3/7n/8/PPPPP1P1/RNBQNBK1:
+  figcaption.
+    Izquierda: antes de Rxe7 (blanco) y Qxd7 (negro)
+    Derecha: después del movimiento (1-0)
+
+h3 Fuente
+
+p
+  a(href="http://www.hexenspiel.de/engl/synchronous-chess/") Ajedrez sincrónico
+  | , modificado para autorizar la captura en passant y cancelar la fase de
+  | "cambio de captura". 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=synchro") Otra descripción
+  | &nbsp;(en francés).

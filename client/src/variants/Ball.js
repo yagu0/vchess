@@ -1,5 +1,4 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
-import { WildebeestRules } from "@/variants/Wildebeest";
 import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
@@ -8,7 +7,7 @@ export class BallRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      { promotions: ChessRules.PawnSpecs.promotions.concat([V.WILDEBEEST]) }
+      { promotions: ChessRules.PawnSpecs.promotions.concat([V.CHAMPION]) }
     );
   }
 
@@ -19,8 +18,8 @@ export class BallRules extends ChessRules {
     return false;
   }
 
-  static get WILDEBEEST() {
-    return 'w';
+  static get CHAMPION() {
+    return 'h';
   }
 
   static get BALL() {
@@ -42,7 +41,7 @@ export class BallRules extends ChessRules {
       'b': 'c',
       'q': 't',
       'k': 'l',
-      'w': 'y'
+      'h': 'd'
     };
   }
 
@@ -54,13 +53,13 @@ export class BallRules extends ChessRules {
       'c': 'b',
       't': 'q',
       'l': 'k',
-      'y': 'w'
+      'd': 'h'
     };
   }
 
   static get PIECES() {
     return ChessRules.PIECES
-      .concat([V.WILDEBEEST])
+      .concat([V.CHAMPION])
       .concat(Object.keys(V.HAS_BALL_DECODE))
       .concat(['a']);
   }
@@ -109,7 +108,7 @@ export class BallRules extends ChessRules {
     let prefix = "";
     const withPrefix =
       Object.keys(V.HAS_BALL_DECODE)
-      .concat([V.WILDEBEEST])
+      .concat([V.CHAMPION])
       .concat(['a']);
     if (withPrefix.includes(b[1])) prefix = "Ball/";
     return prefix + b;
@@ -129,7 +128,7 @@ export class BallRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "rnbqkwnbr/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/RNBQKWNBR w 0 -";
+      return "rnbhqhnbr/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/RNBHQHNBR w 0 -";
 
     let pieces = { w: new Array(9), b: new Array(9) };
     for (let c of ["w", "b"]) {
@@ -140,7 +139,7 @@ export class BallRules extends ChessRules {
 
       // Get random squares for every piece, totally freely
       let positions = shuffle(ArrayFun.range(9));
-      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'k', 'q', 'w'];
+      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'h', 'h', 'q'];
       const rem2 = positions[0] % 2;
       if (rem2 == positions[1] % 2) {
         // Fix bishops (on different colors)
@@ -160,7 +159,7 @@ export class BallRules extends ChessRules {
     );
   }
 
-  scanKings(fen) {}
+  scanKings() {}
 
   static get size() {
     return { x: 9, y: 9 };
@@ -174,7 +173,27 @@ export class BallRules extends ChessRules {
   }
 
   static get steps() {
-    return WildebeestRules.steps;
+    return Object.assign(
+      {},
+      ChessRules.steps,
+      // Add champion moves
+      {
+        h: [
+          [-2, -2],
+          [-2, 0],
+          [-2, 2],
+          [0, -2],
+          [0, 2],
+          [2, -2],
+          [2, 0],
+          [2, 2],
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1]
+        ]
+      }
+    );
   }
 
   // Because of the ball, getPiece() could be wrong:
@@ -242,17 +261,33 @@ export class BallRules extends ChessRules {
   // So base implementation is fine.
 
   getPotentialMovesFrom([x, y]) {
-    if (this.getPiece(x, y) == V.WILDEBEEST)
-      return this.getPotentialWildebeestMoves([x, y]);
+    if (this.getPiece(x, y) == V.CHAMPION)
+      return this.getPotentialChampionMoves([x, y]);
     return super.getPotentialMovesFrom([x, y]);
   }
 
-  getPotentialWildebeestMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT].concat(V.steps[WildebeestRules.CAMEL]),
-      "oneStep"
-    );
+  // "Sliders": at most 2 steps
+  getSlideNJumpMoves([x, y], steps, oneStep) {
+    let moves = [];
+    outerLoop: for (let step of steps) {
+      let i = x + step[0];
+      let j = y + step[1];
+      let stepCount = 1;
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+        if (oneStep || stepCount == 2) continue outerLoop;
+        i += step[0];
+        j += step[1];
+        stepCount++;
+      }
+      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
+        moves.push(this.getBasicMove([x, y], [i, j]));
+    }
+    return moves;
+  }
+
+  getPotentialChampionMoves(sq) {
+    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], "oneStep");
   }
 
   filterValid(moves) {
@@ -292,8 +327,7 @@ export class BallRules extends ChessRules {
       n: 3,
       b: 3,
       q: 9,
-      w: 7,
-      k: 5,
+      h: 4,
       a: 0 //ball: neutral
     };
   }

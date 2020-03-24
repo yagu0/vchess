@@ -12,17 +12,23 @@ ul
     tout en la faisant disparaître.
   li "Capturer" une pièce amie lui passe le ballon.
 
+p.
+  Toutes les pièces représentent des joueurs sur un terrain d'un certain
+  jeu de ballon, donc elles ne se déplacent que de deux cases au maximum
+  pour un meilleur réalisme.
+
 figure.diagram-container
   .diagram.diag12
-    | fen:rnbqkwnbr/ppppp1ppp/9/5p3/4a4/9/2N4N1/PPPPPPPPP/R1BQKW1BR:
+    | fen:rnbhq1nbr/ppppppppp/5h3/9/4a4/5P3/9/PPPPP1PPP/RNBHQHNBR:
   .diagram.diag22
-    | fen:rnbqkwnbr/ppppp1ppp/9/9/4s4/9/2N4N1/PPPPPPPPP/R1BQKW1BR:
-  figcaption Gauche : avant ...fxe5 (prenant le ballon). Droite : après ...fxe5.
+    | fen:rnbhq1nbr/ppppppppp/5h3/9/4S4/9/9/PPPPP1PPP/RNBHQHNBR:
+  figcaption Gauche : avant fxe5 (prenant le ballon). Droite : après fxe5.
 
 p.
-  La pièce située à droite du roi est un gnou (W).
-  Il se déplace en effectuant des sauts en L comme le cavalier,
-  ou bien un peu plus allongés : trois cases puis une sur le côté.
+  La pièce située à côté de la dame est un champion (H).
+  Il se déplace en effectuant des sauts de deux cases dans n'importe
+  quelle direction (potentiellement par dessus des pièces),
+  ou d'une case orthogonalement.
 
 h3 Fin de la partie
 
@@ -32,17 +38,17 @@ p.
 
 figure.diagram-container
   .diagram.diag12
-    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wW1p1/4S4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+    | fen:3rn1r2/1pp3pbp/2hp2n2/p1b1pp1p1/P6P1/2N3P1P/1PP2N3/1RB1qPd2/1R2BH1HQ:
   .diagram.diag22
-    | fen:rqnkb1nb1/pp1pppp1r/2p5p/4wY1p1/4P4/1P5B1/9/P1PPP1PPP/RQNK2NBR:
+    | fen:3rn1r2/1pp3pbp/2hp2n2/p1b1pp1p1/P6P1/2N3P1P/1PP2N3/1RB1tPh2/1R2BH1HQ:
   figcaption.
-    Gauche : avant e5Pf6 (passant le ballon).
-    Droite : après le coup. Ensuite Wxe9# ne peut être empêché.
+    Gauche : avant g2Pe2 (passant le ballon).
+    Droite : après le coup. Ensuite ...Q(x)d1# ne peut être empêché.
 
 p.
-  Les blancs passent la balle du pion e5 vers le gnou en f6.
-  Ensuite, puisque le fou noir ne peut pas bouger la victoire est assurée
-  en le capturant par Wxe9#.
+  Les noirs passent la balle du champion g2 vers la dame en e2.
+  La victoire est alors assurée en jouant ensuite un coup de dame sur la
+  première rangée.
 
 h3 Source
 
