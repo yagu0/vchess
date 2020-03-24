@@ -1,11 +1,9 @@
-// TODO: debug, and forbid self-capture of king.
-
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class SynchroneRules extends ChessRules {
   static get CanAnalyze() {
-    return true; //false;
+    return false;
   }
 
   static get ShowMoves() {
@@ -116,8 +114,8 @@ export class SynchroneRules extends ChessRules {
     });
   }
 
-  getCaptures(x, y) {
-    const color = this.turn;
+  // Aux function used to find opponent and self captures
+  getCaptures(x, y, color) {
     const sliderAttack = (xx, yy, allowedSteps) => {
       const deltaX = xx - x,
             absDeltaX = Math.abs(deltaX);
@@ -197,40 +195,41 @@ export class SynchroneRules extends ChessRules {
     const color = this.turn;
     // 0) Generate our possible moves
     let myMoves = super.getAllValidMoves();
+    // 1) Generate all opponent's capturing moves
+    let oppCaptureMoves = [];
+    const oppCol = V.GetOppCol(color);
+    for (let i=0; i<8; i++) {
+      for (let j=0; j<8; j++) {
+        if (
+          this.getColor(i, j) == color &&
+          // Do not consider king captures: self-captures of king are forbidden
+          this.getPiece(i, j) != V.KING
+        ) {
+          Array.prototype.push.apply(
+            oppCaptureMoves,
+            this.getCaptures(i, j, oppCol)
+          );
+        }
+      }
+    }
+    // 2) Play each opponent's capture, and see if back-captures are possible:
     // Lookup table to quickly decide if a move is already in list:
     let moveSet = {};
-    const getMoveHash = (move) => {
-      return (
-        "m" + move.start.x + move.start.y +
-              move.end.x + move.end.y +
-              // Also use m.appear[0].p for pawn promotions
-              move.appear[0].p
-      );
-    };
-    myMoves.forEach(m => moveSet[getMoveHash(m)] = true);
-    // 1) Generate all opponent's moves
-    this.turn = V.GetOppCol(color);
-    const oppMoves = super.getAllValidMoves();
-    this.turn = color;
-    // 2) Play each opponent's move, and see if captures are possible:
-    // --> capturing moving unit only (otherwise some issues)
-    oppMoves.forEach(m => {
-      V.PlayOnBoard(this.board, m);
-      // Can I take on [m.end.x, m.end.y] ?
-      // If yes and not already in list, add it (without the capturing part)
-      let capturingMoves = this.getCaptures(m.end.x, m.end.y);
-      capturingMoves.forEach(cm => {
-        const cmHash = getMoveHash(cm);
-        if (!moveSet[cmHash]) {
-          // The captured unit hasn't moved yet, so temporarily cancel capture
-          cm.vanish.pop();
-          // If m is itself a capturing move: then replace by self-capture
-          if (m.vanish.length == 2) cm.vanish.push(m.vanish[1]);
-          myMoves.push(cm);
-          moveSet[cmHash] = true;
-        }
-      });
-      V.UndoOnBoard(this.board, m);
+    oppCaptureMoves.forEach(m => {
+      // If another opponent capture with same endpoint already processed, skip:
+      const mHash = "m" + m.end.x + m.end.y;
+      if (!moveSet[mHash]) {
+        moveSet[mHash] = true;
+        // Just make enemy piece disappear, to clear potential path:
+        const justDisappear = {
+          appear: [],
+          vanish: [m.vanish[0]]
+        };
+        V.PlayOnBoard(this.board, justDisappear);
+        // Can I take on [m.end.x, m.end.y] ? If yes, add to list:
+        this.getCaptures(m.end.x, m.end.y, color).forEach(cm => myMoves.push(cm));
+        V.UndoOnBoard(this.board, justDisappear);
+      }
     });
     return myMoves;
   }
@@ -278,20 +277,28 @@ export class SynchroneRules extends ChessRules {
       smove.appear.push(m1.appear[0]);
       smove.appear.push(m2.appear[0]);
       // "Captured" pieces may have moved:
-      if (
+      if (m1.appear.length == 2) {
+        // Castle
+        smove.appear.push(m1.appear[1]);
+        smove.vanish.push(m1.vanish[1]);
+      } else if (
         m1.vanish.length == 2 &&
         (
-          m2.end.x != m1.vanish[1].x ||
-          m2.end.y != m1.vanish[1].y
+          m1.vanish[1].x != m2.start.x ||
+          m1.vanish[1].y != m2.start.y
         )
       ) {
         smove.vanish.push(m1.vanish[1]);
       }
-      if (
+      if (m2.appear.length == 2) {
+        // Castle
+        smove.appear.push(m2.appear[1]);
+        smove.vanish.push(m2.vanish[1]);
+      } else if (
         m2.vanish.length == 2 &&
         (
-          m1.end.x != m2.vanish[1].x ||
-          m1.end.y != m2.vanish[1].y
+          m2.vanish[1].x != m1.start.x ||
+          m2.vanish[1].y != m1.start.y
         )
       ) {
         smove.vanish.push(m2.vanish[1]);
@@ -313,8 +320,6 @@ export class SynchroneRules extends ChessRules {
       } else {
         // One move is a self-capture and the other a normal capture:
         // only the self-capture appears
-        console.log(m1);
-        console.log(m2);
         const selfCaptureMove =
           m1.vanish[1].c == m1.vanish[0].c
             ? m1
@@ -323,6 +328,12 @@ export class SynchroneRules extends ChessRules {
           x: m1.end.x,
           y: m1.end.y,
           p: selfCaptureMove.appear[0].p,
+          c: selfCaptureMove.vanish[0].c
+        });
+        smove.vanish.push({
+          x: m1.end.x,
+          y: m1.end.y,
+          p: selfCaptureMove.vanish[1].p,
           c: selfCaptureMove.vanish[0].c
         });
       }
@@ -361,6 +372,7 @@ export class SynchroneRules extends ChessRules {
     // A full turn just ended:
     const smove = this.resolveSynchroneMove(move);
     V.PlayOnBoard(this.board, smove);
+    move.whiteMove = this.whiteMove; //for undo
     this.whiteMove = null;
 
     // Update king position + flags
@@ -399,18 +411,26 @@ export class SynchroneRules extends ChessRules {
   }
 
   postUndo(move) {
-    if (this.turn == 'w')
+    if (this.turn == 'w') {
       // Reset king positions: scan board
       this.scanKings();
+      // Also reset whiteMove
+      this.whiteMove = null;
+    } else this.whiteMove = move.whiteMove;
   }
 
   getCheckSquares(color) {
-    if (color == 'b') return [];
+    if (color == 'b') {
+      // kingPos must be reset for appropriate highlighting:
+      var lastMove = JSON.parse(JSON.stringify(this.whiteMove));
+      this.undo(lastMove); //will erase whiteMove, thus saved above
+    }
     let res = [];
     if (this.underCheck('w'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['w'])));
     if (this.underCheck('b'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['b'])));
+    if (color == 'b') this.play(lastMove);
     return res;
   }
 
@@ -464,5 +484,17 @@ export class SynchroneRules extends ChessRules {
     for (let i = 1; i < moves.length && moves[i].eval == moves[0].eval; i++)
       candidates.push(i);
     return moves[candidates[randInt(candidates.length)]];
+  }
+
+  getNotation(move) {
+    if (move.appear.length == 2 && move.appear[0].p == V.KING)
+      // Castle
+      return move.end.y < move.start.y ? "0-0-0" : "0-0";
+    // Basic system: piece + init + dest square
+    return (
+      move.vanish[0].p.toUpperCase() +
+      V.CoordsToSquare(move.start) +
+      V.CoordsToSquare(move.end)
+    );
   }
 };

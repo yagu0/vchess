@@ -85,15 +85,6 @@ export const ChessRules = class ChessRules {
     return V.CanFlip;
   }
 
-  // Some variants require turn indicator
-  // (generally when analysis or flip is diabled)
-  static get ShowTurn() {
-    return !V.CanAnalyze || V.ShowMoves != "all" || !V.CanFlip;
-  }
-  get showTurn() {
-    return V.ShowTurn;
-  }
-
   static get IMAGE_EXTENSION() {
     // All pieces should be in the SVG format
     return ".svg";

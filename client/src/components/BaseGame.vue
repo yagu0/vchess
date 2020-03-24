@@ -95,34 +95,46 @@ export default {
     };
   },
   computed: {
+    turn: function() {
+      if (!this.vr) return "";
+      if (this.vr.showMoves != "all") {
+        return this.st.tr[
+          (this.vr.turn == 'w' ? "White" : "Black") + " to move"];
+      }
+      // Cannot flip: racing king or circular chess
+      return (
+        this.vr.movesCount == 0 && this.game.mycolor == "w"
+          ? this.st.tr["It's your turn!"]
+          : ""
+      );
+    },
+    // TODO: is it OK to pass "computed" as propoerties?
+    // Also, some are seemingly not recomputed when vr is initialized.
     showMoves: function() {
       return this.game.score != "*"
         ? "all"
-        : (this.vr ? this.vr.showMoves : "none");
+        : (!!this.vr ? this.vr.showMoves : "none");
     },
     showTurn: function() {
       return (
         this.game.score == '*' &&
-        !!this.vr && this.vr.showTurn
+        !!this.vr && (this.vr.showMoves != "all" || !this.vr.canFlip)
       );
     },
-    turn: function() {
-      if (!this.vr) return "";
-      if (this.vr.showMoves != "all")
-        return this.st.tr[(this.vr.turn == 'w' ? "White" : "Black") + " to move"];
-      // Cannot flip: racing king or circular chess
-      return this.vr.movesCount == 0 && this.game.mycolor == "w"
-        ? this.st.tr["It's your turn!"]
-        : "";
-    },
     canAnalyze: function() {
-      return this.game.mode != "analyze" && this.vr && this.vr.canAnalyze;
+      return (
+        this.game.mode != "analyze" &&
+        !!this.vr && this.vr.canAnalyze
+      );
     },
     canFlip: function() {
-      return this.vr && this.vr.canFlip;
+      return !!this.vr && this.vr.canFlip;
     },
     allowDownloadPGN: function() {
-      return this.game.score != "*" || (this.vr && this.vr.showMoves == "all");
+      return (
+        this.game.score != "*" ||
+        (!!this.vr && this.vr.showMoves == "all")
+      );
     }
   },
   created: function() {
