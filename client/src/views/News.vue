@@ -23,12 +23,15 @@ main
         | {{ st.tr["Write news"] }}
       .news(
         v-for="n,idx in newsList"
+        :id="'n' + n.id"
         :class="{margintop:idx>0}"
       )
         span.ndt {{ formatDatetime(n.added) }}
         .dev-buttons(v-if="devs.includes(st.user.id)")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
+        button(@click="gotoPrevNext(n, 1)") {{ st.tr["Previous_n"] }}
+        button(@click="gotoPrevNext(n, -1)") {{ st.tr["Next_n"] }}
         .news-content(v-html="parseHtml(n.content)")
       button#loadMoreBtn(
         v-if="hasMore"
@@ -107,6 +110,10 @@ export default {
       this.curnews.content = "";
       // No need for added and uid fields: never updated
     },
+    gotoPrevNext: function(n, dir) {
+      document.getElementById("n" + n.id)[
+        (dir < 0 ? "previous" : "next") + "ElementSibling"].scrollIntoView();
+    },
     showModalNews: function() {
       this.resetCurnews();
       window.doClick("modalNews");
@@ -122,7 +129,7 @@ export default {
           success: (res) => {
             if (edit) {
               let n = this.newsList.find(n => n.id == this.curnews.id);
-              if (n) n.content = this.curnews.content;
+              if (!!n) n.content = this.curnews.content;
             } else {
               const newNews = {
                 content: this.curnews.content,

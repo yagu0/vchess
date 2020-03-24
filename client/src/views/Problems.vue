@@ -54,7 +54,7 @@ main
         span.uname ({{ curproblem.uname }})
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
         button.nomargin(@click="gotoPrevNext($event,curproblem,1)")
-          | {{ st.tr["Previous"] }}
+          | {{ st.tr["Previous_p"] }}
         button.nomargin(@click="gotoPrevNext($event,curproblem,-1)")
           | {{ st.tr["Next_p"] }}
       p.oneInstructions.clickable(
