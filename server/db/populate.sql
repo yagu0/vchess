@@ -45,6 +45,7 @@ insert or ignore into Variants (name,description) values
   ('Shatranj', 'Ancient rules'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
+  ('Synchrone', 'Play at the same time'),
   ('Threechecks', 'Give three checks'),
   ('Twokings', 'Two kings'),
   ('Upsidedown', 'Board upside down'),

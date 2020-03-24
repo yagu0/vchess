@@ -187,6 +187,7 @@ export const translations = {
   "Move twice": "Jouer deux coups",
   "Neverending rows": "Rangées sans fin",
   "Pawns move diagonally": "Les pions vont en diagonale",
+  "Play at the same time": "Jouer en même temps",
   "Powerful pieces": "Pièces puissantes",
   "Queen disguised as a pawn": "Reine déguisée en pion",
   "Reuse pieces": "Réutiliser les pièces",
