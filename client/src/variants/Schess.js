@@ -33,10 +33,6 @@ export class SchessRules extends ChessRules {
     return b;
   }
 
-  // TODO: maybe changes could be done to this method to show "empty"
-  // instead of a piece to not use a pocket piece...
-//  getPPpath(b) { }
-
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -193,7 +189,7 @@ export class SchessRules extends ChessRules {
               }
               shift = (m.appear[0].p == V.NOTHING ? 1 : 0);
               if (
-                m.appear.length >= 2 &&
+                m.appear.length >= 2 + shift &&
                 m.vanish.length == 2 &&
                 ![m.appear[shift].y, m.appear[shift+1].y].includes(m.vanish[1].y)
               ) {

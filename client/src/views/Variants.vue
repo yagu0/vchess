@@ -26,6 +26,9 @@ export default {
       st: store.state
     };
   },
+  mounted: function() {
+    document.getElementById("prefixFilter").focus();
+  },
   computed: {
     filteredVariants: function() {
       const capitalizedPrefix = this.curPrefix.replace(/^\w/, c =>

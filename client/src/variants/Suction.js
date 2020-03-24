@@ -96,7 +96,7 @@ export class SuctionRules extends ChessRules {
       Math.abs(epSquare.y - y) == 1
     ) {
       let enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-      const oppCol = V.GetOppCol(color);
+      const oppCol = V.GetOppCol(this.turn);
       enpassantMove.vanish.push({
         x: x,
         y: epSquare.y,
