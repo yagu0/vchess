@@ -152,6 +152,7 @@ export const translations = {
   "Your message": "Votre message",
 
   // Variants boxes:
+  "64 pieces on the board": "64 pièces sur l'échiquier",
   "Ancient rules": "Règles anciennes",
   "Attract opposite king": "Attirer le roi adverse",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",

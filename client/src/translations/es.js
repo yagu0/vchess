@@ -152,6 +152,7 @@ export const translations = {
   "Your message": "Tu mensaje",
 
   // Variants boxes:
+  "64 pieces on the board": "64 piezas en el tablero",
   "Ancient rules": "Viejas reglas",
   "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",

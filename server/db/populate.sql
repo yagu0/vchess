@@ -22,6 +22,7 @@ insert or ignore into Variants (name,description) values
   ('Crazyhouse', 'Captures reborn'),
   ('Cylinder', 'Neverending rows'),
   ('Dark', 'In the shadow'),
+  ('Doublearmy', '64 pieces on the board'),
   ('Eightpieces', 'Each piece is unique'),
   ('Enpassant', 'Capture en passant'),
   ('Extinction', 'Capture all of a kind'),

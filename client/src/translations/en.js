@@ -152,6 +152,7 @@ export const translations = {
   "Your message": "Your message",
 
   // Variants boxes:
+  "64 pieces on the board": "64 pieces on the board",
   "Ancient rules": "Ancient rules",
   "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
