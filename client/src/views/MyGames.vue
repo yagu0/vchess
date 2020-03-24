@@ -55,7 +55,8 @@ export default {
       // hasMore == TRUE: a priori there could be more games to load
       hasMore: { live: true, corr: store.state.user.id > 0 },
       conn: null,
-      connexionString: ""
+      connexionString: "",
+      socketCloseListener: 0
     };
   },
   watch: {
@@ -75,7 +76,17 @@ export default {
       encodeURIComponent(this.$route.path);
     this.conn = new WebSocket(this.connexionString);
     this.conn.onmessage = this.socketMessageListener;
-    this.conn.onclose = this.socketCloseListener;
+    this.socketCloseListener = setInterval(
+      () => {
+        if (this.conn.readyState == 3) {
+          // Connexion is closed: re-open
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn = new WebSocket(this.connexionString);
+          this.conn.addEventListener("message", this.socketMessageListener);
+        }
+      },
+      1000
+    );
   },
   mounted: function() {
     const adjustAndSetDisplay = () => {
@@ -134,9 +145,9 @@ export default {
   },
   methods: {
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
       this.conn.removeEventListener("message", this.socketMessageListener);
-      this.conn.removeEventListener("close", this.socketCloseListener);
       this.conn.send(JSON.stringify({code: "disconnect"}));
       this.conn = null;
     },
@@ -227,11 +238,6 @@ export default {
           break;
         }
       }
-    },
-    socketCloseListener: function() {
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener("message", this.socketMessageListener);
-      this.conn.addEventListener("close", this.socketCloseListener);
     },
     showGame: function(game) {
       if (game.type == "live" || !game.myTurn) {

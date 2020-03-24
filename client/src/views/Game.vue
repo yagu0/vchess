@@ -176,6 +176,7 @@ export default {
       // If newmove got no pingback, send again:
       opponentGotMove: false,
       connexionString: "",
+      socketCloseListener: 0,
       // Incomplete info games: show move played
       moveNotation: "",
       // Intervals from setInterval():
@@ -226,12 +227,12 @@ export default {
   },
   methods: {
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
       if (!!this.askLastate) clearInterval(this.askLastate);
       if (!!this.retrySendmove) clearInterval(this.retrySendmove);
       if (!!this.clockUpdate) clearInterval(this.clockUpdate);
       this.conn.removeEventListener("message", this.socketMessageListener);
-      this.conn.removeEventListener("close", this.socketCloseListener);
       this.send("disconnect");
       this.conn = null;
     },
@@ -308,7 +309,16 @@ export default {
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
       this.conn = new WebSocket(this.connexionString);
       this.conn.addEventListener("message", this.socketMessageListener);
-      this.conn.addEventListener("close", this.socketCloseListener);
+      this.socketCloseListener = setInterval(
+        () => {
+          if (this.conn.readyState == 3) {
+            this.conn.removeEventListener("message", this.socketMessageListener);
+            this.conn = new WebSocket(this.connexionString);
+            this.conn.addEventListener("message", this.socketMessageListener);
+          }
+        },
+        1000
+      );
       // Socket init required before loading remote game:
       const socketInit = callback => {
         if (this.conn.readyState == 1)
@@ -750,11 +760,6 @@ export default {
             document.getElementById("chatBtn").classList.add("somethingnew");
           break;
       }
-    },
-    socketCloseListener: function() {
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener("message", this.socketMessageListener);
-      this.conn.addEventListener("close", this.socketCloseListener);
     },
     updateCorrGame: function(obj, callback) {
       ajax(

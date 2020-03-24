@@ -253,6 +253,7 @@ export default {
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
       conn: null,
       connexionString: "",
+      socketCloseListener: 0,
       // Related to (killing of) self multi-connects:
       newConnect: {},
       killed: {}
@@ -306,7 +307,16 @@ export default {
     this.conn = new WebSocket(this.connexionString);
     this.conn.onopen = connectAndPoll;
     this.conn.addEventListener("message", this.socketMessageListener);
-    this.conn.addEventListener("close", this.socketCloseListener);
+    this.socketCloseListener = setInterval(
+      () => {
+        if (this.conn.readyState == 3) {
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn = new WebSocket(this.connexionString);
+          this.conn.addEventListener("message", this.socketMessageListener);
+        }
+      },
+      1000
+    );
   },
   mounted: function() {
     ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
@@ -396,10 +406,10 @@ export default {
   },
   methods: {
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
       this.conn.removeEventListener("message", this.socketMessageListener);
-      this.conn.removeEventListener("close", this.socketCloseListener);
       this.send("disconnect");
       this.conn = null;
     },
@@ -595,7 +605,7 @@ export default {
               // Do not set name or id: identity unknown yet
               this.people[sid] = { tmpIds: data.sockIds[sid] };
             else
-              Object.assign(this.people[s.sid].tmpIds, data.sockIds[sid]);
+              Object.assign(this.people[sid].tmpIds, data.sockIds[sid]);
             if (Object.values(data.sockIds[sid]).some(v => v.page == "/"))
               // Peer is in Hall
               this.send("askchallenges", { target: sid });
@@ -837,12 +847,6 @@ export default {
             document.getElementById("peopleBtn").classList.add("somethingnew");
           break;
       }
-    },
-    socketCloseListener: function() {
-      if (!this.conn) return;
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener("message", this.socketMessageListener);
-      this.conn.addEventListener("close", this.socketCloseListener);
     },
     loadMoreCorr: function() {
       ajax(
