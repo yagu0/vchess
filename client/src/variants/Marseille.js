@@ -124,7 +124,7 @@ export class MarseilleRules extends ChessRules {
     if (piece == V.KING && move.appear.length > 0) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
-      if (V.HasCastle) this.castleFlags[c] = [V.size.y, V.size.y];
+      this.castleFlags[c] = [V.size.y, V.size.y];
       return;
     }
     const oppCol = V.GetOppCol(c);

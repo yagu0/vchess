@@ -1,0 +1,42 @@
+p.boxed
+  | Giving check is forbidden, unless it is a checkmate.
+
+p.
+  Neither player is allowed to give a check, with the exception of checkmate.
+  Thus, the king is much more powerful than in orthodox chess: as long as
+  he can (potentially) escape, he doesn't fear attacks.
+  So the king can be used to defend pieces in an unusual way.
+
+p.
+  On the following diagram, 1.Qxa6 threatens 2.Bb6
+  with a mate to follow by Qxa7.
+  The black rook cannot take because it would check the white king.
+
+figure.diagram-container
+  .diagram
+    | fen:1k1r1b2/rP1b2p1/pQ1pp1nq/K4p1p/P4PnP/2PN2P1/3PP1B1/R1RN2B1:
+  figcaption 1.Qxd8+ is forbidden because 1...Bc8 would be possible.
+
+h3 Disambiguation
+
+p.
+  1.Qf7# is checkmate on the left diagram, because if the king takes
+  then the rook on h8 gives check but not checkmate.
+  However, on the right diagram 1.Qf7+ runs into 1...Kxf7#, which is now
+  a legal move because the white king is checkmated.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:K5kr/8/5Q2/8/8/8/8/8:
+  .diagram.diag22
+    | fen:K5kr/RB6/5Q2/8/8/8/8/7b:
+  figcaption 1.Qf7 mates on the left, but not on the right.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/usualeq.dir/checklss.html")
+    | Checkless chess
+  | &nbsp;on chessvariants.com, and the 
+  a(href="https://en.wikipedia.org/wiki/Checkless_chess") Wikipedia page
+  | .

@@ -1,0 +1,37 @@
+p.boxed
+  | L'échiquier est initialement vide.
+  | Ajoutez une pièce (sans donner échec) ou déplacez-en une à chaque tour.
+
+p.
+  Le roi peut être ajouté à tout moment, mais tant qu'il n'a pas atterri
+  les captures sont interdites. Ainsi vous pourriez déplacer ou parachuter
+  votre roi "en échec" si l'adversaire n'a pas encore posé le sien.
+
+p.
+  On ne peut pas donner échec avec une pièce parachutée
+  (supposant que les deux rois sont sur l'échiquier).
+
+p.
+  Les pions peuvent être parachutés sur les quatre premières rangées seulement.
+  Un pion sur la première rangée peut sauter de deux cases,
+  et être capturé en passant.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/3b2r1/3R4/k3Q3/3R4/8/8:
+  .diagram.diag22
+    | fen:8/8/K2b2r1/3R4/k1N1Q3/3R4/5q2/8:
+  figcaption.
+    Gauche : pas de roi blanc, donc le roi noir est en sécurité.
+    Droite : trait aux noirs, on ne peut pas éviter le mat.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/diffsetup.dir/unachess.html")
+    | variante Unachess II
+  | &nbsp;sur chessvariants.com. Unachess I donne un trop grand avantage
+  aux blancs, dans les quelques parties que j'ai pu jouer.
+
+p Inventeurs : Jeff Miller et Edward Jackman (1995)

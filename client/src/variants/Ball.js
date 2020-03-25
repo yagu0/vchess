@@ -14,9 +14,6 @@ export class BallRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
-  static get HasCastle() {
-    return false;
-  }
 
   static get CHAMPION() {
     return 'c';

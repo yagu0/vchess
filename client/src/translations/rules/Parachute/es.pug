@@ -1,0 +1,37 @@
+p.boxed
+  | El tablero está inicialmente vacío.
+  | Agregue una pieza (sin dar jaque) o mueva una cada turno.
+
+p.
+  Se puede agregar el rey en cualquier momento, pero hasta que haya aterrizado
+  las capturas están prohibidas. Para que puedas moverte o dejarte caer
+  su rey "en jaque" si el oponente aún no ha colocado el suyo.
+
+p.
+  No puedes dar jaque con una pieza en paracaídas
+  (asumiendo que los dos reyes están en el tablero).
+
+p.
+  Los peones se pueden soltar solo en las primeras cuatro filas.
+  Un peón en la primera fila puede saltar dos espacios,
+  y quedar atrapado en passant.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/3b2r1/3R4/k3Q3/3R4/8/8:
+  .diagram.diag22
+    | fen:8/8/K2b2r1/3R4/k1N1Q3/3R4/5q2/8:
+  figcaption.
+    Izquierda: no hay rey blanco, por lo que el rey negro está en seguridad.
+    Derecha: juegan las negras, no puede evitar el jaque mate.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/diffsetup.dir/unachess.html")
+    | variante Unachess II
+  | &nbsp;en chessvariants.com. Unachess I da demasiada ventaja
+  | a las blancas, en los pocos juegos que he podido jugar.
+
+p Inventores: Jeff Miller y Edward Jackman (1995)

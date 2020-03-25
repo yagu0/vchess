@@ -1,13 +1,6 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
 export class AtomicRules extends ChessRules {
-  getEpSquare(moveOrSquare) {
-    if (typeof moveOrSquare !== "object" || moveOrSquare.appear.length > 0)
-      return super.getEpSquare(moveOrSquare);
-    // Capturing move: no en-passant
-    return undefined;
-  }
-
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 

@@ -224,9 +224,11 @@ export const ChessRules = class ChessRules {
     const s = move.start,
           e = move.end;
     if (
-      Math.abs(s.x - e.x) == 2 &&
       s.y == e.y &&
-      (move.appear.length > 0 && move.appear[0].p == V.PAWN)
+      Math.abs(s.x - e.x) == 2 &&
+      // Next conditions for variants like Atomic or Rifle, Recycle...
+      (move.appear.length > 0 && move.appear[0].p == V.PAWN) &&
+      (move.vanish.length > 0 && move.vanish[0].p == V.PAWN)
     ) {
       return {
         x: (s.x + e.x) / 2,
@@ -941,6 +943,7 @@ export const ChessRules = class ChessRules {
   }
 
   // Stop at the first move found
+  // TODO: not really, it explores all moves from a square but one would suffice.
   atLeastOneMove() {
     const color = this.turn;
     for (let i = 0; i < V.size.x; i++) {

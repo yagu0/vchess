@@ -1,13 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class RifleRules extends ChessRules {
-  getEpSquare(moveOrSquare) {
-    if (typeof moveOrSquare !== "object" || moveOrSquare.appear.length > 0)
-      return super.getEpSquare(moveOrSquare);
-    // Capturing move: no en-passant
-    return undefined;
-  }
-
   getBasicMove([sx, sy], [ex, ey], tr) {
     let mv = new Move({
       appear: [],

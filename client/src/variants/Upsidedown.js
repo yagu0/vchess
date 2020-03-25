@@ -7,10 +7,6 @@ export class UpsidedownRules extends ChessRules {
     return false;
   }
 
-  static get HasCastle() {
-    return false;
-  }
-
   static get HasEnpassant() {
     return false;
   }
@@ -73,8 +69,9 @@ export class UpsidedownRules extends ChessRules {
       pieces["w"].join("").toUpperCase() +
       "/PPPPPPPP/8/8/8/8/pppppppp/" +
       pieces["b"].join("") +
+      // No castle, no en-passant:
       " w 0"
-    ); //no castle, no en-passant
+    );
   }
 
   static get SEARCH_DEPTH() {

@@ -1,0 +1,43 @@
+p.boxed
+  | Donner échec est interdit, sauf si c'est un échec et mat.
+
+p.
+  Aucun joueur n'a le droit de donner échec, à l'exception du mat.
+  Ainsi, le roi est nettement plus puissant qu'aux échecs orthodoxes :
+  tant qu'il peut (potentiellement) s'échapper, il ne craint pas les attaques.
+  Le roi peut alors être utilisé pour défendre les pièces d'une manière
+  inhabituelle.
+
+  p.
+  Sur le diagramme suivant, 1.Qxa6 menaçe 2.Bb6 avec un mat à suivre par Qxa7.
+  La tour noire ne peut pas prendre car elle mettrait le roi blanc en échec.
+
+figure.diagram-container
+  .diagram
+    | fen:1k1r1b2/rP1b2p1/pQ1pp1nq/K4p1p/P4PnP/2PN2P1/3PP1B1/R1RN2B1:
+  figcaption 1.Qxd8+ est interdit car 1...Bc8 serait possible.
+
+h3 Désambiguïsation
+
+p.
+  1.Qf7# fait mat sur le diagramme de gauche, car si le roi prend alors
+  la tour h8 donne échec mais pas mat.
+  Cependant, sur le diagramme de droite 1.Qf7+ permet 1...Kxf7#,
+  qui est maintenant légal car le roi blanc est mat.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:K5kr/8/5Q2/8/8/8/8/8:
+  .diagram.diag22
+    | fen:K5kr/RB6/5Q2/8/8/8/8/7b:
+  figcaption 1.Qf7 mate à gauche, mais pas à droite.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/usualeq.dir/checklss.html")
+    | variante Checkless
+  | &nbsp;sur chessvariants.com, et la 
+  a(href="https://en.wikipedia.org/wiki/Checkless_chess") page Wikipedia
+  | .

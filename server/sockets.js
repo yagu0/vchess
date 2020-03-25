@@ -124,13 +124,12 @@ module.exports = function(wss) {
           // From Game
           let sockIds = {};
           Object.keys(clients[page]).forEach(k => {
-            // Avoid polling myself: no new information to get
-            if (k != sid) {
-              sockIds[k] = {};
-              Object.keys(clients[page][k]).forEach(x => {
+            sockIds[k] = {};
+            Object.keys(clients[page][k]).forEach(x => {
+              // Avoid polling my tmpId: no information to get
+              if (k != sid || x != tmpId)
                 sockIds[k][x] = { focus: clients[page][k][x].focus };
-              });
-            }
+            });
           });
           send(socket, { code: "pollclients", sockIds: sockIds });
           break;
@@ -139,30 +138,30 @@ module.exports = function(wss) {
           // From Hall
           let sockIds = {};
           Object.keys(clients["/"]).forEach(k => {
-            // Avoid polling myself: no new information to get
-            if (k != sid) {
-              sockIds[k] = {};
-              Object.keys(clients[page][k]).forEach(x => {
+            sockIds[k] = {};
+            Object.keys(clients[page][k]).forEach(x => {
+              // Avoid polling my tmpId: no information to get
+              if (k != sid || x != tmpId) {
                 sockIds[k][x] = {
                   page: "/",
                   focus: clients[page][k][x].focus
                 };
-              });
-            }
+              }
+            });
           });
           // NOTE: a "gamer" could also just be an observer
           Object.keys(clients).forEach(p => {
             if (p.indexOf("/game/") >= 0) {
               Object.keys(clients[p]).forEach(k => {
-                if (k != sid) {
-                  if (!sockIds[k]) sockIds[k] = {};
-                  Object.keys(clients[p][k]).forEach(x => {
+                if (!sockIds[k]) sockIds[k] = {};
+                Object.keys(clients[p][k]).forEach(x => {
+                  if (k != sid || x != tmpId) {
                     sockIds[k][x] = {
                       page: p,
                       focus: clients[p][k][x].focus
                     };
-                  });
-                }
+                  }
+                });
               });
             }
           });

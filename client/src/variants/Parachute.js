@@ -1,20 +1,15 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
-import { ArrayFun } from "@/utils/array";
 
-export class RecycleRules extends ChessRules {
-  static get PawnSpecs() {
-    return Object.assign(
-      {},
-      ChessRules.PawnSpecs,
-      { promotions: [V.PAWN] } //in fact, none
-    );
+export class ParachuteRules extends ChessRules {
+  static get HasFlags() {
+    return false;
   }
 
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check reserves
-    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{10,10}$/))
+    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{12,12}$/))
       return false;
     return true;
   }
@@ -23,12 +18,13 @@ export class RecycleRules extends ChessRules {
     const fenParts = fen.split(" ");
     return Object.assign(
       ChessRules.ParseFen(fen),
-      { reserve: fenParts[5] }
+      { reserve: fenParts[4] }
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " 0000000000";
+  static GenRandInitFen() {
+    // ChessRules.PIECES order is P, R, N, B, Q, K:
+    return "8/8/8/8/8/8/8/8 w 0 - 822211822211";
   }
 
   getFen() {
@@ -40,14 +36,10 @@ export class RecycleRules extends ChessRules {
   }
 
   getReserveFen() {
-    let counts = new Array(10);
-    for (
-      let i = 0;
-      i < V.PIECES.length - 1;
-      i++ //-1: no king reserve
-    ) {
+    let counts = new Array(12);
+    for (let i = 0; i < V.PIECES.length; i++) {
       counts[i] = this.reserve["w"][V.PIECES[i]];
-      counts[5 + i] = this.reserve["b"][V.PIECES[i]];
+      counts[6 + i] = this.reserve["b"][V.PIECES[i]];
     }
     return counts.join("");
   }
@@ -62,14 +54,16 @@ export class RecycleRules extends ChessRules {
         [V.ROOK]: parseInt(fenParsed.reserve[1]),
         [V.KNIGHT]: parseInt(fenParsed.reserve[2]),
         [V.BISHOP]: parseInt(fenParsed.reserve[3]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[4])
+        [V.QUEEN]: parseInt(fenParsed.reserve[4]),
+        [V.KING]: parseInt(fenParsed.reserve[5])
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[5]),
-        [V.ROOK]: parseInt(fenParsed.reserve[6]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[7]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[8]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[9])
+        [V.PAWN]: parseInt(fenParsed.reserve[6]),
+        [V.ROOK]: parseInt(fenParsed.reserve[7]),
+        [V.KNIGHT]: parseInt(fenParsed.reserve[8]),
+        [V.BISHOP]: parseInt(fenParsed.reserve[9]),
+        [V.QUEEN]: parseInt(fenParsed.reserve[10]),
+        [V.KING]: parseInt(fenParsed.reserve[11])
       }
     };
   }
@@ -89,19 +83,24 @@ export class RecycleRules extends ChessRules {
     return color + V.RESERVE_PIECES[index];
   }
 
-  // Ordering on reserve pieces
+  // Ordering on reserve pieces (matching V.PIECES order)
   static get RESERVE_PIECES() {
-    return [V.PAWN, V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
+    return [V.PAWN, V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.KING];
   }
 
   getReserveMoves([x, y]) {
     const color = this.turn;
+    const oppCol = V.GetOppCol(color);
     const p = V.RESERVE_PIECES[y];
     if (this.reserve[color][p] == 0) return [];
     let moves = [];
-    const pawnShift = p == V.PAWN ? 1 : 0;
-    for (let i = pawnShift; i < V.size.x - pawnShift; i++) {
-      for (let j = 0; j < V.size.y; j++) {
+    let boundary =
+      p == V.PAWN
+        // Pawns can land only on 4 first ranks:
+        ? (color == 'w' ? [4, 8] : [0, 4])
+        : [0, 8];
+    for (let i = boundary[0]; i < boundary[1]; i++) {
+      for (let j = 0; j < 8; j++) {
         if (this.board[i][j] == V.EMPTY) {
           let mv = new Move({
             appear: [
@@ -116,7 +115,10 @@ export class RecycleRules extends ChessRules {
             start: { x: x, y: y }, //a bit artificial...
             end: { x: i, y: j }
           });
-          moves.push(mv);
+          this.play(mv);
+          // Landing with check is forbidden:
+          if (!this.underCheck(oppCol)) moves.push(mv);
+          this.undo(mv);
         }
       }
     }
@@ -124,22 +126,13 @@ export class RecycleRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    if (x >= V.size.x) {
-      // Reserves, outside of board: x == sizeX(+1)
-      return this.getReserveMoves([x, y]);
-    }
-    // Standard moves
-    return super.getPotentialMovesFrom([x, y]);
-  }
-
-  getPotentialPawnMoves([x, y]) {
-    let moves = super.getPotentialPawnMoves([x, y]);
-    // Remove pawns on 8th rank ("fallen"):
-    const color = this.turn;
-    const lastRank = (color == "w" ? 0 : V.size.x - 1);
-    moves.forEach(m => {
-      if (m.appear[0].x == lastRank) m.appear.pop();
-    });
+    let moves =
+      x >= 8
+        ? this.getReserveMoves([x, y])
+        : super.getPotentialMovesFrom([x, y]);
+    // Forbid captures if king not landed yet:
+    if (x < 8 && moves.length > 0 && this.kingPos[moves[0].appear[0].c][0] < 0)
+      moves = moves.filter(m => m.vanish.length == 1);
     return moves;
   }
 
@@ -151,6 +144,12 @@ export class RecycleRules extends ChessRules {
         this.getReserveMoves([V.size.x + (color == "w" ? 0 : 1), i])
       );
     return this.filterValid(moves);
+  }
+
+  isAttacked(sq, color) {
+    // While the king hasn't landed, nothing is attacked:
+    if (this.kingPos[color][0] < 0) return false;
+    return super.isAttacked(sq, color);
   }
 
   atLeastOneMove() {
@@ -167,32 +166,27 @@ export class RecycleRules extends ChessRules {
     return true;
   }
 
-  canTake([x1, y1], [x2, y2]) {
-    // Self-captures allowed, except for the king:
-    return this.getPiece(x2, y2) != V.KING;
-  }
-
   prePlay(move) {
     super.prePlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
-    const color = this.turn;
-    if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]--;
-    else if (move.vanish.length == 2 && move.vanish[1].c == color)
-      // Self-capture
-      this.reserve[color][move.vanish[1].p]++;
+    if (move.vanish.length == 0) this.reserve[this.turn][move.appear[0].p]--;
   }
 
   postUndo(move) {
-    super.postUndo(move);
-    if (move.vanish.length == 2 && move.appear.length == 2) return;
-    const color = this.turn;
-    if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]++;
-    else if (move.vanish.length == 2 && move.vanish[1].c == color)
-      this.reserve[color][move.vanish[1].p]--;
+    if (move.vanish.length == 0) this.reserve[this.turn][move.appear[0].p]++;
+    // (Potentially) Reset king position
+    if (move.appear[0].p == V.KING) {
+      const c = move.appear[0].c;
+      if (move.vanish.length == 0)
+        // Landing king
+        this.kingPos[c] = [-1, -1];
+      else
+        // King movement
+        this.kingPos[c] = [move.start.x, move.start.y];
+    }
   }
 
   static get SEARCH_DEPTH() {
-    return 2;
+    return 1;
   }
 
   evalPosition() {
@@ -207,20 +201,8 @@ export class RecycleRules extends ChessRules {
   }
 
   getNotation(move) {
-    const finalSquare = V.CoordsToSquare(move.end);
-    if (move.vanish.length > 0) {
-      if (move.appear.length > 0) {
-        // Standard move
-        return super.getNotation(move);
-      } else {
-        // Pawn fallen: capturing or not
-        let res = "";
-        if (move.vanish.length == 2)
-          res += V.CoordToColumn(move.start.y) + "x";
-        return res + finalSquare;
-      }
-    }
-    // Rebirth:
+    if (move.vanish.length > 0) return super.getNotation(move);
+    // Parachutage:
     const piece =
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);

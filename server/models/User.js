@@ -149,6 +149,7 @@ const UserModel = {
           // Remove users unlogged for > 24h
           if (!u.sessionToken && tsNow - u.created > day)
           {
+            toRemove.push(u.id);
             UserModel.notify(
               u,
               "Your account has been deleted because " +

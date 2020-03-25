@@ -588,7 +588,6 @@ export default {
           // TODO: shuffling and random filtering on server,
           // if the room is really crowded.
           Object.keys(data.sockIds).forEach(sid => {
-            // TODO: test sid != user.sid was already done on server
             if (sid != this.st.user.sid) {
               // Pick a target tmpId (+page) at random:
               const pt = Object.values(data.sockIds[sid]);

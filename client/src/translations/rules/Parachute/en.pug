@@ -1,0 +1,35 @@
+p.boxed
+  | The board is initially empty.
+  | Add a piece (not giving check) or move one at each turn.
+
+p.
+  The king can be added at any moment, but while he hasn't landed
+  no capture can be done. So you could move or land your king "into check"
+  if your opponent didn't land his king yet.
+
+p.
+  Giving check with a landed piece is forbidden
+  (assuming both kings are on the board).
+
+p.
+  Pawns can be landed on the four first ranks only. A pawn on the first
+  rank can jump two squares, and be captured en passant.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/3b2r1/3R4/k3Q3/3R4/8/8:
+  .diagram.diag22
+    | fen:8/8/K2b2r1/3R4/k1N1Q3/3R4/5q2/8:
+  figcaption.
+    Left: no white king, so the black king is safe.
+    Right: black to move, there is no way to avoid mate.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/diffsetup.dir/unachess.html")
+    | Unachess II
+  | &nbsp;on chessvariants.com. Unachess I gives a too large advantage
+  | to white, in the few games I could play.
+
+p Inventors: Jeff Miller and Edward Jackman (1995)

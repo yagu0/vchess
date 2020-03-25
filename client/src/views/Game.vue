@@ -474,10 +474,12 @@ export default {
           // TODO: shuffling and random filtering on server,
           // if the room is really crowded.
           Object.keys(data.sockIds).forEach(sid => {
-            // TODO: test sid != user.sid was already done on server
             if (sid != this.st.user.sid) {
-              this.people[sid] = { tmpIds: data.sockIds[sid] };
               this.send("askidentity", { target: sid });
+              this.people[sid] = { tmpIds: data.sockIds[sid] };
+            } else {
+              // Complete my tmpIds:
+              Object.assign(this.people[sid].tmpIds, data.sockIds[sid]);
             }
           });
           break;

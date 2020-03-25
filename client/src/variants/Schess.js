@@ -50,7 +50,7 @@ export class SchessRules extends ChessRules {
   setFlags(fenflags) {
     super.setFlags(fenflags); //castleFlags
     this.pieceFlags = {
-      w: [...Array(8)], //pawns can move 2 squares?
+      w: [...Array(8)], //pieces can generate Hawk or Elephant?
       b: [...Array(8)]
     };
     const flags = fenflags.substr(4); //skip first 4 letters, for castle
@@ -293,7 +293,7 @@ export class SchessRules extends ChessRules {
     }
     this.updateCastleFlags(move, piece);
 
-    const oppCol = V.GetOppCol(color);
+    const oppCol = this.turn;
     const firstRank = (color == 'w' ? 7 : 0);
     const oppFirstRank = 7 - firstRank;
     // Does this move turn off a piece init square flag?

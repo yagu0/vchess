@@ -7,10 +7,6 @@ export class BaroqueRules extends ChessRules {
     return false;
   }
 
-  static get HasCastle() {
-    return false;
-  }
-
   static get HasEnpassant() {
     return false;
   }

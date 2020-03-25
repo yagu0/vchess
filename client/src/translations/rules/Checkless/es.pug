@@ -1,0 +1,43 @@
+p.boxed
+  | Se prohíbe el jaque, a menos que sea un jaque mate.
+
+p.
+  Ningún jugador tiene derecho a dar jaque, excepto el jaque mate.
+  Por lo tanto, el rey es claramente más poderoso que en el ajedrez ortodoxo:
+  mientras pueda (potencialmente) escapar, no tiene miedo a los ataques.
+  El rey puede ser usado para defender las piezas de una manera inusual.
+
+p.
+  En el siguiente diagrama, 1.Qxa6 amenaza a 2.Bb6 con un jaque mate
+  seguido de Qxa7.
+  La torre negra no puede tomar porque daría jaque al rey blanco.
+
+figure.diagram-container
+  .diagram
+    | fen:1k1r1b2/rP1b2p1/pQ1pp1nq/K4p1p/P4PnP/2PN2P1/3PP1B1/R1RN2B1:
+  figcaption 1.Qxd8+ está prohibido porque 1...Bc8 sería posible.
+
+h3 Desambiguación
+
+p.
+  1.Qf7# mat en el diagrama de la izquierda, porque si el rey toma
+  la torre h8 da jaque pero no jaque mate.
+  Sin embargo, en el diagrama de la derecha 1.Qf7+ permite 1...Kxf7#,
+  que ahora es legal porque el rey blanco es en jaque.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:K5kr/8/5Q2/8/8/8/8/8:
+  .diagram.diag22
+    | fen:K5kr/RB6/5Q2/8/8/8/8/7b:
+  figcaption 1.Qf7 mate a la izquierda, pero no a la derecha.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/usualeq.dir/checklss.html")
+    | variante Checkless
+  | &nbsp;en chessvariants.com, y la 
+  a(href="https://en.wikipedia.org/wiki/Checkless_chess") página wikipedia
+  | .
