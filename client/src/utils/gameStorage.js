@@ -85,6 +85,8 @@ export const GameStorage = {
           if (obj.moveIdx < game.moves.length) return;
           Object.keys(obj).forEach(k => {
             if (k == "move") game.moves.push(obj[k]);
+            else if (k == "chat") game.chats.push(obj[k]);
+            else if (k == "delchat") game.chats = [];
             else game[k] = obj[k];
           });
           objectStore.put(game); //save updated data

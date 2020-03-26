@@ -408,16 +408,22 @@ export default {
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
       if (this.game.type == "corr" && this.st.user.id > 0)
         this.updateCorrGame({ chat: chat });
+      else if (this.game.type == "live") {
+        chat.added = Date.now();
+        GameStorage.update(this.gameRef, { chat: chat });
+      }
     },
     clearChat: function() {
-      // Nothing more to do if game is live (chats not recorded)
-      if (this.game.type == "corr") {
-        if (!!this.game.mycolor) {
+      if (!!this.game.mycolor) {
+        if (this.game.type == "corr") {
           ajax(
             "/chats",
             "DELETE",
             { data: { gid: this.game.id } }
           );
+        } else {
+          // Live game
+          GameStorage.update(this.gameRef, { delchat: true });
         }
         this.$set(this.game, "chats", []);
       }
@@ -761,11 +767,17 @@ export default {
           }
           break;
         }
-        case "newchat":
-          this.$refs["chatcomp"].newChat(data.data);
+        case "newchat": {
+          let chat = data.data;
+          this.$refs["chatcomp"].newChat(chat);
+          if (this.game.type == "live") {
+            chat.added = Date.now();
+            GameStorage.update(this.gameRef, { chat: chat });
+          }
           if (!document.getElementById("modalChat").checked)
             document.getElementById("chatBtn").classList.add("somethingnew");
           break;
+        }
       }
     },
     updateCorrGame: function(obj, callback) {
@@ -958,7 +970,10 @@ export default {
         return p.sid == this.st.user.sid || p.id == this.st.user.id;
       });
       const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
-      if (!game.chats) game.chats = []; //live games don't have chat history
+      // Live games before 26/03/2020 don't have chat history. TODO: remove next line
+      if (!game.chats) game.chats = [];
+      // Sort chat messages from newest to oldest
+      game.chats.sort((c1, c2) => c2.added - c1.added);
       if (gtype == "corr") {
         // NOTE: clocks in seconds
         game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
@@ -971,10 +986,6 @@ export default {
               (Date.now() - game.moves[L-1].played) / 1000;
           }
         }
-        // Sort chat messages from newest to oldest
-        game.chats.sort((c1, c2) => {
-          return c2.added - c1.added;
-        });
         if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
           // Did a chat message arrive after my last move?
           let dtLastMove = 0;
@@ -996,6 +1007,12 @@ export default {
         game.moves = game.moves.map(m => m.squares);
       }
       if (gtype == "live") {
+        if (
+          game.chats.length > 0 &&
+          (!game.initime || game.initime < game.chats[0].added)
+        ) {
+          document.getElementById("chatBtn").classList.add("somethingnew");
+        }
         if (game.clocks[0] < 0) {
           // Game is unstarted. clock is ignored until move 2
           game.clocks = [tc.mainTime, tc.mainTime];

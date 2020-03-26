@@ -1230,6 +1230,7 @@ export default {
           // Game state (including FEN): will be updated
           moves: [],
           clocks: [-1, -1], //-1 = unstarted
+          chats: [],
           score: "*"
         }
       );
