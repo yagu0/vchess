@@ -205,6 +205,7 @@ main
 <script>
 import { store } from "@/store";
 import { checkChallenge } from "@/data/challengeCheck";
+import { notify } from "@/utils/notifications";
 import { ArrayFun } from "@/utils/array";
 import { ajax } from "@/utils/ajax";
 import params from "@/parameters";
@@ -248,6 +249,7 @@ export default {
         diag: "", //visualizing FEN
         memorize: false //put settings in localStorage
       },
+      focus: true,
       tchallDiag: "",
       curChallToAccept: {from: {}},
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
@@ -275,6 +277,8 @@ export default {
   },
   created: function() {
     document.addEventListener('visibilitychange', this.visibilityChange);
+    window.addEventListener('focus', this.onFocus);
+    window.addEventListener('blur', this.onBlur);
     window.addEventListener("beforeunload", this.cleanBeforeDestroy);
     if (this.st.variants.length > 0 && this.newchallenge.vid > 0)
       this.loadNewchallVariant();
@@ -408,6 +412,8 @@ export default {
     cleanBeforeDestroy: function() {
       clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
+      window.removeEventListener('focus', this.onFocus);
+      window.removeEventListener('blur', this.onBlur);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
       this.conn.removeEventListener("message", this.socketMessageListener);
       this.send("disconnect");
@@ -432,11 +438,16 @@ export default {
     },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
-      this.send(
-        document.visibilityState == "visible"
-          ? "getfocus"
-          : "losefocus"
-      );
+      this.focus = (document.visibilityState == "visible");
+      this.send(this.focus ? "getfocus" : "losefocus");
+    },
+    onFocus: function() {
+      this.focus = true;
+      this.send("getfocus");
+    },
+    onBlur: function() {
+      this.focus = false;
+      this.send("losefocus");
     },
     partialResetNewchallenge: function() {
       // Reset potential target and custom FEN:
@@ -1236,6 +1247,7 @@ export default {
       );
       setTimeout(
         () => {
+          const myIdx = (game.players[0].sid == this.st.user.sid ? 0 : 1);
           GameStorage.add(game, (err) => {
             // If an error occurred, game is not added: a tab already
             // added the game. Maybe a focused one, maybe not.
@@ -1243,10 +1255,16 @@ export default {
             // ==> Do not play it again.
             if (!err && this.st.settings.sound)
               new Audio("/sounds/newgame.flac").play().catch(() => {});
+            if (!this.focus) {
+              notify(
+                "New live game",
+                { body: "vs " + game.players[1-myIdx].name || "@nonymous" }
+              );
+            }
             this.$router.push("/game/" + gameInfo.id);
           });
         },
-        document.hidden ? 500 + 1000 * Math.random() : 0
+        this.focus ? 500 + 1000 * Math.random() : 0
       );
     }
   }

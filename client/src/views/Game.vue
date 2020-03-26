@@ -131,6 +131,7 @@ import Chat from "@/components/Chat.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
 import { ppt } from "@/utils/datetime";
+import { notify } from "@/utils/notifications";
 import { ajax } from "@/utils/ajax";
 import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
@@ -154,6 +155,7 @@ export default {
       gameRef: "",
       nextIds: [],
       game: {}, //passed to BaseGame
+      focus: false,
       // virtualClocks will be initialized from true game.clocks
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
@@ -229,6 +231,8 @@ export default {
     cleanBeforeDestroy: function() {
       clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
+      window.removeEventListener('focus', this.onFocus);
+      window.removeEventListener('blur', this.onBlur);
       if (!!this.askLastate) clearInterval(this.askLastate);
       if (!!this.retrySendmove) clearInterval(this.retrySendmove);
       if (!!this.clockUpdate) clearInterval(this.clockUpdate);
@@ -238,11 +242,25 @@ export default {
     },
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
-      this.send(
-        document.visibilityState == "visible"
-          ? "getfocus"
-          : "losefocus"
-      );
+      this.focus = (document.visibilityState == "visible");
+      if (!this.focus && !!this.rematchOffer) {
+        this.rematchOffer = "";
+        this.send("rematchoffer", { data: false });
+        // Do not remove rematch offer from (local) storage
+      }
+      this.send(this.focus ? "getfocus" : "losefocus");
+    },
+    onFocus: function() {
+      this.focus = true;
+      this.send("getfocus");
+    },
+    onBlur: function() {
+      this.focus = false;
+      if (!!this.rematchOffer) {
+        this.rematchOffer = "";
+        this.send("rematchoffer", { data: false });
+      }
+      this.send("losefocus");
     },
     participateInChat: function(p) {
       return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
@@ -256,6 +274,8 @@ export default {
     },
     atCreation: function() {
       document.addEventListener('visibilitychange', this.visibilityChange);
+      window.addEventListener('focus', this.onFocus);
+      window.addEventListener('blur', this.onBlur);
       // 0] (Re)Set variables
       this.gameRef = this.$route.params["id"];
       // next = next corr games IDs to navigate faster (if applicable)
@@ -680,9 +700,22 @@ export default {
             } else {
               this.gotMoveIdx = movePlus.index;
               const receiveMyMove = (movePlus.color == this.game.mycolor);
-              if (!receiveMyMove && !!this.game.mycolor)
+              const moveColIdx = ["w", "b"].indexOf(movePlus.color);
+              if (!receiveMyMove && !!this.game.mycolor) {
                 // Notify opponent that I got the move:
                 this.send("gotmove", {data: movePlus.index, target: data.from});
+                // And myself if I'm elsewhere:
+                if (!this.focus) {
+                  notify(
+                    "New move",
+                    {
+                      body:
+                        (this.game.players[moveColIdx].name || "@nonymous") +
+                        " just played."
+                    }
+                  );
+                }
+              }
               if (movePlus.cancelDrawOffer) {
                 // Opponent refuses draw
                 this.drawOffer = "";
@@ -696,7 +729,6 @@ export default {
                 }
               }
               this.$refs["basegame"].play(movePlus.move, "received", null, true);
-              const moveColIdx = ["w", "b"].indexOf(movePlus.color);
               this.game.clocks[moveColIdx] = movePlus.clock;
               this.processMove(
                 movePlus.move,
@@ -1295,7 +1327,7 @@ export default {
               });
             };
             // The active tab can update storage immediately
-            if (!document.hidden) updateStorage();
+            if (this.focus) updateStorage();
             // Small random delay otherwise
             else setTimeout(updateStorage, 500 + 1000 * Math.random());
           }
@@ -1426,6 +1458,13 @@ export default {
         };
         if (this.game.type == "live") {
           GameStorage.update(this.gameRef, scoreObj);
+          // Notify myself locally if I'm elsewhere:
+          if (!this.focus) {
+            notify(
+              "Game over",
+              { body: score + " : " + scoreMsg }
+            );
+          }
           if (!!callback) callback();
         }
         else this.updateCorrGame(scoreObj, callback);
