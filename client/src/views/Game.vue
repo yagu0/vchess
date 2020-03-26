@@ -155,7 +155,7 @@ export default {
       gameRef: "",
       nextIds: [],
       game: {}, //passed to BaseGame
-      focus: false,
+      focus: !document.hidden, //will not always work... TODO
       // virtualClocks will be initialized from true game.clocks
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN

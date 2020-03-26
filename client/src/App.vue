@@ -301,6 +301,10 @@ div.board
   display: inline-block
   position: relative
 
+div.board5
+  width: 20%
+  padding-bottom: 20%
+
 div.board8
   width: 12.5%
   padding-bottom: 12.5%

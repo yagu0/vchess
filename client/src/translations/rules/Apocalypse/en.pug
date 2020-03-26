@@ -1,0 +1,63 @@
+p.boxed
+  | Both players play a move "at the same time".
+  | The goal is to eliminate all pawns.
+
+p
+  | This variant is inspired by the 
+  a(href="https://en.wikipedia.org/wiki/Four_Horsemen_of_the_Apocalypse")
+    | &nbsp;Four Horsemen of the Apocalypse
+  | mythology. Knights are horsemen, and pawns are footmen.
+  | The goal is to eliminate all enemy footmen,
+  | most likely with the help of your horsemen.
+  | If all footmen die, the other side wins.
+
+p.
+  At each turn you can decide either to play safely an apparently valid move,
+  or speculate on your opponent's move and choose a move valid only
+  conditionally on his choice. In this last case the move may end up not
+  being playable: you would get a penalty point. Two penalty points loses
+  the game. For example in the initial position, 1.(c1)c2 is safe while 1.axb3
+  will be valid only if black plays 1...Nb3.
+
+p Resolving rules:
+ul
+  li.
+    If both moves are illegal none are played.
+    If one is illegal, the other is played.
+  li.
+    If both moves arrive on the same square, both pieces disappear except
+    if one is a horseman and the other a footman.
+    In this case only the horseman remains.
+  li.
+    If a capture was intended but the target moved, the move is still played
+    but doesn't capture anything.
+
+figure.diagram-container
+  .diagram
+    | fen:npppn/p4/4P/P2pP/NPP1N:
+  figcaption After 1.d1d2 e4e3 2.dxe3 exd2, pawns placements are inversed.
+
+h3 Pawn promotions
+
+p.
+  Pawns automatically promote in a knight, except if the player already
+  have two horsemen on the board. In this case the footman is relocated on
+  any free square which is not on last rank.
+
+h3 End of the game
+
+p.
+  As stated previously, losing all pawns lose the game, so promoting your
+  last pawn loses. It may be the only legal move.
+  If however both footmen armies vanish at the same time, it's a draw.
+  It can happen if the two last pawns decide to advance to the same square.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/rules/apocalypse") Apocalypse chess
+  | &nbsp;on chessvariants.com. This variant is playable at 
+  a(href="http://apocalypsechess.online/") apocalypsechess.online
+  | &nbsp;but without the promotion restriction.
+
+p Inventor: C.S. Elliott (1976)

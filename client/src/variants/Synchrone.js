@@ -106,12 +106,12 @@ export class SynchroneRules extends ChessRules {
     });
   }
 
-  // NOTE: lazy unefficient implementation (for now. TODO?)
   getPossibleMovesFrom([x, y]) {
-    const moves = this.getAllValidMoves();
-    return moves.filter(m => {
-      return m.start.x == x && m.start.y == y;
-    });
+    return (
+      this.filterValid(super.getPotentialMovesFrom([x, y]))
+      // Augment with potential recaptures:
+      .concat(this.getRecaptures())
+    );
   }
 
   // Aux function used to find opponent and self captures
@@ -191,12 +191,10 @@ export class SynchroneRules extends ChessRules {
     return this.filterValid(moves);
   }
 
-  getAllValidMoves() {
-    const color = this.turn;
-    // 0) Generate our possible moves
-    let myMoves = super.getAllValidMoves();
+  getRecaptures() {
     // 1) Generate all opponent's capturing moves
     let oppCaptureMoves = [];
+    const color = this.turn;
     const oppCol = V.GetOppCol(color);
     for (let i=0; i<8; i++) {
       for (let j=0; j<8; j++) {
@@ -215,6 +213,7 @@ export class SynchroneRules extends ChessRules {
     // 2) Play each opponent's capture, and see if back-captures are possible:
     // Lookup table to quickly decide if a move is already in list:
     let moveSet = {};
+    let moves = [];
     oppCaptureMoves.forEach(m => {
       // If another opponent capture with same endpoint already processed, skip:
       const mHash = "m" + m.end.x + m.end.y;
@@ -227,11 +226,16 @@ export class SynchroneRules extends ChessRules {
         };
         V.PlayOnBoard(this.board, justDisappear);
         // Can I take on [m.end.x, m.end.y] ? If yes, add to list:
-        this.getCaptures(m.end.x, m.end.y, color).forEach(cm => myMoves.push(cm));
+        this.getCaptures(m.end.x, m.end.y, color).forEach(cm => moves.push(cm));
         V.UndoOnBoard(this.board, justDisappear);
       }
     });
-    return myMoves;
+    return moves;
+  }
+
+  getAllValidMoves() {
+    // Return possible moves + potential recaptures
+    return super.getAllValidMoves().concat(this.getRecaptures());
   }
 
   filterValid(moves) {
@@ -426,9 +430,9 @@ export class SynchroneRules extends ChessRules {
       this.undo(lastMove); //will erase whiteMove, thus saved above
     }
     let res = [];
-    if (this.underCheck('w'))
+    if (this.kingPos['w'][0] >= 0 && this.underCheck('w'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['w'])));
-    if (this.underCheck('b'))
+    if (this.kingPos['b'][0] >= 0 && this.underCheck('b'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['b'])));
     if (color == 'b') this.play(lastMove);
     return res;
