@@ -212,8 +212,8 @@ export class OrdaRules extends ChessRules {
   getPotentialYurtMoves(sq) {
     return this.getSlideNJumpMoves(
       sq,
-      V.steps[V.BISHOP].concat([1, 0]),
-      "oneSTep"
+      V.steps[V.BISHOP].concat([ [1, 0] ]),
+      "oneStep"
     );
   }
 
@@ -268,7 +268,7 @@ export class OrdaRules extends ChessRules {
       sq,
       color,
       V.YURT,
-      V.steps[V.BISHOP].concat([1, 0]),
+      V.steps[V.BISHOP].concat([ [1, 0] ]),
       "oneStep"
     );
   }
