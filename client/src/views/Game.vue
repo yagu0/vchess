@@ -629,8 +629,13 @@ export default {
           this.send("fullgame", { data: gameToSend, target: data.from });
           break;
         case "fullgame":
-          // Callback "roomInit" to poll clients only after game is loaded
-          this.loadVariantThenGame(data.data, this.roomInit);
+          if (!!data.data.empty) {
+            alert(this.st.tr["The game should be in another tab"]);
+            this.$router.go(-1);
+          }
+          else
+            // Callback "roomInit" to poll clients only after game is loaded
+            this.loadVariantThenGame(data.data, this.roomInit);
           break;
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"

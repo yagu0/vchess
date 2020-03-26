@@ -26,6 +26,7 @@ main
           | {{ st.tr["Analysis mode"] }}
   .row
     .col-sm-12.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
+      h4#variantName {{ gameInfo.vname }}
       div(
         v-show="display=='rules'"
         v-html="content"
@@ -169,6 +170,10 @@ export default {
   background-color: lightgrey
   font-weight: bold
 
+h4#variantName
+  text-align: center
+  font-weight: bold
+
 figure.diagram-container
   margin: 15px 0 15px 0
   text-align: center
@@ -235,4 +240,14 @@ ul:not(.browser-default)
 
 ul:not(.browser-default) > li
   list-style-type: disc
+
+table
+  margin: 15px auto
+
+.italic
+  font-style: italic
+
+img.img-center
+  display: block
+  margin: 0 auto 15px auto
 </style>

@@ -1,7 +1,28 @@
+# Enhancements:
+Desktop notifications
+Do not remove other challenges when one is accepted?
+
 # New variants
+Finish first https://www.chessvariants.com/mvopponent.dir/dynamo.html
+https://echekk.fr/spip.php?page=article&id_article=599
+
+Monster, Horde, Colorbound
+https://www.chessvariants.com/d.betza/chessvar/dan/colclob.html
+https://lichess.org/analysis/horde#0
+https://greenchess.net/rules.php?v=monster
+https://en.wikipedia.org/wiki/Monster_chess
+https://en.wikipedia.org/wiki/Grotesque_(chess) (fun)
+
 Maxima, Interweave, Roccoco
+https://www.chessvariants.com/other.dir/rococo.html
+https://www.chessvariants.com/dpieces.dir/maxima/maxima.html
+https://www.chessvariants.com/other.dir/interweave.html
 
 Take(a)n(d)make : if capture a piece, take its power for the last of the turn and make a move like it.
 If a pawn taken: direction of the capturer, can capture enemy.
+http://www.strategems.net/sections/fairy_defs.html
+Having captured, a unit must immediately, as part of its move, play a non-capturing move, using ONLY the powers of movement of the captured unit from the capture-square. If no such move is available, the capture is illegal. Promotion by capture occurs only when a pawn arrives on the promotion rank as the result of a Take & Make move. Checks are as in normal chess: after the notional capture of the checked King, the checking unit does not move away from the King’s square.
 
-Dynamo chess --> dur...
+Chakart :)
+
+https://en.wikipedia.org/wiki/Fairy_chess_piece

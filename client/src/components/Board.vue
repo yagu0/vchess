@@ -345,10 +345,8 @@ export default {
                   attrs: {
                     src:
                       "/images/pieces/" +
-                      this.vr.getPPpath(
-                        m.appear[0].c + m.appear[0].p,
-                        // Extra arg useful for some variants:
-                        this.orientation) +
+                      // orientation: extra arg useful for some variants:
+                      this.vr.getPPpath(m, this.orientation) +
                       V.IMAGE_EXTENSION
                   },
                   class: { "choice-piece": true },

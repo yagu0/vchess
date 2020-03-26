@@ -83,8 +83,15 @@ export class EightpiecesRules extends ChessRules {
     return "Eightpieces/tmp_png/" + b;
   }
 
-  getPPpath(b, orientation) {
-    return this.getPpath(b, null, null, orientation);
+  getPPpath(m, orientation) {
+    return (
+      this.getPpath(
+        m.appear[0].c + m.appear[0].p,
+        null,
+        null,
+        orientation
+      )
+    );
   }
 
   static ParseFen(fen) {

@@ -197,8 +197,8 @@ export const ChessRules = class ChessRules {
   }
 
   // Path to promotion pieces (usually the same)
-  getPPpath(b) {
-    return this.getPpath(b);
+  getPPpath(m) {
+    return this.getPpath(m.appear[0].c + m.appear[0].p);
   }
 
   // Aggregates flags into one object
@@ -1094,7 +1094,7 @@ export const ChessRules = class ChessRules {
     const c = V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     // Update castling flags if rooks are moved
-    const oppCol = V.GetOppCol(c);
+    const oppCol = this.turn;
     const oppFirstRank = V.size.x - 1 - firstRank;
     if (piece == V.KING && move.appear.length > 0)
       this.castleFlags[c] = [V.size.y, V.size.y];

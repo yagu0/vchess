@@ -209,6 +209,9 @@ module.exports = function(wss) {
                 clients[page][rid][rtmpId].socket,
                 { code: "askfullgame", from: [sid,tmpId] }
               );
+            } else {
+              // I'm the only person who have the game for the moment:
+              send(socket, { code: "fullgame", data: { empty: true } });
             }
           }
           break;
