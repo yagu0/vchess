@@ -1,13 +1,19 @@
 -- Re-run this script after variants are added
 
-insert or ignore into Variants (name,description) values
+insert or ignore into Variants (name, description, noProblems) values
+  ('Apocalypse', 'The end of the world', true),
+  ('Dark', 'In the shadow', true),
+  ('Hidden', 'Unidentified pieces', true),
+  ('Hiddenqueen', 'Queen disguised as a pawn', true),
+  ('Synchrone', 'Play at the same time', true);
+
+insert or ignore into Variants (name, description) values
   ('Alice', 'Both sides of the mirror'),
   ('Allmate1', 'Mate any piece (v1)'),
   ('Allmate2', 'Mate any piece (v2)'),
   ('Antiking1', 'Keep antiking in check (v1)'),
   ('Antiking2', 'Keep antiking in check (v2)'),
   ('Antimatter', 'Dangerous collisions'),
-  ('Apocalypse', 'The end of the world', true),
   ('Arena', 'Middle battle'),
   ('Atomic', 'Explosive captures'),
   ('Ball', 'Score a goal'),
@@ -23,7 +29,6 @@ insert or ignore into Variants (name,description) values
   ('Coregal', 'Two royal pieces'),
   ('Crazyhouse', 'Captures reborn'),
   ('Cylinder', 'Neverending rows'),
-  ('Dark', 'In the shadow', true),
   ('Doublearmy', '64 pieces on the board'),
   ('Dynamo', 'Push and pull'),
   ('Eightpieces', 'Each piece is unique'),
@@ -31,8 +36,6 @@ insert or ignore into Variants (name,description) values
   ('Extinction', 'Capture all of a kind'),
   ('Grand', 'Big board'),
   ('Grasshopper', 'Long jumps over pieces'),
-  ('Hidden', 'Unidentified pieces', true),
-  ('Hiddenqueen', 'Queen disguised as a pawn', true),
   ('Knightmate', 'Mate the knight'),
   ('Knightrelay1', 'Move like a knight (v1)'),
   ('Knightrelay2', 'Move like a knight (v2)'),
@@ -51,7 +54,6 @@ insert or ignore into Variants (name,description) values
   ('Shatranj', 'Ancient rules'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
-  ('Synchrone', 'Play at the same time', true),
   ('Threechecks', 'Give three checks'),
   ('Twokings', 'Two kings'),
   ('Upsidedown', 'Board upside down'),
