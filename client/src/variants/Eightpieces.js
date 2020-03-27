@@ -127,9 +127,11 @@ export class EightpiecesRules extends ChessRules {
     const L = this.sentryPush.length;
     if (!this.sentryPush[L-1]) return "-";
     let res = "";
-    this.sentryPush[L-1].forEach(coords =>
-      res += V.CoordsToSquare(coords) + ",");
-    return res.slice(0, -1);
+    const spL = this.sentryPush[L-1].length;
+    // Condensate path: just need initial and final squares:
+    return [0, spL - 1]
+      .map(i => V.CoordsToSquare(this.sentryPush[L-1][i]))
+      .join(",");
   }
 
   setOtherVariables(fen) {
@@ -142,11 +144,26 @@ export class EightpiecesRules extends ChessRules {
     const parsedFen = V.ParseFen(fen);
     if (parsedFen.sentrypush == "-") this.sentryPush = [null];
     else {
-      this.sentryPush = [
-        parsedFen.sentrypush.split(",").map(sq => {
-          return V.SquareToCoords(sq);
-        })
-      ];
+      // Expand init + dest squares into a full path:
+      const [init, dest] =
+        parsedFen.sentrypush.split(",").map(sq => V.SquareToCoords(sq));
+      let newPath = [init];
+      const delta = ['x', 'y'].map(i => Math.abs(dest[i] - init[i]));
+      // Check that it's not a knight movement:
+      if (delta[0] == 0 || delta[1] == 0 || delta[0] == delta[1]) {
+        const step = ['x', 'y'].map((i, idx) => {
+          return (dest[i] - init[i]) / delta[idx] || 0
+        });
+        let x = init.x + step[0],
+            y = init.y + step[1];
+        while (x != dest.x || y != dest.y) {
+          newPath.push({ x: x, y: y });
+          x += step[0];
+          y += step[1];
+        }
+      }
+      newPath.push(dest);
+      this.sentryPush = [newPath];
     }
   }
 
