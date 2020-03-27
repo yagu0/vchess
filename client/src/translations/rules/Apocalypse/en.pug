@@ -1,6 +1,6 @@
 p.boxed
   | Both players play a move "at the same time".
-  | The goal is to eliminate all pawns.
+  | The goal is to eliminate all enemy pawns.
 
 figure.diagram-container
   .diagram
@@ -12,9 +12,7 @@ p
   a(href="https://en.wikipedia.org/wiki/Four_Horsemen_of_the_Apocalypse")
     | Four Horsemen of the Apocalypse
   | &nbsp;mythology. Knights are horsemen, and pawns are footmen.
-  | The goal is to eliminate all enemy footmen,
-  | most likely with the help of your horsemen.
-  | If all footmen die, the other side wins.
+  | If all footmen of one color die, the other side wins.
 
 p.
   At each turn you can decide either to play safely an apparently valid move,
@@ -30,12 +28,12 @@ ul
     If both moves are illegal none are played.
     If one is illegal, the other is played.
   li.
-    If a capture was intended but the target moved, the move is still played
+    If a capture is intended but the target moved, the move is still played
     but doesn't capture anything.
   li.
     If both moves arrive on the same square: the illegal move prevails,
-    if the other was legal (higher risk => reward).
-    If both moves are legal or illegal, then a horseman wins over a footman.
+    if the other was legal (higher risk => reward): the other piece vanish.
+    If both moves are (il)legal, then a horseman wins over a footman.
     Finally, at same risk level and same piece type, both disappear.
 
 figure.diagram-container
@@ -43,7 +41,7 @@ figure.diagram-container
     | fen:npppn/p4/4P/P2pP/NPP1N:
   figcaption After 1.d1d2 e4e3 2.dxe3 exd2, pawns placements are inversed.
 
-h3 Pawn promotions
+h3 Promotions
 
 p.
   Pawns automatically promote in a knight, except if the player already
@@ -60,6 +58,8 @@ p.
   If however both footmen armies vanish at the same time, it's a draw.
   It can happen if the two last pawns decide to advance to the same square
   for example.
+  Finally, if both sides get the second penalty point at the same time
+  it's also a draw.
 
 h3 Source
 

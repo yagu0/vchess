@@ -207,6 +207,7 @@ export const translations = {
   "Shoot pieces": "Shoot pieces",
   "Squares disappear": "Squares disappear",
   "Standard rules": "Standard rules",
+  "The end of the world": "The end of the world",
   "Transform an essay": "Transform an essay",
   "Two kings": "Two kings",
   "Two royal pieces": "Two royal pieces",

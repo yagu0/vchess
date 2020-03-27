@@ -1,2 +1,69 @@
 p.boxed
-  | TODO
+  | Ambos jugadores juegan "al mismo tiempo".
+  | El objetivo es eliminar todos los peones opuestos.
+
+figure.diagram-container
+  .diagram
+    | fen:npppn/p3p/5/P3P/NPPPN:
+  figcaption Posición inicial.
+
+p
+  | Esta variante está inspirada en el mito de los 
+  a(href="https://es.wikipedia.org/wiki/Jinetes_del_Apocalipsis")
+    | Cuatro Jinetes del Apocalipsis
+  | . Los protagonistas son, por lo tanto, los jinetes del apocalipsis, y sus
+  | lacayos simbolizados por peones. Si todos los lacayos de un color
+  | perecer, entonces el otro lado gana.
+
+p.
+  En cada turno tienes que decidir si jugar una jugada segura, que es
+  apariencia válida, o especule sobre el movimiento del oponente y elija
+  un movimiento válido condicionalmente en la elección adversa.
+  En este último caso tu jugada podría no ser legal: tendría un punto de
+  penalización. Dos puntos de penalización es equivalente a la pérdida
+  del juego. Por ejemplo en la posición inicial, 1.(c1)c2 es seguro,
+  mientras que 1.axb3 solo será válido si las negras juegan 1...Nb3.
+
+p Reglas de resolución:
+ul
+  li.
+    Si los dos movimientos son ilegales, ninguno se ejecuta.
+    Si solo uno de los dos es ilegal, se juega el otro.
+  li.
+    Si el objetivo de una captura (legal en el tablero) se ha movido,
+    el movimiento es todavía jugó pero no capturó nada.
+  li.
+    Si ambos movimientos golpean la misma casilla, entonces el movimiento
+    (inicialmente) ilegal prevalece si el otro era legal
+    (mayor riesgo => recompensa): la otra pieza desaparece.
+    Si ambas las jugadas son (il)legales, entonces el caballo gana
+    el peón. Finalmente, al mismo nivel de riesgo con dos piezas idénticas,
+    ambos desaparecen.
+
+figure.diagram-container
+  .diagram
+    | fen:npppn/p4/4P/P2pP/NPP1N:
+  figcaption.
+    Después de 1.d1d2 e4e3 2.dxe3 exd2, las posiciones de
+    los peones se invierten.
+
+h3 Promociones
+
+p.
+  Un peón se promociona automáticamente a un jinete, a menos que ya haya dos
+  de su color en el tablero de ajedrez. En este caso, el lacayo se redirige a
+  cualquier espacio libre que no esté en la última fila.
+  Incluso en este caso, una promoción puede parecer posible de antemano
+  de una captura de caballo. Es arriesgado pero jugable.
+
+h3 Fin de la partida
+
+p.
+  Como se mencionó anteriormente, perder todos tus peones conduce a la
+  derrota, así que en particular para promover su último peón perdido.
+  Este podría ser la única jugada legal.
+  Sin embargo, si los dos ejércitos de peones se aniquilan entre sí, entonces
+  el juego está tablas. Es posible si los dos últimos peones deciden
+  para avanzar en la misma plaza, por exemplo.
+  Finalmente, si ambas partes obtienen su segunda penalización al mismo
+  tiempo también es tablas.

@@ -1,2 +1,68 @@
 p.boxed
-  | TODO
+  | Les deux joueurs jouent "en même temps".
+  | L'objectif est d'éliminer tous les pions adverses.
+
+figure.diagram-container
+  .diagram
+    | fen:npppn/p3p/5/P3P/NPPPN:
+  figcaption Initial position.
+
+p
+  | Cette variante est inspirée du mythe des 
+  a(href="https://fr.wikipedia.org/wiki/Cavaliers_de_l%27Apocalypse")
+    | Quatre Cavaliers de l'Apocalypse
+  | . Les protagonstes sont donc les cavaliers de l'apocalypse, et leurs
+  | valets symbolisés par des pions. Si tous les valets d'une couleur
+  | périssent, alors l'autre camp a gagné.
+
+p.
+  À chaque tour vous devez décider soit de jouer un coup sûr, qui est en
+  apparence valide, soit spéculer sur le coup adverse et choisir un coup
+  valide conditionnellement au choix adverse. Dans ce dernier cas votre coup
+  pourrait ne pas être légal : vous auriez un point de pénalité. Deux points
+  de pénalité équivaut à la parte de la partie. Par exemple dans la position
+  initiale, 1.(c1)c2 est sûr tandis que 1.axb3 ne sera valide que si
+  les noirs jouent 1...Nb3.
+
+p Règles de résolution :
+ul
+  li.
+    Si les deux coups sont illégaux, aucun n'est exécuté.
+    Si un seul des deux est illégal, l'autre est joué.
+  li.
+    Si la cible d'une capture (légale sur l'échiquier) a bougé, le coup est
+    tout de même joué mais ne capture rien.
+  li.
+    Si les deux coups arrivent sur la même case, alors le coup (initialement)
+    illégal l'emporte si l'autre était légal
+    (risque plus élevé => récompense) : l'autre pièce disparaît.
+    Si les coups sont tous deux (il)légaux, alors le cavalier l'emporte sur
+    le pion. Enfin, au même niveau de risque avec deux pièce identiques,
+    les deux disparaissent.
+
+figure.diagram-container
+  .diagram
+    | fen:npppn/p4/4P/P2pP/NPP1N:
+  figcaption.
+    Après 1.d1d2 e4e3 2.dxe3 exd2, les positions des pions s'inversent.
+
+h3 Promotions
+
+p.
+  Un pion est automatiquement promu en cavalier, sauf s'il y en a déjà deux
+  de sa couleur sur l'échiquier. Dans ce cas le valet est redirigé sur
+  n'importe quelle case libre ne se trouvant pas sur la dernière rangée.
+  Même dans ce cas, une promotion peut paraître possible par anticipation
+  d'une capture de cavalier. C'est risqué mais jouable.
+
+h3 Fin de la partie
+
+p.
+  Comme indiqué précédemment, perdre tous ses pions mène à la défaite, donc
+  en particulier promouvoir son dernier pion perd.
+  Cela pourrait être le seul coup légal.
+  Si cependant les deux armées de pions s'annihilent mutuellement, alors
+  la partie est nulle. C'est possible si les deux derniers pions décident
+  d'avancer sur la même case.
+  Enfin, si les deux camps obtiennent leur seconde pénalité en même
+  temps c'est nul également.

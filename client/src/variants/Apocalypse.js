@@ -146,7 +146,8 @@ export class ApocalypseRules extends ChessRules {
       start: this.whiteMove.start,
       end: this.whiteMove.end,
       appear: this.whiteMove.appear,
-      vanish: this.whiteMove.vanish
+      vanish: this.whiteMove.vanish,
+      illegal: this.whiteMove.illegal
     });
   }
 

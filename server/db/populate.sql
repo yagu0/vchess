@@ -7,6 +7,7 @@ insert or ignore into Variants (name,description) values
   ('Antiking1', 'Keep antiking in check (v1)'),
   ('Antiking2', 'Keep antiking in check (v2)'),
   ('Antimatter', 'Dangerous collisions'),
+  ('Apocalypse', 'The end of the world'),
   ('Arena', 'Middle battle'),
   ('Atomic', 'Explosive captures'),
   ('Ball', 'Score a goal'),

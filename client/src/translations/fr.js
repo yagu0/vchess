@@ -207,6 +207,7 @@ export const translations = {
   "Shoot pieces": "Tirez sur les pièces",
   "Squares disappear": "Les cases disparaissent",
   "Standard rules": "Règles usuelles",
+  "The end of the world": "La fin du monde",
   "Transform an essay": "Transformer un essai",
   "Two kings": "Deux rois",
   "Two royal pieces": "Deux pièces royales",
