@@ -18,6 +18,7 @@ main
         )
           option(
             v-for="v in [emptyVar].concat(st.variants)"
+            v-if="!v.noProblems"
             :value="v.id"
             :selected="curproblem.vid==v.id"
           )
