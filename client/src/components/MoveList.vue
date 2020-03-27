@@ -53,7 +53,7 @@ div
         | {{ notation(moves[moveIdx]) }}
       .td(
         v-if="moveIdx < moves.length-1"
-        :class="{'highlight-lm': highlightBlackmove(moveIdx)}"
+        :class="{'highlight-lm': highlightBlackmove(moveIdx+1)}"
         @click="() => gotoMove(moveIdx+1)"
       )
         | {{ notation(moves[moveIdx+1]) }}
@@ -139,8 +139,8 @@ export default {
     },
     highlightBlackmove: function(moveIdx) {
       return (
-        this.cursor == moveIdx + 1 ||
-        (this.show == "byrow" && this.cursor == moveIdx + 2)
+        this.cursor == moveIdx ||
+        (this.show == "byrow" && this.cursor == moveIdx + 1)
       );
     },
     gotoMove: function(index) {

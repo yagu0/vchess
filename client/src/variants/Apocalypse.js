@@ -274,29 +274,44 @@ export class ApocalypseRules extends ChessRules {
       return (
         (
           m.vanish[0].p == V.KNIGHT &&
-          (m.vanish.length == 1 || m.vanish[1].c != m.vanish[0].c)
+          (
+            m.vanish.length == 1 ||
+            m.vanish[1].c != m.vanish[0].c ||
+            // Self-capture attempt
+            (
+              !other.illegal &&
+              other.end.x == m.end.x &&
+              other.end.y == m.end.y
+            )
+          )
         )
         ||
         (
-          // Promotion attempt
-          m.end.x == (m.vanish[0].c == "w" ? 0 : V.size.x - 1) &&
-          other.vanish.length == 2 &&
-          other.vanish[1].p == V.KNIGHT &&
-          other.vanish[1].c == m.vanish[0].c
-        )
-        ||
-        (
-          // Moving attempt
-          !movingLikeCapture(m) &&
-          other.start.x == m.end.x &&
-          other.start.y == m.end.y
-        )
-        ||
-        (
-          // Capture attempt
-          movingLikeCapture(m) &&
-          other.end.x == m.end.x &&
-          other.end.y == m.end.y
+          m.vanish[0].p == V.PAWN &&
+          !other.illegal &&
+          (
+            (
+              // Promotion attempt
+              m.end.x == (m.vanish[0].c == "w" ? 0 : V.size.x - 1) &&
+              other.vanish.length == 2 &&
+              other.vanish[1].p == V.KNIGHT &&
+              other.vanish[1].c == m.vanish[0].c
+            )
+            ||
+            (
+              // Moving attempt
+              !movingLikeCapture(m) &&
+              other.start.x == m.end.x &&
+              other.start.y == m.end.y
+            )
+            ||
+            (
+              // Capture attempt
+              movingLikeCapture(m) &&
+              other.end.x == m.end.x &&
+              other.end.y == m.end.y
+            )
+          )
         )
       );
     };
