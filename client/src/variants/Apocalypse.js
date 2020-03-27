@@ -322,7 +322,7 @@ export class ApocalypseRules extends ChessRules {
       vanish: []
     };
     if (!m1 && !m2) return smove;
-    // Both move are now legal:
+    // Both moves are now legal or at least possible:
     smove.vanish.push(m1.vanish[0]);
     smove.vanish.push(m2.vanish[0]);
     if ((m1.end.x != m2.end.x) || (m1.end.y != m2.end.y)) {
@@ -467,11 +467,18 @@ export class ApocalypseRules extends ChessRules {
       return moves[randInt(moves.length)];
 
     // Rank moves at depth 1:
-    // try to capture something (not re-capturing)
     moves.forEach(m => {
-      V.PlayOnBoard(this.board, m);
+      // Warning: m.vanish[0] might refer to an empty square! Or self
+      const skipPlayUndo = (
+        m.vanish.length == 2 &&
+        (
+          m.vanish[1].c == m.vanish[0].c ||
+          this.board[m.vanish[1].x][m.vanish[1].y] == V.EMPTY
+        )
+      );
+      if (!skipPlayUndo) V.PlayOnBoard(this.board, m);
       m.eval = this.evalPosition();
-      V.UndoOnBoard(this.board, m);
+      if (!skipPlayUndo) V.UndoOnBoard(this.board, m);
     });
     moves.sort((a, b) => {
       return (color == "w" ? 1 : -1) * (b.eval - a.eval);
@@ -485,7 +492,7 @@ export class ApocalypseRules extends ChessRules {
   getNotation(move) {
     // Basic system: piece + init + dest square
     return (
-      move.vanish[0].p.toUpperCase() +
+      (move.vanish[0].p == V.KNIGHT ? "N" : "") +
       V.CoordsToSquare(move.start) +
       V.CoordsToSquare(move.end)
     );
