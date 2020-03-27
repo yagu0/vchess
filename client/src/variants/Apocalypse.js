@@ -22,7 +22,7 @@ export class ApocalypseRules extends ChessRules {
   }
 
   static get CanAnalyze() {
-    return true; //false;
+    return false;
   }
 
   static get ShowMoves() {
