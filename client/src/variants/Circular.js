@@ -35,8 +35,10 @@ export class CircularRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (randomness == 0)
-      return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR w 0 1111111111111111";
+    if (randomness == 0) {
+      return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR " +
+        "w 0 1111111111111111";
+    }
 
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank

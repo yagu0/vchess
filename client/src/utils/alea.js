@@ -16,7 +16,7 @@ export function randInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-// Inspired by https://github.com/jashkenas/underscore/blob/master/underscore.js
+// Inspired by https://github.com/jashkenas/underscore
 export function sample(arr, n) {
   n = n || 1;
   let cpArr = arr.map(e => e);

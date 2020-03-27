@@ -27,7 +27,7 @@ export class ExtinctionRules extends ChessRules {
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const pos = V.ParseFen(fen).position;
-    // NOTE: no need for safety "|| []", because each piece type must be present
+    // NOTE: no need for safety "|| []", because each piece type is present
     // (otherwise game is already over!)
     this.material = {
       w: {
@@ -107,7 +107,8 @@ export class ExtinctionRules extends ChessRules {
         return this.material[color][p] == 0;
       })
     ) {
-      // Very negative (resp. positive) if white (reps. black) pieces set is incomplete
+      // Very negative (resp. positive)
+      // if white (reps. black) pieces set is incomplete
       return (color == "w" ? -1 : 1) * V.INFINITY;
     }
     return super.evalPosition();

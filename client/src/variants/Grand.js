@@ -328,9 +328,11 @@ export class GrandRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0) {
-      // No castling in the official initial setup
-      return "r8r/1nbqkmcbn1/pppppppppp/91/91/91/91/PPPPPPPPPP/1NBQKMCBN1/R8R " +
-        "w 0 zzzz - 00000000000000";
+      return (
+        "r8r/1nbqkmcbn1/pppppppppp/91/91/91/91/PPPPPPPPPP/1NBQKMCBN1/R8R " +
+        // No castling in the official initial setup
+        "w 0 zzzz - 00000000000000"
+      );
     }
 
     let pieces = { w: new Array(10), b: new Array(10) };
@@ -378,7 +380,8 @@ export class GrandRules extends ChessRules {
       let cardinalPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
-      // Rooks and king positions are now fixed, because of the ordering rook-king-rook
+      // Rooks and king positions are now fixed,
+      // because of the ordering rook-king-rook
       let rook1Pos = positions[0];
       let kingPos = positions[1];
       let rook2Pos = positions[2];

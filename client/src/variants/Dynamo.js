@@ -66,7 +66,11 @@ export class DynamoRules extends ChessRules {
         // Now step in the other direction: if end of the world, then attacked
         rx = x - step[0];
         ry = y - step[1];
-        while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        while (
+          V.OnBoard(rx, ry) &&
+          this.board[rx][ry] == V.EMPTY &&
+          !oneStep
+        ) {
           rx -= step[0];
           ry -= step[1];
         }

@@ -60,6 +60,7 @@ div#baseGame
 <script>
 import Board from "@/components/Board.vue";
 import MoveList from "@/components/MoveList.vue";
+import params from "@/parameters";
 import { store } from "@/store";
 import { getSquareId } from "@/utils/squareId";
 import { getDate } from "@/utils/datetime";
@@ -205,6 +206,7 @@ export default {
         if (!Array.isArray(move)) move = [move];
         move.forEach((m,idx) => {
           m.notation = this.vr.getNotation(m);
+          m.unambiguous = V.GetUnambiguousNotation(m);
           this.vr.play(m);
           if (idx < L - 1 && this.vr.getCheckSquares(this.vr.turn).length > 0)
             m.notation += "+";
@@ -214,6 +216,7 @@ export default {
         // 'start' & 'end' is required for Board component
         this.moves.unshift({
           notation: "...",
+          unambiguous: "...",
           start: { x: -1, y: -1 },
           end: { x: -1, y: -1 },
           fen: game.fenStart
@@ -271,13 +274,23 @@ export default {
       pgn += '[White "' + this.game.players[0].name + '"]\n';
       pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
-      pgn += '[Result "' + this.game.score + '"]\n\n';
+      pgn += '[Result "' + this.game.score + '"]\n';
+      if (!!this.game.id)
+        pgn += '[URL "' + params.serverUrl + '/game/' + this.game.id + '"]\n';
+      pgn += '\n';
       for (let i = 0; i < this.moves.length; i += 2) {
-        pgn += (i/2+1) + "." + getFullNotation(this.moves[i]) + " ";
+        if (i > 0) pgn += " ";
+        pgn += (i/2+1) + "." + getFullNotation(this.moves[i]);
         if (i+1 < this.moves.length)
-          pgn += getFullNotation(this.moves[i+1]) + " ";
+          pgn += " " + getFullNotation(this.moves[i+1]);
       }
-      return pgn + "\n";
+      pgn += "\n\n";
+      for (let i = 0; i < this.moves.length; i += 2) {
+        pgn += getFullNotation(this.moves[i], "unambiguous") + "\n";
+        if (i+1 < this.moves.length)
+          pgn += getFullNotation(this.moves[i+1], "unambiguous") + "\n";
+      }
+      return pgn;
     },
     showEndgameMsg: function(message) {
       this.endgameMessage = message;
@@ -321,14 +334,15 @@ export default {
         "#" + getSquareId(move.start) + " > img.piece"
       );
       // For some unknown reasons Opera get "movingPiece == null" error
-      // TOOO: is it calling 'animate()' twice ? One extra time ?
+      // TODO: is it calling 'animate()' twice ? One extra time ?
       if (!movingPiece) return;
-      // HACK for animation (with positive translate, image slides "under background")
-      // Possible improvement: just alter squares on the piece's way...
       const squares = document.getElementsByClassName("board");
       for (let i = 0; i < squares.length; i++) {
         let square = squares.item(i);
-        if (square.id != getSquareId(move.start)) square.style.zIndex = "-1";
+        if (square.id != getSquareId(move.start))
+          // HACK for animation:
+          // (with positive translate, image slides "under background")
+          square.style.zIndex = "-1";
       }
       movingPiece.style.transform =
         "translate(" + translation.x + "px," + translation.y + "px)";
@@ -365,6 +379,7 @@ export default {
       const navigate = !move;
       const playSubmove = (smove) => {
         smove.notation = this.vr.getNotation(smove);
+        smove.unambiguous = V.GetUnambiguousNotation(smove);
         this.vr.play(smove);
         this.lastMove = smove;
         if (!this.inMultimove) {
@@ -429,7 +444,7 @@ export default {
         if (this.vr.turn != initurn) {
           // Turn has changed: move is complete
           if (!smove.fen)
-            // NOTE: only FEN of last sub-move is required (thus setting it here)
+            // NOTE: only FEN of last sub-move is required (=> setting it here)
             smove.fen = this.vr.getFen();
           // Is opponent in check?
           this.incheck = this.vr.getCheckSquares(this.vr.turn);

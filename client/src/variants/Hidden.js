@@ -205,9 +205,11 @@ export class HiddenRules extends ChessRules {
       pieces[c][rook2Pos] = "u";
     }
     let upFen = pieces["b"].join("");
-    upFen = upFen.substr(0,8) + "/" + upFen.substr(8).split("").reverse().join("");
+    upFen = upFen.substr(0,8) + "/" +
+      upFen.substr(8).split("").reverse().join("");
     let downFen = pieces["b"].join("").toUpperCase();
-    downFen = downFen.substr(0,8) + "/" + downFen.substr(8).split("").reverse().join("");
+    downFen = downFen.substr(0,8) + "/" +
+      downFen.substr(8).split("").reverse().join("");
     return upFen + "/8/8/8/8/" + downFen + " w 0";
   }
 
@@ -255,9 +257,10 @@ export class HiddenRules extends ChessRules {
       if (move.vanish.length == 2 && move.vanish[1].c != color) {
         // OK this isn't a castling move
         const myPieceVal = V.VALUES[move.appear[0].p];
-        const hisPieceVal = Object.keys(V.HIDDEN_DECODE).includes(move.vanish[1].p)
-          ? undefined
-          : V.VALUES[move.vanish[1].p];
+        const hisPieceVal =
+          Object.keys(V.HIDDEN_DECODE).includes(move.vanish[1].p)
+            ? undefined
+            : V.VALUES[move.vanish[1].p];
         if (!hisPieceVal) {
           // Opponent's piece is unknown: do not take too much risk
           move.eval = -myPieceVal + 1.5; //so that pawns always take
@@ -276,7 +279,8 @@ export class HiddenRules extends ChessRules {
         // If no capture, favor small step moves,
         // but sometimes move the knight anyway
         const penalty = V.Decode(move.vanish[0].p) != V.KNIGHT
-          ? Math.abs(move.end.x - move.start.x) + Math.abs(move.end.y - move.start.y)
+          ? Math.abs(move.end.x - move.start.x) +
+            Math.abs(move.end.y - move.start.y)
           : (Math.random() < 0.5 ? 3 : 1);
         move.eval -= penalty / (V.size.x + V.size.y - 1);
       }

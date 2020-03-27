@@ -7,7 +7,7 @@ export class BallRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      { promotions: ChessRules.PawnSpecs.promotions.concat([V.CHAMPION]) }
+      { promotions: ChessRules.PawnSpecs.promotions.concat([V.PHOENIX]) }
     );
   }
 
@@ -15,8 +15,8 @@ export class BallRules extends ChessRules {
     return false;
   }
 
-  static get CHAMPION() {
-    return 'c';
+  static get PHOENIX() {
+    return 'h';
   }
 
   static get BALL() {
@@ -38,7 +38,7 @@ export class BallRules extends ChessRules {
       'b': 'd',
       'q': 't',
       'k': 'l',
-      'c': 'h'
+      'h': 'i'
     };
   }
 
@@ -50,13 +50,13 @@ export class BallRules extends ChessRules {
       'd': 'b',
       't': 'q',
       'l': 'k',
-      'h': 'c'
+      'i': 'h'
     };
   }
 
   static get PIECES() {
     return ChessRules.PIECES
-      .concat([V.CHAMPION])
+      .concat([V.PHOENIX])
       .concat(Object.keys(V.HAS_BALL_DECODE))
       .concat(['a']);
   }
@@ -105,7 +105,7 @@ export class BallRules extends ChessRules {
     let prefix = "";
     const withPrefix =
       Object.keys(V.HAS_BALL_DECODE)
-      .concat([V.CHAMPION])
+      .concat([V.PHOENIX])
       .concat(['a']);
     if (withPrefix.includes(b[1])) prefix = "Ball/";
     return prefix + b;
@@ -173,16 +173,12 @@ export class BallRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.steps,
-      // Add champion moves
+      // Add phoenix moves
       {
-        c: [
+        h: [
           [-2, -2],
-          [-2, 0],
           [-2, 2],
-          [0, -2],
-          [0, 2],
           [2, -2],
-          [2, 0],
           [2, 2],
           [-1, 0],
           [1, 0],
@@ -258,8 +254,8 @@ export class BallRules extends ChessRules {
   // So base implementation is fine.
 
   getPotentialMovesFrom([x, y]) {
-    if (this.getPiece(x, y) == V.CHAMPION)
-      return this.getPotentialChampionMoves([x, y]);
+    if (this.getPiece(x, y) == V.PHOENIX)
+      return this.getPotentialPhoenixMoves([x, y]);
     return super.getPotentialMovesFrom([x, y]);
   }
 
@@ -283,8 +279,8 @@ export class BallRules extends ChessRules {
     return moves;
   }
 
-  getPotentialChampionMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], "oneStep");
+  getPotentialPhoenixMoves(sq) {
+    return this.getSlideNJumpMoves(sq, V.steps[V.PHOENIX], "oneStep");
   }
 
   filterValid(moves) {
@@ -321,10 +317,10 @@ export class BallRules extends ChessRules {
     return {
       p: 1,
       r: 3,
-      n: 4,
+      n: 3,
       b: 2,
       q: 5,
-      c: 4,
+      h: 3,
       a: 0 //ball: neutral
     };
   }

@@ -303,7 +303,8 @@ export class CheckeredRules extends ChessRules {
   }
 
   isAttackedByBishop(sq, colors) {
-    return this.isAttackedBySlideNJump(sq, colors, V.BISHOP, V.steps[V.BISHOP]);
+    return this.isAttackedBySlideNJump(
+      sq, colors, V.BISHOP, V.steps[V.BISHOP]);
   }
 
   isAttackedByQueen(sq, colors) {
@@ -337,7 +338,7 @@ export class CheckeredRules extends ChessRules {
       "c"
     ]);
     let res = kingAttacked
-      ? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
+      ? [JSON.parse(JSON.stringify(this.kingPos[color]))]
       : [];
     this.turn = color;
     return res;

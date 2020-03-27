@@ -83,20 +83,22 @@ const UserModel = {
 
   // Set session token only if empty (first login)
   // NOTE: weaker security (but avoid to re-login everywhere after each logout)
-  // TODO: option would be to reset all tokens periodically, e.g. every 3 months
+  // TODO: option would be to reset all tokens periodically (every 3 months?)
   trySetSessionToken: function(id, cb) {
     db.serialize(function() {
       let query =
         "SELECT sessionToken " +
         "FROM Users " +
         "WHERE id = " + id;
-      db.get(query, (err,ret) => {
+      db.get(query, (err, ret) => {
         const token = ret.sessionToken || genToken(params.token.length);
+        const setSessionToken =
+          (!ret.sessionToken ? (", sessionToken = '" + token + "'") : "");
         query =
           "UPDATE Users " +
           // Also empty the login token to invalidate future attempts
           "SET loginToken = NULL" +
-          (!ret.sessionToken ? (", sessionToken = '" + token + "'") : "") + " " +
+          setSessionToken + " " +
           "WHERE id = " + id;
         db.run(query);
         cb(token);

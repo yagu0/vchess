@@ -114,9 +114,11 @@ export default {
       // $nextTick to wait for table > tr to be rendered
       this.$nextTick(() => {
         let curMove = document.querySelector(".td.highlight-lm");
-        if (!curMove && this.moves.length > 0)
+        if (!curMove && this.moves.length > 0) {
           // Cursor is before game beginning, and some moves were made:
-          curMove = document.querySelector(".moves-list > .tr:first-child > .td");
+          curMove =
+            document.querySelector(".moves-list > .tr:first-child > .td");
+        }
         if (!!curMove) {
           curMove.scrollIntoView({
             behavior: "auto",

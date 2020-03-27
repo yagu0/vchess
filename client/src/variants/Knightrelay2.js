@@ -101,7 +101,8 @@ export class Knightrelay2Rules extends ChessRules {
     const finalSquare = V.CoordsToSquare(move.end);
     const piece = this.getPiece(move.start.x, move.start.y);
 
-    // Since pieces and pawns could move like knight, indicate start and end squares
+    // Since pieces and pawns could move like knight,
+    // indicate start and end squares
     let notation =
       piece.toUpperCase() +
       initSquare +

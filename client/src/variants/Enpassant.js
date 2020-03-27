@@ -41,7 +41,10 @@ export class EnpassantRules extends ChessRules {
       const divisor = Math.min(Math.abs(delta[0]), Math.abs(delta[1]));
       step = [delta[0]/divisor || 0, delta[1]/divisor || 0];
     } else {
-      step = [delta[0]/Math.abs(delta[0]) || 0, delta[1]/Math.abs(delta[1]) || 0];
+      step = [
+        delta[0]/Math.abs(delta[0]) || 0,
+        delta[1]/Math.abs(delta[1]) || 0
+      ];
     }
     let res = [];
     for (

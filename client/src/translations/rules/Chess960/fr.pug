@@ -11,7 +11,8 @@ p.
 
 p.
   Chaque pièce a un mode de déplacement particulier, mais capture généralement
-  en arrivant sur une case occupée (avec une seule exception, détaillée plus bas).
+  en arrivant sur une case occupée (avec une seule exception, détaillée plus
+  bas).
 
 figure.diagram-container
   .diagram
@@ -33,9 +34,9 @@ h4 Pions
 p.
   Ils forment l'unité la plus faible du jeu, mais aussi celle au déplacement
   le plus complexe. Depuis leur rangée initiale les pions peuvent avancer de
-  deux cases (verticalement), ou d'une case seulement dans cette même direction.
-  Après ce premier coup, ils ne peuvent avancer que d'une case à la fois,
-  toujours vers l'avant.
+  deux cases (verticalement), ou d'une case seulement dans cette même
+  direction. Après ce premier coup, ils ne peuvent avancer que d'une case à la
+  fois, toujours vers l'avant.
 
 p.
   Les pions capturent en se déplaçant d'une case en avant en diagonale,
@@ -49,9 +50,9 @@ p.
 p.
   Notation des coups : "pion" est implicite, donc pour un simple déplacement de
   pion on se contente de noter la case d'arrivée (puisqu'il n'y a pas
-  d'ambiguité). Ainsi, 1.e5 veut dire "pion de e4 en e5". Cependant, dans le cas
-  d'une capture il peut y avoir une ambiguité (deux pions sur la même rangée),
-  donc la colonne est indiquée aussi : "fxe6" (par exemple).
+  d'ambiguité). Ainsi, 1.e5 veut dire "pion de e4 en e5". Cependant, dans le
+  cas d'une capture il peut y avoir une ambiguité (deux pions sur la même
+  rangée), donc la colonne est indiquée aussi : "fxe6" (par exemple).
   Comme vous le constatez une capture est notée par une croix : "x".
 
 figure.diagram-container
@@ -73,17 +74,19 @@ p
 h4 Tours
 
 p.
-  Elles se déplacent horizontalement ou verticalement, d'autant de cases qu'elles
-  le souhaitent du moment que la voie est libre.
+  Elles se déplacent horizontalement ou verticalement, d'autant de cases
+  qu'elles le souhaitent du moment que la voie est libre.
   Si leur chemin s'arrête sur une pièce adverses, celle-ci peut être capturée
-  a priori. (A priori car le roi ne doit pas être en échec à la suite de ce coup).
+  a priori. (A priori car le roi ne doit pas être en échec à la suite de ce
+  coup).
 
 h4 Cavaliers
 
 p.
-  C'est la seule pièce capable de sauter par dessus les autres (sans les capturer).
-  Ils effectuent des déplacements en "L" : deux cases dans une direction
-  (horizontale ou verticale), puis une dans une direction orthogonale.
+  C'est la seule pièce capable de sauter par dessus les autres (sans les
+  capturer). Ils effectuent des déplacements en "L" : deux cases dans une
+  direction (horizontale ou verticale), puis une dans une direction
+  orthogonale.
 
 figure.diagram-container
   .diagram
@@ -93,8 +96,8 @@ figure.diagram-container
 h4 Fous
 
 p.
-  Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la voie
-  est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
+  Ils se déplacent en diagonale, aussi loin qu'ils le souhaitent tant que la
+  voie est libre. Si leur chemin s'arrête sur une pièce ennemie, celle-ci peut
   a priori être capturée.
 
 h4 Dame
@@ -117,7 +120,9 @@ ul
   li déplacer son roi en lieu sûr, ou
   li capturer l'attaquant, ou
   li intercepter la ligne d'attaque.
-p Selon la situation une ou plus de ces contre-mesures peuvent être inapplicables.
+p.
+  Selon la situation une ou plus de ces contre-mesures peuvent être
+  inapplicables.
 
 p Il est interdit de laisser son roi en échec à la fin d'un coup.
 
@@ -129,20 +134,20 @@ figure.diagram-container
 h3 Coups spéciaux
 
 p.
-  En plus de la promotion des pions précédemment introduite, deux coups spéciaux
-  sont à signaler :
+  En plus de la promotion des pions précédemment introduite, deux coups
+  spéciaux sont à signaler :
 ul
   li.
     le roque : si le roi et la tour la plus à droite du point de vue des blancs
     n'ont pas encore bougé, et si rien ne se trouve sur le chemin du roi à la
-    tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou éventuellement
-    par les pièces impliquées dans le roque), alors le roi peut aller en g1 et la
-    tour en f1.
+    tour, et si enfin les cases f1 et g1 ne sont pas occupées (ou
+    éventuellement par les pièces impliquées dans le roque), alors le roi peut
+    aller en g1 et la tour en f1.
     Note : puisque les pièces sont disposées aléatoirement, le roi ou la tour
-    peut sembler rester immobile pendant ce coup.
-    La même chose peut être effectué côté noir, et du "côté gauche" de
-    l'échiquier avec l'autre tour ; on arrive alors sur les cases c1 (roi) et d1
-    (tour). Ce dernier coup est appelé "grand roque", et l'autre "petit roque".
+    peut sembler rester immobile pendant ce coup. La même chose peut être
+    effectué côté noir, et du "côté gauche" de l'échiquier avec l'autre tour ;
+    on arrive alors sur les cases c1 (roi) et d1 (tour). Ce dernier coup est
+    appelé "grand roque", et l'autre "petit roque".
     Notation : le petit roque (resp. grand roque) se note 0-0 (resp. 0-0-0).
   li.
     en passant : après qu'un pion a avancé de deux cases, si un pion adverse se
@@ -180,7 +185,9 @@ p.
   Toutes les autres façons d'achever une partie mènent à une nulle (1/2-1/2) ;
   personne ne gagne :
 ul
-  li quant un joueur n'a pas de coup légal à disposition sans être en échec (pat),
+  li.
+    quand un joueur n'a pas de coup légal à disposition sans être en échec
+    (pat),
   li.
     quand une position est répétée trois fois avec les mêmes droits au roque,
     et le même joueur au trait,
@@ -190,4 +197,4 @@ p.
   car elle ne se généralise pas facilement aux variantes (pas à toutes),
   mais surtout car les parties jouées ici le sont avant tout pour s'amuser.
   Si vous vous lancez dans des manoeuvres de 200 coups et que votre adversaire
-  n'en a pas marre, pourquoi vous arrêterais-je ? :)
+  n'en a pas marre, alors continuez :)

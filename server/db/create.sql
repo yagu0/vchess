@@ -3,7 +3,8 @@
 create table Variants (
   id integer primary key,
   name varchar unique,
-  description text
+  description text,
+  noProblems boolean
 );
 
 create table Users (

@@ -101,7 +101,7 @@ export default {
     },
     adjustHeight: function() {
       const newsContent = document.getElementById("newsContent");
-      // https://stackoverflow.com/questions/995168/textarea-to-resize-based-on-content-length
+      // https://stackoverflow.com/a/995374
       newsContent.style.height = "1px";
       newsContent.style.height = 10 + newsContent.scrollHeight + "px";
     },

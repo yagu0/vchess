@@ -1,8 +1,9 @@
-// NOTE: do not use ajax() here because ajax.js require the store for translations
+// NOTE: do not use ajax() here because ajax.js requires the store
 import params from "./parameters"; //for server URL
 import { getRandString } from "./utils/alea";
 
-// Global store: see https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
+// Global store: see
+// https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
 export const store = {
   state: {
     variants: [],

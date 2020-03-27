@@ -319,7 +319,7 @@ export default {
         GameStorage.getNext(this.cursor["live"], localGames => {
           const L = localGames.length;
           if (L > 0) {
-            // Add "-1" because IDBKeyRange.upperBound seems to include boundary
+            // Add "-1" because IDBKeyRange.upperBound includes boundary
             this.cursor["live"] = localGames[L - 1].created - 1;
             localGames.forEach(g => g.type = "live");
             this.decorate(localGames);

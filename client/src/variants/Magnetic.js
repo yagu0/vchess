@@ -116,7 +116,8 @@ export class MagneticRules extends ChessRules {
           cmove.appear[i].p = piece;
           moves.push(cmove);
         }
-        // Swap appear[i] and appear[0] for moves presentation (TODO: this is awkward)
+        // Swap appear[i] and appear[0] for moves presentation
+        // (TODO: this is awkward)
         moves.forEach(m => {
           let tmp = m.appear[0];
           m.appear[0] = m.appear[i];
@@ -169,7 +170,8 @@ export class MagneticRules extends ChessRules {
         psq.x == oppFirstRank &&
         this.castleFlags[oppCol].includes(psq.y)
       ) {
-        this.castleFlags[oppCol][psq.y == this.castleFlags[oppCol][0] ? 0 : 1] = 8;
+        const flagIdx = (psq.y == this.castleFlags[oppCol][0] ? 0 : 1);
+        this.castleFlags[oppCol][flagIdx] = 8;
       }
     });
   }

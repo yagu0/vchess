@@ -2,15 +2,15 @@ p.boxed
   | Orthodox rules (with shuffled starting position).
 
 p.
-  Chess is played between two players, one moving the white pieces and the other
-  the black pieces. A "move" consists of a piece's movement on the board.
+  Chess is played between two players, one moving the white pieces and the
+  other the black pieces. A "move" consists of a piece's movement on the board.
   White and black moves alternate until a specific situation occurs (checkmate,
   stalemate, or draw criteria met; this is detailed later).
   White pieces' player always make the first move.
 
 p.
-  Each piece has a particular way to move, but almost always captures by moving to an
-  occupied square (with only one exception, detailed later).
+  Each piece has a particular way to move, but almost always captures by moving
+  to an occupied square (with only one exception, detailed later).
 
 figure.diagram-container
   .diagram
@@ -31,9 +31,9 @@ h4 Pawns
 
 p.
   They are the weakest units on board, but the most complex to move.
-  From their initial rank they can either jump two squares forward (vertically),
-  or advance only one square in this same direction. After that first move they
-  only advance one square at a time, vertically, moving up.
+  From their initial rank they can either jump two squares forward
+  (vertically), or advance only one square in this same direction. After that
+  first move they only advance one square at a time, vertically, moving up.
 
 p.
   Pawns capture by moving forward (upper on the board) one square diagonally,
@@ -45,10 +45,10 @@ p.
 
 p.
   Moves notations: "pawn" is implicit, so for a simple move we only write the
-  destination square (because only one pawn at most can move forward to a specific
-  square). Thus, 1.e5 means "pawn from e4 to e5". However, in case of captures
-  the situation could be ambiguous (two pawns on the same rank), so the column
-  is specified too: "fxe6" (for example).
+  destination square (because only one pawn at most can move forward to a
+  specific square). Thus, 1.e5 means "pawn from e4 to e5". However, in case of
+  captures the situation could be ambiguous (two pawns on the same rank), so
+  the column is specified too: "fxe6" (for example).
   As you can see capture is marked by a cross symbol: "x".
 
 figure.diagram-container
@@ -57,10 +57,10 @@ figure.diagram-container
   figcaption Possible pawn moves: g3, g4, dxc5, bxc5
 
 p
-  | For a piece movement, we just prepend the upper-case piece initial before the
-  | previously described notation. A rook taking something on f3 square writes:
-  | Rxf3. There are rules for ambiguous situation, but discussing them now would
-  | be too far off-topic. Please visit for example the 
+  | For a piece movement, we just prepend the upper-case piece initial before
+  | the previously described notation. A rook taking something on f3 square
+  | writes: Rxf3. There are rules for ambiguous situation, but discussing them
+  | now would be too far off-topic. Please visit for example the 
   a(href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)")
     | Wikipedia page 
   | for full information on this subject.
@@ -68,16 +68,17 @@ p
 h4 Rooks
 
 p.
-  They move either horizontally or vertically, as far as they want while the path
-  is free of pieces. If this path ends with an enemy piece, it can a priori be captured
-  (a priori because if the move ends up with the king in check, then it's illegal).
+  They move either horizontally or vertically, as far as they want while the
+  path is free of pieces. If this path ends with an enemy piece, it can a
+  priori be captured (a priori because if the move ends up with the king in
+  check, then it's illegal).
 
 h4 Knights
 
 p.
-  They are the only units able to jump over other pieces (without capturing them).
-  They do "L" moves: two squares in one direction (horizontally or vertically),
-  and then one square in an orthogonal direction.
+  They are the only units able to jump over other pieces (without capturing
+  them). They do "L" moves: two squares in one direction (horizontally or
+  vertically), and then one square in an orthogonal direction.
 
 figure.diagram-container
   .diagram
@@ -92,13 +93,16 @@ p.
 
 h4 Queen
 
-p This piece combines the movement of a rook and a bishop, with the same conditions.
+p.
+  This piece combines the movement of a rook and a bishop, with the same
+  conditions.
 
 h4 King
 
 p.
-  This piece moves like a queen, but only by one square at a time. The final square
-  must be either vacant or occupied by an enemy piece (therefore captured).
+  This piece moves like a queen, but only by one square at a time. The final
+  square must be either vacant or occupied by an enemy piece (therefore
+  captured).
 
 p.
   The king cannot be captured, but a move may ends up attacking enemy's king.
@@ -107,7 +111,9 @@ ul
   li move the king to a safe square, or
   li capture the attacker, or
   li intercept the attacking line.
-p Depending on the situation one or more of these counter-measures could be impossible.
+p.
+  Depending on the situation one or more of these counter-measures could be
+  impossible.
 
 p Leaving our king in check after a move is forbidden.
 
@@ -118,23 +124,26 @@ figure.diagram-container
 
 h3 Special moves
 
-p Apart from pawn promotion which has already been introduced, two special moves exist:
+p.
+  Apart from pawn promotion which has already been introduced, two special
+  moves exist:
 ul
   li.
-    castle: if both the king and the right-most (from white player perspective) rook
-    haven't moved yet, and if nothing stand in the path from king to rook, and if the
-    squares f1 and g1 are either free or occupied by the king or rook implied, then
-    the king can go to g1 while the rook moves to f1. Note that since positions are
-    shuffled one of these two pieces may apparently not move.
-    The same can be done on the other side (left-most rook), and end squares are c1
-    for king and d1 for rook. The former is small castle, and the latter large castle.
+    castle: if both the king and the right-most (from white player perspective)
+    rook haven't moved yet, and if nothing stand in the path from king to rook,
+    and if the squares f1 and g1 are either free or occupied by the king or
+    rook implied, then the king can go to g1 while the rook moves to f1. Note
+    that since positions are shuffled one of these two pieces may apparently
+    not move. The same can be done on the other side (left-most rook), and end
+    squares are c1 for king and d1 for rook. The former is small castle, and
+    the latter large castle.
     Notation: small castle writes "0-0" while large castle is "0-0-0".
   li.
-    en-passant: after a pawn has jumped two squares, if an enemy pawn stands just next
-    to it then it can capture the jumping pawn "en passant", exactly as if it had
-    advanced only one square. The move is noted as usual, but with "e.p." in the end
-    to indicate the special move.
-    The capture is possible only right after the pawn jump: not later in the game.
+    en-passant: after a pawn has jumped two squares, if an enemy pawn stands
+    just next to it then it can capture the jumping pawn "en passant", exactly
+    as if it had advanced only one square. The move is noted as usual, but
+    with "e.p." in the end to indicate the special move. The capture is
+    possible only right after the pawn jump: not later in the game.
 
 figure.diagram-container
   .diagram.diag12
@@ -151,8 +160,8 @@ p.
   The best-known way to end a game is by "checkmating" the enemy king.
   This means that you end a move in a situation where the king can be captured,
   and your opponent has no way to avoid the capture.
-  The checkmating player has one point and the other zero, so the score writes 1-0
-  or 0-1 depending if white pieces or black pieces mated.
+  The checkmating player has one point and the other zero, so the score writes
+  1-0 or 0-1 depending if white pieces or black pieces mated.
 
 figure.diagram-container
   .diagram
@@ -167,7 +176,8 @@ ul
     same player in turn,
   li when 50 moves are played without pawn movement or capture.
 p.
-  Note: this last way to end a game is not implemented, because it quite seldom occurs,
-  does not generalize so well to variants (it depends), and more important because
-  games played on this website are not official tournament games. If you feel like
-  manoeuvring for 200 moves and your opponent isn't bored, then why would I stop you? :)
+  Note: this last way to end a game is not implemented, because it quite seldom
+  occurs, does not generalize so well to variants (it depends), and more
+  important because games played on this website are not official tournament
+  games. If you feel like manoeuvring for 200 moves and your opponent isn't
+  bored, then keep going :)

@@ -2,7 +2,8 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
 // NOTE: alternative implementation, probably cleaner = use only 1 board
-// TODO? atLeastOneMove() would be more efficient if rewritten here (less sideBoard computations)
+// TODO? atLeastOneMove() would be more efficient if rewritten here
+// (less sideBoard computations)
 export class AliceRules extends ChessRules {
   static get ALICE_PIECES() {
     return {
@@ -37,7 +38,8 @@ export class AliceRules extends ChessRules {
     super.setOtherVariables(fen);
     const rows = V.ParseFen(fen).position.split("/");
     if (this.kingPos["w"][0] < 0 || this.kingPos["b"][0] < 0) {
-      // INIT_COL_XXX won't be required if Alice kings are found (means 'king moved')
+      // INIT_COL_XXX won't be required if Alice kings are found
+      // (it means 'king moved')
       for (let i = 0; i < rows.length; i++) {
         let k = 0; //column index on board
         for (let j = 0; j < rows[i].length; j++) {
@@ -80,7 +82,8 @@ export class AliceRules extends ChessRules {
     return sideBoard;
   }
 
-  // NOTE: castle & enPassant https://www.chessvariants.com/other.dir/alice.html
+  // NOTE: castle & enPassant
+  // https://www.chessvariants.com/other.dir/alice.html
   getPotentialMovesFrom([x, y], sideBoard) {
     const pieces = Object.keys(V.ALICE_CODES);
     const codes = Object.keys(V.ALICE_PIECES);
@@ -109,8 +112,11 @@ export class AliceRules extends ChessRules {
       if (m.appear.length == 2) {
         // Castle: appear[i] must be an empty square on the other board
         for (let psq of m.appear) {
-          if (this.getSquareOccupation(psq.x, psq.y, 3 - mirrorSide) != V.EMPTY)
+          if (
+            this.getSquareOccupation(psq.x, psq.y, 3 - mirrorSide) != V.EMPTY
+          ) {
             return false;
+          }
         }
       } else if (this.board[m.end.x][m.end.y] != V.EMPTY) {
         // Attempt to capture

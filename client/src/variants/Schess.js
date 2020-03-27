@@ -172,7 +172,8 @@ export class SchessRules extends ChessRules {
                 (
                   m.appear.length == shift+1 ||
                   // Special castle case: is initial king square free?
-                  ![m.appear[shift].y, m.appear[shift+1].y].includes(m.vanish[0].y)
+                  ![m.appear[shift].y, m.appear[shift+1].y]
+                    .includes(m.vanish[0].y)
                 )
               ) {
                 let pMove = JSON.parse(JSON.stringify(m));
@@ -191,7 +192,8 @@ export class SchessRules extends ChessRules {
               if (
                 m.appear.length >= 2 + shift &&
                 m.vanish.length == 2 &&
-                ![m.appear[shift].y, m.appear[shift+1].y].includes(m.vanish[1].y)
+                ![m.appear[shift].y, m.appear[shift+1].y]
+                  .includes(m.vanish[1].y)
               ) {
                 // Special castle case: rook flag was necessarily on
                 let pMove = JSON.parse(JSON.stringify(m));

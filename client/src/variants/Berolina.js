@@ -62,7 +62,9 @@ export class BerolinaRules extends ChessRules {
     const startRank = color == "w" ? sizeX - 2 : 1;
     const lastRank = color == "w" ? 0 : sizeX - 1;
     const finalPieces =
-      x + shiftX == lastRank ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN] : [V.PAWN];
+      x + shiftX == lastRank
+        ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+        : [V.PAWN];
 
     // One square diagonally
     for (let shiftY of [-1, 1]) {

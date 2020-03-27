@@ -21,8 +21,8 @@ ul
   li Queen : withdrawer
   li King : king (same behavior as in standard chess)
 p.
-  Besides, a new piece is introduced: the immobilizer, written by the letter 'm'
-  in FEN diagrams and PGN games. It is represented by an upside-down rook:
+  Besides, a new piece is introduced: the immobilizer, written by the letter
+  'm' in FEN diagrams and PGN games. It is represented by an upside-down rook:
 
 figure.diagram-container
   .diagram
@@ -44,31 +44,34 @@ p
   | Note : this corresponds to the "pure rules" described on 
   a(href="http://www.inference.org.uk/mackay/ultima/ultima.html") this page
   | , which slightly differ from the initial rules.
-  | The aim is to get rid of the weird suicide rule by weakening the immobilizers lock.
-  | In particular, in the original rules two adjacent immobilizer are stuck forever
-  | until one is captured. Note that it's still the case if all chameleons disappeared.
+  | The aim is to get rid of the weird suicide rule by weakening the
+  | immobilizers lock. In particular, in the original rules two adjacent
+  | immobilizer are stuck forever until one is captured. Note that it's still
+  | the case if all chameleons disappeared.
 
 h3 Capturing moves
 
 p.
-  Easy case first: the king captures as usual, by moving onto an adjacent square
-  occupied by an enemy piece. But this is the only piece following orthodox rules,
-  and also the only one which captures by moving onto an occupied square.
-  All other pieces capture passively: they land on a free square and captured
-  units are determined by some characteristics of the movement.
+  Easy case first: the king captures as usual, by moving onto an adjacent
+  square occupied by an enemy piece. But this is the only piece following
+  orthodox rules, and also the only one which captures by moving onto an
+  occupied square. All other pieces capture passively: they land on a free
+  square and captured units are determined by some characteristics of the
+  movement.
 
 p Note 1: the immobilizer does not capture.
 
 p.
   Note 2: for passive captures, a 'X' is added at the end of the move notation,
-  to indicate that something was taken (replaying the game is necessary to know where).
+  to indicate that something was taken (replaying the game is necessary to know
+  where).
 
 h4 Pawns/Pincers
 
 p.
-  If at the end of its movement a pawn is horizontally or vertically adjacent to an
-  enemy piece, which itself is next to a friendly piece (in the same direction),
-  the "pinced" unit is removed from the board.
+  If at the end of its movement a pawn is horizontally or vertically adjacent
+  to an enemy piece, which itself is next to a friendly piece (in the same
+  direction), the "pinced" unit is removed from the board.
 
 figure.diagram-container
   .diagram
@@ -80,8 +83,8 @@ h4 Coordinators (rooks)
 p.
   Imagine that rook and king of the same color are two corners of a rectangle
   (this works if these two pieces are unaligned).
-  If at the end of a rook move an enemy piece stands in any of the two remaining
-  corners, it is captured.
+  If at the end of a rook move an enemy piece stands in any of the two
+  remaining corners, it is captured.
 
 figure.diagram-container
   .diagram
@@ -91,9 +94,9 @@ figure.diagram-container
 h4 Long leapers (knights)
 
 p.
-  A knight captures exactly as a queen in international draughts game: by jumping
-  over its enemies, as many times as it can/want but always in the same direction.
-  In this respect it is less powerful than a draughts' queen:
+  A knight captures exactly as a queen in international draughts game: by
+  jumping over its enemies, as many times as it can/want but always in the same
+  direction. In this respect it is less powerful than a draughts' queen:
   on the following diagram c8 or f6 cannot be captured.
   However, the knight does not have to maximize the number of captured units
   (as is the case in draughts).
@@ -106,8 +109,8 @@ figure.diagram-container
 h4 Withdrawer (queen)
 
 p.
-  The queen captures by moving away from an adjacent enemy piece, in the opposite
-  direction (without jumping, the path must be free).
+  The queen captures by moving away from an adjacent enemy piece, in the
+  opposite direction (without jumping, the path must be free).
 
 figure.diagram-container
   .diagram
@@ -134,19 +137,19 @@ figure.diagram-container
   figcaption 1.Bd5 captures the two marked pieces.
 
 p.
-  Besides, chameleon immobilizes immobilizers (but cannot capture them since they
-  do not capture).
+  Besides, chameleon immobilizes immobilizers (but cannot capture them since
+  they do not capture).
 
 p.
-  A chameleon captures the king in the same way the king captures, which means that
-  a chameleon adjacent to a king gives check.
+  A chameleon captures the king in the same way the king captures, which means
+  that a chameleon adjacent to a king gives check.
 
 h3 End of the game
 
 p.
-  Checkmate or stalemate as in standard chess. Note however that checks are more
-  difficult to see, because of the exotic capturing rules. For example, on the
-  following diagram the white king cannot move to e5 because then
+  Checkmate or stalemate as in standard chess. Note however that checks are
+  more difficult to see, because of the exotic capturing rules. For example, on
+  the following diagram the white king cannot move to e5 because then
   the black pawn could capture by moving next to it.
 
 figure.diagram-container

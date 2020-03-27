@@ -174,7 +174,8 @@ export class RecycleRules extends ChessRules {
 
   prePlay(move) {
     super.prePlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
+    // Skip castle:
+    if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = this.turn;
     if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]--;
     else if (move.vanish.length == 2 && move.vanish[1].c == color)

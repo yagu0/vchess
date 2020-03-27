@@ -145,7 +145,7 @@ export class ZenRules extends ChessRules {
       return "0-0";
     }
 
-    // Translate initial square (because pieces may fly unusually in this variant!)
+    // Translate initial square (because pieces may fly unusually!)
     const initialSquare = V.CoordsToSquare(move.start);
 
     // Translate final square

@@ -47,7 +47,7 @@ main
   .row(v-if="showOne")
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       #topPage
-        .button-group(v-if="st.user.id == curproblem.uid")
+        .button-group(v-if="canIedit(curproblem.uid)")
           button(@click="editProblem(curproblem)") {{ st.tr["Edit"] }}
           button(@click="deleteProblem(curproblem)") {{ st.tr["Delete"] }}
         span.vname {{ curproblem.vname }}
@@ -81,6 +81,7 @@ main
         select#selectVariant(v-model="selectedVar")
           option(
             v-for="v in [emptyVar].concat(st.variants)"
+            v-if="!v.noProblems"
             :value="v.id"
           )
             | {{ v.name }}
@@ -152,6 +153,7 @@ export default {
       onlyMine: false,
       showOne: false,
       infoMsg: "",
+      admins: [1], //hard-coded for now. TODO
       game: {
         players: [{ name: "Problem" }, { name: "Problem" }],
         mode: "analyze"
@@ -373,7 +375,12 @@ export default {
           data: { prob: this.curproblem },
           success: (ret) => {
             if (edit) {
-              let editedP = this.problems["mine"].find(p => p.id == this.curproblem.id);
+              let editedP = this.problems["mine"]
+                .find(p => p.id == this.curproblem.id);
+              if (!editedP)
+                // I'm an admin and edit another user' problem
+                editedP = this.problems["others"]
+                  .find(p => p.id == this.curproblem.id);
               this.copyProblem(this.curproblem, editedP);
               this.showProblem(editedP);
             }
@@ -382,13 +389,17 @@ export default {
               newProblem.id = ret.id;
               newProblem.uid = this.st.user.id;
               newProblem.uname = this.st.user.name;
-              this.problems["mine"] = [newProblem].concat(this.problems["mine"]);
+              this.problems["mine"] =
+                [newProblem].concat(this.problems["mine"]);
             }
             document.getElementById("modalNewprob").checked = false;
             this.infoMsg = "";
           }
         }
       );
+    },
+    canIedit: function(puid) {
+      return this.admins.concat([puid]).includes(this.st.user.id);
     },
     editProblem: function(prob) {
       // prob.diag might correspond to some other problem or be empty:

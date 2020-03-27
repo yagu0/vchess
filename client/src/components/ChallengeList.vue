@@ -33,7 +33,8 @@ export default {
   },
   computed: {
     sortedChallenges: function() {
-      // Show in order: challenges I sent, challenges I received, other challenges
+      // Show in order:
+      // challenges I sent, challenges I received, other challenges
       let minAdded = Number.MAX_SAFE_INTEGER;
       let maxAdded = 0;
       let augmentedChalls = this.challenges.map(c => {

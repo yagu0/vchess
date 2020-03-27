@@ -24,8 +24,7 @@
               router-link(to="/problems")
                 | {{ st.tr["Problems"] }}
             #rightMenu
-              .clickable(onClick="window.doClick('modalUser')")
-                | {{ st.user.id > 0 ? (st.user.name || "@nonymous") : "Login" }}
+              .clickable(onClick="window.doClick('modalUser')") {{ userName }}
               #divSettings.clickable(onClick="window.doClick('modalSettings')")
                 span {{ st.tr["Settings"] }}
                 img(src="/images/icons/settings.svg")
@@ -71,6 +70,15 @@ export default {
         }
       }
     );
+  },
+  computed: {
+    userName: function() {
+      return (
+        this.st.user.id > 0
+          ? (this.st.user.name || "@nonymous")
+          : "Login"
+      );
+    }
   },
   methods: {
     hideDrawer: function(e) {

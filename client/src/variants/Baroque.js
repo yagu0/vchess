@@ -87,7 +87,8 @@ export class BaroqueRules extends ChessRules {
           }
           return true; //immobilizer isn't neutralized
         }
-        // Chameleons can't be immobilized twice, because there is only one immobilizer
+        // Chameleons can't be immobilized twice,
+        // because there is only one immobilizer
         if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER) return true;
       }
     }
@@ -130,7 +131,9 @@ export class BaroqueRules extends ChessRules {
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
     moves.forEach(m => {
-      if (!!byChameleon && m.start.x != m.end.x && m.start.y != m.end.y) return; //chameleon not moving as pawn
+      if (!!byChameleon && m.start.x != m.end.x && m.start.y != m.end.y)
+        // Chameleon not moving as pawn
+        return;
       // Try capturing in every direction
       for (let step of steps) {
         const sq2 = [m.end.x + 2 * step[0], m.end.y + 2 * step[1]];
@@ -224,10 +227,11 @@ export class BaroqueRules extends ChessRules {
       ) {
         continue;
       }
-      // last(thing), cur(thing) : stop if "cur" is our color, or beyond board limits,
-      // or if "last" isn't empty and cur neither. Otherwise, if cur is empty then
-      // add move until cur square; if cur is occupied then stop if !!byChameleon and
-      // the square not occupied by a leaper.
+      // last(thing), cur(thing) : stop if "cur" is our color,
+      // or beyond board limits, or if "last" isn't empty and cur neither.
+      // Otherwise, if cur is empty then add move until cur square;
+      // if cur is occupied then stop if !!byChameleon and the square not
+      // occupied by a leaper.
       let last = [i, j];
       let cur = [i + step[0], j + step[1]];
       let vanished = [new PiPo({ x: x, y: y, c: color, p: piece })];
@@ -416,9 +420,11 @@ export class BaroqueRules extends ChessRules {
             this.getColor(i, j) == color &&
             this.getPiece(i, j) == V.ROOK
           ) {
-            if (this.isImmobilized([i, j])) return false; //because only one rook
-            // Can it reach a capturing square?
-            // Easy but quite suboptimal way (TODO): generate all moves (turn is OK)
+            if (this.isImmobilized([i, j]))
+              // Because only one rook:
+              return false;
+            // Can it reach a capturing square? Easy but quite suboptimal way
+            // (TODO: generate all moves (turn is OK))
             const moves = this.getPotentialMovesFrom([i, j]);
             for (let move of moves) {
               if (
@@ -457,7 +463,8 @@ export class BaroqueRules extends ChessRules {
                 return true;
               continue outerLoop;
             }
-            // [else] Our color, could be captured *if there was an empty space*
+            // [else] Our color,
+            // could be captured *if there was an empty space*
             if (this.board[i + step[0]][j + step[1]] != V.EMPTY)
               continue outerLoop;
             i -= step[0];

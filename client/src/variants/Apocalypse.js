@@ -377,10 +377,6 @@ export class ApocalypseRules extends ChessRules {
   }
 
   play(move) {
-    if (!this.states) this.states = [];
-    const stateFen = this.getFen();
-    this.states.push(stateFen);
-
     // Do not play on board (would reveal the move...)
     move.flags = JSON.stringify(this.aggregateFlags());
     this.turn = V.GetOppCol(this.turn);
@@ -410,10 +406,6 @@ export class ApocalypseRules extends ChessRules {
     this.turn = V.GetOppCol(this.turn);
     this.movesCount--;
     this.postUndo(move);
-
-    const stateFen = this.getFen();
-    if (stateFen != this.states[this.states.length-1]) debugger;
-    this.states.pop();
   }
 
   postUndo(move) {

@@ -27,7 +27,8 @@ export const Move = class Move {
   }
 };
 
-// NOTE: x coords = top to bottom; y = left to right (from white player perspective)
+// NOTE: x coords = top to bottom; y = left to right
+// (from white player perspective)
 export const ChessRules = class ChessRules {
   //////////////
   // MISC UTILS
@@ -257,7 +258,8 @@ export const ChessRules = class ChessRules {
   getCheckSquares(color) {
     return (
       this.underCheck(color)
-        ? [JSON.parse(JSON.stringify(this.kingPos[color]))] //need to duplicate!
+        // kingPos must be duplicated, because it may change:
+        ? [JSON.parse(JSON.stringify(this.kingPos[color]))]
         : []
     );
   }
@@ -466,7 +468,8 @@ export const ChessRules = class ChessRules {
   // Scan board for kings positions
   scanKings(fen) {
     this.INIT_COL_KING = { w: -1, b: -1 };
-    this.kingPos = { w: [-1, -1], b: [-1, -1] }; //squares of white and black king
+    // Squares of white and black king:
+    this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
     for (let i = 0; i < fenRows.length; i++) {
@@ -841,7 +844,7 @@ export const ChessRules = class ChessRules {
       if (this.castleFlags[c][castleSide] >= V.size.y) continue;
       // If this code is reached, rook and king are on initial position
 
-      // NOTE: in some variants this is not a rook, but let's keep variable name
+      // NOTE: in some variants this is not a rook
       const rookPos = this.castleFlags[c][castleSide];
       const castlingPiece = this.getPiece(x, rookPos);
       if (this.getColor(x, rookPos) != c)
@@ -886,8 +889,18 @@ export const ChessRules = class ChessRules {
       moves.push(
         new Move({
           appear: [
-            new PiPo({ x: x, y: finalSquares[castleSide][0], p: V.KING, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: castlingPiece, c: c })
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][0],
+              p: V.KING,
+              c: c
+            }),
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][1],
+              p: castlingPiece,
+              c: c
+            })
           ],
           vanish: [
             new PiPo({ x: x, y: y, p: V.KING, c: c }),
@@ -943,7 +956,7 @@ export const ChessRules = class ChessRules {
   }
 
   // Stop at the first move found
-  // TODO: not really, it explores all moves from a square but one would suffice.
+  // TODO: not really, it explores all moves from a square (one is enough).
   atLeastOneMove() {
     const color = this.turn;
     for (let i = 0; i < V.size.x; i++) {
@@ -1082,7 +1095,8 @@ export const ChessRules = class ChessRules {
 //    this.states.push(stateFen);
 
     this.prePlay(move);
-    if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
+    // Save flags (for undo)
+    if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags());
     if (V.HasEnpassant) this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     this.turn = V.GetOppCol(this.turn);
@@ -1200,7 +1214,7 @@ export const ChessRules = class ChessRules {
     return V.INFINITY;
   }
 
-  // Search depth: 1,2 for high branching factor, 4 for small (Loser chess, eg.)
+  // Search depth: 1,2 for e.g. higher branching factor, 4 for smaller
   static get SEARCH_DEPTH() {
     return 3;
   }
@@ -1371,6 +1385,30 @@ export const ChessRules = class ChessRules {
       piece.toUpperCase() +
       (move.vanish.length > move.appear.length ? "x" : "") +
       finalSquare
+    );
+  }
+
+  static GetUnambiguousNotation(move) {
+    // Machine-readable format with all the informations about the move
+    return (
+      (!!move.start && V.OnBoard(move.start.x, move.start.y)
+        ? V.CoordsToSquare(move.start)
+        : "-"
+      ) + "." +
+      (!!move.end && V.OnBoard(move.end.x, move.end.y)
+        ? V.CoordsToSquare(move.end)
+        : "-"
+      ) + " " +
+      (!!move.appear && move.appear.length > 0
+        ? move.appear.map(a =>
+          a.c + a.p + V.CoordsToSquare({ x: a.x, y: a.y })).join(".")
+        : "-"
+      ) + "/" +
+      (!!move.vanish && move.vanish.length > 0
+        ? move.vanish.map(a =>
+          a.c + a.p + V.CoordsToSquare({ x: a.x, y: a.y })).join(".")
+        : "-"
+      )
     );
   }
 };

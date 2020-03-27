@@ -481,7 +481,8 @@ export default {
     },
     removePresetChall: function(e, pchall) {
       e.stopPropagation();
-      const pchallIdx = this.presetChalls.findIndex(pc => pc.index == pchall.index);
+      const pchallIdx =
+        this.presetChalls.findIndex(pc => pc.index == pchall.index);
       this.presetChalls.splice(pchallIdx, 1);
       localStorage.setItem("presetChalls", JSON.stringify(this.presetChalls));
     },
@@ -544,7 +545,8 @@ export default {
         // This is meant to challenge people, thus the next 2 conditions:
         this.st.user.id > 0 &&
         sid != this.st.user.sid &&
-        Object.values(this.people[sid].tmpIds).some(v => v.focus && v.page == "/")
+        Object.values(this.people[sid].tmpIds)
+          .some(v => v.focus && v.page == "/")
       );
     },
     challenge: function(sid) {
@@ -663,8 +665,9 @@ export default {
         }
         case "disconnect":
         case "gdisconnect": {
-          // If the user reloads the page twice very quickly (experienced with Firefox),
-          // the first reload won't have time to connect but will trigger a "close" event anyway.
+          // If the user reloads the page twice very quickly
+          // (experienced with Firefox), the first reload won't have time to
+          // connect but will trigger a "close" event anyway.
           // ==> Next check is required.
           if (!this.people[data.from[0]]) return;
           delete this.people[data.from[0]].tmpIds[data.from[1]];
@@ -683,7 +686,7 @@ export default {
             const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
             // Corr games are always reachable:
             if (!gid.match(/^[0-9]+$/)) {
-              // Live games are reachable as long as someone is on the game page
+              // Live games are reachable if someone is on the game page
               if (Object.values(this.people).every(p =>
                 Object.values(p.tmpIds).every(v => v.page != data.page))
               ) {
@@ -759,9 +762,9 @@ export default {
               c.from.sid == this.st.user.sid && c.type == "live"
             )
             .map(c => {
-              // NOTE: in principle, should only send targeted challenge to the target.
-              // But we may not know yet the identity of the target (just name),
-              // so cannot decide if data.from is the target or not.
+              // NOTE: in principle, should only send targeted challenge to the
+              // target. But we may not know yet the identity of the target
+              // (just name), so can't decide if data.from is the target.
               return {
                 id: c.id,
                 from: this.st.user.sid,
@@ -792,7 +795,8 @@ export default {
         case "deletechallenge_s": {
           // NOTE: the challenge(s) may be already removed
           const cref = data.data;
-          if (!!cref.cid) ArrayFun.remove(this.challenges, c => c.id == cref.cid);
+          if (!!cref.cid)
+            ArrayFun.remove(this.challenges, c => c.id == cref.cid);
           else if (!!cref.sids) {
             cref.sids.forEach(s => {
               ArrayFun.remove(
@@ -1050,7 +1054,7 @@ export default {
           name: this.st.user.name
         };
         chall.added = Date.now();
-        // NOTE: vname and type are redundant (can be deduced from cadence + vid)
+        // NOTE: vname and type are redundant (deduced from cadence + vid)
         chall.type = ctype;
         chall.vname = this.newchallenge.vname;
         this.challenges.push(chall);
@@ -1099,9 +1103,13 @@ export default {
           name: this.st.user.name
         };
         this.launchGame(c);
-        if (c.type == "live")
+        if (c.type == "live") {
           // Remove all live challenges of both players
-          this.send("deletechallenge_s", { data: { sids: [c.from.sid, c.seat.sid] } });
+          this.send(
+            "deletechallenge_s",
+            { data: { sids: [c.from.sid, c.seat.sid] } }
+          );
+        }
         else
           // Corr challenge: just remove the challenge
           this.send("deletechallenge_s", { data: { cid: c.id } });

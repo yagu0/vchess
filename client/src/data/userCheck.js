@@ -1,7 +1,8 @@
 export function checkNameEmail(o) {
   if (typeof o.name === "string") {
     if (o.name.length == 0) return "Missing name";
-    if (!o.name.match(/^[\w-]+$/)) return "Name: alphanumerics, hyphen and underscore";
+    if (!o.name.match(/^[\w-]+$/))
+      return "Name: alphanumerics, hyphen and underscore";
   }
 
   if (typeof o.email === "string") {

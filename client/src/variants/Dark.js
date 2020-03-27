@@ -37,16 +37,16 @@ export class DarkRules extends ChessRules {
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] != V.EMPTY) {
-          const color = this.getColor(i, j);
-          this.enlightened[color][i][j] = true;
+          const c = this.getColor(i, j);
+          this.enlightened[c][i][j] = true;
           // Add potential squares visible by "impossible pawn capture"
           if (this.getPiece(i, j) == V.PAWN) {
             for (let shiftY of [-1, 1]) {
               if (
-                V.OnBoard(i + pawnShift[color], j + shiftY) &&
-                this.board[i + pawnShift[color]][j + shiftY] == V.EMPTY
+                V.OnBoard(i + pawnShift[c], j + shiftY) &&
+                this.board[i + pawnShift[c]][j + shiftY] == V.EMPTY
               ) {
-                this.enlightened[color][i + pawnShift[color]][j + shiftY] = true;
+                this.enlightened[c][i + pawnShift[c]][j + shiftY] = true;
               }
             }
           }
@@ -245,7 +245,8 @@ export class DarkRules extends ChessRules {
         const myPieceVal = V.VALUES[move.appear[0].p];
         const hisPieceVal = V.VALUES[move.vanish[1].p];
         // Favor captures
-        if (myPieceVal <= hisPieceVal) move.eval = hisPieceVal - myPieceVal + 1;
+        if (myPieceVal <= hisPieceVal)
+          move.eval = hisPieceVal - myPieceVal + 1;
         else {
           // Taking a pawn with minor piece,
           // or minor piece or pawn with a rook,

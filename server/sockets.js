@@ -240,7 +240,8 @@ module.exports = function(wss) {
         case "rematchoffer":
         case "draw":
           // "newgame" message can provide a page (corr Game --> Hall)
-          notifyRoom(obj.page || page, obj.code, {data: obj.data}, obj.excluded);
+          notifyRoom(
+            obj.page || page, obj.code, {data: obj.data}, obj.excluded);
           break;
 
         case "rnewgame":
@@ -336,8 +337,8 @@ module.exports = function(wss) {
         case "lastate":
         {
           const pg = obj.target[2] || page; //required for identity and game
-          // NOTE: if in game we ask identity to opponent still in Hall,
-          // but leaving Hall, clients[pg] or clients[pg][target] could be undefined
+          // NOTE: if in game we ask identity to opponent still in Hall, but
+          // leaving Hall, clients[pg] or clients[pg][target] could be undef.
           if (!!clients[pg] && !!clients[pg][obj.target[0]]) {
             send(
               clients[pg][obj.target[0]][obj.target[1]].socket,

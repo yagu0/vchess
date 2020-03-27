@@ -293,7 +293,8 @@ export class EightpiecesRules extends ChessRules {
 
   canIplay(side, [x, y]) {
     return (
-      (this.subTurn == 1 && this.turn == side && this.getColor(x, y) == side) ||
+      (this.subTurn == 1 && this.turn == side && this.getColor(x, y) == side)
+      ||
       (this.subTurn == 2 && x == this.sentryPos.x && y == this.sentryPos.y)
     );
   }
@@ -795,8 +796,8 @@ export class EightpiecesRules extends ChessRules {
       case V.QUEEN:
         return sliderAttack(V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
       case V.LANCER: {
-        // Special case: as long as no enemy units stands in-between, it attacks
-        // (if it points toward the king).
+        // Special case: as long as no enemy units stands in-between,
+        // it attacks (if it points toward the king).
         const allowedStep = V.LANCER_DIRS[this.board[x1][y1].charAt(1)];
         return sliderAttack([allowedStep], "lancer");
       }
@@ -1043,7 +1044,8 @@ export class EightpiecesRules extends ChessRules {
       Object.keys(V.LANCER_DIRNAMES).includes(move.appear[0].p)
     ) {
       // Fix promotions in lancer:
-      notation = notation.slice(0, -1) + "L:" + V.LANCER_DIRNAMES[move.appear[0].p];
+      notation = notation.slice(0, -1) +
+        "L:" + V.LANCER_DIRNAMES[move.appear[0].p];
     }
     return notation;
   }

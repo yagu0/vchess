@@ -50,7 +50,8 @@ export default {
     alertAndQuit: function(text, wrongVname) {
       // Soon after component creation, st.tr might be uninitialized.
       // Set a timeout to let a chance for the message to show translated.
-      const newUrl = "/variants" + (wrongVname ? "" : "/" + this.gameRef.vname);
+      const newUrl =
+        "/variants" + (wrongVname ? "" : "/" + this.gameRef.vname);
       setTimeout(() => {
         alert(this.st.tr[text] || text);
         this.$router.replace(newUrl);

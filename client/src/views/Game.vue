@@ -332,7 +332,8 @@ export default {
       this.socketCloseListener = setInterval(
         () => {
           if (this.conn.readyState == 3) {
-            this.conn.removeEventListener("message", this.socketMessageListener);
+            this.conn.removeEventListener(
+              "message", this.socketMessageListener);
             this.conn = new WebSocket(this.connexionString);
             this.conn.addEventListener("message", this.socketMessageListener);
           }
@@ -354,7 +355,7 @@ export default {
           this.loadVariantThenGame(game, () => socketInit(this.roomInit));
         else
           // Live game stored remotely: need socket to retrieve it
-          // NOTE: the callback "roomInit" will be lost, so we don't provide it.
+          // NOTE: the callback "roomInit" will be lost, so it's not provided.
           // --> It will be given when receiving "fullgame" socket event.
           socketInit(() => { this.send("askfullgame"); });
       });
@@ -666,7 +667,7 @@ export default {
         case "asklastate":
           // Sending informative last state if I played a move or score != "*"
           // If the game or moves aren't loaded yet, delay the sending:
-          // TODO: since socket init after game load, the game is supposedly ready
+          // TODO: socket init after game load, so the game is supposedly ready
           if (!this.game || !this.game.moves) this.lastateAsked = true;
           else this.sendLastate(data.from);
           break;
@@ -703,7 +704,10 @@ export default {
               const moveColIdx = ["w", "b"].indexOf(movePlus.color);
               if (!receiveMyMove && !!this.game.mycolor) {
                 // Notify opponent that I got the move:
-                this.send("gotmove", {data: movePlus.index, target: data.from});
+                this.send(
+                  "gotmove",
+                  { data: movePlus.index, target: data.from }
+                );
                 // And myself if I'm elsewhere:
                 if (!this.focus) {
                   notify(
@@ -728,7 +732,8 @@ export default {
                   GameStorage.update(this.gameRef, { drawOffer: "" });
                 }
               }
-              this.$refs["basegame"].play(movePlus.move, "received", null, true);
+              this.$refs["basegame"].play(
+                movePlus.move, "received", null, true);
               this.game.clocks[moveColIdx] = movePlus.clock;
               this.processMove(
                 movePlus.move,
@@ -982,7 +987,8 @@ export default {
       }
     },
     abortGame: function() {
-      if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"])) return;
+      if (!this.game.mycolor || !confirm(this.st.tr["Terminate game?"]))
+        return;
       this.gameOver("?", "Stop");
       this.send("abort");
     },
@@ -1001,9 +1007,10 @@ export default {
       const myIdx = game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.id == this.st.user.id;
       });
-      const mycolor = [undefined, "w", "b"][myIdx + 1]; //undefined for observers
-      // Live games before 26/03/2020 don't have chat history. TODO: remove next line
-      if (!game.chats) game.chats = [];
+      // "mycolor" is undefined for observers
+      const mycolor = [undefined, "w", "b"][myIdx + 1];
+      // Live games before 26/03/2020 don't have chat history:
+      if (!game.chats) game.chats = []; //TODO: remove line
       // Sort chat messages from newest to oldest
       game.chats.sort((c1, c2) => c2.added - c1.added);
       if (gtype == "corr") {
@@ -1337,7 +1344,8 @@ export default {
           let sendMove = {
             move: filtered_move,
             index: origMovescount,
-            // color is required to check if this is my move (if several tabs opened)
+            // color is required to check if this is my move
+            // (if several tabs opened)
             color: moveCol,
             cancelDrawOffer: this.drawOffer == ""
           };
@@ -1468,7 +1476,8 @@ export default {
           if (!!callback) callback();
         }
         else this.updateCorrGame(scoreObj, callback);
-        // Notify the score to main Hall. TODO: only one player (currently double send)
+        // Notify the score to main Hall.
+        // TODO: only one player (currently double send)
         this.send("result", { gid: this.game.id, score: score });
         // Also to MyGames page (TODO: doubled as well...)
         this.notifyMyGames(

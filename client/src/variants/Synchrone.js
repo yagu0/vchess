@@ -215,7 +215,7 @@ export class SynchroneRules extends ChessRules {
     let moveSet = {};
     let moves = [];
     oppCaptureMoves.forEach(m => {
-      // If another opponent capture with same endpoint already processed, skip:
+      // If another opponent capture with same endpoint already processed, skip
       const mHash = "m" + m.end.x + m.end.y;
       if (!moveSet[mHash]) {
         moveSet[mHash] = true;
@@ -226,7 +226,8 @@ export class SynchroneRules extends ChessRules {
         };
         V.PlayOnBoard(this.board, justDisappear);
         // Can I take on [m.end.x, m.end.y] ? If yes, add to list:
-        this.getCaptures(m.end.x, m.end.y, color).forEach(cm => moves.push(cm));
+        this.getCaptures(m.end.x, m.end.y, color)
+          .forEach(cm => moves.push(cm));
         V.UndoOnBoard(this.board, justDisappear);
       }
     });

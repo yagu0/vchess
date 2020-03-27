@@ -4,7 +4,7 @@ import { ArrayFun } from "@/utils/array";
 import { store } from "@/store";
 export default {
   name: "my-board",
-  // Last move cannot be guessed from here, and is required to highlight squares
+  // Last move cannot be guessed from here, and is required for highlights.
   // vr: object to check moves, print board...
   // userColor is left undefined for an external observer
   props: [
@@ -153,8 +153,10 @@ export default {
                   "in-shadow": inShadow(ci, cj),
                   "highlight-light": inHighlight(ci, cj) && lightSquare,
                   "highlight-dark": inHighlight(ci, cj) && !lightSquare,
-                  "incheck-light": showCheck && lightSquare && incheckSq[ci][cj],
-                  "incheck-dark": showCheck && !lightSquare && incheckSq[ci][cj]
+                  "incheck-light":
+                    showCheck && lightSquare && incheckSq[ci][cj],
+                  "incheck-dark":
+                    showCheck && !lightSquare && incheckSq[ci][cj]
                 },
                 attrs: {
                   id: getSquareId({ x: ci, y: cj })

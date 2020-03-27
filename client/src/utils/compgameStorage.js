@@ -15,7 +15,8 @@ function dbOperation(callback) {
   let DBOpenRequest = window.indexedDB.open("vchess_comp", 4);
 
   DBOpenRequest.onerror = function(event) {
-    alert(store.state.tr["Database error: stop private browsing, or update your browser"]);
+    alert(store.state.tr[
+      "Database error: stop private browsing, or update your browser"]);
     callback("error", null);
   };
 

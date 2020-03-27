@@ -4,10 +4,10 @@ p.boxed
 p.
   El ajedrez es un juego entre dos jugadores, uno que mueve las piezas blancas
   y el otro las piezas negras. Una "jugada" consiste en tal movimiento en
-  el tablero (de ajedrez). Las piezas blancas y negras se mueven alternativamente,
-  hasta la aparición de una situación específica (jaque mate, empate u otro criterio
-  de nulidad ; esto se detalla a continuación). El jugador de las piezas blancas
-  siempre comienza.
+  el tablero (de ajedrez). Las piezas blancas y negras se mueven
+  alternativamente, hasta la aparición de una situación específica (jaque mate,
+  empate u otro criterio de nulidad ; esto se detalla a continuación). El
+  jugador de las piezas blancas siempre comienza.
 
 p.
   Cada pieza tiene un modo de movimiento específico, pero generalmente captura
@@ -32,11 +32,11 @@ h3 Jugadas sin captura
 h4 Peones
 
 p.
-  Son la unidad la más débil del juego, pero también la unidad de desplazamiento
-  el más complejo. Desde su fila inicial, los peones pueden avanzar
-  dos casillas (verticalmente), o una casilla solo en esta misma dirección.
-  Después de este primer movimiento, solo pueden avanzar un espacio a la vez,
-  siempre hacia adelante.
+  Son la unidad la más débil del juego, pero también la unidad de
+  desplazamiento el más complejo. Desde su fila inicial, los peones pueden
+  avanzar dos casillas (verticalmente), o una casilla solo en esta misma
+  dirección. Después de este primer movimiento, solo pueden avanzar un espacio
+  a la vez, siempre hacia adelante.
 
 p.
   Los peones capturan moviendo un casilla hacia adelante en diagonal,
@@ -113,13 +113,15 @@ p.
   (quien se encuentra capturado).
 
 p.
-  El rey no puede ser capturado, pero una jugada puede terminar amenazando al rey
-  oponerse. Este último está entonces "en jaque" y el oponente debe:
+  El rey no puede ser capturado, pero una jugada puede terminar amenazando al
+  rey oponerse. Este último está entonces "en jaque" y el oponente debe:
 ul
   li mover a su rey a un lugar seguro, o
   li capturar al atacante, o
   li intercepto la línea de ataque.
-p Dependiendo de la situación, una o más de estas contramedidas pueden no ser aplicables.
+p.
+  Dependiendo de la situación, una o más de estas contramedidas pueden no ser
+  aplicables.
 
 p Está prohibido dejar a tu rey en jaque al final de un movimiento.
 
@@ -131,8 +133,8 @@ figure.diagram-container
 h3 Jugadas especiales
 
 p.
-  Además de la promoción de peones introducida previamente, dos movimientos especiales
-  son para informar:
+  Además de la promoción de peones introducida previamente, dos movimientos
+  especiales son para informar:
 ul
   li.
     el enroque: si el rey y la torre más a la derecha desde el punto de vista
@@ -146,15 +148,16 @@ ul
     tablero con la otra torre ; las piezas llegan a las casillas c1 (rey) y d1
     (Torre). Este último movimiento se llama "enroque grande" y el otro
     "enroque pequeño".
-    Nota: el enroque pequeño (resp. Enroque grande) se escribe 0-0 (resp. 0-0-0).
+    Nota: el enroque pequeño (resp. Enroque grande) se escribe 0-0
+    (resp. 0-0-0).
   li.
     en passant: después de que un peón ha avanzado dos espacios, si un peón
     contrario es justo al lado (horizontalmente) se puede capturar
     "en passant", como si solo hubiera avanzado un espacio.
     Este movimiento se escribe como las otras capturas, pero con "e.p." al
     final para indicar esta jugada especial.
-    La captura solo es posible inmediatamente después del salto de dos casillas:
-    no se puede hacer más adelante en el juego.
+    La captura solo es posible inmediatamente después del salto de dos
+    casillas: no se puede hacer más adelante en el juego.
 
 figure.diagram-container
   .diagram.diag12
@@ -172,7 +175,8 @@ p.
   simplemente "mate"). Significa terminar su movimiento atacando al rey
   oponente, que no tiene forma de evitar su captura en el siguiente movimiento.
   El jugador que da mate tiene un punto y el otro cero, por lo que se escribe
-  el puntaje "1-0" (resp. "0-1") en caso de victoria blanca (resp. victoria negra).
+  el puntaje "1-0" (resp. "0-1") en caso de victoria blanca (resp. victoria
+  negra).
 
 figure.diagram-container
   .diagram
@@ -183,14 +187,16 @@ p.
   Todas las otras formas de finalizar un juego conducen a las tablas (1/2-1/2) ;
   nadie gana:
 ul
-  li cuando un jugador no tiene movimiento legal disponible sin estar en jaque (empate),
   li.
-    cuando una posición se repite tres veces con los mismos derechos de enroque,
-    y el mismo jugador al turno,
+    cuando un jugador no tiene movimiento legal disponible sin estar en jaque
+    (empate),
+  li.
+    cuando una posición se repite tres veces con los mismos derechos de
+    enroque, y el mismo jugador al turno,
   li cuando se realizan 50 jugadas sin movimiento de peón o captura.
 p.
   Nota: esta última forma de finalizar un juego no está implementada,
   porque no se generaliza fácilmente a variantes (no a todas),
-  pero sobre todo porque las partidas que se juegan aquí son sobre todo por diversión.
-  Si te embarcas en maniobras de 200 movimientos y tu oponente
-  no está harto de eso, ¿por qué debería arrestarte?:)
+  pero sobre todo porque las partidas que se juegan aquí son sobre todo por
+  diversión. Si te embarcas en maniobras de 200 movimientos y tu oponente
+  no está harto de eso, así que sigue adelante :)

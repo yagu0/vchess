@@ -245,8 +245,12 @@ export class WildebeestRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (!randomness) randomness = 2;
-    if (randomness == 0)
-      return "rnccwkqbbnr/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/RNBBQKWCCNR w 0 akak -";
+    if (randomness == 0) {
+      return (
+        "rnccwkqbbnr/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/RNBBQKWCCNR " +
+        "w 0 akak -"
+      );
+    }
 
     let pieces = { w: new Array(11), b: new Array(11) };
     let flags = "";

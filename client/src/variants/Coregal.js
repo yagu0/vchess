@@ -140,8 +140,8 @@ export class CoregalRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
-      flags +=
-        [rook1Pos, queenPos, kingPos, rook2Pos].sort().map(V.CoordToColumn).join("");
+      flags += [rook1Pos, queenPos, kingPos, rook2Pos]
+        .sort().map(V.CoordToColumn).join("");
     }
     // Add turn + flags + enpassant
     return (
@@ -235,8 +235,18 @@ export class CoregalRules extends ChessRules {
       moves.push(
         new Move({
           appear: [
-            new PiPo({ x: x, y: finalSquares[castleSide][0], p: castlingPiece, c: c }),
-            new PiPo({ x: x, y: finalSquares[castleSide][1], p: V.ROOK, c: c })
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][0],
+              p: castlingPiece,
+              c: c
+            }),
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][1],
+              p: V.ROOK,
+              c: c
+            })
           ],
           vanish: [
             new PiPo({ x: x, y: y, p: castlingPiece, c: c }),
@@ -292,7 +302,8 @@ export class CoregalRules extends ChessRules {
       this.castleFlags[c][flagIdx] = 8;
     } else if (
       move.end.x == oppFirstRank && //we took opponent rook?
-      [this.castleFlags[oppCol][0], this.castleFlags[oppCol][3]].includes(move.end.y)
+      [this.castleFlags[oppCol][0], this.castleFlags[oppCol][3]]
+        .includes(move.end.y)
     ) {
       const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 3);
       this.castleFlags[oppCol][flagIdx] = 8;

@@ -198,7 +198,8 @@ export class CrazyhouseRules extends ChessRules {
 
   postPlay(move) {
     super.postPlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 2) return; //skip castle
+    // Skip castle:
+    if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = move.appear[0].c;
     if (move.vanish.length == 0) {
       this.reserve[color][move.appear[0].p]--;
