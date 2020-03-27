@@ -69,12 +69,12 @@ export class ApocalypseRules extends ChessRules {
     // 4) Check whiteMove
     if (
       (
-        fenParsed.turn == "w" &&
+        fenParsed.turn == "b" &&
         // NOTE: do not check really JSON stringified move...
         (!fenParsed.whiteMove || fenParsed.whiteMove == "-")
       )
       ||
-      (fenParsed.turn == "b" && fenParsed.whiteMove != "-")
+      (fenParsed.turn == "w" && fenParsed.whiteMove != "-")
     ) {
       return false;
     }
@@ -462,31 +462,36 @@ export class ApocalypseRules extends ChessRules {
       // TODO: this situation should not happen
       return null;
 
-    if (Math.random() < 0.5)
-      // Return a random move
-      return moves[randInt(moves.length)];
-
     // Rank moves at depth 1:
+    let validMoves = [];
+    let illegalMoves = [];
     moves.forEach(m => {
-      // Warning: m.vanish[0] might refer to an empty square! Or self
-      const skipPlayUndo = (
-        m.vanish.length == 2 &&
-        (
-          m.vanish[1].c == m.vanish[0].c ||
-          this.board[m.vanish[1].x][m.vanish[1].y] == V.EMPTY
-        )
-      );
-      if (!skipPlayUndo) V.PlayOnBoard(this.board, m);
-      m.eval = this.evalPosition();
-      if (!skipPlayUndo) V.UndoOnBoard(this.board, m);
+      // Warning: m might be illegal!
+      if (!m.illegal) {
+        V.PlayOnBoard(this.board, m);
+        m.eval = this.evalPosition();
+        V.UndoOnBoard(this.board, m);
+        validMoves.push(m);
+      } else illegalMoves.push(m);
     });
-    moves.sort((a, b) => {
+
+    const illegalRatio = illegalMoves.length / moves.length;
+    if (Math.random() < illegalRatio)
+      // Return a random illegal move
+      return illegalMoves[randInt(illegalMoves.length)];
+
+    validMoves.sort((a, b) => {
       return (color == "w" ? 1 : -1) * (b.eval - a.eval);
     });
     let candidates = [0];
-    for (let i = 1; i < moves.length && moves[i].eval == moves[0].eval; i++)
+    for (
+      let i = 1;
+      i < validMoves.length && validMoves[i].eval == moves[0].eval;
+      i++
+    ) {
       candidates.push(i);
-    return moves[candidates[randInt(candidates.length)]];
+    }
+    return validMoves[candidates[randInt(candidates.length)]];
   }
 
   getNotation(move) {

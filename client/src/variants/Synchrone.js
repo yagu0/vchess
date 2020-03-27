@@ -16,12 +16,12 @@ export class SynchroneRules extends ChessRules {
     // 5) Check whiteMove
     if (
       (
-        fenParsed.turn == "w" &&
+        fenParsed.turn == "b" &&
         // NOTE: do not check really JSON stringified move...
         (!fenParsed.whiteMove || fenParsed.whiteMove == "-")
       )
       ||
-      (fenParsed.turn == "b" && fenParsed.whiteMove != "-")
+      (fenParsed.turn == "w" && fenParsed.whiteMove != "-")
     ) {
       return false;
     }
