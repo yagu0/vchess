@@ -2,11 +2,16 @@ p.boxed
   | Both players play a move "at the same time".
   | The goal is to eliminate all pawns.
 
+figure.diagram-container
+  .diagram
+    | fen:npppn/p3p/5/P3P/NPPPN:
+  figcaption Initial position.
+
 p
   | This variant is inspired by the 
   a(href="https://en.wikipedia.org/wiki/Four_Horsemen_of_the_Apocalypse")
-    | &nbsp;Four Horsemen of the Apocalypse
-  | mythology. Knights are horsemen, and pawns are footmen.
+    | Four Horsemen of the Apocalypse
+  | &nbsp;mythology. Knights are horsemen, and pawns are footmen.
   | The goal is to eliminate all enemy footmen,
   | most likely with the help of your horsemen.
   | If all footmen die, the other side wins.
@@ -25,12 +30,13 @@ ul
     If both moves are illegal none are played.
     If one is illegal, the other is played.
   li.
-    If both moves arrive on the same square, both pieces disappear except
-    if one is a horseman and the other a footman.
-    In this case only the horseman remains.
-  li.
     If a capture was intended but the target moved, the move is still played
     but doesn't capture anything.
+  li.
+    If both moves arrive on the same square: the illegal move prevails,
+    if the other was legal (higher risk => reward).
+    If both moves are legal or illegal, then a horseman wins over a footman.
+    Finally, at same risk level and same piece type, both disappear.
 
 figure.diagram-container
   .diagram
@@ -43,6 +49,8 @@ p.
   Pawns automatically promote in a knight, except if the player already
   have two horsemen on the board. In this case the footman is relocated on
   any free square which is not on last rank.
+  Even in this last case, pawn promotions may appear possible by
+  anticipation of a knight capture. This is risky but playable.
 
 h3 End of the game
 
@@ -50,7 +58,8 @@ p.
   As stated previously, losing all pawns lose the game, so promoting your
   last pawn loses. It may be the only legal move.
   If however both footmen armies vanish at the same time, it's a draw.
-  It can happen if the two last pawns decide to advance to the same square.
+  It can happen if the two last pawns decide to advance to the same square
+  for example.
 
 h3 Source
 

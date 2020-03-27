@@ -22,11 +22,17 @@ export class ApocalypseRules extends ChessRules {
   }
 
   static get CanAnalyze() {
-    return false;
+    return true; //false;
   }
 
   static get ShowMoves() {
     return "byrow";
+  }
+
+  getPPpath(m) {
+    // Show the piece taken, if any, and not multiple pawns:
+    if (m.vanish.length == 1) return "Apocalypse/empty";
+    return m.vanish[1].c + m.vanish[1].p;
   }
 
   static get PIECES() {
@@ -112,7 +118,9 @@ export class ApocalypseRules extends ChessRules {
   }
 
   getFlagsFen() {
-    return this.penaltyFlags.join("");
+    return (
+      this.penaltyFlags['w'].toString() + this.penaltyFlags['b'].toString()
+    );
   }
 
   setOtherVariables(fen) {
@@ -126,7 +134,10 @@ export class ApocalypseRules extends ChessRules {
   }
 
   setFlags(fenflags) {
-    this.penaltyFlags = [0, 1].map(i => parseInt(fenflags[i]));
+    this.penaltyFlags = {
+      'w': parseInt(fenflags[0]),
+      'b': parseInt(fenflags[1])
+    };
   }
 
   getWhitemoveFen() {
@@ -149,13 +160,17 @@ export class ApocalypseRules extends ChessRules {
     this.turn = V.GetOppCol(color);
     const oppMoves = super.getAllValidMoves();
     this.turn = color;
-    // For each opponent's move, generate valid moves [from sq]
+    // For each opponent's move, generate valid moves [from sq if same color]
     let speculations = [];
     oppMoves.forEach(m => {
       V.PlayOnBoard(this.board, m);
       const newValidMoves =
         !!sq
-          ? super.getPotentialMovesFrom(sq)
+          ? (
+            this.getColor(sq[0], sq[1]) == color
+              ? super.getPotentialMovesFrom(sq)
+              : []
+            )
           : super.getAllValidMoves();
       newValidMoves.forEach(vm => {
         const mHash = "m" + vm.start.x + vm.start.y + vm.end.x + vm.end.y;
@@ -190,8 +205,8 @@ export class ApocalypseRules extends ChessRules {
       // If 0 or 1 horsemen, promote in knight
       let knightCounter = 0;
       let emptySquares = [];
-      for (let i=0; i<V.size.x; i++) {
-        for (let j=0; j<V.size.y; j++) {
+      for (let i = 0; i < V.size.x; i++) {
+        for (let j = 0; j < V.size.y; j++) {
           if (this.board[i][j] == V.EMPTY) emptySquares.push([i, j]);
           else if (
             this.getColor(i, j) == color &&
@@ -203,10 +218,22 @@ export class ApocalypseRules extends ChessRules {
       }
       if (knightCounter <= 1) finalPieces = [V.KNIGHT];
       else {
-        // Generate all possible landings
+        // Generate all possible landings, maybe capturing something on the way
+        let capture = undefined;
+        if (this.board[x2][y2] != V.EMPTY) {
+          capture = JSON.parse(JSON.stringify({
+            x: x2,
+            y: y2,
+            c: this.getColor(x2, y2),
+            p: this.getPiece(x2, y2)
+          }));
+        }
         emptySquares.forEach(sq => {
-          if (sq[0] != lastRank)
-            moves.push(this.getBasicMove([x1, y1], [sq[0], sq[1]]));
+          if (sq[0] != lastRank) {
+            let newMove = this.getBasicMove([x1, y1], [sq[0], sq[1]]);
+            if (!!capture) newMove.vanish.push(capture);
+            moves.push(newMove);
+          }
         });
         return;
       }
@@ -233,41 +260,66 @@ export class ApocalypseRules extends ChessRules {
 
   // White and black (partial) moves were played: merge
   resolveSynchroneMove(move) {
-    let m = [this.whiteMove, move];
-    for (let i of [0, 1]) {
-      if (!!m[i].illegal) {
-        // Either an anticipated capture of something which didn't move
-        // (or not to the right square), or a push through blocus.
-        if (
-          (
-            // Push attempt
-            m[i].start.y == m[i].end.y &&
-            (m[1-i].start.x != m[i].end.x || m[1-i].start.y != m[i].end.y)
-          )
-          ||
-          (
-            // Capture attempt
-            Math.abs(m[i].start.y - m[i].end.y) == 1 &&
-            (m[1-i].end.x != m[i].end.x || m[1-i].end.y != m[i].end.y)
-          )
-        ) {
-          // Just discard the move, and add a penalty point
-          this.penaltyFlags[m[i].vanish[0].c]++;
-          m[i] = null;
-        }
-      }
+    let m1 = this.whiteMove;
+    let m2 = move;
+    const movingLikeCapture = (m) => {
+      const shift = (m.vanish[0].c == 'w' ? -1 : 1);
+      return (
+        m.start.x + shift == m.end.x &&
+        Math.abs(m.end.y - m.start.y) == 1
+      );
+    };
+    const isPossible = (m, other) => {
+      return (
+        (
+          m.vanish[0].p == V.KNIGHT &&
+          (m.vanish.length == 1 || m.vanish[1].c != m.vanish[0].c)
+        )
+        ||
+        (
+          // Promotion attempt
+          m.end.x == (m.vanish[0].c == "w" ? 0 : V.size.x - 1) &&
+          other.vanish.length == 2 &&
+          other.vanish[1].p == V.KNIGHT &&
+          other.vanish[1].c == m.vanish[0].c
+        )
+        ||
+        (
+          // Moving attempt
+          !movingLikeCapture(m) &&
+          other.start.x == m.end.x &&
+          other.start.y == m.end.y
+        )
+        ||
+        (
+          // Capture attempt
+          movingLikeCapture(m) &&
+          other.end.x == m.end.x &&
+          other.end.y == m.end.y
+        )
+      );
+    };
+    if (!!m1.illegal && !isPossible(m1, m2)) {
+      // Either an anticipated capture of something which didn't move
+      // (or not to the right square), or a push through blocus.
+      // ==> Just discard the move, and add a penalty point
+      this.penaltyFlags[m1.vanish[0].c]++;
+      m1.isNull = true;
     }
-
+    if (!!m2.illegal && !isPossible(m2, m1)) {
+      this.penaltyFlags[m2.vanish[0].c]++;
+      m2.isNull = true;
+    }
+    if (!!m1.isNull) m1 = null;
+    if (!!m2.isNull) m2 = null;
+    // If one move is illegal, just execute the other
+    if (!m1 && !!m2) return m2;
+    if (!m2 && !!m1) return m1;
     // For PlayOnBoard (no need for start / end, irrelevant)
     let smove = {
       appear: [],
       vanish: []
     };
-    const m1 = m[0],
-          m2 = m[1];
-    // If one move is illegal, just execute the other
-    if (!m1 && !!m2) return m2;
-    if (!m2 && !!m1) return m1;
     if (!m1 && !m2) return smove;
     // Both move are now legal:
     smove.vanish.push(m1.vanish[0]);
@@ -296,15 +348,27 @@ export class ApocalypseRules extends ChessRules {
         smove.vanish.push(m2.vanish[1]);
       }
     } else {
-      // Collision: both disappear except if different kinds (knight remains)
+      // Collision: priority to the anticipated capture, if any.
+      // If ex-aequo: knight wins (higher risk), or both disappears.
+      // Then, priority to the knight vs pawn: remains.
+      // Finally: both disappears.
+      let remain = null;
       const p1 = m1.vanish[0].p;
       const p2 = m2.vanish[0].p;
-      if ([p1, p2].includes(V.KNIGHT) && [p1, p2].includes(V.PAWN)) {
+      if (!!m1.illegal && !m2.illegal) remain = { c: 'w', p: p1 };
+      else if (!!m2.illegal && !m1.illegal) remain = { c: 'b', p: p2 };
+      if (!remain) {
+        // Either both are illegal or both are legal
+        if (p1 == V.KNIGHT && p2 == V.PAWN) remain = { c: 'w', p: p1 };
+        else if (p2 == V.KNIGHT && p1 == V.PAWN) remain = { c: 'b', p: p2 };
+        // If remain is still null: same type same risk, both disappear
+      }
+      if (!!remain) {
         smove.appear.push({
           x: m1.end.x,
           y: m1.end.y,
-          p: V.KNIGHT,
-          c: (p1 == V.KNIGHT ? 'w' : 'b')
+          p: remain.p,
+          c: remain.c
         });
       }
     }
@@ -312,6 +376,10 @@ export class ApocalypseRules extends ChessRules {
   }
 
   play(move) {
+    if (!this.states) this.states = [];
+    const stateFen = this.getFen();
+    this.states.push(stateFen);
+
     // Do not play on board (would reveal the move...)
     move.flags = JSON.stringify(this.aggregateFlags());
     this.turn = V.GetOppCol(this.turn);
@@ -325,7 +393,6 @@ export class ApocalypseRules extends ChessRules {
       this.whiteMove = move;
       return;
     }
-
     // A full turn just ended:
     const smove = this.resolveSynchroneMove(move);
     V.PlayOnBoard(this.board, smove);
@@ -342,6 +409,10 @@ export class ApocalypseRules extends ChessRules {
     this.turn = V.GetOppCol(this.turn);
     this.movesCount--;
     this.postUndo(move);
+
+    const stateFen = this.getFen();
+    if (stateFen != this.states[this.states.length-1]) debugger;
+    this.states.pop();
   }
 
   postUndo(move) {
@@ -373,9 +444,9 @@ export class ApocalypseRules extends ChessRules {
       return "1-0"; //fmCount['b'] == 0
     }
     // Check penaltyFlags: if a side has 2 or more, it loses
-    if (this.penaltyFlags.every(f => f == 2)) return "1/2";
-    if (this.penaltyFlags[0] == 2) return "0-1";
-    if (this.penaltyFlags[1] == 2) return "1-0";
+    if (Object.values(this.penaltyFlags).every(v => v == 2)) return "1/2";
+    if (this.penaltyFlags['w'] == 2) return "0-1";
+    if (this.penaltyFlags['b'] == 2) return "1-0";
     if (!this.atLeastOneMove('w') || !this.atLeastOneMove('b'))
       // Stalemate (should be very rare)
       return "1/2";

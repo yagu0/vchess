@@ -87,7 +87,7 @@ export default {
     const gameDiv = h(
       "div",
       {
-        class: {
+        "class": {
           game: true,
           clearer: true
         }
@@ -97,7 +97,7 @@ export default {
         return h(
           "div",
           {
-            class: {
+            "class": {
               row: true
             },
             style: { opacity: this.choices.length > 0 ? "0.5" : "1" }
@@ -108,7 +108,7 @@ export default {
             if (showPiece(ci, cj)) {
               elems.push(
                 h("img", {
-                  class: {
+                  "class": {
                     piece: true,
                     ghost:
                       !!this.selectedPiece &&
@@ -131,7 +131,7 @@ export default {
             if (this.settings.hints && hintSquares[ci][cj]) {
               elems.push(
                 h("img", {
-                  class: {
+                  "class": {
                     "mark-square": true
                   },
                   attrs: {
@@ -144,7 +144,7 @@ export default {
             return h(
               "div",
               {
-                class: {
+                "class": {
                   board: true,
                   ["board" + sizeY]: true,
                   "light-square": lightSquare,
@@ -176,13 +176,13 @@ export default {
           h(
             "div",
             {
-              class: { board: true, ["board" + sizeY]: true },
+              "class": { board: true, ["board" + sizeY]: true },
               attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) },
               style: { opacity: qty > 0 ? 1 : 0.35 }
             },
             [
               h("img", {
-                class: { piece: true, reserve: true },
+                "class": { piece: true, reserve: true },
                 attrs: {
                   src:
                     "/images/pieces/" +
@@ -190,7 +190,7 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { class: { "reserve-count": true } }, [ qty ])
+              h("sup", { "class": { "reserve-count": true } }, [ qty ])
             ]
           )
         );
@@ -203,13 +203,13 @@ export default {
           h(
             "div",
             {
-              class: { board: true, ["board" + sizeY]: true },
+              "class": { board: true, ["board" + sizeY]: true },
               attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) },
               style: { opacity: qty > 0 ? 1 : 0.35 }
             },
             [
               h("img", {
-                class: { piece: true, reserve: true },
+                "class": { piece: true, reserve: true },
                 attrs: {
                   src:
                     "/images/pieces/" +
@@ -217,7 +217,7 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { class: { "reserve-count": true } }, [ qty ])
+              h("sup", { "class": { "reserve-count": true } }, [ qty ])
             ]
           )
         );
@@ -233,7 +233,7 @@ export default {
         h(
           "div",
           {
-            class: {
+            "class": {
               game: true,
               "reserve-div": true
             },
@@ -245,7 +245,7 @@ export default {
             h(
               "div",
               {
-                class: {
+                "class": {
                   row: true,
                   "reserve-row": true
                 }
@@ -258,7 +258,7 @@ export default {
         h(
           "div",
           {
-            class: {
+            "class": {
               game: true,
               "reserve-div": true
             },
@@ -270,7 +270,7 @@ export default {
             h(
               "div",
               {
-                class: {
+                "class": {
                   row: true,
                   "reserve-row": true
                 }
@@ -300,7 +300,7 @@ export default {
         "div",
         {
           attrs: { id: "choices" },
-          class: { row: true },
+          "class": { row: true },
           style: {
             top: topOffset + "px",
             left:
@@ -313,7 +313,9 @@ export default {
         },
         [ h(
           "div",
-          { },
+          {
+            "class": { "full-width": true }
+          },
           this.choices.map(m => {
             // A "choice" is a move
             const applyMove = (e) => {
@@ -331,7 +333,7 @@ export default {
             return h(
               "div",
               {
-                class: {
+                "class": {
                   board: true,
                   ["board" + sizeY]: true
                 },
@@ -349,7 +351,7 @@ export default {
                       this.vr.getPPpath(m, this.orientation) +
                       V.IMAGE_EXTENSION
                   },
-                  class: { "choice-piece": true },
+                  "class": { "choice-piece": true },
                   on: onClick
                 })
               ]
@@ -488,16 +490,16 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+// NOTE: no variants with reserve of size != 8
 .game.reserve-div
   margin-bottom: 18px
-
 .reserve-count
   padding-left: 40%
-
 .reserve-row
   margin-bottom: 15px
 
-// NOTE: no variants with reserve of size != 8
+.full-width
+  width: 100%
 
 .game
   user-select: none
