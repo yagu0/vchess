@@ -156,6 +156,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 pièces sur l'échiquier",
+  "A pawns cloud": "Une nuée de pions",
   "Ancient rules": "Règles anciennes",
   "Attract opposite king": "Attirer le roi adverse",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",

@@ -156,6 +156,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 piezas en el tablero",
+  "A pawns cloud": "Une nube de peones",
   "Ancient rules": "Viejas reglas",
   "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",

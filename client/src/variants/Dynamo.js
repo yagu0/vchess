@@ -73,7 +73,7 @@ export class DynamoRules extends ChessRules {
     if (
       this.subTurn == 2 &&
       square.x == this.firstMove.end.x &&
-      square.y == this.firstMove.end.y)
+      square.y == this.firstMove.end.y
     ) {
       return {
         appear: [],
@@ -186,32 +186,29 @@ export class DynamoRules extends ChessRules {
     if (this.getColor(x, y) != color)
       // The only moves possible with enemy pieces are pulls and pushes:
       return this.getPactions([x, y], color);
-    else {
-      // Playing my pieces: either on their own, or pushed by another
-      // If subTurn == 2 then we should have a first move,
-      // TODO = use it to allow some type of action
-      if (this.subTurn == 2) {
-        return (
-          this.moveOnSubturn1.isAnAction
-            ? super.getPotentialMovesFrom([x, y])
-            : this.getPactions([x, y], color, TODO_arg)
-        );
-      } else {
-        // Both options are possible at subTurn1: normal move, or push
-        moves =
-          super.getPotentialMovesFrom([x, y])
-          .concat(this.getPactions([x, y], color, "push");
-          // TODO: discard moves that let the king underCheck, and no second
-          // move can counter check. Example: pinned queen pushes pinned pawn.
-          .filter(m => {
-            this.play(m);
-            const res = this.filterMoves(this.getPotentialMoves(/* TODO: args? */)).length > 0;
-            this.undo(m);
-            return res;
-          });
-      }
+    // Playing my pieces: either on their own, or pushed by another
+    // If subTurn == 2 then we should have a first move,
+    // TODO = use it to allow some type of action
+    if (this.subTurn == 2) {
+      return (
+        this.moveOnSubturn1.isAnAction
+          ? super.getPotentialMovesFrom([x, y])
+          : this.getPactions([x, y], color, TODO_arg)
+      );
     }
-    return moves;
+    // Both options are possible at subTurn1: normal move, or push
+    return (
+      super.getPotentialMovesFrom([x, y])
+      .concat(this.getPactions([x, y], color, "push"))
+      // TODO: discard moves that let the king underCheck, and no second
+      // move can counter check. Example: pinned queen pushes pinned pawn.
+      .filter(m => {
+        this.play(m);
+        const res = this.filterMoves(this.getPotentialMoves(/* TODO: args? */)).length > 0;
+        this.undo(m);
+        return res;
+      })
+    );
   }
 
   // TODO: track rooks locations, should be a field in FEN, in castleflags?

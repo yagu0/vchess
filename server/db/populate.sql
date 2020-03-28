@@ -36,6 +36,7 @@ insert or ignore into Variants (name, description) values
   ('Extinction', 'Capture all of a kind'),
   ('Grand', 'Big board'),
   ('Grasshopper', 'Long jumps over pieces'),
+  ('Horde', 'A pawns cloud'),
   ('Knightmate', 'Mate the knight'),
   ('Knightrelay1', 'Move like a knight (v1)'),
   ('Knightrelay2', 'Move like a knight (v2)'),

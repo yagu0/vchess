@@ -156,6 +156,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 pieces on the board",
+  "A pawns cloud": "A pawns cloud",
   "Ancient rules": "Ancient rules",
   "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
