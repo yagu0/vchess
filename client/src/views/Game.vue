@@ -372,7 +372,7 @@ export default {
       }
     },
     send: function(code, obj) {
-      if (!!this.conn)
+      if (!!this.conn && this.conn.readyState == 1)
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
     },
     isConnected: function(index) {

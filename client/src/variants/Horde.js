@@ -39,10 +39,24 @@ export class HordeRules extends ChessRules {
     if (randomness == 2) randomness--;
     const fen = ChessRules.GenRandInitFen(randomness);
     return (
-      // 27 first chars are 3 rows + 3 slashes
-      fen.substr(0, 27)
+      // 20 first chars are 3 rows + 3 slashes
+      fen.substr(0, 20)
       // En passant available, but no castle:
       .concat("1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w 0 -")
+    );
+  }
+
+  filterValid(moves) {
+    if (this.turn == 'w') return moves;
+    return super.filterValid(moves);
+  }
+
+  getCheckSquares(color) {
+    if (color == 'w') return [];
+    return (
+      this.underCheck('b')
+        ? [JSON.parse(JSON.stringify(this.kingPos['b']))]
+        : []
     );
   }
 
