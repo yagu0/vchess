@@ -134,15 +134,24 @@ export class BallRules extends ChessRules {
         break;
       }
 
-      // Get random squares for every piece, totally freely
+      // Get random squares for every piece, with bishops and phoenixes
+      // on different colors:
       let positions = shuffle(ArrayFun.range(9));
-      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'h', 'h', 'q'];
-      const rem2 = positions[0] % 2;
+      const composition = ['b', 'b', 'h', 'h', 'n', 'n', 'r', 'r', 'q'];
+      let rem2 = positions[0] % 2;
       if (rem2 == positions[1] % 2) {
         // Fix bishops (on different colors)
-        for (let i=2; i<9; i++) {
+        for (let i=4; i<9; i++) {
           if (positions[i] % 2 != rem2)
             [positions[1], positions[i]] = [positions[i], positions[1]];
+        }
+      }
+      rem2 = positions[2] % 2;
+      if (rem2 == positions[3] % 2) {
+        // Fix phoenixes too:
+        for (let i=4; i<9; i++) {
+          if (positions[i] % 2 != rem2)
+            [positions[3], positions[i]] = [positions[i], positions[3]];
         }
       }
       for (let i = 0; i < 9; i++) pieces[c][positions[i]] = composition[i];
