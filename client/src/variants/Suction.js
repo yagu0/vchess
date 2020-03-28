@@ -29,8 +29,8 @@ export class SuctionRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParts = fen.split(" ");
-    if (fenParts.length != 6) return false;
-    if (fenParts[5] != "-" && !fenParts[5].match(/^([a-h][1-8]){2}$/))
+    if (fenParts.length != 5) return false;
+    if (fenParts[4] != "-" && !fenParts[4].match(/^([a-h][1-8]){2}$/))
       return false;
     return true;
   }
@@ -121,7 +121,7 @@ export class SuctionRules extends ChessRules {
   // Does m2 un-do m1 ? (to disallow undoing captures)
   oppositeMoves(m1, m2) {
     return (
-      m1 &&
+      !!m1 &&
       m2.vanish.length == 2 &&
       m1.start.x == m2.start.x &&
       m1.end.x == m2.end.x &&

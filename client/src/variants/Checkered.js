@@ -177,7 +177,7 @@ export class CheckeredRules extends ChessRules {
   // Does m2 un-do m1 ? (to disallow undoing checkered moves)
   oppositeMoves(m1, m2) {
     return (
-      m1 &&
+      !!m1 &&
       m2.appear[0].c == "c" &&
       m2.appear.length == 1 &&
       m2.vanish.length == 1 &&

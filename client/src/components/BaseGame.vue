@@ -21,6 +21,7 @@ div#baseGame
         :vname="game.vname"
         :incheck="incheck"
         @play-move="play"
+        @click-square="clickSquare"
       )
       #turnIndicator(v-if="showTurn") {{ turn }}
       #controls.button-group
@@ -363,6 +364,11 @@ export default {
           !!this.lastMove ? this.lastMove.fen : this.game.fenStart
         );
       }
+    },
+    clickSquare: function(square) {
+      // Some variants make use of a single click at specific times:
+      const move = this.vr.doClick(square);
+      if (!!move) this.play(move);
     },
     // "light": if gotoMove() or gotoEnd()
     play: function(move, received, light, noemit) {

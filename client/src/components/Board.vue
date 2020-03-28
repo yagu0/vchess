@@ -388,9 +388,15 @@ export default {
     mousedown: function(e) {
       e.preventDefault();
       if (!this.start) {
-        // Start square must contain a piece.
         // NOTE: classList[0] is enough: 'piece' is the first assigned class
-        if (e.target.classList[0] != "piece") return;
+        const withPiece = e.target.classList[0] == "piece";
+        // Emit the click event which could be used by some variants
+        this.$emit(
+          "click-square",
+          getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id)
+        );
+        // Start square must contain a piece.
+        if (!withPiece) return;
         let parent = e.target.parentNode; //surrounding square
         // Show possible moves if current player allowed to play
         const startSquare = getSquareFromId(parent.id);

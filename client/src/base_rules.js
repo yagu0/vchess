@@ -86,6 +86,11 @@ export const ChessRules = class ChessRules {
     return V.CanFlip;
   }
 
+  // Some variants use click infos:
+  doClick() {
+    return null;
+  }
+
   static get IMAGE_EXTENSION() {
     // All pieces should be in the SVG format
     return ".svg";
@@ -846,12 +851,12 @@ export const ChessRules = class ChessRules {
 
       // NOTE: in some variants this is not a rook
       const rookPos = this.castleFlags[c][castleSide];
-      const castlingPiece = this.getPiece(x, rookPos);
-      if (this.getColor(x, rookPos) != c)
-        // Rook is here but changed color (see Benedict)
+      if (this.board[x][rookPos] == V.EMPTY || this.getColor(x, rookPos) != c)
+        // Rook is not here, or changed color (see Benedict)
         continue;
 
       // Nothing on the path of the king ? (and no checks)
+      const castlingPiece = this.getPiece(x, rookPos);
       const finDist = finalSquares[castleSide][0] - y;
       let step = finDist / Math.max(1, Math.abs(finDist));
       i = y;

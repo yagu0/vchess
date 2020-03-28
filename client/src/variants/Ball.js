@@ -125,7 +125,7 @@ export class BallRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "rnbcqcnbr/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/RNBCQCNBR w 0 -";
+      return "hbnrqrnhb/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/HBNRQRNHB w 0 -";
 
     let pieces = { w: new Array(9), b: new Array(9) };
     for (let c of ["w", "b"]) {
@@ -136,7 +136,7 @@ export class BallRules extends ChessRules {
 
       // Get random squares for every piece, totally freely
       let positions = shuffle(ArrayFun.range(9));
-      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'c', 'c', 'q'];
+      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'h', 'h', 'q'];
       const rem2 = positions[0] % 2;
       if (rem2 == positions[1] % 2) {
         // Fix bishops (on different colors)

@@ -108,7 +108,7 @@ export class EightpiecesRules extends ChessRules {
     // 5) Check sentry push (if any)
     if (
       fenParsed.sentrypush != "-" &&
-      !fenParsed.sentrypush.match(/^([a-h][1-8],?)+$/)
+      !fenParsed.sentrypush.match(/^([a-h][1-8]){2,2}$/)
     ) {
       return false;
     }
@@ -131,7 +131,7 @@ export class EightpiecesRules extends ChessRules {
     // Condensate path: just need initial and final squares:
     return [0, spL - 1]
       .map(i => V.CoordsToSquare(this.sentryPush[L-1][i]))
-      .join(",");
+      .join("");
   }
 
   setOtherVariables(fen) {
@@ -145,8 +145,8 @@ export class EightpiecesRules extends ChessRules {
     if (parsedFen.sentrypush == "-") this.sentryPush = [null];
     else {
       // Expand init + dest squares into a full path:
-      const [init, dest] =
-        parsedFen.sentrypush.split(",").map(sq => V.SquareToCoords(sq));
+      const init = V.SquareToCoords(parsedFen.sentrypush.substr(0, 2)),
+            dest = V.SquareToCoords(parsedFen.sentrypush.substr(2));
       let newPath = [init];
       const delta = ['x', 'y'].map(i => Math.abs(dest[i] - init[i]));
       // Check that it's not a knight movement:
