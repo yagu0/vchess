@@ -447,4 +447,17 @@ export class OmegaRules extends ChessRules {
       k: 1000
     };
   }
+
+  evalPosition() {
+    let evaluation = 0;
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (![V.EMPTY,V.NOTHING].includes(this.board[i][j])) {
+          const sign = this.getColor(i, j) == "w" ? 1 : -1;
+          evaluation += sign * V.VALUES[this.getPiece(i, j)];
+        }
+      }
+    }
+    return evaluation;
+  }
 };
