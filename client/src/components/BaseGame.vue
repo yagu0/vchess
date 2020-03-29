@@ -54,6 +54,7 @@ div#baseGame
         @showrules="showRules"
         @analyze="analyzePosition"
         @goto-move="gotoMove"
+        @reset-arrows="resetArrows"
       )
     .clearer
 </template>
@@ -186,6 +187,10 @@ export default {
       if (e.deltaY < 0) this.undo();
       else if (e.deltaY > 0) this.play();
     },
+    resetArrows: function() {
+      // TODO: make arrows scale with board, and remove this
+      this.$refs["board"].cancelResetArrows();
+    },
     showRules: function() {
       //this.$router.push("/variants/" + this.game.vname);
       window.open("#/variants/" + this.game.vname, "_blank"); //better
@@ -250,11 +255,8 @@ export default {
         this.game.vname +
         "/?fen=" +
         this.vr.getFen().replace(/ /g, "_");
-      if (this.game.mycolor)
-        newUrl += "&side=" + this.game.mycolor;
-      // Open in same tab in live games (against cheating)
-      if (this.game.type == "live") this.$router.push(newUrl);
-      else window.open("#" + newUrl);
+      if (!!this.game.mycolor) newUrl += "&side=" + this.game.mycolor;
+      window.open("#" + newUrl);
     },
     download: function() {
       const content = this.getPgn();
@@ -279,15 +281,22 @@ export default {
       pgn += '\n';
       for (let i = 0; i < this.moves.length; i += 2) {
         if (i > 0) pgn += " ";
-        pgn += (i/2+1) + "." + getFullNotation(this.moves[i]);
+        // Adjust dots notation for a better display:
+        let fullNotation = getFullNotation(this.moves[i]);
+        if (fullNotation == "...") fullNotation = "..";
+        pgn += (i/2+1) + "." + fullNotation;
         if (i+1 < this.moves.length)
           pgn += " " + getFullNotation(this.moves[i+1]);
       }
       pgn += "\n\n";
       for (let i = 0; i < this.moves.length; i += 2) {
-        pgn += getFullNotation(this.moves[i], "unambiguous") + "\n";
-        if (i+1 < this.moves.length)
-          pgn += getFullNotation(this.moves[i+1], "unambiguous") + "\n";
+        const moveNumber = i / 2 + 1;
+        pgn += moveNumber + "." + i + " " +
+          getFullNotation(this.moves[i], "unambiguous") + "\n";
+        if (i+1 < this.moves.length) {
+          pgn += moveNumber + "." + (i+1) + " " +
+            getFullNotation(this.moves[i+1], "unambiguous") + "\n";
+        }
       }
       return pgn;
     },

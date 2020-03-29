@@ -24,6 +24,10 @@ export default {
       choices: [], //promotion pieces, or checkered captures... (as moves)
       selectedPiece: null, //moving piece (or clicked piece)
       start: null, //pixels coordinates + id of starting square (click or drag)
+      startArrow: null,
+      movingArrow: { x: -1, y: -1 },
+      arrows: [], //object of {start: x,y / end: x,y}
+      circles: {}, //object of squares' ID --> true (TODO: use a set?)
       click: "",
       clickTime: 0,
       settings: store.state.settings
@@ -104,6 +108,7 @@ export default {
           },
           [...Array(sizeY).keys()].map(j => {
             const cj = orientation == "w" ? j : sizeY - j - 1;
+            const squareId = "sq-" + ci + "-" + cj;
             let elems = [];
             if (showPiece(ci, cj)) {
               elems.push(
@@ -112,7 +117,7 @@ export default {
                     piece: true,
                     ghost:
                       !!this.selectedPiece &&
-                      this.selectedPiece.parentNode.id == "sq-" + ci + "-" + cj
+                      this.selectedPiece.parentNode.id == squareId
                   },
                   attrs: {
                     src:
@@ -136,6 +141,18 @@ export default {
                   },
                   attrs: {
                     src: "/images/mark.svg"
+                  }
+                })
+              );
+            }
+            if (!!this.circles[squareId]) {
+              elems.push(
+                h("img", {
+                  "class": {
+                    "circle-square": true
+                  },
+                  attrs: {
+                    src: "/images/circle.svg"
                   }
                 })
               );
@@ -363,6 +380,89 @@ export default {
       );
       elementArray.unshift(choices);
     }
+    if (
+      !this.mobileBrowser &&
+      (this.arrows.length > 0 || this.movingArrow.x >= 0)
+    ) {
+      let svgArrows = [];
+      this.arrows.forEach(a => {
+        svgArrows.push(
+          h(
+            "path",
+            {
+              "class": { "svg-arrow": true },
+              attrs: {
+                d: (
+                  "M" + a.start.x + "," + a.start.y + " " +
+                  "L" + a.end.x + "," + a.end.y
+                )
+              }
+            }
+          )
+        );
+      });
+      if (this.movingArrow.x >= 0) {
+        svgArrows.push(
+          h(
+            "path",
+            {
+              "class": { "svg-arrow": true },
+              attrs: {
+                d: (
+                  "M" + this.startArrow.x + "," + this.startArrow.y + " " +
+                  "L" + this.movingArrow.x + "," + this.movingArrow.y
+                )
+              }
+            }
+          )
+        );
+      }
+      // Add SVG element for drawing arrows
+      elementArray.push(
+        h(
+          "svg",
+          {
+            attrs: {
+              id: "arrowCanvas",
+              stroke: "none"
+            }
+          },
+          [
+            h(
+              "defs",
+              {},
+              [
+                h(
+                  "marker",
+                  {
+                    attrs: {
+                      id: "arrow",
+                      markerWidth: "2",
+                      markerHeight: "2",
+                      markerUnits: "strokeWidth",
+                      refX: "0",
+                      refY: "1",
+                      orient: "auto"
+                    }
+                  },
+                  [
+                    h(
+                      "path",
+                      {
+                        attrs: {
+                          d: "M0,0 L0,2 L2,1 z",
+                          style: "fill: blue"
+                        }
+                      }
+                    )
+                  ]
+                )
+              ]
+            )
+          ].concat(svgArrows)
+        )
+      );
+    }
     let onEvents = {};
     // NOTE: click = mousedown + mouseup
     if (this.mobileBrowser) {
@@ -378,80 +478,132 @@ export default {
         on: {
           mousedown: this.mousedown,
           mousemove: this.mousemove,
-          mouseup: this.mouseup
+          mouseup: this.mouseup,
+          contextmenu: this.blockContextMenu
         }
       };
     }
     return h("div", onEvents, elementArray);
   },
   methods: {
-    mousedown: function(e) {
+    blockContextMenu: function(e) {
       e.preventDefault();
-      if (!this.start) {
-        // NOTE: classList[0] is enough: 'piece' is the first assigned class
-        const withPiece = e.target.classList[0] == "piece";
-        // Emit the click event which could be used by some variants
-        this.$emit(
-          "click-square",
-          getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id)
-        );
-        // Start square must contain a piece.
-        if (!withPiece) return;
-        let parent = e.target.parentNode; //surrounding square
-        // Show possible moves if current player allowed to play
-        const startSquare = getSquareFromId(parent.id);
-        this.possibleMoves = [];
-        const color = this.analyze ? this.vr.turn : this.userColor;
-        if (this.vr.canIplay(color, startSquare))
-          this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-        // For potential drag'n drop, remember start coordinates
-        // (to center the piece on mouse cursor)
-        let rect = parent.getBoundingClientRect();
-        this.start = {
+      e.stopPropagation();
+      return false;
+    },
+    cancelResetArrows: function() {
+      this.startArrow = null;
+      this.arrows = [];
+      this.circles = {};
+    },
+    mousedown: function(e) {
+      if (!([1, 3].includes(e.which))) return;
+      e.preventDefault();
+      if (e.which != 3)
+        // Cancel current drawing and circles, if any
+        this.cancelResetArrows();
+      if (e.which == 1 || this.mobileBrowser) {
+        // Mouse left button
+        if (!this.start) {
+          // NOTE: classList[0] is enough: 'piece' is the first assigned class
+          const withPiece = (e.target.classList[0] == "piece");
+          // Emit the click event which could be used by some variants
+          this.$emit(
+            "click-square",
+            getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id)
+          );
+          // Start square must contain a piece.
+          if (!withPiece) return;
+          let parent = e.target.parentNode; //surrounding square
+          // Show possible moves if current player allowed to play
+          const startSquare = getSquareFromId(parent.id);
+          this.possibleMoves = [];
+          const color = this.analyze ? this.vr.turn : this.userColor;
+          if (this.vr.canIplay(color, startSquare))
+            this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+          // For potential drag'n drop, remember start coordinates
+          // (to center the piece on mouse cursor)
+          const rect = parent.getBoundingClientRect();
+          this.start = {
+            x: rect.x + rect.width / 2,
+            y: rect.y + rect.width / 2,
+            id: parent.id
+          };
+          // Add the moving piece to the board, just after current image
+          this.selectedPiece = e.target.cloneNode();
+          Object.assign(
+            this.selectedPiece.style,
+            {
+              position: "absolute",
+              top: 0,
+              display: "inline-block",
+              zIndex: 3000
+            }
+          );
+          parent.insertBefore(this.selectedPiece, e.target.nextSibling);
+        } else {
+          this.processMoveAttempt(e);
+        }
+      } else {
+        // e.which == 3 : mouse right button
+        let elem = e.target;
+        // Next loop because of potential marks
+        while (elem.tagName == "IMG") elem = elem.parentNode;
+        // To center the arrow in square:
+        const rect = elem.getBoundingClientRect();
+        this.startArrow = {
           x: rect.x + rect.width / 2,
           y: rect.y + rect.width / 2,
-          id: parent.id
+          id: elem.id
         };
-        // Add the moving piece to the board, just after current image
-        this.selectedPiece = e.target.cloneNode();
-        Object.assign(
-          this.selectedPiece.style,
-          {
-            position: "absolute",
-            top: 0,
-            display: "inline-block",
-            zIndex: 3000
-          }
-        );
-        parent.insertBefore(this.selectedPiece, e.target.nextSibling);
-      } else {
-        this.processMoveAttempt(e);
       }
     },
     mousemove: function(e) {
-      if (!this.selectedPiece) return;
+      if (!this.selectedPiece && !this.startArrow) return;
       e.preventDefault();
-      // There is an active element: move it around
-      const [offsetX, offsetY] =
-        this.mobileBrowser
-          ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
-          : [e.clientX, e.clientY];
-      Object.assign(
-        this.selectedPiece.style,
-        {
-          left: offsetX - this.start.x + "px",
-          top: offsetY - this.start.y + "px"
+      if (!!this.selectedPiece) {
+        // There is an active element: move it around
+        const [offsetX, offsetY] =
+          this.mobileBrowser
+            ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
+            : [e.clientX, e.clientY];
+        Object.assign(
+          this.selectedPiece.style,
+          {
+            left: offsetX - this.start.x + "px",
+            top: offsetY - this.start.y + "px"
+          }
+        );
+      }
+      else {
+        let elem = e.target;
+        // Next loop because of potential marks
+        while (elem.tagName == "IMG") elem = elem.parentNode;
+        // To center the arrow in square:
+        if (elem.id != this.startArrow.id) {
+          const rect = elem.getBoundingClientRect();
+          this.movingArrow = {
+            x: rect.x + rect.width / 2,
+            y: rect.y + rect.width / 2
+          };
         }
-      );
+      }
     },
     mouseup: function(e) {
-      if (!this.selectedPiece) return;
+      if (!([1, 3].includes(e.which))) return;
       e.preventDefault();
-      // Drag'n drop. Selected piece is no longer needed:
-      this.selectedPiece.parentNode.removeChild(this.selectedPiece);
-      delete this.selectedPiece;
-      this.selectedPiece = null;
-      this.processMoveAttempt(e);
+      if (e.which == 1) {
+        if (!this.selectedPiece) return;
+        // Drag'n drop. Selected piece is no longer needed:
+        this.selectedPiece.parentNode.removeChild(this.selectedPiece);
+        delete this.selectedPiece;
+        this.selectedPiece = null;
+        this.processMoveAttempt(e);
+      } else {
+        // Mouse right button (e.which == 3)
+        this.movingArrow = { x: -1, y: -1 };
+        this.processArrowAttempt(e);
+      }
     },
     processMoveAttempt: function(e) {
       // Obtain the move from start and end squares
@@ -481,6 +633,31 @@ export default {
         this.choices = moves;
       } else if (moves.length == 1) this.play(moves[0]);
       // else: forbidden move attempt
+    },
+    processArrowAttempt: function(e) {
+      // Obtain the arrow from start and end squares
+      const [offsetX, offsetY] = [e.clientX, e.clientY];
+      let landing = document.elementFromPoint(offsetX, offsetY);
+      // Next condition: classList.contains(piece) fails because of marks
+      while (landing.tagName == "IMG") landing = landing.parentNode;
+      if (this.startArrow.id == landing.id)
+        // Draw (or erase) a circle
+        this.$set(this.circles, landing.id, !this.circles[landing.id]);
+      else {
+        // OK: add arrow, landing is a new square
+        const rect = landing.getBoundingClientRect();
+        this.arrows.push({
+          start: {
+            x: this.startArrow.x,
+            y: this.startArrow.y
+          },
+          end: {
+            x: rect.x + rect.width / 2,
+            y: rect.y + rect.width / 2
+          }
+        });
+      }
+      this.startArrow = null;
     },
     findMatchingMoves: function(endSquare) {
       // Run through moves list and return the matching set (if promotions...)
@@ -537,6 +714,21 @@ img.ghost
   position: absolute
   opacity: 0.5
   top: 0
+
+#arrowCanvas
+  pointer-events: none
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+
+.svg-arrow
+  opacity: 0.65
+  stroke: #5f0e78
+  stroke-width: 10px
+  fill: none
+  marker-end: url(#arrow)
 
 .incheck-light
   background-color: rgba(204, 51, 0, 0.7) !important

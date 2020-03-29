@@ -149,6 +149,9 @@ export default {
     adjustBoard: function() {
       const boardContainer = document.getElementById("boardContainer");
       if (!boardContainer) return; //no board on page
+      let arrows = document.getElementById("arrowCanvas");
+      // TODO: arrows on board don't scale
+      if (!!arrows) this.$emit("reset-arrows");
       const k = document.getElementById("boardSize").value;
       const movesWidth = window.innerWidth >= 768 ? 280 : 0;
       const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...

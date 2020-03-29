@@ -336,18 +336,24 @@ div.board12
 img.piece
   width: 100%
 
-img.piece, img.mark-square
+img.piece, img.mark-square, img.circle-square
   max-width: 100%
   height: auto
   display: block
 
 img.mark-square
-  opacity: 0.6
+  opacity: .7
   width: 76%
   position: absolute
   top: 12%
   left: 12%
-  opacity: .7
+
+img.circle-square
+  opacity: 0.7
+  width: 100%
+  position: absolute
+  top: 0
+  left: 0
 
 .in-shadow
   filter: brightness(50%)

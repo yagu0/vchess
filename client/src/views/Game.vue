@@ -96,7 +96,7 @@ main
       )
         img(src="/images/icons/rematch.svg")
       #playersInfo
-        p
+        p(v-if="largeScreen")
           span.name(:class="{connected: isConnected(0)}")
             | {{ game.players[0].name || "@nonymous" }}
           span.time(
@@ -110,6 +110,29 @@ main
           span.split-names -
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
+          span.time(
+            v-if="game.score=='*'"
+            :class="{yourturn: !!vr && vr.turn == 'b'}"
+          )
+            span.time-left {{ virtualClocks[1][0] }}
+            span.time-separator(v-if="!!virtualClocks[1][1]") :
+            span.time-right(v-if="!!virtualClocks[1][1]")
+              | {{ virtualClocks[1][1] }}
+        p(v-else)
+          span.name(:class="{connected: isConnected(0)}")
+            | {{ game.players[0].name || "@nonymous" }}
+          span.split-names -
+          span.name(:class="{connected: isConnected(1)}")
+            | {{ game.players[1].name || "@nonymous" }}
+          br
+          span.time(
+            v-if="game.score=='*'"
+            :class="{yourturn: !!vr && vr.turn == 'w'}"
+          )
+            span.time-left {{ virtualClocks[0][0] }}
+            span.time-separator(v-if="!!virtualClocks[0][1]") :
+            span.time-right(v-if="!!virtualClocks[0][1]")
+              | {{ virtualClocks[0][1] }}
           span.time(
             v-if="game.score=='*'"
             :class="{yourturn: !!vr && vr.turn == 'b'}"
@@ -186,8 +209,7 @@ export default {
       retrySendmove: null,
       clockUpdate: null,
       // Related to (killing of) self multi-connects:
-      newConnect: {},
-      killed: {}
+      newConnect: {}
     };
   },
   watch: {
@@ -317,7 +339,6 @@ export default {
       this.retrySendmove = null;
       this.clockUpdate = null;
       this.newConnect = {};
-      this.killed = {};
       // 1] Initialize connection
       this.connexionString =
         params.socketUrl +
@@ -522,7 +543,8 @@ export default {
                 }
               }
             );
-            this.newConnect[data.from] = true; //for self multi-connects tests
+            // For self multi-connects tests:
+            this.newConnect[data.from[0]] = true;
             this.send("askidentity", { target: data.from[0] });
           } else {
             this.people[data.from[0]].tmpIds[data.from[1]] = { focus: true };
@@ -552,13 +574,6 @@ export default {
           }
           break;
         }
-        case "killed":
-          // I logged in elsewhere:
-          this.conn.removeEventListener("message", this.socketMessageListener);
-          this.conn.removeEventListener("close", this.socketCloseListener);
-          this.conn = null;
-          alert(this.st.tr["New connexion detected: tab now offline"]);
-          break;
         case "askidentity": {
           // Request for identification
           const me = {
@@ -579,46 +594,44 @@ export default {
           this.$forceUpdate(); //TODO: shouldn't be required
           // If I multi-connect, kill current connexion if no mark (I'm older)
           if (this.newConnect[user.sid]) {
+            delete this.newConnect[user.sid];
             if (
               user.id > 0 &&
               user.id == this.st.user.id &&
-              user.sid != this.st.user.sid &&
-              !this.killed[this.st.user.sid]
+              user.sid != this.st.user.sid
             ) {
-                this.send("killme", { sid: this.st.user.sid });
-                this.killed[this.st.user.sid] = true;
+              this.cleanBeforeDestroy();
+              alert(this.st.tr["New connexion detected: tab now offline"]);
+              break;
             }
-            delete this.newConnect[user.sid];
           }
-          if (!this.killed[this.st.user.sid]) {
-            // Ask potentially missed last state, if opponent and I play
-            if (
-              !this.gotLastate &&
-              !!this.game.mycolor &&
-              this.game.type == "live" &&
-              this.game.score == "*" &&
-              this.game.players.some(p => p.sid == user.sid)
-            ) {
-              this.send("asklastate", { target: user.sid });
-              let counter = 1;
-              this.askLastate = setInterval(
-                () => {
-                  // Ask at most 3 times:
-                  // if no reply after that there should be a network issue.
-                  if (
-                    counter < 3 &&
-                    !this.gotLastate &&
-                    !!this.people[user.sid]
-                  ) {
-                    this.send("asklastate", { target: user.sid });
-                    counter++;
-                  } else {
-                    clearInterval(this.askLastate);
-                  }
-                },
-                1500
-              );
-            }
+          // Ask potentially missed last state, if opponent and I play
+          if (
+            !this.gotLastate &&
+            !!this.game.mycolor &&
+            this.game.type == "live" &&
+            this.game.score == "*" &&
+            this.game.players.some(p => p.sid == user.sid)
+          ) {
+            this.send("asklastate", { target: user.sid });
+            let counter = 1;
+            this.askLastate = setInterval(
+              () => {
+                // Ask at most 3 times:
+                // if no reply after that there should be a network issue.
+                if (
+                  counter < 3 &&
+                  !this.gotLastate &&
+                  !!this.people[user.sid]
+                ) {
+                  this.send("asklastate", { target: user.sid });
+                  counter++;
+                } else {
+                  clearInterval(this.askLastate);
+                }
+              },
+              1500
+            );
           }
           break;
         }

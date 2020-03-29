@@ -90,36 +90,6 @@ module.exports = function(wss) {
           // When page changes:
           doDisconnect();
           break;
-        case "killme": {
-          // Self multi-connect: manual removal + disconnect
-          const doKill = (pg) => {
-            Object.keys(clients[pg][obj.sid]).forEach(x => {
-              send(clients[pg][obj.sid][x].socket, { code: "killed" });
-            });
-            delete clients[pg][obj.sid];
-          };
-          const disconnectFromOtherConnexion = (pg,code,o={}) => {
-            Object.keys(clients[pg]).forEach(k => {
-              if (k != obj.sid) {
-                Object.keys(clients[pg][k]).forEach(x => {
-                  send(
-                    clients[pg][k][x].socket,
-                    Object.assign({ code: code, from: obj.sid }, o)
-                  );
-                });
-              }
-            });
-          };
-          Object.keys(clients).forEach(pg => {
-            if (clients[pg][obj.sid]) {
-              doKill(pg);
-              disconnectFromOtherConnexion(pg, "disconnect");
-              if (pg.indexOf("/game/") >= 0 && clients["/"])
-                disconnectFromOtherConnexion("/", "gdisconnect", { page: pg });
-            }
-          });
-          break;
-        }
         case "pollclients": {
           // From Game
           let sockIds = {};
@@ -319,7 +289,13 @@ module.exports = function(wss) {
 
         case "getfocus":
         case "losefocus":
-          clients[page][sid][tmpId].focus = (obj.code == "getfocus");
+          if (
+            !!clients[page] &&
+            !!clients[page][sid] &&
+            !!clients[page][sid][tmpId]
+          ) {
+            clients[page][sid][tmpId].focus = (obj.code == "getfocus");
+          }
           if (page == "/") notifyRoom("/", obj.code, { page: "/" }, [sid]);
           else {
             // Notify game room + Hall:
