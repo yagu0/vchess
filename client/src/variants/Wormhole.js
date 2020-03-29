@@ -28,6 +28,28 @@ export class WormholeRules extends ChessRules {
     return b;
   }
 
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    let kings = { "k": 0, "K": 0 };
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (['K','k'].includes(row[i])) kings[row[i]]++;
+        if (['x'].concat(V.PIECES).includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    if (Object.values(kings).some(v => v != 1)) return false;
+    return true;
+  }
+
   getSquareAfter(square, movement) {
     let shift1, shift2;
     if (Array.isArray(movement[0])) {
