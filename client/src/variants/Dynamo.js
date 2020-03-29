@@ -351,8 +351,7 @@ export class DynamoRules extends ChessRules {
     if (this.subTurn == 2) {
       this.subTurn = 1;
       this.movesCount--;
-    }
-    else {
+    } else {
       // subTurn == 1 (after a move played)
       this.turn = V.GetOppCol(this.turn);
       this.subTurn = 2;

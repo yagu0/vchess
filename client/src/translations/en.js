@@ -169,6 +169,7 @@ export const translations = {
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
   "Dangerous collisions": "Dangerous collisions",
+  "Double moves": "Double moves",
   "Each piece is unique": "Each piece is unique",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
@@ -191,7 +192,6 @@ export const translations = {
   "Mongolian Horde": "Mongolian Horde",
   "Move like a knight (v1)": "Move like a knight (v1)",
   "Move like a knight (v2)": "Move like a knight (v2)",
-  "Move twice": "Move twice",
   "Neverending rows": "Neverending rows",
   "No-check mode": "No-check mode",
   "Pawns move diagonally": "Pawns move diagonally",
@@ -212,5 +212,6 @@ export const translations = {
   "Transform an essay": "Transform an essay",
   "Two kings": "Two kings",
   "Two royal pieces": "Two royal pieces",
-  "Unidentified pieces": "Unidentified pieces"
+  "Unidentified pieces": "Unidentified pieces",
+  "White move twice": "White move twice"
 };

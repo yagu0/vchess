@@ -1,0 +1,49 @@
+p.boxed.
+  White has only four pawns and the king, but move twice at each turn.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/2PPPP2/4K3:
+  figcaption Standard deterministic position
+
+p.
+  The white army can appear much too small, but the power to move twice in a
+  row shouldn't be underestimated. At each turn white plays two moves with
+  only one constraint: do not be under check in the end.
+  So if the white king attacks a defended piece, he can take it anyway by
+  coming back on its initial square on (sub)move 2.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rbbknn1r/1p2pp1p/2p3qK/p2p2p1/2PPP3/8/5P2/8:
+  .diagram.diag22
+    | fen:3rq3/1p4p1/1k1pKp2/3P1P1n/p7/5n2/8/8:
+  figcaption Left: not a checkmate! Right: a "Monster-checkmate".
+
+p
+  | The diagram position on the left looks pretty much like a checkmate,
+  | but white can take the queen and come back to the h6 square. Finally,
+  | white can mate in an unusual way, like the following diagram found 
+  a(href="https://en.wikipedia.org/wiki/Monster_chess") on Wikipedia
+  | . There is no way for the black king to avoid being captured since white
+  | plays twice (the threat is 2.d7,dxe8).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/4P3/8/3P4/8/2q5/7K:
+  .diagram.diag22
+    | fen:4k3/8/3PP3/8/8/8/2q5/7K:
+  figcaption Left: before 1.d5,d6. Right: after this move:, it's checkmate.
+
+h3 More information
+
+p
+  | Ralph Betza analyses this variant and the double move on 
+  a(href="https://www.chessvariants.com/d.betza/chessvar/muenster.html")
+    | this page
+  | . There seems to be a common belief that black should win with accurate
+  | play, but it's clearly hard to demonstrate. And if someone can show a
+  | winning strategy, we'll add some white material to balance this game.
+  | Meanwhile, the variant is also playable 
+  a(href="https://greenchess.net/rules.php?v=monster") on greenchess.net
+  | .

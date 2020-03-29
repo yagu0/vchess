@@ -1,0 +1,54 @@
+p.boxed.
+  Las blancas solo tienen cuatro peones y un rey, pero hacen dos movimientos
+  a cada turno.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/2PPPP2/4K3:
+  figcaption Posición inicial estándar
+
+p.
+  El ejército blanco puede parecer demasiado pequeño, pero el poder de jugar
+  dos veces seguidas y no debe subestimarse. En cada turno las blancas juegan
+  dos jugadas con la única restricción de no estar en jaque hasta el final.
+  Entonces, si tu rey blanco ataca una habitación protegida, él puede
+  tómalo de todos modos y luego regresa a tu caso inicial en el segundo
+  (sub)movimiento.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rbbknn1r/1p2pp1p/2p3qK/p2p2p1/2PPP3/8/5P2/8:
+  .diagram.diag22
+    | fen:3rq3/1p4p1/1k1pKp2/3P1P1n/p7/5n2/8/8:
+  figcaption Izquierda: no es una jaque mate! Derecha: un "Monster-mate".
+
+p
+  | La posición del diagrama de la izquierda se ve bien como un jaque mate,
+  | pero las blancas pueden tomar la dama y volver llevar en h6. Finalmente,
+  | las blancas a veces pueden dar jaque mate de una manera inusual como se
+  | muestra en el siguiente diagrama encontrado 
+  a(href="https://en.wikipedia.org/wiki/Monster_chess") en Wikipedia
+  | . El rey negro no tiene forma de escapar de la captura porque las blancas
+  | hacen dos movimientos (la amenaza es 2.d7, dxe8).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/4P3/8/3P4/8/2q5/7K:
+  .diagram.diag22
+    | fen:4k3/8/3PP3/8/8/8/2q5/7K:
+  figcaption.
+    Izquierda: antes de 1.d5,d6.
+    Derecha: después de esta jugada, es jaque mate.
+
+h3 Más información
+
+p
+  | Ralph Betza analiza esta variante y el doble movimiento en 
+  a(href="https://www.chessvariants.com/d.betza/chessvar/muenster.html")
+    | esta página
+  | . La opinión general parece indicar que las negras deben ganar con un
+  | juego precisa, pero es claramente difícil de demostrar. Y si es necesario,
+  | se podría agregar material a las blancas para reequilibrar el juego.
+  | Dicho esto, la variante también es jugable 
+  a(href="https://greenchess.net/rules.php?v=monster") en greenchess.net
+  | .

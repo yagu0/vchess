@@ -228,10 +228,8 @@ export default {
       this.incheck = this.vr.getCheckSquares(this.vr.turn);
       const score = this.vr.getCurrentScore();
       if (L > 0 && this.moves[L - 1].notation != "...") {
-        if (["1-0","0-1"].includes(score))
-          this.moves[L - 1].notation += "#";
-        else if (this.vr.getCheckSquares(this.vr.turn).length > 0)
-          this.moves[L - 1].notation += "+";
+        if (["1-0","0-1"].includes(score)) this.moves[L - 1].notation += "#";
+        else if (this.incheck.length > 0) this.moves[L - 1].notation += "+";
       }
     },
     positionCursorTo: function(index) {
@@ -434,10 +432,8 @@ export default {
       const computeScore = () => {
         const score = this.vr.getCurrentScore();
         if (!navigate) {
-          if (["1-0","0-1"].includes(score))
-            this.lastMove.notation += "#";
-          else if (this.vr.getCheckSquares(this.vr.turn).length > 0)
-            this.lastMove.notation += "+";
+          if (["1-0","0-1"].includes(score)) this.lastMove.notation += "#";
+          else if (this.incheck.length > 0) this.lastMove.notation += "+";
         }
         if (score != "*" && this.game.mode == "analyze") {
           const message = getScoreMessage(score);

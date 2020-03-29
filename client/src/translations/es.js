@@ -169,6 +169,7 @@ export const translations = {
   "Captures reborn": "Las capturas renacen",
   "Change colors": "Cambiar colores",
   "Dangerous collisions": "Colisiones peligrosas",
+  "Double moves": "Jugadas doble",
   "Each piece is unique": "Cada pieza es única",
   "Exotic captures": "Capturas exóticas",
   "Explosive captures": "Capturas explosivas",
@@ -191,7 +192,6 @@ export const translations = {
   "Mongolian Horde": "Horda mongol",
   "Move like a knight (v1)": "Moverse como un caballo (v1)",
   "Move like a knight (v2)": "Moverse como un caballo (v2)",
-  "Move twice": "Mover dos veces",
   "Neverending rows": "Filas interminables",
   "No-check mode": "Modo sin jaque",
   "Pawns move diagonally": "Peones se mueven en diagonal",
@@ -212,5 +212,6 @@ export const translations = {
   "Transform an essay": "Transformar un ensayo",
   "Two kings": "Dos reyes",
   "Two royal pieces": "Dos piezas reales",
-  "Unidentified pieces": "Piezas no identificadas"
+  "Unidentified pieces": "Piezas no identificadas",
+  "White move twice": "Las blancas juegan dos veces"
 };

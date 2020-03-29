@@ -862,7 +862,9 @@ export const ChessRules = class ChessRules {
       i = y;
       do {
         if (
-          (!castleInCheck && this.isAttacked([x, i], oppCol)) ||
+          // NOTE: "castling" arg is used by some variants (Monster),
+          // where "isAttacked" is overloaded in an infinite-recursive way.
+          (!castleInCheck && this.isAttacked([x, i], oppCol, "castling")) ||
           (this.board[x][i] != V.EMPTY &&
             // NOTE: next check is enough, because of chessboard constraints
             (this.getColor(x, i) != c ||
@@ -882,9 +884,12 @@ export const ChessRules = class ChessRules {
       // Nothing on final squares, except maybe king and castling rook?
       for (i = 0; i < 2; i++) {
         if (
+          finalSquares[castleSide][i] != rookPos &&
           this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          this.getPiece(x, finalSquares[castleSide][i]) != V.KING &&
-          finalSquares[castleSide][i] != rookPos
+          (
+            this.getPiece(x, finalSquares[castleSide][i]) != V.KING ||
+            this.getColor(x, finalSquares[castleSide][i]) != c
+          )
         ) {
           continue castlingCheck;
         }
@@ -942,9 +947,7 @@ export const ChessRules = class ChessRules {
     });
   }
 
-  // Search for all valid moves considering current turn
-  // (for engine and game end)
-  getAllValidMoves() {
+  getAllPotentialMoves() {
     const color = this.turn;
     let potentialMoves = [];
     for (let i = 0; i < V.size.x; i++) {
@@ -957,7 +960,13 @@ export const ChessRules = class ChessRules {
         }
       }
     }
-    return this.filterValid(potentialMoves);
+    return potentialMoves;
+  }
+
+  // Search for all valid moves considering current turn
+  // (for engine and game end)
+  getAllValidMoves() {
+    return this.filterValid(this.getAllPotentialMoves());
   }
 
   // Stop at the first move found

@@ -1,0 +1,51 @@
+p.boxed.
+  Les blancs n'ont que quatre pions et un roi, mais jouent deux coups à chaque
+  tour.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/2PPPP2/4K3:
+  figcaption Position initiale standard
+
+p.
+  L'armée blanche peut paraître bien trop réduite, mais le pouvoir de jouer
+  deux fois d'affilée ne doit pas être sous-estimé. À chaque tour les
+  blancs jouent deux coups avec pour seule contrainte de ne pas être en échec
+  à la fin. Ainsi, si le roi blanc attaque une pièce protégée, il peut la
+  prendre quand-même puis revenir sur sa case initiale au second (sous)coup.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rbbknn1r/1p2pp1p/2p3qK/p2p2p1/2PPP3/8/5P2/8:
+  .diagram.diag22
+    | fen:3rq3/1p4p1/1k1pKp2/3P1P1n/p7/5n2/8/8:
+  figcaption Gauche : pas un mat ! Droite : un "Monster-mat".
+
+p
+  | La position du diagramme à gauche ressemble bien à un mat, mais les blancs
+  | peuvent prendre la dame et revenir en h6. Enfin, les blancs peuvent parfois
+  | mater d'une manière inhabituelle comme le montre le diagramme suivant
+  | trouvé 
+  a(href="https://en.wikipedia.org/wiki/Monster_chess") sur Wikipedia
+  | . Le roi noir n'a aucun moyen d'échapper à la capture puisque les blancs
+  | jouent deux coups (la menace est 2.d7,dxe8).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/4P3/8/3P4/8/2q5/7K:
+  .diagram.diag22
+    | fen:4k3/8/3PP3/8/8/8/2q5/7K:
+  figcaption Gauche : avant 1.d5,d6. Droite : après ce coup, c'est mat.
+
+h3 Plus d'information
+
+p
+  | Ralph Betza analyse cette variante et le double coup sur 
+  a(href="https://www.chessvariants.com/d.betza/chessvar/muenster.html")
+    | cette page
+  | . L'avis général semble indiquer que les noirs doivent gagner avec un jeu
+  | précis, mais c'est clairement difficile à démontrer. Et le cas échéant, on
+  | pourrait ajouter du matériel aux blancs pour rééquilibrer le jeu.
+  | Ceci dit, la variante est jouable également 
+  a(href="https://greenchess.net/rules.php?v=monster") sur greenchess.net
+  | .
