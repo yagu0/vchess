@@ -4,6 +4,7 @@ export class EnpassantRules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
     if (enpassant != "-") {
       const squares = enpassant.split(",");
+      if (squares.length > 2) return false;
       for (let sq of squares) {
         const ep = V.SquareToCoords(sq);
         if (isNaN(ep.x) || !V.OnBoard(ep)) return false;
@@ -17,11 +18,34 @@ export class EnpassantRules extends ChessRules {
     if (typeof moveOrSquare === "string") {
       const square = moveOrSquare;
       if (square == "-") return undefined;
-      let res = [];
-      square.split(",").forEach(sq => {
-        res.push(V.SquareToCoords(sq));
-      });
-      return res;
+      // Expand init + dest squares into a full path:
+      const init = V.SquareToCoords(square.substr(0, 2));
+      let newPath = [init];
+      if (square.length == 2) return newPath;
+      const dest = V.SquareToCoords(square.substr(2));
+      const delta = ['x', 'y'].map(i => Math.abs(dest[i] - init[i]));
+      // Check if it's a knight(rider) movement:
+      let step = [0, 0];
+      if (delta[0] > 0 && delta[1] > 0 && delta[0] != delta[1]) {
+        // Knightrider
+        const minShift = Math.min(delta[0], delta[1]);
+        step[0] = (dest.x - init.x) / minShift;
+        step[1] = (dest.y - init.y) / minShift;
+      } else {
+        // "Sliders"
+        step = ['x', 'y'].map((i, idx) => {
+          return (dest[i] - init[i]) / delta[idx] || 0
+        });
+      }
+      let x = init.x + step[0],
+          y = init.y + step[1];
+      while (x != dest.x || y != dest.y) {
+        newPath.push({ x: x, y: y });
+        x += step[0];
+        y += step[1];
+      }
+      newPath.push(dest);
+      return newPath;
     }
     // Argument is a move: all intermediate squares are en-passant candidates,
     // except if the moving piece is a king.
@@ -52,7 +76,7 @@ export class EnpassantRules extends ChessRules {
       x != move.end.x || y != move.end.y;
       x += step[0], y += step[1]
     ) {
-      res.push({x:x, y:y});
+      res.push({ x: x, y: y });
     }
     // Add final square to know which piece is taken en passant:
     res.push(move.end);
@@ -62,11 +86,10 @@ export class EnpassantRules extends ChessRules {
   getEnpassantFen() {
     const L = this.epSquares.length;
     if (!this.epSquares[L - 1]) return "-"; //no en-passant
-    let res = "";
-    this.epSquares[L - 1].forEach(sq => {
-      res += V.CoordsToSquare(sq) + ",";
-    });
-    return res.slice(0, -1); //remove last comma
+    const epsq = this.epSquares[L - 1];
+    if (epsq.length <= 2) return epsq.map(V.CoordsToSquare).join("");
+    // Condensate path: just need initial and final squares:
+    return V.CoordsToSquare(epsq[0]) + V.CoordsToSquare(epsq[epsq.length - 1]);
   }
 
   getPotentialMovesFrom([x, y]) {

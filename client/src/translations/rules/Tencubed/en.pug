@@ -1,0 +1,38 @@
+p.boxed.
+  10x10 board with four new pieces. Orthodox rules with a few exceptions.
+
+figure.diagram-container
+  .diagram
+    | fen:2cwamwc2/1rnbqkbnr1/pppppppppp/91/91/91/91/PPPPPPPPPP/1RNBQKBNR1/2CWAMWC2:
+  figcaption Initial deterministic position
+
+p There are four new pieces on the first rank:
+ul
+  li Marshall (M) = rook + knight,
+  li Archbishop (A) = bishop + knight,
+  li Champion (C) = dabbabah + alfil + wazir,
+  li Wizard (W) = camel + ferz.
+p.
+  Since the pieces mentioned to describe champion and wizard's movements might
+  be unknown, here is how they move:
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/91/91/91/4C5/91/91/91/91 c7,e7,g7,e6,c5,d5,f5,g5,e4,c3,e3,g3:
+  .diagram.diag22
+    | fen:91/91/91/91/4W5/91/91/91/91/91 d9,f9,b7,h7,b5,h5,d3,f3,d7,f7,d5,f5:
+  figcaption Left: movements of the champion. Right: movements of the wizard.
+
+p.
+  The pawns behave as in orthodox chess, with a possible initial two-squares
+  jump. They promote in queen, marshall or archbishop.
+  There is no castling.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/contests/10/tencubedchess.html")
+    | Tencubed chess
+  | &nbsp;on chessvariants.com.
+
+p Inventor: David Paulowich (2005)

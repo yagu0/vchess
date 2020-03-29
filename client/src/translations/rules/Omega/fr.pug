@@ -1,0 +1,51 @@
+p.boxed.
+  Échiquier 10x10 avec quatre coins supplémentaires.
+  Les règles orthodoxes s'appliquent avec quelques exceptions.
+
+figure.diagram-container
+  .diagram
+    | fen:wxxxxxxxxxxw/xcrnbqkbnrcx/xppppppppppx/x91x/x91x/x91x/x91x/x91x/x91x/xPPPPPPPPPPx/xCRNBQKBNRCx/WxxxxxxxxxxW:
+  figcaption Position initiale déterministe
+
+p.
+  L'échiquier a une forme inhébituelle : c'est un carré 10x10 auquel on a
+  ajouté quatre coins. Cela ouvre de nouvelles possibilités tactiques : un roi
+  peut venir s'y cacher, par exemple.
+
+p Deux nouvelles pièces se trouvent dans les coins et sur la première rangée :
+ul
+  li Champion (C) = dabbabah + alfil + wazir,
+  li Sorcier (W) = chameau + ferz.
+p.
+  Puisque les pièces mentionnées pour décrire les déplacements du champion et
+  du sorcier peuvent être inconnues, voici comment elles se déplacent :
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1xxxxxxxxxx1/x91x/x91x/x91x/x91x/x91x/x4C5x/x91x/x91x/x91x/x91x/1xxxxxxxxxx1 d8,f8,h8,f7,d6,e6,g6,h6,f5,d4,f4,h4:
+  .diagram.diag22
+    | fen:1xxxxxxxxxx1/x91x/x91x/x91x/x91x/x4W5x/x91x/x91x/x91x/x91x/x91x/1xxxxxxxxxx1 e10,g10,c8,i8,c6,i6,e4,g4,e8,g8,e6,g6:
+  figcaption.
+    Gauche : déplacements du champion. Droite : déplacements du sorcier.
+
+p.
+  Les pions se comportent comme aux échecs orthodoxes, avec un éventuel saut
+  initial de deux ou trois cases. Ils se promeuvent en n'importe quelle pièce.
+  Le roque est possible : le roi se déplace de deux cases vers la droite pour
+  un petit roque, ou vers la gauche pour un grand roque.
+
+h3 Source
+
+p
+  | Le 
+  a(href="https://www.chessvariants.com/contests/10/tencubedchess.html")
+    | site officiel
+  | , qui a une 
+  a(href="http://www.omegachess.ru/omega/") zone de jeu
+  | , bien que l'objectif de l'équipe d'Omega chess semble être de développer
+  | le jeu avec des vrais échiquiers et pièces - qu'ils vendent sur le site.
+  | Voir aussi la 
+  a(href="https://en.wikipedia.org/wiki/Omega_Chess") page Wikipedia
+  | .
+
+p Inventeur : Daniel MacDonald (1995)

@@ -105,10 +105,9 @@ export class MonsterRules extends ChessRules {
     // Definition of 'c' in base class doesn't work:
     const c = move.vanish[0].c;
     const piece = move.vanish[0].p;
-    if (piece == V.KING && move.appear.length > 0) {
+    if (piece == V.KING) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
-      return;
     }
     this.updateCastleFlags(move, piece);
   }

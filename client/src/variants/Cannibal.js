@@ -207,8 +207,9 @@ export class CannibalRules extends ChessRules {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
       this.castleFlags[c] = [V.size.y, V.size.y];
-      return;
     }
+    // Next call is still required because the king may eat an opponent's rook
+    // TODO: castleFlags will be turned off twice then.
     super.updateCastleFlags(move, piece);
   }
 

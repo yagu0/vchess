@@ -1,0 +1,41 @@
+p.boxed.
+  Tablero de 10x10 con cuatro piezas nuevas. Reglas ortodoxas se aplican con
+  algunas excepciones.
+
+figure.diagram-container
+  .diagram
+    | fen:2cwamwc2/1rnbqkbnr1/pppppppppp/91/91/91/91/PPPPPPPPPP/1RNBQKBNR1/2CWAMWC2:
+  figcaption Posición determinista inicial
+
+p Cuatro piezas nuevas están en la primera fila:
+ul
+  li Mariscal (M) = torre + jinete,
+  li Arzobispo (A) = loco + jinete,
+  li Campeón (C) = dabbabah + alfil + wazir,
+  li brujo (W) = camello + ferz.
+p.
+  Desde las piezas mencionadas para describir los movimientos del campeón y
+  del hechicero pueden ser desconocido, así es como se mueven:
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/91/91/91/4C5/91/91/91/91 c7,e7,g7,e6,c5,d5,f5,g5,e4,c3,e3,g3:
+  .diagram.diag22
+    | fen:91/91/91/91/4W5/91/91/91/91/91 d9,f9,b7,h7,b5,h5,d3,f3,d7,f7,d5,f5:
+  figcaption.
+    Izquierda: movimiento del campeón. Derecha: movimiento del hechicero.
+
+p.
+  Los peones se comportan como en el ajedrez ortodoxo, con un posible salto
+  inicial de dos cajas. Se promocionan como dama, mariscal o arzobispo.
+  No hay enroque.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/contests/10/tencubedchess.html")
+    | variante Tencubed
+  | &nbsp;en chessvariants.com.
+
+p Inventor: David Paulowich (2005)

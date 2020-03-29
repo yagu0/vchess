@@ -9,20 +9,13 @@ export class GrandRules extends ChessRules {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check captures
-    if (!fenParsed.captured || !fenParsed.captured.match(/^[0-9]{14,14}$/))
+    if (!fenParsed.captured || !fenParsed.captured.match(/^[0-9]{12,12}$/))
       return false;
     return true;
   }
 
   static IsGoodEnpassant(enpassant) {
-    if (enpassant != "-") {
-      const squares = enpassant.split(",");
-      if (squares.length > 2) return false;
-      for (let sq of squares) {
-        const ep = V.SquareToCoords(sq);
-        if (isNaN(ep.x) || !V.OnBoard(ep)) return false;
-      }
-    }
+    if (enpassant != "-") return !!enpassant.match(/^([a-j][0-9]{1,2},?)+$/);
     return true;
   }
 
@@ -139,7 +132,7 @@ export class GrandRules extends ChessRules {
         }
       ];
       if (sx + 2 * step != ex) {
-        //3-squares move
+        // 3-squares jump
         res.push({
           x: sx + 2 * step,
           y: sy
@@ -225,7 +218,7 @@ export class GrandRules extends ChessRules {
     // En passant
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1];
-    if (epSquare) {
+    if (!!epSquare) {
       for (let epsq of epSquare) {
         // TODO: some redundant checks
         if (epsq.x == x + shiftX && Math.abs(epsq.y - y) == 1) {

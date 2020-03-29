@@ -157,6 +157,7 @@ export const translations = {
   // Variants boxes:
   "64 pieces on the board": "64 piezas en el tablero",
   "A pawns cloud": "Une nube de peones",
+  "A wizard in the corner": "Un mago en la esquina",
   "Ancient rules": "Viejas reglas",
   "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",
@@ -173,6 +174,7 @@ export const translations = {
   "Each piece is unique": "Cada pieza es única",
   "Exotic captures": "Capturas exóticas",
   "Explosive captures": "Capturas explosivas",
+  "Four new pieces": "Quatro nuevas piezas",
   "In the shadow": "En la sombra",
   "Get strong at self-mate": "Progreso en mates asistidos",
   "Give three checks": "Dar tres jaques",

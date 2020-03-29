@@ -39,14 +39,7 @@ export class WildebeestRules extends ChessRules {
   }
 
   static IsGoodEnpassant(enpassant) {
-    if (enpassant != "-") {
-      const squares = enpassant.split(",");
-      if (squares.length > 2) return false;
-      for (let sq of squares) {
-        const ep = V.SquareToCoords(sq);
-        if (isNaN(ep.x) || !V.OnBoard(ep)) return false;
-      }
-    }
+    if (enpassant != "-") return !!enpassant.match(/^([a-j][0-9]{1,2},?)+$/);
     return true;
   }
 
@@ -162,7 +155,7 @@ export class WildebeestRules extends ChessRules {
     // En passant
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1];
-    if (epSquare) {
+    if (!!epSquare) {
       for (let epsq of epSquare) {
         // TODO: some redundant checks
         if (epsq.x == x + shiftX && Math.abs(epsq.y - y) == 1) {

@@ -327,7 +327,11 @@ div.board10
 
 div.board11
   width: 9.09%
-  padding-bottom: 9.1%
+  padding-bottom: 9.09%
+
+div.board12
+  width: 8.33%
+  padding-bottom: 8.33%
 
 img.piece
   width: 100%

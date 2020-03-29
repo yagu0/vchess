@@ -157,6 +157,7 @@ export const translations = {
   // Variants boxes:
   "64 pieces on the board": "64 pieces on the board",
   "A pawns cloud": "A pawns cloud",
+  "A wizard in the corner": "A wizard in the corner",
   "Ancient rules": "Ancient rules",
   "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
@@ -173,6 +174,7 @@ export const translations = {
   "Each piece is unique": "Each piece is unique",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
+  "Four new pieces": "Four new pieces",
   "In the shadow": "In the shadow",
   "Get strong at self-mate": "Get strong at self-mate",
   "Give three checks": "Give three checks",

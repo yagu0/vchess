@@ -157,6 +157,7 @@ export const translations = {
   // Variants boxes:
   "64 pieces on the board": "64 pièces sur l'échiquier",
   "A pawns cloud": "Une nuée de pions",
+  "A wizard in the corner": "Un sorcier dans le coin",
   "Ancient rules": "Règles anciennes",
   "Attract opposite king": "Attirer le roi adverse",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",
@@ -173,6 +174,7 @@ export const translations = {
   "Each piece is unique": "Chaque pièce est unique",
   "Exotic captures": "Captures exotiques",
   "Explosive captures": "Captures explosives",
+  "Four new pieces": "Quatre nouvelles pièces",
   "In the shadow": "Dans l'ombre",
   "Get strong at self-mate": "Progressez en mats aidés",
   "Give three checks": "Donnez trois échecs",

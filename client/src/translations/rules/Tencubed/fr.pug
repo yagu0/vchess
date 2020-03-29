@@ -1,0 +1,41 @@
+p.boxed.
+  Échiquier 10x10 avec quatre nouvelles pièces. Les règles orthodoxes
+  s'appliquent avec quelques exceptions.
+
+figure.diagram-container
+  .diagram
+    | fen:2cwamwc2/1rnbqkbnr1/pppppppppp/91/91/91/91/PPPPPPPPPP/1RNBQKBNR1/2CWAMWC2:
+  figcaption Position initiale déterministe
+
+p Quatre nouvelles pièces se trouvent sur la première rangée :
+ul
+  li Maréchal (M) = tour + cavalier,
+  li Archevêque (A) = fou + cavalier,
+  li Champion (C) = dabbabah + alfil + wazir,
+  li Sorcier (W) = chameau + ferz.
+p.
+  Puisque les pièces mentionnées pour décrire les déplacements du champion et
+  du sorcier peuvent être inconnues, voici comment elles se déplacent :
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/91/91/91/4C5/91/91/91/91 c7,e7,g7,e6,c5,d5,f5,g5,e4,c3,e3,g3:
+  .diagram.diag22
+    | fen:91/91/91/91/4W5/91/91/91/91/91 d9,f9,b7,h7,b5,h5,d3,f3,d7,f7,d5,f5:
+  figcaption.
+    Gauche : déplacements du champion. Droite : déplacements du sorcier.
+
+p.
+  Les pions se comportent comme aux échecs orthodoxes, avec un éventuel saut
+  initial de deux cases. Ils se promeuvent en dame, maréchal ou archevêque.
+  Il n'y a pas de roque.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/contests/10/tencubedchess.html")
+    | variante Tencubed
+  | &nbsp;sur chessvariants.com.
+
+p Inventeur : David Paulowich (2005)

@@ -1,0 +1,51 @@
+p.boxed.
+  Tablero 10x10 con cuatro esquinas adicionales.
+  Reglas ortodoxas se aplican con algunas excepciones.
+
+figure.diagram-container
+  .diagram
+    | fen:wxxxxxxxxxxw/xcrnbqkbnrcx/xppppppppppx/x91x/x91x/x91x/x91x/x91x/x91x/xPPPPPPPPPPx/xCRNBQKBNRCx/WxxxxxxxxxxW:
+  figcaption Posición determinista inicial
+
+p.
+  El tablero de ajedrez tiene una forma inusual: es un cuadrado de 10x10 que
+  tenemos agregó cuatro esquinas. Esto abre nuevas posibilidades tácticas: un
+  rey puede esconderse allí, por ejemplo.
+
+p Dos piezas nuevas están en las esquinas y en la primera fila:
+ul
+  li Campeón (C) = dabbabah + alfil + wazir,
+  li brujo (W) = camello + ferz.
+p.
+  Desde las piezas mencionadas para describir los movimientos del campeón y
+  del hechicero pueden ser desconocido, así es como se mueven:
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1xxxxxxxxxx1/x91x/x91x/x91x/x91x/x91x/x4C5x/x91x/x91x/x91x/x91x/1xxxxxxxxxx1 d8,f8,h8,f7,d6,e6,g6,h6,f5,d4,f4,h4:
+  .diagram.diag22
+    | fen:1xxxxxxxxxx1/x91x/x91x/x91x/x91x/x4W5x/x91x/x91x/x91x/x91x/x91x/1xxxxxxxxxx1 e10,g10,c8,i8,c6,i6,e4,g4,e8,g8,e6,g6:
+  figcaption.
+    Izquierda: movimiento del campeón. Derecha: movimiento del hechicero.
+
+p.
+  Los peones se comportan como en el ajedrez ortodoxo, con un posible salto
+  iniciales dos o tres cajas. Se promocionan en cualquier habitación.
+  El enroque es posible: el rey mueve dos casillas a la derecha para
+  un enroque pequeño, o hacia la izquierda para un enroque grande.
+
+h3 Fuente
+
+p
+  | El 
+  a(href="https://www.chessvariants.com/contests/10/tencubedchess.html")
+    | sitio web oficial
+  | , quien tiene un 
+  a(href="http://www.omegachess.ru/omega/") área de juego
+  | , aunque el objetivo del equipo de ajedrez Omega parece ser desarrollar
+  | el juego con tableros de ajedrez y piezas reales, que venden en el sitio.
+  | Ver también la 
+  a(href="https://en.wikipedia.org/wiki/Omega_Chess") página Wikipedia
+  | .
+
+p Inventor: Daniel MacDonald (1995)

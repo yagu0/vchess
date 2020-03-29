@@ -291,7 +291,6 @@ export class SchessRules extends ChessRules {
         ([V.HAWK, V.ELEPHANT, V.NOTHING].includes(move.appear[0].p) ? 1 : 0);
       this.kingPos[color][0] = move.appear[shift].x;
       this.kingPos[color][1] = move.appear[shift].y;
-      return;
     }
     this.updateCastleFlags(move, piece);
 

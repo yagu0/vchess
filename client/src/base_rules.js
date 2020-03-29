@@ -47,7 +47,9 @@ export const ChessRules = class ChessRules {
   static get PawnSpecs() {
     return {
       directions: { 'w': -1, 'b': 1 },
+      initShift: { w: 1, b: 1 },
       twoSquares: true,
+      threeSquares: false,
       promotions: [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN],
       canCapture: true,
       captureBackward: false,
@@ -164,6 +166,7 @@ export const ChessRules = class ChessRules {
     return !!flags.match(/^[a-z]{4,4}$/);
   }
 
+  // NOTE: not with regexp to adapt to different board sizes. (TODO?)
   static IsGoodEnpassant(enpassant) {
     if (enpassant != "-") {
       const ep = V.SquareToCoords(enpassant);
@@ -721,7 +724,6 @@ export const ChessRules = class ChessRules {
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const pawnShiftX = V.PawnSpecs.directions[color];
     const firstRank = (color == "w" ? sizeX - 1 : 0);
-    const startRank = (color == "w" ? sizeX - 2 : 1);
 
     // Pawn movements in shiftX direction:
     const getPawnMoves = (shiftX) => {
@@ -734,11 +736,23 @@ export const ChessRules = class ChessRules {
           // Next condition because pawns on 1st rank can generally jump
           if (
             V.PawnSpecs.twoSquares &&
-            [startRank, firstRank].includes(x) &&
-            this.board[x + 2 * shiftX][y] == V.EMPTY
+            (
+              (color == 'w' && x >= V.size.x - 1 - V.PawnSpecs.initShift['w'])
+              ||
+              (color == 'b' && x <= V.PawnSpecs.initShift['b'])
+            )
           ) {
-            // Two squares jump
-            moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+            if (this.board[x + 2 * shiftX][y] == V.EMPTY) {
+              // Two squares jump
+              moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+              if (
+                V.PawnSpecs.threeSquares &&
+                this.board[x + 3 * shiftX][y] == V.EMPTY
+              ) {
+                // Three squares jump
+                moves.push(this.getBasicMove([x, y], [x + 3 * shiftX, y]));
+              }
+            }
           }
         }
         // Captures
@@ -1158,7 +1172,6 @@ export const ChessRules = class ChessRules {
     if (piece == V.KING && move.appear.length > 0) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
-      return;
     }
     if (V.HasCastle) this.updateCastleFlags(move, piece);
   }
