@@ -61,7 +61,7 @@ export default {
     };
   },
   computed: {
-    devTeam: functio() {
+    devTeam: function() {
       return params.devs.includes(this.st.user.id);
     }
   },
