@@ -138,7 +138,14 @@ export default {
     highlightBlackmove: function(moveIdx) {
       return (
         this.cursor == moveIdx ||
-        (this.show == "byrow" && this.cursor == moveIdx + 1)
+        (
+          // If display by rows, hightlight last black move while the white
+          // move is being played:
+          this.show == "byrow" &&
+          this.cursor == moveIdx + 1 &&
+          // ...except if cursor is behind in the game:
+          this.cursor == this.moves.length - 1
+        )
       );
     },
     gotoMove: function(index) {
