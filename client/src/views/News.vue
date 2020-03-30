@@ -51,7 +51,6 @@ export default {
   data: function() {
     return {
       st: store.state,
-      devTeam: params.devs.includes(store.state.user.id),
       // timestamp of oldest showed news:
       cursor: Number.MAX_SAFE_INTEGER,
       // hasMore == TRUE: a priori there could be more news to load
@@ -60,6 +59,11 @@ export default {
       newsList: [],
       infoMsg: ""
     };
+  },
+  computed: {
+    devTeam: functio() {
+      return params.devs.includes(this.st.user.id);
+    }
   },
   created: function() {
     ajax(
