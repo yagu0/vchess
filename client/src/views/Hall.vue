@@ -516,8 +516,10 @@ export default {
     filterGames: function(type) {
       return this.games.filter(g => g.type == type);
     },
+    // o: challenge or game
     classifyObject: function(o) {
-      // o: challenge or game
+      // Consider imports as live games (TODO)
+      if (!!o.id.match(/^i/)) return "live";
       return o.cadence.indexOf("d") === -1 ? "live" : "corr";
     },
     setDisplay: function(letter, type, e) {
