@@ -23,6 +23,10 @@ main
         @show-game="showGame"
         @abortgame="abortGame"
       )
+      UploadGame(
+        v-show="display=='import'"
+        @game-uploaded="addGameImport"
+      )
       GameList(
         v-show="display=='import'"
         ref="importgames"
@@ -34,7 +38,6 @@ main
         @click="loadMore(display)"
       )
         | {{ st.tr["Load more"] }}
-      UploadGame(@game-uploaded="addGameImport")
 </template>
 
 <script>
@@ -175,9 +178,10 @@ export default {
       let elt = e ? e.target : document.getElementById(type + "Games");
       elt.classList.add("active");
       elt.classList.remove("somethingnew"); //in case of
-      if (elt.previousElementSibling)
-        elt.previousElementSibling.classList.remove("active");
-      else elt.nextElementSibling.classList.remove("active");
+      for (let t of ["live","corr","import"]) {
+        if (t != type)
+          document.getElementById(t + "Games").classList.remove("active");
+      }
     },
     addGameImport(game) {
       if (!game.id) {
@@ -188,8 +192,8 @@ export default {
     },
     tryShowNewsIndicator: function(type) {
       if (
-        (type == "live" && this.display == "corr") ||
-        (type == "corr" && this.display == "live")
+        (type == "live" && this.display != "live") ||
+        (type == "corr" && this.display != "corr")
       ) {
         document
           .getElementById(type + "Games")

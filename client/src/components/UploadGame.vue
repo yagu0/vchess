@@ -37,6 +37,10 @@ export default {
 input#upload
   display: none
 
+button#uploadBtn
+  display: block
+  margin: 0 auto
+
 img.inline
   height: 22px
   @media screen and (max-width: 767px)
