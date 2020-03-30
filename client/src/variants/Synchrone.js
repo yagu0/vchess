@@ -3,7 +3,7 @@ import { randInt } from "@/utils/alea";
 
 export class SynchroneRules extends ChessRules {
   static get CanAnalyze() {
-    return false;
+    return true; //false;
   }
 
   static get ShowMoves() {
@@ -110,16 +110,16 @@ export class SynchroneRules extends ChessRules {
     return (
       this.filterValid(super.getPotentialMovesFrom([x, y]))
       // Augment with potential recaptures:
-      .concat(this.getRecaptures())
+      .concat(this.getRecaptures([x, y]))
     );
   }
 
   // Aux function used to find opponent and self captures
-  getCaptures(x, y, color) {
+  getCaptures(from, to, color) {
     const sliderAttack = (xx, yy, allowedSteps) => {
-      const deltaX = xx - x,
+      const deltaX = xx - to[0],
             absDeltaX = Math.abs(deltaX);
-      const deltaY = yy - y,
+      const deltaY = yy - to[1],
             absDeltaY = Math.abs(deltaY);
       const step = [ deltaX / absDeltaX || 0, deltaY / absDeltaY || 0 ];
       if (
@@ -129,61 +129,70 @@ export class SynchroneRules extends ChessRules {
       ) {
         return null;
       }
-      let sq = [ x + step[0], y + step[1] ];
+      let sq = [ to[0] + step[0], to[1] + step[1] ];
       while (sq[0] != xx || sq[1] != yy) {
         // NOTE: no need to check OnBoard in this special case
         if (this.board[sq[0]][sq[1]] != V.EMPTY) return null;
         sq[0] += step[0];
         sq[1] += step[1];
       }
-      return this.getBasicMove([xx, yy], [x, y]);
+      return this.getBasicMove([xx, yy], [to[0], to[1]]);
     };
-    // Can I take on the square [x, y] ?
+    // Can I take on the square 'to' ?
     // If yes, return the (list of) capturing move(s)
+    const getTargetedCaptures = ([i, j]) => {
+      let move = null;
+      // From [i, j]:
+      switch (this.getPiece(i, j)) {
+        case V.PAWN: {
+          // Pushed pawns move as enemy pawns
+          const shift = (color == 'w' ? 1 : -1);
+          if (to[0] + shift == i && Math.abs(to[1] - j) == 1)
+            move = this.getBasicMove([i, j], to);
+          break;
+        }
+        case V.KNIGHT: {
+          const deltaX = Math.abs(i - to[0]);
+          const deltaY = Math.abs(j - to[1]);
+          if (
+            deltaX + deltaY == 3 &&
+            [1, 2].includes(deltaX) &&
+            [1, 2].includes(deltaY)
+          ) {
+            move = this.getBasicMove([i, j], to);
+          }
+          break;
+        }
+        case V.KING:
+          if (Math.abs(i - to[0]) <= 1 && Math.abs(j - to[1]) <= 1)
+            move = this.getBasicMove([i, j], to);
+          break;
+        case V.ROOK: {
+          move = sliderAttack(i, j, V.steps[V.ROOK]);
+          break;
+        }
+        case V.BISHOP: {
+          move = sliderAttack(i, j, V.steps[V.BISHOP]);
+          break;
+        }
+        case V.QUEEN: {
+          move = sliderAttack(i, j, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
+          break;
+        }
+      }
+      return move;
+    };
     let moves = [];
-    for (let i=0; i<8; i++) {
-      for (let j=0; j<8; j++) {
-        if (this.getColor(i, j) == color) {
-          switch (this.getPiece(i, j)) {
-            case V.PAWN: {
-              // Pushed pawns move as enemy pawns
-              const shift = (color == 'w' ? 1 : -1);
-              if (x + shift == i && Math.abs(y - j) == 1)
-                moves.push(this.getBasicMove([i, j], [x, y]));
-              break;
-            }
-            case V.KNIGHT: {
-              const deltaX = Math.abs(i - x);
-              const deltaY = Math.abs(j - y);
-              if (
-                deltaX + deltaY == 3 &&
-                [1, 2].includes(deltaX) &&
-                [1, 2].includes(deltaY)
-              ) {
-                moves.push(this.getBasicMove([i, j], [x, y]));
-              }
-              break;
-            }
-            case V.KING:
-              if (Math.abs(i - x) <= 1 && Math.abs(j - y) <= 1)
-                moves.push(this.getBasicMove([i, j], [x, y]));
-              break;
-            case V.ROOK: {
-              const mv = sliderAttack(i, j, V.steps[V.ROOK]);
-              if (!!mv) moves.push(mv);
-              break;
-            }
-            case V.BISHOP: {
-              const mv = sliderAttack(i, j, V.steps[V.BISHOP]);
-              if (!!mv) moves.push(mv);
-              break;
-            }
-            case V.QUEEN: {
-              const mv = sliderAttack(
-                i, j, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
-              if (!!mv) moves.push(mv);
-              break;
-            }
+    if (!!from) {
+      const theMove = getTargetedCaptures(from);
+      if (!!theMove) moves.push(theMove);
+    }
+    else {
+      for (let i=0; i<8; i++) {
+        for (let j=0; j<8; j++) {
+          if (this.getColor(i, j) == color) {
+            const newMove = getTargetedCaptures([i, j]);
+            if (!!newMove) moves.push(newMove);
           }
         }
       }
@@ -191,7 +200,7 @@ export class SynchroneRules extends ChessRules {
     return this.filterValid(moves);
   }
 
-  getRecaptures() {
+  getRecaptures(from) {
     // 1) Generate all opponent's capturing moves
     let oppCaptureMoves = [];
     const color = this.turn;
@@ -205,7 +214,7 @@ export class SynchroneRules extends ChessRules {
         ) {
           Array.prototype.push.apply(
             oppCaptureMoves,
-            this.getCaptures(i, j, oppCol)
+            this.getCaptures(null, [i, j], oppCol)
           );
         }
       }
@@ -226,7 +235,7 @@ export class SynchroneRules extends ChessRules {
         };
         V.PlayOnBoard(this.board, justDisappear);
         // Can I take on [m.end.x, m.end.y] ? If yes, add to list:
-        this.getCaptures(m.end.x, m.end.y, color)
+        this.getCaptures(from, [m.end.x, m.end.y], color)
           .forEach(cm => moves.push(cm));
         V.UndoOnBoard(this.board, justDisappear);
       }
