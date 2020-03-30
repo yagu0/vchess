@@ -15,14 +15,15 @@ new Vue({
     window.doClick = elemId => {
       document.getElementById(elemId).click();
     };
-    // Esc key can close modals:
+    // Esc key can close some modals:
     document.addEventListener("keydown", e => {
       if (e.code === "Escape") {
         let modalBoxes = document.querySelectorAll("[id^='modal']");
         modalBoxes.forEach(m => {
           if (
             m.checked &&
-            !["modalAccept","modalConfirm"].includes(m.id)
+            !["modalAccept", "modalConfirm", "modalChat", "modalPeople"]
+              .includes(m.id)
           ) {
             m.checked = false;
           }

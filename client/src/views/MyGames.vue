@@ -153,12 +153,19 @@ export default {
               // Now ask completed games (partial list)
               this.loadMore(
                 "live",
-                () => this.loadMore("corr", adjustAndSetDisplay)
+                () => this.loadMore("corr", () => {
+                  this.loadMore("import", adjustAndSetDisplay);
+                })
               );
             }
           }
         );
-      } else this.loadMore("live", adjustAndSetDisplay);
+      }
+      else {
+        this.loadMore("live", () => {
+          this.loadMore("import", adjustAndSetDisplay);
+        });
+      }
     });
   },
   beforeDestroy: function() {
@@ -184,11 +191,17 @@ export default {
       }
     },
     addGameImport(game) {
-      if (!game.id) {
-        alert(this.st.tr[
-          "No identifier found: use the upload button in analysis mode"]);
-      }
-      else this.importGames.push(game);
+      game.type = "import";
+      ImportgameStorage.add(game, (err) => {
+        if (!!err) {
+          if (err.message.indexOf("Key already exists") < 0) {
+            alert(this.st.tr["An error occurred. Try again!"]);
+            return;
+          }
+          else alert(this.st.tr["The game was already imported"]);
+        }
+        this.$router.push("/game/" + game.id);
+      });
     },
     tryShowNewsIndicator: function(type) {
       if (

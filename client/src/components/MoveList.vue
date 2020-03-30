@@ -101,10 +101,8 @@ export default {
     window.addEventListener("resize", () => {
       if (!timeoutLaunched) {
         timeoutLaunched = true;
-        setTimeout(() => {
-          this.adjustBoard();
-          timeoutLaunched = false;
-        }, 500);
+        this.adjustBoard();
+        setTimeout(() => { timeoutLaunched = false; }, 500);
       }
     });
   },

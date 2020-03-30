@@ -111,7 +111,7 @@ export default {
           : ""
       );
     },
-    // TODO: is it OK to pass "computed" as propoerties?
+    // TODO: is it OK to pass "computed" as properties?
     // Also, some are seemingly not recomputed when vr is initialized.
     showMoves: function() {
       return this.game.score != "*"
@@ -211,6 +211,7 @@ export default {
         // Strategy working also for multi-moves:
         if (!Array.isArray(move)) move = [move];
         move.forEach((m,idx) => {
+          m.index = this.vr.movesCount;
           m.notation = this.vr.getNotation(m);
           m.unambiguous = V.GetUnambiguousNotation(m);
           this.vr.play(m);
@@ -221,6 +222,7 @@ export default {
       if (firstMoveColor == "b") {
         // 'start' & 'end' is required for Board component
         this.moves.unshift({
+          index: parsedFen.movesCount,
           notation: "...",
           unambiguous: "...",
           start: { x: -1, y: -1 },
@@ -271,30 +273,36 @@ export default {
       let pgn = "";
       pgn += '[Site "vchess.club"]\n';
       pgn += '[Variant "' + this.game.vname + '"]\n';
-      pgn += '[Date "' + getDate(new Date()) + '"]\n';
+      const gdt = getDate(new Date(this.game.created || Date.now()));
+      pgn += '[Date "' + gdt + '"]\n';
       pgn += '[White "' + this.game.players[0].name + '"]\n';
       pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
       pgn += '[Result "' + this.game.score + '"]\n';
-      if (!!this.game.id)
-        pgn += '[URL "' + params.serverUrl + '/game/' + this.game.id + '"]\n';
+      if (!!this.game.id) {
+        pgn += '[Cadence "' + this.game.cadence + '"]\n';
+        pgn += '[Url "' + params.serverUrl + '/game/' + this.game.id + '"]\n';
+      }
       pgn += '\n';
       for (let i = 0; i < this.moves.length; i += 2) {
         if (i > 0) pgn += " ";
         // Adjust dots notation for a better display:
         let fullNotation = getFullNotation(this.moves[i]);
         if (fullNotation == "...") fullNotation = "..";
-        pgn += (i/2+1) + "." + fullNotation;
+        pgn += (this.moves[i].index / 2 + 1) + "." + fullNotation;
         if (i+1 < this.moves.length)
           pgn += " " + getFullNotation(this.moves[i+1]);
       }
       pgn += "\n\n";
       for (let i = 0; i < this.moves.length; i += 2) {
-        const moveNumber = i / 2 + 1;
-        pgn += moveNumber + "." + i + " " +
-          getFullNotation(this.moves[i], "unambiguous") + "\n";
+        const moveNumber = this.moves[i].index / 2 + 1;
+        // Skip "dots move", useless for machine reading:
+        if (this.moves[i].notation != "...") {
+          pgn += moveNumber + ".w " +
+            getFullNotation(this.moves[i], "unambiguous") + "\n";
+        }
         if (i+1 < this.moves.length) {
-          pgn += moveNumber + "." + (i+1) + " " +
+          pgn += moveNumber + ".b " +
             getFullNotation(this.moves[i+1], "unambiguous") + "\n";
         }
       }
@@ -323,8 +331,14 @@ export default {
         this.autoplayLoop = null;
       } else {
         this.autoplay = true;
-        infinitePlay();
-        this.autoplayLoop = setInterval(infinitePlay, 1500);
+        setTimeout(
+          () => {
+            infinitePlay();
+            this.autoplayLoop = setInterval(infinitePlay, 1500);
+          },
+          // Small delay otherwise the first move is played too fast
+          500
+        );
       }
     },
     // Animate an elementary move

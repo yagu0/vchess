@@ -87,6 +87,7 @@ export const GameStorage = {
           Object.keys(obj).forEach(k => {
             if (k == "move") game.moves.push(obj[k]);
             else if (k == "chat") game.chats.push(obj[k]);
+            else if (k == "chatRead") game.chatRead = Date.now();
             else if (k == "delchat") game.chats = [];
             else game[k] = obj[k];
           });

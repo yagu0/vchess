@@ -519,12 +519,11 @@ export default {
       };
     },
     mousedown: function(e) {
-      if (!([1, 3].includes(e.which))) return;
       e.preventDefault();
-      if (e.which != 3)
+      if (!this.mobileBrowser && e.which != 3)
         // Cancel current drawing and circles, if any
         this.cancelResetArrows();
-      if (e.which == 1 || this.mobileBrowser) {
+      if (this.mobileBrowser || e.which == 1) {
         // Mouse left button
         if (!this.start) {
           // NOTE: classList[0] is enough: 'piece' is the first assigned class
@@ -566,8 +565,8 @@ export default {
         } else {
           this.processMoveAttempt(e);
         }
-      } else {
-        // e.which == 3 : mouse right button
+      } else if (e.which == 3) {
+        // Mouse right button
         let elem = e.target;
         // Next loop because of potential marks
         while (elem.tagName == "IMG") elem = elem.parentNode;
@@ -612,17 +611,16 @@ export default {
       }
     },
     mouseup: function(e) {
-      if (!([1, 3].includes(e.which))) return;
       e.preventDefault();
-      if (e.which == 1) {
+      if (this.mobileBrowser || e.which == 1) {
         if (!this.selectedPiece) return;
         // Drag'n drop. Selected piece is no longer needed:
         this.selectedPiece.parentNode.removeChild(this.selectedPiece);
         delete this.selectedPiece;
         this.selectedPiece = null;
         this.processMoveAttempt(e);
-      } else {
-        // Mouse right button (e.which == 3)
+      } else if (e.which == 3) {
+        // Mouse right button
         this.movingArrow = { x: -1, y: -1 };
         this.processArrowAttempt(e);
       }

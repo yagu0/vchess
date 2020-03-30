@@ -47,7 +47,7 @@ export const ImportgameStorage = {
       };
       transaction.onerror = function(err) {
         // Duplicate key error (most likely)
-        callback(err);
+        callback(err.target.error);
       };
       transaction.objectStore("importgames").add(game);
     });

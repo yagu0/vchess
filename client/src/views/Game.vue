@@ -57,7 +57,7 @@ main
           span {{ st.tr["Cancel"] }}
   .row
     #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
-      span.variant-cadence {{ game.cadence }}
+      span.variant-cadence(v-if="game.type!='import'") {{ game.cadence }}
       span.variant-name {{ game.vname }}
       span#nextGame(
         v-if="nextIds.length > 0"
@@ -236,10 +236,14 @@ export default {
     this.atCreation();
   },
   mounted: function() {
-    ["chatWrap", "infoDiv"].forEach(eltName => {
-      document.getElementById(eltName)
-        .addEventListener("click", processModalClick);
-    });
+    document.getElementById("chatWrap")
+      .addEventListener("click", (e) => {
+        processModalClick(e, () => {
+          this.toggleChat("close")
+        });
+      });
+    document.getElementById("infoDiv")
+      .addEventListener("click", processModalClick);
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
@@ -441,22 +445,33 @@ export default {
       if (!!oppsid && !!this.people[oppsid]) return oppsid;
       return null;
     },
-    toggleChat: function() {
-      if (document.getElementById("modalChat").checked)
+    // NOTE: action if provided is always a closing action
+    toggleChat: function(action) {
+      if (!action && document.getElementById("modalChat").checked)
         // Entering chat
         document.getElementById("inputChat").focus();
-      // TODO: next line is only required when exiting chat,
-      // but the event for now isn't well detected.
-      document.getElementById("chatBtn").classList.remove("somethingnew");
+      else {
+        document.getElementById("chatBtn").classList.remove("somethingnew");
+        if (!!this.game.mycolor) {
+          // Update "chatRead" variable either on server or locally
+          if (this.game.type == "corr")
+            this.updateCorrGame({ chatRead: this.game.mycolor });
+          else if (this.game.type == "live")
+            GameStorage.update(this.gameRef, { chatRead: true });
+        }
+      }
     },
     processChat: function(chat) {
       this.send("newchat", { data: chat });
       // NOTE: anonymous chats in corr games are not stored on server (TODO?)
-      if (this.game.type == "corr" && this.st.user.id > 0)
-        this.updateCorrGame({ chat: chat });
-      else if (this.game.type == "live") {
-        chat.added = Date.now();
-        GameStorage.update(this.gameRef, { chat: chat });
+      if (!!this.game.mycolor) {
+        if (this.game.type == "corr")
+          this.updateCorrGame({ chat: chat });
+        else {
+          // Live game
+          chat.added = Date.now();
+          GameStorage.update(this.gameRef, { chat: chat });
+        }
       }
     },
     clearChat: function() {
@@ -475,6 +490,7 @@ export default {
       }
     },
     getGameType: function(game) {
+      if (!!game.id.match(/^i/)) return "import";
       return game.cadence.indexOf("d") >= 0 ? "corr" : "live";
     },
     // Notify something after a new move (to opponent and me on MyGames page)
@@ -640,13 +656,15 @@ export default {
           break;
         }
         case "askgame":
-          // Send current (live) game if not asked by any of the players
+          // Send current (live or import) game,
+          // if not asked by any of the players
           if (
-            this.game.type == "live" &&
+            this.game.type != "corr" &&
             this.game.players.every(p => p.sid != data.from[0])
           ) {
             const myGame = {
               id: this.game.id,
+              // FEN is current position, unused for now
               fen: this.game.fen,
               players: this.game.players,
               vid: this.game.vid,
@@ -784,7 +802,7 @@ export default {
         case "drawoffer":
           // NOTE: observers don't know who offered draw
           this.drawOffer = "received";
-          if (this.game.type == "live") {
+          if (!!this.game.mycolor && this.game.type == "live") {
             GameStorage.update(
               this.gameRef,
               { drawOffer: V.GetOppCol(this.game.mycolor) }
@@ -794,7 +812,7 @@ export default {
         case "rematchoffer":
           // NOTE: observers don't know who offered rematch
           this.rematchOffer = data.data ? "received" : "";
-          if (this.game.type == "live") {
+          if (!!this.game.mycolor && this.game.type == "live") {
             GameStorage.update(
               this.gameRef,
               { rematchOffer: V.GetOppCol(this.game.mycolor) }
@@ -826,7 +844,8 @@ export default {
           this.$refs["chatcomp"].newChat(chat);
           if (this.game.type == "live") {
             chat.added = Date.now();
-            GameStorage.update(this.gameRef, { chat: chat });
+            if (!!this.game.mycolor)
+              GameStorage.update(this.gameRef, { chat: chat });
           }
           if (!document.getElementById("modalChat").checked)
             document.getElementById("chatBtn").classList.add("somethingnew");
@@ -893,7 +912,7 @@ export default {
       }
     },
     clickDraw: function() {
-      if (!this.game.mycolor) return; //I'm just spectator
+      if (!this.game.mycolor || this.game.type == "import") return;
       if (["received", "threerep"].includes(this.drawOffer)) {
         if (!confirm(this.st.tr["Accept draw?"])) return;
         const message =
@@ -945,7 +964,7 @@ export default {
       });
     },
     clickRematch: function() {
-      if (!this.game.mycolor) return; //I'm just spectator
+      if (!this.game.mycolor || this.game.type == "import") return;
       if (this.rematchOffer == "received") {
         // Start a new game!
         let gameInfo = {
@@ -1018,19 +1037,16 @@ export default {
       this.gameOver(score, side + " surrender");
     },
     loadGame: function(game, callback) {
-      this.vr = new V(game.fen);
-      const gtype = this.getGameType(game);
+      const gtype = game.type || this.getGameType(game);
       const tc = extractTime(game.cadence);
       const myIdx = game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.id == this.st.user.id;
       });
       // "mycolor" is undefined for observers
       const mycolor = [undefined, "w", "b"][myIdx + 1];
-      // Live games before 26/03/2020 don't have chat history:
-      if (!game.chats) game.chats = []; //TODO: remove line
-      // Sort chat messages from newest to oldest
-      game.chats.sort((c1, c2) => c2.added - c1.added);
       if (gtype == "corr") {
+        if (mycolor == 'w') game.chatRead = game.chatReadWhite;
+        else if (mycolor == 'b') game.chatRead = game.chatReadBlack;
         // NOTE: clocks in seconds
         game.moves.sort((m1, m2) => m1.idx - m2.idx); //in case of
         game.clocks = [tc.mainTime, tc.mainTime];
@@ -1042,33 +1058,10 @@ export default {
               (Date.now() - game.moves[L-1].played) / 1000;
           }
         }
-        if (myIdx >= 0 && game.score == "*" && game.chats.length > 0) {
-          // Did a chat message arrive after my last move?
-          let dtLastMove = 0;
-          if (L == 1 && myIdx == 0)
-            dtLastMove = game.moves[0].played;
-          else if (L >= 2) {
-            if (L % 2 == 0) {
-              // It's now white turn
-              dtLastMove = game.moves[L-1-(1-myIdx)].played;
-            } else {
-              // Black turn:
-              dtLastMove = game.moves[L-1-myIdx].played;
-            }
-          }
-          if (dtLastMove < game.chats[0].added)
-            document.getElementById("chatBtn").classList.add("somethingnew");
-        }
         // Now that we used idx and played, re-format moves as for live games
         game.moves = game.moves.map(m => m.squares);
       }
-      if (gtype == "live") {
-        if (
-          game.chats.length > 0 &&
-          (!game.initime || game.initime < game.chats[0].added)
-        ) {
-          document.getElementById("chatBtn").classList.add("somethingnew");
-        }
+      else if (gtype == "live") {
         if (game.clocks[0] < 0) {
           // Game is unstarted. clock is ignored until move 2
           game.clocks = [tc.mainTime, tc.mainTime];
@@ -1083,6 +1076,21 @@ export default {
             // It's my turn: clocks not updated yet
             game.clocks[myIdx] -= (Date.now() - game.initime) / 1000;
         }
+      }
+      else
+        // gtype == "import"
+        game.clocks = [tc.mainTime, tc.mainTime];
+      // Live games before 26/03/2020 don't have chat history:
+      if (!game.chats) game.chats = []; //TODO: remove line
+      // Sort chat messages from newest to oldest
+      game.chats.sort((c1, c2) => c2.added - c1.added);
+      if (
+        myIdx >= 0 &&
+        game.chats.length > 0 &&
+        (!game.chatRead || game.chatRead < game.chats[0].added)
+      ) {
+        // A chat message arrived since my last reading:
+        document.getElementById("chatBtn").classList.add("somethingnew");
       }
       // TODO: merge next 2 "if" conditions
       if (!!game.drawOffer) {
@@ -1117,15 +1125,17 @@ export default {
       }
       this.repeat = {}; //reset: scan past moves' FEN:
       let repIdx = 0;
-      let vr_tmp = new V(game.fenStart);
+      this.vr = new V(game.fenStart);
       let curTurn = "n";
       game.moves.forEach(m => {
-        playMove(m, vr_tmp);
-        const fenIdx = vr_tmp.getFen().replace(/ /g, "_");
+        playMove(m, this.vr);
+        const fenIdx = this.vr.getFenForRepeat();
         this.repeat[fenIdx] = this.repeat[fenIdx]
           ? this.repeat[fenIdx] + 1
           : 1;
       });
+      // Imported games don't have current FEN
+      if (!game.fen) game.fen = this.vr.getFen();
       if (this.repeat[repIdx] >= 3) this.drawOffer = "threerep";
       this.game = Object.assign(
         // NOTE: assign mycolor here, since BaseGame could also be VS computer
@@ -1179,6 +1189,11 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     fetchGame: function(callback) {
+      
+console.log("fecth");
+      console.log(this.gameRef);
+      console.log(this.gameRef.match(/^i/));
+
       if (Number.isInteger(this.gameRef) || !isNaN(parseInt(this.gameRef))) {
         // corr games identifiers are integers
         ajax(
@@ -1195,7 +1210,7 @@ export default {
           }
         );
       }
-      else if (!!this.gameRef.match(/^I_/))
+      else if (!!this.gameRef.match(/^i/))
         // Game import (maybe remote)
         ImportgameStorage.get(this.gameRef, callback);
       else
@@ -1238,6 +1253,9 @@ export default {
     },
     // Update variables and storage after a move:
     processMove: function(move, data) {
+      if (this.game.type == "import")
+        // Shouldn't receive any messages in this mode:
+        return;
       if (!data) data = {};
       const moveCol = this.vr.turn;
       const colorIdx = ["w", "b"].indexOf(moveCol);

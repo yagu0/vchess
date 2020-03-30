@@ -18,6 +18,8 @@ const UserModel = require("./User");
  *   randomness: integer
  *   deletedByWhite: boolean
  *   deletedByBlack: boolean
+ *   chatReadWhite: datetime
+ *   chatReadBlack: datetime
  *
  * Structure table Moves:
  *   gid: ref game id
@@ -74,6 +76,7 @@ const GameModel =
         "SELECT " +
           "g.id, g.fen, g.fenStart, g.cadence, g.created, " +
           "g.white, g.black, g.score, g.scoreMsg, " +
+          "g.chatReadWhite, g.chatReadBlack, " +
           "g.drawOffer, g.rematchOffer, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
@@ -310,6 +313,8 @@ const GameModel =
       ) && (
         !obj.score || !!(obj.score.match(/^[012?*\/-]+$/))
       ) && (
+        !obj.chatRead || !(['w','b'].includes(obj.chatRead))
+      ) && (
         !obj.scoreMsg || !!(obj.scoreMsg.match(/^[a-zA-Z ]+$/))
       ) && (
         !obj.chat || UserModel.checkNameEmail({name: obj.chat.name})
@@ -342,6 +347,10 @@ const GameModel =
       if (!!obj.deletedBy) {
         const myColor = obj.deletedBy == 'w' ? "White" : "Black";
         modifs += "deletedBy" + myColor + " = true,";
+      }
+      if (!!obj.chatRead) {
+        const myColor = obj.chatRead == 'w' ? "White" : "Black";
+        modifs += "chatRead" + myColor + " = " + Date.now() + ",";
       }
       if (!!obj.score) {
         modifs += "score = '" + obj.score + "'," +

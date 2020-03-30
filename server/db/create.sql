@@ -68,6 +68,8 @@ create table Games (
   rematchOffer character default '',
   deletedByWhite boolean,
   deletedByBlack boolean,
+  chatReadWhite datetime,
+  chatReadBlack datetime,
   foreign key (vid) references Variants(id),
   foreign key (white) references Users(id),
   foreign key (black) references Users(id)
