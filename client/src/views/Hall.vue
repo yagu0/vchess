@@ -99,7 +99,7 @@ main
       button(@click="issueNewChallenge()") {{ st.tr["Send challenge"] }}
   input#modalPeople.modal(
     type="checkbox"
-    @click="resetSocialColor()"
+    @click="toggleSocialColor()"
   )
   div#peopleWrap(
     role="dialog"
@@ -135,7 +135,7 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       .button-group
-        button#peopleBtn(@click="openModalPeople()")
+        button#peopleBtn(onClick="window.doClick('modalPeople')")
           | {{ st.tr["Who's there?"] }}
         button(@click="showNewchallengeForm()")
           | {{ st.tr["New game"] }}
@@ -322,7 +322,13 @@ export default {
     );
   },
   mounted: function() {
-    ["peopleWrap", "infoDiv", "newgameDiv"].forEach(eltName => {
+    document.getElementById("peopleWrap")
+      .addEventListener("click", (e) => {
+        processModalClick(e, () => {
+          this.toggleSocialColor("close")
+        });
+      });
+    ["infoDiv", "newgameDiv"].forEach(eltName => {
       document.getElementById(eltName)
         .addEventListener("click", processModalClick);
     });
@@ -422,10 +428,6 @@ export default {
       return {
         ["random-" + pc.randomness]: true
       };
-    },
-    openModalPeople: function() {
-      window.doClick("modalPeople");
-      document.getElementById("inputChat").focus();
     },
     anonymousCount: function() {
       let count = 0;
@@ -577,9 +579,11 @@ export default {
       // ==> Moves sent by connected remote player(s) if live game
       this.$router.push("/game/" + g.id);
     },
-    resetSocialColor: function() {
-      // TODO: this is called twice, once on opening an once on closing
-      document.getElementById("peopleBtn").classList.remove("somethingnew");
+    toggleSocialColor: function(action) {
+      if (!action && document.getElementById("modalPeople").checked)
+        document.getElementById("inputChat").focus();
+      else
+        document.getElementById("peopleBtn").classList.remove("somethingnew");
     },
     processChat: function(chat) {
       this.send("newchat", { data: chat });

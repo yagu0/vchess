@@ -313,7 +313,7 @@ const GameModel =
       ) && (
         !obj.score || !!(obj.score.match(/^[012?*\/-]+$/))
       ) && (
-        !obj.chatRead || !(['w','b'].includes(obj.chatRead))
+        !obj.chatRead || ['w','b'].includes(obj.chatRead)
       ) && (
         !obj.scoreMsg || !!(obj.scoreMsg.match(/^[a-zA-Z ]+$/))
       ) && (
