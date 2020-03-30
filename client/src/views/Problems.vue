@@ -54,9 +54,9 @@ main
         span.vname {{ curproblem.vname }}
         span.uname ({{ curproblem.uname }})
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
-        button.nomargin(@click="gotoPrevNext($event,curproblem,1)")
+        button.nomargin(@click="gotoPrevNext(curproblem,1)")
           | {{ st.tr["Previous_p"] }}
-        button.nomargin(@click="gotoPrevNext($event,curproblem,-1)")
+        button.nomargin(@click="gotoPrevNext(curproblem,-1)")
           | {{ st.tr["Next_p"] }}
       p.oneInstructions.clickable(
         v-html="parseHtml(curproblem.instruction)"
@@ -347,14 +347,22 @@ export default {
         );
       } else processWhenWeHaveProb();
     },
-    gotoPrevNext: function(e, prob, dir) {
+    gotoPrevNext: function(prob, dir) {
       const mode = (this.onlyMine ? "mine" : "others");
       const problems = this.problems[mode];
       const startIdx = problems.findIndex(p => p.id == prob.id);
       const nextIdx = startIdx + dir;
       if (nextIdx >= 0 && nextIdx < problems.length)
         this.setHrefPid(problems[nextIdx]);
-      else if (this.hasMore[mode]) this.loadMore(mode);
+      else if (this.hasMore[mode]) {
+        this.loadMore(
+          mode,
+          (nbProbs) => {
+            if (nbProbs > 0) this.gotoPrevNext(prob, dir);
+            else alert(this.st.tr["No more problems"]);
+          }
+        );
+      }
       else alert(this.st.tr["No more problems"]);
     },
     prepareNewProblem: function() {
@@ -442,9 +450,16 @@ export default {
               const pids = this.problems[mode].map(p => p.id);
               ArrayFun.remove(res.problems, p => pids.includes(p.id), "all");
               this.decorate(res.problems);
-              this.problems[mode] = this.problems[mode].concat(res.problems);
+              this.problems[mode] =
+                this.problems[mode].concat(res.problems)
+                // TODO: problems are alrady sorted, would just need to insert
+                // the current individual problem in list; more generally
+                // there is probably only one misclassified problem.
+                // (Unless the user navigated several times by URL to show a
+                // single problem...)
+                .sort((p1, p2) => p2.added - p1.added);
             } else this.hasMore[mode] = false;
-            if (!!cb) cb();
+            if (!!cb) cb(L);
           }
         }
       );
