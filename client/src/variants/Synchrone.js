@@ -3,7 +3,7 @@ import { randInt } from "@/utils/alea";
 
 export class SynchroneRules extends ChessRules {
   static get CanAnalyze() {
-    return true; //false;
+    return false;
   }
 
   static get ShowMoves() {
