@@ -274,7 +274,7 @@ export class OmegaRules extends ChessRules {
     }
   }
 
-  getEnpassanCaptures([x, y], shiftX) {
+  getEnpassantCaptures([x, y], shiftX) {
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1];
     let moves = [];
