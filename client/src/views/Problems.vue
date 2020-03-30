@@ -319,6 +319,7 @@ export default {
           // $nextTick to be sure $refs["basegame"] exists
           this.$nextTick(() => {
             this.$refs["basegame"].re_setVariables(this.game); });
+          this.curproblem.showSolution = false; //in case of
           this.copyProblem(p, this.curproblem);
         });
       };
