@@ -53,7 +53,7 @@ function dbOperation(callback) {
 export const GameStorage = {
   // Optional callback to get error status
   add: function(game, callback) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       if (!!err) {
         callback("error");
         return;
@@ -74,7 +74,7 @@ export const GameStorage = {
   // obj: chat, move, fen, clocks, score[Msg], initime, ...
   update: function(gameId, obj) {
     // live
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db
         .transaction("games", "readwrite")
         .objectStore("games");
@@ -98,7 +98,7 @@ export const GameStorage = {
 
   // Retrieve (all) running local games
   getRunning: function(callback) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db
         .transaction("games", "readonly")
         .objectStore("games");
@@ -125,7 +125,7 @@ export const GameStorage = {
 
   // Retrieve completed local games
   getNext: function(upperDt, callback) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db
         .transaction("games", "readonly")
         .objectStore("games");
@@ -157,11 +157,10 @@ export const GameStorage = {
     });
   },
 
-  // Retrieve any game from its identifiers (locally or on server)
+  // Retrieve any game from its identifier.
   // NOTE: need callback because result is obtained asynchronously
   get: function(gameId, callback) {
-    // Local game
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db.transaction("games").objectStore("games");
       objectStore.get(gameId).onsuccess = function(event) {
         // event.target.result is null if game not found
@@ -172,7 +171,7 @@ export const GameStorage = {
 
   // Delete a game in indexedDB
   remove: function(gameId, callback) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       if (!err) {
         let transaction = db.transaction("games", "readwrite");
         transaction.oncomplete = function() {

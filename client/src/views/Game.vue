@@ -153,6 +153,7 @@ import BaseGame from "@/components/BaseGame.vue";
 import Chat from "@/components/Chat.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
+import { ImportgameStorage } from "@/utils/importgameStorage";
 import { ppt } from "@/utils/datetime";
 import { notify } from "@/utils/notifications";
 import { ajax } from "@/utils/ajax";
@@ -1193,8 +1194,12 @@ export default {
             }
           }
         );
-      } else
-        // Local game (or live remote)
+      }
+      else if (!!this.gameRef.match(/^I_/))
+        // Game import (maybe remote)
+        ImportgameStorage.get(this.gameRef, callback);
+      else
+        // Local live game (or remote)
         GameStorage.get(this.gameRef, callback);
     },
     re_setClocks: function() {

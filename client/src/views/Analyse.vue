@@ -19,6 +19,8 @@ import BaseGame from "@/components/BaseGame.vue";
 import { store } from "@/store";
 export default {
   name: "my-analyse",
+  // TODO: game import ==> require some adjustments, like
+  // the ability to analyse from a list of moves...
   components: {
     BaseGame
   },
@@ -27,7 +29,6 @@ export default {
     return {
       st: store.state,
       gameRef: {
-        //given in URL (rid = remote ID)
         vname: "",
         fen: ""
       },

@@ -7,6 +7,8 @@ main
           | {{ st.tr["Live games"] }}
         button.tabbtn#corrGames(@click="setDisplay('corr',$event)")
           | {{ st.tr["Correspondance games"] }}
+        button.tabbtn#importGames(@click="setDisplay('import',$event)")
+          | {{ st.tr["Imported games"] }}
       GameList(
         ref="livegames"
         v-show="display=='live'"
@@ -21,16 +23,24 @@ main
         @show-game="showGame"
         @abortgame="abortGame"
       )
+      GameList(
+        v-show="display=='import'"
+        ref="importgames"
+        :games="importGames"
+        @show-game="showGame"
+      )
       button#loadMoreBtn(
         v-show="hasMore[display]"
         @click="loadMore(display)"
       )
         | {{ st.tr["Load more"] }}
+      UploadGame(@game-uploaded="addGameImport")
 </template>
 
 <script>
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
+import { ImportgameStorage } from "@/utils/importgameStorage";
 import { ajax } from "@/utils/ajax";
 import { getScoreMessage } from "@/utils/scoring";
 import params from "@/parameters";
@@ -39,7 +49,8 @@ import GameList from "@/components/GameList.vue";
 export default {
   name: "my-my-games",
   components: {
-    GameList
+    GameList,
+    UploadGame
   },
   data: function() {
     return {
@@ -47,13 +58,19 @@ export default {
       display: "live",
       liveGames: [],
       corrGames: [],
+      importGames: [],
       // timestamp of last showed (oldest) game:
       cursor: {
         live: Number.MAX_SAFE_INTEGER,
+        "import": Number.MAX_SAFE_INTEGER,
         corr: Number.MAX_SAFE_INTEGER
       },
       // hasMore == TRUE: a priori there could be more games to load
-      hasMore: { live: true, corr: store.state.user.id > 0 },
+      hasMore: {
+        live: true,
+        "import": true,
+        corr: (store.state.user.id > 0)
+      },
       conn: null,
       connexionString: "",
       socketCloseListener: 0
@@ -161,6 +178,13 @@ export default {
         elt.previousElementSibling.classList.remove("active");
       else elt.nextElementSibling.classList.remove("active");
     },
+    addGameImport(game) {
+      if (!game.id) {
+        alert(this.st.tr[
+          "No identifier found: use the upload button in analysis mode"]);
+      }
+      else this.importGames.push(game);
+    },
     tryShowNewsIndicator: function(type) {
       if (
         (type == "live" && this.display == "corr") ||
@@ -190,6 +214,7 @@ export default {
     socketMessageListener: function(msg) {
       if (!this.conn) return;
       const data = JSON.parse(msg.data);
+      // NOTE: no imported games here
       let gamesArrays = {
         "corr": this.corrGames,
         "live": this.liveGames
@@ -240,7 +265,7 @@ export default {
       }
     },
     showGame: function(game) {
-      if (game.type == "live" || !game.myTurn) {
+      if (game.type != "corr" || !game.myTurn) {
         this.$router.push("/game/" + game.id);
         return;
       }
@@ -277,6 +302,7 @@ export default {
           );
         }
       }
+      // NOTE: no imported games here
       else if (!game.deletedByWhite || !game.deletedByBlack) {
         // Set score if game isn't deleted on server:
         ajax(
@@ -315,7 +341,8 @@ export default {
             }
           }
         );
-      } else if (type == "live") {
+      }
+      else if (type == "live") {
         GameStorage.getNext(this.cursor["live"], localGames => {
           const L = localGames.length;
           if (L > 0) {
@@ -325,6 +352,18 @@ export default {
             this.decorate(localGames);
             this.liveGames = this.liveGames.concat(localGames);
           } else this.hasMore["live"] = false;
+          if (!!cb) cb();
+        });
+      }
+      else if (type == "import") {
+        ImportgameStorage.getNext(this.cursor["import"], importGames => {
+          const L = importGames.length;
+          if (L > 0) {
+            // Add "-1" because IDBKeyRange.upperBound includes boundary
+            this.cursor["import"] = importGames[L - 1].created - 1;
+            importGames.forEach(g => g.type = "import");
+            this.importGames = this.importGames.concat(importGames);
+          } else this.hasMore["import"] = false;
           if (!!cb) cb();
         });
       }

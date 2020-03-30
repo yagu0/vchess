@@ -303,9 +303,9 @@ export default {
     elementArray.push(gameDiv);
     if (!!this.vr.reserve) elementArray.push(reserveBottom);
     const boardElt = document.querySelector(".game");
-    // Square width might be undefine (at first drawing),
+    // boardElt might be undefine (at first drawing),
     // but it won't be used in this case.
-    const squareWidth = boardElt.offsetWidth / sizeY;
+    const squareWidth = (!!boardElt ? boardElt.offsetWidth / sizeY : 42);
     if (this.choices.length > 0 && !!boardElt) {
       // No choices to show at first drawing
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
@@ -446,10 +446,10 @@ export default {
                     attrs: {
                       id: "arrow",
                       markerWidth: (2 * arrowWidth) + "px",
-                      markerHeight: (2 * arrowWidth) + "px",
+                      markerHeight: (3 * arrowWidth) + "px",
                       markerUnits: "userSpaceOnUse",
                       refX: "0",
-                      refY: arrowWidth + "px",
+                      refY: (1.5 * arrowWidth) + "px",
                       orient: "auto"
                     }
                   },
@@ -460,8 +460,8 @@ export default {
                         "class": { "arrow-head": true },
                         attrs: {
                           d: (
-                            "M0,0 L0," + (2 * arrowWidth) + " " +
-                            "L" + (2 * arrowWidth) + "," + arrowWidth + " z"
+                            "M0,0 L0," + (3 * arrowWidth) + " L" +
+                            (2 * arrowWidth) + "," + (1.5 * arrowWidth) + " z"
                           )
                         }
                       }

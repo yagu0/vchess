@@ -28,6 +28,7 @@ div
 <script>
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
+import { ImportgameStorage } from "@/utils/importgameStorage";
 import { ajax } from "@/utils/ajax";
 export default {
   name: "my-game-list",
@@ -124,12 +125,15 @@ export default {
             : "Abort and remove game?";
         if (confirm(this.st.tr[message])) {
           const afterDelete = () => {
-            if (game.score == "*") this.$emit("abortgame", game);
+            if (game.score == "*" && game.type != "import")
+              this.$emit("abortgame", game);
             this.$set(this.deleted, game.id, true);
           };
           if (game.type == "live")
             // Effectively remove game:
             GameStorage.remove(game.id, afterDelete);
+          else if (game.type == "import")
+            ImportgameStorage.remove(game.id, afterDelete);
           else {
             const mySide =
               game.players[0].id == this.st.user.id

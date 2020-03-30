@@ -38,7 +38,7 @@ function dbOperation(callback) {
 
 export const CompgameStorage = {
   add: function(game) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       if (err) return;
       let objectStore = db
         .transaction("compgames", "readwrite")
@@ -49,7 +49,7 @@ export const CompgameStorage = {
 
   // obj: move and/or fen
   update: function(gameId, obj) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db
         .transaction("compgames", "readwrite")
         .objectStore("compgames");
@@ -70,7 +70,7 @@ export const CompgameStorage = {
   // Retrieve any game from its identifier (variant name)
   // NOTE: need callback because result is obtained asynchronously
   get: function(gameId, callback) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       let objectStore = db
         .transaction("compgames", "readonly")
         .objectStore("compgames");
@@ -82,7 +82,7 @@ export const CompgameStorage = {
 
   // Delete a game in indexedDB
   remove: function(gameId) {
-    dbOperation((err,db) => {
+    dbOperation((err, db) => {
       if (!err) {
         db.transaction("compgames", "readwrite")
           .objectStore("compgames")
