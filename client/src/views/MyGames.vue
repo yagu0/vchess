@@ -46,6 +46,7 @@ import { getScoreMessage } from "@/utils/scoring";
 import params from "@/parameters";
 import { getRandString } from "@/utils/alea";
 import GameList from "@/components/GameList.vue";
+import UploadGame from "@/components/UploadGame.vue";
 export default {
   name: "my-my-games",
   components: {
