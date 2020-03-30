@@ -63,8 +63,10 @@ const ProblemModel = {
     });
   },
 
-  safeUpdate: function(prob, uid) {
+  safeUpdate: function(prob, uid, devs) {
     db.serialize(function() {
+      let whereClause = "WHERE id = " + prob.id;
+      if (!devs.includes(uid)) whereClause += " AND uid = " + uid;
       const query =
         "UPDATE Problems " +
         "SET " +
@@ -72,16 +74,18 @@ const ProblemModel = {
           "fen = '" + prob.fen + "'," +
           "instruction = ?," +
           "solution = ? " +
-        "WHERE id = " + prob.id + " AND uid = " + uid;
+        whereClause;
       db.run(query, [prob.instruction, prob.solution]);
     });
   },
 
-  safeRemove: function(id, uid) {
+  safeRemove: function(id, uid, devs) {
     db.serialize(function() {
+      let whereClause = "WHERE id = " + prob.id;
+      if (!devs.includes(uid)) whereClause += " AND uid = " + uid;
       const query =
         "DELETE FROM Problems " +
-        "WHERE id = " + id + " AND uid = " + uid;
+        whereClause;
       db.run(query);
     });
   },

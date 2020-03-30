@@ -30,4 +30,7 @@ module.exports = {
     noreply: "some_noreply_email",
     contact: "some_contact_email",
   },
+
+  // IDs of users allowed to post news and edit any problem
+  devs: []
 };

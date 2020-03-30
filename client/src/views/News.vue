@@ -17,7 +17,7 @@ main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       button#writeNewsBtn(
-        v-if="devs.includes(st.user.id)"
+        v-if="devTeam"
         @click="showModalNews"
       )
         | {{ st.tr["Write news"] }}
@@ -27,7 +27,7 @@ main
         :class="{margintop:idx>0}"
       )
         span.ndt {{ formatDatetime(n.added) }}
-        .dev-buttons(v-if="devs.includes(st.user.id)")
+        .dev-buttons(v-if="devTeam")
           button(@click="editNews(n)") {{ st.tr["Edit"] }}
           button(@click="deleteNews(n)") {{ st.tr["Delete"] }}
         button(@click="gotoPrevNext(n, 1)") {{ st.tr["Previous_n"] }}
@@ -43,14 +43,15 @@ main
 <script>
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
+import params from "@/parameters";
 import { getDate, getTime } from "@/utils/datetime";
 import { processModalClick } from "@/utils/modalClick";
 export default {
   name: "my-news",
   data: function() {
     return {
-      devs: [1], //for now the only dev is me
       st: store.state,
+      devTeam: params.devs.include(store.state.user.id),
       // timestamp of oldest showed news:
       cursor: Number.MAX_SAFE_INTEGER,
       // hasMore == TRUE: a priori there could be more news to load

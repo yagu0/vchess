@@ -7,7 +7,10 @@ const Parameters =
   serverUrl: "http://localhost:3000",
 
   // "include" if the server is at a different address
-  credentials: "same-origin"
+  credentials: "same-origin",
+
+  // IDs of users allowed to post news and edit any problem
+  devs: []
 };
 
 export default Parameters;

@@ -115,6 +115,7 @@ main
 import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
 import { checkProblem } from "@/data/problemCheck";
+import params from "@/parameters";
 import { getDiagram } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { ArrayFun } from "@/utils/array";
@@ -154,7 +155,6 @@ export default {
       onlyMine: false,
       showOne: false,
       infoMsg: "",
-      admins: [1], //hard-coded for now. TODO
       game: {
         players: [{ name: "Problem" }, { name: "Problem" }],
         mode: "analyze"
@@ -409,7 +409,7 @@ export default {
       );
     },
     canIedit: function(puid) {
-      return this.admins.concat([puid]).includes(this.st.user.id);
+      return params.devs.concat([puid]).includes(this.st.user.id);
     },
     editProblem: function(prob) {
       // prob.diag might correspond to some other problem or be empty:

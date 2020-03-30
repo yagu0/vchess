@@ -1,5 +1,6 @@
 let router = require("express").Router();
 const access = require("../utils/access");
+const params = require("../config/parameters");
 const ProblemModel = require("../models/Problem");
 const sanitizeHtml = require('sanitize-html');
 
@@ -41,7 +42,7 @@ router.put("/problems", access.logged, access.ajax, (req,res) => {
   if (ProblemModel.checkProblem(obj)) {
     obj.instruction = sanitizeHtml(obj.instruction);
     obj.solution = sanitizeHtml(obj.solution);
-    ProblemModel.safeUpdate(obj, req.userId);
+    ProblemModel.safeUpdate(obj, req.userId, params.devs);
   }
   res.json({});
 });
@@ -49,7 +50,7 @@ router.put("/problems", access.logged, access.ajax, (req,res) => {
 router.delete("/problems", access.logged, access.ajax, (req,res) => {
   const pid = req.query.id;
   if (pid.toString().match(/^[0-9]+$/))
-    ProblemModel.safeRemove(pid, req.userId);
+    ProblemModel.safeRemove(pid, req.userId, params.devs);
   res.json({});
 });
 
