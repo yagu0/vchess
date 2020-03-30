@@ -490,7 +490,7 @@ export default {
       }
     },
     getGameType: function(game) {
-      if (!!game.id.match(/^i/)) return "import";
+      if (!!game.id.toString().match(/^i/)) return "import";
       return game.cadence.indexOf("d") >= 0 ? "corr" : "live";
     },
     // Notify something after a new move (to opponent and me on MyGames page)
@@ -1189,11 +1189,6 @@ export default {
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     fetchGame: function(callback) {
-      
-console.log("fecth");
-      console.log(this.gameRef);
-      console.log(this.gameRef.match(/^i/));
-
       if (Number.isInteger(this.gameRef) || !isNaN(parseInt(this.gameRef))) {
         // corr games identifiers are integers
         ajax(
