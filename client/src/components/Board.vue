@@ -303,9 +303,11 @@ export default {
     elementArray.push(gameDiv);
     if (!!this.vr.reserve) elementArray.push(reserveBottom);
     const boardElt = document.querySelector(".game");
+    // Square width might be undefine (at first drawing),
+    // but it won't be used in this case.
+    const squareWidth = boardElt.offsetWidth / sizeY;
     if (this.choices.length > 0 && !!boardElt) {
       // No choices to show at first drawing
-      const squareWidth = boardElt.offsetWidth / sizeY;
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
       const maxNbeltsPerRow = Math.min(this.choices.length, sizeY);
       let topOffset = offset[0] + (sizeY / 2) * squareWidth - squareWidth / 2;
@@ -385,7 +387,9 @@ export default {
       (this.arrows.length > 0 || this.movingArrow.x >= 0)
     ) {
       let svgArrows = [];
+      const arrowWidth = squareWidth / 4;
       this.arrows.forEach(a => {
+        const endPoint = this.adjustEndArrow(a.start, a.end, squareWidth);
         svgArrows.push(
           h(
             "path",
@@ -394,14 +398,17 @@ export default {
               attrs: {
                 d: (
                   "M" + a.start.x + "," + a.start.y + " " +
-                  "L" + a.end.x + "," + a.end.y
-                )
+                  "L" + endPoint.x + "," + endPoint.y
+                ),
+                style: "stroke-width:" + arrowWidth + "px"
               }
             }
           )
         );
       });
       if (this.movingArrow.x >= 0) {
+        const endPoint =
+          this.adjustEndArrow(this.startArrow, this.movingArrow, squareWidth);
         svgArrows.push(
           h(
             "path",
@@ -410,8 +417,9 @@ export default {
               attrs: {
                 d: (
                   "M" + this.startArrow.x + "," + this.startArrow.y + " " +
-                  "L" + this.movingArrow.x + "," + this.movingArrow.y
-                )
+                  "L" + endPoint.x + "," + endPoint.y
+                ),
+                style: "stroke-width:" + arrowWidth + "px"
               }
             }
           )
@@ -437,11 +445,11 @@ export default {
                   {
                     attrs: {
                       id: "arrow",
-                      markerWidth: "2",
-                      markerHeight: "2",
-                      markerUnits: "strokeWidth",
+                      markerWidth: (2 * arrowWidth) + "px",
+                      markerHeight: (2 * arrowWidth) + "px",
+                      markerUnits: "userSpaceOnUse",
                       refX: "0",
-                      refY: "1",
+                      refY: arrowWidth + "px",
                       orient: "auto"
                     }
                   },
@@ -449,9 +457,12 @@ export default {
                     h(
                       "path",
                       {
+                        "class": { "arrow-head": true },
                         attrs: {
-                          d: "M0,0 L0,2 L2,1 z",
-                          style: "fill: blue"
+                          d: (
+                            "M0,0 L0," + (2 * arrowWidth) + " " +
+                            "L" + (2 * arrowWidth) + "," + arrowWidth + " z"
+                          )
                         }
                       }
                     )
@@ -495,6 +506,17 @@ export default {
       this.startArrow = null;
       this.arrows = [];
       this.circles = {};
+    },
+    adjustEndArrow: function(start, end, squareWidth) {
+      // Simple heuristic for now, just remove 1/3 square.
+      // TODO: should depend on the orientation.
+      const delta = [end.x - start.x, end.y - start.y];
+      const dist = Math.sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
+      const fracSqWidth = squareWidth / 3;
+      return {
+        x: end.x - delta[0] * fracSqWidth / dist,
+        y: end.y - delta[1] * fracSqWidth / dist
+      };
     },
     mousedown: function(e) {
       if (!([1, 3].includes(e.which))) return;
@@ -726,9 +748,11 @@ img.ghost
 .svg-arrow
   opacity: 0.65
   stroke: #5f0e78
-  stroke-width: 10px
   fill: none
   marker-end: url(#arrow)
+
+.arrow-head
+  fill: #5f0e78
 
 .incheck-light
   background-color: rgba(204, 51, 0, 0.7) !important
