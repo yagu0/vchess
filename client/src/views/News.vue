@@ -51,7 +51,7 @@ export default {
   data: function() {
     return {
       st: store.state,
-      devTeam: params.devs.include(store.state.user.id),
+      devTeam: params.devs.includes(store.state.user.id),
       // timestamp of oldest showed news:
       cursor: Number.MAX_SAFE_INTEGER,
       // hasMore == TRUE: a priori there could be more news to load
