@@ -80,7 +80,7 @@ export class ColorboundRules extends ChessRules {
     // Add turn + flags + enpassant
     return (
       pieces["b"].join("") +
-      "/8/pppppppp/8/8/8/PPPPPPPP/" +
+      "/pppppppp/8/8/8/8/PPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
       " w 0 " + flags + " -"
     );
