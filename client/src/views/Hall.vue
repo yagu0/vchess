@@ -519,7 +519,7 @@ export default {
     // o: challenge or game
     classifyObject: function(o) {
       // Consider imports as live games (TODO)
-      if (!!o.id.match(/^i/)) return "live";
+      if (!!o.id && !!o.id.match(/^i/)) return "live";
       return o.cadence.indexOf("d") === -1 ? "live" : "corr";
     },
     setDisplay: function(letter, type, e) {
