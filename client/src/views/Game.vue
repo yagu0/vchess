@@ -96,7 +96,7 @@ main
       )
         img(src="/images/icons/rematch.svg")
       #playersInfo
-        p(v-if="largeScreen")
+        p(v-if="isLargeScreen()")
           span.name(:class="{connected: isConnected(0)}")
             | {{ game.players[0].name || "@nonymous" }}
           span.time(
@@ -283,6 +283,9 @@ export default {
         this.send("rematchoffer", { data: false });
       }
       this.send("losefocus");
+    },
+    isLargeScreen: function() {
+      return window.innerWidth >= 500;
     },
     participateInChat: function(p) {
       return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
