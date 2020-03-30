@@ -228,6 +228,14 @@ export class OmegaRules extends ChessRules {
     return res.slice(0, -1); //remove last comma
   }
 
+  canTake([x1, y1], [x2, y2]) {
+    return (
+      // Cannot take wall :)
+      this.board[x2][y2] != V.NOTHING &&
+      this.getColor(x1, y1) !== this.getColor(x2, y2)
+    );
+  }
+
   // En-passant after 2-sq or 3-sq jumps
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
