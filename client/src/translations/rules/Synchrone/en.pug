@@ -24,6 +24,17 @@ figure.diagram-container
     | fen:rnb1kbnr/ppp1pppp/8/3qP3/8/8/PPPP1PPP/RNBQKBNR:
   figcaption After 1.e4 d5 2.e5 Qxd5 (anticipating 2.exd5 which isn't played)
 
+p.
+  When the king is under check, a legal orthodox move must be played.
+  Some weird situations would occur otherwise, like on the following diagram.
+  If we allow self-(re)captures then the king would take on h2 and escape to
+  the third rank.
+
+figure.diagram-container
+  .diagram
+    | fen:7k/8/8/3QR3/3P4/4P3/r6P/q6K:
+  figcaption 1.Kxh2 by anticipation isn't allowed: white is checkmated.
+
 h3 End of the game
 
 p.

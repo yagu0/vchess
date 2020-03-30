@@ -107,11 +107,11 @@ export class SynchroneRules extends ChessRules {
   }
 
   getPossibleMovesFrom([x, y]) {
-    return (
-      this.filterValid(super.getPotentialMovesFrom([x, y]))
-      // Augment with potential recaptures:
-      .concat(this.getRecaptures([x, y]))
-    );
+    let moves = this.filterValid(super.getPotentialMovesFrom([x, y]));
+    if (!this.underCheck(this.getColor(x, y)))
+      // Augment with potential recaptures, except if we are under check
+      Array.prototype.push.apply(moves, this.getRecaptures([x, y]));
+    return moves;
   }
 
   // Aux function used to find opponent and self captures
