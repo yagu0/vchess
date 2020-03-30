@@ -14,16 +14,16 @@ export default {
   name: "my-upload-game",
   methods: {
     uploadTrigger: function() {
-		  document.getElementById("upload").click();
-		},
-		upload: function(e) {
-			const file = (e.target.files || e.dataTransfer.files)[0];
-			var reader = new FileReader();
-			reader.onloadend = ev => {
-				this.parseAndEmit(ev.currentTarget.result);
-			};
-			reader.readAsText(file);
-		},
+      document.getElementById("upload").click();
+    },
+    upload: function(e) {
+      const file = (e.target.files || e.dataTransfer.files)[0];
+      var reader = new FileReader();
+      reader.onloadend = ev => {
+        this.parseAndEmit(ev.currentTarget.result);
+      };
+      reader.readAsText(file);
+    },
     parseAndEmit: async function(pgn) {
       let game = {
         // Players potential ID and socket IDs are not searched

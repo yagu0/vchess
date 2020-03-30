@@ -214,6 +214,7 @@ export const translations = {
   "Shoot pieces": "Tirar de las piezas",
   "Squares disappear": "Las casillas desaparecen",
   "Standard rules": "Reglas estandar",
+  "The colorbound clobberers": "Los batidores unicolor",
   "The end of the world": "El fin del mundo",
   "Transform an essay": "Transformar un ensayo",
   "Two kings": "Dos reyes",

@@ -26,6 +26,7 @@ insert or ignore into Variants (name, description) values
   ('Checkless', 'No-check mode'),
   ('Chess960', 'Standard rules'),
   ('Circular', 'Run forward'),
+  ('Colorbound', 'The colorbound clobberers'),
   ('Coregal', 'Two royal pieces'),
   ('Crazyhouse', 'Captures reborn'),
   ('Cylinder', 'Neverending rows'),

@@ -6,7 +6,7 @@ export class CaptureRules extends ChessRules {
     return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
   }
 
-	// Stop at the first capture found (if any)
+  // Stop at the first capture found (if any)
   atLeastOneCapture() {
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
