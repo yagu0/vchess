@@ -14,7 +14,7 @@ export class MonsterRules extends ChessRules {
       // 26 first chars are 6 rows + 6 slashes
       fen.substr(0, 26)
       // En passant available, and "half-castle"
-      .concat("2PPPP2/4K3 w 0 ")
+      .concat("1PPPPPP1/4K3 w 0 ")
       .concat(fen.substr(-6, 2))
       .concat(" -")
     );
