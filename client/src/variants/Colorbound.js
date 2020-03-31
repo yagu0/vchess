@@ -315,7 +315,7 @@ export class ColorboundRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.C_QUEEN, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.C_ROOK, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.C_QUEEN, V.steps[V.KNIGHT], "oneStep")
     );
   }
 
