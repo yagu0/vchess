@@ -7,7 +7,11 @@ export class ColorboundRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      { promotions: V.PIECES }
+      {
+        promotions:
+          ChessRules.PawnSpecs.promotions.concat(
+          [V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN])
+      }
     );
   }
 
@@ -101,7 +105,7 @@ export class ColorboundRules extends ChessRules {
 
   static get PIECES() {
     return (
-      ChessRules.PIECES.concat([V.C_ROOK, V.C_KINGHT, V.C_BISHOP, V.C_QUEEN])
+      ChessRules.PIECES.concat([V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN])
     );
   }
 
