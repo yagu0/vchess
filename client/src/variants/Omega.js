@@ -36,6 +36,7 @@ export class OmegaRules extends ChessRules {
     return ([V.CHAMPION, V.WIZARD].includes(b[1]) ? "Omega/" : "") + b;
   }
 
+  // TODO: the wall position should be checked too
   static IsGoodPosition(position) {
     if (position.length == 0) return false;
     const rows = position.split("/");
@@ -161,21 +162,19 @@ export class OmegaRules extends ChessRules {
       // The second bishop must be on a square of different color
       let randIndex_tmp = 2 * randInt(5) + 1;
       const bishop2Pos = positions[randIndex_tmp];
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
 
       // Get random squares for champions
-      randIndex = 2 * randInt(4);
-      let bishopSameColorPos = (bishop1Pos % 2 == 0 ? bishop1Pos : bishop2Pos);
-      if (randIndex >= bishopSameColorPos) randIndex += 2;
-      const champion1Pos = positions[randIndex];
+      let randIndexC = 2 * randInt(4);
+      if (randIndexC >= bishop1Pos) randIndexC += 2;
+      const champion1Pos = positions[randIndexC];
       // The second champion must be on a square of different color
-      randIndex_tmp = 2 * randInt(4) + 1;
-      bishopSameColorPos = (bishop1Pos % 2 == 0 ? bishop1Pos : bishop2Pos);
-      if (randIndex_tmp >= bishopSameColorPos) randIndex_tmp += 2;
-      const champion2Pos = positions[randIndex_tmp];
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
+      let randIndex_tmpC = 2 * randInt(4) + 1;
+      if (randIndex_tmpC >= bishop2Pos) randIndex_tmpC += 2;
+      const champion2Pos = positions[randIndex_tmpC];
+
+      let usedIndices = [randIndex, randIndex_tmp, randIndexC, randIndex_tmpC];
+      usedIndices.sort();
+      for (let i = 3; i >= 0; i--) positions.splice(usedIndices[i], 1);
 
       // Get random squares for other pieces
       randIndex = randInt(6);
@@ -204,7 +203,7 @@ export class OmegaRules extends ChessRules {
       pieces[c][knight2Pos] = "n";
       pieces[c][rook2Pos] = "r";
       pieces[c][champion2Pos] = "c";
-      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
+      flags += V.CoordToColumn(rook1Pos+1) + V.CoordToColumn(rook2Pos+1);
     }
     // Add turn + flags + enpassant
     return (
@@ -231,6 +230,7 @@ export class OmegaRules extends ChessRules {
   canTake([x1, y1], [x2, y2]) {
     return (
       // Cannot take wall :)
+      // NOTE: this check is useful only for pawns where OnBoard() isn't used
       this.board[x2][y2] != V.NOTHING &&
       this.getColor(x1, y1) !== this.getColor(x2, y2)
     );

@@ -131,8 +131,9 @@ export class RococoRules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     // Pre-check: is thing on this square immobilized?
     const imSq = this.isImmobilized([x, y]);
-    if (!!imSq) {
-      // Only option is suicide:
+    const piece = this.getPiece(x, y);
+    if (!!imSq && piece != V.KING) {
+      // Only option is suicide, if I'm not a king:
       return [
         new Move({
           start: { x: x, y: y },
@@ -150,7 +151,7 @@ export class RococoRules extends ChessRules {
       ];
     }
     let moves = [];
-    switch (this.getPiece(x, y)) {
+    switch (piece) {
       case V.IMMOBILIZER:
         moves = this.getPotentialImmobilizerMoves([x, y]);
         break;

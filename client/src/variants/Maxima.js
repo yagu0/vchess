@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
-export class BaroqueRules extends ChessRules {
+export class MaximaRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
@@ -12,14 +12,52 @@ export class BaroqueRules extends ChessRules {
   }
 
   static get PIECES() {
-    return ChessRules.PIECES.concat([V.IMMOBILIZER]);
+    return ChessRules.PIECES.concat([V.IMMOBILIZER, V.MAGE, V.GUARD]);
   }
 
   getPpath(b) {
-    if (b[1] == "m")
-      //'m' for Immobilizer (I is too similar to 1)
-      return "Baroque/" + b;
-    return b; //usual piece
+    if (b[0] == 'x') return "Maxima/nothing";
+    if (['m','d','g'].includes(b[1]))
+      return "Maxima/" + b;
+    return b;
+  }
+
+  // For space next to the palaces:
+  static get NOTHING() {
+    return "xx";
+  }
+
+  static board2fen(b) {
+    if (b[0] == 'x') return 'x';
+    return ChessRules.board2fen(b);
+  }
+
+  static fen2board(f) {
+    if (f == 'x') return V.NOTHING;
+    return ChessRules.fen2board(f);
+  }
+
+  // TODO: the wall position should be checked too
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    let kings = { "k": 0, "K": 0 };
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (['K','k'].includes(row[i])) kings[row[i]]++;
+        if (['x'].concat(V.PIECES).includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    if (Object.values(kings).some(v => v != 1)) return false;
+    return true;
   }
 
   // No castling, but checks, so keep track of kings
@@ -47,8 +85,25 @@ export class BaroqueRules extends ChessRules {
     }
   }
 
+  static get size() {
+    return { x: 11, y: 8 };
+  }
+
+  static OnBoard(x, y) {
+    return (
+      (x >= 1 && x <= 9 && y >= 0 && y <= 7) ||
+      ([3, 4].includes(y) && [0, 10].includes(x))
+    );
+  }
+
   static get IMMOBILIZER() {
     return "m";
+  }
+  static get MAGE() {
+    return 'g';
+  }
+  static get GUARD() {
+    return 'd';
   }
   // Although other pieces keep their names here for coding simplicity,
   // keep in mind that:
@@ -60,8 +115,10 @@ export class BaroqueRules extends ChessRules {
   // Is piece on square (x,y) immobilized?
   isImmobilized([x, y]) {
     const piece = this.getPiece(x, y);
-    const color = this.getColor(x, y);
-    const oppCol = V.GetOppCol(color);
+    if (piece == V.MAGE)
+      // Mages are not immobilized:
+      return false;
+    const oppCol = V.GetOppCol(this.getColor(x, y));
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     for (let step of adjacentSteps) {
       const [i, j] = [x + step[0], y + step[1]];
@@ -71,56 +128,86 @@ export class BaroqueRules extends ChessRules {
         this.getColor(i, j) == oppCol
       ) {
         const oppPiece = this.getPiece(i, j);
-        if (oppPiece == V.IMMOBILIZER) {
-          // Moving is possible only if this immobilizer is neutralized
-          for (let step2 of adjacentSteps) {
-            const [i2, j2] = [i + step2[0], j + step2[1]];
-            if (i2 == x && j2 == y) continue; //skip initial piece!
-            if (
-              V.OnBoard(i2, j2) &&
-              this.board[i2][j2] != V.EMPTY &&
-              this.getColor(i2, j2) == color
-            ) {
-              if ([V.BISHOP, V.IMMOBILIZER].includes(this.getPiece(i2, j2)))
-                return false;
-            }
-          }
-          return true; //immobilizer isn't neutralized
-        }
-        // Chameleons can't be immobilized twice,
-        // because there is only one immobilizer
-        if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER) return true;
+        if (oppPiece == V.IMMOBILIZER) return [i, j];
+        // Only immobilizers are immobilized by chameleons:
+        if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER) return [i, j];
       }
     }
-    return false;
+    return null;
   }
 
   getPotentialMovesFrom([x, y]) {
     // Pre-check: is thing on this square immobilized?
-    if (this.isImmobilized([x, y])) return [];
-    switch (this.getPiece(x, y)) {
-      case V.IMMOBILIZER:
-        return this.getPotentialImmobilizerMoves([x, y]);
-      default:
-        return super.getPotentialMovesFrom([x, y]);
+    const imSq = this.isImmobilized([x, y]);
+    const piece = this.getPiece(x, y);
+    if (!!imSq && piece != V.KING) {
+      // Only option is suicide, if I'm not a king:
+      return [
+        new Move({
+          start: { x: x, y: y },
+          end: { x: imSq[0], y: imSq[1] },
+          appear: [],
+          vanish: [
+            new PiPo({
+              x: x,
+              y: y,
+              c: this.getColor(x, y),
+              p: this.getPiece(x, y)
+            })
+          ]
+        })
+      ];
     }
+    let moves = undefined;
+    switch (piece) {
+      case V.IMMOBILIZER:
+        moves = this.getPotentialImmobilizerMoves([x, y]);
+        break;
+      case V.GUARD:
+        moves = this.getPotentialGuardMoves([x, y]);
+        break;
+      case V.MAGE:
+        moves = this.getPotentialMageMoves([x, y]);
+        break;
+      default:
+        moves = super.getPotentialMovesFrom([x, y]);
+    }
+    const pX = (this.turn == 'w' ? 10 : 0);
+    if (this.board[pX][3] == V.EMPTY && this.board[pX][4] == V.EMPTY)
+      return moves;
+    // Filter out moves resulting in self palace occupation:
+    // NOTE: cannot invade own palace but still check the king there.
+    const pY = (this.board[pX][3] == V.EMPTY ? 4 : 3);
+    return moves.filter(m => m.end.x != pX || m.end.y != pY);
   }
 
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    const piece = this.getPiece(x, y);
+  getSlideNJumpMoves([x, y], steps, oneStep, mageInitSquare, onlyTake) {
+    const piece = !mageInitSquare ? this.getPiece(x, y) : V.MAGE;
+    const initSquare = mageInitSquare || [x, y];
     let moves = [];
     outerLoop: for (let step of steps) {
       let i = x + step[0];
       let j = y + step[1];
+      if (piece == V.KING) j = j % V.size.y;
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep !== undefined) continue outerLoop;
+        if (!onlyTake) moves.push(this.getBasicMove(initSquare, [i, j]));
+        if (!!oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
-      // Only king can take on occupied square:
-      if (piece == V.KING && V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
+      // Only king, guard and mage + chameleon can take on occupied square:
+      if (
+        V.OnBoard(i, j)
+        &&
+        this.canTake(initSquare, [i, j])
+        &&
+        (
+          [V.KING, V.GUARD, V.MAGE].includes(piece) ||
+          (piece == V.BISHOP && this.getPiece(i, j) === onlyTake)
+        )
+      ) {
+        moves.push(this.getBasicMove(initSquare, [i, j]));
+      }
     }
     return moves;
   }
@@ -278,7 +365,9 @@ export class BaroqueRules extends ChessRules {
   getPotentialBishopMoves([x, y]) {
     let moves = super
       .getPotentialQueenMoves([x, y])
-      .concat(this.getKnightCaptures([x, y], "asChameleon"));
+      .concat(this.getKnightCaptures([x, y], "asChameleon"))
+      .concat(this.getPotentialGuardMoves([x, y], "asChameleon"))
+      .concat(this.getPotentialMageMoves([x, y], "asChameleon"));
     // No "king capture" because king cannot remain under check
     this.addPawnCaptures(moves, "asChameleon");
     this.addRookCaptures(moves, "asChameleon");
@@ -319,7 +408,6 @@ export class BaroqueRules extends ChessRules {
         m.end.x != x ? (m.end.x - x) / Math.abs(m.end.x - x) : 0,
         m.end.y != y ? (m.end.y - y) / Math.abs(m.end.y - y) : 0
       ];
-      // NOTE: includes() and even _.isEqual() functions fail...
       // TODO: this test should be done only once per direction
       if (
         capturingDirections.some(dir => {
@@ -351,7 +439,68 @@ export class BaroqueRules extends ChessRules {
     return super.getPotentialQueenMoves(sq);
   }
 
-  // isAttacked() is OK because the immobilizer doesn't take
+  getPotentialKingMoves(sq) {
+    return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
+  }
+
+  getPotentialGuardMoves(sq, byChameleon) {
+    const onlyTake = !byChameleon ? null : V.GUARD;
+    return (
+      this.getSlideNJumpMoves(
+        sq,
+        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+        "oneStep",
+        null,
+        onlyTake
+      )
+    );
+  }
+
+  getNextMageSteps(step) {
+    if (step[0] == -1) {
+      if (step[1] == -1) return [[-1, 0], [0, -1]];
+      return [[-1, 0], [0, 1]];
+    }
+    if (step[1] == -1) return [[1, 0], [0, -1]];
+    return [[1, 0], [0, 1]];
+  }
+
+  getPotentialMageMoves([x, y], byChameleon) {
+    const oppCol = V.GetOppCol(this.turn);
+    const onlyTake = !byChameleon ? null : V.MAGE;
+    let moves = [];
+    for (let step of V.steps[V.BISHOP]) {
+      let [i, j] = [x + step[0], y + step[1]];
+      if (!V.OnBoard(i, j)) continue;
+      if (this.board[i][j] != V.EMPTY) {
+        if (
+          this.getColor(i, j) == oppCol &&
+          (!onlyTake || this.getPiece(i, j) == V.MAGE)
+        ) {
+          // Capture
+          moves.push(this.getBasicMove([x, y], [i, j]));
+        }
+      }
+      else {
+        if (!onlyTake) moves.push(this.getBasicMove([x, y], [i, j]));
+        // Continue orthogonally:
+        const stepO = this.getNextMageSteps(step);
+        Array.prototype.push.apply(
+          moves,
+          this.getSlideNJumpMoves([i, j], stepO, null, [x, y], onlyTake)
+        );
+      }
+    }
+    return moves;
+  }
+
+  isAttacked(sq, color) {
+    return (
+      super.isAttacked(sq, color) ||
+      this.isAttackedByGuard(sq, color) ||
+      this.isAttackedByMage(sq, color)
+    );
+  }
 
   isAttackedByPawn([x, y], color) {
     // Square (x,y) must be surroundable by two enemy pieces,
@@ -514,10 +663,10 @@ export class BaroqueRules extends ChessRules {
   }
 
   isAttackedByKing([x, y], color) {
-    const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-    for (let step of steps) {
+    for (let step of V.steps[V.KNIGHT]) {
       let rx = x + step[0],
-          ry = y + step[1];
+          // Circular board for king-knight:
+          ry = (y + step[1]) % V.size.y;
       if (
         V.OnBoard(rx, ry) &&
         this.getPiece(rx, ry) === V.KING &&
@@ -530,29 +679,105 @@ export class BaroqueRules extends ChessRules {
     return false;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
-      // Deterministic:
-      return "rnbkqbnm/pppppppp/8/8/8/8/PPPPPPPP/MNBQKBNR w 0";
-
-    let pieces = { w: new Array(8), b: new Array(8) };
-    // Shuffle pieces on first and last rank
-    for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'];
-        break;
-      }
-
-      // Get random squares for every piece, totally freely
-      let positions = shuffle(ArrayFun.range(8));
-      const composition = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'm'];
-      for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
-    }
+  isAttackedByGuard(sq, color) {
     return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0"
+      super.isAttackedBySlideNJump(
+        sq,
+        color,
+        V.GUARD,
+        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+        "oneStep"
+      )
+    );
+  }
+
+  getNextMageCheck(step) {
+    if (step[0] == 0) {
+      if (step[1] == 1) return [[1, 1], [-1, 1]];
+      return [[-1, -1], [1, -1]];
+    }
+    if (step[0] == -1) return [[-1, -1], [-1, 1]];
+    return [[1, 1], [1, -1]];
+  }
+
+  isAttackedByMage([x, y], color) {
+    for (let step of V.steps[V.BISHOP]) {
+      const [i, j] = [x + step[0], y + step[1]];
+      if (
+        V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
+        this.getColor(i, j) == color &&
+        this.getPiece(i, j) == V.MAGE
+      ) {
+        return true;
+      }
+    }
+    for (let step of V.steps[V.ROOK]) {
+      let [i, j] = [x + step[0], y + step[1]];
+      const stepM = this.getNextMageCheck(step);
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        for (let s of stepM) {
+          const [ii, jj] = [i + s[0], j + s[1]];
+          if (
+            V.OnBoard(ii, jj) &&
+            this.board[ii][jj] != V.EMPTY &&
+            this.getColor(ii, jj) == color &&
+            this.getPiece(ii, jj) == V.MAGE
+          ) {
+            return true;
+          }
+        }
+        i += step[0];
+        j += step[1];
+      }
+    }
+    return false;
+  }
+
+  getCurrentScore() {
+    const color = this.turn;
+    const getScoreLost = () => {
+      // Result if I lose:
+      return color == "w" ? "0-1" : "1-0";
+    };
+    if (!this.atLeastOneMove()) {
+      // No valid move: I lose or draw
+      if (this.underCheck(color)) return getScoreLost();
+      return "1/2";
+    }
+    // I lose also if no pieces left (except king)
+    let piecesLeft = 0;
+    outerLoop: for (let i=0; i<V.size.x; i++) {
+      for (let j=0; j<V.size.y; j++) {
+        if (
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) == color &&
+          this.getPiece(i,j) != V.KING
+        ) {
+          piecesLeft++;
+        }
+      }
+    }
+    if (piecesLeft == 0) return getScoreLost();
+    // Check if my palace is invaded:
+    const pX = (color == 'w' ? 10 : 0);
+    const oppCol = V.GetOppCol(color);
+    if (
+      this.board[pX][3] != V.EMPTY &&
+      this.getColor(pX, 3) == oppCol &&
+      this.board[pX][4] != V.EMPTY &&
+      this.getColor(pX, 4) == oppCol
+    ) {
+      return getScoreLost();
+    }
+    return "*";
+  }
+
+  static GenRandInitFen() {
+    // Always deterministic:
+    return (
+      "xxx2xxx/1g1qk1g1/1bnmrnb1/dppppppd/8/8/8/" +
+      "DPPPPPPD/1BNMRNB1/1G1QK1G1/xxx2xxx w 0"
     );
   }
 
@@ -561,9 +786,11 @@ export class BaroqueRules extends ChessRules {
       p: 1,
       r: 2,
       n: 5,
-      b: 3,
-      q: 3,
+      b: 4,
+      q: 2,
       m: 5,
+      g: 7,
+      d: 4,
       k: 1000
     };
   }
@@ -572,9 +799,25 @@ export class BaroqueRules extends ChessRules {
     return 2;
   }
 
+  evalPosition() {
+    let evaluation = 0;
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (![V.EMPTY,V.NOTHING].includes(this.board[i][j])) {
+          const sign = this.getColor(i, j) == "w" ? 1 : -1;
+          evaluation += sign * V.VALUES[this.getPiece(i, j)];
+        }
+      }
+    }
+    return evaluation;
+  }
+
   getNotation(move) {
     const initialSquare = V.CoordsToSquare(move.start);
     const finalSquare = V.CoordsToSquare(move.end);
+    if (move.appear.length == 0)
+      // Suicide 'S'
+      return initialSquare + "S";
     let notation = undefined;
     if (move.appear[0].p == V.PAWN) {
       // Pawn: generally ambiguous short notation, so we use full description

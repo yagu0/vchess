@@ -533,6 +533,8 @@ export default {
       for (let i=move.length -1; i >= 0; i--) this.vr.undo(move[i]);
       this.moves.pop();
       this.cursor--;
+      // The board may still show the possible moves: (TODO: bad solution)
+      this.$refs["board"].resetCurrentAttempt();
       this.inMultimove = false;
     },
     cancelLastMove: function() {

@@ -625,6 +625,13 @@ export default {
         this.processArrowAttempt(e);
       }
     },
+    // Called by BaseGame after partially undoing multi-moves:
+    resetCurrentAttempt: function() {
+      this.possibleMoves = [];
+      this.start = null;
+      this.click = "";
+      this.selectedPiece = null;
+    },
     processMoveAttempt: function(e) {
       // Obtain the move from start and end squares
       const [offsetX, offsetY] =
