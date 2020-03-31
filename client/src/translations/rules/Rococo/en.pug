@@ -1,0 +1,133 @@
+p.boxed.
+  Most pieces look as usual but behave differently.
+  They generally move like an orthodox queen,
+  but capturing rules are more complex.
+
+p.
+  This variant comes from an attempt to fix some issues with Baroque variant,
+  which "favors the defense over the attack, and is lacking in clarity"
+  (from the introduction of the Rococo rules; see the link at the bottom of
+  the page).
+
+h4 Pieces names
+
+p Pieces names refer to the way they capture, which is described later.
+ul
+  li Pawn : Cannon Pawn
+  li Rook : Swapper
+  li Knight : Long Leaper
+  li Bishop : Vhameleon
+  li Queen : "Pushme-Pullyu"
+  li King : King (same behavior as in standard chess)
+p.
+  Besides, a new piece is introduced: the immobilizer, written by the letter
+  'M'. It is represented by an upside-down rook:
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/5m4/91/91/91/4M5/91/91:
+  figcaption Immobilizers on e3 and f7.
+
+p The board is of size 10x10 to facilitate captures, as explained below.
+
+h3 Non-capturing moves
+
+p The king moves (and captures) as usual.
+
+p.
+  Cannon Pawns move without capturing two ways: either a single step in any
+  direction, or, they may leap over an adjacent piece of either side to the
+  empty square just beyond.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/4b5/4P5/5Q4/91/91/91 e4,d4,d5,d6,f6,f5,e7,g3:
+  figcaption Squares where the pawn can move to (without capturing).
+
+p All other pieces move like an orthodox queen.
+
+p.
+  When a piece is next to an enemy immobilizer, it cannot move but
+  is allowed a special "suicide" move: it can disappear by "capturing" the
+  immobilizer (to trigger the move on the interface).
+
+h3 Capturing moves
+
+p.
+  As said above, the king captures as usual. However, all other pieces have
+  a new way of capturing - when they can. Indeed the immobilizer doesn't
+  capture, and the swapper can only capture a piece when it stands next to him.
+  In this case he disappears as well in the process.
+
+p.
+  The edge of the board can be reached only by capturing, only if landing on
+  the edge is the only way to do some capture, and that there exist no other
+  such captures with a smallest move length. The move length is the distance
+  between the initial and destination squares.
+
+h4 (Cannon) Pawns
+
+p.
+  Cannon pawns capture by leaping over an adjacent piece (the mount), landing
+  on the opposing piece just beyond the mount.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/4p5/4b5/1rB1P5/5Q4/2p3q3/91/91 e7,g3:
+  figcaption Possible pawn captures.
+
+h4 "Pushme-Pullyu" (Queen)
+
+p.
+  The queen captures on the square just after where she stops (if any
+  opponent's piece stands there), and also on the square initially just behind
+  her. It is a combination of a Withdrawer and an Advancer, as described on
+  the rules page on chessvariants (see the link at the bottom).
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/2bQ4r1/91/91/91/91/91 h6:
+  figcaption.
+    Any move to the right will capture the bishop; only a move to the marked
+    spot will also capture the rook.
+
+h4 Rook (Swapper)
+
+p.
+  The rook can swap its position with any enemy piece in the attacking
+  line of an orthodox queen, as illustrated below.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/7k2/91/91/91/2n7/2R7/91/91:
+  .diagram.diag22
+    | fen:91/91/7R2/91/91/91/2n7/2k7/91/91:
+  figcaption Before and after a rook swap with the king.
+
+p.
+  Moreover, if the rook stands just next to an enemy piece (like the knight
+  here), it can choose to capture it by a "kamikaze" attack: indeed it get
+  self-destroyed in the process.
+
+h4 Other pieces
+
+p.
+  The Long Leaper, Immobilizer and Chameleon behave as in the Baroque
+  variant playable on this site: please refer to these rules description. There
+  is only one change is in the immobilizing rules, which are simpler here:
+  immobilizers powers are not canceled by the chameleons.
+
+h3 End of the game
+
+p.
+  The game ends by checkmate or stalemate as in standard chess.
+  Just pay attention to the capturing rules :)
+
+h3 Source
+
+p
+  | The 
+  a(href="https://www.chessvariants.com/other.dir/rococo.html") Rococo variant
+  | &nbsp;on chessvariants.com.
+
+p Inventors: Peter Aronson and David Howe (2002)

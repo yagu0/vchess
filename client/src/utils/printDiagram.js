@@ -93,7 +93,7 @@ export function getDiagram(args) {
           "class='piece'/>";
       }
       if (markArray.length > 0 && markArray[i][j])
-        boardDiv += "<img src='/images/mark.svg' class='mark-square'/>";
+        boardDiv += "<img src='/images/diag_mark.svg' class='mark-square'/>";
       boardDiv += "</div>";
     }
     boardDiv += "</div>";

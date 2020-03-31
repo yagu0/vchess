@@ -1,0 +1,139 @@
+p.boxed.
+  La plupart des pièces semblent familières mais se comportent différemment.
+  Elles se déplacent en général comme une dame orthodoxe,
+  mais capturent selon des règles assez complexes.
+
+p.
+  Cette variante provient d'une tentative de résoudre des problèmes avec la
+  variante baroque, qui "favorise la défense à l'attaque, et manque de clarté"
+  (cf. l'introduction des règles Rococo, en lien au bas de cette page).
+
+h4 Nom des pièces
+
+p.
+  Les noms des pièces se rapportent à leur manière de capturer, celle-ci étant
+  décrite plus bas.
+ul
+  li Pion : Pion Canon
+  li Tour : Échangeur
+  li Cavalier : Sauteur Long
+  li Fou : Caméléon
+  li Dame : "Pushme-Pullyu"
+  li Roi : Roi (la même pièce qu'aux échecs standards)
+p.
+  En outre, une nouvelle pièce est ajoutée : l'immobiliseur, noté 'M'.
+  Il est représenté par une tour inversée :
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/5m4/91/91/91/4M5/91/91:
+  figcaption Immobiliseurs en e3 et f7.
+
+p.
+  L'échiquier est de taille 10x10 pour faciliter les captures, comme expliqué
+  ci-après.
+
+h3 Coups non capturants
+
+p Le roi se déplace (et capture) comme d'habitude.
+
+p.
+  Les Pions Canons se déplacent sans capturer de deux manières : soit d'une
+  seule case dans n'importe quelle direction, ou bien en sautant par dessus
+  une pièce adjacente pour se retrouver juste derrière elle.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/4b5/4P5/5Q4/91/91/91 e4,d4,d5,d6,f6,f5,e7,g3:
+  figcaption Cases où le pion peut aller (sans capturer).
+
+p Toutes les autres pièces se déplacent comme une dame orthodoxe.
+
+p.
+  Quand une pièce est à côté d'un immobiliseur ennemi, elle ne peut pas bouger
+  mais un coup spécial "de suicide" est possible : elle peut disparaître en
+  "capturant" l'immobiliseur (pour déclencher le coup via l'interface).
+
+h3 Coups capturants
+
+p.
+  Comme dit plus haut, le roi capture comme d'habitude. Cependant, les autres
+  pièces capturent différemment - quand elles le peuvent.
+  En effet l'immobiliseur ne peut pas capturer, et l'échangeur
+  ne peut prendre qu'une pièce adjacente. Dans ce cas il sort de l'échiquier
+  après la capture.
+
+p.
+  Le bord de l'échiquier ne peut être atteint que par capture, seulement si
+  arriver ici est l'unique façon d'effectuer une certaine prise, et s'il
+  n'existe pas d'autres telles captures avec une longueur de coup plus petite.
+  La longueur d'un coup est la distance entre les cases de départ et d'arrivée.
+
+h4 Pions (Cannons)
+
+p.
+  Les pions canons capturent en sautant par dessus une pièce adjacente,
+  atterissant sur une pièce ennemie juste derrière.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/4p5/4b5/1rB1P5/5Q4/2p3q3/91/91 e7,g3:
+  figcaption Possibles captures du pion.
+
+h4 "Pushme-Pullyu" (Dame)
+
+p.
+  La dame capture sur la case située juste après celle où elle s'arrête
+  (à supposer qu'une pièce adverse s'y trouve), et aussi sur la case
+  initialement située juste derrière elle. C'est une combinaison du Retireur
+  et de l'Avanceur, comme décrits sur la page des règles sur chessvariants
+  (voir le lien en bas de page).
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/2bQ4r1/91/91/91/91/91 h6:
+  figcaption.
+    Tout coup vers la droite capture le fou ; seulement le coup sur la marque
+    capturera aussi la tour.
+
+h4 Tour (Échangeur)
+
+p.
+  La tour peut échanger sa position avec n'importe quelle pièce ennemie dans
+  la ligne d'attaque d'une dame orthodoxe, comme illustré ci-dessous.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/7k2/91/91/91/2n7/2R7/91/91:
+  .diagram.diag22
+    | fen:91/91/7R2/91/91/91/2n7/2k7/91/91:
+  figcaption Avant et après l'échange tour-roi.
+
+p.
+  De plus, si la tour se trouve à côté d'une pièce adverse (comme le cavalier
+  ici), elle peut choisir de le capturer par une attaque "kamikaze" : en
+  effet elle s'auto-détruit pendant l'action.
+
+h4 Autres pièces
+
+p.
+  Le Sauteur Long, l'Immobiliseur et le Caméléon se comportent comme dans la
+  variante Baroque jouable sur ce site : référez-vous au descriptif des règles.
+  Il n'y a qu'un seul changement au sujet des règles d'immobilisation, plus
+  simples ici : les pouvoirs des immobiliseurs ne sont pas annulés par les
+  caméléons.
+
+h3 Fin de la partie
+
+p.
+  La partie s'achève par mat ou pat comme aux échecs standards.
+  Faites juste attention aux règles de capture :)
+
+h3 Source
+
+p
+  La 
+  a(href="https://www.chessvariants.com/other.dir/rococo.html") variante Rococo
+  | &nbsp;sur chessvariants.com.
+
+p Inventeurs : Peter Aronson et David Howe (2002)

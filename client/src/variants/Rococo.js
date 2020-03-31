@@ -2,7 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
-export class BaroqueRules extends ChessRules {
+export class RococoRules extends ChessRules {
   static get HasFlags() {
     return false;
   }
@@ -18,12 +18,19 @@ export class BaroqueRules extends ChessRules {
   getPpath(b) {
     if (b[1] == "m")
       //'m' for Immobilizer (I is too similar to 1)
-      return "Baroque/" + b;
+      return "Rococo/" + b;
     return b; //usual piece
   }
 
-  // No castling, but checks, so keep track of kings
+  getPPpath(m) {
+    // The only "choice" case is between a swap and a mutual destruction:
+    // show empty square in case of mutual destruction.
+    if (m.appear.length == 0) return "Rococo/empty";
+    return m.appear[0].c + m.appear[0].p;
+  }
+
   setOtherVariables(fen) {
+    // No castling, but checks, so keep track of kings
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenParts = fen.split(" ");
     const position = fenParts[0].split("/");
@@ -45,6 +52,43 @@ export class BaroqueRules extends ChessRules {
         k++;
       }
     }
+    // Local stack of swaps:
+    this.smoves = [];
+    const smove = V.ParseFen(fen).smove;
+    if (smove == "-") this.smoves.push(null);
+    else {
+      this.smoves.push({
+        start: ChessRules.SquareToCoords(smove.substr(0, 2)),
+        end: ChessRules.SquareToCoords(smove.substr(2))
+      });
+    }
+  }
+
+  static ParseFen(fen) {
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { smove: fen.split(" ")[3] }
+    );
+  }
+
+  static IsGoodFen(fen) {
+    if (!ChessRules.IsGoodFen(fen)) return false;
+    const fenParts = fen.split(" ");
+    if (fenParts.length != 4) return false;
+    if (fenParts[3] != "-" && !fenParts[3].match(/^([a-h][1-8]){2}$/))
+      return false;
+    return true;
+  }
+
+  getSmove(move) {
+    if (move.appear.length == 2)
+      return { start: move.start, end: move.end };
+    return null;
+  }
+
+  static get size() {
+    // Add the "capturing edge"
+    return { x: 10, y: 10 };
   }
 
   static get IMMOBILIZER() {
@@ -52,16 +96,17 @@ export class BaroqueRules extends ChessRules {
   }
   // Although other pieces keep their names here for coding simplicity,
   // keep in mind that:
-  //  - a "rook" is a coordinator, capturing by coordinating with the king
+  //  - a "rook" is a swapper, exchanging positions and "capturing" by
+  //             mutual destruction only.
   //  - a "knight" is a long-leaper, capturing as in draughts
   //  - a "bishop" is a chameleon, capturing as its prey
-  //  - a "queen" is a withdrawer, capturing by moving away from pieces
+  //  - a "queen" is a withdrawer+advancer, capturing by moving away from
+  //              pieces or advancing in front of them.
 
   // Is piece on square (x,y) immobilized?
   isImmobilized([x, y]) {
     const piece = this.getPiece(x, y);
-    const color = this.getColor(x, y);
-    const oppCol = V.GetOppCol(color);
+    const oppCol = V.GetOppCol(this.getColor(x, y));
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     for (let step of adjacentSteps) {
       const [i, j] = [x + step[0], y + step[1]];
@@ -71,39 +116,81 @@ export class BaroqueRules extends ChessRules {
         this.getColor(i, j) == oppCol
       ) {
         const oppPiece = this.getPiece(i, j);
-        if (oppPiece == V.IMMOBILIZER) {
-          // Moving is possible only if this immobilizer is neutralized
-          for (let step2 of adjacentSteps) {
-            const [i2, j2] = [i + step2[0], j + step2[1]];
-            if (i2 == x && j2 == y) continue; //skip initial piece!
-            if (
-              V.OnBoard(i2, j2) &&
-              this.board[i2][j2] != V.EMPTY &&
-              this.getColor(i2, j2) == color
-            ) {
-              if ([V.BISHOP, V.IMMOBILIZER].includes(this.getPiece(i2, j2)))
-                return false;
-            }
-          }
-          return true; //immobilizer isn't neutralized
-        }
-        // Chameleons can't be immobilized twice,
-        // because there is only one immobilizer
-        if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER) return true;
+        if (oppPiece == V.IMMOBILIZER) return [i, j];
+        // Only immobilizers are immobilized by chameleons:
+        if (oppPiece == V.BISHOP && piece == V.IMMOBILIZER) return [i, j];
       }
     }
-    return false;
+    return null;
+  }
+
+  static OnEdge(x, y) {
+    return x == 0 || y == 0 || x == V.size.x - 1 || y == V.size.y - 1;
   }
 
   getPotentialMovesFrom([x, y]) {
     // Pre-check: is thing on this square immobilized?
-    if (this.isImmobilized([x, y])) return [];
+    const imSq = this.isImmobilized([x, y]);
+    if (!!imSq) {
+      // Only option is suicide:
+      return [
+        new Move({
+          start: { x: x, y: y },
+          end: { x: imSq[0], y: imSq[1] },
+          appear: [],
+          vanish: [
+            new PiPo({
+              x: x,
+              y: y,
+              c: this.getColor(x, y),
+              p: this.getPiece(x, y)
+            })
+          ]
+        })
+      ];
+    }
+    let moves = [];
     switch (this.getPiece(x, y)) {
       case V.IMMOBILIZER:
-        return this.getPotentialImmobilizerMoves([x, y]);
+        moves = this.getPotentialImmobilizerMoves([x, y]);
+        break;
       default:
-        return super.getPotentialMovesFrom([x, y]);
+        moves = super.getPotentialMovesFrom([x, y]);
     }
+    // Post-processing: prune redundant non-minimal capturing moves,
+    // and non-capturing moves ending on the edge:
+    moves.forEach(m => {
+      // Useful precomputation
+      m.dist = Math.abs(m.end.x - m.start.x) + Math.abs(m.end.y - m.start.y);
+    });
+    return moves.filter(m => {
+      if (!V.OnEdge(m.end.x, m.end.y)) return true;
+      // End on the edge:
+      if (m.vanish.length == 1) return false;
+      // Capture or swap: only captures get filtered
+      if (m.appear.length == 2) return true;
+      // Can we find other moves with a shorter path to achieve the same
+      // capture? Apply to queens and knights.
+      if (
+        moves.some(mv => {
+          return (
+            mv.dist < m.dist &&
+            mv.vanish.length == m.vanish.length &&
+            mv.vanish.every(v => {
+              return m.vanish.some(vv => {
+                return (
+                  vv.x == v.x && vv.y == v.y && vv.c == v.c && vv.p == v.p
+                );
+              });
+            })
+          );
+        })
+      ) {
+        return false;
+      }
+      return true;
+    });
+    // NOTE: not removing "dist" field; shouldn't matter much...
   }
 
   getSlideNJumpMoves([x, y], steps, oneStep) {
@@ -125,85 +212,71 @@ export class BaroqueRules extends ChessRules {
     return moves;
   }
 
-  // Modify capturing moves among listed pawn moves
-  addPawnCaptures(moves, byChameleon) {
-    const steps = V.steps[V.ROOK];
-    const color = this.turn;
-    const oppCol = V.GetOppCol(color);
-    moves.forEach(m => {
-      if (!!byChameleon && m.start.x != m.end.x && m.start.y != m.end.y)
-        // Chameleon not moving as pawn
-        return;
-      // Try capturing in every direction
-      for (let step of steps) {
-        const sq2 = [m.end.x + 2 * step[0], m.end.y + 2 * step[1]];
-        if (
-          V.OnBoard(sq2[0], sq2[1]) &&
-          this.board[sq2[0]][sq2[1]] != V.EMPTY &&
-          this.getColor(sq2[0], sq2[1]) == color
-        ) {
-          // Potential capture
-          const sq1 = [m.end.x + step[0], m.end.y + step[1]];
-          if (
-            this.board[sq1[0]][sq1[1]] != V.EMPTY &&
-            this.getColor(sq1[0], sq1[1]) == oppCol
-          ) {
-            const piece1 = this.getPiece(sq1[0], sq1[1]);
-            if (!byChameleon || piece1 == V.PAWN) {
-              m.vanish.push(
-                new PiPo({
-                  x: sq1[0],
-                  y: sq1[1],
-                  c: oppCol,
-                  p: piece1
-                })
-              );
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // "Pincer"
+  // "Cannon/grasshopper pawn"
   getPotentialPawnMoves([x, y]) {
-    let moves = super.getPotentialRookMoves([x, y]);
-    this.addPawnCaptures(moves);
+    const oppCol = V.GetOppCol(this.turn);
+    let moves = [];
+    const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+    adjacentSteps.forEach(step => {
+      const [i, j] = [x + step[0], y + step[1]];
+      if (V.OnBoard(i, j)) {
+        if (this.board[i][j] == V.EMPTY)
+          moves.push(this.getBasicMove([x, y], [i, j]));
+        else {
+          // Try to leap over:
+          const [ii, jj] = [i + step[0], j + step[1]];
+          if (V.OnBoard(ii, jj) && this.getColor(ii, jj) == oppCol)
+            moves.push(this.getBasicMove([x, y], [ii, jj]));
+        }
+      }
+    });
     return moves;
   }
 
-  addRookCaptures(moves, byChameleon) {
-    const color = this.turn;
-    const oppCol = V.GetOppCol(color);
-    const kp = this.kingPos[color];
-    moves.forEach(m => {
-      // Check piece-king rectangle (if any) corners for enemy pieces
-      if (m.end.x == kp[0] || m.end.y == kp[1]) return; //"flat rectangle"
-      const corner1 = [m.end.x, kp[1]];
-      const corner2 = [kp[0], m.end.y];
-      for (let [i, j] of [corner1, corner2]) {
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == oppCol) {
-          const piece = this.getPiece(i, j);
-          if (!byChameleon || piece == V.ROOK) {
-            m.vanish.push(
-              new PiPo({
-                x: i,
-                y: j,
-                p: piece,
-                c: oppCol
-              })
-            );
+  // NOTE: not really captures, but let's keep the name
+  getRookCaptures([x, y], byChameleon) {
+    let moves = [];
+    const oppCol = V.GetOppCol(this.turn);
+    // Simple: if something is visible, we can swap
+    V.steps[V.ROOK].concat(V.steps[V.BISHOP]).forEach(step => {
+      let [i, j] = [x + step[0], y + step[1]];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        i += step[0];
+        j += step[1];
+      }
+      if (V.OnBoard(i, j) && this.getColor(i, j) == oppCol) {
+        const oppPiece = this.getPiece(i, j);
+        if (!byChameleon || oppPiece == V.ROOK) {
+          let m = this.getBasicMove([x, y], [i, j]);
+          m.appear.push(
+            new PiPo({
+              x: x,
+              y: y,
+              c: oppCol,
+              p: this.getPiece(i, j)
+            })
+          );
+          moves.push(m);
+          if (i == x + step[0] && j == y + step[1]) {
+            // Add mutual destruction option:
+            m = new Move({
+              start: { x: x, y: y},
+              end: { x: i, y: j },
+              appear: [],
+              // TODO: is copying necessary here?
+              vanish: JSON.parse(JSON.stringify(m.vanish))
+            });
+            moves.push(m);
           }
         }
       }
     });
+    return moves;
   }
 
-  // Coordinator
+  // Swapper
   getPotentialRookMoves(sq) {
-    let moves = super.getPotentialQueenMoves(sq);
-    this.addRookCaptures(moves);
-    return moves;
+    return super.getPotentialQueenMoves(sq).concat(this.getRookCaptures(sq));
   }
 
   getKnightCaptures(startSquare, byChameleon) {
@@ -276,13 +349,29 @@ export class BaroqueRules extends ChessRules {
 
   // Chameleon
   getPotentialBishopMoves([x, y]) {
+    const oppCol = V.GetOppCol(this.turn);
     let moves = super
       .getPotentialQueenMoves([x, y])
-      .concat(this.getKnightCaptures([x, y], "asChameleon"));
+      .concat(this.getKnightCaptures([x, y], "asChameleon"))
+      .concat(this.getRookCaptures([x, y], "asChameleon"));
     // No "king capture" because king cannot remain under check
-    this.addPawnCaptures(moves, "asChameleon");
-    this.addRookCaptures(moves, "asChameleon");
     this.addQueenCaptures(moves, "asChameleon");
+    // Also add pawn captures (as a pawn):
+    const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+    adjacentSteps.forEach(step => {
+      const [i, j] = [x + step[0], y + step[1]];
+      const [ii, jj] = [i + step[0], j + step[1]];
+      // Try to leap over (i,j):
+      if (
+        V.OnBoard(ii, jj) &&
+        this.board[i][j] != V.EMPTY &&
+        this.board[ii][jj] != V.EMPTY &&
+        this.getColor(ii, jj) == oppCol &&
+        this.getPiece(ii, jj) == V.PAWN
+      ) {
+        moves.push(this.getBasicMove([x, y], [ii, jj]));
+      }
+    });
     // Post-processing: merge similar moves, concatenating vanish arrays
     let mergedMoves = {};
     moves.forEach(m => {
@@ -300,9 +389,9 @@ export class BaroqueRules extends ChessRules {
     if (moves.length == 0) return;
     const [x, y] = [moves[0].start.x, moves[0].start.y];
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-    let capturingDirections = [];
-    const color = this.turn;
-    const oppCol = V.GetOppCol(color);
+    let capturingDirStart = {};
+    const oppCol = V.GetOppCol(this.turn);
+    // Useful precomputation:
     adjacentSteps.forEach(step => {
       const [i, j] = [x + step[0], y + step[1]];
       if (
@@ -311,7 +400,7 @@ export class BaroqueRules extends ChessRules {
         this.getColor(i, j) == oppCol &&
         (!byChameleon || this.getPiece(i, j) == V.QUEEN)
       ) {
-        capturingDirections.push(step);
+        capturingDirStart[step[0] + "_" + step[1]] = this.getPiece(i, j);
       }
     });
     moves.forEach(m => {
@@ -319,14 +408,27 @@ export class BaroqueRules extends ChessRules {
         m.end.x != x ? (m.end.x - x) / Math.abs(m.end.x - x) : 0,
         m.end.y != y ? (m.end.y - y) / Math.abs(m.end.y - y) : 0
       ];
-      // NOTE: includes() and even _.isEqual() functions fail...
       // TODO: this test should be done only once per direction
-      if (
-        capturingDirections.some(dir => {
-          return dir[0] == -step[0] && dir[1] == -step[1];
-        })
-      ) {
+      const capture = capturingDirStart[(-step[0]) + "_" + (-step[1])];
+      if (!!capture) {
         const [i, j] = [x - step[0], y - step[1]];
+        m.vanish.push(
+          new PiPo({
+            x: i,
+            y: j,
+            p: capture,
+            c: oppCol
+          })
+        );
+      }
+      // Also test the end (advancer effect)
+      const [i, j] = [m.end.x + step[0], m.end.y + step[1]];
+      if (
+        V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
+        this.getColor(i, j) == oppCol &&
+        (!byChameleon || this.getPiece(i, j) == V.QUEEN)
+      ) {
         m.vanish.push(
           new PiPo({
             x: i,
@@ -339,7 +441,7 @@ export class BaroqueRules extends ChessRules {
     });
   }
 
-  // Withdrawer
+  // Withdrawer + advancer: "pushme-pullyu"
   getPotentialQueenMoves(sq) {
     let moves = super.getPotentialQueenMoves(sq);
     this.addQueenCaptures(moves);
@@ -351,85 +453,67 @@ export class BaroqueRules extends ChessRules {
     return super.getPotentialQueenMoves(sq);
   }
 
+  // Does m2 un-do m1 ? (to disallow undoing swaps)
+  oppositeMoves(m1, m2) {
+    return (
+      !!m1 &&
+      m2.appear.length == 2 &&
+      m1.start.x == m2.start.x &&
+      m1.end.x == m2.end.x &&
+      m1.start.y == m2.start.y &&
+      m1.end.y == m2.end.y
+    );
+  }
+
+  filterValid(moves) {
+    if (moves.length == 0) return [];
+    const color = this.turn;
+    return (
+      super.filterValid(
+        moves.filter(m => {
+          const L = this.smoves.length; //at least 1: init from FEN
+          return !this.oppositeMoves(this.smoves[L - 1], m);
+        })
+      )
+    );
+  }
+
   // isAttacked() is OK because the immobilizer doesn't take
 
   isAttackedByPawn([x, y], color) {
-    // Square (x,y) must be surroundable by two enemy pieces,
-    // and one of them at least should be a pawn (moving).
-    const dirs = [
-      [1, 0],
-      [0, 1]
-    ];
-    const steps = V.steps[V.ROOK];
-    for (let dir of dirs) {
-      const [i1, j1] = [x - dir[0], y - dir[1]]; //"before"
-      const [i2, j2] = [x + dir[0], y + dir[1]]; //"after"
-      if (V.OnBoard(i1, j1) && V.OnBoard(i2, j2)) {
-        if (
-          (
-            this.board[i1][j1] != V.EMPTY &&
-            this.getColor(i1, j1) == color &&
-            this.board[i2][j2] == V.EMPTY
-          )
-          ||
-          (
-            this.board[i2][j2] != V.EMPTY &&
-            this.getColor(i2, j2) == color &&
-            this.board[i1][j1] == V.EMPTY
-          )
-        ) {
-          // Search a movable enemy pawn landing on the empty square
-          for (let step of steps) {
-            let [ii, jj] = this.board[i1][j1] == V.EMPTY ? [i1, j1] : [i2, j2];
-            let [i3, j3] = [ii + step[0], jj + step[1]];
-            while (V.OnBoard(i3, j3) && this.board[i3][j3] == V.EMPTY) {
-              i3 += step[0];
-              j3 += step[1];
-            }
-            if (
-              V.OnBoard(i3, j3) &&
-              this.getColor(i3, j3) == color &&
-              this.getPiece(i3, j3) == V.PAWN &&
-              !this.isImmobilized([i3, j3])
-            ) {
-              return true;
-            }
-          }
-        }
+    // Attacked if an enemy pawn stands just behind an immediate obstacle:
+    const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+    for (let step of adjacentSteps) {
+      const [i, j] = [x + step[0], y + step[1]];
+      const [ii, jj] = [i + step[0], j + step[1]];
+      if (
+        V.OnBoard(ii, jj) &&
+        this.board[i][j] != V.EMPTY &&
+        this.board[ii][jj] != V.EMPTY &&
+        this.getColor(ii, jj) == color &&
+        this.getPiece(ii, jj) == V.PAWN &&
+        !this.isImmobilized([ii, jj])
+      ) {
+        return true;
       }
     }
     return false;
   }
 
   isAttackedByRook([x, y], color) {
-    // King must be on same column or row,
-    // and a rook should be able to reach a capturing square
-    const sameRow = x == this.kingPos[color][0];
-    const sameColumn = y == this.kingPos[color][1];
-    if (sameRow || sameColumn) {
-      // Look for the enemy rook (maximum 1)
-      for (let i = 0; i < V.size.x; i++) {
-        for (let j = 0; j < V.size.y; j++) {
-          if (
-            this.board[i][j] != V.EMPTY &&
-            this.getColor(i, j) == color &&
-            this.getPiece(i, j) == V.ROOK
-          ) {
-            if (this.isImmobilized([i, j]))
-              // Because only one rook:
-              return false;
-            // Can it reach a capturing square? Easy but quite suboptimal way
-            // (TODO: generate all moves (turn is OK))
-            const moves = this.getPotentialMovesFrom([i, j]);
-            for (let move of moves) {
-              if (
-                (sameRow && move.end.y == y) ||
-                (sameColumn && move.end.x == x)
-              )
-                return true;
-            }
-          }
-        }
+    // The only way a swapper can take is by mutual destruction when the
+    // enemy piece stands just next:
+    const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+    for (let step of adjacentSteps) {
+      const [i, j] = [x + step[0], y + step[1]];
+      if (
+        V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
+        this.getColor(i, j) == color &&
+        this.getPiece(i, j) == V.ROOK &&
+        !this.isImmobilized([i, j])
+      ) {
+        return true;
       }
     }
     return false;
@@ -491,21 +575,29 @@ export class BaroqueRules extends ChessRules {
   }
 
   isAttackedByQueen([x, y], color) {
-    // Square (x,y) must be adjacent to a queen, and the queen must have
-    // some free space in the opposite direction from (x,y)
+    // Is there a queen in view?
     const adjacentSteps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     for (let step of adjacentSteps) {
-      const sq2 = [x + 2 * step[0], y + 2 * step[1]];
-      if (V.OnBoard(sq2[0], sq2[1]) && this.board[sq2[0]][sq2[1]] == V.EMPTY) {
-        const sq1 = [x + step[0], y + step[1]];
-        if (
-          this.board[sq1[0]][sq1[1]] != V.EMPTY &&
-          this.getColor(sq1[0], sq1[1]) == color &&
-          this.getPiece(sq1[0], sq1[1]) == V.QUEEN &&
-          !this.isImmobilized(sq1)
-        ) {
-          return true;
+      let [i, j] = [x + step[0], y + step[1]];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        i += step[0];
+        j += step[1];
+      }
+      if (
+        V.OnBoard(i, j) &&
+        this.getColor(i, j) == color &&
+        this.getPiece(i, j) == V.QUEEN
+      ) {
+        // Two cases: the queen is at 2 steps at least, or just close
+        // but maybe with enough space behind to withdraw.
+        let attacked = false;
+        if (i == x + step[0] && j == y + step[1]) {
+          const [ii, jj] = [i + step[0], j + step[1]];
+          if (V.OnBoard(ii, jj) && this.board[ii][jj] == V.EMPTY)
+            attacked = true;
         }
+        else attacked = true;
+        if (attacked && !this.isImmobilized([i, j])) return true;
       }
     }
     return false;
@@ -529,9 +621,11 @@ export class BaroqueRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (randomness == 0)
-      // Deterministic:
-      return "rnbkqbnm/pppppppp/8/8/8/8/PPPPPPPP/MNBQKBNR w 0";
+    if (randomness == 0) {
+      return (
+        "91/1rnbkqbnm1/1pppppppp1/91/91/91/91/1PPPPPPPP1/1MNBQKBNR1/91 w 0 -"
+      );
+    }
 
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank
@@ -543,15 +637,42 @@ export class BaroqueRules extends ChessRules {
 
       // Get random squares for every piece, totally freely
       let positions = shuffle(ArrayFun.range(8));
-      const composition = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'm'];
+      const composition = ['r', 'm', 'n', 'n', 'q', 'q', 'b', 'k'];
       for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
     }
     return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0"
+      "91/1" + pieces["b"].join("") +
+      "1/1pppppppp1/91/91/91/91/1PPPPPPPP1/1" +
+      pieces["w"].join("").toUpperCase() + "1/91 w 0 -"
     );
+  }
+
+  getSmoveFen() {
+    const L = this.smoves.length;
+    return (
+      !this.smoves[L - 1]
+        ? "-"
+        : ChessRules.CoordsToSquare(this.smoves[L - 1].start) +
+          ChessRules.CoordsToSquare(this.smoves[L - 1].end)
+    );
+  }
+
+  getFen() {
+    return super.getFen() + " " + this.getSmoveFen();
+  }
+
+  getFenForRepeat() {
+    return super.getFenForRepeat() + "_" + this.getSmoveFen();
+  }
+
+  postPlay(move) {
+    super.postPlay(move);
+    this.smoves.push(this.getSmove(move));
+  }
+
+  postUndo(move) {
+    super.postUndo(move);
+    this.smoves.pop();
   }
 
   static get VALUES() {
@@ -560,7 +681,7 @@ export class BaroqueRules extends ChessRules {
       r: 2,
       n: 5,
       b: 3,
-      q: 3,
+      q: 5,
       m: 5,
       k: 1000
     };
@@ -573,6 +694,12 @@ export class BaroqueRules extends ChessRules {
   getNotation(move) {
     const initialSquare = V.CoordsToSquare(move.start);
     const finalSquare = V.CoordsToSquare(move.end);
+    if (move.appear.length == 0) {
+      // Suicide 'S' or mutual destruction 'D':
+      return (
+        initialSquare + (move.vanish.length == 1 ? "S" : "D" + finalSquare)
+      );
+    }
     let notation = undefined;
     if (move.appear[0].p == V.PAWN) {
       // Pawn: generally ambiguous short notation, so we use full description

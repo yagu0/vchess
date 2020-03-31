@@ -12,7 +12,7 @@
    viewbox="0 0 599 599"
    width="600"
    height="600"
-   sodipodi:docname="mark.svg"
+   sodipodi:docname="diag_mark.svg"
    inkscape:version="0.92.4 5da689c313, 2019-01-14">
   <metadata
      id="metadata8">
@@ -22,6 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -51,6 +52,6 @@
      id="mark_circle"
      cx="300"
      cy="300"
-     r="180"
-     style="fill:#9900cc;stroke-width:0.89999998" />
+     r="216"
+     style="fill:#9900cc;stroke-width:1.07999992" />
 </svg>

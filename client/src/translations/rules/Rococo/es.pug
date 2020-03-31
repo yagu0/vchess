@@ -1,0 +1,142 @@
+p.boxed.
+  La mayoría de las piezas parecen familiares pero se comportan de manera
+  diferente. Suelen moverse como una dama ortodoxa,
+  pero captura de acuerdo con reglas bastante complejas.
+
+p.
+  Esta variante proviene de un intento de resolver problemas con la
+  variante Barroca, que "promueve la defensa en ataque y carece de claridad"
+  (cf. la introducción de las reglas rococó, vinculadas al final de esta
+  página).
+
+h4 Nombre de las piezas
+
+p.
+  Los nombres de las piezas se relacionan con su forma de capturar, siendo este
+  descrito a continuación.
+ul
+  Li Peón : Canon Peón
+  li Torre : Intercambiador
+  li Caballo : Saltador Largo
+  li Alfil : Camaleón
+  li Dama : "Pushme-Pullyu"
+  li Rey : Rey (la misma pieza que el ajedrez estándar)
+p.
+  Además, se agrega una nueva pieza: el inmovilizador, marcado 'M'.
+  Está representado por una torre invertida:
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/5m4/91/91/91/4M5/91/91:
+  figcaption inmovilizadores en e3 y f7.
+
+p.
+  El tablero tiene un tamaño de 10x10 para facilitar la captura, como se
+  explicó abajo.
+
+h3 Jugadas sin captura
+
+p El rey se mueve (y captura) como de costumbre.
+
+p.
+  Los peones cañón se mueven sin capturar de dos maneras:
+  una casilla individual en cualquier dirección, o saltando sobre
+  una habitación adyacente para estar justo detrás de ella.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/4b5/4P5/5Q4/91/91/91 e4,d4,d5,d6,f6,f5,e7,g3:
+  figcaption Casillas donde el peón puede ir (sin capturar).
+
+p Todas las otras piezas se mueven como una dama ortodoxa.
+
+p.
+  Cuando una pieza está al lado de un inmovilizador enemigo, no puede moverse
+  pero es posible un movimiento especial de "suicidio": puede desaparecer en
+  "capturando" el inmovilizador (para activar el movimiento a través de la
+  interfaz).
+
+h3 Jugadas con captura
+
+p.
+  Como se dijo anteriormente, el rey captura como de costumbre. Sin embargo,
+  las otras piezas capturan de manera diferente, cuando pueden.
+  De hecho, el inmovilizador no puede capturar, y el intercambiador
+  solo se puede tomar una pieza contigua. En este caso deja el tablero después
+  de la captura
+
+p.
+  El borde del tablero solo se puede alcanzar mediante la captura, solo si
+  llegar aquí es la única forma de hacer una captura determinada, y si
+  no hay otras capturas con una longitud de trazo más corta.
+  La longitud de un trazo es la distancia entre los cuadros de inicio y
+  finalización.
+
+h4 Peones (Canon)
+
+p.
+  Los peones cañón capturan saltando sobre una pieza adyacente,
+  aterrizando en una pieza enemiga justo detrás.
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/4p5/4b5/1rB1P5/5Q4/2p3q3/91/91 e7,g3:
+  figcaption Posibles capturas de peones.
+
+h4 "Pushme-Pullyu" (Dama)
+
+p.
+  La dama captura en la plaza ubicada justo después de la que se detiene
+  (suponiendo que la pieza de un oponente esté allí), y también en la caja
+  originalmente ubicado justo detrás de ella. Es una combinación del Retractor
+  y Avanzado, como se describe en la página de reglas de chessvariants
+  (ver enlace en la parte inferior de la página).
+
+figure.diagram-container
+  .diagram
+    | fen:91/91/91/91/2bQ4r1/91/91/91/91/91 h6:
+  figcaption.
+    Cualquier jugada a la derecha captura al alfil; solo un movimiento hasta
+    la marca también capturará la torre.
+
+h4 Torre (Intercambio)
+
+p.
+  La torre puede intercambiar su posición con cualquier pieza enemiga en
+  la línea de ataque de una dama ortodoxa, como se ilustra a continuación.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:91/91/7k2/91/91/91/2n7/2R7/91/91:
+  .diagram.diag22
+    | fen:91/91/7R2/91/91/91/2n7/2k7/91/91:
+  figcaption Antes y después del intercambio torre-rey.
+
+p.
+  Además, si la torre está al lado de una habitación opuesta (como el caballo
+  aquí), ella puede elegir capturarlo con un ataque "kamikaze":
+  de hecho, se autodestruye durante la acción.
+
+h4 Otras piezas
+
+p.
+  El Saltador Largo, el Inmovilizador y el Camaleón se comportan como en la
+  variante Barroca jugable en este sitio: consulte la descripción de las
+  reglas. Solo hay un cambio en las reglas de inmovilización, más
+  simple aquí: los poderes de los inmovilizadores no son cancelados por los
+  camaleones.
+
+h3 Fin de la partida
+
+p.
+  El juego termina con mate o empate como en el ajedrez estándar.
+  Solo presta atención a las reglas de captura :)
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/other.dir/rococo.html") variante Rococó
+  | &nbsp;en chessvariants.com.
+
+p Inventores: Peter Aronson y David Howe (2002)

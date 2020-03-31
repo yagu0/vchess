@@ -144,13 +144,22 @@ export class SuctionRules extends ChessRules {
     return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "- -";
   }
 
-  getFen() {
+  getCmoveFen() {
     const L = this.cmoves.length;
-    const cmoveFen = !this.cmoves[L - 1]
-      ? "-"
-      : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
-        ChessRules.CoordsToSquare(this.cmoves[L - 1].end);
-    return super.getFen() + " " + cmoveFen;
+    return (
+      !this.cmoves[L - 1]
+        ? "-"
+        : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
+          ChessRules.CoordsToSquare(this.cmoves[L - 1].end)
+    );
+  }
+
+  getFen() {
+    return super.getFen() + " " + this.getCmoveFen();
+  }
+
+  getFenForRepeat() {
+    return super.getFenForRepeat() + "_" + this.getCmoveFen();
   }
 
   postPlay(move) {
