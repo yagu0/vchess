@@ -206,7 +206,7 @@ export const translations = {
   "Pawns move diagonally": "Pawns move diagonally",
   "Play at the same time": "Play at the same time",
   "Powerful pieces": "Powerful pieces",
-  "Prolongated captures", "Prolongated captures",
+  "Prolongated captures": "Prolongated captures",
   "Push and pull": "Push and pull",
   "Queen disguised as a pawn": "Queen disguised as a pawn",
   "Reuse pieces": "Reuse pieces",
