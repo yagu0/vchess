@@ -96,10 +96,11 @@ export class BerolinaRules extends ChessRules {
       this.board[x + shiftX][y] != V.EMPTY &&
       this.canTake([x, y], [x + shiftX, y])
     ) {
-      for (let piece of finalPieces)
+      for (let piece of finalPieces) {
         moves.push(
           this.getBasicMove([x, y], [x + shiftX, y], { c: color, p: piece })
         );
+      }
     }
 
     // Next condition so that other variants could inherit from this class
@@ -150,7 +151,7 @@ export class BerolinaRules extends ChessRules {
       const finalSquare = V.CoordsToSquare(move.end);
       let notation = "";
       if (move.vanish.length == 2)
-        //capture
+        // Capture
         notation = "Px" + finalSquare;
       else {
         // No capture: indicate the initial square for potential ambiguity

@@ -1,0 +1,48 @@
+p.boxed.
+  After each capture, you must play again with the capturing piece,
+  moving as the captured unit.
+
+p.
+  Having captured, a unit must immediately play a non-capturing move,
+  using only the movements of the captured unit from the
+  capture-square. If no such move is available, the capture is illegal.
+  For example, on the following diagram after 4.Bxc6 the bishop will have a
+  knight move to execute, arriving either on a5, b4, d4, e7 or b8.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkb1r/pppp1ppp/5n2/B3p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Left: before Bxc6. Right: after Bxc6,Ba5
+
+p.
+  Promotion can occur when a pawn arrives on the last rank as the result
+  of a Take & Make move. Pawns can also take on the final rank:
+  they promote, and immediatly make a move as the captured unit.
+
+p.
+  Note: the king can be under check after a capture, and cover the check with
+  the subsequent "as-captured" move, as the following diagram illustrates.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbq2nr/ppp2ppp/4p3/3p4/1k1P4/P1N2N2/1PP1PPPP/R2QKB1R c3:
+  figcaption The king can take the knight and then move to a4, b5 or e4.
+
+p.
+  Checks are as in normal chess: after the
+  notional capture of the checked King, the checking unit does not move away
+  from the King's square.
+
+figure.diagram-container
+  .diagram
+    | fen:r1bqkbnr/1ppppppp/2n2N2/p7/8/8/PPPPPPPP/R1BQKBNR:
+  figcaption The black king is in check.
+
+h3 Source
+
+p
+  | These rules are slightly modified from the definition given 
+  a(href="http://www.strategems.net/sections/fairy_defs.html") on this page
+  | . (Type 'take' in the search box).

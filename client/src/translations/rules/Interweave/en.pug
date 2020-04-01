@@ -1,0 +1,114 @@
+p.boxed
+  Pieces are colorbound and capture on the other color.
+  The goal is to capture a king. Captures are mandatory.
+
+figure.diagram-container
+  .diagram
+    | fen:rbnkknbr/pppppppp/8/8/8/8/PPPPPPPP/RBNKKNBR:
+  figcaption Initial deterministic position
+
+p.
+  Each side has two small teams of four pieces (and four pawns), one on light
+  squares and the other, identical, on dark squares.
+  Kings have no royal status, and the goal is to capture one of them.
+  Captures are mandatory, but if there are several available you can choose.
+
+p.
+  All pieces end their move on a square of the same color as the initial one.
+  They all capture pieces only on the other color.
+
+p.
+  If after a capture the capturer can take another piece, then the move
+  continue with this new capture. As in international Draughts.
+
+h4 King
+
+p.
+  The King moves without capturing one square diagonally.
+  He captures by a short orthogonal leap. There is no castling.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/4b3/3nK3/8/8/8/8 d6,f6,f4,d4:
+  .diagram.diag22
+    | fen:8/8/4b3/3nK3/8/8/8/8 c5,e7:
+  figcaption.
+    King moves without captures on the left, and with captures on the right.
+
+h4 Rook ("Smasher")
+
+p.
+  The Smasher may slide any distance diagonally without capturing.
+  It may slide orthogonally as well, potentially capturing.
+  Captures are achieved by approach, by stopping just before the enemy piece.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/5p2/8/8/8/1R3p2/8 a1,c1,d2,a3,b4,c3,d4,e5,b6,b8:
+  .diagram.diag22
+    | fen:8/1p6/8/8/8/8/1R4p1/8 b6,f2:
+  figcaption.
+    Rook moves without captures on the left, and with captures on the right.
+
+h4 Knight ("Leaper")
+
+p.
+  The Leaper may slide any distance diagonally without capturing.
+  It may slide orthogonally as well, potentially capturing.
+  It may also make a double knight's move (a 4x2 'L'), as long as there
+  isn't a friendly piece at the midpoint of the move.
+  Captures are achieved by jumping over a piece, either with an orthogonal
+  or double-knight move.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/p7/5p2/8/8/1P/8/N5p1 e3,c1,e1,a3,a5,b2,c3,d4,e5:
+  .diagram.diag22
+    | fen:8/8/8/8/p7/8/2p5/N6b e3,a5,a7:
+  figcaption.
+    Knight moves without captures on the left, and with captures on the right.
+
+h4 Bishop ("Remover")
+
+p.
+  The Remover may slide any distance diagonally without capturing.
+  It may capture any orthogonally adjacent opposing piece without moving.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/4p3/4Bp2/8/8/8 e5,f4:
+  figcaption The bishop must capture both pawns.
+
+h4 Pawns
+
+p.
+  A Pawn may move one square diagonally forward to an empty square, or
+  optionally two squares if it hasn't moved yet (in this case it may be
+  captured en-passant by short leap).
+  Pawns capture by a short leap forward, and by orthogonal custodian capture
+  where the Pawn completes the sequence FEP (Friend, Enemy, Pawn, or
+  Pawn, Enemy, Friend).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/3P4/8/8/8/1P6/8 a3,c3,d4,e7,c7:
+  .diagram.diag22
+    | fen:8/Nr5R/2rP3n/2N5/7b/4b2P/4P3/8 c7,e4,h5:
+  figcaption.
+    Pawn moves without captures on the left, and with captures on the right.
+
+p.
+  A Pawn that reaches the second-to-last rank of the board may promote to any
+  previously captured friendly piece (not yet returned to play).
+  Upon reaching the last rank, the Pawn is required to promote; if there are
+  no pieces available for promotion, then the move is not possible.
+
+h3 Source
+
+p
+  | The 
+  a(href="https://www.chessvariants.com/other.dir/interweave.html")
+    | Interweave variant
+  | &nbsp;on chessvariants.com.
+
+p Inventor: Peter Aronson (2002)

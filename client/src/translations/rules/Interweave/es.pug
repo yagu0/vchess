@@ -1,0 +1,120 @@
+p.boxed.
+  Las piezas evolucionan en un solo color y se capturan en el otro.
+  El objetivo es capturar a un rey. Las capturas son obligatorias.
+
+figure.diagram-container
+  .diagram
+    | fen:rbnkknbr/pppppppp/8/8/8/8/PPPPPPPP/RBNKKNBR:
+  figcaption Posición determinista inicial
+
+p.
+  Cada campamento tiene dos pequeños equipos de cuatro piezas (y cuatro
+  peones), uno en casillas blancas y el otro, idéntico, en casillas negras.
+  Los reyes no tienen estatus real, y el objetivo es capturar uno.
+  Las capturas son obligatorias, pero si es posible realizar varias
+  se puede elegir.
+
+p.
+  Todas las piezas finalizan su movimiento en un cuadrado del mismo color que
+  el casilla inicial Todas capturan piezas de otro color.
+
+p.
+  Si después de una captura la pieza de captura puede hacer otra,
+  entonces ella debe hacerlo y la jugada continúa.
+  Como las Damas internacionales.
+
+h4 King
+
+p.
+  El rey se mueve sin capturar una casilla en diagonal.
+  Captura por un corto salto ortogonal. No hay enroque.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/4b3/3nK3/8/8/8/8 d6,f6,f4,d4:
+  .diagram.diag22
+    | fen:8/8/4b3/3nK3/8/8/8/8 c5,e7:
+  figcaption.
+    Movimientos del rey sin capturas a la izquierda y con capturas
+    a la derecha.
+
+h4 Torre ("Bateador")
+
+p.
+  El Bateador se mueve como un alfil ortodoxo sin capturar.
+  También puede moverse como una torre, posiblemente con captura.
+  Las capturas se realizan por acercamiento, deteniéndose justo antes de la
+  pieza opuesta.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/5p2/8/8/8/1R3p2/8 a1,c1,d2,a3,b4,c3,d4,e5,b6,b8:
+  .diagram.diag22
+    | fen: 8/1p6/8/8/8/8/1R4p1/8 b6,f2:
+  figcaption.
+    Movimientos de torre sin capturas a la izquierda y con capturas
+    a la derecha.
+
+h4 Caballo ("Saltador")
+
+p.
+  El Saltador se mueve como un alfil ortodoxo sin capturar.
+  También puede moverse como una torre, posiblemente con captura,
+  o hacer un doble puente (una 'L' 4x2), si no hay una pieza amiga en el medio.
+  Las capturas se realizan saltando sobre una pieza, a través de un movimiento
+  ortogonal o un doble puente.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/p7/5p2/8/8/1P/8/N5p1 e3,c1,e1,a3,a5,b2,c3,d4,e5:
+  .diagram.diag22
+    | fen:8/8/8/8/p7/8/2p5/N6b e3,a5,a7:
+  figcaption.
+    Movimiento de alfil sin capturas a la izquierda y con capturas
+    a la derecha.
+
+h4 Alfil ("Supresor")
+
+p.
+  El Supresor se mueve como un alfil ortodoxo sin capturar.
+  Puede capturar cualquier pieza opuesta ortogonalmente adyacente.
+
+figure.diagram-container
+  .diagrama
+    | fen:8/8/8/4p3/4Bp2/8/8/8 e5,f4:
+  figcaption El alfil debe capturar los dos peones.
+
+h4 Peones
+
+p.
+  Un peón se mueve una casilla diagonalmente hacia adelante, o posiblemente
+  dos espacios si aún no se ha movido (podría ser capturado
+  en passant por salto corto).
+  Los peones capturan por un salto corto hacia adelante y por capturas
+  "encuadre" ortogonal donde el peón completa la secuencia AEP (Amigo,
+  Enemigo, Peón o Peón, Enemigo, Amigo).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen: 8/8/3P4/8/8/8/1P6/8 a3,c3,d4,e7,c7:
+  .diagram.diag22
+    | fen: 8/Nr5R/2rP3n/2N5/7b/4b2P/4P3/8 c7,e4,h5:
+  figcaption.
+    Movimientos de peón sin capturas a la izquierda y con capturas
+    a la derecha.
+
+p.
+  Un peón que alcanza la penúltima fila puede ser promovido en cualquier
+  pieza amiga capturó (y aún no ha puesto en juego).
+  En la última fila, la promoción se vuelve obligatoria y, por lo tanto,
+  el movimiento es prohibido si no hay piezas disponibles.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/other.dir/interweave.html")
+     variante Interweave
+  | &nbsp;en chessvariants.com.
+
+p Inventor: Peter Aronson (2002)

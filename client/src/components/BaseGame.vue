@@ -423,8 +423,7 @@ export default {
           const L = this.moves.length;
           if (!Array.isArray(this.moves[L-1]))
             this.$set(this.moves, L-1, [this.moves[L-1], smove]);
-          else
-            this.$set(this.moves, L-1, this.moves.concat([smove]));
+          else this.moves[L-1].push(smove);
         }
       };
       const playMove = () => {

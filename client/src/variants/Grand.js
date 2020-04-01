@@ -40,14 +40,14 @@ export class GrandRules extends ChessRules {
   }
 
   getCapturedFen() {
-    let counts = [...Array(14).fill(0)];
+    let counts = [...Array(12).fill(0)];
     let i = 0;
     for (let j = 0; j < V.PIECES.length; j++) {
-      if (V.PIECES[j] == V.KING)
-        //no king captured
+      if ([V.KING, V.PAWN].includes(V.PIECES[j]))
+        // No king captured, and pawns don't promote in pawns
         continue;
-      counts[i] = this.captured["w"][V.PIECES[i]];
-      counts[7 + i] = this.captured["b"][V.PIECES[i]];
+      counts[i] = this.captured["w"][V.PIECES[j]];
+      counts[6 + i] = this.captured["b"][V.PIECES[j]];
       i++;
     }
     return counts.join("");
@@ -59,22 +59,20 @@ export class GrandRules extends ChessRules {
     // Initialize captured pieces' counts from FEN
     this.captured = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.captured[0]),
-        [V.ROOK]: parseInt(fenParsed.captured[1]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[2]),
-        [V.BISHOP]: parseInt(fenParsed.captured[3]),
-        [V.QUEEN]: parseInt(fenParsed.captured[4]),
-        [V.MARSHALL]: parseInt(fenParsed.captured[5]),
-        [V.CARDINAL]: parseInt(fenParsed.captured[6])
+        [V.ROOK]: parseInt(fenParsed.captured[0]),
+        [V.KNIGHT]: parseInt(fenParsed.captured[1]),
+        [V.BISHOP]: parseInt(fenParsed.captured[2]),
+        [V.QUEEN]: parseInt(fenParsed.captured[3]),
+        [V.MARSHALL]: parseInt(fenParsed.captured[4]),
+        [V.CARDINAL]: parseInt(fenParsed.captured[5])
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.captured[7]),
-        [V.ROOK]: parseInt(fenParsed.captured[8]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[9]),
-        [V.BISHOP]: parseInt(fenParsed.captured[10]),
-        [V.QUEEN]: parseInt(fenParsed.captured[11]),
-        [V.MARSHALL]: parseInt(fenParsed.captured[12]),
-        [V.CARDINAL]: parseInt(fenParsed.captured[13])
+        [V.ROOK]: parseInt(fenParsed.captured[6]),
+        [V.KNIGHT]: parseInt(fenParsed.captured[7]),
+        [V.BISHOP]: parseInt(fenParsed.captured[8]),
+        [V.QUEEN]: parseInt(fenParsed.captured[9]),
+        [V.MARSHALL]: parseInt(fenParsed.captured[10]),
+        [V.CARDINAL]: parseInt(fenParsed.captured[11])
       }
     };
   }
@@ -290,22 +288,15 @@ export class GrandRules extends ChessRules {
 
   postPlay(move) {
     super.postPlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 1) {
+    if (move.vanish.length == 2 && move.appear.length == 1)
       // Capture: update this.captured
       this.captured[move.vanish[1].c][move.vanish[1].p]++;
-    }
-    if (move.vanish[0].p != move.appear[0].p) {
-      // Promotion: update this.captured
-      this.captured[move.vanish[0].c][move.appear[0].p]--;
-    }
   }
 
   postUndo(move) {
     super.postUndo(move);
     if (move.vanish.length == 2 && move.appear.length == 1)
       this.captured[move.vanish[1].c][move.vanish[1].p]--;
-    if (move.vanish[0].p != move.appear[0].p)
-      this.captured[move.vanish[0].c][move.appear[0].p]++;
   }
 
   static get VALUES() {

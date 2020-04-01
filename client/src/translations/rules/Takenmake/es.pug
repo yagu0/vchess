@@ -1,0 +1,51 @@
+p.boxed.
+  Después de cada captura, aún debes jugar con la pieza de captura,
+  luego se mueve como la pieza capturada.
+
+p.
+  Una vez capturada, una pieza debe hacer inmediatamente un movimiento
+  non capturando desde la casilla de captura, moviéndose como la pieza
+  capturado. Si tal movimiento no es posible, entonces la captura es ilegal.
+  Por ejemplo, en el siguiente diagrama después de 4.Bxc6 el alfil tendrá un
+  movimiento de caballo a ejecutar, llegando a uno de las casillas
+  a5, b4, d4, e7 o b8.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkb1r/pppp1ppp/5n2/B3p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Izquierda: antes de Bxc6. Derecha: después de Bxc6,Ba5
+
+p.
+  Una promoción puede ocurrir cuando un peón llega a la última fila
+  siguiendo un movimiento Take & Make ("Tomar & hacer"). Un peón también
+  puede capturar en la última fila: es promovido e inmediatamente hace un
+  movimiento como la unidad capturada.
+
+p.
+  Nota: El rey puede estar en jaque después de una captura y cubrirlo para
+  usando el movimiento "como-capturado" para seguir, como se ilustra en el
+  diagrama.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbq2nr/ppp2ppp/4p3/3p4/1k1P4/P1N2N2/1PP1PPPP/R2QKB1R c3:
+  figcaption El rey puede tomar el caballo y luego ir a a4, b5 o e4.
+
+p.
+  Los jaques se entienden como en el juego ortodoxo: después de la captura
+  imaginario del rey contrario, la pieza que da jaque no tendría que
+  ejecutar un movimiento de rey.
+
+figure.diagram-container
+  .diagram
+    | fen:r1bqkbnr/1ppppppp/2n2N2/p7/8/8/PPPPPPPPP/R1BQKBNR:
+  figcaption El rey negro está en jaque.
+
+h3 Fuente
+
+p
+  | Estas reglas están ligeramente modificadas ya que la definición dada 
+  a(href="http://www.strategems.net/sections/fairy_defs.html") en esta página
+  | . (Escriba 'take' en el campo de búsqueda).

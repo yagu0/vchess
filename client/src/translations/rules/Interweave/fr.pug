@@ -1,0 +1,117 @@
+p.boxed.
+  Les pièces n'évoluent que sur une seule couleur, et capturent sur l'autre.
+  L'objectif est de capturer un roi. Les captures sont obligatoires.
+
+figure.diagram-container
+  .diagram
+    | fen:rbnkknbr/pppppppp/8/8/8/8/PPPPPPPP/RBNKKNBR:
+  figcaption Position initiale déterministe
+
+p.
+  Chaque camp dispose de deux petites équipes de quatre pièces (et quatre
+  pions), une sur cases blanches et l'autre, identique, sur cases noires.
+  Les rois n'ont pas de statut royal, et l'objectif est d'en capturer un.
+  Les captures sont obligatoires, mais plusieurs sont possibles vous pouvez
+  choisir.
+
+p.
+  Toutes les pièces terminent leur coup sur une case de la même couleur que la
+  case initiale. Elles capturent toutes des pièces sur une autre couleur.
+
+p.
+  Si à l'issue d'une capture la pièce capturante peut en effectuer une autre,
+  alors elle doit le faire et le coup continue.
+  Comme aux Dames internationales.
+
+h4 Roi
+
+p.
+  Le roi se déplace sans capturer d'une case en diagonale.
+  Il capture par un court saut orthogonal. Il n'y a pas de roque.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/4b3/3nK3/8/8/8/8 d6,f6,f4,d4:
+  .diagram.diag22
+    | fen:8/8/4b3/3nK3/8/8/8/8 c5,e7:
+  figcaption.
+    Coups de roi sans captures à gauche, et avec captures à droite.
+
+h4 Tour ("Frappeur")
+
+p.
+  Le Frappeur se déplace comme un fou orthodoxe sans capturer.
+  Il peut aussi se déplacer comme une tour, éventuellement avec capture.
+  Les captures sont réalisées par approche, en s'arrêtant juste avant la pièce
+  adverse.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/5p2/8/8/8/1R3p2/8 a1,c1,d2,a3,b4,c3,d4,e5,b6,b8:
+  .diagram.diag22
+    | fen:8/1p6/8/8/8/8/1R4p1/8 b6,f2:
+  figcaption.
+    Coups de tour sans captures à gauche, et avec captures à droite.
+
+h4 Cavalier ("Sauteur")
+
+p.
+  Le Sauteur se déplace comme un fou orthodoxe sans capturer.
+  Il peut aussi se déplacer comme une tour, éventuellement avec capture,
+  ou effectuer un double saut de cavalier (un 'L' 4x2), du moment qu'il n'y
+  ait pas de pièce amie au milieu.
+  Les captures s'effectuent en sautant par dessus une pièce, via un coup
+  orthogonal ou un double coup de cavalier.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/p7/5p2/8/8/1P/8/N5p1 e3,c1,e1,a3,a5,b2,c3,d4,e5:
+  .diagram.diag22
+    | fen:8/8/8/8/p7/8/2p5/N6b e3,a5,a7:
+  figcaption.
+    Coups de cavalier sans captures à gauche, et avec captures à droite.
+
+h4 Fou ("Supprimeur")
+
+p.
+  Le Supprimeur se déplace comme un fou orthodoxe sans capturer.
+  Il peut capturer toute pièce adverse orthogonalement adjacente.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/4p3/4Bp2/8/8/8 e5,f4:
+  figcaption Le fou doit capturer les deux pions.
+
+h4 Pions
+
+p.
+  Un pion se déplace d'une case en diagonale vers l'avant, ou éventuellement
+  de deux cases s'il n'a pas encore bougé (il pourrait alors être capturé
+  en passant par saut court).
+  Les pions capturent par un saut court vers l'avant, et par captures
+  d'"encadrement" orthogonales où le pion complète la séquence AEP (Ami,
+  Ennemi, Pion ou Pion, Enemmi, Ami).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/3P4/8/8/8/1P6/8 a3,c3,d4,e7,c7:
+  .diagram.diag22
+    | fen:8/Nr5R/2rP3n/2N5/7b/4b2P/4P3/8 c7,e4,h5:
+  figcaption.
+    Coups de pion sans captures à gauche, et avec captures à droite.
+
+p.
+  Un pion qui atteint l'avant-dernière rangée peut se promouvoir en n'importe
+  quelle pièce amie capturée (et pas encore remise en jeu).
+  Sur la dernière rangée la promotion devient obligatoire, et donc le coup est
+  interdit si aucune pièce n'est disponible.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/other.dir/interweave.html")
+    | variante Interweave
+  | &nbsp;sur chessvariants.com.
+
+p Inventeur : Peter Aronson (2002)

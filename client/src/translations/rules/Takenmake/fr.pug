@@ -1,0 +1,49 @@
+p.boxed.
+  Après chaque capture, vous devez jouer encore avec la pièce capturante,
+  se déplaçant alors comme la pièce capturée.
+
+p.
+  Une fois qu'elle a capturé, une pièce doit immédiatement jour un coup
+  non-capturant depuis la case de capture, en se déplaçant comme la pièce
+  capturée. Si aucun tel coup n'est possible, alors la capture est illégale.
+  Par exemple, sur le diagramme suivant après 4.Bxc6 le fou aura un coup
+  de cavalier à exécuter, arrivant sur l'une des cases a5, b4, d4, e7 ou b8.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkb1r/pppp1ppp/5n2/B3p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Gauche: avant Bxc6. Droite: après Bxc6,Ba5
+
+p.
+  Une promotion peut survenir quand un pion arrive sur la dernière rangée
+  suite à un coup Take & Make ("Prend & Fait"). Un pion peut aussi capturer
+  sur la dernière rangée : il est promu, et effectue immédiatement un coup
+  comme l'unité capturée.
+
+p.
+  Note : Le roi peut être en échec après une capture, et couvrir celui-ci à
+  l'aide du coup "comme-capturé" à suivre, comme illustré sur le diagramme.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbq2nr/ppp2ppp/4p3/3p4/1k1P4/P1N2N2/1PP1PPPP/R2QKB1R c3:
+  figcaption Le roi peut prendre le cavalier et ensuite aller en a4, b5 ou e4.
+
+p.
+  Les échecs s'entendent comme dans le jeu orthodoxe : après la capture
+  imaginaire du roi adverse, la pièce donnant échec n'aurait pas à exécuter un
+  coup de roi.
+
+figure.diagram-container
+  .diagram
+    | fen:r1bqkbnr/1ppppppp/2n2N2/p7/8/8/PPPPPPPP/R1BQKBNR:
+  figcaption Le roi noir est en échec.
+
+h3 Source
+
+p
+  | Ces règles sont légèrement modifiées depuis la définition donnée 
+  a(href="http://www.strategems.net/sections/fairy_defs.html") sur cette page
+  | . (Tapez 'take' dans le champ de recherche).

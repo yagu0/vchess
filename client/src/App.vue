@@ -304,6 +304,7 @@ footer
   background-color: #6f8f57
 
 div.board
+  user-select: none
   float: left
   height: 0
   display: inline-block

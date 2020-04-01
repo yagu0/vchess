@@ -69,7 +69,7 @@ export default {
       this.compWorker.postMessage(["init", game.fen]);
       this.vr = new V(game.fen);
       game.players = [{ name: "Myself" }, { name: "Computer" }];
-      if (game.myColor == "b") game.players = game.players.reverse();
+      if (game.mycolor == "b") game.players = game.players.reverse();
       game.score = "*"; //finished games are removed
       this.currentUrl = document.location.href; //to avoid playing outside page
       this.game = game;
