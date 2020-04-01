@@ -177,11 +177,11 @@ export class MaximaRules extends ChessRules {
       return moves;
     // Filter out moves resulting in self palace occupation:
     // NOTE: cannot invade own palace but still check the king there.
-    const pY = (this.board[pX][3] == V.EMPTY ? 4 : 3);
+    const pY = (this.board[pX][3] != V.EMPTY ? 4 : 3);
     return moves.filter(m => m.end.x != pX || m.end.y != pY);
   }
 
-  getSlideNJumpMoves([x, y], steps, oneStep, mageInitSquare, onlyTake) {
+  getSlideNJumpMoves([x, y], steps, oneStep, mageInitSquare) {
     const piece = !mageInitSquare ? this.getPiece(x, y) : V.MAGE;
     const initSquare = mageInitSquare || [x, y];
     let moves = [];
@@ -190,21 +190,16 @@ export class MaximaRules extends ChessRules {
       let j = y + step[1];
       if (piece == V.KING) j = j % V.size.y;
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        if (!onlyTake) moves.push(this.getBasicMove(initSquare, [i, j]));
+        moves.push(this.getBasicMove(initSquare, [i, j]));
         if (!!oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
-      // Only king, guard and mage + chameleon can take on occupied square:
+      // Only king, guard and mage (+ chameleon) can take on occupied square:
       if (
-        V.OnBoard(i, j)
-        &&
+        V.OnBoard(i, j) &&
+        [V.KING, V.GUARD, V.MAGE].includes(piece) &&
         this.canTake(initSquare, [i, j])
-        &&
-        (
-          [V.KING, V.GUARD, V.MAGE].includes(piece) ||
-          (piece == V.BISHOP && this.getPiece(i, j) === onlyTake)
-        )
       ) {
         moves.push(this.getBasicMove(initSquare, [i, j]));
       }
@@ -366,12 +361,22 @@ export class MaximaRules extends ChessRules {
     let moves = super
       .getPotentialQueenMoves([x, y])
       .concat(this.getKnightCaptures([x, y], "asChameleon"))
-      .concat(this.getPotentialGuardMoves([x, y], "asChameleon"))
-      .concat(this.getPotentialMageMoves([x, y], "asChameleon"));
     // No "king capture" because king cannot remain under check
     this.addPawnCaptures(moves, "asChameleon");
     this.addRookCaptures(moves, "asChameleon");
     this.addQueenCaptures(moves, "asChameleon");
+    // Manually add Guard and Mage captures (since cannot move like a Mage)
+    V.steps[V.ROOK].concat(V.steps[V.BISHOP]).forEach(step => {
+      const [i, j] = [x + step[0], y + step[1]];
+      if (
+        V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
+        this.canTake([x, y], [i, j]) &&
+        [V.GUARD, V.MAGE].includes(this.getPiece(i, j))
+      ) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+      }
+    });
     // Post-processing: merge similar moves, concatenating vanish arrays
     let mergedMoves = {};
     moves.forEach(m => {
@@ -443,15 +448,13 @@ export class MaximaRules extends ChessRules {
     return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
   }
 
-  getPotentialGuardMoves(sq, byChameleon) {
-    const onlyTake = !byChameleon ? null : V.GUARD;
+  getPotentialGuardMoves(sq) {
     return (
       this.getSlideNJumpMoves(
         sq,
         V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
         "oneStep",
-        null,
-        onlyTake
+        null
       )
     );
   }
@@ -465,29 +468,24 @@ export class MaximaRules extends ChessRules {
     return [[1, 0], [0, 1]];
   }
 
-  getPotentialMageMoves([x, y], byChameleon) {
+  getPotentialMageMoves([x, y]) {
     const oppCol = V.GetOppCol(this.turn);
-    const onlyTake = !byChameleon ? null : V.MAGE;
     let moves = [];
     for (let step of V.steps[V.BISHOP]) {
       let [i, j] = [x + step[0], y + step[1]];
       if (!V.OnBoard(i, j)) continue;
       if (this.board[i][j] != V.EMPTY) {
-        if (
-          this.getColor(i, j) == oppCol &&
-          (!onlyTake || this.getPiece(i, j) == V.MAGE)
-        ) {
+        if (this.getColor(i, j) == oppCol)
           // Capture
           moves.push(this.getBasicMove([x, y], [i, j]));
-        }
       }
       else {
-        if (!onlyTake) moves.push(this.getBasicMove([x, y], [i, j]));
+        moves.push(this.getBasicMove([x, y], [i, j]));
         // Continue orthogonally:
         const stepO = this.getNextMageSteps(step);
         Array.prototype.push.apply(
           moves,
-          this.getSlideNJumpMoves([i, j], stepO, null, [x, y], onlyTake)
+          this.getSlideNJumpMoves([i, j], stepO, null, [x, y])
         );
       }
     }

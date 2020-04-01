@@ -5,16 +5,74 @@ p.boxed.
 figure.diagram-container
   .diagram
     | fen:xxx2xxx/1g1qk1g1/1bnmrnb1/dppppppd/8/8/8/DPPPPPPD/1BNMRNB1/1G1QK1G1/xxx2xxx:
-  figcaption Standard deterministic position
+  figcaption Initial deterministic position
+
+p
+  | The pawns, queen, rook, inverted rook and knights are respectively called
+  | Pincers, Withdrawer, Coordinator, Immobilizer and Long Leapers. They behave
+  | exactly as in Baroque chess - so I won't describe them here, please read
+  | the
+  a(href="/#/variants/Baroque") Baroque rules
+  | .
 
 p.
-  The pawns, queen, rook, inverted rook and knights are respectively called
-  Pincers, Withdrawer, Coordinator, Immobilizer and Long Leapers, and behave
-  exactly as in Baroque chess - so I won't describe them here, please read the
-  Baroque rules.
+  The bishop is a Chameleon, which capture pieces in the way themselves would
+  capture. Its captures are thus the same as in Baroque chess, with a few
+  exceptions: it captures the King and the Mage only when standing
+  on an adjacent square.
+
+h3 New pieces, new movements
+
+p
+  | The inverted queen is a Mage, a powerful piece moving one square
+  | diagonally, and then potentially several squares orthogonally as the figure
+  | shows. It captures by replacement. See 
+  a(href="https://www.chessvariants.com/piececlopedia.dir/griffon.html")
+    | this page
+  | &nbsp;for a detailed introduction to this piece.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/3G4/8/8/8/8/xxx2xxx c7,c8,c9,c10,b7,a7,c5,c4,c3,c2,b5,a5,e5,e4,e3,e2,e1,e7,e8,e9,e10,e11,f7,g7,h7,f5,g5,h5:
+  figcaption Mage movements.
+
+p In this game the Mage is the only piece which cannot be immobilized.
 
 p.
+  The piece looking like a king without a cross moves and captures like a
+  regular king, but has no royal status. It is called a Guard in this game.
 
-  guard mage king
+p.
+  Finally, the king moves like an orthodox knight with an extra ability:
+  he evolves on a cylindrical board. That means he can potentially move to the
+  columns 'a' or 'b' from the columns 'g' or 'h' (and vice versa).
+  He also capture by replacement.
 
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/K7/8/8/8/8/xxx2xxx b4,b8,c5,c7,g5,g7,h4,h8:
+  figcaption King movements.
 
+h3 End of the game
+
+p.
+  A stalemate is a draw, and a checkmate wins.
+  There are two other options to win a game:
+ul
+  li.
+    Occupy both squares "of the enemy palace" (the two squares of the last
+    rank), or
+  li Capture all opponent' pieces (except the king).
+p.
+  You can have one piece in your own palace, but it's forbidden to fully
+  occupy it.
+
+h3 Source
+
+p
+  | The 
+  a(href="https://www.chessvariants.com/dpieces.dir/maxima/maxima.html")
+    | Maxima variant
+  | &nbsp;on chessvariants.com.
+
+p Inventor: Roberto Lavieri (2003)

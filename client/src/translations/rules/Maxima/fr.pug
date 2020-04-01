@@ -1,1 +1,79 @@
-TODO
+p.boxed.
+  Les déplacements des pièces et les captures sont complexes.
+  Vous pouvez gagner en occupant les deux cases de la dernière rangée.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/1g1qk1g1/1bnmrnb1/dppppppd/8/8/8/DPPPPPPD/1BNMRNB1/1G1QK1G1/xxx2xxx:
+  figcaption Position initiale déterministe
+
+p
+  | Les pions, la dame, la tour, la tour inversée et les cavaliers sont
+  | respectivement appels Pinceurs, Retireur, Coordinateur, Immobiliseur et
+  | Sauteurs Longs. Elles se comportent exactement comme aux échecs Baroques
+  | - dont je ne les décrirai pas ici, référez-vous svp aux
+  a(href="/#/variants/Baroque") règles Baroques
+  | .
+
+p.
+  Le fou est un caméléon, qui capture les pièces de la manières dont elles
+  auraient capturé. Ses captures sont donc les mêmes qu'aux échecs Baroques,
+  avec quelques exceptions : il capture le Mage et le Roi seulement depuis
+  une case adjacente.
+
+h3 Nouvelles pièces, nouveaux mouvements
+
+p
+  | La dame inversée est un Mage, une pièce puissante se déplaçant d'abord
+  | d'une case en diagonale, puis potentiellement de plusieurs cases
+  | orthogonalement comme le montre la figure.
+  | Il capture par remplacement. Voir 
+  a(href="https://www.chessvariants.com/piececlopedia.dir/griffon.html")
+    | cette page
+  | &nbsp;pour une introduction détaillée à cette pièce.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/3G4/8/8/8/8/xxx2xxx c7,c8,c9,c10,b7,a7,c5,c4,c3,c2,b5,a5,e5,e4,e3,e2,e1,e7,e8,e9,e10,e11,f7,g7,h7,f5,g5,h5:
+  figcaption Mage movements.
+
+p Dans ce jeu le Mage est la seule pièce qui ne peut pas être immobilisée.
+
+p.
+  La pièce ressemblant à un roi sans croix se déplace et capture comme un roi
+  habituel, mais n'a aucun statut royal. Il est appelé "Garde" ici.
+
+p.
+  Enfin, le roi se déplace comme un cavalier orthodoxe avec une condition
+  supplémentaire : il évolue sur un échiquier cylindrique. Cela signifie qu'il
+  peut potentiellement arriver sur la colonne 'a' ou 'b' depuis les colonnes
+  'g' ou 'h' (et vice-versa). Il capture aussi par remplacement.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/K7/8/8/8/8/xxx2xxx b4,b8,c5,c7,g5,g7,h4,h8:
+  figcaption Mouvements du roi.
+
+h3 Fin de la partie
+
+p.
+  Un pat fait nulle, et un échec et mat gagne.
+  Il y a deux autres options pour gagner une partie :
+ul
+  li.
+    Occuper les deux cases du "palais royal ennemi" (les deux cases de la
+    dernière rangée), ou
+  li Capturer toutes les pièces adverses - à l'exception du roi.
+p.
+  Il est possible d'avoir une pièce dans son propre palais, mais interdit de
+  l'occuper totalement.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/dpieces.dir/maxima/maxima.html")
+    | variante Maxima
+  | &nbsp;sur chessvariants.com.
+
+p Inventeur : Roberto Lavieri (2003)

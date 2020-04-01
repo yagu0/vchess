@@ -1,1 +1,79 @@
-TODO
+p.boxed.
+  Los movimientos y las capturas de las piezas son complejos.
+  Puedes ganar ocupando los dos cuadros en la última fila.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/1g1qk1g1/1bnmrnb1/dppppppd/8/8/8/DPPPPPPPD/1BNMRNB1/1G1QK1G1/xxx2xxx:
+  figcaption Posición determinista inicial
+
+p
+  | Los peones, la reina, la torre, la torre invertida y los caballos son
+  | respectivamente llama Pinchazos, Supresor, Coordinador, Inmovilizador y
+  | Saltadores Largos. Se comportan exactamente como el ajedrez Barroco
+  | - que no describiré aquí, por favor consulte las 
+  a(href="/#/variantes/Baroque") reglas Barrocas
+  | .
+
+p.
+  El alfil es un camaleón, que captura las piezas en la forma en que
+  habría capturado. Sus capturas son, por lo tanto, las mismas que en el
+  ajedrez Barroco, con algunas excepciones: solo capturó al Mago y al Rey
+  desde una casilla adyacente
+
+h3 Nuevas piezas, nuevos movimientos
+
+p
+  | La dama invertida es un Mago, una pieza poderosa que se mueve primero
+  | una caja en diagonal, luego potencialmente varias casillas
+  | ortogonalmente como se muestra en la figura.
+  | Captura por reemplazo. Ver 
+  a(href="https://www.chessvariants.com/piececlopedia.dir/griffon.html")
+    | esta página
+  | &nbsp;para una introducción detallada a esta pieza.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/3G4/8/8/8/8/xxx2xxx c7,c8,c9,c10,b7,a7,c5,c4,c3,c2,b5,a5,e5,e4,e3,e2,e1,e7,e8,e9,e10,e11,f7,g7,h7,f5,g5,h5:
+  figcaption Movimientos del Mago.
+
+p En este juego, el Mago es la única pieza que no puede ser inmovilizada.
+
+p.
+  La pieza que se parece a un rey sin cruz se mueve y captura como un rey
+  usual, pero no tiene estatus real. Se llama "Guardia" aquí.
+
+p.
+  Finalmente, el rey se mueve como un caballo ortodoxo con una condición
+  adicional: evoluciona en un tablero de ajedrez cilíndrico. Eso significa que
+  potencialmente puede llegar a la columna 'a' o 'b' de las columnas
+  'g' o 'h' (y vice-versa). También captura por reemplazo.
+
+figure.diagram-container
+  .diagram
+    | fen:xxx2xxx/8/8/8/8/K7/8/8/8/8/xxx2xxx b4,b8,c5,c7,g5,g7,h4,h8:
+  figcaption Movimientos del rey.
+
+h3 Fin de la partida
+
+p.
+  Un empate hace tablas, y un jaque mate gana.
+  Hay otras dos opciones para ganar una partida:
+ul
+  li.
+    Ocupa las dos casillas del "palacio real enemigo" (las dos cajas del
+    última fila), o
+  li Captura todas las piezas opuestas, excepto el rey.
+p.
+  Es posible tener una pieza en su propio palacio, pero está prohibido
+  ocuparlo totalmente.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/dpieces.dir/maxima/maxima.html")
+    | variante Maxima
+  | &nbsp;en chessvariants.com.
+
+p Inventor: Roberto Lavieri (2003)
