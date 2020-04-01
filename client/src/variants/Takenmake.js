@@ -1,4 +1,5 @@
 import { ChessRules } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class TakenmakeRules extends ChessRules {
   setOtherVariables(fen) {
@@ -143,5 +144,57 @@ export class TakenmakeRules extends ChessRules {
       this.movesCount--;
     }
     super.postUndo(move);
+  }
+
+  getComputerMove() {
+    let moves = this.getAllValidMoves();
+    if (moves.length == 0) return null;
+    // Custom "search" at depth 1 (for now. TODO?)
+    const maxeval = V.INFINITY;
+    const color = this.turn;
+    moves.forEach(m => {
+      this.play(m);
+      m.eval = (color == "w" ? -1 : 1) * maxeval;
+      if (m.vanish.length == 2 && m.appear.length == 1) {
+        const moves2 = this.getPossibleMovesFrom([m.end.x, m.end.y]);
+        m.next = moves2[0];
+        moves2.forEach(m2 => {
+          this.play(m2);
+          const score = this.getCurrentScore();
+          let mvEval = 0;
+          if (score != "1/2") {
+            if (score != "*") mvEval = (score == "1-0" ? 1 : -1) * maxeval;
+            else mvEval = this.evalPosition();
+          }
+          if (
+            (color == 'w' && mvEval > m.eval) ||
+            (color == 'b' && mvEval < m.eval)
+          ) {
+            m.eval = mvEval;
+            m.next = m2;
+          }
+          this.undo(m2);
+        });
+      }
+      else {
+        const score = this.getCurrentScore();
+        if (score != "1/2") {
+          if (score != "*") m.eval = (score == "1-0" ? 1 : -1) * maxeval;
+          else m.eval = this.evalPosition();
+        }
+      }
+      this.undo(m);
+    });
+    moves.sort((a, b) => {
+      return (color == "w" ? 1 : -1) * (b.eval - a.eval);
+    });
+    let candidates = [0];
+    for (let i = 1; i < moves.length && moves[i].eval == moves[0].eval; i++)
+      candidates.push(i);
+    const mIdx = candidates[randInt(candidates.length)];
+    if (!moves[mIdx].next) return moves[mIdx];
+    const move2 = moves[mIdx].next;
+    delete moves[mIdx]["next"];
+    return [moves[mIdx], move2];
   }
 };
