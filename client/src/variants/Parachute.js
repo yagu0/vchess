@@ -14,6 +14,25 @@ export class ParachuteRules extends ChessRules {
     return true;
   }
 
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    return true;
+  }
+
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
     return Object.assign(
@@ -164,6 +183,13 @@ export class ParachuteRules extends ChessRules {
       return false;
     }
     return true;
+  }
+
+  underCheck(color) {
+    if (this.kingPos[color][0] < 0)
+      // A king outside the board isn't under check
+      return false;
+    return this.isAttacked(this.kingPos[color], V.GetOppCol(color));
   }
 
   prePlay(move) {

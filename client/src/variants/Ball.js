@@ -268,7 +268,7 @@ export class BallRules extends ChessRules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
-  // "Sliders": at most 2 steps
+  // "Sliders": at most 3 steps
   getSlideNJumpMoves([x, y], steps, oneStep) {
     let moves = [];
     outerLoop: for (let step of steps) {
@@ -277,7 +277,7 @@ export class BallRules extends ChessRules {
       let stepCount = 1;
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep || stepCount == 2) continue outerLoop;
+        if (oneStep || stepCount == 3) continue outerLoop;
         i += step[0];
         j += step[1];
         stepCount++;
