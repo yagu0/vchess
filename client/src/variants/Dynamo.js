@@ -41,6 +41,8 @@ export class DynamoRules extends ChessRules {
       });
       this.amoves.push(move);
     }
+    // Stack "first moves" (on subTurn 1) to merge and check opposite moves
+    this.firstMove = [];
   }
 
   static ParseFen(fen) {
@@ -59,22 +61,22 @@ export class DynamoRules extends ChessRules {
     return true;
   }
 
-  // TODO: local stack of "last moves" to know move1
   getAmove(move1, move2) {
-    // TODO: merge (one is action one is move)
-    if (move.appear.length == 2 && move.vanish.length == 2)
-      return { appear: move.appear, vanish: move.vanish };
-    return null;
+    // Just merge (one is action one is move, one may be empty)
+    return {
+      appear: move1.appear.concat(move2.appear),
+      vanish: move1.vanish.concat(move2.vanish)
+    }
   }
 
   doClick(square) {
     // If subTurn == 2 && square is the final square of last move,
     // then return an empty move
-    const L = this.lastMoves.length;
+    const L = this.firstMove.length;
     if (
       this.subTurn == 2 &&
-      square.x == this.lastMoves[L-1].end.x &&
-      square.y == this.lastMoves[L-1].end.y
+      square.x == this.firstMove[L-1].end.x &&
+      square.y == this.firstMove[L-1].end.y
     ) {
       return {
         appear: [],
@@ -216,12 +218,6 @@ export class DynamoRules extends ChessRules {
         return res;
       })
     );
-    // Check opposite moves here --> we have lastMoves[L-1],
-    // which is completed (merged) with current played move if subTurn == 2
-//    return moves.filter(m => {
-//      const L = this.amoves.length; //at least 1: init from FEN
-//      return !this.oppositeMoves(this.amoves[L - 1], m);
-//    });
   }
 
   // Does m2 un-do m1 ? (to disallow undoing actions)
@@ -242,7 +238,6 @@ export class DynamoRules extends ChessRules {
       return true;
     };
     return (
-      !!m1 &&
       m1.appear.length == 2 &&
       m2.appear.length == 2 &&
       m1.vanish.length == 2 &&
@@ -252,13 +247,19 @@ export class DynamoRules extends ChessRules {
     );
   }
 
-  // TODO:
-  // Si on se met en échec au coup 1, peut-on le contrer au coup 2 ? (cf. take n make)
   filterValid(moves) {
     if (this.subTurn == 1)
-      // Validity of subTurn 1 should be checked in getPotentialMoves...
+      // Validity of subTurn 1 should be checked in getPotentialMoves
       return moves;
-    return super.filterMoves(moves);
+    const L = this.firstMove.length;
+    return (
+      super.filterMoves(
+        moves.filter(m => {
+          // Move shouldn't undo another:
+          return !this.oppositeMoves(this.firstMove[L-1], m)
+        })
+      )
+    );
   }
 
   isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
@@ -324,6 +325,7 @@ export class DynamoRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount++;
     }
+    else this.firstMove.push(move);
     this.subTurn = 3 - this.subTurn;
     this.postPlay(move);
   }
@@ -348,6 +350,7 @@ export class DynamoRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
+    else this.firstMove.pop();
     this.subTurn = 3 - this.subTurn;
     this.postUndo(move);
   }
