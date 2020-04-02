@@ -17,8 +17,7 @@ export class DynamoRules extends ChessRules {
     // Local stack of "action moves"
     this.amoves = [];
     const amove = V.ParseFen(fen).amove;
-    if (amove == "-") this.amoves.push(null);
-    else {
+    if (amove != "-") {
       const amoveParts = amove.split("/");
       let amove = {
         // No need for start & end
@@ -26,7 +25,7 @@ export class DynamoRules extends ChessRules {
         vanish: []
       };
       [0, 1].map(i => {
-        amoveParts[0].split(".").forEach(av => {
+        amoveParts[i].split(".").forEach(av => {
           // Format is "bpe3"
           const xy = V.SquareToCoords(av.substr(2));
           move[i == 0 ? "appear" : "vanish"].push(
@@ -48,7 +47,7 @@ export class DynamoRules extends ChessRules {
   static ParseFen(fen) {
     return Object.assign(
       ChessRules.ParseFen(fen),
-      { cmove: fen.split(" ")[4] }
+      { amove: fen.split(" ")[4] }
     );
   }
 
@@ -61,29 +60,30 @@ export class DynamoRules extends ChessRules {
     return true;
   }
 
-  getAmove(move1, move2) {
-    // Just merge (one is action one is move, one may be empty)
-    return {
-      appear: move1.appear.concat(move2.appear),
-      vanish: move1.vanish.concat(move2.vanish)
-    }
+  getFen() {
+    return super.getFen() + " " + this.getAmoveFen();
   }
 
-  doClick(square) {
-    // If subTurn == 2 && square is the final square of last move,
-    // then return an empty move
-    const L = this.firstMove.length;
-    if (
-      this.subTurn == 2 &&
-      square.x == this.firstMove[L-1].end.x &&
-      square.y == this.firstMove[L-1].end.y
-    ) {
-      return {
-        appear: [],
-        vanish: []
-      };
-    }
-    return null;
+  getFenForRepeat() {
+    return super.getFenForRepeat() + "_" + this.getAmoveFen();
+  }
+
+  getAmoveFen() {
+    const L = this.amoves.length;
+    return (
+      ["appear","vanish"].map(
+        mpart => {
+          return (
+            this.amoves[L-1][mpart].map(
+              av => {
+                const square = V.CoordsToSquare({ x: av.x, y: av.y });
+                return av.c + av.p + square;
+              }
+            ).join(".")
+          );
+        }
+      ).join("/")
+    );
   }
 
   canTake() {
@@ -91,11 +91,7 @@ export class DynamoRules extends ChessRules {
     return false;
   }
 
-  // TODO: re-think these next 3 methods:
-  // Idea = have the info about lastMove in lastMoves[L-1],
-  // In particular if moving a piece or doing an action.
-
-  // "pa" : piece (as a square) doing this push/pull action
+  // "pa": piece (as a square) doing this push/pull action
   getActionMoves([sx, sy], [ex, ey], pa) {
     const color = this.getColor(sx, sy);
     const lastRank = (color == 'w' ? 0 : 7);
@@ -108,116 +104,103 @@ export class DynamoRules extends ChessRules {
         moves.push(move);
       });
     } else moves.push(super.getBasicMove([sx, sy], [ex, ey]));
-    const actionType =
-      (
-        Math.abs(pa[0] - sx) < Math.abs(pa[0] - ex) ||
-        Math.abs(pa[1] - sy) < Math.abs(pa[1] - ey)
-      )
-        ? "push"
-        : "pull";
-    moves.forEach(m => m.action = [{ by: pa, type: actionType }]);
     return moves;
   }
 
-  // TODO: if type is given, consider only actions of this type
-  getPactions(sq, color, type) {
+  // Actions on piece on square "sq", by color "color"
+  // NOTE: to push a piece out of the board, make it slide until our piece
+  // (doing the action, moving or not)
+  getPactions(sq, color) {
     const [x, y] = sq;
     let moves = [];
     let squares = {};
-    if (!by) {
-      const oppCol = V.GetOppCol(color);
-      // Look in all directions for a "color" piece
-      for (let step of V.steps[V.KNIGHT]) {
-        const xx = x + step[0],
-              yy = y + step[1];
-        if (
-          V.OnBoard(xx, yy) &&
-          this.getPiece(xx, yy) == V.KNIGHT &&
-          this.getColor(xx, yy) == color
-        ) {
-          const px = x - step[0],
-                py = y - step[1];
-          if (V.OnBoard(px, py)) {
-            if (this.board[px][py] == V.EMPTY) {
-              const hash = "s" + px + py;
-              if (!squares[hash]) {
-                squares[hash] = true;
-                Array.prototype.push.apply(
-                  moves,
-                  this.getActionMoves([x, y], [px, py], [xx, yy])
-                );
-              }
-              else { //add piece doing action
-              }
-            }
-          } else {
-            const hash = "s" + xx + yy;
+    const oppCol = V.GetOppCol(color);
+    // Look in all directions for a "color" piece
+    for (let step of V.steps[V.KNIGHT]) {
+      const xx = x + step[0],
+            yy = y + step[1];
+      if (
+        V.OnBoard(xx, yy) &&
+        this.getPiece(xx, yy) == V.KNIGHT &&
+        this.getColor(xx, yy) == color
+      ) {
+        const px = x - step[0],
+              py = y - step[1];
+        if (V.OnBoard(px, py)) {
+          if (this.board[px][py] == V.EMPTY) {
+            const hash = "s" + px + py;
             if (!squares[hash]) {
               squares[hash] = true;
-              moves.push(
-                new Move({
-                  start: { x: x, y: y },
-                  end: { x: xx, y: yy },
-                  appear: [],
-                  vanish: [
-                    new PiPo({
-                      x: x,
-                      y: y,
-                      p: this.getPiece(x, y),
-                      c: oppCol
-                    })
-                  ]
-                })
+              Array.prototype.push.apply(
+                moves,
+                this.getActionMoves([x, y], [px, py], [xx, yy])
               );
             }
+            else { //add piece doing action
+            }
+          }
+        } else {
+          const hash = "s" + xx + yy;
+          if (!squares[hash]) {
+            squares[hash] = true;
+            moves.push(
+              new Move({
+                start: { x: x, y: y },
+                end: { x: xx, y: yy },
+                appear: [],
+                vanish: [
+                  new PiPo({
+                    x: x,
+                    y: y,
+                    p: this.getPiece(x, y),
+                    c: oppCol
+                  })
+                ]
+              })
+            );
           }
         }
       }
-      for (let step in V.steps[V.ROOK]) {
-        // (+ if color is ours, pawn pushes) king, rook and queen
-        // --> pawns special case can push from a little distance if on 2nd rank (or 1st rank)
-      }
-      for (let step in V.steps[V.BISHOP]) {
-        // King, bishop, queen, and possibly pawns attacks (if color is enemy)
-      }
+    }
+    for (let step in V.steps[V.ROOK]) {
+      // (+ if color is ours, pawn pushes) king, rook and queen
+      // --> pawns special case can push from a little distance if on 2nd rank (or 1st rank)
+    }
+    for (let step in V.steps[V.BISHOP]) {
+      // King, bishop, queen, and possibly pawns attacks (if color is enemy)
     }
     return moves;
   }
 
-  // NOTE: to push a piece out of the board, make it slide until our piece
-  // (doing the action, moving or not)
-  // TODO: for pushes, play the pushed piece first.
+  // NOTE: for pushes, play the pushed piece first.
   //       for pulls: play the piece doing the action first
   // If castle, then no options available next (just re-click)
-
   getPotentialMovesFrom([x, y]) {
     const color = this.turn;
-    if (this.getColor(x, y) != color)
-      // The only moves possible with enemy pieces are pulls and pushes:
-      return this.getPactions([x, y], color);
-    // Playing my pieces: either on their own, or pushed by another
-    // If subTurn == 2 then we should have a first move,
-    // TODO = use it to allow some type of action
-    if (this.subTurn == 2) {
+    if (this.subTurn == 1) {
+      // Free to play any move or action:
       return (
-        this.moveOnSubturn1.isAnAction
-          ? super.getPotentialMovesFrom([x, y])
-          : this.getPactions([x, y], color, TODO_arg)
+        super.getPotentialMovesFrom([x, y])
+        .concat(this.getPactions([x, y], color))
       );
     }
-    // Both options are possible at subTurn1: normal move, or push
-    return (
-      super.getPotentialMovesFrom([x, y])
-      .concat(this.getPactions([x, y], color, "push"))
-      // TODO: discard moves that let the king underCheck, and no second
-      // move can counter check. Example: pinned queen pushes pinned pawn.
-      .filter(m => {
-        this.play(m);
-        const res = this.filterMoves(this.getPotentialMoves(/* TODO: args? */)).length > 0;
-        this.undo(m);
-        return res;
-      })
-    );
+    // If subTurn == 2 then we should have a first move,
+    // which restrict what we can play now.
+    // Case 1: an opponent's piece moved: we can only move the piece which
+    //         did the action, in the moving direction.
+    // Case 2: one of our pieces moved: either by action or by itself.
+    //         Just check if it could be a normal move. If yes, allow both.
+    const L = this.firstMove.length;
+    const fm = this.firstMove[L-1];
+    if (fm.vanish[0].c != color) {
+      // Case 1: TODO
+    }
+    else {
+      // Case 2: TODO
+      // Use fm.start.x, fm.start.y, fm.end.x, fm.end.y, fm.vanish[0].c
+      // Search for the piece doing the action "pa": the action type
+      // is deduced from pa relative positon then.
+    }
   }
 
   // Does m2 un-do m1 ? (to disallow undoing actions)
@@ -247,16 +230,48 @@ export class DynamoRules extends ChessRules {
     );
   }
 
+  getAmove(move1, move2) {
+    // Just merge (one is action one is move, one may be empty)
+    return {
+      appear: move1.appear.concat(move2.appear),
+      vanish: move1.vanish.concat(move2.vanish)
+    }
+  }
+
   filterValid(moves) {
-    if (this.subTurn == 1)
-      // Validity of subTurn 1 should be checked in getPotentialMoves
-      return moves;
-    const L = this.firstMove.length;
+    const color = this.turn;
+    if (this.subTurn == 1) {
+      return moves.filter(m => {
+        // A move is valid either if it doesn't result in a check,
+        // or if a second move is possible to counter the check
+        // (not undoing a potential move + action of the opponent)
+        this.play(m);
+        let res = this.underCheck(color);
+        if (res) {
+          const moves2 = this.getAllPotentialMoves();
+          for (m2 of moves2) {
+            this.play(m2);
+            const res2 = this.underCheck(color);
+            this.undo(m2);
+            if (!res2) {
+              res = false;
+              break;
+            }
+          }
+        }
+        this.undo(m);
+        return !res;
+      });
+    }
+    const Lf = this.firstMove.length;
+    const La = this.amoves.length;
+    if (La == 0) return super.filterValid(moves);
     return (
-      super.filterMoves(
+      super.filterValid(
         moves.filter(m => {
           // Move shouldn't undo another:
-          return !this.oppositeMoves(this.firstMove[L-1], m)
+          const amove = this.getAmove(this.firstMove[Lf-1], m);
+          return !this.oppositeMoves(this.amoves[La-1], amove);
         })
       )
     );
@@ -316,6 +331,23 @@ export class DynamoRules extends ChessRules {
       // Move not over
       return "*";
     return super.getCurrentScore();
+  }
+
+  doClick(square) {
+    // If subTurn == 2 && square is the final square of last move,
+    // then return an empty move
+    const L = this.firstMove.length;
+    if (
+      this.subTurn == 2 &&
+      square.x == this.firstMove[L-1].end.x &&
+      square.y == this.firstMove[L-1].end.y
+    ) {
+      return {
+        appear: [],
+        vanish: []
+      };
+    }
+    return null;
   }
 
   play(move) {

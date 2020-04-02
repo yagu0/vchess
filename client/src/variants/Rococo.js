@@ -624,7 +624,7 @@ export class RococoRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0) {
       return (
-        "91/1rnbkqbnm1/1pppppppp1/91/91/91/91/1PPPPPPPP1/1MNBQKBNR1/91 w 0 -"
+        "91/1rqnbknqm1/1pppppppp1/91/91/91/91/1PPPPPPPP1/1MQNBKNQR1/91 w 0 -"
       );
     }
 
