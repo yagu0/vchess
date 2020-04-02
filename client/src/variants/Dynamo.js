@@ -1,7 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class DynamoRules extends ChessRules {
-  // TODO: later, allow to push out pawns on a and h files?
+  // TODO: later, allow to push out pawns on a and h files
   static get HasEnpassant() {
     return false;
   }
@@ -17,7 +17,7 @@ export class DynamoRules extends ChessRules {
     // Local stack of "action moves"
     this.amoves = [];
     const amove = V.ParseFen(fen).amove;
-    if (cmove == "-") this.amoves.push(null);
+    if (amove == "-") this.amoves.push(null);
     else {
       const amoveParts = amove.split("/");
       let amove = {
@@ -59,21 +59,22 @@ export class DynamoRules extends ChessRules {
     return true;
   }
 
-  getAmove(move) {
+  // TODO: local stack of "last moves" to know move1
+  getAmove(move1, move2) {
+    // TODO: merge (one is action one is move)
     if (move.appear.length == 2 && move.vanish.length == 2)
       return { appear: move.appear, vanish: move.vanish };
     return null;
   }
 
-  // TODO: this.firstMove + rooks location in setOtherVariables
-  // only rooks location in FEN (firstMove is forgotten if quit game and come back)
   doClick(square) {
     // If subTurn == 2 && square is the final square of last move,
     // then return an empty move
+    const L = this.lastMoves.length;
     if (
       this.subTurn == 2 &&
-      square.x == this.firstMove.end.x &&
-      square.y == this.firstMove.end.y
+      square.x == this.lastMoves[L-1].end.x &&
+      square.y == this.lastMoves[L-1].end.y
     ) {
       return {
         appear: [],
@@ -87,6 +88,10 @@ export class DynamoRules extends ChessRules {
     // Captures don't occur (only pulls & pushes)
     return false;
   }
+
+  // TODO: re-think these next 3 methods:
+  // Idea = have the info about lastMove in lastMoves[L-1],
+  // In particular if moving a piece or doing an action.
 
   // "pa" : piece (as a square) doing this push/pull action
   getActionMoves([sx, sy], [ex, ey], pa) {
@@ -181,6 +186,8 @@ export class DynamoRules extends ChessRules {
   // (doing the action, moving or not)
   // TODO: for pushes, play the pushed piece first.
   //       for pulls: play the piece doing the action first
+  // If castle, then no options available next (just re-click)
+
   getPotentialMovesFrom([x, y]) {
     const color = this.turn;
     if (this.getColor(x, y) != color)
@@ -209,15 +216,12 @@ export class DynamoRules extends ChessRules {
         return res;
       })
     );
-  }
-
-  // TODO: track rooks locations, should be a field in FEN, in castleflags?
-  // --> only useful if castleFlags is still ON
-  getCastleMoves(sq) {
-    // TODO: if rook1 isn't at its place (with castleFlags ON), set it off
-    // same for rook2.
-    let moves = super.getCastleMoves(sq);
-    // TODO: restore castleFlags
+    // Check opposite moves here --> we have lastMoves[L-1],
+    // which is completed (merged) with current played move if subTurn == 2
+//    return moves.filter(m => {
+//      const L = this.amoves.length; //at least 1: init from FEN
+//      return !this.oppositeMoves(this.amoves[L - 1], m);
+//    });
   }
 
   // Does m2 un-do m1 ? (to disallow undoing actions)
@@ -248,13 +252,13 @@ export class DynamoRules extends ChessRules {
     );
   }
 
+  // TODO:
+  // Si on se met en échec au coup 1, peut-on le contrer au coup 2 ? (cf. take n make)
   filterValid(moves) {
-    if (moves.length == 0) return [];
-    const color = this.turn;
-    return moves.filter(m => {
-      const L = this.amoves.length; //at least 1: init from FEN
-      return !this.oppositeMoves(this.amoves[L - 1], m);
-    });
+    if (this.subTurn == 1)
+      // Validity of subTurn 1 should be checked in getPotentialMoves...
+      return moves;
+    return super.filterMoves(moves);
   }
 
   isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
@@ -316,46 +320,35 @@ export class DynamoRules extends ChessRules {
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
     V.PlayOnBoard(this.board, move);
-    if (this.subTurn == 1) {
-      // TODO: is there a second move possible?
-      // (if the first move is a normal one, there may be no actions available)
-      // --> If not, just change turn as ion the else {} section
-      this.subTurn = 2;
-      this.movesCount++;
-    } else {
-      // subTurn == 2
+    if (this.subTurn == 2) {
       this.turn = V.GetOppCol(this.turn);
-      this.subTurn = 1;
+      this.movesCount++;
     }
+    this.subTurn = 3 - this.subTurn;
     this.postPlay(move);
   }
 
   updateCastleFlags(move, piece) {
     const c = V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
-    // Update castling flags if rooks are moved (only)
-    if (piece == V.KING && move.appear.length > 0)
-      this.castleFlags[c] = [V.size.y, V.size.y];
-    else if (
-      move.start.x == firstRank &&
-      this.castleFlags[c].includes(move.start.y)
-    ) {
-      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-      this.castleFlags[c][flagIdx] = V.size.y;
+    // Update castling flags
+    if (piece == V.KING) this.castleFlags[c] = [V.size.y, V.size.y];
+    for (let v of move.vanish) {
+      if (v.x == firstRank && this.castleFlags[c].includes(v.y)) {
+        const flagIdx = (v.y == this.castleFlags[c][0] ? 0 : 1);
+        this.castleFlags[c][flagIdx] = V.size.y;
+      }
     }
   }
 
   undo(move) {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
-    if (this.subTurn == 2) {
-      this.subTurn = 1;
-      this.movesCount--;
-    } else {
-      // subTurn == 1 (after a move played)
+    if (this.subTurn == 1) {
       this.turn = V.GetOppCol(this.turn);
-      this.subTurn = 2;
+      this.movesCount--;
     }
+    this.subTurn = 3 - this.subTurn;
     this.postUndo(move);
   }
 };

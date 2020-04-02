@@ -195,56 +195,21 @@ export class InterweaveRules extends ChessRules {
     );
   }
 
-  getPotentialMovesFrom([x, y], noPostprocess) {
-    const L = this.lastMoveEnd.length;
-    if (
-      !!this.lastMoveEnd[L-1] &&
-      (
-        x != this.lastMoveEnd[L-1].x ||
-        y != this.lastMoveEnd[L-1].y
-      )
-    ) {
-      // A capture must continue: wrong square
-      return [];
-    }
-    let moves = [];
+  getPotentialMovesFrom([x, y]) {
     switch (this.getPiece(x, y)) {
       case V.PAWN:
-        moves = this.getPotentialPawnMoves([x, y]);
-        break;
+        return this.getPotentialPawnMoves([x, y]);
       case V.ROOK:
-        moves = this.getPotentialRookMoves([x, y]);
-        break;
+        return this.getPotentialRookMoves([x, y]);
       case V.KNIGHT:
-        moves = this.getPotentialKnightMoves([x, y]);
-        break;
+        return this.getPotentialKnightMoves([x, y]);
       case V.BISHOP:
-        moves = this.getPotentialBishopMoves([x, y]);
-        break;
+        return this.getPotentialBishopMoves([x, y]);
       case V.KING:
-        moves = this.getPotentialKingMoves([x, y]);
-        break;
+        return this.getPotentialKingMoves([x, y]);
       // No queens
     }
-    if (!noPostprocess) {
-      // Post-process: if capture,
-      // can another capture be achieved with the same piece?
-      moves.forEach(m => {
-        if (m.vanish.length >= 2 || m.appear.length == 0) {
-          this.play(m);
-          const moreCaptures = (
-            V.KeepCaptures(
-              this.getPotentialMovesFrom([m.end.x, m.end.y], "noPostprocess")
-            )
-            .length > 0
-          );
-          this.undo(m);
-          if (!moreCaptures) m.last = true;
-        }
-        else m.last = true;
-      });
-    }
-    return moves;
+    return [];
   }
 
   // Special pawns movements
@@ -590,11 +555,23 @@ export class InterweaveRules extends ChessRules {
       for (let i=1; i<move.vanish.length; i++)
         this.captured[move.vanish[i].c][move.vanish[i].p]++;
     }
+    // Check if the move is the last of the turn
+    if (move.vanish.length >= 2 || move.appear.length == 0) {
+      const moreCaptures = (
+        V.KeepCaptures(
+          this.getPotentialMovesFrom([move.end.x, move.end.y])
+        )
+        .length > 0
+      );
+      move.last = !moreCaptures;
+    }
+    else move.last = true;
     if (!!move.last) {
       // No capture, or no more capture available
       this.turn = V.GetOppCol(this.turn);
       this.movesCount++;
       this.lastMoveEnd.push(null);
+      move.last = true; //will be used in undo and computer play
     }
     else this.lastMoveEnd.push(move.end);
   }
@@ -639,14 +616,14 @@ export class InterweaveRules extends ChessRules {
     while (moves.length > 0) {
       const mv = moves[randInt(moves.length)];
       mvArray.push(mv);
+      this.play(mv);
       if (!mv.last) {
-        this.play(mv);
         moves = V.KeepCaptures(
           this.getPotentialMovesFrom([mv.end.x, mv.end.y]));
       }
       else break;
     }
-    for (let i = mvArray.length - 2; i >= 0; i--) this.undo(mvArray[i]);
+    for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
     return (mvArray.length > 1 ? mvArray : mvArray[0]);
   }
 

@@ -41,4 +41,8 @@ export class ChecklessRules extends ChessRules {
       return res;
     });
   }
+
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
 };

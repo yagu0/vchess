@@ -409,6 +409,8 @@ export default {
         smove.unambiguous = V.GetUnambiguousNotation(smove);
         this.vr.play(smove);
         this.lastMove = smove;
+        // Is opponent (or me) in check?
+        this.incheck = this.vr.getCheckSquares(this.vr.turn);
         if (!this.inMultimove) {
           // Condition is "!navigate" but we mean "!this.autoplay"
           if (!navigate) {
@@ -470,8 +472,6 @@ export default {
           if (!smove.fen)
             // NOTE: only FEN of last sub-move is required (=> setting it here)
             smove.fen = this.vr.getFen();
-          // Is opponent in check?
-          this.incheck = this.vr.getCheckSquares(this.vr.turn);
           this.emitFenIfAnalyze();
           this.inMultimove = false;
           this.score = computeScore();
