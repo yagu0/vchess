@@ -40,6 +40,7 @@ export class DynamoRules extends ChessRules {
       });
       this.amoves.push(move);
     }
+    this.subTurn = 1;
     // Stack "first moves" (on subTurn 1) to merge and check opposite moves
     this.firstMove = [];
   }
@@ -70,6 +71,7 @@ export class DynamoRules extends ChessRules {
 
   getAmoveFen() {
     const L = this.amoves.length;
+    if (L == 0) return "-";
     return (
       ["appear","vanish"].map(
         mpart => {
@@ -100,6 +102,7 @@ export class DynamoRules extends ChessRules {
     const color = this.getColor(x, y);
     const piece = this.getPiece(x, y);
     const lastRank = (color == 'w' ? 0 : 7);
+    let counter = 1;
     while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
       if (i == lastRank && piece == V.PAWN) {
         // Promotion by push or pull
@@ -109,13 +112,16 @@ export class DynamoRules extends ChessRules {
         });
       }
       else moves.push(super.getBasicMove([x, y], [i, j]));
+      if (++counter > nbSteps) break;
+      i += dx;
+      j += dy;
     }
     if (!V.OnBoard(i, j) && piece != V.KING) {
       // Add special "exit" move, by "taking king"
       moves.push(
         new Move({
           start: { x: x, y: y },
-          end: JSON.parse(JSON.stringify(this.kingPos[color])),
+          end: { x: this.kingPos[color][0], y: this.kingPos[color][1] },
           appear: [],
           vanish: [{ x: x, y: y, c: color, p: piece }]
         })
@@ -186,11 +192,6 @@ export class DynamoRules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     const color = this.turn;
     if (this.subTurn == 1) {
-      // Free to play any move:
-      const moves = super.getPotentialMovesFrom([x, y])
-      // Structure to avoid adding moves twice (can be action & move)
-      let hashMoves = {};
-      moves.forEach(m => { hashMoves[getMoveHash(m)] = true; });
       const getMoveHash = (m) => {
         return V.CoordsToSquare(m.start) + V.CoordsToSquare(m.end);
       };
@@ -198,24 +199,29 @@ export class DynamoRules extends ChessRules {
         const newMoves =
           this.getMovesInDirection([x, y], [-dir[0], -dir[1]], nbSteps)
           .filter(m => !movesHash[getMoveHash(m)]);
-        newMoves.forEach(m => { hashMoves[getMoveHash(m)] = true; });
+        newMoves.forEach(m => { movesHash[getMoveHash(m)] = true; });
         Array.prototype.push.apply(moves, newMoves);
       };
+      // Free to play any move:
+      const moves = super.getPotentialMovesFrom([x, y])
       const pawnShift = (color == 'w' ? -1 : 1);
       const pawnStartRank = (color == 'w' ? 6 : 1);
+      // Structure to avoid adding moves twice (can be action & move)
+      let movesHash = {};
+      moves.forEach(m => { movesHash[getMoveHash(m)] = true; });
       // [x, y] is pushed by 'color'
       for (let step of V.steps[V.KNIGHT]) {
         const [i, j] = [x + step[0], y + step[1]];
-        if (V.OnBoard(i, j) && this.board[i][j] != V.EMPTY) {
-          // Only can move away from a knight (can pull but must move first)
-          Array.prototype.push.apply(
-            moves,
-            this.getMovesInDirection([x, y], [-step[0], -step[1]], 1)
-              .filter(m => !movesHash[getMoveHash(m)])
-          );
+        if (
+          V.OnBoard(i, j) &&
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) == color &&
+          this.getPiece(i, j) == V.KNIGHT
+        ) {
+          addMoves(step, 1);
         }
       }
-      for (let step in V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
+      for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
         let [i, j] = [x + step[0], y + step[1]];
         while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
           i += step[0];
@@ -245,10 +251,6 @@ export class DynamoRules extends ChessRules {
               break;
             case V.ROOK:
               if (deltaX == 0 || deltaY == 0) addMoves(step);
-              break;
-            case V.KNIGHT:
-              if (deltaX + deltaY == 3 && (deltaX == 1 || deltaY == 1))
-                addMoves(step, 1);
               break;
             case V.BISHOP:
               if (deltaX == deltaY) addMoves(step);
@@ -434,10 +436,12 @@ export class DynamoRules extends ChessRules {
     // then return an empty move, allowing to "pass" subTurn2
     if (
       this.subTurn == 2 &&
-      this.board[square.x][square.y] == V.EMPTY &&
+      this.board[square[0]][square[1]] == V.EMPTY &&
       !this.underCheck(this.turn)
     ) {
       return {
+        start: { x: -1, y: -1 },
+        end: { x: -1, y: -1 },
         appear: [],
         vanish: []
       };
@@ -449,6 +453,8 @@ export class DynamoRules extends ChessRules {
     move.flags = JSON.stringify(this.aggregateFlags());
     V.PlayOnBoard(this.board, move);
     if (this.subTurn == 2) {
+      const L = this.firstMove.length;
+      this.amoves.push(this.getAmove(this.firstMove[L-1], move));
       this.turn = V.GetOppCol(this.turn);
       this.movesCount++;
     }
@@ -457,15 +463,20 @@ export class DynamoRules extends ChessRules {
     this.postPlay(move);
   }
 
-  updateCastleFlags(move, piece) {
-    const c = V.GetOppCol(this.turn);
-    const firstRank = (c == "w" ? V.size.x - 1 : 0);
-    // Update castling flags
-    if (piece == V.KING) this.castleFlags[c] = [V.size.y, V.size.y];
+  postPlay(move) {
+    if (move.start.x < 0) return;
+    for (let a of move.appear)
+      if (a.p == V.KING) this.kingPos[a.c] = [a.x, a.y];
+    this.updateCastleFlags(move);
+  }
+
+  updateCastleFlags(move) {
+    const firstRank = { 'w': V.size.x - 1, 'b': 0 };
     for (let v of move.vanish) {
-      if (v.x == firstRank && this.castleFlags[c].includes(v.y)) {
-        const flagIdx = (v.y == this.castleFlags[c][0] ? 0 : 1);
-        this.castleFlags[c][flagIdx] = V.size.y;
+      if (v.p == V.KING) this.castleFlags[v.c] = [V.size.y, V.size.y];
+      else if (v.x == firstRank[v.c] && this.castleFlags[v.c].includes(v.y)) {
+        const flagIdx = (v.y == this.castleFlags[v.c][0] ? 0 : 1);
+        this.castleFlags[v.c][flagIdx] = V.size.y;
       }
     }
   }
@@ -480,5 +491,23 @@ export class DynamoRules extends ChessRules {
     else this.firstMove.pop();
     this.subTurn = 3 - this.subTurn;
     this.postUndo(move);
+  }
+
+  postUndo(move) {
+    // (Potentially) Reset king position
+    for (let v of move.vanish)
+      if (v.p == V.KING) this.kingPos[v.c] = [v.x, v.y];
+  }
+
+  getNotation(move) {
+    if (move.start.x < 0)
+      // A second move is always required, but may be empty
+      return "-";
+    const initialSquare = V.CoordsToSquare(move.start);
+    const finalSquare = V.CoordsToSquare(move.end);
+    if (move.appear.length == 0)
+      // Pushed or pulled out of the board
+      return initialSquare + "R";
+    return move.appear[0].p.toUpperCase() + initialSquare + finalSquare;
   }
 };
