@@ -110,7 +110,7 @@ export const translations = {
   "Random?": "Aléatoire?",
   "Randomness": "Degré d'aléa",
   Refuse: "Refuser",
-  Register: "S'enregistrer",
+  Register: "S'inscrire",
   "Registration complete! Please check your emails now": "Enregistrement terminé ! Allez voir vos emails maintenant",
   Rematch: "Rejouer",
   "Rematch in progress": "Revanche en cours",
