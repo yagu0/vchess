@@ -441,7 +441,9 @@ export default {
         const initurn = this.vr.turn;
         (function executeMove() {
           const smove = move[moveIdx++];
-          if (animate) {
+          // NOTE: condition "smove.start.x >= 0" required for Dynamo,
+          // because second move may be empty.
+          if (animate && smove.start.x >= 0) {
             self.animateMove(smove, () => {
               playSubmove(smove);
               if (moveIdx < move.length)

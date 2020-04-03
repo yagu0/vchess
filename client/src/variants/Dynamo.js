@@ -1,4 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class DynamoRules extends ChessRules {
   // TODO: later, allow to push out pawns on a and h files
@@ -19,24 +20,26 @@ export class DynamoRules extends ChessRules {
     const amove = V.ParseFen(fen).amove;
     if (amove != "-") {
       const amoveParts = amove.split("/");
-      let amove = {
+      let move = {
         // No need for start & end
         appear: [],
         vanish: []
       };
       [0, 1].map(i => {
-        amoveParts[i].split(".").forEach(av => {
-          // Format is "bpe3"
-          const xy = V.SquareToCoords(av.substr(2));
-          move[i == 0 ? "appear" : "vanish"].push(
-            new PiPo({
-              x: xy.x,
-              y: xy.y,
-              c: av[0],
-              p: av[1]
-            })
-          );
-        });
+        if (amoveParts[i] != "-") {
+          amoveParts[i].split(".").forEach(av => {
+            // Format is "bpe3"
+            const xy = V.SquareToCoords(av.substr(2));
+            move[i == 0 ? "appear" : "vanish"].push(
+              new PiPo({
+                x: xy.x,
+                y: xy.y,
+                c: av[0],
+                p: av[1]
+              })
+            );
+          });
+        }
       });
       this.amoves.push(move);
     }
@@ -55,9 +58,19 @@ export class DynamoRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParts = fen.split(" ");
-    if (fenParts.length != 6) return false;
-    if (fenParts[5] != "-" && !fenParts[5].match(/^([a-h][1-8]){2}$/))
-      return false;
+    if (fenParts.length != 5) return false;
+    if (fenParts[4] != "-") {
+      // TODO: a single regexp instead.
+      // Format is [bpa2[.wpd3]] || '-'/[bbc3[.wrd5]] || '-'
+      const amoveParts = fenParts[4].split("/");
+      if (amoveParts.length != 2) return false;
+      for (let part of amoveParts) {
+        if (part != "-") {
+          for (let psq of part.split("."))
+            if (!psq.match(/^[a-r]{3}[1-8]$/)) return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -75,6 +88,7 @@ export class DynamoRules extends ChessRules {
     return (
       ["appear","vanish"].map(
         mpart => {
+          if (mpart.length == 0) return "-";
           return (
             this.amoves[L-1][mpart].map(
               av => {
@@ -143,45 +157,53 @@ export class DynamoRules extends ChessRules {
     return [dx / divisor, dy / divisor];
   }
 
-  // There is something on x2,y2, maybe our color, pushed/pulled
-  static IsAprioriValidMove([x1, y1], [x2, y2]) {
+  // There was something on x2,y2, maybe our color, pushed/pulled.
+  // Also, the pushed/pulled piece must exit the board.
+  isAprioriValidExit([x1, y1], [x2, y2], color2) {
     const color1 = this.getColor(x1, y1);
-    const color2 = this.getColor(x2, y2);
     const pawnShift = (color1 == 'w' ? -1 : 1);
-    const pawnStartRank = (color1 == 'w' ? 6 : 1);
+    const lastRank = (color1 == 'w' ? 0 : 7);
     const deltaX = Math.abs(x1 - x2);
     const deltaY = Math.abs(y1 - y2);
+    const checkSlider = () => {
+      const dir = this.getNormalizedDirection([x2 - x1, y2 - y1]);
+      let [i, j] = [x1 + dir[0], y1 + dir[1]];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        i += dir[0];
+        j += dir[1];
+      }
+      return !V.OnBoard(i, j);
+    };
     switch (this.getPiece(x1, y1)) {
       case V.PAWN:
         return (
+          x1 + pawnShift == x2 &&
           (
-            color1 == color2 &&
-            y1 == y2 &&
-            (
-              x1 + pawnShift == x2 ||
-              x1 == pawnStartRank && x1 + 2 * pawnShift == x2
-            )
-          )
-          ||
-          (
-            color1 != color2 &&
-            deltaY == 1 &&
-            x1 + pawnShift == x2
+            (color1 == color2 && x2 == lastRank && y1 == y2) ||
+            (color1 != color2 && deltaY == 1 && !V.OnBoard(x2, 2 * y2 - y1))
           )
         );
       case V.ROOK:
-        return (x1 == x2 || y1 == y2);
-      case V.KNIGHT: {
-        return (deltaX + deltaY == 3 && (deltaX == 1 || deltaY == 1));
-      }
-      case V.BISHOP:
-        return (deltaX == deltaY);
-      case V.QUEEN:
+        if (x1 != x2 && y1 != y2) return false;
+        return checkSlider();
+      case V.KNIGHT:
         return (
-          (deltaX == 0 || deltaY == 0 || deltaX == deltaY)
+          deltaX + deltaY == 3 &&
+          (deltaX == 1 || deltaY == 1) &&
+          !V.OnBoard(2 * x2 - x1, 2 * y2 - y1)
         );
+      case V.BISHOP:
+        if (deltaX != deltaY) return false;
+        return checkSlider();
+      case V.QUEEN:
+        if (deltaX != 0 && deltaY != 0 && deltaX != deltaY) return false;
+        return checkSlider();
       case V.KING:
-        return (deltaX <= 1 && deltaY <= 1);
+        return (
+          deltaX <= 1 &&
+          deltaY <= 1 &&
+          !V.OnBoard(2 * x2 - x1, 2 * y2 - y1)
+        );
     }
     return false;
   }
@@ -237,7 +259,11 @@ export class DynamoRules extends ChessRules {
           // Can a priori go both ways, except with pawns
           switch (this.getPiece(i, j)) {
             case V.PAWN:
-              if (deltaX <= 2 && deltaY <= 1) {
+              if (
+                (x - i) / deltaX == pawnShift &&
+                deltaX <= 2 &&
+                deltaY <= 1
+              ) {
                 const pColor = this.getColor(x, y);
                 if (pColor == color && deltaY == 0) {
                   // Pushed forward
@@ -279,10 +305,13 @@ export class DynamoRules extends ChessRules {
     if (fm.appear.length == 0) {
       // Piece at subTurn 1 just exited the board.
       // Can I be a piece which caused the exit?
-      this.undo(fm);
-      const moveOk = V.IsAprioriValidMove([x, y], [fm.start.x, fm.start.y]);
-      this.play(fm);
-      if (moveOk) {
+      if (
+        this.isAprioriValidExit(
+          [x, y],
+          [fm.start.x, fm.start.y],
+          fm.vanish[0].c
+        )
+      ) {
         // Seems so:
         const dir = this.getNormalizedDirection(
           [fm.start.x - x, fm.start.y - y]);
@@ -294,9 +323,20 @@ export class DynamoRules extends ChessRules {
         [fm.end.x - fm.start.x, fm.end.y - fm.start.y]);
       const dir = this.getNormalizedDirection(
         [fm.start.x - x, fm.start.y - y]);
-      // Normalized directions should match:
-      if (dir[0] == dirM[0] && dir[1] == dirM[1])
-        return this.getMovesInDirection([x, y], dir);
+      // Normalized directions should match
+      if (dir[0] == dirM[0] && dir[1] == dirM[1]) {
+        // And nothing should stand between [x, y] and the square fm.start
+        let [i, j] = [x + dir[0], y + dir[1]];
+        while (
+          (i != fm.start.x || j != fm.start.y) &&
+          this.board[i][j] == V.EMPTY
+        ) {
+          i += dir[0];
+          j += dir[1];
+        }
+        if (i == fm.start.x && j == fm.start.y)
+          return this.getMovesInDirection([x, y], dir);
+      }
     }
     return [];
   }
@@ -347,7 +387,7 @@ export class DynamoRules extends ChessRules {
         let res = this.underCheck(color);
         if (res) {
           const moves2 = this.getAllPotentialMoves();
-          for (m2 of moves2) {
+          for (let m2 of moves2) {
             this.play(m2);
             const res2 = this.underCheck(color);
             this.undo(m2);
@@ -407,7 +447,7 @@ export class DynamoRules extends ChessRules {
 
   isAttackedByPawn([x, y], color) {
     const lastRank = (color == 'w' ? 0 : 7);
-    if (y != lastRank)
+    if (x != lastRank)
       // The king can be pushed out by a pawn only on last rank
       return false;
     const pawnShift = (color == "w" ? 1 : -1);
@@ -497,6 +537,54 @@ export class DynamoRules extends ChessRules {
     // (Potentially) Reset king position
     for (let v of move.vanish)
       if (v.p == V.KING) this.kingPos[v.c] = [v.x, v.y];
+  }
+
+  getComputerMove() {
+    let moves = this.getAllValidMoves();
+    if (moves.length == 0) return null;
+    // "Search" at depth 1 for now
+    const maxeval = V.INFINITY;
+    const color = this.turn;
+    const emptyMove = {
+      start: { x: -1, y: -1 },
+      end: { x: -1, y: -1 },
+      appear: [],
+      vanish: []
+    };
+    moves.forEach(m => {
+      this.play(m);
+      m.eval = (color == "w" ? -1 : 1) * maxeval;
+      const moves2 = this.getAllValidMoves().concat([emptyMove]);
+      m.next = moves2[0];
+      moves2.forEach(m2 => {
+        this.play(m2);
+        const score = this.getCurrentScore();
+        let mvEval = 0;
+        if (score != "1/2") {
+          if (score != "*") mvEval = (score == "1-0" ? 1 : -1) * maxeval;
+          else mvEval = this.evalPosition();
+        }
+        if (
+          (color == 'w' && mvEval > m.eval) ||
+          (color == 'b' && mvEval < m.eval)
+        ) {
+          m.eval = mvEval;
+          m.next = m2;
+        }
+        this.undo(m2);
+      });
+      this.undo(m);
+    });
+    moves.sort((a, b) => {
+      return (color == "w" ? 1 : -1) * (b.eval - a.eval);
+    });
+    let candidates = [0];
+    for (let i = 1; i < moves.length && moves[i].eval == moves[0].eval; i++)
+      candidates.push(i);
+    const mIdx = candidates[randInt(candidates.length)];
+    const move2 = moves[mIdx].next;
+    delete moves[mIdx]["next"];
+    return [moves[mIdx], move2];
   }
 
   getNotation(move) {
