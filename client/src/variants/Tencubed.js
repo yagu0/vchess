@@ -206,11 +206,11 @@ export class TencubedRules extends ChessRules {
 
   isAttackedByArchbishop(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.BISHOP]) ||
+      this.isAttackedBySlideNJump(sq, color, V.ARCHBISHOP, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
         sq,
         color,
-        V.CARDINAL,
+        V.ARCHBISHOP,
         V.steps[V.KNIGHT],
         "oneStep"
       )
