@@ -483,6 +483,7 @@ const GameModel =
               )
               ||
               (
+                !!movesGroups[g.id] &&
                 movesGroups[g.id].nbMoves == 1 &&
                 tsNow - movesGroups[g.id].lastMaj > 14*day
               )
