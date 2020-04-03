@@ -1451,9 +1451,12 @@ export default {
           }
         );
         // PlayOnBoard is enough, and more appropriate for Synchrone Chess
-        V.PlayOnBoard(this.vr.board, move);
+        const arMove = (Array.isArray(move) ? move : [move]);
+        for (let i = 0; i < arMove.length; i++)
+          V.PlayOnBoard(this.vr.board, arMove[i]);
         const position = this.vr.getBaseFen();
-        V.UndoOnBoard(this.vr.board, move);
+        for (let i = arMove.length - 1; i >= 0; i--)
+          V.UndoOnBoard(this.vr.board, arMove[i]);
         if (["all","byrow"].includes(V.ShowMoves)) {
           this.curDiag = getDiagram({
             position: position,
