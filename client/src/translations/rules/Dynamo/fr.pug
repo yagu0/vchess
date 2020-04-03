@@ -1,2 +1,101 @@
-p.boxed
-  | TODO: pas jouable pour le moment !
+p.boxed.
+  Les coups sont potentiellement joués en deux temps : déplacez une pièce,
+  et / ou poussez ou tirez quelque chose avec cette unité.
+
+p.
+  Les pièces se déplacent comme aux échecs orthodoxes, mais ne capturent pas
+  comme d'habitude. Au lieu des captures habituelles, les pièces peuvent
+  pousser ou tirer d'autres pièces, potentiellement en dehors de l'échiquier.
+  L'objectif est d'envoyer le roi adverse hors de l'échiquier.
+
+p À chaque tour, un joueur dispose des options suivantes :
+ul
+  li.
+    Déplacer l'une de ses pièces normalement, puis éventuellement tirer
+    quelque chose comme un effet du coup.
+  li.
+    Pousser n'importe quelle pièce avec une des siennes, puis éventuellement
+    suivre la pièce poussée.
+
+p
+  | Cela semble plus facile à comprendre avec quelques exemples. Pour une
+  | introduction détaillée, allez voir 
+  a(href="https://echekk.fr/spip.php?page=article&id_article=599") cette page
+  | .
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKB1R e1,e3,e4,c3,f3,g4,h5,d3,c4,b5,a6:
+  figcaption Possibles "coups de pions" dans la position initiale.
+
+p.
+  Le pion e2 peut aller en e3 ou e4 comme d'habitude. Il peut aussi glisser en
+  diagonale, poussé par le fou ou la dame (qui pourraient ou non le suivre le
+  long de cette ligne ensuite). Il peut aussi atteindre c3, poussé par le
+  cavalier depuis g1 ; ensuite le cavalier peut aller en e2 ou rester immobile.
+  Enfin, le pion peut "prendre le roi" : c'est un coup spécial indiquant que
+  vous voulez qu'il sorte de l'échiquier. En effet celui-ci pourrait être
+  poussé en dehors par le fou ou la dame.
+
+p.
+  Note : si vous ne voulez pas exécuter une seconde partie de coup, cliquez
+  simplement sur une case vide : cela remplacera la seconde partie par un coup
+  vide.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/ppp1pppp/8/3p4/8/2N5/PPPPPPPP/R1BQKB1R:
+  .diagram.diag22
+    | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKB1R:
+  figcaption Tirant le pion d5 en c3 (gauche : avant, droite : après).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Poussant le fou d4 vers b2 (gauche : avant, droite : après).
+
+p.
+  Il est interdit de défaire un "coup + action". Par exemple ici, les blancs
+  pourraient pousser le fou noir en g7, mais pas retourner sur d4 ensuite.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1qbnr/pppkpppp/3p4/8/Q1P5/5NP1/PP1PPP1P/RNB1KB1R:
+  figcaption.
+    Échec : la dame menace de tirer le roi en dehors de l'échiqier le long de
+    la diagonale a4-e8
+
+p.
+  Note : le roque est possible tant que roi et tour n'ont ni bougé ni été
+  sujets à une action (cela diffère de la règle donnée sur chessvariants).
+  Il n'y a pas de prise en passant.
+
+h3 Fin de la partie
+
+p.
+  La partie se termine quand le roi est menacé de sortie par une certaine
+  action, et que celui-ci ne peut s'y soustraire.
+
+figure.diagram-container
+  .diagram
+    | fen:8/4B3/8/8/6Qk/8/4N3/K7:
+  figcaption Échec et mat Dynamo ("Dynamat" :) )
+
+p.
+  Le roi ne peut pas "prendre" en g4 : cela ne ferait que déplacer la dame
+  d'une case vers la gauche, et elle pousserait ensuite le roi au-delà de la
+  colonne 'h'.
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/mvopponent.dir/dynamo.html")
+    | variante Dynamo
+  | &nbsp;sur chessvariants.com. la description courte donnée sur 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=dynamo") cette page
+  | &nbsp;pourrait aider aussi.
+
+p Inventeurs : Hans Kluever et Peter Kahl (1968)

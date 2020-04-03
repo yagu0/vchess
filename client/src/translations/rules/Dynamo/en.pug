@@ -1,2 +1,99 @@
-p.boxed
-  | TODO: not playable yet!
+p.boxed.
+  Moves are potentially played in two times: move a piece,
+  and / or push or pull something with that unit.
+
+p.
+  Pieces have the same movement as in orthodox chess, except that they cannot
+  take other pieces in the usual way. Instead of the normal captures, pieces
+  can pull or push other pieces, potentially off the board.
+  The goal is to send the enemy king off the board.
+
+p Each turn, a player has the following options:
+ul
+  li.
+    Move one of his pieces normally, then optionally pull something as an
+    effect of this move.
+  li.
+    Push any piece with one of his pieces, then optionally follow the pushed
+    piece.
+
+p
+  | It seems easier to understand with some examples. For a detailed
+  | introduction please visit 
+  a(href="https://echekk.fr/spip.php?page=article&id_article=599") this page
+  | &nbsp;(in French).
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKB1R e1,e3,e4,c3,f3,g4,h5,d3,c4,b5,a6:
+  figcaption Possible "pawn moves" in the initial position.
+
+p.
+  The e2 pawn can move to e3 and e4 as usual. It can also slide diagonally,
+  being pushed by the bishop or the queen (which may or may not move along
+  this line afterward). It can also go to c3, being pushed by the knight from
+  g1; then the knight can move to e2, or stay motionless.
+  Finally, the pawn can "take the king": this is a special move indicating that
+  you want it to exit the board. Indeed it could be pushed off the board by the
+  bishop or the queen.
+
+p.
+  Note: if you don't want to play a second part in a move, just click on any
+  empty square: this will replace the second part by an empty move.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/ppp1pppp/8/3p4/8/2N5/PPPPPPPP/R1BQKB1R:
+  .diagram.diag22
+    | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKB1R:
+  figcaption Pulling the d5 pawn to c3 (left: before, right: after).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Pushing the d4 bishop to b2 (left: before, right: after).
+
+p.
+  It is forbidden to undo a "move + action". For example here, white could
+  push back the black bishop on g7 but not return to d4 then.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1qbnr/pppkpppp/3p4/8/Q1P5/5NP1/PP1PPP1P/RNB1KB1R:
+  figcaption.
+    Check: the queen threatens to pull the king off the board along the a4-e8
+    diagonal.
+
+p.
+  Note: castling is possible as long as the king and rook have not moved and
+  haven't been pushed or pulled (this differs from the chessvariants
+  description).
+
+h3 End of the game
+
+p.
+  The game ends when a push or pull action threatens to send the king off the
+  board, and he has no way to escape it.
+
+figure.diagram-container
+  .diagram
+    | fen:8/4B3/8/8/6Qk/8/4N3/K7:
+  figcaption Dynamo checkmate ("Dynamate" :) )
+
+p.
+  The king cannot "take" on g4: this would just push the queen one step to the
+  left, and she would then push the king beyond the 'h' file.
+  There are no en-passant captures.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/mvopponent.dir/dynamo.html")
+    | Dynamo chess
+  | &nbsp;on chessvariants.com. The short description given on 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=dynamo") this page
+  | &nbsp;might help too.
+
+p Inventors: Hans Kluever and Peter Kahl (1968)

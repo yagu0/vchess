@@ -224,8 +224,11 @@ export class DynamoRules extends ChessRules {
         newMoves.forEach(m => { movesHash[getMoveHash(m)] = true; });
         Array.prototype.push.apply(moves, newMoves);
       };
-      // Free to play any move:
-      const moves = super.getPotentialMovesFrom([x, y])
+      // Free to play any move (if piece of my color):
+      const moves =
+        this.getColor(x, y) == color
+          ? super.getPotentialMovesFrom([x, y])
+          : [];
       const pawnShift = (color == 'w' ? -1 : 1);
       const pawnStartRank = (color == 'w' ? 6 : 1);
       // Structure to avoid adding moves twice (can be action & move)
@@ -428,7 +431,19 @@ export class DynamoRules extends ChessRules {
         this.getPiece(rx, ry) == piece &&
         this.getColor(rx, ry) == color
       ) {
-        // Now step in the other direction: if end of the world, then attacked
+        // Continue some steps in the same direction (pull)
+        rx += step[0];
+        ry += step[1];
+        while (
+          V.OnBoard(rx, ry) &&
+          this.board[rx][ry] == V.EMPTY &&
+          !oneStep
+        ) {
+          rx += step[0];
+          ry += step[1];
+        }
+        if (!V.OnBoard(rx, ry)) return true;
+        // Step in the other direction (push)
         rx = x - step[0];
         ry = y - step[1];
         while (

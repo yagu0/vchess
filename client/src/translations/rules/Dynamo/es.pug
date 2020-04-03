@@ -1,2 +1,100 @@
-p.boxed
-  | TODO: no jugable en este momento!
+p.boxed.
+  Los movimientos se juegan potencialmente en dos etapas: mover una pieza,
+  y / o empujar o tirar de algo con esta unidad.
+
+p.
+  Las piezas se mueven como el ajedrez ortodoxo, pero no capturan
+  como de costumbre. En lugar de las capturas habituales, las piezas pueden
+  empujar o tirar de otras piezas, potencialmente fuera del tablero.
+  El objetivo es enviar al rey contrario fuera del tablero de ajedrez.
+
+p Cada jugador tiene las siguientes opciones en cada turno:
+ul
+  li.
+    Mueve una de sus piezas normalmente, luego posiblemente dispara
+    algo así como un efecto de jugada.
+  li.
+    Empuja cualquier pieza con una de las suyas, luego opcionalmente
+    sigue la pieza empujada.
+
+p
+  | Parece más fácil de entender con algunos ejemplos. Por una
+  | introducción detallada, ver 
+  a(href="https://echekk.fr/spip.php?page=article&id_article=599") esta página
+  | .
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKB1R e1,e3,e4,c3,f3,g4,h5,d3,c4,b5,a6:
+  figcaption Posibles "movimientos de peón" en la posición inicial.
+
+p.
+  El peón e2 puede ir a e3 o e4 como de costumbre. También puede deslizarse
+  diagonal, empujado por el alfil o la dama (que podría o no seguirlo
+  a lo largo de esta línea entonces). También puede alcanzar c3, empujado por
+  el caballo de g1; entonces el caballo puede ir a e2 o quedarse quieto.
+  Finalmente, el peón puede "tomar al rey": es un movimiento especial que
+  indica que lo quieres fuera del tablero de ajedrez. De hecho, este podría ser
+  empujado afuera por el alfil o la dama.
+
+p.
+  Nota: si no desea ejecutar un segundo movimiento, haga clic simplemente en un
+  cuadrado vacío: esto reemplazará la segunda parte con un movimiento vacío.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/ppp1pppp/8/3p4/8/2N5/PPPPPPPPP/R1BQKB1R:
+  .diagram.diag22
+    | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKB1R:
+  figcaption Tirando el peón d5 hacia c3 (izquierda: antes, derecha: después).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Empujando el alfil d4 hacia b2 (izquierda: antes, derecha: después).
+
+p.
+  Está prohibido deshacer un "movimiento + acción". Por ejemplo aquí, las
+  blancas podrían empujar al alfil negro a g7, pero no regresar a d4 después.
+
+figure.diagram-container
+  .diagram
+    | fen:rnb1qbnr/pppkpppp/3p4/8/Q1P5/5NP1/PP1PPP1P/RNB1KB1R:
+  figcaption.
+    Jaque: la dama amenaza con sacar al rey fuera del tablero de ajedrez por
+    la diagonal a4-e8
+
+p.
+  Nota: el enroque es posible si el rey y la torre no se hayan movido ni hayan
+  sido sujeto a acción (esto difiere de la regla dada sobre chessvariants).
+  No hay capturas en-passant.
+
+h3 Fin de la partida
+
+p.
+  El juego termina cuando el rey es amenazado con salir por cierto
+  acción, y que este último no puede escapar de ella.
+
+figure.diagram-container
+  .diagram
+    | fen:8/4B3/8/8/6Qk/8/4N3/K7:
+  figcaption Jaque mate Dynamo ("Dynamate" :) )
+
+p.
+  El rey no puede "tomar" en g4: esto solo movería a la dama
+  un cuadrado a la izquierda, y luego empujaría al rey más allá del
+  columna 'h'.
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/mvopponent.dir/dynamo.html")
+    | variante Dynamo
+  | &nbsp;en chessvariants.com. La breve descripción dada en
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=dynamo") esta página
+  | &nbsp;también podría ayudar.
+
+p Inventores: Hans Kluever y Peter Kahl (1968)
