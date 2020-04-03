@@ -9,7 +9,7 @@ export class DynamoRules extends ChessRules {
 
   canIplay(side, [x, y]) {
     // Sometimes opponent's pieces can be moved directly
-    return true;
+    return this.turn == side;
   }
 
   setOtherVariables(fen) {

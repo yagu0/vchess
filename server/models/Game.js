@@ -309,7 +309,8 @@ const GameModel =
       ) && (
         !obj.rematchOffer || !!(obj.rematchOffer.match(/^[wbn]$/))
       ) && (
-        !obj.fen || !!(obj.fen.match(/^[a-zA-Z0-9, /-]*$/))
+        // TODO: check if commas are still used (probably not)
+        !obj.fen || !!(obj.fen.match(/^[a-zA-Z0-9,. /-]*$/))
       ) && (
         !obj.score || !!(obj.score.match(/^[012?*\/-]+$/))
       ) && (
