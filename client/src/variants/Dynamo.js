@@ -88,7 +88,7 @@ export class DynamoRules extends ChessRules {
     return (
       ["appear","vanish"].map(
         mpart => {
-          if (mpart.length == 0) return "-";
+          if (this.amoves[L-1][mpart].length == 0) return "-";
           return (
             this.amoves[L-1][mpart].map(
               av => {
@@ -477,6 +477,22 @@ export class DynamoRules extends ChessRules {
       }
     }
     return false;
+  }
+
+  // No consideration of color: all pieces could be played
+  getAllPotentialMoves() {
+    let potentialMoves = [];
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY) {
+          Array.prototype.push.apply(
+            potentialMoves,
+            this.getPotentialMovesFrom([i, j])
+          );
+        }
+      }
+    }
+    return potentialMoves;
   }
 
   getCurrentScore() {

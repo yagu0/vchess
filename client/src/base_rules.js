@@ -966,7 +966,7 @@ export const ChessRules = class ChessRules {
     let potentialMoves = [];
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.getColor(i, j) == color) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
           Array.prototype.push.apply(
             potentialMoves,
             this.getPotentialMovesFrom([i, j])
