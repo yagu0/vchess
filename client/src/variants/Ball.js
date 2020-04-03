@@ -112,10 +112,17 @@ export class BallRules extends ChessRules {
   }
 
   canTake([x1, y1], [x2, y2]) {
-    // Capture enemy or pass ball to friendly pieces
+    if (this.getColor(x1, y1) !== this.getColor(x2, y2)) {
+      // The piece holding the ball cannot capture:
+      return (
+        !(Object.keys(V.HAS_BALL_DECODE)
+          .includes(this.board[x1][y1].charAt(1)))
+      );
+    }
+    // Pass: possible only if one of the friendly pieces has the ball
     return (
-      this.getColor(x1, y1) !== this.getColor(x2, y2) ||
-      Object.keys(V.HAS_BALL_DECODE).includes(this.board[x1][y1].charAt(1))
+      Object.keys(V.HAS_BALL_DECODE).includes(this.board[x1][y1].charAt(1)) ||
+      Object.keys(V.HAS_BALL_DECODE).includes(this.board[x2][y2].charAt(1))
     );
   }
 
@@ -238,15 +245,29 @@ export class BallRules extends ChessRules {
       );
     }
 
-    // Post-processing: maybe the ball was taken, or a piece + ball
+    // Post-processing: maybe the ball was taken, or a piece + ball,
+    // or maybe a pass (ball <--> piece)
     if (mv.vanish.length == 2) {
       if (
         // Take the ball?
         mv.vanish[1].c == 'a' ||
-        // Capture a ball-holding piece?
+        // Capture a ball-holding piece? If friendly one, then adjust
         Object.keys(V.HAS_BALL_DECODE).includes(mv.vanish[1].p)
       ) {
         mv.appear[0].p = V.HAS_BALL_CODE[mv.appear[0].p];
+        if (mv.vanish[1].c == mv.vanish[0].c) {
+          // "Capturing" self => pass
+          mv.appear[0].x = mv.start.x;
+          mv.appear[0].y = mv.start.y;
+          mv.appear.push(
+            new PiPo({
+              x: mv.end.x,
+              y: mv.end.y,
+              p: V.HAS_BALL_DECODE[mv.vanish[1].p],
+              c: mv.vanish[0].c
+            })
+          );
+        }
       } else if (mv.vanish[1].c == mv.vanish[0].c) {
         // Pass the ball: the passing unit does not disappear
         mv.appear.push(JSON.parse(JSON.stringify(mv.vanish[0])));
