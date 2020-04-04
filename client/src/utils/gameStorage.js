@@ -89,7 +89,8 @@ export const GameStorage = {
             else if (k == "chat") game.chats.push(obj[k]);
             else if (k == "chatRead") game.chatRead = Date.now();
             else if (k == "delchat") game.chats = [];
-            else if (k == "playerName") game.players[obj[k].idx] = obj[k].name;
+            else if (k == "playerName")
+              game.players[obj[k].idx].name = obj[k].name;
             else game[k] = obj[k];
           });
           objectStore.put(game); //save updated data
