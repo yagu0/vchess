@@ -55,7 +55,7 @@ export const CompgameStorage = {
         .objectStore("compgames");
       objectStore.get(gameId).onsuccess = function(event) {
         // Ignoring error silently: shouldn't happen now. TODO?
-        if (event.target.result) {
+        if (!!event.target.result) {
           const game = event.target.result;
           Object.keys(obj).forEach(k => {
             if (k == "move") game.moves.push(obj[k]);

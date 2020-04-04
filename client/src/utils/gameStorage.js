@@ -73,14 +73,13 @@ export const GameStorage = {
 
   // obj: chat, move, fen, clocks, score[Msg], initime, ...
   update: function(gameId, obj) {
-    // live
     dbOperation((err, db) => {
       let objectStore = db
         .transaction("games", "readwrite")
         .objectStore("games");
       objectStore.get(gameId).onsuccess = function(event) {
         // Ignoring error silently: shouldn't happen now. TODO?
-        if (event.target.result) {
+        if (!!event.target.result) {
           let game = event.target.result;
           // Hidden tabs are delayed, to prevent multi-updates:
           if (obj.moveIdx < game.moves.length) return;
