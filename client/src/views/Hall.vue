@@ -1182,10 +1182,13 @@ export default {
     // NOTE: when launching game, the challenge is already being deleted
     launchGame: function(c) {
       // White player index 0, black player index 1:
-      const players =
+      let players =
         !!c.mycolor
           ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
           : shuffle([c.from, c.seat]);
+      players.forEach(p => {
+        if (!!p["tmpIds"]) delete p["tmpIds"];
+      });
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),

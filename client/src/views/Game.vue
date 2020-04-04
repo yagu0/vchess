@@ -545,7 +545,8 @@ export default {
             if (sid != this.st.user.sid) {
               this.send("askidentity", { target: sid });
               this.people[sid] = { tmpIds: data.sockIds[sid] };
-            } else {
+            }
+            else {
               // Complete my tmpIds:
               Object.assign(this.people[sid].tmpIds, data.sockIds[sid]);
             }
@@ -611,6 +612,23 @@ export default {
           // player.tmpIds is already set
           player.name = user.name;
           player.id = user.id;
+          if (this.game.type == "live") {
+            const myGidx =
+              this.game.players.findIndex(p => p.sid == this.st.user.sid);
+            // Sometimes a player name isn't stored yet (TODO: why?)
+            if (
+              myGidx >= 0 &&
+              !this.game.players[1 - myGidx].name &&
+              this.game.players[1 - myGidx].sid == user.sid &&
+              !!user.name
+            ) {
+              this.game.players[1-myGidx].name = user.name;
+              GameStorage.update(
+                this.gameRef,
+                { playerName: { idx: 1 - myGidx, name: user.name } }
+              );
+            }
+          }
           this.$forceUpdate(); //TODO: shouldn't be required
           // If I multi-connect, kill current connexion if no mark (I'm older)
           if (this.newConnect[user.sid]) {
@@ -1042,6 +1060,19 @@ export default {
       const myIdx = game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.id == this.st.user.id;
       });
+      // Sometimes the name isn't stored yet (TODO: why?)
+      if (
+        myIdx >= 0 &&
+        gtype == "live" &&
+        !game.players[myIdx].name &&
+        !!this.st.user.name
+      ) {
+        game.players[myIdx].name = this.st.user.name;
+        GameStorage.update(
+          game.id,
+          { playerName: { idx: myIdx, name: this.st.user.name } }
+        );
+      }
       // "mycolor" is undefined for observers
       const mycolor = [undefined, "w", "b"][myIdx + 1];
       if (gtype == "corr") {
@@ -1067,9 +1098,10 @@ export default {
           game.clocks = [tc.mainTime, tc.mainTime];
           if (myIdx >= 0) {
             // I play in this live game
-            GameStorage.update(game.id, {
-              clocks: game.clocks
-            });
+            GameStorage.update(
+              game.id,
+              { clocks: game.clocks }
+            );
           }
         } else {
           if (!!game.initime)
