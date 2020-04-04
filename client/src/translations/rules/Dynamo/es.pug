@@ -48,16 +48,12 @@ figure.diagram-container
     | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKBNR:
   figcaption Tirando el peón d5 hacia c3 (izquierda: antes, derecha: después).
 
-figure.diagram-container
-  .diagram.diag12
-    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
-  .diagram.diag22
-    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption Empujando el alfil d4 hacia b2 (izquierda: antes, derecha: después).
-
-p.
-  Está prohibido deshacer un "movimiento + acción". Por ejemplo aquí, las
-  blancas podrían empujar al alfil negro a g7, pero no regresar a d4 después.
+ul
+  li Los peones no pueden disparar (ya que solo avanzan).
+  li.
+    Cuando pudieran alcanzar la pieza más allá del borde del tablero,
+    las piezas pueden salir del juego solas, posiblemente
+    entrenando a otra afuera (amiga o enemiga).
 
 figure.diagram-container
   .diagram
@@ -67,7 +63,18 @@ figure.diagram-container
     la diagonal a4-e8
 
 p.
-  Nota: el enroque es posible si el rey y la torre no se hayan movido ni hayan
+  Está prohibido deshacer un "movimiento + acción". Por ejemplo aquí, las
+  blancas podrían empujar al alfil negro a g7, pero no regresar a d4 después.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Empujando el alfil d4 hacia b2 (izquierda: antes, derecha: después).
+
+p.
+  El enroque es posible si el rey y la torre no se hayan movido ni hayan
   sido sujeto a acción (esto difiere de la regla dada sobre chessvariants).
   No hay capturas en-passant.
 

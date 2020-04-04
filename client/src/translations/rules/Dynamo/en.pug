@@ -48,16 +48,12 @@ figure.diagram-container
     | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKBNR:
   figcaption Pulling the d5 pawn to c3 (left: before, right: after).
 
-figure.diagram-container
-  .diagram.diag12
-    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
-  .diagram.diag22
-    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption Pushing the d4 bishop to b2 (left: before, right: after).
-
-p.
-  It is forbidden to undo a "move + action". For example here, white could
-  push back the black bishop on g7 but not return to d4 then.
+ul
+  li Pawns cannot pull (because they only move forward).
+  li.
+    When they could reach the square beyond the edge,
+    pieces can exit the board by themselves, possibly dragging another piece
+    out (friendly or enemy).
 
 figure.diagram-container
   .diagram
@@ -67,7 +63,18 @@ figure.diagram-container
     diagonal.
 
 p.
-  Note: castling is possible as long as the king and rook have not moved and
+  It is forbidden to undo a "move + action". For example here, white could
+  push back the black bishop on g7 but not return to d4 then.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Pushing the d4 bishop to b2 (left: before, right: after).
+
+p.
+  Castling is possible as long as the king and rook have not moved and
   haven't been pushed or pulled (this differs from the chessvariants
   description).
 

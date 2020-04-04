@@ -208,6 +208,22 @@ export class DynamoRules extends ChessRules {
     return false;
   }
 
+  isAprioriValidVertical([x1, y1], x2) {
+    const piece = this.getPiece(x1, y1);
+    const deltaX = Math.abs(x1 - x2);
+    const startRank = (this.getColor(x1, y1) == 'w' ? 6 : 1);
+    return (
+      [V.QUEEN, V.ROOK].includes(piece) ||
+      (
+        [V.KING, V.PAWN].includes(piece) &&
+        (
+          deltaX == 1 ||
+          (deltaX == 2 && piece == V.PAWN && x1 == startRank)
+        )
+      )
+    );
+  }
+
   // NOTE: for pushes, play the pushed piece first.
   //       for pulls: play the piece doing the action first
   // NOTE: to push a piece out of the board, make it slide until its king
@@ -337,6 +353,15 @@ export class DynamoRules extends ChessRules {
         [fm.start.x - x, fm.start.y - y]);
       // Normalized directions should match
       if (dir[0] == dirM[0] && dir[1] == dirM[1]) {
+        // If first move is a pawn move, only a queen, rook, or maybe king or
+        // pawn can follow (need vertical movement option).
+        if (
+          fm.vanish[0].p == V.PAWN &&
+          fm.vanish[0].c == color &&
+          !this.isAprioriValidVertical([x, y], fm.start.x)
+        ) {
+          return [];
+        }
         // And nothing should stand between [x, y] and the square fm.start
         let [i, j] = [x + dir[0], y + dir[1]];
         while (

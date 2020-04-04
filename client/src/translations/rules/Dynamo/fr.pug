@@ -49,16 +49,12 @@ figure.diagram-container
     | fen:rnbqkbnr/ppp1pppp/8/8/8/2p5/PPPPPPPP/RNBQKBNR:
   figcaption Tirant le pion d5 en c3 (gauche : avant, droite : après).
 
-figure.diagram-container
-  .diagram.diag12
-    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
-  .diagram.diag22
-    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
-  figcaption Poussant le fou d4 vers b2 (gauche : avant, droite : après).
-
-p.
-  Il est interdit de défaire un "coup + action". Par exemple ici, les blancs
-  pourraient pousser le fou noir en g7, mais pas retourner sur d4 ensuite.
+ul
+  li Les pions ne peuvent pas tirer (car ils ne se déplacent qu'en avant).
+  li.
+    Quand elles pourraient atteindre la case au-delà du bord de l'échiquier,
+    les pièces peuvent sortir du jeu par elles-mêmes, éventuellement
+    en entraînant une autre en dehors (amie ou ennemie).
 
 figure.diagram-container
   .diagram
@@ -68,7 +64,18 @@ figure.diagram-container
     la diagonale a4-e8
 
 p.
-  Note : le roque est possible tant que roi et tour n'ont ni bougé ni été
+  Il est interdit de défaire un "coup + action". Par exemple ici, les blancs
+  pourraient pousser le fou noir en g7, mais pas retourner sur d4 ensuite.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqk1nr/ppppppbp/6p1/8/3B4/1P6/P1PPPPPP/RN1QKBNR:
+  .diagram.diag22
+    | fen:rnbqk1nr/pppppp1p/6p1/8/3b4/1P6/PBPPPPPP/RN1QKBNR:
+  figcaption Poussant le fou d4 vers b2 (gauche : avant, droite : après).
+
+p.
+  Le roque est possible tant que roi et tour n'ont ni bougé ni été
   sujets à une action (cela diffère de la règle donnée sur chessvariants).
   Il n'y a pas de prise en passant.
 
