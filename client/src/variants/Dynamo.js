@@ -229,6 +229,7 @@ export class DynamoRules extends ChessRules {
   // NOTE: to push a piece out of the board, make it slide until its king
   getPotentialMovesFrom([x, y]) {
     const color = this.turn;
+    const sqCol = this.getColor(x, y);
     if (this.subTurn == 1) {
       const getMoveHash = (m) => {
         return V.CoordsToSquare(m.start) + V.CoordsToSquare(m.end);
@@ -242,7 +243,7 @@ export class DynamoRules extends ChessRules {
       };
       // Free to play any move (if piece of my color):
       let moves =
-        this.getColor(x, y) == color
+        sqCol == color
           ? super.getPotentialMovesFrom([x, y])
           : [];
       // There may be several suicide moves: keep only one
@@ -292,13 +293,12 @@ export class DynamoRules extends ChessRules {
                 deltaX <= 2 &&
                 deltaY <= 1
               ) {
-                const pColor = this.getColor(x, y);
-                if (pColor == color && deltaY == 0) {
+                if (sqCol == color && deltaY == 0) {
                   // Pushed forward
                   const maxSteps = (i == pawnStartRank && deltaX == 1 ? 2 : 1);
                   addMoves(step, maxSteps);
                 }
-                else if (pColor != color && deltaY == 1 && deltaX == 1)
+                else if (sqCol != color && deltaY == 1 && deltaX == 1)
                   // Pushed diagonally
                   addMoves(step, 1);
               }
@@ -327,9 +327,13 @@ export class DynamoRules extends ChessRules {
     // naturally limited in those cases.
     const L = this.firstMove.length;
     const fm = this.firstMove[L-1];
-    if (fm.appear.length == 2 && fm.vanish.length == 2)
-      // Castle: no real move playable then.
+    if (
+      (fm.appear.length == 2 && fm.vanish.length == 2) ||
+      (fm.vanish[0].c == sqCol && sqCol != color)
+    ) {
+      // Castle or again opponent color: no move playable then.
       return [];
+    }
     if (fm.appear.length == 0) {
       // Piece at subTurn 1 just exited the board.
       // Can I be a piece which caused the exit?
@@ -380,6 +384,8 @@ export class DynamoRules extends ChessRules {
 
   getSlideNJumpMoves([x, y], steps, oneStep) {
     let moves = [];
+    const c = this.getColor(x, y);
+    const piece = this.getPiece(x, y);
     outerLoop: for (let step of steps) {
       let i = x + step[0];
       let j = y + step[1];
@@ -395,9 +401,7 @@ export class DynamoRules extends ChessRules {
       }
       else {
         // Add potential board exit (suicide), except for the king
-        const piece = this.getPiece(x, y);
         if (piece != V.KING) {
-          const c = this.getColor(x, y);
           moves.push({
             start: { x: x, y: y},
             end: { x: this.kingPos[c][0], y: this.kingPos[c][1] },
