@@ -1,6 +1,15 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class SuctionRules extends ChessRules {
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      // No promotions:
+      { promotions: [V.PAWN] }
+    );
+  }
+
   static get HasFlags() {
     return false;
   }
