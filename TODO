@@ -1,5 +1,14 @@
 Chakart :)
+
 Checkered1 & 2 --> avec switch, coup roi sur roi.
+
 Ambiguous chess
 https://www.chessvariants.com/mvopponent.dir/ambiguous-chess.html
+Need special highlight square --> similar to enlightened for Dark, in Board.vue
+Also in notation, show only dest square for "opponents ambiguous moves".
+Similar to Marseille-chess, white first move only 1 subTurn, do not choose a square.
+Then black has a free first move, then choose a square, and the process goes on.
+
+(Note: could simplify Marseille FEN, just indicate turn)
+
 [Sittuyin (burmese chess) --> probably not]
