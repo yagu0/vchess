@@ -205,13 +205,12 @@ export default {
       this.vr = new V(game.fenStart);
       const parsedFen = V.ParseFen(game.fenStart);
       const firstMoveColor = parsedFen.turn;
-      this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2);
+      this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
       let L = this.moves.length;
       this.moves.forEach(move => {
         // Strategy working also for multi-moves:
         if (!Array.isArray(move)) move = [move];
         move.forEach((m,idx) => {
-          m.index = this.vr.movesCount;
           m.notation = this.vr.getNotation(m);
           m.unambiguous = V.GetUnambiguousNotation(m);
           this.vr.play(m);
@@ -222,7 +221,6 @@ export default {
       if (firstMoveColor == "b") {
         // 'start' & 'end' is required for Board component
         this.moves.unshift({
-          index: parsedFen.movesCount,
           notation: "...",
           unambiguous: "...",
           start: { x: -1, y: -1 },
@@ -289,13 +287,13 @@ export default {
         // Adjust dots notation for a better display:
         let fullNotation = getFullNotation(this.moves[i]);
         if (fullNotation == "...") fullNotation = "..";
-        pgn += (this.moves[i].index / 2 + 1) + "." + fullNotation;
+        pgn += (i / 2 + this.firstMoveNumber) + "." + fullNotation;
         if (i+1 < this.moves.length)
           pgn += " " + getFullNotation(this.moves[i+1]);
       }
       pgn += "\n\n";
       for (let i = 0; i < this.moves.length; i += 2) {
-        const moveNumber = this.moves[i].index / 2 + 1;
+        const moveNumber = i / 2 + this.firstMoveNumber;
         // Skip "dots move", useless for machine reading:
         if (this.moves[i].notation != "...") {
           pgn += moveNumber + ".w " +

@@ -158,7 +158,6 @@ export class DynamoRules extends ChessRules {
   }
 
   // There was something on x2,y2, maybe our color, pushed/pulled.
-  // Also, the pushed/pulled piece must exit the board.
   isAprioriValidExit([x1, y1], [x2, y2], color2) {
     const color1 = this.getColor(x1, y1);
     const pawnShift = (color1 == 'w' ? -1 : 1);
@@ -338,6 +337,8 @@ export class DynamoRules extends ChessRules {
       // Piece at subTurn 1 just exited the board.
       // Can I be a piece which caused the exit?
       if (
+        // Only "turn" color can do actions
+        sqCol == color &&
         this.isAprioriValidExit(
           [x, y],
           [fm.start.x, fm.start.y],
@@ -347,7 +348,9 @@ export class DynamoRules extends ChessRules {
         // Seems so:
         const dir = this.getNormalizedDirection(
           [fm.start.x - x, fm.start.y - y]);
-        return this.getMovesInDirection([x, y], dir);
+        const nbSteps =
+          ([V.PAWN,V.KING,V.KNIGHT].includes(this.getPiece(x, y)) ? 1 : null);
+        return this.getMovesInDirection([x, y], dir, nbSteps);
       }
     }
     else {
