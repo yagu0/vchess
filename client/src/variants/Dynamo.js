@@ -225,10 +225,20 @@ export class DynamoRules extends ChessRules {
         Array.prototype.push.apply(moves, newMoves);
       };
       // Free to play any move (if piece of my color):
-      const moves =
+      let moves =
         this.getColor(x, y) == color
           ? super.getPotentialMovesFrom([x, y])
           : [];
+      // There may be several suicide moves: keep only one
+      let hasExit = false;
+      moves = moves.filter(m => {
+        const suicide = (m.appear.length == 0);
+        if (suicide) {
+          if (hasExit) return false;
+          hasExit = true;
+        }
+        return true;
+      });
       const pawnShift = (color == 'w' ? -1 : 1);
       const pawnStartRank = (color == 'w' ? 6 : 1);
       // Structure to avoid adding moves twice (can be action & move)
@@ -259,7 +269,6 @@ export class DynamoRules extends ChessRules {
         ) {
           const deltaX = Math.abs(i - x);
           const deltaY = Math.abs(j - y);
-          // Can a priori go both ways, except with pawns
           switch (this.getPiece(i, j)) {
             case V.PAWN:
               if (
@@ -285,8 +294,8 @@ export class DynamoRules extends ChessRules {
               if (deltaX == deltaY) addMoves(step);
               break;
             case V.QUEEN:
-              if (deltaX == 0 || deltaY == 0 || deltaX == deltaY)
-                addMoves(step);
+              // All steps are valid for a queen:
+              addMoves(step);
               break;
             case V.KING:
               if (deltaX <= 1 && deltaY <= 1) addMoves(step, 1);
@@ -342,6 +351,45 @@ export class DynamoRules extends ChessRules {
       }
     }
     return [];
+  }
+
+  getSlideNJumpMoves([x, y], steps, oneStep) {
+    let moves = [];
+    outerLoop: for (let step of steps) {
+      let i = x + step[0];
+      let j = y + step[1];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+        if (oneStep) continue outerLoop;
+        i += step[0];
+        j += step[1];
+      }
+      if (V.OnBoard(i, j)) {
+        if (this.canTake([x, y], [i, j]))
+          moves.push(this.getBasicMove([x, y], [i, j]));
+      }
+      else {
+        // Add potential board exit (suicide), except for the king
+        const piece = this.getPiece(x, y);
+        if (piece != V.KING) {
+          const c = this.getColor(x, y);
+          moves.push({
+            start: { x: x, y: y},
+            end: { x: this.kingPos[c][0], y: this.kingPos[c][1] },
+            appear: [],
+            vanish: [
+              new PiPo({
+                x: x,
+                y: y,
+                c: c,
+                p: piece
+              })
+            ]
+          });
+        }
+      }
+    }
+    return moves;
   }
 
   // Does m2 un-do m1 ? (to disallow undoing actions)
