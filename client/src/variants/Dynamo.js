@@ -2,7 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class DynamoRules extends ChessRules {
-  // TODO: later, allow to push out pawns on a and h files
+  // TODO? later, allow to push out pawns on a and h files
   static get HasEnpassant() {
     return false;
   }
@@ -157,8 +157,8 @@ export class DynamoRules extends ChessRules {
     return [dx / divisor, dy / divisor];
   }
 
-  // There was something on x2,y2, maybe our color, pushed/pulled.
-  isAprioriValidExit([x1, y1], [x2, y2], color2) {
+  // There was something on x2,y2, maybe our color, pushed or (self)pulled
+  isAprioriValidExit([x1, y1], [x2, y2], color2, piece2) {
     const color1 = this.getColor(x1, y1);
     const pawnShift = (color1 == 'w' ? -1 : 1);
     const lastRank = (color1 == 'w' ? 0 : 7);
@@ -173,13 +173,17 @@ export class DynamoRules extends ChessRules {
       }
       return !V.OnBoard(i, j);
     };
-    switch (this.getPiece(x1, y1)) {
+    switch (piece2 || this.getPiece(x1, y1)) {
       case V.PAWN:
         return (
           x1 + pawnShift == x2 &&
           (
             (color1 == color2 && x2 == lastRank && y1 == y2) ||
-            (color1 != color2 && deltaY == 1 && !V.OnBoard(x2, 2 * y2 - y1))
+            (
+              color1 != color2 &&
+              deltaY == 1 &&
+              !V.OnBoard(2 * x2 - x1, 2 * y2 - y1)
+            )
           )
         );
       case V.ROOK:
@@ -229,10 +233,12 @@ export class DynamoRules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     const color = this.turn;
     const sqCol = this.getColor(x, y);
+    const pawnShift = (color == 'w' ? -1 : 1);
+    const pawnStartRank = (color == 'w' ? 6 : 1);
+    const getMoveHash = (m) => {
+      return V.CoordsToSquare(m.start) + V.CoordsToSquare(m.end);
+    };
     if (this.subTurn == 1) {
-      const getMoveHash = (m) => {
-        return V.CoordsToSquare(m.start) + V.CoordsToSquare(m.end);
-      };
       const addMoves = (dir, nbSteps) => {
         const newMoves =
           this.getMovesInDirection([x, y], [-dir[0], -dir[1]], nbSteps)
@@ -255,8 +261,6 @@ export class DynamoRules extends ChessRules {
         }
         return true;
       });
-      const pawnShift = (color == 'w' ? -1 : 1);
-      const pawnStartRank = (color == 'w' ? 6 : 1);
       // Structure to avoid adding moves twice (can be action & move)
       let movesHash = {};
       moves.forEach(m => { movesHash[getMoveHash(m)] = true; });
@@ -322,8 +326,6 @@ export class DynamoRules extends ChessRules {
     }
     // If subTurn == 2 then we should have a first move,
     // which restrict what we can play now: only in the first move direction
-    // NOTE: no need for knight or pawn checks, because the move will be
-    // naturally limited in those cases.
     const L = this.firstMove.length;
     const fm = this.firstMove[L-1];
     if (
@@ -333,12 +335,10 @@ export class DynamoRules extends ChessRules {
       // Castle or again opponent color: no move playable then.
       return [];
     }
-    if (fm.appear.length == 0) {
-      // Piece at subTurn 1 just exited the board.
-      // Can I be a piece which caused the exit?
+    const piece = this.getPiece(x, y);
+    const getPushExit = () => {
+      // Piece at subTurn 1 exited: can I have caused the exit?
       if (
-        // Only "turn" color can do actions
-        sqCol == color &&
         this.isAprioriValidExit(
           [x, y],
           [fm.start.x, fm.start.y],
@@ -349,27 +349,82 @@ export class DynamoRules extends ChessRules {
         const dir = this.getNormalizedDirection(
           [fm.start.x - x, fm.start.y - y]);
         const nbSteps =
-          ([V.PAWN,V.KING,V.KNIGHT].includes(this.getPiece(x, y)) ? 1 : null);
+          [V.PAWN, V.KING, V.KNIGHT].includes(piece)
+            ? 1
+            : null;
         return this.getMovesInDirection([x, y], dir, nbSteps);
       }
+      return [];
     }
-    else {
+    const getPushMoves = () => {
+      // Piece from subTurn 1 is still on board:
       const dirM = this.getNormalizedDirection(
         [fm.end.x - fm.start.x, fm.end.y - fm.start.y]);
       const dir = this.getNormalizedDirection(
         [fm.start.x - x, fm.start.y - y]);
       // Normalized directions should match
       if (dir[0] == dirM[0] && dir[1] == dirM[1]) {
-        // If first move is a pawn move, only a queen, rook, or maybe king or
-        // pawn can follow (need vertical movement option).
-        if (
-          fm.vanish[0].p == V.PAWN &&
-          fm.vanish[0].c == color &&
-          !this.isAprioriValidVertical([x, y], fm.start.x)
-        ) {
-          return [];
+        // We don't know if first move is a pushed piece or normal move,
+        // so still must check if the push is valid.
+        const deltaX = Math.abs(fm.start.x - x);
+        const deltaY = Math.abs(fm.start.y - y);
+        switch (piece) {
+          case V.PAWN:
+            if (x == pawnStartRank) {
+              if (
+                (fm.start.x - x) * pawnShift < 0 ||
+                deltaX >= 3 ||
+                deltaY >= 2 ||
+                (fm.vanish[0].c == color && deltaY > 0) ||
+                (fm.vanish[0].c != color && deltaY == 0) ||
+                Math.abs(fm.end.x - fm.start.x) > deltaX ||
+                fm.end.y - fm.start.y != fm.start.y - y
+              ) {
+                return [];
+              }
+            }
+            else {
+              if (
+                fm.start.x - x != pawnShift ||
+                deltaY >= 2 ||
+                (fm.vanish[0].c == color && deltaY == 1) ||
+                (fm.vanish[0].c != color && deltaY == 0) ||
+                fm.end.x - fm.start.x != pawnShift ||
+                fm.end.y - fm.start.y != fm.start.y - y
+              ) {
+                return [];
+              }
+            }
+            break;
+          case V.KNIGHT:
+            if (
+              (deltaX + deltaY != 3 || (deltaX == 0 && deltaY == 0)) ||
+              (fm.end.x - fm.start.x != fm.start.x - x) ||
+              (fm.end.y - fm.start.y != fm.start.y - y)
+            ) {
+              return [];
+            }
+            break;
+          case V.KING:
+            if (
+              (deltaX >= 2 || deltaY >= 2) ||
+              (fm.end.x - fm.start.x != fm.start.x - x) ||
+              (fm.end.y - fm.start.y != fm.start.y - y)
+            ) {
+              return [];
+            }
+            break;
+          case V.BISHOP:
+            if (deltaX != deltaY) return [];
+            break;
+          case V.ROOK:
+            if (deltaX != 0 && deltaY != 0) return [];
+            break;
+          case V.QUEEN:
+            if (deltaX != deltaY && deltaX != 0 && deltaY != 0) return [];
+            break;
         }
-        // And nothing should stand between [x, y] and the square fm.start
+        // Nothing should stand between [x, y] and the square fm.start
         let [i, j] = [x + dir[0], y + dir[1]];
         while (
           (i != fm.start.x || j != fm.start.y) &&
@@ -381,6 +436,88 @@ export class DynamoRules extends ChessRules {
         if (i == fm.start.x && j == fm.start.y)
           return this.getMovesInDirection([x, y], dir);
       }
+      return [];
+    }
+    const getPullExit = () => {
+      // Piece at subTurn 1 exited: can I be pulled?
+      // Note: pawns and kings cannot suicide,
+      // so fm.vanish[0].p is neither PAWN or KING
+      if (
+        this.isAprioriValidExit(
+          [x, y],
+          [fm.start.x, fm.start.y],
+          fm.vanish[0].c,
+          fm.vanish[0].p
+        )
+      ) {
+        // Seems so:
+        const dir = this.getNormalizedDirection(
+          [fm.start.x - x, fm.start.y - y]);
+        const nbSteps = (fm.vanish[0].p == V.KNIGHT ? 1 : null);
+        return this.getMovesInDirection([x, y], dir, nbSteps);
+      }
+      return [];
+    };
+    const getPullMoves = () => {
+      if (fm.vanish[0].p == V.PAWN)
+        // pawns cannot pull
+        return [];
+      const dirM = this.getNormalizedDirection(
+        [fm.end.x - fm.start.x, fm.end.y - fm.start.y]);
+      const dir = this.getNormalizedDirection(
+        [fm.start.x - x, fm.start.y - y]);
+      // Normalized directions should match
+      if (dir[0] == dirM[0] && dir[1] == dirM[1]) {
+        // Am I at the right distance?
+        const deltaX = Math.abs(x - fm.start.x);
+        const deltaY = Math.abs(y - fm.start.y);
+        if (
+          (fm.vanish[0].p == V.KING && (deltaX > 1 || deltaY > 1)) ||
+          (fm.vanish[0].p == V.KNIGHT &&
+            (deltaX + deltaY != 3 || deltaX == 0 || deltaY == 0))
+        ) {
+          return [];
+        }
+        // Nothing should stand between [x, y] and the square fm.start
+        let [i, j] = [x + dir[0], y + dir[1]];
+        while (
+          (i != fm.start.x || j != fm.start.y) &&
+          this.board[i][j] == V.EMPTY
+        ) {
+          i += dir[0];
+          j += dir[1];
+        }
+        if (i == fm.start.x && j == fm.start.y)
+          return this.getMovesInDirection([x, y], dir);
+      }
+      return [];
+    };
+    if (fm.vanish[0].c != color) {
+      // Only possible action is a push:
+      if (fm.appear.length == 0) return getPushExit();
+      return getPushMoves();
+    }
+    else if (sqCol != color) {
+      // Only possible action is a pull, considering moving piece abilities
+      if (fm.appear.length == 0) return getPullExit();
+      return getPullMoves();
+    }
+    else {
+      // My color + my color: both actions possible
+      // Structure to avoid adding moves twice (can be action & move)
+      let movesHash = {};
+      if (fm.appear.length == 0) {
+        const pushes = getPushExit();
+        pushes.forEach(m => { movesHash[getMoveHash(m)] = true; });
+        return (
+          pushes.concat(getPullExit().filter(m => !movesHash[getMoveHash(m)]))
+        );
+      }
+      const pushes = getPushMoves();
+      pushes.forEach(m => { movesHash[getMoveHash(m)] = true; });
+      return (
+        pushes.concat(getPullMoves().filter(m => !movesHash[getMoveHash(m)]))
+      );
     }
     return [];
   }
@@ -541,10 +678,7 @@ export class DynamoRules extends ChessRules {
   }
 
   isAttackedByPawn([x, y], color) {
-    const lastRank = (color == 'w' ? 0 : 7);
-    if (x != lastRank)
-      // The king can be pushed out by a pawn only on last rank
-      return false;
+    // The king can be pushed out by a pawn on last rank or near the edge
     const pawnShift = (color == "w" ? 1 : -1);
     for (let i of [-1, 1]) {
       if (
@@ -553,7 +687,7 @@ export class DynamoRules extends ChessRules {
         this.getPiece(x + pawnShift, y + i) == V.PAWN &&
         this.getColor(x + pawnShift, y + i) == color
       ) {
-        return true;
+        return !V.OnBoard(x - pawnShift, y - i);
       }
     }
     return false;
@@ -583,6 +717,10 @@ export class DynamoRules extends ChessRules {
   }
 
   doClick(square) {
+    // A click to promote a piece on subTurn 2 would trigger this.
+    // For now it would then return [NaN, NaN] because surrounding squares
+    // have no IDs in the promotion modal. TODO: improve this?
+    if (!square[0]) return null;
     // If subTurn == 2 && square is empty && !underCheck,
     // then return an empty move, allowing to "pass" subTurn2
     if (
