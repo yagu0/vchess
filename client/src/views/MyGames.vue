@@ -198,6 +198,8 @@ export default {
             alert(this.st.tr["An error occurred. Try again!"]);
             return;
           }
+          // NOTE: since a random new ID is generated for imported games,
+          // this error will not occur.
           else alert(this.st.tr["The game was already imported"]);
         }
         this.$router.push("/game/" + game.id);

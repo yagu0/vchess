@@ -277,10 +277,10 @@ export default {
       pgn += '[Black "' + this.game.players[1].name + '"]\n';
       pgn += '[Fen "' + this.game.fenStart + '"]\n';
       pgn += '[Result "' + this.game.score + '"]\n';
-      if (!!this.game.id) {
-        pgn += '[Cadence "' + this.game.cadence + '"]\n';
+      if (!!this.game.id)
         pgn += '[Url "' + params.serverUrl + '/game/' + this.game.id + '"]\n';
-      }
+      if (!!this.game.cadence)
+        pgn += '[Cadence "' + this.game.cadence + '"]\n';
       pgn += '\n';
       for (let i = 0; i < this.moves.length; i += 2) {
         if (i > 0) pgn += " ";

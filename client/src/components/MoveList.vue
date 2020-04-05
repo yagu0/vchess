@@ -45,7 +45,7 @@ div
     span.score-msg {{ st.tr[message] }}
   .moves-list(v-if="!['none','highlight'].includes(show)")
     .tr(v-for="moveIdx in evenNumbers")
-      .td {{ firstNum + moveIdx / 2 + 1 }}
+      .td {{ firstNum + moveIdx / 2 }}
       .td(v-if="moveIdx < moves.length-1 || show == 'all'"
         :class="{'highlight-lm': cursor == moveIdx}"
         @click="() => gotoMove(moveIdx)"
@@ -56,7 +56,7 @@ div
         :class="{'highlight-lm': highlightBlackmove(moveIdx+1)}"
         @click="() => gotoMove(moveIdx+1)"
       )
-        | {{ notation(moves[moveIdx+1]) }}
+        | {{ notation(moves[moveIdx + 1]) }}
 </template>
 
 <script>

@@ -61,21 +61,18 @@ export default {
             // "unknown result" to avoid running the clocks...
             game.result = (value != "*" ? value : "?");
             break;
-          case "Url":
-            // Prefix "I_" to say "this is an import"
-            game.id = "i" + value.match(/\/game\/([a-zA-Z0-9]+)$/)[1];
-            break;
           case "Cadence":
             game.cadence = value;
             break;
         }
         idx++;
       }
-      if (!game.id) {
-        game.id = "i" + getRandString();
+      // Always generate random ID for imported games, because they could be
+      // downloaded at different states (prefix 'i' for 'Import').
+      game.id = 'i' + getRandString()
+      if (!game.cadence)
         // Provide a random cadence, just to be sure nothing breaks:
         game.cadence = "1d";
-      }
       game.chats = []; //not stored in PGN :)
       // Skip "human moves" section:
       while (lines[++idx].length > 0) {}
@@ -85,25 +82,39 @@ export default {
       .then((vModule) => {
         window.V = vModule[game.vname + "Rules"];
         while (++idx < lines.length && lines[idx].length > 0) {
-          const lineParts = lines[idx].split(" ");
-          const startEnd = lineParts[1].split('.');
-          let move = {};
-          if (startEnd[0] != "-") move.start = V.SquareToCoords(startEnd[0]);
-          if (startEnd[1] != "-") move.end = V.SquareToCoords(startEnd[1]);
-          const appearVanish = lineParts[2].split('/').map(lpart => {
-            if (lpart == "-") return [];
-            return lpart.split('.').map(psq => {
-              const xy = V.SquareToCoords(psq.substr(2));
-              return {
-                x: xy.x,
-                y: xy.y,
-                c: psq[0],
-                p: psq[1]
-              };
+          const spaceIdx = lines[idx].indexOf(' ');
+          const skipMoveNum = lines[idx].substr(spaceIdx + 1);
+          const lineParts = skipMoveNum.split(",");
+          let move = [];
+          lineParts.forEach(lpart => {
+            const smParts = lpart.split(' ');
+            const startEnd = smParts[0].split('.');
+            let sm = {};
+            sm.start =
+              startEnd[0] != "-"
+                ? V.SquareToCoords(startEnd[0])
+                : { x: -1, y: -1 };
+            sm.end =
+              startEnd[1] != "-"
+                ? V.SquareToCoords(startEnd[1])
+                : { x: -1, y: -1 };
+            const appearVanish = smParts[1].split('/').map(av => {
+              if (av == "-") return [];
+              return av.split('.').map(psq => {
+                const xy = V.SquareToCoords(psq.substr(2));
+                return {
+                  x: xy.x,
+                  y: xy.y,
+                  c: psq[0],
+                  p: psq[1]
+                };
+              });
             });
+            sm.appear = appearVanish[0];
+            sm.vanish = appearVanish[1];
+            move.push(sm);
           });
-          move.appear = appearVanish[0];
-          move.vanish = appearVanish[1];
+          if (move.length == 1) move = move[0];
           game.moves.push(move);
         }
         this.$emit("game-uploaded", game);
