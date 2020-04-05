@@ -1,15 +1,26 @@
 <template lang="pug">
 main
-  input#modalInfo.modal(type="checkbox")
-  div#infoDiv(
+  input#modalScore.modal(type="checkbox")
+  div#scoreDiv(
     role="dialog"
-    data-checkbox="modalInfo"
+    data-checkbox="modalScore"
   )
     .card.text-center
-      label.modal-close(for="modalInfo")
+      label.modal-close(for="modalScore")
+      p
+        span.score {{ game.score }}
+        | &nbsp;:&nbsp;
+        span.score-msg {{ st.tr[game.scoreMsg] }}
+  input#modalRematch.modal(type="checkbox")
+  div#rematchDiv(
+    role="dialog"
+    data-checkbox="modalRematch"
+  )
+    .card.text-center
+      label.modal-close(for="modalRematch")
       a(
         :href="'#/game/' + rematchId"
-        onClick="document.getElementById('modalInfo').checked=false"
+        onClick="document.getElementById('modalRematch').checked=false"
       )
         | {{ st.tr["Rematch in progress"] }}
   input#modalChat.modal(
@@ -242,8 +253,12 @@ export default {
           this.toggleChat("close")
         });
       });
-    document.getElementById("infoDiv")
-      .addEventListener("click", processModalClick);
+    ["rematchDiv", "scoreDiv"].forEach(
+      (eltName) => {
+        document.getElementById(eltName)
+          .addEventListener("click", processModalClick);
+      }
+    );
     if ("ontouchstart" in window) {
       // Disable tooltips on smartphones:
       document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
@@ -853,7 +868,7 @@ export default {
             this.$router.push("/game/" + gameInfo.id);
           } else {
             this.rematchId = gameInfo.id;
-            document.getElementById("modalInfo").checked = true;
+            document.getElementById("modalRematch").checked = true;
           }
           break;
         }
@@ -1523,6 +1538,8 @@ export default {
       this.game.score = score;
       if (!scoreMsg) scoreMsg = getScoreMessage(score);
       this.game.scoreMsg = scoreMsg;
+      // Display result in a un-missable way:
+      document.getElementById("modalScore").checked = true;
       this.$set(this.game, "scoreMsg", scoreMsg);
       const myIdx = this.game.players.findIndex(p => {
         return p.sid == this.st.user.sid || p.id == this.st.user.id;
@@ -1564,9 +1581,12 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-#infoDiv > .card
+#scoreDiv > .card, #rematchDiv > .card
   padding: 15px 0
   max-width: 430px
+
+span.score
+  font-weight: bold
 
 .connected
   background-color: lightgreen
