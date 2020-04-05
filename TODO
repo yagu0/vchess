@@ -1,6 +1,15 @@
 Chakart :)
 
-Checkered1 & 2 --> avec switch, coup roi sur roi.
+// mode analyse + charger rules dans page modal
+
++ bouton analyse en vert !
+// TODO: rules button in Game Page :: modal just show rules text, easy
+// // TODO: analyse mode in Game Page :: just stay, pass in analyze, easy
+// // --> indicateur isConnected: vérifie aussi que pas en mode analyse ?! non...
+// // Attention si coup reçu pendant mode analyse faut d'abord sortir du mode
+// // (qu'on soit joueur ou spectateur)
+
+Ball --> capture ballon prend à distance ?! bof, si on a ballon et capture ennemi : lui passe la balle ?
 
 Ambiguous chess
 https://www.chessvariants.com/mvopponent.dir/ambiguous-chess.html
@@ -9,6 +18,6 @@ Also in notation, show only dest square for "opponents ambiguous moves".
 Similar to Marseille-chess, white first move only 1 subTurn, do not choose a square.
 Then black has a free first move, then choose a square, and the process goes on.
 
-(Note: could simplify Marseille FEN, just indicate turn)
-
-[Sittuyin (burmese chess) --> probably not]
+Sittuyin (burmese chess)
+https://github.com/gbtami/pychess-variants/tree/master/static/images/pieces/sittuyin
+https://drive.google.com/open?id=1HIPJLJBU2F6R6vxGziU6j8MHoHu_Kmab

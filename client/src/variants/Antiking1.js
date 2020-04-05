@@ -176,7 +176,8 @@ export class Antiking1Rules extends BerolinaRules {
     return res;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     let res = [];
     const oppCol = V.GetOppCol(color);
     if (this.isAttacked(this.kingPos[color], oppCol))

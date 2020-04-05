@@ -1,6 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class CheckeredRules extends ChessRules {
+export class Checkered2Rules extends ChessRules {
   static board2fen(b) {
     const checkered_codes = {
       p: "s",
@@ -162,11 +162,12 @@ export class CheckeredRules extends ChessRules {
   getPotentialPawnMoves([x, y]) {
     let moves = super.getPotentialPawnMoves([x, y]);
     // Post-process: set right color for checkered moves
-    if (this.getColor(x, y) == 'c')
+    if (this.getColor(x, y) == 'c') {
       moves.forEach(m => {
         m.appear[0].c = 'c'; //may be done twice if capture
         m.vanish[0].c = 'c';
       });
+    }
     return moves;
   }
 
@@ -206,7 +207,7 @@ export class CheckeredRules extends ChessRules {
     let potentialMoves = [];
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        // NOTE: just testing == color isn't enough because of checkred pieces
+        // NOTE: just testing == color isn't enough because of checkered pieces
         if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
           Array.prototype.push.apply(
             potentialMoves,
@@ -330,13 +331,15 @@ export class CheckeredRules extends ChessRules {
     return this.isAttacked(this.kingPos[color], [V.GetOppCol(color), "c"]);
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     // Artifically change turn, for checkered pawns
     this.turn = V.GetOppCol(color);
-    const kingAttacked = this.isAttacked(this.kingPos[color], [
-      V.GetOppCol(color),
-      "c"
-    ]);
+    const kingAttacked =
+      this.isAttacked(
+        this.kingPos[color],
+        [this.turn, 'c']
+      );
     let res = kingAttacked
       ? [JSON.parse(JSON.stringify(this.kingPos[color]))]
       : [];
@@ -401,14 +404,22 @@ export class CheckeredRules extends ChessRules {
     );
   }
 
-  getFen() {
+  getCmoveFen() {
     const L = this.cmoves.length;
-    const cmoveFen =
+    return (
       !this.cmoves[L - 1]
         ? "-"
         : ChessRules.CoordsToSquare(this.cmoves[L - 1].start) +
-          ChessRules.CoordsToSquare(this.cmoves[L - 1].end);
-    return super.getFen() + " " + cmoveFen;
+          ChessRules.CoordsToSquare(this.cmoves[L - 1].end)
+    );
+  }
+
+  getFen() {
+    return super.getFen() + " " + this.getCmoveFen();
+  }
+
+  getFenForRepeat() {
+    return super.getFenForRepeat() + "_" + this.getCmoveFen();
   }
 
   getFlagsFen() {

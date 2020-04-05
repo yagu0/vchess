@@ -36,7 +36,8 @@ export class TwokingsRules extends CoregalRules {
   // Not scanning king positions. In this variant, scan the board everytime.
   scanKings() {}
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     let squares = [];
     const oppCol = V.GetOppCol(color);
     for (let i=0; i<V.size.x; i++) {

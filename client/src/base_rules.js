@@ -263,7 +263,8 @@ export const ChessRules = class ChessRules {
   }
 
   // On which squares is color under check ? (for interface)
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     return (
       this.underCheck(color)
         // kingPos must be duplicated, because it may change:
@@ -468,7 +469,7 @@ export const ChessRules = class ChessRules {
       return;
     const fenParsed = V.ParseFen(fen);
     this.board = V.GetBoard(fenParsed.position);
-    this.turn = fenParsed.turn[0]; //[0] to work with MarseilleRules
+    this.turn = fenParsed.turn;
     this.movesCount = parseInt(fenParsed.movesCount);
     this.setOtherVariables(fen);
   }
@@ -703,7 +704,7 @@ export const ChessRules = class ChessRules {
   // Consider all potential promotions:
   addPawnMoves([x1, y1], [x2, y2], moves, promotions) {
     let finalPieces = [V.PAWN];
-    const color = this.turn;
+    const color = this.turn; //this.getColor(x1, y1);
     const lastRank = (color == "w" ? 0 : V.size.x - 1);
     if (x2 == lastRank) {
       // promotions arg: special override for Hiddenqueen variant
@@ -720,7 +721,7 @@ export const ChessRules = class ChessRules {
 
   // What are the pawn moves from square x,y ?
   getPotentialPawnMoves([x, y], promotions) {
-    const color = this.turn;
+    const color = this.turn; //this.getColor(x, y);
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const pawnShiftX = V.PawnSpecs.directions[color];
     const firstRank = (color == "w" ? sizeX - 1 : 0);
@@ -1246,10 +1247,11 @@ export const ChessRules = class ChessRules {
     return 3;
   }
 
-  getComputerMove() {
+  // 'movesList' arg for some variants to provide a custom list
+  getComputerMove(movesList) {
     const maxeval = V.INFINITY;
     const color = this.turn;
-    let moves1 = this.getAllValidMoves();
+    let moves1 = movesList || this.getAllValidMoves();
 
     if (moves1.length == 0)
       // TODO: this situation should not happen

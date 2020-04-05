@@ -428,7 +428,7 @@ export class ApocalypseRules extends ChessRules {
     else this.whiteMove = move.whiteMove;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
     return [];
   }
 

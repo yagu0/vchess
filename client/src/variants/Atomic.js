@@ -127,7 +127,8 @@ export class AtomicRules extends ChessRules {
     return res;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     let res = [];
     if (
       this.kingPos[color][0] >= 0 && //king might have exploded

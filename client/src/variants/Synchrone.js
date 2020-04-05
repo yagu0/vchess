@@ -433,7 +433,8 @@ export class SynchroneRules extends ChessRules {
     } else this.whiteMove = move.whiteMove;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     if (color == 'b') {
       // kingPos must be reset for appropriate highlighting:
       var lastMove = JSON.parse(JSON.stringify(this.whiteMove));

@@ -207,15 +207,21 @@ export default {
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
       let L = this.moves.length;
-      this.moves.forEach(move => {
+      this.moves.forEach((move,idx) => {
         // Strategy working also for multi-moves:
         if (!Array.isArray(move)) move = [move];
-        move.forEach((m,idx) => {
+        const Lm = move.length;
+        move.forEach((m,idxM) => {
           m.notation = this.vr.getNotation(m);
           m.unambiguous = V.GetUnambiguousNotation(m);
           this.vr.play(m);
-          if (idx < L - 1 && this.vr.getCheckSquares(this.vr.turn).length > 0)
-            m.notation += "+";
+          const checkSquares = this.vr.getCheckSquares();
+          if (checkSquares.length > 0) m.notation += "+";
+          if (idx == L - 1 && idxM == Lm - 1) {
+            this.incheck = checkSquares;
+            const score = this.vr.getCurrentScore();
+            if (["1-0", "0-1"].includes(score)) m.notation += "#";
+          }
         });
       });
       if (firstMoveColor == "b") {
@@ -229,25 +235,13 @@ export default {
         });
         L++;
       }
-      this.positionCursorTo(this.moves.length - 1);
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
-      const score = this.vr.getCurrentScore();
-      if (L > 0 && this.moves[L - 1].notation != "...") {
-        if (["1-0","0-1"].includes(score)) this.moves[L - 1].notation += "#";
-        else if (this.incheck.length > 0) this.moves[L - 1].notation += "+";
-      }
+      this.positionCursorTo(L - 1);
     },
     positionCursorTo: function(index) {
       this.cursor = index;
-      // Caution: last move in moves array might be a multi-move
-      if (index >= 0) {
-        if (Array.isArray(this.moves[index])) {
-          const L = this.moves[index].length;
-          this.lastMove = this.moves[index][L - 1];
-        } else {
-          this.lastMove = this.moves[index];
-        }
-      } else this.lastMove = null;
+      // Note: last move in moves array might be a multi-move
+      if (index >= 0) this.lastMove = this.moves[index];
+      else this.lastMove = null;
     },
     analyzePosition: function() {
       let newUrl =
@@ -378,10 +372,15 @@ export default {
     // For Analyse mode:
     emitFenIfAnalyze: function() {
       if (this.game.mode == "analyze") {
-        this.$emit(
-          "fenchange",
-          !!this.lastMove ? this.lastMove.fen : this.game.fenStart
-        );
+        let fen = this.game.fenStart;
+        if (!!this.lastMove) {
+          if (Array.isArray(this.lastMove)) {
+            const L = this.lastMove.length;
+            fen = this.lastMove[L-1].fen;
+          }
+          else fen = this.lastMove.fen;
+        }
+        this.$emit("fenchange", fen);
       }
     },
     clickSquare: function(square) {
@@ -408,10 +407,17 @@ export default {
         smove.notation = this.vr.getNotation(smove);
         smove.unambiguous = V.GetUnambiguousNotation(smove);
         this.vr.play(smove);
-        this.lastMove = smove;
+        if (!!this.lastMove) {
+          if (!Array.isArray(this.lastMove))
+            this.lastMove = [this.lastMove, smove];
+          else this.lastMove.push(smove);
+        }
         // Is opponent (or me) in check?
-        this.incheck = this.vr.getCheckSquares(this.vr.turn);
+        this.incheck = this.vr.getCheckSquares();
+        if (this.incheck.length > 0) smove.notation += "+";
         if (!this.inMultimove) {
+          // First sub-move:
+          this.lastMove = smove;
           // Condition is "!navigate" but we mean "!this.autoplay"
           if (!navigate) {
             if (this.cursor < this.moves.length - 1)
@@ -458,8 +464,13 @@ export default {
       const computeScore = () => {
         const score = this.vr.getCurrentScore();
         if (!navigate) {
-          if (["1-0","0-1"].includes(score)) this.lastMove.notation += "#";
-          else if (this.incheck.length > 0) this.lastMove.notation += "+";
+          if (["1-0","0-1"].includes(score)) {
+            if (Array.isArray(this.lastMove)) {
+              const L = this.lastMove.length;
+              this.lastMove[L - 1].notation += "#";
+            }
+            else this.lastMove.notation += "#";
+          }
         }
         if (score != "*" && this.game.mode == "analyze") {
           const message = getScoreMessage(score);
@@ -503,8 +514,8 @@ export default {
           if (!Array.isArray(move)) move = [move];
           for (let i=0; i < move.length; i++) this.vr.play(move[i]);
           if (!light) {
-            this.lastMove = move[move.length-1];
-            this.incheck = this.vr.getCheckSquares(this.vr.turn);
+            this.lastMove = move;
+            this.incheck = this.vr.getCheckSquares();
             this.score = computeScore();
             this.emitFenIfAnalyze();
           }
@@ -548,7 +559,7 @@ export default {
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) {
         this.cancelCurrentMultimove();
-        this.incheck = this.vr.getCheckSquares(this.vr.turn);
+        this.incheck = this.vr.getCheckSquares();
       } else {
         if (!move) {
           const minCursor =
@@ -563,7 +574,7 @@ export default {
         if (light) this.cursor--;
         else {
           this.positionCursorTo(this.cursor - 1);
-          this.incheck = this.vr.getCheckSquares(this.vr.turn);
+          this.incheck = this.vr.getCheckSquares();
           this.emitFenIfAnalyze();
         }
       }
@@ -584,7 +595,7 @@ export default {
       }
       // NOTE: next line also re-assign cursor, but it's very light
       this.positionCursorTo(index);
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      this.incheck = this.vr.getCheckSquares();
       this.emitFenIfAnalyze();
     },
     gotoBegin: function() {
@@ -597,7 +608,7 @@ export default {
           : 0;
       while (this.cursor >= minCursor) this.undo(null, null, "light");
       this.lastMove = (minCursor == 1 ? this.moves[0] : null);
-      this.incheck = this.vr.getCheckSquares(this.vr.turn);
+      this.incheck = this.vr.getCheckSquares();
       this.emitFenIfAnalyze();
     },
     gotoEnd: function() {

@@ -14,10 +14,6 @@ export class MarseilleRules extends ChessRules {
     return true;
   }
 
-  getTurnFen() {
-    return this.turn + this.subTurn;
-  }
-
   // There may be 2 enPassant squares (if 2 pawns jump 2 squares in same turn)
   getEnpassantFen() {
     return this.epSquares[this.epSquares.length - 1].map(
@@ -37,10 +33,8 @@ export class MarseilleRules extends ChessRules {
     this.scanKings(fen);
     // Extract subTurn from turn indicator: "w" (first move), or
     // "w1" or "w2" white subturn 1 or 2, and same for black
-    const fullTurn = V.ParseFen(fen).turn;
-    this.turn = fullTurn[0];
-    // At move 1, the subTurn doesn't need to be specified:
-    this.subTurn = fullTurn[1] || 1;
+    this.turn = parsedFen.turn;
+    this.subTurn = 1;
   }
 
   getEnpassantCaptures([x, y], shiftX) {

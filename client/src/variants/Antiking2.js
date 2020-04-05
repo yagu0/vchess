@@ -117,7 +117,8 @@ export class Antiking2Rules extends ChessRules {
     return res;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     let res = [];
     const oppCol = V.GetOppCol(color);
     if (this.isAttacked(this.kingPos[color], oppCol))

@@ -126,7 +126,7 @@ export class BallRules extends ChessRules {
     );
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
     return [];
   }
 

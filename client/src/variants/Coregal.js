@@ -46,7 +46,8 @@ export class CoregalRules extends ChessRules {
     }
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     let squares = [];
     const oppCol = V.GetOppCol(color);
     if (this.isAttacked(this.kingPos[color], oppCol))

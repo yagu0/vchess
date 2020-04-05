@@ -54,7 +54,16 @@ export default {
       incheckSq[sq[0]][sq[1]] = true;
     });
 
-    const lm = this.lastMove;
+    let lm = this.lastMove;
+    // Precompute lastMove highlighting squares
+    const lmHighlights = {};
+    if (!!lm) {
+      if (!Array.isArray(lm)) lm = [lm];
+      lm.forEach(m => {
+        lmHighlights[m.start.x + sizeX * m.start.y] = true;
+        lmHighlights[m.end.x + sizeX * m.end.y] = true;
+      });
+    }
     const showLight = (
       this.settings.highlight &&
       ["all","highlight"].includes(V.ShowMoves)
@@ -74,9 +83,7 @@ export default {
       );
     };
     const inHighlight = (x, y) => {
-      return showLight && !!lm && (
-        (lm.end.x == x && lm.end.y == y) ||
-        (lm.start.x == x && lm.start.y == y));
+      return showLight && !!lmHighlights[x + sizeX * y];
     };
     const inShadow = (x, y) => {
       return (

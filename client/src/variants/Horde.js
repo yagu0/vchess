@@ -51,8 +51,8 @@ export class HordeRules extends ChessRules {
     return super.filterValid(moves);
   }
 
-  getCheckSquares(color) {
-    if (color == 'w') return [];
+  getCheckSquares() {
+    if (this.turn == 'w') return [];
     return (
       this.underCheck('b')
         ? [JSON.parse(JSON.stringify(this.kingPos['b']))]

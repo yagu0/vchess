@@ -7,7 +7,7 @@ main
   )
     .card.text-center
       label.modal-close(for="modalScore")
-      p
+      p.score-section
         span.score {{ game.score }}
         | &nbsp;:&nbsp;
         span.score-msg {{ st.tr[game.scoreMsg] }}
@@ -1585,8 +1585,10 @@ export default {
   padding: 15px 0
   max-width: 430px
 
-span.score
-  font-weight: bold
+p.score-section
+  font-size: 1.3em
+  span.score
+    font-weight: bold
 
 .connected
   background-color: lightgreen

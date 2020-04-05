@@ -235,7 +235,8 @@ export class AliceRules extends ChessRules {
     return res;
   }
 
-  getCheckSquares(color) {
+  getCheckSquares() {
+    const color = this.turn;
     const pieces = Object.keys(V.ALICE_CODES);
     const kp = this.kingPos[color];
     const mirrorSide = pieces.includes(this.getPiece(kp[0], kp[1])) ? 1 : 2;
