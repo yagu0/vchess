@@ -522,6 +522,9 @@ export default {
       };
       const afterMove = (smove, initurn) => {
         if (this.vr.turn != initurn) {
+
+console.log(smove);
+
           // Turn has changed: move is complete
           if (!smove.fen)
             // NOTE: only FEN of last sub-move is required (=> setting it here)
