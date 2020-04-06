@@ -1,16 +1,5 @@
 Chakart :)
 
-// mode analyse + charger rules dans page modal
-
-+ bouton analyse en vert !
-// TODO: rules button in Game Page :: modal just show rules text, easy
-// // TODO: analyse mode in Game Page :: just stay, pass in analyze, easy
-// // --> indicateur isConnected: vérifie aussi que pas en mode analyse ?! non...
-// // Attention si coup reçu pendant mode analyse faut d'abord sortir du mode
-// // (qu'on soit joueur ou spectateur)
-
-Ball --> capture ballon prend à distance ?! bof, si on a ballon et capture ennemi : lui passe la balle ?
-
 Ambiguous chess
 https://www.chessvariants.com/mvopponent.dir/ambiguous-chess.html
 Need special highlight square --> similar to enlightened for Dark, in Board.vue

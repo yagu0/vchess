@@ -1,5 +1,14 @@
 <template lang="pug">
 main
+  input#modalRules.modal(type="checkbox")
+  div#rulesDiv(
+    role="dialog"
+    data-checkbox="modalRules"
+  )
+    .card
+      label.modal-close(for="modalRules")
+      h4#variantNameInGame(@click="gotoRules") {{ game.vname }}
+      div(v-html="rulesContent")
   input#modalScore.modal(type="checkbox")
   div#scoreDiv(
     role="dialog"
@@ -67,7 +76,7 @@ main
         button.refuseBtn(@click="cancelMove()")
           span {{ st.tr["Cancel"] }}
   .row
-    #aboveBoard.col-sm-12.col-md-9.col-md-offset-3.col-lg-10.col-lg-offset-2
+    #aboveBoard.col-sm-12
       span.variant-cadence(v-if="game.type!='import'") {{ game.cadence }}
       span.variant-name {{ game.vname }}
       span#nextGame(
@@ -144,6 +153,7 @@ main
             span.time-separator(v-if="!!virtualClocks[0][1]") :
             span.time-right(v-if="!!virtualClocks[0][1]")
               | {{ virtualClocks[0][1] }}
+          span.separator
           span.time(
             v-if="game.score=='*'"
             :class="{yourturn: !!vr && vr.turn == 'b'}"
@@ -172,7 +182,7 @@ import { extractTime } from "@/utils/timeControl";
 import { getRandString } from "@/utils/alea";
 import { getScoreMessage } from "@/utils/scoring";
 import { getFullNotation } from "@/utils/notation";
-import { getDiagram } from "@/utils/printDiagram";
+import { getDiagram, replaceByDiag } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
 import { ArrayFun } from "@/utils/array";
@@ -194,6 +204,7 @@ export default {
       // virtualClocks will be initialized from true game.clocks
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
+      rulesContent: "",
       drawOffer: "",
       rematchId: "",
       rematchOffer: "",
@@ -253,7 +264,7 @@ export default {
           this.toggleChat("close")
         });
       });
-    ["rematchDiv", "scoreDiv"].forEach(
+    ["rulesDiv", "rematchDiv", "scoreDiv"].forEach(
       (eltName) => {
         document.getElementById(eltName)
           .addEventListener("click", processModalClick);
@@ -307,6 +318,9 @@ export default {
     isLargeScreen: function() {
       return window.innerWidth >= 500;
     },
+    gotoRules: function() {
+      this.$router.push("/variants/" + this.game.vname);
+    },
     participateInChat: function(p) {
       return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
     },
@@ -348,6 +362,7 @@ export default {
       if (!!chatComp) chatComp.chats = [];
       this.virtualClocks = [[0,0], [0,0]];
       this.vr = null;
+      this.rulesContent = "";
       this.drawOffer = "";
       this.lastateAsked = false;
       this.rematchOffer = "";
@@ -1228,6 +1243,19 @@ export default {
       await import("@/variants/" + game.vname + ".js")
       .then((vModule) => {
         window.V = vModule[game.vname + "Rules"];
+        // (AJAX) Request to get rules content (plain text, HTML)
+        this.rulesContent =
+          require(
+            "raw-loader!@/translations/rules/" +
+            game.vname + "/" +
+            this.st.lang + ".pug"
+          )
+          // Next two lines fix a weird issue after last update (2019-11)
+          .replace(/\\n/g, " ")
+          .replace(/\\"/g, '"')
+          .replace('module.exports = "', "")
+          .replace(/"$/, "")
+          .replace(/(fen:)([^:]*):/g, replaceByDiag);
         this.loadGame(game, callback);
       });
     },
@@ -1585,6 +1613,15 @@ export default {
   padding: 15px 0
   max-width: 430px
 
+#rulesDiv > .card
+  padding: 5px 0
+  max-width: 75%
+  max-height: 100%
+  @media screen and (max-width: 1024px)
+    max-width: 85%
+  @media screen and (max-width: 767px)
+    max-width: 100%
+
 p.score-section
   font-size: 1.3em
   span.score
@@ -1603,9 +1640,6 @@ p.score-section
 #playersInfo > p
   margin: 0
 
-@media screen and (min-width: 768px)
-  #actions
-    width: 300px
 @media screen and (max-width: 767px)
   .game
     width: 100%
@@ -1624,12 +1658,8 @@ button
     @media screen and (max-width: 767px)
       height: 18px
 
-@media screen and (max-width: 767px)
-  #aboveBoard
-    text-align: center
-@media screen and (min-width: 768px)
-  #aboveBoard
-    margin-left: 30%
+#aboveBoard
+  text-align: center
 
 .variant-cadence
   padding-right: 10px
@@ -1643,6 +1673,12 @@ span#nextGame
   cursor: pointer
   display: inline-block
   margin-right: 10px
+
+span.separator
+  display: inline-block
+  margin: 0
+  padding: 0
+  width: 10px
 
 span.name
   font-size: 1.5rem
@@ -1713,4 +1749,91 @@ button.acceptBtn
   background-color: lightgreen
 button.refuseBtn
   background-color: red
+
+h4#variantNameInGame
+  cursor: pointer
+  text-align: center
+  text-decoration: underline
+  font-weight: bold
+</style>
+
+<style lang="sass">
+// TODO: next is duplicated from Rules/. Merge ? How ? ...
+
+figure.diagram-container
+  margin: 15px 0 15px 0
+  text-align: center
+  width: 100%
+  display: block
+  .diagram
+    display: block
+    width: 50%
+    min-width: 240px
+    margin-left: auto
+    margin-right: auto
+  .diag12
+    float: left
+    width: 40%
+    margin-left: calc(10% - 20px)
+    margin-right: 40px
+    @media screen and (max-width: 630px)
+      float: none
+      margin: 0 auto 10px auto
+  .diag22
+    float: left
+    width: 40%
+    margin-right: calc(10% - 20px)
+    @media screen and (max-width: 630px)
+      float: none
+      margin: 0 auto
+  figcaption
+    display: block
+    clear: both
+    padding-top: 5px
+    font-size: 0.8em
+
+p.boxed
+  background-color: #FFCC66
+  padding: 5px
+
+.bigfont
+  font-size: 1.2em
+
+.bold
+  font-weight: bold
+
+.stageDelimiter
+  color: purple
+
+// To show (new) pieces, and/or there values...
+figure.showPieces > img
+  width: 50px
+
+figure.showPieces > figcaption
+  color: #6C6C6C
+
+.section-title
+  padding: 0
+
+.section-title > h4
+  padding: 5px
+
+ol, ul:not(.browser-default)
+  padding-left: 20px
+
+ul:not(.browser-default)
+  margin-top: 5px
+
+ul:not(.browser-default) > li
+  list-style-type: disc
+
+table
+  margin: 15px auto
+
+.italic
+  font-style: italic
+
+img.img-center
+  display: block
+  margin: 0 auto 15px auto
 </style>

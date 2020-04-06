@@ -71,6 +71,7 @@ export default {
       game.players = [{ name: "Myself" }, { name: "Computer" }];
       if (game.mycolor == "b") game.players = game.players.reverse();
       game.score = "*"; //finished games are removed
+      game.mode = this.gameInfo.mode;
       this.currentUrl = document.location.href; //to avoid playing outside page
       this.game = game;
       this.$refs["basegame"].re_setVariables(game);

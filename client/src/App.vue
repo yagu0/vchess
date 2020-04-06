@@ -116,6 +116,9 @@ body
 .row > div
   padding: 0
 
+a
+  text-decoration: underline
+
 header
   width: 100%
   display: flex
@@ -185,6 +188,7 @@ nav
         justify-content: flex-start
         & > a
           display: inline-block
+          text-decoration: none
           color: #2c3e50
           &.router-link-exact-active
             color: #42b983
@@ -200,10 +204,6 @@ nav
       & > #leftMenu
         margin-top: 42px
         padding-bottom: 5px
-        & > a
-          color: #2c3e50
-          &.router-link-exact-active
-            color: #42b983
       & > #rightMenu
         padding-top: 5px
         border-top: 1px solid darkgrey
@@ -266,6 +266,7 @@ footer
     align-self: center;
     &:link
       color: #2c3e50
+      text-decoration: none
     &:visited, &:hover
       color: #2c3e50
       text-decoration: none

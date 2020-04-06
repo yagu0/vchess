@@ -100,3 +100,14 @@ export function getDiagram(args) {
   }
   return boardDiv;
 }
+
+// Method to replace diagrams in loaded HTML
+export function replaceByDiag(match, p1, p2) {
+  const diagParts = p2.split(" ");
+  return getDiagram({
+    position: diagParts[0],
+    marks: diagParts[1],
+    orientation: diagParts[2],
+    shadow: diagParts[3]
+  });
+}

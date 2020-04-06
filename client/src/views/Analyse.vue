@@ -64,7 +64,9 @@ export default {
       if (!routeFen) this.alertAndQuit("Missing FEN");
       else {
         this.gameRef.fen = routeFen.replace(/_/g, " ");
-        // orientation is optional: taken from FEN if missing
+        // orientation is optional: taken from FEN if missing.
+        // NOTE: currently no internal usage of 'side', but could be used by
+        // manually settings the URL (TODO?).
         const orientation = this.$route.query["side"];
         this.initialize(orientation);
       }

@@ -14,7 +14,7 @@ div#baseGame
         ref="board"
         :vr="vr"
         :last-move="lastMove"
-        :analyze="game.mode=='analyze'"
+        :analyze="mode=='analyze'"
         :score="game.score"
         :user-color="game.mycolor"
         :orientation="orientation"
@@ -40,6 +40,7 @@ div#baseGame
           img.inline(src="/images/icons/play.svg")
         button(@click="gotoEnd()")
           img.inline(src="/images/icons/fast-forward.svg")
+      p(v-show="showFen") {{ (!!vr ? vr.getFen() : "") }}
     #movesList
       MoveList(
         :show="showMoves"
@@ -52,7 +53,7 @@ div#baseGame
         :cursor="cursor"
         @download="download"
         @showrules="showRules"
-        @analyze="analyzePosition"
+        @analyze="toggleAnalyze"
         @goto-move="gotoMove"
         @reset-arrows="resetArrows"
       )
@@ -84,6 +85,7 @@ export default {
       vr: null, //VariantRules object, game state
       endgameMessage: "",
       orientation: "w",
+      mode: "",
       score: "*", //'*' means 'unfinished'
       moves: [],
       cursor: -1, //index of the move just played
@@ -109,6 +111,12 @@ export default {
         this.vr.movesCount == 0 && this.game.mycolor == "w"
           ? this.st.tr["It's your turn!"]
           : ""
+      );
+    },
+    showFen: function() {
+      return (
+        this.mode == "analyze" &&
+        this.$router.currentRoute.path.indexOf("/analyse") === -1
       );
     },
     // TODO: is it OK to pass "computed" as properties?
@@ -192,14 +200,15 @@ export default {
       this.$refs["board"].cancelResetArrows();
     },
     showRules: function() {
-      //this.$router.push("/variants/" + this.game.vname);
-      window.open("#/variants/" + this.game.vname, "_blank"); //better
+      // The button is here only on Game page:
+      document.getElementById("modalRules").checked = true;
     },
     re_setVariables: function(game) {
       if (!game) game = this.game; //in case of...
       this.endgameMessage = "";
       // "w": default orientation for observed games
       this.orientation = game.mycolor || "w";
+      this.mode = game.mode || game.type; //TODO: merge...
       this.moves = JSON.parse(JSON.stringify(game.moves || []));
       // Post-processing: decorate each move with notation and FEN
       this.vr = new V(game.fenStart);
@@ -217,6 +226,7 @@ export default {
           this.vr.play(m);
           const checkSquares = this.vr.getCheckSquares();
           if (checkSquares.length > 0) m.notation += "+";
+          if (idxM == Lm - 1) m.fen = this.vr.getFen();
           if (idx == L - 1 && idxM == Lm - 1) {
             this.incheck = checkSquares;
             const score = this.vr.getCurrentScore();
@@ -243,14 +253,29 @@ export default {
       if (index >= 0) this.lastMove = this.moves[index];
       else this.lastMove = null;
     },
-    analyzePosition: function() {
-      let newUrl =
-        "/analyse/" +
-        this.game.vname +
-        "/?fen=" +
-        this.vr.getFen().replace(/ /g, "_");
-      if (!!this.game.mycolor) newUrl += "&side=" + this.game.mycolor;
-      window.open("#" + newUrl);
+    toggleAnalyze: function() {
+      if (this.mode != "analyze") {
+        // Enter analyze mode:
+        this.gameMode = this.mode; //was not 'analyze'
+        this.mode = "analyze";
+        this.gameCursor = this.cursor;
+        this.gameMoves = JSON.parse(JSON.stringify(this.moves));
+        document.getElementById("analyzeBtn").classList.add("active");
+      }
+      else {
+        // Exit analyze mode:
+        this.mode = this.gameMode ;
+        this.cursor = this.gameCursor;
+        this.moves = this.gameMoves;
+        let fen = this.game.fenStart;
+        if (this.cursor >= 0) {
+          let mv = this.moves[this.cursor];
+          if (!Array.isArray(mv)) mv = [mv];
+          fen = mv[mv.length-1].fen;
+        }
+        this.vr = new V(fen);
+        document.getElementById("analyzeBtn").classList.remove("active");
+      }
     },
     download: function() {
       const content = this.getPgn();
@@ -407,7 +432,7 @@ export default {
         smove.notation = this.vr.getNotation(smove);
         smove.unambiguous = V.GetUnambiguousNotation(smove);
         this.vr.play(smove);
-        if (!!this.lastMove) {
+        if (this.inMultimove && !!this.lastMove) {
           if (!Array.isArray(this.lastMove))
             this.lastMove = [this.lastMove, smove];
           else this.lastMove.push(smove);
@@ -472,7 +497,7 @@ export default {
             else this.lastMove.notation += "#";
           }
         }
-        if (score != "*" && this.game.mode == "analyze") {
+        if (score != "*" && this.mode == "analyze") {
           const message = getScoreMessage(score);
           // Just show score on screen (allow undo)
           this.showEndgameMsg(score + " . " + this.st.tr[message]);
@@ -488,7 +513,7 @@ export default {
           this.emitFenIfAnalyze();
           this.inMultimove = false;
           this.score = computeScore();
-          if (this.game.mode != "analyze" && !navigate) {
+          if (this.mode != "analyze" && !navigate) {
             if (!noemit) {
               // Post-processing (e.g. computer play).
               const L = this.moves.length;
@@ -526,16 +551,19 @@ export default {
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
       if (
-        this.game.mode != "analyze" &&
+        this.mode != "analyze" &&
         !navigate &&
         !received &&
         (this.game.score != "*" || this.cursor < this.moves.length - 1)
       ) {
         return;
       }
-      // To play a received move, cursor must be at the end of the game:
-      if (received && this.cursor < this.moves.length - 1)
-        this.gotoEnd();
+      if (!!received) {
+        if (this.mode == "analyze") this.toggleAnalyze();
+        if (this.cursor < this.moves.length - 1)
+          // To play a received move, cursor must be at the end of the game:
+          this.gotoEnd();
+      }
       playMove();
     },
     cancelCurrentMultimove: function() {

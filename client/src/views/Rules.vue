@@ -42,7 +42,7 @@ main
 <script>
 import ComputerGame from "@/components/ComputerGame.vue";
 import { store } from "@/store";
-import { getDiagram } from "@/utils/printDiagram";
+import { replaceByDiag } from "@/utils/printDiagram";
 import { CompgameStorage } from "@/utils/compgameStorage";
 export default {
   name: "my-rules",
@@ -89,7 +89,7 @@ export default {
         .replace(/\\"/g, '"')
         .replace('module.exports = "', "")
         .replace(/"$/, "")
-        .replace(/(fen:)([^:]*):/g, this.replaceByDiag)
+        .replace(/(fen:)([^:]*):/g, replaceByDiag)
       );
     }
   },
@@ -97,20 +97,6 @@ export default {
     clickReadRules: function() {
       if (this.display != "rules") this.display = "rules";
       else if (this.gameInProgress) this.display = "computer";
-    },
-    parseFen(fen) {
-      const fenParts = fen.split(" ");
-      return {
-        position: fenParts[0],
-        marks: fenParts[1],
-        orientation: fenParts[2],
-        shadow: fenParts[3]
-      };
-    },
-    // Method to replace diagrams in loaded HTML
-    replaceByDiag: function(match, p1, p2) {
-      const args = this.parseFen(p2);
-      return getDiagram(args);
     },
     re_setVariant: async function(vname) {
       await import("@/variants/" + vname + ".js")
@@ -164,12 +150,6 @@ export default {
 
 <!-- NOTE: not scoped here, because HTML is injected (TODO) -->
 <style lang="sass">
-.warn
-  padding: 3px
-  color: red
-  background-color: lightgrey
-  font-weight: bold
-
 h4#variantName
   text-align: center
   font-weight: bold

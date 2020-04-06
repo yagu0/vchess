@@ -27,7 +27,7 @@ div
       :aria-label="st.tr['Resize board']"
     )
       img.inline(src="/images/icons/resize.svg")
-    button.tooltip(
+    button#analyzeBtn.tooltip(
       v-if="canAnalyze"
       @click="$emit('analyze')"
       :aria-label="st.tr['Analyse']"
@@ -240,6 +240,8 @@ span#rulesBtn
 
 button
   margin: 0
+  &.active
+    background-color: #50E99A
 
 #aboveMoves button
   padding-bottom: 5px
