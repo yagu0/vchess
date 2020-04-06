@@ -466,7 +466,7 @@ export default {
           this.lastMove = smove;
           // Condition is "!navigate" but we mean "!this.autoplay"
           if (!navigate) {
-            if (this.cursor < this.moves.length - 1)
+            IF (this.cursor < this.moves.length - 1)
               this.moves = this.moves.slice(0, this.cursor + 1);
             this.moves.push(smove);
           }
@@ -490,6 +490,7 @@ export default {
         let self = this;
         const initurn = this.vr.turn;
         (function executeMove() {
+console.log("execute move " + move.length);
           const smove = move[moveIdx++];
           // NOTE: condition "smove.start.x >= 0" required for Dynamo,
           // because second move may be empty.
