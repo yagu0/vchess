@@ -501,9 +501,9 @@ export default {
             else this.lastMove.notation += "#";
           }
         }
-        if (score != "*" && this.mode == "analyze") {
+        if (score != "*" && ["analyze", "versus"].includes(this.mode)) {
           const message = getScoreMessage(score);
-          // Just show score on screen (allow undo)
+          // Show score on screen
           this.showEndgameMsg(score + " . " + this.st.tr[message]);
         }
         return score;

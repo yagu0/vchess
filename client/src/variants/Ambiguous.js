@@ -19,8 +19,21 @@ export class AmbiguousRules extends ChessRules {
     const oppCol = V.GetOppCol(color);
     if (this.subTurn == 2) {
       // Just play a normal move (which in fact only indicate a square)
+      let movesHash = {};
       return (
         super.getPotentialMovesFrom([x, y])
+        .filter(m => {
+          // Filter promotions: keep only one, since no choice now.
+          if (m.appear[0].p != m.vanish[0].p) {
+            const hash = V.CoordsToSquare(m.start) + V.CoordsToSquare(m.end);
+            if (!movesHash[hash]) {
+              movesHash[hash] = true;
+              return true;
+            }
+            return false;
+          }
+          return true;
+        })
         .map(m => {
           if (m.vanish.length == 1) m.appear[0].p = V.GOAL;
           else m.appear[0].p = V.TARGET_CODE[m.vanish[1].p];
