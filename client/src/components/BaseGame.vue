@@ -514,7 +514,7 @@ export default {
           this.inMultimove = false;
           this.score = computeScore();
           if (this.mode != "analyze" && !navigate) {
-            if (!noemit) {
+            if (!noemit && this.mode != "analyze") {
               // Post-processing (e.g. computer play).
               const L = this.moves.length;
               // NOTE: always emit the score, even in unfinished,
