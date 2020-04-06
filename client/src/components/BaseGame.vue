@@ -496,6 +496,9 @@ export default {
           if (animate && smove.start.x >= 0) {
             self.animateMove(smove, () => {
               playSubmove(smove);
+
+console.log(moveIdx + " " + move.length);
+
               if (moveIdx < move.length)
                 setTimeout(executeMove, 500);
               else afterMove(smove, initurn);
