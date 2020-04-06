@@ -1,11 +1,15 @@
 Chakart :)
 
-Ambiguous chess
-https://www.chessvariants.com/mvopponent.dir/ambiguous-chess.html
-Need special highlight square --> similar to enlightened for Dark, in Board.vue
-Also in notation, show only dest square for "opponents ambiguous moves".
-Similar to Marseille-chess, white first move only 1 subTurn, do not choose a square.
-Then black has a free first move, then choose a square, and the process goes on.
+http://abrobecker.free.fr/chess/fairyblitz.htm#football
+Le gagnant est le premier joueur à marquer un but, càd celui qui arrive à installer une de ses pièces dans les cages adverses: d8,e8 pour les blancs et d1,e1 pour les noirs.
+
+http://abrobecker.free.fr/chess/fairyblitz.htm#deplaceurdevivants
+Philippe Rouzaud, Phénix 151-152, mai 2006): Un camp peut, à la place d'un coup orthodoxe, capturer une de ses pièces et replacer la pièce capturée immédiatement sur l'échiquier. Un roi peut rester en échec durant cette action. Une pièce déplacée sur l'échiquier peut mater. Un pion ne peut pas être déplacé en première ou dernière rangée. Un roi peut déplacer et être déplacé, y compris pour se soustraire à un échec. Le roque ne peut se faire que de manière orthodoxe.
+Rouzaud-Banaddou: 1.Fxb2 (=f5) Dxc7 (=e6) 2.fxe6 dxe6 3.Txb1 (=b5) Dxe7 (=c7) 4.Txb2 (=a3) Dxf7 (=d6) 5.Txg1 (=g5) Dxg7 (=f6) 6.Txf1 (=f7)+ Rxf8 (=h4) 7.Fxb2 (=e8) Rxg7 (=c5) 8.Rxd1 (=f8)+ Rxh8 (=g7) 9.Dxg8+ Txg8 10.Txg8#
+
+http://abrobecker.free.fr/chess/fairyblitz.htm#madrasi
+Madrasi Chess, Abdul J. Karwathar, 1979): Deux pièces de même nature (excepté les rois) qui s'observent, se paralysent mutuellement en perdant tout pouvoir (déplacement, prise, donner échec ou mat) sauf celui de paralyser une autre pièce.
+1.e4 e5 2.Cf3 Cc6 3.Fc4 Fc5 4.Cxe5 d6 5.d4 (5.Fxf7+ Rxf7 est légal; ou 5.Dh5 Fe6 immobilisant le Fc4) 5...Fxd4 6.Dxd4 dxe5 et la Dame blanche est perdue.
 
 Sittuyin (burmese chess)
 https://github.com/gbtami/pychess-variants/tree/master/static/images/pieces/sittuyin
