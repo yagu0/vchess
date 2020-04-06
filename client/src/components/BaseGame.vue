@@ -432,10 +432,6 @@ export default {
         return;
       }
       if (!!received) {
-
-        if (this.mode == "analyze") { console.log("received move");
-          console.log(move); }
-
         if (this.mode == "analyze") this.toggleAnalyze();
         if (this.cursor < this.moves.length - 1)
           // To play a received move, cursor must be at the end of the game:
@@ -492,21 +488,12 @@ export default {
         let self = this;
         const initurn = this.vr.turn;
         (function executeMove() {
-console.log("execute move " + move.length);
           const smove = move[moveIdx++];
-
-console.log(smove);
-          console.log(animate + " " + smove.start.x);
-
-
           // NOTE: condition "smove.start.x >= 0" required for Dynamo,
           // because second move may be empty.
           if (animate && smove.start.x >= 0) {
             self.animateMove(smove, () => {
               playSubmove(smove);
-
-console.log(moveIdx + " " + move.length);
-
               if (moveIdx < move.length)
                 setTimeout(executeMove, 500);
               else afterMove(smove, initurn);
@@ -538,9 +525,6 @@ console.log(moveIdx + " " + move.length);
       };
       const afterMove = (smove, initurn) => {
         if (this.vr.turn != initurn) {
-
-console.log(smove);
-
           // Turn has changed: move is complete
           if (!smove.fen)
             // NOTE: only FEN of last sub-move is required (=> setting it here)
