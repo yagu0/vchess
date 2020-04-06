@@ -1,3 +1,0 @@
-@import "./styles/_variables.scss";
-https://css-tricks.com/how-to-import-a-sass-file-into-every-vue-component-in-an-app/
---> Stop duplicating CSS

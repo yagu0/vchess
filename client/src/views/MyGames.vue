@@ -392,7 +392,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .active
   color: #42a983
 

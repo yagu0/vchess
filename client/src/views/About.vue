@@ -23,6 +23,7 @@ export default {
 };
 </script>
 
+<!-- Not scoped, because code is injected -->
 <style lang="sass">
 #links
   margin: var(--universal-margin);

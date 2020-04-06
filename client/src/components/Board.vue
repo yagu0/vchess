@@ -709,6 +709,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+@import "@/styles/_board_squares_img.sass";
+
 // NOTE: no variants with reserve of size != 8
 .game.reserve-div
   margin-bottom: 18px
@@ -802,5 +804,4 @@ img.ghost
   background-color: #9f9fff
 .dark-square.chesstempo.highlight-dark
   background-color: #557fff
-
 </style>

@@ -1,5 +1,14 @@
 <template lang="pug">
 main
+  input#modalRules.modal(type="checkbox")
+  div#rulesDiv(
+    role="dialog"
+    data-checkbox="modalRules"
+  )
+    .card
+      label.modal-close(for="modalRules")
+      h4#variantNameInAnalyze(@click="gotoRules()") {{ game.vname }}
+      div(v-html="rulesContent")
   .row
     .col-sm-12
       .text-center
@@ -16,6 +25,8 @@ main
 
 <script>
 import BaseGame from "@/components/BaseGame.vue";
+import { processModalClick } from "@/utils/modalClick";
+import { replaceByDiag } from "@/utils/printDiagram";
 import { store } from "@/store";
 export default {
   name: "my-analyse",
@@ -28,6 +39,7 @@ export default {
   data: function() {
     return {
       st: store.state,
+      rulesContent: "",
       gameRef: {
         vname: "",
         fen: ""
@@ -46,6 +58,10 @@ export default {
   },
   created: function() {
     this.initFromUrl();
+  },
+  mounted: function() {
+    document.getElementById("rulesDiv")
+      .addEventListener("click", processModalClick);
   },
   methods: {
     alertAndQuit: function(text, wrongVname) {
@@ -82,6 +98,21 @@ export default {
         else this.loadGame(orientation);
       })
       .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
+      this.rulesContent =
+        require(
+          "raw-loader!@/translations/rules/" +
+          this.gameRef.vname + "/" +
+          this.st.lang + ".pug"
+        )
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ")
+        .replace(/\\"/g, '"')
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
+        .replace(/(fen:)([^:]*):/g, replaceByDiag);
+    },
+    gotoRules: function() {
+      this.$router.push("/variants/" + this.gameRef.vname);
     },
     loadGame: function(orientation) {
       this.game.vname = this.gameRef.vname;
@@ -112,7 +143,29 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped=true>
+<style lang="sass">
+@import "@/styles/_board_squares_img.sass"
+@import "@/styles/_rules.sass"
+</style>
+
+<style lang="sass" scoped>
+h4#variantNameInAnalyze
+  cursor: pointer
+  text-align: center
+  text-decoration: underline
+  font-weight: bold
+
+#rulesDiv > .card
+  padding: 5px 0
+  max-width: 50%
+  max-height: 100%
+  @media screen and (max-width: 1500px)
+    max-width: 67%
+  @media screen and (max-width: 1024px)
+    max-width: 85%
+  @media screen and (max-width: 767px)
+    max-width: 100%
+
 input#fen
   // Use a Monospace font for input FEN width adjustment
   font-family: "Fira Code"

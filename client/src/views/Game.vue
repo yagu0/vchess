@@ -1243,21 +1243,21 @@ export default {
       await import("@/variants/" + game.vname + ".js")
       .then((vModule) => {
         window.V = vModule[game.vname + "Rules"];
-        // (AJAX) Request to get rules content (plain text, HTML)
-        this.rulesContent =
-          require(
-            "raw-loader!@/translations/rules/" +
-            game.vname + "/" +
-            this.st.lang + ".pug"
-          )
-          // Next two lines fix a weird issue after last update (2019-11)
-          .replace(/\\n/g, " ")
-          .replace(/\\"/g, '"')
-          .replace('module.exports = "', "")
-          .replace(/"$/, "")
-          .replace(/(fen:)([^:]*):/g, replaceByDiag);
         this.loadGame(game, callback);
       });
+      // (AJAX) Request to get rules content (plain text, HTML)
+      this.rulesContent =
+        require(
+          "raw-loader!@/translations/rules/" +
+          game.vname + "/" +
+          this.st.lang + ".pug"
+        )
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ")
+        .replace(/\\"/g, '"')
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
+        .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)
@@ -1615,8 +1615,10 @@ export default {
 
 #rulesDiv > .card
   padding: 5px 0
-  max-width: 75%
+  max-width: 50%
   max-height: 100%
+  @media screen and (max-width: 1500px)
+    max-width: 67%
   @media screen and (max-width: 1024px)
     max-width: 85%
   @media screen and (max-width: 767px)
@@ -1758,82 +1760,6 @@ h4#variantNameInGame
 </style>
 
 <style lang="sass">
-// TODO: next is duplicated from Rules/. Merge ? How ? ...
-
-figure.diagram-container
-  margin: 15px 0 15px 0
-  text-align: center
-  width: 100%
-  display: block
-  .diagram
-    display: block
-    width: 50%
-    min-width: 240px
-    margin-left: auto
-    margin-right: auto
-  .diag12
-    float: left
-    width: 40%
-    margin-left: calc(10% - 20px)
-    margin-right: 40px
-    @media screen and (max-width: 630px)
-      float: none
-      margin: 0 auto 10px auto
-  .diag22
-    float: left
-    width: 40%
-    margin-right: calc(10% - 20px)
-    @media screen and (max-width: 630px)
-      float: none
-      margin: 0 auto
-  figcaption
-    display: block
-    clear: both
-    padding-top: 5px
-    font-size: 0.8em
-
-p.boxed
-  background-color: #FFCC66
-  padding: 5px
-
-.bigfont
-  font-size: 1.2em
-
-.bold
-  font-weight: bold
-
-.stageDelimiter
-  color: purple
-
-// To show (new) pieces, and/or there values...
-figure.showPieces > img
-  width: 50px
-
-figure.showPieces > figcaption
-  color: #6C6C6C
-
-.section-title
-  padding: 0
-
-.section-title > h4
-  padding: 5px
-
-ol, ul:not(.browser-default)
-  padding-left: 20px
-
-ul:not(.browser-default)
-  margin-top: 5px
-
-ul:not(.browser-default) > li
-  list-style-type: disc
-
-table
-  margin: 15px auto
-
-.italic
-  font-style: italic
-
-img.img-center
-  display: block
-  margin: 0 auto 15px auto
+@import "@/styles/_rules.sass"
+@import "@/styles/_board_squares_img.sass"
 </style>

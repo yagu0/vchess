@@ -195,7 +195,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 [type="checkbox"].modal+div .card
   max-width: 767px
   max-height: 100%
@@ -221,6 +221,15 @@ span.ndt
   color: darkblue
   padding: 0 5px 0 var(--universal-margin)
 
+.margintop
+  margin-top: 25px
+  border-top: 1px solid grey
+@media screen and (max-width: 767px)
+  .margintop
+    margin-top: 10px
+</style>
+
+<style lang="sass">
 .news
   padding-top: 10px
   & > .dev-buttons
@@ -233,11 +242,4 @@ span.ndt
       display: block
       margin-top: 10px
       content: " "
-
-.margintop
-  margin-top: 25px
-  border-top: 1px solid grey
-@media screen and (max-width: 767px)
-  .margintop
-    margin-top: 10px
 </style>
