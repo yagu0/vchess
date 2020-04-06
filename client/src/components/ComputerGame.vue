@@ -43,8 +43,8 @@ export default {
       let self = this;
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
-        // NOTE: BaseGame::play() will trigger processMove() here
         self.$refs["basegame"].play(compMove, "received");
+        self.processMove(compMove);
         self.compThink = false;
         if (self.game.score != "*")
           // User action
@@ -89,6 +89,7 @@ export default {
     processMove: function(move, scoreObj) {
       playMove(move, this.vr);
       // This move could have ended the game:
+      if (!scoreObj) scoreObj = { score: this.vr.getCurrentScore() };
       if (scoreObj.score != "*") {
         this.gameOver(scoreObj.score);
         return;

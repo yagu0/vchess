@@ -31,6 +31,7 @@ main
         v-show="display=='import'"
         ref="importgames"
         :games="importGames"
+        :show-both="true"
         @show-game="showGame"
       )
       button#loadMoreBtn(

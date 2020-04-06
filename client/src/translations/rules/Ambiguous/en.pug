@@ -1,0 +1,37 @@
+p.boxed
+  | Your moves are decided by the opponent, to a square that you choose.
+
+p.
+  At each turn you must first play a move with opponent's pieces to the
+  marked square, and then play a move freely with your pieces.
+  The target in the first part of the move is indicated either by a colored
+  discus for an empty square, or by a colored piece for a capture.
+
+p.
+  Exceptions: the first move of the game (which just mark a square), and a
+  move which captures a king don't have a second part.
+
+p.
+  No check or checkmate, one wins by capturing the opponent's king.
+  There is no castling.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/pppppppp/8/8/8/5g2/PPPPPPPP/RNBQKBNR:
+  .diagram.diag12
+    | fen:rnbqkbnr/pppppppp/8/3G4/8/5P2/PPPPP1PP/RNBQKBNR:
+  figcaption.
+    Left: White plays 1.Nf3.
+    Right: Black executes 1.f3 instead, then plays 1...d5.
+
+h3 Source
+
+p
+  | The 
+  a(href="http://www.pion.ch/echecs/variante.php?jeu=ambigus")
+    | rules description
+  | &nbsp;by the author of this variant, which is also playable 
+  a(href="https://brainking.com/en/GameRules?tp=85") on brainking.com
+  | .
+
+p Inventor: Fabrice Liardet (2005)

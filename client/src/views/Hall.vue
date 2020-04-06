@@ -186,13 +186,13 @@ main
         GameList(
           v-show="gdisplay=='live'"
           :games="filterGames('live')"
-          :showBoth="true"
+          :show-both="true"
           @show-game="showGame"
         )
         div(v-show="gdisplay=='corr'")
           GameList(
             :games="filterGames('corr')"
-            :showBoth="true"
+            :show-both="true"
             @show-game="showGame"
           )
           button#loadMoreBtn(

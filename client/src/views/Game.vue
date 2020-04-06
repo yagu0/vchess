@@ -815,8 +815,7 @@ export default {
                   GameStorage.update(this.gameRef, { drawOffer: "" });
                 }
               }
-              this.$refs["basegame"].play(
-                movePlus.move, "received", null, true);
+              this.$refs["basegame"].play(movePlus.move, "received");
               this.game.clocks[moveColIdx] = movePlus.clock;
               this.processMove(
                 movePlus.move,
@@ -883,6 +882,8 @@ export default {
             this.$router.push("/game/" + gameInfo.id);
           } else {
             this.rematchId = gameInfo.id;
+            document.getElementById("modalRules").checked = false;
+            document.getElementById("modalScore").checked = false;
             document.getElementById("modalRematch").checked = true;
           }
           break;
@@ -945,7 +946,7 @@ export default {
       this.game.clocks[oppIdx] = data.clock;
       if (data.movesCount > L) {
         // Just got last move from him
-        this.$refs["basegame"].play(data.lastMove, "received", null, true);
+        this.$refs["basegame"].play(data.lastMove, "received");
         this.processMove(data.lastMove);
       } else {
         if (!!this.clockUpdate) clearInterval(this.clockUpdate);
@@ -1566,6 +1567,7 @@ export default {
       this.game.score = score;
       if (!scoreMsg) scoreMsg = getScoreMessage(score);
       this.game.scoreMsg = scoreMsg;
+      document.getElementById("modalRules").checked = false;
       // Display result in a un-missable way:
       document.getElementById("modalScore").checked = true;
       this.$set(this.game, "scoreMsg", scoreMsg);

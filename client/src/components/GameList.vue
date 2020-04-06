@@ -64,8 +64,9 @@ export default {
       if (
         this.st.user.sid == g.players[0].sid ||
         this.st.user.id == g.players[0].id
-      )
+      ) {
         return g.players[1].name || "@nonymous";
+      }
       return g.players[0].name || "@nonymous";
     },
     sortedGames: function() {

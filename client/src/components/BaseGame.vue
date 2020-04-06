@@ -94,7 +94,6 @@ export default {
       incheck: [], //for Board
       inMultimove: false,
       autoplay: false,
-      autoplayLoop: null,
       inPlay: false,
       stackToPlay: []
     };
@@ -164,7 +163,8 @@ export default {
       .addEventListener("click", processModalClick);
   },
   beforeDestroy: function() {
-    if (!!this.autoplayLoop) clearInterval(this.autoplayLoop);
+    // TODO: probably not required
+    this.autoplay = false;
   },
   methods: {
     focusBg: function() {
@@ -216,6 +216,10 @@ export default {
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
       let L = this.moves.length;
+      if (L == 0) {
+        this.incheck = [];
+        this.score = "*";
+      }
       this.moves.forEach((move,idx) => {
         // Strategy working also for multi-moves:
         if (!Array.isArray(move)) move = [move];
@@ -229,8 +233,8 @@ export default {
           if (idxM == Lm - 1) m.fen = this.vr.getFen();
           if (idx == L - 1 && idxM == Lm - 1) {
             this.incheck = checkSquares;
-            const score = this.vr.getCurrentScore();
-            if (["1-0", "0-1"].includes(score)) m.notation += "#";
+            this.score = this.vr.getCurrentScore();
+            if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
           }
         });
       });
@@ -333,32 +337,15 @@ export default {
       document.getElementById("modalEog").checked = true;
     },
     runAutoplay: function() {
-      const infinitePlay = () => {
-        if (this.cursor == this.moves.length - 1) {
-          clearInterval(this.autoplayLoop);
-          this.autoplayLoop = null;
-          this.autoplay = false;
-          return;
-        }
-        if (this.inPlay || this.inMultimove)
-          // Wait next tick
-          return;
-        this.play();
-      };
       if (this.autoplay) {
         this.autoplay = false;
-        clearInterval(this.autoplayLoop);
-        this.autoplayLoop = null;
-      } else {
+        if (this.stackToPlay.length > 0)
+          // Move(s) arrived in-between
+          this.play(this.stackToPlay.pop(), "received");
+      }
+      else if (this.cursor < this.moves.length - 1) {
         this.autoplay = true;
-        setTimeout(
-          () => {
-            infinitePlay();
-            this.autoplayLoop = setInterval(infinitePlay, 1500);
-          },
-          // Small delay otherwise the first move is played too fast
-          500
-        );
+        this.play();
       }
     },
     // Animate an elementary move
@@ -417,7 +404,7 @@ export default {
       if (!!move) this.play(move);
     },
     // "light": if gotoMove() or gotoEnd()
-    play: function(move, received, light, noemit) {
+    play: function(move, received, light) {
       // Freeze while choices are shown:
       if (this.$refs["board"].choices.length > 0) return;
       const navigate = !move;
@@ -432,18 +419,17 @@ export default {
         return;
       }
       if (!!received) {
-        if (this.mode == "analyze") this.toggleAnalyze();
-        if (this.cursor < this.moves.length - 1)
-          // To play a received move, cursor must be at the end of the game:
-          this.gotoEnd();
-      }
-      if (!!noemit) {
-        if (this.inPlay) {
-          // Received moves in observed games can arrive too fast:
+        if (this.autoplay || this.inPlay) {
+          // Received moves while autoplaying are stacked,
+          // and in observed games they could arrive too fast:
           this.stackToPlay.unshift(move);
           return;
         }
         this.inPlay = true;
+        if (this.mode == "analyze") this.toggleAnalyze();
+        if (this.cursor < this.moves.length - 1)
+          // To play a received move, cursor must be at the end of the game:
+          this.gotoEnd();
       }
       // The board may show some the possible moves: (TODO: bad solution)
       this.$refs["board"].resetCurrentAttempt();
@@ -494,8 +480,7 @@ export default {
           if (animate && smove.start.x >= 0) {
             self.animateMove(smove, () => {
               playSubmove(smove);
-              if (moveIdx < move.length)
-                setTimeout(executeMove, 500);
+              if (moveIdx < move.length) setTimeout(executeMove, 500);
               else afterMove(smove, initurn);
             });
           } else {
@@ -508,7 +493,7 @@ export default {
       const computeScore = () => {
         const score = this.vr.getCurrentScore();
         if (!navigate) {
-          if (["1-0","0-1"].includes(score)) {
+          if (["1-0", "0-1"].includes(score)) {
             if (Array.isArray(this.lastMove)) {
               const L = this.lastMove.length;
               this.lastMove[L - 1].notation += "#";
@@ -532,18 +517,27 @@ export default {
           this.emitFenIfAnalyze();
           this.inMultimove = false;
           this.score = computeScore();
+          if (this.autoplay) {
+            if (this.cursor < this.moves.length - 1)
+              setTimeout(this.play, 1000);
+            else {
+              this.autoplay = false;
+              if (this.stackToPlay.length > 0)
+                // Move(s) arrived in-between
+                this.play(this.stackToPlay.pop(), "received");
+            }
+          }
           if (this.mode != "analyze" && !navigate) {
-            if (!noemit && this.mode != "analyze") {
+            if (!received) {
               // Post-processing (e.g. computer play).
               const L = this.moves.length;
-              // NOTE: always emit the score, even in unfinished,
-              // to tell Game::processMove() that it's not a received move.
+              // NOTE: always emit the score, even in unfinished
               this.$emit("newmove", this.moves[L-1], { score: this.score });
             } else {
               this.inPlay = false;
               if (this.stackToPlay.length > 0)
                 // Move(s) arrived in-between
-                this.play(this.stackToPlay.pop(), received, light, noemit);
+                this.play(this.stackToPlay.pop(), "received");
             }
           }
         }
