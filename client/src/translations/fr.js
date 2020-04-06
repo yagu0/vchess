@@ -205,6 +205,7 @@ export const translations = {
   "Occupy the enemy palace": "Occuper le palais ennemi",
   "Pawns move diagonally": "Les pions vont en diagonale",
   "Play at the same time": "Jouer en même temps",
+  "Play opponent's pieces": "Jouez les pièces adverses",
   "Powerful pieces": "Pièces puissantes",
   "Prolongated captures": "Captures prolongées",
   "Push and pull": "Pousser et tirer",
