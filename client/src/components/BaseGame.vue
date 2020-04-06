@@ -275,6 +275,8 @@ export default {
         }
         this.vr = new V(fen);
         this.incheck = this.vr.getCheckSquares();
+        if (this.cursor >= 0) this.lastMove = this.moves[this.cursor];
+        else this.lastMove = null;
         document.getElementById("analyzeBtn").classList.remove("active");
       }
     },
@@ -492,6 +494,11 @@ export default {
         (function executeMove() {
 console.log("execute move " + move.length);
           const smove = move[moveIdx++];
+
+console.log(smove);
+          console.log(animate + " " + smove.start.x);
+
+
           // NOTE: condition "smove.start.x >= 0" required for Dynamo,
           // because second move may be empty.
           if (animate && smove.start.x >= 0) {
