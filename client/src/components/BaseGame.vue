@@ -274,6 +274,7 @@ export default {
           fen = mv[mv.length-1].fen;
         }
         this.vr = new V(fen);
+        this.incheck = this.vr.getCheckSquares();
         document.getElementById("analyzeBtn").classList.remove("active");
       }
     },
@@ -429,6 +430,10 @@ export default {
         return;
       }
       if (!!received) {
+
+        if (this.mode == "analyze") { console.log("received move");
+          console.log(move); }
+
         if (this.mode == "analyze") this.toggleAnalyze();
         if (this.cursor < this.moves.length - 1)
           // To play a received move, cursor must be at the end of the game:
