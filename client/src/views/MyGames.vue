@@ -399,13 +399,16 @@ export default {
 .tabbtn
   background-color: #f9faee
 
-table.game-list
-  max-height: 100%
-
 button#loadMoreBtn
   display: block
   margin: 0 auto
 
 .somethingnew
   background-color: #c5fefe !important
+</style>
+
+<!-- Not scoped because acting on GameList -->
+<style lang="sass">
+table.game-list
+  max-height: 100%
 </style>
