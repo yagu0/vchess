@@ -417,8 +417,23 @@ export default {
     play: function(move, received, light, noemit) {
       // Freeze while choices are shown:
       if (this.$refs["board"].choices.length > 0) return;
-      // The board may show some the possible moves: (TODO: bad solution)
-      this.$refs["board"].resetCurrentAttempt();
+      const navigate = !move;
+      // Forbid playing outside analyze mode, except if move is received.
+      // Sufficient condition because Board already knows which turn it is.
+      if (
+        this.mode != "analyze" &&
+        !navigate &&
+        !received &&
+        (this.game.score != "*" || this.cursor < this.moves.length - 1)
+      ) {
+        return;
+      }
+      if (!!received) {
+        if (this.mode == "analyze") this.toggleAnalyze();
+        if (this.cursor < this.moves.length - 1)
+          // To play a received move, cursor must be at the end of the game:
+          this.gotoEnd();
+      }
       if (!!noemit) {
         if (this.inPlay) {
           // Received moves in observed games can arrive too fast:
@@ -427,7 +442,8 @@ export default {
         }
         this.inPlay = true;
       }
-      const navigate = !move;
+      // The board may show some the possible moves: (TODO: bad solution)
+      this.$refs["board"].resetCurrentAttempt();
       const playSubmove = (smove) => {
         smove.notation = this.vr.getNotation(smove);
         smove.unambiguous = V.GetUnambiguousNotation(smove);
@@ -547,22 +563,6 @@ export default {
           this.cursor++;
           return;
         }
-      }
-      // Forbid playing outside analyze mode, except if move is received.
-      // Sufficient condition because Board already knows which turn it is.
-      if (
-        this.mode != "analyze" &&
-        !navigate &&
-        !received &&
-        (this.game.score != "*" || this.cursor < this.moves.length - 1)
-      ) {
-        return;
-      }
-      if (!!received) {
-        if (this.mode == "analyze") this.toggleAnalyze();
-        if (this.cursor < this.moves.length - 1)
-          // To play a received move, cursor must be at the end of the game:
-          this.gotoEnd();
       }
       playMove();
     },
