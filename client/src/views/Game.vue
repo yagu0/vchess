@@ -1610,7 +1610,7 @@ export default {
 
 <style lang="sass" scoped>
 #scoreDiv > .card, #rematchDiv > .card
-  padding: 15px 0
+  padding: 10px 0
   max-width: 430px
 
 #rulesDiv > .card
@@ -1625,6 +1625,7 @@ export default {
     max-width: 100%
 
 p.score-section
+  margin: 0
   font-size: 1.3em
   span.score
     font-weight: bold

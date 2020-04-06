@@ -660,6 +660,7 @@ export default {
 <style lang="sass" scoped>
 [type="checkbox"]#modalEog+div .card
   min-height: 45px
+  max-width: 350px
 
 #baseGame
   width: 100%
