@@ -1,4 +1,5 @@
 import { ChessRules } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class AmbiguousRules extends ChessRules {
   static get HasFlags() {
@@ -118,11 +119,17 @@ export class AmbiguousRules extends ChessRules {
     let potentialMoves = [];
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
+        const colIJ = this.getColor(i, j);
         if (
           this.board[i][j] != V.EMPTY &&
-          this.getColor(i, j) == color &&
-          this.board[i][j][1] != V.GOAL &&
-          !(Object.keys(V.TARGET_DECODE).includes(this.board[i][j][1]))
+          (
+            (this.subTurn == 2 && colIJ == color) ||
+            (
+              this.subTurn == 1 && colIJ != color &&
+              this.board[i][j][1] != V.GOAL &&
+              !(Object.keys(V.TARGET_DECODE).includes(this.board[i][j][1]))
+            )
+          )
         ) {
           Array.prototype.push.apply(
             potentialMoves,
@@ -241,6 +248,23 @@ export class AmbiguousRules extends ChessRules {
       // En-passant allowed, but no flags
       " w 0 -"
     );
+  }
+
+  getComputerMove() {
+    let moves = this.getAllValidMoves();
+    if (moves.length == 0) return null;
+    // Random mover for now
+    const color = this.turn;
+    const m1 = moves[randInt(moves.length)];
+    this.play(m1);
+    let m = undefined;
+    if (this.turn != color) m = m1;
+    else {
+      const moves2 = this.getAllValidMoves();
+      m = [m1, moves2[randInt(moves2.length)]];
+    }
+    this.undo(m1);
+    return m;
   }
 
   getNotation(move) {
