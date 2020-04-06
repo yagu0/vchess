@@ -466,7 +466,7 @@ export default {
           this.lastMove = smove;
           // Condition is "!navigate" but we mean "!this.autoplay"
           if (!navigate) {
-            IF (this.cursor < this.moves.length - 1)
+            if (this.cursor < this.moves.length - 1)
               this.moves = this.moves.slice(0, this.cursor + 1);
             this.moves.push(smove);
           }
