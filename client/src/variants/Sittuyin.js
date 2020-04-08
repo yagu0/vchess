@@ -316,7 +316,7 @@ export class SittuyinRules extends ChessRules {
       const initSquare =
         V.CoordsToSquare({ x: move.vanish[0].x, y: move.vanish[0].y })
       const destSquare =
-        V.CoordsToSquare({ x: move.vanish[0].x, y: move.vanish[0].y })
+        V.CoordsToSquare({ x: move.appear[0].x, y: move.appear[0].y })
       const prefix = (initSquare != destSquare ? initSquare : "");
       return prefix + destSquare + "=Q";
     }
