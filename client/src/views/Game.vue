@@ -1211,6 +1211,9 @@ export default {
         this.$nextTick(() => {
           // Disable tooltips on smartphones:
           document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
+
+alert(elt);
+
             elt.classList.remove("tooltip");
           });
         });
