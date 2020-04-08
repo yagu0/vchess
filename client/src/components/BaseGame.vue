@@ -40,7 +40,7 @@ div#baseGame
           img.inline(src="/images/icons/play.svg")
         button(@click="gotoEnd()")
           img.inline(src="/images/icons/fast-forward.svg")
-      p(v-show="showFen") {{ (!!vr ? vr.getFen() : "") }}
+      p#fenAnalyze(v-show="showFen") {{ (!!vr ? vr.getFen() : "") }}
     #movesList
       MoveList(
         :show="showMoves"
@@ -66,7 +66,6 @@ div#baseGame
 // Bug 35eme coup blanc Rx(P)e2, d2 et aussi 18eme coup blanc Rd7, Pxe6
 // --> peut-être lié à prise, ou lié à getFen(), ou inMultimove pas changé car concatène à coup précédent...
 // TODO: also fix moves played on smartphone, annoying shift...
-// attention play undo pendant l'autoplay !!
 
 import Board from "@/components/Board.vue";
 import MoveList from "@/components/MoveList.vue";
@@ -352,7 +351,7 @@ export default {
       }
       else if (this.cursor < this.moves.length - 1) {
         this.autoplay = true;
-        this.play();
+        this.play(null, null, null, "autoplay");
       }
     },
     // Animate an elementary move
@@ -411,10 +410,12 @@ export default {
       if (!!move) this.play(move);
     },
     // "light": if gotoMove() or gotoEnd()
-    play: function(move, received, light) {
+    play: function(move, received, light, autoplay) {
       // Freeze while choices are shown:
       if (this.$refs["board"].choices.length > 0) return;
       const navigate = !move;
+      // Forbid navigation during autoplay:
+      if (navigate && this.autoplay && !autoplay) return;
       // Forbid playing outside analyze mode, except if move is received.
       // Sufficient condition because Board already knows which turn it is.
       if (
@@ -526,7 +527,7 @@ export default {
           this.score = computeScore();
           if (this.autoplay) {
             if (this.cursor < this.moves.length - 1)
-              setTimeout(this.play, 1000);
+              setTimeout(() => this.play(null, null, null, "autoplay"), 1000);
             else {
               this.autoplay = false;
               if (this.stackToPlay.length > 0)
@@ -587,7 +588,7 @@ export default {
     // "light": if gotoMove() or gotoBegin()
     undo: function(move, light) {
       // Freeze while choices are shown:
-      if (this.$refs["board"].choices.length > 0) return;
+      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) {
         this.cancelCurrentMultimove();
@@ -612,7 +613,7 @@ export default {
       }
     },
     gotoMove: function(index) {
-      if (this.$refs["board"].choices.length > 0) return;
+      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) this.cancelCurrentMultimove();
       if (index == this.cursor) return;
@@ -631,7 +632,7 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoBegin: function() {
-      if (this.$refs["board"].choices.length > 0) return;
+      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) this.cancelCurrentMultimove();
       const minCursor =
@@ -644,7 +645,7 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoEnd: function() {
-      if (this.$refs["board"].choices.length > 0) return;
+      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
       this.$refs["board"].resetCurrentAttempt();
       if (this.cursor == this.moves.length - 1) return;
       this.gotoMove(this.moves.length - 1);
@@ -682,6 +683,9 @@ export default {
     margin: 0
     padding-top: 5px
     padding-bottom: 5px
+
+p#fenAnalyze
+  margin: 5px
 
 .in-autoplay
   background-color: #FACF8C

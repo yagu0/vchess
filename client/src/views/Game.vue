@@ -97,13 +97,13 @@ main
         )
           img(src="/images/icons/draw.svg")
         button.tooltip(
-          v-if="!!game.mycolor"
+          v-show="!!game.mycolor"
           @click="abortGame()"
           :aria-label="st.tr['Abort']"
         )
           img(src="/images/icons/abort.svg")
         button.tooltip(
-          v-if="!!game.mycolor"
+          v-show="!!game.mycolor"
           @click="resign()"
           :aria-label="st.tr['Resign']"
         )

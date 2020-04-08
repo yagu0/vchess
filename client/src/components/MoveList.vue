@@ -28,7 +28,7 @@ div
     )
       img.inline(src="/images/icons/resize.svg")
     button#analyzeBtn.tooltip(
-      v-if="canAnalyze"
+      v-show="canAnalyze"
       @click="$emit('analyze')"
       :aria-label="st.tr['Analyse']"
     )
