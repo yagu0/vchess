@@ -89,7 +89,7 @@ main
         aria-label="Chat"
       )
         img(src="/images/icons/chat.svg")
-      #actions(v-if="game.score=='*'")
+      #actions(v-show="game.score=='*'")
         button.tooltip(
           @click="clickDraw()"
           :class="{['draw-' + drawOffer]: true}"
@@ -109,7 +109,7 @@ main
         )
           img(src="/images/icons/resign.svg")
       button.tooltip(
-        v-else
+        v-show="game.score!='*'"
         @click="clickRematch()"
         :class="{['rematch-' + rematchOffer]: true}"
         :aria-label="st.tr['Rematch']"
