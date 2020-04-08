@@ -26,7 +26,7 @@ main
           | {{ st.tr["Analysis mode"] }}
   .row
     .col-sm-12.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
-      h4#variantName {{ gameInfo.vname }}
+      h4#variantName(v-show="display=='rules'") {{ gameInfo.vname }}
       div(
         v-show="display=='rules'"
         v-html="content"
