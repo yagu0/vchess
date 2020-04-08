@@ -195,7 +195,7 @@ export class SittuyinRules extends ChessRules {
       addPromotion([x - shiftX, y]);
       for (let step of V.steps[V.BISHOP]) {
         const [i, j] = [x + step[0], y + step[1]];
-        if (V.OnBoard(i, j) && this.board[i][j] != V.EMPTY)
+        if (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY)
           addPromotion([i, j], "moveTo");
       }
     }
