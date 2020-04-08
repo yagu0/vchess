@@ -1208,15 +1208,17 @@ export default {
         game
       );
       if ("ontouchstart" in window) {
-        this.$nextTick(() => {
-          // Disable tooltips on smartphones:
-          document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
-
-alert(elt);
-
-            elt.classList.remove("tooltip");
-          });
-        });
+        // TODO: I don't like this timeout, but $nextTick() fails,
+        // and in mounted() hook that fails too.
+        setTimeout(
+          () => {
+            // Disable tooltips on smartphones:
+            document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
+              elt.classList.remove("tooltip");
+            });
+          },
+          750
+        );
       }
       this.$refs["basegame"].re_setVariables(this.game);
       if (!this.gameIsLoading) {
