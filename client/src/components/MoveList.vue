@@ -22,20 +22,23 @@ div
       @click="$emit('showrules')"
     )
       | {{ st.tr["Rules"] }}
-    button.tooltip(
+    button(
+      :class="btnTooltipClass"
       onClick="window.doClick('modalAdjust')"
       :aria-label="st.tr['Resize board']"
     )
       img.inline(src="/images/icons/resize.svg")
-    button#analyzeBtn.tooltip(
-      v-show="canAnalyze"
+    button#analyzeBtn(
+      v-if="canAnalyze"
+      :class="btnTooltipClass"
       @click="$emit('analyze')"
       :aria-label="st.tr['Analyse']"
     )
       img.inline(src="/images/icons/analyse.svg")
     #downloadDiv(v-if="canDownload")
       a#download(href="#")
-      button.tooltip(
+      button(
+        :class="btnTooltipClass"
         @click="$emit('download')"
         :aria-label="st.tr['Download'] + ' PGN'"
       )
@@ -76,12 +79,6 @@ export default {
   mounted: function() {
     document.getElementById("adjuster")
       .addEventListener("click", processModalClick);
-    if ("ontouchstart" in window) {
-      // Disable tooltips on smartphones:
-      document.querySelectorAll("#aboveMoves .tooltip").forEach(elt => {
-        elt.classList.remove("tooltip");
-      });
-    }
     // Take full width on small screens:
     let boardSize = parseInt(localStorage.getItem("boardSize"));
     if (!boardSize) {
@@ -147,6 +144,9 @@ export default {
           this.cursor == this.moves.length - 1
         )
       );
+    },
+    btnTooltipClass: function() {
+      return { tooltip: !("ontouchstart" in window) };
     },
     gotoMove: function(index) {
       this.$emit("goto-move", index);

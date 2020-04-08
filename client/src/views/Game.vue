@@ -84,34 +84,37 @@ main
         @click="showNextGame()"
       )
         | {{ st.tr["Next_g"] }}
-      button#chatBtn.tooltip(
+      button#chatBtn(
+        :class="btnTooltipClass()"
         onClick="window.doClick('modalChat')"
         aria-label="Chat"
       )
         img(src="/images/icons/chat.svg")
       #actions(v-if="game.score=='*'")
-        button.tooltip(
+        button(
           @click="clickDraw()"
-          :class="{['draw-' + drawOffer]: true}"
+          :class="btnTooltipClass('draw')"
           :aria-label="st.tr['Draw']"
         )
           img(src="/images/icons/draw.svg")
-        button.tooltip(
-          v-show="!!game.mycolor"
+        button(
+          v-if="!!game.mycolor"
+          :class="btnTooltipClass()"
           @click="abortGame()"
           :aria-label="st.tr['Abort']"
         )
           img(src="/images/icons/abort.svg")
-        button.tooltip(
-          v-show="!!game.mycolor"
+        button(
+          v-if="!!game.mycolor"
+          :class="btnTooltipClass()"
           @click="resign()"
           :aria-label="st.tr['Resign']"
         )
           img(src="/images/icons/resign.svg")
-      button.tooltip(
+      button(
         v-else
+        :class="btnTooltipClass('rematch')"
         @click="clickRematch()"
-        :class="{['rematch-' + rematchOffer]: true}"
         :aria-label="st.tr['Rematch']"
       )
         img(src="/images/icons/rematch.svg")
@@ -144,24 +147,18 @@ main
           span.split-names -
           span.name(:class="{connected: isConnected(1)}")
             | {{ game.players[1].name || "@nonymous" }}
-          br
-          span.time(
-            v-if="game.score=='*'"
-            :class="{yourturn: !!vr && vr.turn == 'w'}"
-          )
-            span.time-left {{ virtualClocks[0][0] }}
-            span.time-separator(v-if="!!virtualClocks[0][1]") :
-            span.time-right(v-if="!!virtualClocks[0][1]")
-              | {{ virtualClocks[0][1] }}
-          span.separator
-          span.time(
-            v-if="game.score=='*'"
-            :class="{yourturn: !!vr && vr.turn == 'b'}"
-          )
-            span.time-left {{ virtualClocks[1][0] }}
-            span.time-separator(v-if="!!virtualClocks[1][1]") :
-            span.time-right(v-if="!!virtualClocks[1][1]")
-              | {{ virtualClocks[1][1] }}
+          div(v-if="game.score=='*'")
+            span.time(:class="{yourturn: !!vr && vr.turn == 'w'}")
+              span.time-left {{ virtualClocks[0][0] }}
+              span.time-separator(v-if="!!virtualClocks[0][1]") :
+              span.time-right(v-if="!!virtualClocks[0][1]")
+                | {{ virtualClocks[0][1] }}
+            span.separator
+            span.time(:class="{yourturn: !!vr && vr.turn == 'b'}")
+              span.time-left {{ virtualClocks[1][0] }}
+              span.time-separator(v-if="!!virtualClocks[1][1]") :
+              span.time-right(v-if="!!virtualClocks[1][1]")
+                | {{ virtualClocks[1][1] }}
   BaseGame(
     ref="basegame"
     :game="game"
@@ -311,6 +308,16 @@ export default {
     },
     isLargeScreen: function() {
       return window.innerWidth >= 500;
+    },
+    btnTooltipClass: function(thing) {
+      let append = {};
+      if (!!thing) append = { [thing + "-" + this[thing + "Offer"]]: true };
+      return (
+        Object.assign(
+          { tooltip: !("ontouchstart" in window) },
+          append
+        )
+      );
     },
     gotoRules: function() {
       this.$router.push("/variants/" + this.game.vname);
@@ -1207,19 +1214,6 @@ export default {
         },
         game
       );
-      if ("ontouchstart" in window) {
-        // TODO: I don't like this timeout, but $nextTick() fails,
-        // and in mounted() hook that fails too.
-        setTimeout(
-          () => {
-            // Disable tooltips on smartphones:
-            document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
-              elt.classList.remove("tooltip");
-            });
-          },
-          750
-        );
-      }
       this.$refs["basegame"].re_setVariables(this.game);
       if (!this.gameIsLoading) {
         // Initial loading:
@@ -1572,15 +1566,6 @@ export default {
     // In corr games, callback to change page only after score is set:
     gameOver: function(score, scoreMsg, callback) {
       this.game.score = score;
-      if ("ontouchstart" in window) {
-        this.$nextTick(() => {
-          // Disable tooltips on smartphones
-          // (might be required for rematch button at least):
-          document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
-            elt.classList.remove("tooltip");
-          });
-        });
-      }
       if (!scoreMsg) scoreMsg = getScoreMessage(score);
       this.game.scoreMsg = scoreMsg;
       document.getElementById("modalRules").checked = false;
