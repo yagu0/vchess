@@ -119,7 +119,7 @@ main
       )
         img(src="/images/icons/rematch.svg")
       #playersInfo
-        p(v-if="isLargeScreen()")
+        div(v-if="isLargeScreen()")
           span.name(:class="{connected: isConnected(0)}")
             | {{ game.players[0].name || "@nonymous" }}
           span.time(
@@ -141,7 +141,7 @@ main
             span.time-separator(v-if="!!virtualClocks[1][1]") :
             span.time-right(v-if="!!virtualClocks[1][1]")
               | {{ virtualClocks[1][1] }}
-        p(v-else)
+        div(v-else)
           span.name(:class="{connected: isConnected(0)}")
             | {{ game.players[0].name || "@nonymous" }}
           span.split-names -
@@ -307,7 +307,7 @@ export default {
       this.send("losefocus");
     },
     isLargeScreen: function() {
-      return window.innerWidth >= 500;
+      return window.innerWidth >= 768;
     },
     btnTooltipClass: function(thing) {
       let append = {};
@@ -1688,10 +1688,14 @@ span.separator
 
 span.name
   font-size: 1.5rem
+  @media screen and (max-width: 767px)
+    font-size: 1.2rem
   padding: 0 3px
 
 span.time
   font-size: 2rem
+  @media screen and (max-width: 767px)
+    font-size: 1.5rem
   display: inline-block
   .time-left
     margin-left: 10px
