@@ -1,5 +1,7 @@
-Grasshopper problem: 8/8/8/8/8/8/5gPp/5K1k w 0 iiii - V. Onitiu, Die Schwalbe 1929.
-+ Wikipedia maybe https://en.wikipedia.org/wiki/Grasshopper_(chess)
+// https://vchess.club/#/game/46
+// Bug 35eme coup blanc Rx(P)e2, d2 et aussi 18eme coup blanc Rd7, Pxe6
+// --> peut-être lié à prise, ou lié à getFen(), ou inMultimove pas changé car concatène à coup précédent...
+// TODO: also fix moves played on smartphone, annoying shift...
 
 Shako, also known as UniEed Chess (Jean-Louis
 Cazaux, 1990). Board 10x10; extra pieces are
