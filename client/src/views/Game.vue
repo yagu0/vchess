@@ -89,7 +89,7 @@ main
         aria-label="Chat"
       )
         img(src="/images/icons/chat.svg")
-      #actions(v-show="game.score=='*'")
+      #actions(v-if="game.score=='*'")
         button.tooltip(
           @click="clickDraw()"
           :class="{['draw-' + drawOffer]: true}"
@@ -109,7 +109,7 @@ main
         )
           img(src="/images/icons/resign.svg")
       button.tooltip(
-        v-show="game.score!='*'"
+        v-else
         @click="clickRematch()"
         :class="{['rematch-' + rematchOffer]: true}"
         :aria-label="st.tr['Rematch']"
@@ -270,12 +270,6 @@ export default {
           .addEventListener("click", processModalClick);
       }
     );
-    if ("ontouchstart" in window) {
-      // Disable tooltips on smartphones:
-      document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
-        elt.classList.remove("tooltip");
-      });
-    }
   },
   beforeDestroy: function() {
     this.cleanBeforeDestroy();
@@ -1213,6 +1207,14 @@ export default {
         },
         game
       );
+      if ("ontouchstart" in window) {
+        this.$nextTick(() => {
+          // Disable tooltips on smartphones:
+          document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
+            elt.classList.remove("tooltip");
+          });
+        });
+      }
       this.$refs["basegame"].re_setVariables(this.game);
       if (!this.gameIsLoading) {
         // Initial loading:
@@ -1565,6 +1567,15 @@ export default {
     // In corr games, callback to change page only after score is set:
     gameOver: function(score, scoreMsg, callback) {
       this.game.score = score;
+      if ("ontouchstart" in window) {
+        this.$nextTick(() => {
+          // Disable tooltips on smartphones
+          // (might be required for rematch button at least):
+          document.querySelectorAll("#aboveBoard .tooltip").forEach(elt => {
+            elt.classList.remove("tooltip");
+          });
+        });
+      }
       if (!scoreMsg) scoreMsg = getScoreMessage(score);
       this.game.scoreMsg = scoreMsg;
       document.getElementById("modalRules").checked = false;
