@@ -311,7 +311,15 @@ export class SittuyinRules extends ChessRules {
   getNotation(move) {
     // Do not note placement moves (complete move would be too long)
     if (move.vanish.length == 0) return "";
+    if (move.appear[0].p != move.vanish[0].p) {
+      // Pawn promotion: indicate correct final square
+      const initSquare =
+        V.CoordsToSquare({ x: move.vanish[0].x, y: move.vanish[0].y })
+      const destSquare =
+        V.CoordsToSquare({ x: move.vanish[0].x, y: move.vanish[0].y })
+      const prefix = (initSquare != destSquare ? initSquare : "");
+      return prefix + destSquare + "=Q";
+    }
     return super.getNotation(move);
   }
 };
-
