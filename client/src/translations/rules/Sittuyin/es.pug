@@ -1,0 +1,70 @@
+p.boxed
+  | Los alfiles y la dama son menos poderosas que en el ajedrez estándar.
+  | Reglas especiales de promoción.
+
+p.
+  De izquierda a derecha: peón, torre, caballo, alfil (elefante),
+  dama (general), rey.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Sittuyin/wp.svg")
+  img(src="/images/pieces/Sittuyin/wr.svg")
+  img(src="/images/pieces/Sittuyin/wn.svg")
+  img(src="/images/pieces/Sittuyin/wb.svg")
+  img(src="/images/pieces/Sittuyin/wq.svg")
+  img(src="/images/pieces/Sittuyin/wk.svg")
+  figcaption Piezas "blancas", en rojo. Las piezas "negras" son verdes.
+
+ul
+  li Los elefantes reemplazan a los alfiles.
+  li El general reemplaza a la dama ortodoxa.
+  li.
+    El único movimiento de peón especial es la promoción,
+    siempre en un general.
+  li No hay enroque.
+
+h3 Primer movimiento
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/4pppp/pppp4/4PPPP/PPPP4/8/8:
+  figcaption Configuración inicial.
+
+p.
+  La configuración inicial solo contiene los peones.
+  De hecho, en el primer movimiento puedes distribuir las piezas como desees
+  detrás de la línea de peón. Debes colocar cada una de ellas,
+  las torres están en la primera fila.
+
+h3 Desplazamientos de las piezas
+
+p.
+  El general se mueve de una casilla en diagonal a cualquier
+  dirección. El elefante se mueve una caja hacia adelante, o como un
+  general. Todas las otras piezas se parecen al ajedrez ortodoxo.
+
+h3 Promoción
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/8/8/8/8/8 a8,b7,c6,d5,e5,f6,g7,h8:
+  figcaption Casillas donde se permite la promoción.
+
+p.
+  Un peón puede ser promovido cuando, al comienzo de un turno, está en uno de
+  las casillas marcadas (desde el punto de vista de un jugador).
+  Puede promocionarlo en una casilla adyacente en diagonal (si es
+  vacío) o en el sitio: esta última opción se obtiene en la interfaz
+  "respaldando" una casilla de vuelta.
+  Si solo le queda un peón, puede ser promovido desde cualquier asunto.
+  La promoción siempre se realiza en un general, y solo puede tener uno
+  general en el tablero de ajedrez.
+
+h3 Fuente
+
+p
+  a(href="https://drive.google.com/open?id=1HIPJLJBU2F6R6vxGziU6j8MHoHu_Kmab")
+    | Cómo jugar al Ajedrez Birmano Tradicional
+  | . Esta variante también es jugable 
+  a(href="https://www.pychess.org/variant/sittuyin") en pychess-variants
+  | .

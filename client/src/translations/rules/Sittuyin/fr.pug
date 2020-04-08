@@ -1,0 +1,69 @@
+p.boxed
+  | Les fous et la dame sont moins puissants qu'aux échecs standards.
+  | Règles de promotion particulières.
+
+p.
+  De gauche à droite : pion, tour, cavalier, fou (éléphant),
+  dame (général), roi.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Sittuyin/wp.svg")
+  img(src="/images/pieces/Sittuyin/wr.svg")
+  img(src="/images/pieces/Sittuyin/wn.svg")
+  img(src="/images/pieces/Sittuyin/wb.svg")
+  img(src="/images/pieces/Sittuyin/wq.svg")
+  img(src="/images/pieces/Sittuyin/wk.svg")
+  figcaption Pièces "blanches", en rouge. Les pièces "noires" sont en vert.
+
+ul
+  li Les éléphants remplacent les fous.
+  li Le général remplace la dame orthodoxe.
+  li Le seul coup spécial de pion est la promotion, toujours en un général.
+  li Il n'y a pas de roque.
+
+h3 Premier coup
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/4pppp/pppp4/4PPPP/PPPP4/8/8:
+  figcaption Configuration initiale.
+
+p.
+  La configuration initiale ne contient que les pions.
+  En effet, au premier coup vous pouvez répartir les pièces comme vous le
+  souhaitez derrière la ligne de pions. Vous devez placer chacune d'entre
+  elles, les tours étant sur la première rangée.
+
+h3 Déplacements des pièces
+
+p.
+  Le général se déplace d'une case en diagonale dans n'importe quelle
+  direction. L'éléphant se déplace d'une case vers l'avant, ou comme un
+  général. Toutes les autres pièces se comportent comme aux échecs orthodoxes.
+
+h3 Promotion
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/8/8/8/8/8 a8,b7,c6,d5,e5,f6,g7,h8:
+  figcaption Cases où la promotion est autorisée.
+
+p.
+  Un pion peut être promu quand, au début d'un tour, il se trouve sur une des
+  cases marquées (du point de vue d'un joueur).
+  Vous pouvez le promouvoir sur une case diagonalement adjacente (si elle est
+  vide), ou bien sur place : cette dernière option est obtenue dans l'interface
+  en "reculant" d'une case en arrière.
+  Si vous n'avez plus qu'un pion restant, il peut se promouvoir depuis
+  n'importe quelle case.
+  La promotion s'effectue toujours en un général, et vous ne pouvez avoir qu'un
+  général sur l'échiquier.
+
+h3 Source
+
+p
+  a(href="https://drive.google.com/open?id=1HIPJLJBU2F6R6vxGziU6j8MHoHu_Kmab")
+    | Comment jouer aux Échecs Birmans Traditionnels
+  | . Cette variante est également jouable 
+  a(href="https://www.pychess.org/variant/sittuyin") sur pychess-variants
+  | .

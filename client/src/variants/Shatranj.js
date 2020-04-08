@@ -20,6 +20,11 @@ export class ShatranjRules extends ChessRules {
     );
   }
 
+  getPpath(b) {
+    if (b[1] == 'b') return "Shatranj/" + b;
+    return b;
+  }
+
   static get ElephantSteps() {
     return [
       [-2, -2],

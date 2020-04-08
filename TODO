@@ -1,8 +1,86 @@
+Grasshopper problem: 8/8/8/8/8/8/5gPp/5K1k w 0 iiii - V. Onitiu, Die Schwalbe 1929.
++ Wikipedia maybe https://en.wikipedia.org/wiki/Grasshopper_(chess)
+
+Shako, also known as UniEed Chess (Jean-Louis
+Cazaux, 1990). Board 10x10; extra pieces are
+Elephant (moves one or two squares
+diagonally, may leap intervening square) and
+Cannon (as above); CC on a1/j1 and a10/j10,
+ERNBQKBNRE on ranks 2/9, 10xP on ranks
+3/8. The name means chess in Esperanto.
+(Cazaux)
+
+Shogi + Makruk/Thai chess --> see on Pychess
+
+Interesting:
+Monochrome Chess (Proprietary game,
+Looney Industries; Andrew Looney, 1996).
+Usual men and array but pieces are all of the
+same colour. A man is controlled by the player
+in whose half of the board it stands. Thus after
+e4-e5, the pawn changes sides and reverses
+direction. When you capture (by definition, in
+the opponent’s half) there can be no recapture
+as the piece has changed sides. You may not
+immediately reverse an opponent’s move. The
+king has no royal powers but can castle. The
+men are allocated points and the object is to
+have the most points (in pieces captured) when
+the game ends, which is usually when the
+players agree or when one half of the board is
+empty. Values: King=10, Queen=8, Rook=5,
+Bishop=4, Knight=3, Pawn=1. A related game
+Martian Chess is described in chapter 38.
+(Proprietor’s rule sheet, Variant Chess 39)
+
 Chakart :)
+https://www.chessvariants.com/crossover.dir/koopachess.html
+
+Diamond Chess [Rynd] (J. A.
+Porterfield Rynd, 1886)  --> Berolina2 ?
+https://www.chessvariants.com/rules/diamond-chess
+
+Bicolour Chess (Gabriel Authier, 1958). v1 et v2 : (Roméo Bédoni, 1958) 
+Kings are subject to check and checkmate by
+own as well as opponent’s pieces. The Q and
+QN are interchanged in the array
+.
+v2: y but a player may capture his
+own men (TODO: only v2?)
+
+Koth : king of the hill, king cannot move into check, giving check is forbidden (no checkmate).
+
+Berolina Grid Chess, also known as
+Gridolina (originator not noted). A
+combination of Berolina and Grid Chess.
+Better than Grid Chess since Berolina pawns
+cross grid lines more easily. Described in
+World Game Review 10 as the most popular of
+the NOST combination games. (Nost-algia
+150, also Nost-algia 112 ‘not seen’) 
+--> pourquoi pas, mais faudra pouvoir tracer des lignes sur plateau (Ball, Koth, Sittuyin, celle-là, Rococo)
+
+Contact (quoted by David Silverman, 1971).
+White puts a knight on any square of an empty
+chessboard. Black moves the knight and
+places a marker on the square vacated. Play
+alternates. The knight may only be moved to
+vacant squares. The object is to make the last
+move. The game can also be played with any
+of the other pieces. (Your Move)
+
+https://www.chessvariants.com/diffmove.dir/checkers.html --> move forward (Multhopp)
+in 1974 by Hans Multhopp
+https://www.chessvariants.com/diffmove.dir/checkers.html
+
+Clockwork Orange Chess (Fergus Duniho,
+1999). https://www.chessvariants.com/other.dir/clockworkorange.html
+implem : pieces code, yellow/red, easy
 
 http://abrobecker.free.fr/chess/fairyblitz.htm#football
 Le gagnant est le premier joueur à marquer un but, càd celui qui arrive à installer une de ses pièces dans les cages adverses: d8,e8 pour les blancs et d1,e1 pour les noirs.
 
+Recycle1 et Recycle2 (--> celle-là)
 http://abrobecker.free.fr/chess/fairyblitz.htm#deplaceurdevivants
 Philippe Rouzaud, Phénix 151-152, mai 2006): Un camp peut, à la place d'un coup orthodoxe, capturer une de ses pièces et replacer la pièce capturée immédiatement sur l'échiquier. Un roi peut rester en échec durant cette action. Une pièce déplacée sur l'échiquier peut mater. Un pion ne peut pas être déplacé en première ou dernière rangée. Un roi peut déplacer et être déplacé, y compris pour se soustraire à un échec. Le roque ne peut se faire que de manière orthodoxe.
 Rouzaud-Banaddou: 1.Fxb2 (=f5) Dxc7 (=e6) 2.fxe6 dxe6 3.Txb1 (=b5) Dxe7 (=c7) 4.Txb2 (=a3) Dxf7 (=d6) 5.Txg1 (=g5) Dxg7 (=f6) 6.Txf1 (=f7)+ Rxf8 (=h4) 7.Fxb2 (=e8) Rxg7 (=c5) 8.Rxd1 (=f8)+ Rxh8 (=g7) 9.Dxg8+ Txg8 10.Txg8#
@@ -10,7 +88,3 @@ Rouzaud-Banaddou: 1.Fxb2 (=f5) Dxc7 (=e6) 2.fxe6 dxe6 3.Txb1 (=b5) Dxe7 (=c7) 4.
 http://abrobecker.free.fr/chess/fairyblitz.htm#madrasi
 Madrasi Chess, Abdul J. Karwathar, 1979): Deux pièces de même nature (excepté les rois) qui s'observent, se paralysent mutuellement en perdant tout pouvoir (déplacement, prise, donner échec ou mat) sauf celui de paralyser une autre pièce.
 1.e4 e5 2.Cf3 Cc6 3.Fc4 Fc5 4.Cxe5 d6 5.d4 (5.Fxf7+ Rxf7 est légal; ou 5.Dh5 Fe6 immobilisant le Fc4) 5...Fxd4 6.Dxd4 dxe5 et la Dame blanche est perdue.
-
-Sittuyin (burmese chess)
-https://github.com/gbtami/pychess-variants/tree/master/static/images/pieces/sittuyin
-https://drive.google.com/open?id=1HIPJLJBU2F6R6vxGziU6j8MHoHu_Kmab

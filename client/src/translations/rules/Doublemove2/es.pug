@@ -1,0 +1,54 @@
+p.boxed
+  | Juega dos jugadas a cada turno.
+
+p.
+  La única diferencia con el juego ortodoxo es la regla del doble movimiento,
+  pero eso afecta mucho el juego
+
+p.
+  Al comienzo del juego, los blancos solo juegan un movimiento, como
+  en general. Sin embargo, después de eso y por el resto del juego,
+  cada lado debe jugar dos jugadas cada turno.
+  El objetivo es de dar jaque mate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:
+  .diagram.diag22
+    | fen:r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR:
+  figcaption.
+    Izquierda: después de las jugadas 1.e4 e5, el peón 'd' se clava.
+    Derecha: el rey negro está en jaque.
+
+p.
+  En la posición del diagrama de la izquierda, después del primer movimiento
+  negro ...e5, el peón 'd' está clavado porque su movimiento autorizaría
+  2.Bb5,Bxe8 captura el rey.
+  A la derecha, después de 2.Qf3,Bc4 el rey negro está en jaque debido a las
+  posibilidades 3.Bxf7,Bxe8 o 3.Qxf7,Qxe8.
+
+h3 Captura en passant
+
+p.
+  La captura en passant está permitida bajo ciertas condiciones.
+  Si el oponente ha movido un peón permitiendo tal captura
+  (una o dos veces), entonces para aprovecharlo debes tomar en passant
+  en el primer movimiento de tu turno. Entonces, si (y solo si) hay
+  otra captura en passant disponible, puede ejecutarla en el segundo
+  movimiento.
+
+p.
+  Nota: si un peón mueve dos casillas y después una pieza ocupa el espacio de
+  tomado en passant en el segundo movimiento de un turno, una captura en
+  este espacio solo capturará esa pieza.
+  Y, si un peón ha avanzado dos veces la captura en passant en su primer
+  movimiento es imposible (el peón está "demasiado lejos" ahora).
+
+h3 Más información
+
+p
+  | Esta variante se deriva del 
+  a(href="/variants/Doublemove1") Ajedrez marseillais
+  | . También es jugable 
+  a(href="https://greenchess.net/rules.php?v=double-move") en greenchess
+  | .

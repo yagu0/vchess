@@ -61,6 +61,13 @@ div#baseGame
 </template>
 
 <script>
+
+// https://vchess.club/#/game/46
+// Bug 35eme coup blanc Rx(P)e2, d2 et aussi 18eme coup blanc Rd7, Pxe6
+// --> peut-être lié à prise, ou lié à getFen(), ou inMultimove pas changé car concatène à coup précédent...
+// TODO: also fix moves played on smartphone, annoying shift...
+// attention play undo pendant l'autoplay !!
+
 import Board from "@/components/Board.vue";
 import MoveList from "@/components/MoveList.vue";
 import params from "@/parameters";

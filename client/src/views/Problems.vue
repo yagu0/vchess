@@ -469,6 +469,10 @@ export default {
 };
 </script>
 
+<style lang="sass">
+@import "@/styles/_board_squares_img.sass"
+</style>
+
 <style lang="sass" scoped>
 [type="checkbox"].modal+div .card
   max-width: 767px

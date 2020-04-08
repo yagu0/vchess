@@ -60,8 +60,10 @@ export default {
     if (!!lm) {
       if (!Array.isArray(lm)) lm = [lm];
       lm.forEach(m => {
-        lmHighlights[m.start.x + sizeX * m.start.y] = true;
-        lmHighlights[m.end.x + sizeX * m.end.y] = true;
+        if (V.OnBoard(m.start.x, m.start.y))
+          lmHighlights[m.start.x + sizeX * m.start.y] = true;
+        if (V.OnBoard(m.end.x, m.end.y))
+          lmHighlights[m.end.x + sizeX * m.end.y] = true;
       });
     }
     const showLight = (

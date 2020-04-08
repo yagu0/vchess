@@ -1,7 +1,7 @@
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export class MarseilleRules extends ChessRules {
+export class Doublemove2Rules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
     const squares = enpassant.split(",");
     if (squares.length > 2) return false;
@@ -79,39 +79,62 @@ export class MarseilleRules extends ChessRules {
     return moves;
   }
 
+  isAttacked(sq, color, castling) {
+    const singleMoveAttack = super.isAttacked(sq, color);
+    if (singleMoveAttack) return true;
+    if (!!castling) {
+      if (this.subTurn == 1)
+        // Castling at move 1 could be done into check
+        return false;
+      return singleMoveAttack;
+    }
+    // Double-move allowed:
+    const curTurn = this.turn;
+    this.turn = color;
+    const moves1 = super.getAllPotentialMoves();
+    this.turn = curTurn;
+    for (let move of moves1) {
+      this.play(move);
+      const res = super.isAttacked(sq, color);
+      this.undo(move);
+      if (res) return res;
+    }
+    return false;
+  }
+
+  filterValid(moves) {
+    if (this.subTurn == 1) {
+      return moves.filter(m1 => {
+        this.play(m1);
+        // NOTE: no recursion because next call will see subTurn == 2
+        const res = super.atLeastOneMove();
+        this.undo(m1);
+        return res;
+      });
+    }
+    return super.filterValid(moves);
+  }
+
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
-    move.turn = this.turn + this.subTurn;
     V.PlayOnBoard(this.board, move);
     const epSq = this.getEpSquare(move);
-    if (this.movesCount == 0) {
-      // First move in game
-      this.turn = "b";
-      this.epSquares.push([epSq]);
-      this.movesCount = 1;
-    }
-    // Does this move give check on subturn 1? If yes, skip subturn 2
-    else if (this.subTurn == 1 && this.underCheck(V.GetOppCol(this.turn))) {
+    if (this.subTurn == 2) {
+      let lastEpsq = this.epSquares[this.epSquares.length - 1];
+      lastEpsq.push(epSq);
       this.turn = V.GetOppCol(this.turn);
-      this.epSquares.push([epSq]);
-      move.checkOnSubturn1 = true;
-      this.movesCount++;
-    } else {
-      if (this.subTurn == 2) {
-        this.turn = V.GetOppCol(this.turn);
-        let lastEpsq = this.epSquares[this.epSquares.length - 1];
-        lastEpsq.push(epSq);
-      } else {
-        this.epSquares.push([epSq]);
-        this.movesCount++;
-      }
-      this.subTurn = 3 - this.subTurn;
     }
+    else {
+      this.epSquares.push([epSq]);
+      this.movesCount++;
+      if (this.movesCount == 1) this.turn = "b";
+    }
+    if (this.movesCount > 1) this.subTurn = 3 - this.subTurn;
     this.postPlay(move);
   }
 
   postPlay(move) {
-    const c = move.turn.charAt(0);
+    const c = move.vanish[0].c;
     const piece = move.vanish[0].p;
     const firstRank = c == "w" ? V.size.x - 1 : 0;
 
@@ -141,23 +164,19 @@ export class MarseilleRules extends ChessRules {
   undo(move) {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
-    if (this.movesCount == 1 || !!move.checkOnSubturn1 || this.subTurn == 2) {
-      // The move may not be full, but is fully undone:
+    if (this.subTurn == 2 || this.movesCount == 1) {
       this.epSquares.pop();
-      // Moves counter was just incremented:
       this.movesCount--;
-    } else {
-      // Undo the second half of a move
+      if (this.movesCount == 0) this.turn = "w";
+    }
+    else {
       let lastEpsq = this.epSquares[this.epSquares.length - 1];
       lastEpsq.pop();
+      this.turn = V.GetOppCol(this.turn);
     }
-    this.turn = move.turn[0];
-    this.subTurn = parseInt(move.turn[1]);
+    if (this.movesCount > 0) this.subTurn = 3 - this.subTurn;
     super.postUndo(move);
   }
-
-  // NOTE:  GenRandInitFen() is OK,
-  // since at first move turn indicator is just "w"
 
   static get VALUES() {
     return {
@@ -188,13 +207,12 @@ export class MarseilleRules extends ChessRules {
       for (let m of moves) {
         this.play(m);
         score = this.getCurrentScore();
-        // Now turn is oppCol,2 if m doesn't give check
-        // Otherwise it's color,1. In both cases the next test makes sense
+        // Now turn is oppCol,2
         if (score != "*") {
           if (score == "1/2")
             res = oppCol == "w" ? Math.max(res, 0) : Math.min(res, 0);
           else {
-            // Found a mate
+            // King captured
             this.undo(m);
             return maxeval * (score == "1-0" ? 1 : -1);
           }
@@ -208,22 +226,17 @@ export class MarseilleRules extends ChessRules {
 
     let moves11 = this.getAllValidMoves();
     let doubleMoves = [];
-    // Rank moves using a min-max at depth 2
+    // Rank moves using a min-max at depth 2(+1)
     for (let i = 0; i < moves11.length; i++) {
       this.play(moves11[i]);
-      if (this.turn != color) {
-        // We gave check with last move: search the best opponent move
-        doubleMoves.push({ moves: [moves11[i]], eval: getBestMoveEval() });
-      } else {
-        let moves12 = this.getAllValidMoves();
-        for (let j = 0; j < moves12.length; j++) {
-          this.play(moves12[j]);
-          doubleMoves.push({
-            moves: [moves11[i], moves12[j]],
-            eval: getBestMoveEval()
-          });
-          this.undo(moves12[j]);
-        }
+      let moves12 = this.getAllValidMoves();
+      for (let j = 0; j < moves12.length; j++) {
+        this.play(moves12[j]);
+        doubleMoves.push({
+          moves: [moves11[i], moves12[j]],
+          eval: getBestMoveEval()
+        });
+        this.undo(moves12[j]);
       }
       this.undo(moves11[i]);
     }
@@ -239,9 +252,6 @@ export class MarseilleRules extends ChessRules {
     ) {
       candidates.push(i);
     }
-
-    const selected = doubleMoves[randInt(candidates.length)].moves;
-    if (selected.length == 1) return selected[0];
-    return selected;
+    return doubleMoves[randInt(candidates.length)].moves;
   }
 };

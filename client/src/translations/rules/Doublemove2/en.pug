@@ -1,0 +1,52 @@
+p.boxed
+  | Move twice at every turn.
+
+p.
+  The only difference with orthodox chess is the double-move rule,
+  but this affects the game a lot.
+
+p.
+  At the very first move of the game, white make only one move - as usual.
+  However, after that and for all the game each side must play twice at
+  every turn. The goal is to checkmate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:
+  .diagram.diag22
+    | fen:r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR:
+  figcaption.
+    Left: after the moves 1.e4 e5, the 'd' pawn is pinned.
+    Right: the black king is under check.
+
+p.
+  In the diagram position on the left, after the first black move ...e5,
+  the 'd' pawn is pinned because moving it would allow 2.Bb5,Bxe8 capturing
+  the king.
+  On the right, after 2.Qf3,Bc4 black king is under check because of
+  the options 3.Bxf7,Bxe8 or 3.Qxf7,Qxe8.
+
+h3 En-passant capture
+
+p.
+  Capturing en-passant is allowed under certain conditions.
+  If the opponent moved a pawn allowing such a capture (once or twice),
+  then (to take it) you must capture en-passant at the first move of your turn.
+  After that, if (and only if) there is another en-passant capture available
+  you can play it on the second move.
+
+p.
+  Note: if a pawn 2-squares jump was made and then a piece landed at the
+  en-passant square at the second move, a pawn capture on this square
+  takes only the piece.
+  And, if a pawn advanced twice then en-passant capture
+  on its first movement is impossible (the pawn is now "too far").
+
+h3 More information
+
+p
+  | This variant is derived from 
+  a(href="/variants/Doublemove1") Marseillais chess
+  | . It is also playable 
+  a(href="https://greenchess.net/rules.php?v=double-move") on greenchess
+  | .

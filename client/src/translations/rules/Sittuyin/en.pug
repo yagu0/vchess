@@ -1,0 +1,67 @@
+p.boxed
+  | Bishops and queen are less powerful then in standard chess.
+  | Special promotion rules.
+
+p.
+  From left to right: pawn, rook, knight, bishop (elephant),
+  queen (general), king.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Sittuyin/wp.svg")
+  img(src="/images/pieces/Sittuyin/wr.svg")
+  img(src="/images/pieces/Sittuyin/wn.svg")
+  img(src="/images/pieces/Sittuyin/wb.svg")
+  img(src="/images/pieces/Sittuyin/wq.svg")
+  img(src="/images/pieces/Sittuyin/wk.svg")
+  figcaption "White" pieces, in red. "Black" pieces are green.
+
+ul
+  li Elephants replace the orthodox bishops.
+  li General replace the orthodox queen.
+  li The only special pawn move is the promotion, always to a general.
+  li There is no castling option.
+
+h3 First move
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/4pppp/pppp4/4PPPP/PPPP4/8/8:
+  figcaption Initial setup.
+
+p.
+  The initial setup contains only the pawns.
+  Indeed, at the first move you can arrange the pieces as you wish behind the
+  pawns line. You must place every one of them, with rooks on the first rank.
+
+h3 Pieces movements
+
+p.
+  The general moves by one square in any diagonal direction.
+  The elephant moves one square forward, or like a general.
+  All other pieces move as in orthodox chess.
+
+h3 Promotion
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/8/8/8/8/8/8 a8,b7,c6,d5,e5,f6,g7,h8:
+  figcaption Squares where promotion is allowed.
+
+p.
+  A pawn can promote when, at the beginning of a turn, it is placed on any of
+  the marked squares (from a player point of view).
+  You can either promote on a diagonally adjacent square (if it is empty),
+  or in place: this last option is obtained in the interface by "moving" one
+  square backward.
+  If you only have one pawn remaining, it can promote from any square.
+  Promotion is always in a general, and you can have only one general on the
+  board.
+
+h3 Source
+
+p
+  a(href="https://drive.google.com/open?id=1HIPJLJBU2F6R6vxGziU6j8MHoHu_Kmab")
+    | How to play Myanmar Traditional Chess
+  | . This variant is also playable 
+  a(href="https://www.pychess.org/variant/sittuyin") on pychess-variants
+  | .
