@@ -598,6 +598,7 @@ export class DynamoRules extends ChessRules {
 
   filterValid(moves) {
     const color = this.turn;
+    const La = this.amoves.length;
     if (this.subTurn == 1) {
       return moves.filter(m => {
         // A move is valid either if it doesn't result in a check,
@@ -605,13 +606,17 @@ export class DynamoRules extends ChessRules {
         // (not undoing a potential move + action of the opponent)
         this.play(m);
         let res = this.underCheck(color);
-        if (res) {
+        let isOpposite = La > 0 && this.oppositeMoves(this.amoves[La-1], m);
+        if (res || isOpposite) {
           const moves2 = this.getAllPotentialMoves();
           for (let m2 of moves2) {
             this.play(m2);
             const res2 = this.underCheck(color);
+            const amove = this.getAmove(m, m2);
+            isOpposite =
+              La > 0 && this.oppositeMoves(this.amoves[La-1], amove);
             this.undo(m2);
-            if (!res2) {
+            if (!res2 && !isOpposite) {
               res = false;
               break;
             }
@@ -622,7 +627,6 @@ export class DynamoRules extends ChessRules {
       });
     }
     const Lf = this.firstMove.length;
-    const La = this.amoves.length;
     if (La == 0) return super.filterValid(moves);
     return (
       super.filterValid(
@@ -721,12 +725,15 @@ export class DynamoRules extends ChessRules {
     // For now it would then return [NaN, NaN] because surrounding squares
     // have no IDs in the promotion modal. TODO: improve this?
     if (!square[0]) return null;
-    // If subTurn == 2 && square is empty && !underCheck,
+    // If subTurn == 2 && square is empty && !underCheck && !isOpposite,
     // then return an empty move, allowing to "pass" subTurn2
+    const La = this.amoves.length;
+    const Lf = this.firstMove.length;
     if (
       this.subTurn == 2 &&
       this.board[square[0]][square[1]] == V.EMPTY &&
-      !this.underCheck(this.turn)
+      !this.underCheck(this.turn) &&
+      (La == 0 || !this.oppositeMoves(this.amoves[La-1], this.firstMove[Lf-1]))
     ) {
       return {
         start: { x: -1, y: -1 },
@@ -774,6 +781,7 @@ export class DynamoRules extends ChessRules {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     if (this.subTurn == 1) {
+      this.amoves.pop();
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
