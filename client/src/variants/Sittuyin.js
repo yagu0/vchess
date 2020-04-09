@@ -166,30 +166,76 @@ export class SittuyinRules extends ChessRules {
         (color == 'b' && ((y >= 4 && x == y) || (y <= 3 && x == 7 - y)))
       )
     ) {
-      // Add potential promotions
       const addPromotion = ([xx, yy], moveTo) => {
-        moves.push(
-          new Move({
-            appear: [
-              new PiPo({
-                x: !!moveTo ? xx : x,
-                y: yy, //yy == y if !!moveTo
-                c: color,
-                p: V.QUEEN
-              })
-            ],
-            vanish: [
-              new PiPo({
-                x: x,
-                y: y,
-                c: color,
-                p: V.PAWN
-              })
-            ],
-            start: { x: x, y: y },
-            end: { x: xx, y: yy }
-          })
-        );
+        // The promoted pawn shouldn't attack anything,
+        // and the promotion shouldn't discover a rook attack on anything.
+        const finalSquare = (!moveTo ? [x, y] : [xx, yy]);
+        let validP = true;
+        for (let step of V.steps[V.BISHOP]) {
+          const [i, j] = [finalSquare[0] + step[0], finalSquare[1] + step[1]];
+          if (
+            V.OnBoard(i, j) &&
+            this.board[i][j] != V.EMPTY &&
+            this.getColor(i, j) != color
+          ) {
+            validP = false;
+            break;
+          }
+        }
+        if (validP && !!moveTo) {
+          // Also check discovered attacks { n, e, w, s : enemy / my rook --> if both, then it's a discovered attack }
+          let found = {
+            "0,-1": 0,
+            "0,1": 0,
+            "1,0": 0,
+            "-1,0": 0
+          };
+          // TODO: check opposite steps one after another, which could
+          // save some time (no need to explore the other line).
+          for (let step of V.steps[V.ROOK]) {
+            let [i, j] = [x + step[0], y + step[1]];
+            while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+              i += step[0];
+              j += step[1];
+            }
+            if (V.OnBoard(i, j)) {
+              if (this.getColor(i, j) != color)
+                found[step[0] + "," + step[1]] = -1; //enemy
+              else if (this.getPiece(i, j) == V.ROOK)
+                found[step[0] + "," + step[1]] = 1; //my rook
+            }
+          }
+          if (
+            (found["0,-1"] * found["0,1"] < 0) ||
+            (found["-1,0"] * found["1,0"] < 0)
+          ) {
+            validP = false;
+          }
+        }
+        if (validP) {
+          moves.push(
+            new Move({
+              appear: [
+                new PiPo({
+                  x: !!moveTo ? xx : x,
+                  y: yy, //yy == y if !!moveTo
+                  c: color,
+                  p: V.QUEEN
+                })
+              ],
+              vanish: [
+                new PiPo({
+                  x: x,
+                  y: y,
+                  c: color,
+                  p: V.PAWN
+                })
+              ],
+              start: { x: x, y: y },
+              end: { x: xx, y: yy }
+            })
+          );
+        }
       };
       // In-place promotion always possible:
       addPromotion([x - shiftX, y]);
