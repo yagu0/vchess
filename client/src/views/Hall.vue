@@ -681,12 +681,19 @@ export default {
             this.$delete(this.people, data.from[0]);
           else this.$forceUpdate(); //TODO: shouldn't be required
           if (data.code == "disconnect") {
-            // Remove the live challenges sent by this player:
-            ArrayFun.remove(
-              this.challenges,
-              c => c.type == "live" && c.from.sid == data.from[0],
-              "all"
-            );
+            // Remove the live challenges sent by this player, if
+            // he isn't connected on another tab:
+            if (
+              !this.people[data.from[0]] ||
+              Object.values(this.people[data.from[0]].tmpIds)
+                .every(v => v.page != "/")
+            ) {
+              ArrayFun.remove(
+                this.challenges,
+                c => c.type == "live" && c.from.sid == data.from[0],
+                "all"
+              );
+            }
           } else {
             // Remove the matching live game if now unreachable
             const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
