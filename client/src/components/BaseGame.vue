@@ -258,8 +258,11 @@ export default {
       else this.lastMove = null;
     },
     toggleAnalyze: function() {
+      // Autoplay has priority:
+      if (this.autoplay) return;
       if (this.mode != "analyze") {
         // Enter analyze mode:
+        if (this.inMultimove) this.cancelCurrentMultimove();
         this.gameMode = this.mode; //was not 'analyze'
         this.mode = "analyze";
         this.gameCursor = this.cursor;
