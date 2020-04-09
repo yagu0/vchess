@@ -281,6 +281,7 @@ export default {
           fen = mv[mv.length-1].fen;
         }
         this.vr = new V(fen);
+        this.inMultimove = false; //in case of
         this.incheck = this.vr.getCheckSquares();
         if (this.cursor >= 0) this.lastMove = this.moves[this.cursor];
         else this.lastMove = null;
