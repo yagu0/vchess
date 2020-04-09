@@ -564,7 +564,6 @@ export class DynamoRules extends ChessRules {
   // Does m2 un-do m1 ? (to disallow undoing actions)
   oppositeMoves(m1, m2) {
     const isEqual = (av1, av2) => {
-      // Precondition: av1 and av2 length = 2
       for (let av of av1) {
         const avInAv2 = av2.find(elt => {
           return (
@@ -578,11 +577,12 @@ export class DynamoRules extends ChessRules {
       }
       return true;
     };
+    // All appear and vanish arrays must have the same length
+    const mL = m1.appear.length;
     return (
-      m1.appear.length == 2 &&
-      m2.appear.length == 2 &&
-      m1.vanish.length == 2 &&
-      m2.vanish.length == 2 &&
+      m2.appear.length == mL &&
+      m1.vanish.length == mL &&
+      m2.vanish.length == mL &&
       isEqual(m1.appear, m2.vanish) &&
       isEqual(m1.vanish, m2.appear)
     );
