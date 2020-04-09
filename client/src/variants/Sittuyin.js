@@ -1,4 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class SittuyinRules extends ChessRules {
   static get HasFlags() {
@@ -76,44 +77,44 @@ export class SittuyinRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    if (this.movesCount <= 1) {
-      const color = this.turn;
-      const p = V.RESERVE_PIECES[y];
-      if (this.reserve[color][p] == 0) return [];
-      const iBound =
-        p != V.ROOK
-          ? (color == 'w' ? [4, 7] : [0, 3])
-          : (color == 'w' ? [7, 7] : [0, 0]);
-      const jBound = (i) => {
-        if (color == 'w' && i == 4) return [4, 7];
-        if (color == 'b' && i == 3) return [0, 3];
-        return [0, 7];
-      };
-      let moves = [];
-      for (let i = iBound[0]; i <= iBound[1]; i++) {
-        const jb = jBound(i);
-        for (let j = jb[0]; j <= jb[1]; j++) {
-          if (this.board[i][j] == V.EMPTY) {
-            let mv = new Move({
-              appear: [
-                new PiPo({
-                  x: i,
-                  y: j,
-                  c: color,
-                  p: p
-                })
-              ],
-              vanish: [],
-              start: { x: x, y: y },
-              end: { x: i, y: j }
-            });
-            moves.push(mv);
-          }
+    if (this.movesCount >= 2) return super.getPotentialMovesFrom([x, y]);
+    // Only reserve moves are allowed for now:
+    if (V.OnBoard(x, y)) return [];
+    const color = this.turn;
+    const p = V.RESERVE_PIECES[y];
+    if (this.reserve[color][p] == 0) return [];
+    const iBound =
+      p != V.ROOK
+        ? (color == 'w' ? [4, 7] : [0, 3])
+        : (color == 'w' ? [7, 7] : [0, 0]);
+    const jBound = (i) => {
+      if (color == 'w' && i == 4) return [4, 7];
+      if (color == 'b' && i == 3) return [0, 3];
+      return [0, 7];
+    };
+    let moves = [];
+    for (let i = iBound[0]; i <= iBound[1]; i++) {
+      const jb = jBound(i);
+      for (let j = jb[0]; j <= jb[1]; j++) {
+        if (this.board[i][j] == V.EMPTY) {
+          let mv = new Move({
+            appear: [
+              new PiPo({
+                x: i,
+                y: j,
+                c: color,
+                p: p
+              })
+            ],
+            vanish: [],
+            start: { x: x, y: y },
+            end: { x: i, y: j }
+          });
+          moves.push(mv);
         }
       }
-      return moves;
     }
-    return super.getPotentialMovesFrom([x, y]);
+    return moves;
   }
 
   getPotentialPawnMoves([x, y]) {
@@ -183,7 +184,7 @@ export class SittuyinRules extends ChessRules {
           }
         }
         if (validP && !!moveTo) {
-          // Also check discovered attacks { n, e, w, s : enemy / my rook --> if both, then it's a discovered attack }
+          // Also check rook discovered attacks on the enemy king
           let found = {
             "0,-1": 0,
             "0,1": 0,
@@ -199,10 +200,12 @@ export class SittuyinRules extends ChessRules {
               j += step[1];
             }
             if (V.OnBoard(i, j)) {
-              if (this.getColor(i, j) != color)
-                found[step[0] + "," + step[1]] = -1; //enemy
-              else if (this.getPiece(i, j) == V.ROOK)
-                found[step[0] + "," + step[1]] = 1; //my rook
+              const colIJ = this.getColor(i, j);
+              const pieceIJ = this.getPiece(i, j);
+              if (colIJ != color && pieceIJ == V.KING)
+                found[step[0] + "," + step[1]] = -1;
+              else if (colIJ == color && pieceIJ == V.ROOK)
+                found[step[0] + "," + step[1]] = 1;
             }
           }
           if (
@@ -263,6 +266,18 @@ export class SittuyinRules extends ChessRules {
       V.steps[V.BISHOP],
       "oneStep"
     );
+  }
+
+  getAllValidMoves() {
+    if (this.movesCount >= 2) return super.getAllValidMoves();
+    const color = this.turn;
+    let moves = [];
+    for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+      moves = moves.concat(
+        this.getPotentialMovesFrom([V.size.x + (color == "w" ? 0 : 1), i])
+      );
+    }
+    return this.filterValid(moves);
   }
 
   isAttackedByBishop(sq, color) {
@@ -352,6 +367,20 @@ export class SittuyinRules extends ChessRules {
       q: 2,
       k: 1000
     };
+  }
+
+  getComputerMove() {
+    if (this.movesCount >= 2) return super.getComputerMove();
+    // Play a random "initialization move"
+    let res = [];
+    for (let i=0; i<8; i++) {
+      const moves = this.getAllValidMoves();
+      const moveIdx = randInt(moves.length);
+      this.play(moves[moveIdx]);
+      res.push(moves[moveIdx]);
+    }
+    for (let i=7; i>=0; i--) this.undo(res[i]);
+    return res;
   }
 
   getNotation(move) {

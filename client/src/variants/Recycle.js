@@ -144,12 +144,13 @@ export class RecycleRules extends ChessRules {
   }
 
   getAllValidMoves() {
-    let moves = super.getAllValidMoves();
+    let moves = super.getAllPotentialMoves();
     const color = this.turn;
-    for (let i = 0; i < V.RESERVE_PIECES.length; i++)
+    for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
       moves = moves.concat(
         this.getReserveMoves([V.size.x + (color == "w" ? 0 : 1), i])
       );
+    }
     return this.filterValid(moves);
   }
 
