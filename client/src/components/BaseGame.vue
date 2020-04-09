@@ -592,6 +592,8 @@ export default {
       if (this.inMultimove) {
         this.cancelCurrentMultimove();
         this.incheck = this.vr.getCheckSquares();
+        if (this.cursor >= 0) this.lastMove = this.moves[this.cursor];
+        else this.lastMove = null;
       } else {
         if (!move) {
           const minCursor =
