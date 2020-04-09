@@ -258,8 +258,8 @@ export default {
       else this.lastMove = null;
     },
     toggleAnalyze: function() {
-      // Autoplay has priority:
-      if (this.autoplay) return;
+      // Freeze while choices are shown (and autoplay has priority)
+      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
       if (this.mode != "analyze") {
         // Enter analyze mode:
         if (this.inMultimove) this.cancelCurrentMultimove();
@@ -282,6 +282,7 @@ export default {
         }
         this.vr = new V(fen);
         this.inMultimove = false; //in case of
+        this.$refs["board"].resetCurrentAttempt(); //also in case of
         this.incheck = this.vr.getCheckSquares();
         if (this.cursor >= 0) this.lastMove = this.moves[this.cursor];
         else this.lastMove = null;
