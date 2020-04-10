@@ -287,11 +287,6 @@ export default {
     visibilityChange: function() {
       // TODO: Use document.hidden? https://webplatform.news/issues/2019-03-27
       this.focus = (document.visibilityState == "visible");
-      if (!this.focus && !!this.rematchOffer) {
-        this.rematchOffer = "";
-        this.send("rematchoffer", { data: false });
-        // Do not remove rematch offer from (local) storage
-      }
       this.send(this.focus ? "getfocus" : "losefocus");
     },
     onFocus: function() {
@@ -300,10 +295,6 @@ export default {
     },
     onBlur: function() {
       this.focus = false;
-      if (!!this.rematchOffer) {
-        this.rematchOffer = "";
-        this.send("rematchoffer", { data: false });
-      }
       this.send("losefocus");
     },
     isLargeScreen: function() {
@@ -679,7 +670,6 @@ export default {
             !this.gotLastate &&
             !!this.game.mycolor &&
             this.game.type == "live" &&
-            this.game.score == "*" &&
             this.game.players.some(p => p.sid == user.sid)
           ) {
             this.send("asklastate", { target: user.sid });
@@ -863,7 +853,7 @@ export default {
           if (!!this.game.mycolor && this.game.type == "live") {
             GameStorage.update(
               this.gameRef,
-              { rematchOffer: V.GetOppCol(this.game.mycolor) }
+              { rematchOffer: data.data ? V.GetOppCol(this.game.mycolor) : "" }
             );
           }
           break;
@@ -930,8 +920,8 @@ export default {
         clock: this.game.clocks[myIdx],
         // Since we played a move (or abort or resign),
         // only drawOffer=="sent" is possible
-        drawSent: this.drawOffer == "sent",
-        rematchSent: this.rematchOffer == "sent",
+        drawSent: this.drawOffer == "sent" ? true : undefined,
+        rematchSent: this.rematchOffer == "sent" ? true : undefined,
         score: this.game.score != "*" ? this.game.score : undefined,
         scoreMsg: this.game.score != "*" ? this.game.scoreMsg : undefined,
         movesCount: L
@@ -942,23 +932,47 @@ export default {
     processLastate: function() {
       const data = this.lastate;
       this.lastate = undefined; //security...
-      const L = this.game.moves.length;
-      const oppIdx = 1 - ["w", "b"].indexOf(this.game.mycolor);
-      this.game.clocks[oppIdx] = data.clock;
-      if (data.movesCount > L) {
-        // Just got last move from him
-        this.$refs["basegame"].play(data.lastMove, "received");
-        this.processMove(data.lastMove);
-      } else {
-        if (!!this.clockUpdate) clearInterval(this.clockUpdate);
-        this.re_setClocks();
-      }
-      if (data.drawSent) this.drawOffer = "received";
-      if (data.rematchSent) this.rematchOffer = "received";
       if (!!data.score) {
-        this.drawOffer = "";
-        if (this.game.score == "*")
-          this.gameOver(data.score, data.scoreMsg);
+        const oppCol = V.GetOppCol(this.game.mycolor);
+        if (!!data.rematchSent) {
+          if (this.game.rematchOffer != oppCol) {
+            // Opponent sended rematch offer while we were offline:
+            this.rematchOffer = "received";
+            GameStorage.update(
+              this.gameRef,
+              { rematchOffer: oppCol }
+            );
+          }
+        }
+        else {
+          if (this.game.rematchOffer == oppCol) {
+            // Opponent cancelled rematch offer while we were offline:
+            this.rematchOffer = "";
+            GameStorage.update(
+              this.gameRef,
+              { rematchOffer: "" }
+            );
+          }
+        }
+      }
+      else {
+        const L = this.game.moves.length;
+        const oppIdx = 1 - ["w", "b"].indexOf(this.game.mycolor);
+        this.game.clocks[oppIdx] = data.clock;
+        if (data.movesCount > L) {
+          // Just got last move from him
+          this.$refs["basegame"].play(data.lastMove, "received");
+          this.processMove(data.lastMove);
+        } else {
+          if (!!this.clockUpdate) clearInterval(this.clockUpdate);
+          this.re_setClocks();
+        }
+        if (!!data.drawSent) this.drawOffer = "received";
+        if (!!data.score) {
+          this.drawOffer = "";
+          if (this.game.score == "*")
+            this.gameOver(data.score, data.scoreMsg);
+        }
       }
     },
     clickDraw: function() {
@@ -1182,8 +1196,9 @@ export default {
           if (
             (game.rematchOffer == "w" && myIdx == 0) ||
             (game.rematchOffer == "b" && myIdx == 1)
-          )
+          ) {
             this.rematchOffer = "sent";
+          }
           else this.rematchOffer = "received";
         }
       }
