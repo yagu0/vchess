@@ -70,7 +70,7 @@ export class Allmate2Rules extends ChessRules {
                 break;
             }
             for (let om of oppMoves) {
-              if (om.vanish.length == 2 && om.appear.length == 1)
+              if (om.vanish.length == 2)
                 // Skip captures: forbidden in this mode
                 continue;
               V.PlayOnBoard(this.board, om);
@@ -90,6 +90,7 @@ export class Allmate2Rules extends ChessRules {
           }
         }
       }
+      this.undo(m);
 
       // 3) Add mate-captures:
       Object.values(attacked).forEach(sq => {
@@ -100,8 +101,6 @@ export class Allmate2Rules extends ChessRules {
           p: this.getPiece(sq[0], sq[1])
         }));
       });
-
-      this.undo(m);
     });
 
     return moves;

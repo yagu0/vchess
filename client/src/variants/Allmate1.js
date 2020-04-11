@@ -27,77 +27,97 @@ export class Allmate1Rules extends ChessRules {
     const oppCol = V.GetOppCol(this.turn);
     moves.forEach(m => {
       this.play(m);
+      let allAttacks = [];
 
-      // 1) What is attacked?
-      let attacked = {};
-      for (let i=0; i<V.size.x; i++) {
-        for (let j=0; j<V.size.y; j++) {
-          if (this.getColor(i,j) == oppCol && this.isAttacked([i,j], color))
-            attacked[i+"_"+j] = [i,j];
+      // While something has been captured:
+      // remove it, and keep looking for captures
+      outerLoop: while (true) {
+
+        // 1) What is attacked?
+        let attacked = {};
+        for (let i=0; i<V.size.x; i++) {
+          for (let j=0; j<V.size.y; j++) {
+            if (this.getColor(i,j) == oppCol && this.isAttacked([i,j], color))
+              attacked[i+"_"+j] = [i,j];
+          }
         }
-      }
+        if (Object.keys(attacked).length == 0) break outerLoop;
 
-      // 2) Among attacked pieces, which cannot escape capture?
-      // Avoid "oppMoves = this.getAllValidMoves();" => infinite recursion
-      outerLoop: for (let i=0; i<V.size.x; i++) {
-        for (let j=0; j<V.size.y; j++) {
-          if (this.getColor(i,j) == oppCol) {
-            let oppMoves = [];
-            switch (this.getPiece(i, j)) {
-              case V.PAWN:
-                oppMoves = this.getPotentialPawnMoves([i, j]);
-                break;
-              case V.ROOK:
-                oppMoves = this.getPotentialRookMoves([i, j]);
-                break;
-              case V.KNIGHT:
-                oppMoves = this.getPotentialKnightMoves([i, j]);
-                break;
-              case V.BISHOP:
-                oppMoves = this.getPotentialBishopMoves([i, j]);
-                break;
-              case V.QUEEN:
-                oppMoves = this.getPotentialQueenMoves([i, j]);
-                break;
-              case V.KING:
-                // Do not allow castling to escape from check
-                oppMoves = super.getSlideNJumpMoves(
-                  [x, y],
-                  V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-                  "oneStep"
-                );
-                break;
-            }
-            for (let om of oppMoves) {
-              V.PlayOnBoard(this.board, om);
-              Object.values(attacked).forEach(sq => {
-                const origSq = [sq[0], sq[1]];
-                if (om.start.x == sq[0] && om.start.y == sq[1])
-                  // Piece moved:
-                  sq = [om.appear[0].x, om.appear[0].y];
-                if (!this.isAttacked(sq, color))
-                  delete attacked[origSq[0]+"_"+origSq[1]];
-              });
-              V.UndoOnBoard(this.board, om);
-              if (Object.keys(attacked).length == 0)
-                // No need to explore more moves
-                break outerLoop;
+        // 2) Among attacked pieces, which cannot escape capture?
+        // Avoid "oppMoves = this.getAllValidMoves();" => infinite recursion
+        for (let i=0; i<V.size.x; i++) {
+          for (let j=0; j<V.size.y; j++) {
+            if (this.getColor(i,j) == oppCol) {
+              let oppMoves = [];
+              switch (this.getPiece(i, j)) {
+                case V.PAWN:
+                  oppMoves = this.getPotentialPawnMoves([i, j]);
+                  break;
+                case V.ROOK:
+                  oppMoves = this.getPotentialRookMoves([i, j]);
+                  break;
+                case V.KNIGHT:
+                  oppMoves = this.getPotentialKnightMoves([i, j]);
+                  break;
+                case V.BISHOP:
+                  oppMoves = this.getPotentialBishopMoves([i, j]);
+                  break;
+                case V.QUEEN:
+                  oppMoves = this.getPotentialQueenMoves([i, j]);
+                  break;
+                case V.KING:
+                  // Do not allow castling to escape from check
+                  oppMoves = super.getSlideNJumpMoves(
+                    [i, j],
+                    V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+                    "oneStep"
+                  );
+                  break;
+              }
+              for (let om of oppMoves) {
+                V.PlayOnBoard(this.board, om);
+                Object.values(attacked).forEach(sq => {
+                  const origSq = [sq[0], sq[1]];
+                  if (om.start.x == sq[0] && om.start.y == sq[1])
+                    // Piece moved:
+                    sq = [om.appear[0].x, om.appear[0].y];
+                  if (!this.isAttacked(sq, color))
+                    delete attacked[origSq[0]+"_"+origSq[1]];
+                });
+                V.UndoOnBoard(this.board, om);
+                if (Object.keys(attacked).length == 0)
+                  // No need to explore more moves
+                  break outerLoop;
+              }
             }
           }
         }
+
+        // 3) Add mate-captures and remove pieces from board:
+        Object.keys(attacked).forEach(k => {
+          allAttacks.push({
+            sq: attacked[k],
+            p: this.getPiece(attacked[k][0], attacked[k][1])
+          });
+          this.board[attacked[k][0]][attacked[k][1]] = V.EMPTY;
+        });
       }
 
-      // 3) Add mate-captures:
-      Object.values(attacked).forEach(sq => {
-        m.vanish.push(new PiPo({
-          x: sq[0],
-          y: sq[1],
-          c: oppCol,
-          p: this.getPiece(sq[0], sq[1])
-        }));
+      // Put removed pieces back on board:
+      allAttacks.forEach(v => {
+        this.board[v.sq[0]][v.sq[1]] = oppCol + v.p;
       });
-
       this.undo(m);
+      allAttacks.forEach(v => {
+        m.vanish.push(
+          new PiPo({
+            x: v.sq[0],
+            y: v.sq[1],
+            c: oppCol,
+            p: v.p
+          })
+        );
+      });
     });
 
     return moves;

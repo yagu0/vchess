@@ -11,6 +11,20 @@ p.
   Ainsi, les rois et autres pièces peuvent rester en échec.
 
 p.
+  Si après une mat-capture une autre est rendue possible grâce à la disparition
+  de certaines pièces, alors cette nouvelle mat-capture est exécutée et le
+  on continue de chercher des captures.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1rb1n1r1/1ppp1pkp/pn4p1/4p3/3qN2Q/4bP2/PPP1P1PP/R2BKR1N:
+  .diagram.diag22
+    | fen:1rb1n1r1/1ppp1pkp/pn6/4p1Q1/3qN3/5P2/PPP1P1PP/R2BKR1N:
+  figcaption.
+    Avant et après 1.Qg5X, qui prend d'abord le fou en e3,
+    et ensuite le pion en g6.
+
+p.
   Les pièces ne peuvent capturer au sens habituel, seulement via la
   "mat-capture" décrite ci-dessus.
 
