@@ -807,10 +807,25 @@ export default {
                 }
               }
               this.$refs["basegame"].play(movePlus.move, "received");
-              this.game.clocks[moveColIdx] = movePlus.clock;
-              this.processMove(
-                movePlus.move,
-                { receiveMyMove: receiveMyMove }
+              // Freeze time while the move is being play
+              // (TODO: a callback would be cleaner here)
+              clearInterval(this.clockUpdate);
+              this.clockUpdate = null;
+              const freezeDuration = ["all", "highlight"].includes(V.ShowMoves)
+                // 250 = length of animation, 500 = delay between sub-moves
+                ? 250 + 750 *
+                  (Array.isArray(movePlus.move) ? movePlus.move.length - 1 : 0)
+                // Incomplete information: no move animation
+                : 0;
+              setTimeout(
+                () => {
+                  this.game.clocks[moveColIdx] = movePlus.clock;
+                  this.processMove(
+                    movePlus.move,
+                    { receiveMyMove: receiveMyMove }
+                  );
+                },
+                freezeDuration
               );
             }
           }
