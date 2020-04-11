@@ -60,7 +60,12 @@ export class Allmate1Rules extends ChessRules {
                 oppMoves = this.getPotentialQueenMoves([i, j]);
                 break;
               case V.KING:
-                oppMoves = this.getPotentialKingMoves([i, j]);
+                // Do not allow castling to escape from check
+                oppMoves = super.getSlideNJumpMoves(
+                  sq,
+                  V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+                  "oneStep"
+                );
                 break;
             }
             for (let om of oppMoves) {
