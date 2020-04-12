@@ -440,9 +440,10 @@ export class DynamoRules extends ChessRules {
     }
     const getPullExit = () => {
       // Piece at subTurn 1 exited: can I be pulled?
-      // Note: pawns and kings cannot suicide,
-      // so fm.vanish[0].p is neither PAWN or KING
+      // Note: kings cannot suicide, so fm.vanish[0].p is not KING.
+      // Could be PAWN though, if a pawn was pushed out of board.
       if (
+        fm.vanish[0].p != V.PAWN && //pawns cannot pull
         this.isAprioriValidExit(
           [x, y],
           [fm.start.x, fm.start.y],
@@ -626,8 +627,8 @@ export class DynamoRules extends ChessRules {
         return !res;
       });
     }
-    const Lf = this.firstMove.length;
     if (La == 0) return super.filterValid(moves);
+    const Lf = this.firstMove.length;
     return (
       super.filterValid(
         moves.filter(m => {
@@ -686,12 +687,37 @@ export class DynamoRules extends ChessRules {
     const pawnShift = (color == "w" ? 1 : -1);
     for (let i of [-1, 1]) {
       if (
-        y + i >= 0 &&
-        y + i < V.size.y &&
+        V.OnBoard(x + pawnShift, y + i) &&
+        this.board[x + pawnShift][y + i] != V.EMPTY &&
         this.getPiece(x + pawnShift, y + i) == V.PAWN &&
         this.getColor(x + pawnShift, y + i) == color
       ) {
-        return !V.OnBoard(x - pawnShift, y - i);
+        if (!V.OnBoard(x - pawnShift, y - i)) return true;
+      }
+    }
+    return false;
+  }
+
+  static OnTheEdge(x, y) {
+    return (x == 0 || x == 7 || y == 0 || y == 7);
+  }
+
+  isAttackedByKing([x, y], color) {
+    // Attacked if I'm on the edge and the opponent king just next,
+    // but not on the edge.
+    if (V.OnTheEdge(x, y)) {
+      for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
+        const [i, j] = [x + step[0], y + step[1]];
+        if (
+          V.OnBoard(i, j) &&
+          !V.OnTheEdge(i, j) &&
+          this.board[i][j] != V.EMPTY &&
+          this.getPiece(i, j) == V.KING
+          // NOTE: since only one king of each color, and (x, y) is occupied
+          // by our king, no need to check other king's color.
+        ) {
+          return true;
+        }
       }
     }
     return false;
