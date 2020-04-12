@@ -429,10 +429,14 @@ export default {
     isConnected: function(index) {
       const player = this.game.players[index];
       // Is it me ? In this case no need to bother with focus
-      if (this.st.user.sid == player.sid || this.st.user.id == player.id)
+      if (
+        this.st.user.sid == player.sid ||
+        (!!player.name && this.st.user.id == player.id)
+      ) {
         // Still have to check for name (because of potential multi-accounts
         // on same browser, although this should be rare...)
         return (!this.st.user.name || this.st.user.name == player.name);
+      }
       // Try to find a match in people:
       return (
         (
@@ -446,7 +450,7 @@ export default {
         )
         ||
         (
-          !!player.id &&
+          player.id > 0 &&
           Object.values(this.people).some(p => {
             return (
               p.id == player.id &&
@@ -883,6 +887,7 @@ export default {
             this.addAndGotoLiveGame(gameInfo);
           } else if (
             gameType == "corr" &&
+            this.st.user.id > 0 &&
             gameInfo.players.some(p => p.id == this.st.user.id)
           ) {
             this.$router.push("/game/" + gameInfo.id);
@@ -1119,7 +1124,10 @@ export default {
       const gtype = game.type || this.getGameType(game);
       const tc = extractTime(game.cadence);
       const myIdx = game.players.findIndex(p => {
-        return p.sid == this.st.user.sid || p.id == this.st.user.id;
+        return (
+          p.sid == this.st.user.sid ||
+          (!!p.name && p.id == this.st.user.id)
+        );
       });
       // Sometimes the name isn't stored yet (TODO: why?)
       if (
@@ -1603,7 +1611,10 @@ export default {
       document.getElementById("modalScore").checked = true;
       this.$set(this.game, "scoreMsg", scoreMsg);
       const myIdx = this.game.players.findIndex(p => {
-        return p.sid == this.st.user.sid || p.id == this.st.user.id;
+        return (
+          p.sid == this.st.user.sid ||
+          (!!p.name && p.id == this.st.user.id)
+        );
       });
       if (myIdx >= 0) {
         // OK, I play in this game
