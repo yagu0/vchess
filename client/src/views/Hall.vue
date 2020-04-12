@@ -820,9 +820,12 @@ export default {
           // Ignore games where I play (will go in MyGames page),
           // and also games that I already received.
           if (
-            game.players.every(p =>
-              p.sid != this.st.user.sid && p.id != this.st.user.id) &&
-            this.games.findIndex(g => g.id == game.id) == -1
+            game.players.every(p => {
+              return (
+                p.sid != this.st.user.sid &&
+                (p.id == 0 || p.id != this.st.user.id)
+              );
+            }) && this.games.findIndex(g => g.id == game.id) == -1
           ) {
             let newGame = game;
             newGame.type = this.classifyObject(game);
@@ -1014,7 +1017,11 @@ export default {
       let chall = Object.assign({}, this.newchallenge);
       // Add only if not already issued (not counting target or FEN):
       if (this.challenges.some(c =>
-        (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id) &&
+        (
+          c.from.sid == this.st.user.sid ||
+          (c.from.id > 0 && c.from.id == this.st.user.id)
+        )
+        &&
         c.vid == chall.vid &&
         c.cadence == chall.cadence &&
         c.randomness == chall.randomness
@@ -1036,7 +1043,10 @@ export default {
           const c = this.challenges[i];
           if (
             c.type == ctype &&
-            (c.from.sid == this.st.user.sid || c.from.id == this.st.user.id)
+            (
+              c.from.sid == this.st.user.sid ||
+              (c.from.id > 0 && c.from.id == this.st.user.id)
+            )
           ) {
             countMyChalls++;
             if (c.added < oldestAdded) {

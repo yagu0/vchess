@@ -9,7 +9,7 @@ div
   )
   button(@click="sendChat()") {{ st.tr["Send"] }}
   p(v-for="chat in chats.concat(pastChats)")
-    span.name {{ chat.name }} :&nbsp;
+    span.name {{ chat.name || "@nonymous" }} :&nbsp;
     span(
       :class="classObject(chat)"
       v-html="chat.msg"
@@ -31,11 +31,28 @@ export default {
   methods: {
     classObject: function(chat) {
       return {
-        "my-chatmsg": chat.name == this.st.user.name,
+        "my-chatmsg": (
+          !!chat.name && chat.name == this.st.user.name ||
+          !!chat.sid && chat.sid == this.st.user.sid
+        ),
         "opp-chatmsg":
           !!this.players &&
           this.players.some(
-            p => p.name == chat.name && p.name != this.st.user.name
+            p => {
+              return (
+                (
+                  !!p.name &&
+                  p.name == chat.name &&
+                  p.name != this.st.user.name
+                )
+                ||
+                (
+                  !!p.sid &&
+                  p.sid == chat.sid &&
+                  p.sid != this.st.user.sid
+                )
+              );
+            }
           )
       };
     },
@@ -45,13 +62,17 @@ export default {
       chatInput.focus(); //required on smartphones
       if (chatTxt == "") return; //nothing to send
       chatInput.value = "";
-      const chat = { msg: chatTxt, name: this.st.user.name || "@nonymous" };
+      const chat = {
+        msg: chatTxt,
+        name: this.st.user.name,
+        // SID is required only for anonymous users (in live games)
+        sid: this.st.user.id  == 0 ? this.st.user.sid : null
+      };
       this.$emit("mychat", chat);
       this.chats.unshift(chat);
     },
     newChat: function(chat) {
-      if (chat.msg != "")
-        this.chats.unshift({ msg: chat.msg, name: chat.name || "@nonymous" });
+      if (chat.msg != "") this.chats.unshift(chat);
     },
     clearHistory: function() {
       this.chats = [];
