@@ -10,7 +10,21 @@ div
   )
     .card
       label.modal-close(for="modalUser")
-      h3.section {{ st.tr[stage] }}
+      h3.section
+        span.title {{ st.tr[stage] }}
+        | (
+        span.link(
+          v-if="stage!='Update'"
+          @click="toggleStage()"
+        )
+          | {{ st.tr[stage=="Login" ? "Register" : "Login"] }}
+        span.link(
+          v-else
+          @click="doLogout()"
+        )
+          | {{ st.tr["Logout"] }}
+        img(src="/images/icons/rightArrow.svg")
+        | )
       div(@keyup.enter="onSubmit()")
         div(v-show="stage!='Login'")
           fieldset
@@ -38,20 +52,8 @@ div
               type="text"
               v-model="nameOrEmail"
             )
-      .button-group
-        button(@click="onSubmit()")
-          span {{ st.tr[submitMessage] }}
-        button(
-          v-if="stage!='Update'"
-          type="button"
-          @click="toggleStage()"
-        )
-          span {{ st.tr[stage=="Login" ? "Register" : "Login"] }}
-        button(
-          v-else type="button"
-          @click="doLogout()"
-        )
-          span {{ st.tr["Logout"] }}
+      button#submitBtn(@click="onSubmit()")
+        | {{ st.tr[submitMessage] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
 </template>
 
@@ -205,6 +207,22 @@ export default {
 [type="checkbox"].modal+div .card
   max-width: 450px
   max-height: 100%
+
+h3.section
+  span.title
+    padding-right: 10px
+  span.link
+    color: darkred
+    font-size: 0.8em
+    text-decoration: underline
+    cursor: pointer
+  img
+    height: 1em
+    padding-left: 5px
+
+#submitBtn
+  width: 50%
+  margin: 0 auto
 
 #dialog
   padding: 5px
