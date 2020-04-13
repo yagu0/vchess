@@ -1,0 +1,33 @@
+p.boxed
+  | Pieces in the first half of the board are yours. Captures are mandatory.
+
+p.
+  All pieces are of the same color (black on the website), but in fact
+  pieces just have no color: you control all
+  pieces which stand in the half-board in front of you. These pieces can
+  only capture on the other half-board.
+
+p.
+  Since captures are mandatory, pieces could make some round-trips
+  around the board, changing owner at every mid-board crossing.
+  For example on the following diagram, the sequence will be 1.Rxd7 Rxd1
+  2.Rxd8 and black would win, assuming the final rank is 8th.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:3b4/3k4/8/8/8/8/3r4/3n4:
+  .diagram.diag22
+    | fen:3b4/3r4/8/8/8/8/8/3n4:
+  figcaption Before and after Rxd7
+
+p Kings have no royal status. There are no en-passant captures.
+
+h3 Source
+
+p
+  | Strongly inspired by 
+  a(href="http://www.wunderland.com/WTS/Andy/Games/monochess.html")
+    | Monochrome Chess
+  | , but I wanted a version without points counting.
+
+p Inventor: Andrew Looney (1996)

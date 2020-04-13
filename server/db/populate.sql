@@ -49,6 +49,7 @@ insert or ignore into Variants (name, description) values
   ('Losers', 'Get strong at self-mate'),
   ('Magnetic', 'Laws of attraction'),
   ('Maxima', 'Occupy the enemy palace'),
+  ('Monochrome', 'All of the same color'),
   ('Monster', 'White move twice'),
   ('Omega', 'A wizard in the corner'),
   ('Orda', 'Mongolian Horde'),

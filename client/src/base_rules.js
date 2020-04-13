@@ -990,7 +990,7 @@ export const ChessRules = class ChessRules {
     const color = this.turn;
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.getColor(i, j) == color) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
           const moves = this.getPotentialMovesFrom([i, j]);
           if (moves.length > 0) {
             for (let k = 0; k < moves.length; k++) {

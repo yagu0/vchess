@@ -162,6 +162,7 @@ export const translations = {
   "64 pieces on the board": "64 piezas en el tablero",
   "A pawns cloud": "Une nube de peones",
   "A wizard in the corner": "Un mago en la esquina",
+  "All of the same color": "Todo el mismo color",
   "Ancient rules": "Viejas reglas",
   "Attract opposite king": "Atraer al rey contrario",
   "Balanced sliders & leapers": "Modos de desplazamiento equilibrados",

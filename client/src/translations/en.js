@@ -162,6 +162,7 @@ export const translations = {
   "64 pieces on the board": "64 pieces on the board",
   "A pawns cloud": "A pawns cloud",
   "A wizard in the corner": "A wizard in the corner",
+  "All of the same color": "All of the same color",
   "Ancient rules": "Ancient rules",
   "Attract opposite king": "Attract opposite king",
   "Balanced sliders & leapers": "Balanced sliders & leapers",

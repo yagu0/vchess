@@ -1,6 +1,3 @@
-// https://vchess.club/#/game/46
-// Bug 35eme coup blanc Rx(P)e2, d2 et aussi 18eme coup blanc Rd7, Pxe6
-// --> peut-être lié à prise, ou lié à getFen(), ou inMultimove pas changé car concatène à coup précédent...
 // TODO: also fix moves played on smartphone, annoying shift...
 
 Shako, also known as UniEed Chess (Jean-Louis
@@ -13,27 +10,6 @@ ERNBQKBNRE on ranks 2/9, 10xP on ranks
 (Cazaux)
 
 Shogi + Makruk/Thai chess --> see on Pychess
-
-Interesting:
-Monochrome Chess (Proprietary game,
-Looney Industries; Andrew Looney, 1996).
-Usual men and array but pieces are all of the
-same colour. A man is controlled by the player
-in whose half of the board it stands. Thus after
-e4-e5, the pawn changes sides and reverses
-direction. When you capture (by definition, in
-the opponent’s half) there can be no recapture
-as the piece has changed sides. You may not
-immediately reverse an opponent’s move. The
-king has no royal powers but can castle. The
-men are allocated points and the object is to
-have the most points (in pieces captured) when
-the game ends, which is usually when the
-players agree or when one half of the board is
-empty. Values: King=10, Queen=8, Rook=5,
-Bishop=4, Knight=3, Pawn=1. A related game
-Martian Chess is described in chapter 38.
-(Proprietor’s rule sheet, Variant Chess 39)
 
 Chakart :)
 https://www.chessvariants.com/crossover.dir/koopachess.html

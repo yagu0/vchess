@@ -1,0 +1,35 @@
+p.boxed
+  | Les pièces dans la première moitié de l'échiquier sont à vous.
+  | Les captures sont obligatoires.
+
+p.
+  Toutes les pièces sont de la même couleur (noire sur ce site), mais en fait
+  les pièces n'ont juste pas de couleur : vous contrôlez toutes les pièces
+  situées dans le demi-échiquier devant vous. Ces pièces ne peuvent capturer
+  que dans l'autre demi-échiquier.
+
+p.
+  Puisque les captures sont obligatoires, les pièces pourraient effectuer
+  quelques aller-retours autour de l'échiquier, chaneant de propriétaire à
+  chaque passage au centre. Par exemple sur le diagramme suivant, la
+  séquence serait 1.Rxd7 Rxd1 2.Rxd8 et les noirs gagneraient, en supposant
+  que la dernière rangée est la 8eme.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:3b4/3k4/8/8/8/8/3r4/3n4:
+  .diagram.diag22
+    | fen:3b4/3r4/8/8/8/8/8/3n4:
+  figcaption Avant et après Rxd7
+
+p Les rois n'ont pas de statut royal. Il n'y pas de prises en passant.
+
+h3 Source
+
+p
+  | Fortement inspiré par les 
+  a(href="http://www.wunderland.com/WTS/Andy/Games/monochess.html")
+    | Échecs Monochromes
+  | , mais je voulais une version sans comptage de points.
+
+p Inventeur : Andrew Looney (1996)

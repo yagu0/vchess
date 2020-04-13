@@ -1,0 +1,35 @@
+p.boxed
+  | Las piezas en la primera mitad del tablero de ajedrez son tuyas.
+  | Las capturas son obligatorias.
+
+p.
+  Todas las piezas son del mismo color (negro en este sitio), pero de hecho
+  las piezas simplemente no tienen color: tú controlas todas las piezas
+  ubicado en el medio tablero de ajedrez frente a ti. Estas piezas no pueden
+  capturar que en el otro medio tablero.
+
+p.
+  Como las capturas son obligatorias, las piezas podrían ir y venir
+  alrededor del tablero de ajedrez, cambiando de propietario a
+  cada paso por el centro. Por ejemplo, en el siguiente diagrama,
+  la secuencia sería 1.Rxd7 Rxd1 2.Rxd8 y las negras ganarían, suponiendo
+  que la última fila es la 8va.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:3b4/3k4/8/8/8/8/3r4/3n4:
+  .diagram.diag22
+    | fen:3b4/3r4/8/8/8/8/8/3n4:
+  figcaption Antes y después de Rxd7
+
+p Los reyes no tienen estatus real. No hay capturas en-passant.
+
+h3 Fuente
+
+p
+  | Fuertemente inspirado por el 
+  a(href="http://www.wunderland.com/WTS/Andy/Games/monochess.html")
+    | Ajedrez Monocromo
+  | , pero quería una versión sin puntos.
+
+p Inventor: Andrew Looney (1996)
