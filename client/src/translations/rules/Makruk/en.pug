@@ -1,0 +1,40 @@
+p.boxed
+  | Bishops and queen are less powerful then in standard chess.
+
+p.
+  From left to right, with Thai names in parentheses: rook (Ruea),
+  knight (Ma), bishop (Khon), queen (Met), king (Khun).
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Makruk/wr.svg")
+  img(src="/images/pieces/Makruk/wn.svg")
+  img(src="/images/pieces/Makruk/wb.svg")
+  img(src="/images/pieces/Makruk/wq.svg")
+  img(src="/images/pieces/Makruk/wk.svg")
+
+ul
+  li All pieces except bishops and queen move like in orthodox chess.
+  li The queen moves by one square in any diagonal direction.
+  li The bishop moves one square forward, or like a queen.
+  li The only special move is the pawn promotion, always to a queen.
+  li There is no castling option.
+
+p.
+  Pawns promote on the sixth rank, into a queen but still represented
+  like a pawn, as illustrated on the diagram.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/4P3/8/8/8/8:
+  .diagram.diag22
+    | fen:8/8/4F3/8/8/8/8/8:
+  figcaption Before and after pawn promotion on e6.
+
+h3 Source
+
+p
+  a(href="https://www.pychess.org/variant/makruk")
+    | Makruk
+  | &nbsp;on pychess-variants (playable there). This variant is also playable 
+  a(href="https://www.playok.com/en/makruk/") on playok
+  | .

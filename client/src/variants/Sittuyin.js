@@ -119,29 +119,20 @@ export class SittuyinRules extends ChessRules {
 
   getPotentialPawnMoves([x, y]) {
     const color = this.turn;
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
     const shiftX = V.PawnSpecs.directions[color];
     let moves = [];
-    // NOTE: next condition is generally true (no pawn on last rank)
-    if (x + shiftX >= 0 && x + shiftX < sizeX) {
-      if (this.board[x + shiftX][y] == V.EMPTY) {
+    if (x + shiftX >= 0 && x + shiftX < 8) {
+      if (this.board[x + shiftX][y] == V.EMPTY)
         // One square forward
         moves.push(this.getBasicMove([x, y], [x + shiftX, y]));
-      }
       // Captures
-      if (V.PawnSpecs.canCapture) {
-        for (let shiftY of [-1, 1]) {
-          if (
-            y + shiftY >= 0 &&
-            y + shiftY < sizeY
-          ) {
-            if (
-              this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-              this.canTake([x, y], [x + shiftX, y + shiftY])
-            ) {
-              moves.push(this.getBasicMove([x, y], [x + shiftX, y + shiftY]));
-            }
-          }
+      for (let shiftY of [-1, 1]) {
+        if (
+          y + shiftY >= 0 && y + shiftY < 8 &&
+          this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+          this.canTake([x, y], [x + shiftX, y + shiftY])
+        ) {
+          moves.push(this.getBasicMove([x, y], [x + shiftX, y + shiftY]));
         }
       }
     }

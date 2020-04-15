@@ -1,0 +1,137 @@
+p.boxed
+  | Une pièce capturée change de couleur et peut être parachutée plus tard.
+  | La plupart des pièces peuvent se promouvoir sur les trois dernières
+  | rangées.
+
+p
+  | La description suivante est souvent empruntée au 
+  a(href="https://www.pychess.org/variant/shogi") guide Shogi
+  | &nbsp;sur pychess-variants, où j'ai aussi trouvé les images des pièces.
+  | Le Shogi se joue sur un échiquier 9 x 9.
+  | Le côté ayant le roi noir démarre la partie.
+
+p.
+  Les captures s'effectuent par remplacement sur la case de destination.
+  Toute unité capturée est ajoutée à une réserve de pièces "de poche".
+  À chaque tour vous pouvez poser l'une de ces pièces au lieu d'en déplacer
+  une. Une pièce parachutée doit pouvoir bouger, théoriquement, en ne
+  considérant que sa position sur le plateau.
+  Les pions ne peuvent pas être posés sur une colonne contenant déjà un pion
+  de la même couleur. Ils ne peuvent pas non plus donner échec et mat.
+
+h3 Mouvements des pièces
+
+h4 Roi, tour, fou
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wk.svg")
+  img(src="/images/pieces/Shogi/bk.svg")
+  img(src="/images/pieces/Shogi/wr.svg")
+  img(src="/images/pieces/Shogi/wb.svg")
+  figcaption De gauche à droite : rois noir & blanc, tour, fou.
+
+p.
+  Ces pièces ont l'air différentes mais se déplacent exactement comme aux
+  échecs orthodoxes.
+
+h4
+  | Général d'or
+  img(src="/images/pieces/Shogi/wg.svg")
+
+p.
+  Le général d'or se déplace d'une case seulement, soit comme une tour soit
+  en diagonale vers l'avant.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4Gp3/9/9/9/9 d6,e6,f6,d5,f5,e4:
+  figcaption Déplacements du général d'or.
+
+h4
+  | Général d'argent
+  img(src="/images/pieces/Shogi/ws.svg")
+
+p.
+  Le général d'argent se déplace d'une case seulement, soit comme un fou soit
+  orthogonalement vers l'avant.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4S4/5p3/9/9/9 d6,e6,f6,d4,f4:
+  figcaption Déplacements du général d'argent.
+
+h4
+  | Cavalier
+  img(src="/images/pieces/Shogi/wn.svg")
+
+p.
+  Le cavalier se déplace comme un cavalier orthodoxe restreint : deux cases
+  vers l'avant, puis une sur le côté comme illustré sur le diagramme.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/5p3/9/4N4/9/9/9/9 d7,f7:
+  figcaption Déplacements du cavalier.
+
+h4
+  | Lance
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p.
+  Le lance se déplace comme une tour mais toujours dans la même direction :
+  vers l'avant.
+
+figure.diagram-container
+  .diagram
+    | fen:9/4p4/9/9/9/4L4/9/9/9 e5,e6,e7,e8:
+  figcaption Déplacements de la lance.
+
+h4
+  | Pion
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p.
+  Le pion avance comme aux échecs orthodoxes (sans déplacement initial de deux
+  cases), et il capture également ainsi.
+
+h3 Promotion
+
+p.
+  Toutes les pièces à l'exception du général d'or et du roi peuvent être
+  promues, en jouant un coup arrivant sur l'une des trois dernières rangées.
+  La promotion est optionnelle à moins qu'un coup normal résulte en une pièce
+  bloquée. Capturer une pièce promue ajoute sa forme non-promue en réserve.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wq.svg")
+  img(src="/images/pieces/Shogi/wo.svg")
+  img(src="/images/pieces/Shogi/wm.svg")
+  img(src="/images/pieces/Shogi/wt.svg")
+  figcaption.
+    Promotions de gauche à droite : pion ('Q'), cavalier ('O'),
+    lance ('M'), et général d'argent ('T').
+
+p.
+  Les pièces mineures dans ce jeu sont le pion, le cavalier, la lance et le
+  général d'argent. Elles se promeuvent toutes en un général d'or : seule leur
+  apparence diffère.
+  La tour et le fou sont promus respectivement en un Dragon Roi et un Dragon
+  Cheval, leur permettant de se déplacer comme un roi en plus de leurs
+  capacités usuelles.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/9/9/4D4/9/9/9/9 a5,b5,c5,d5,f5,g5,h5,i5,e1,e2,e3,e4,e6,e7,e8,e9,d4,d6,f6,f4:
+  .diagram.diag22
+    | fen:9/9/9/9/4H4/9/9/9/9 a9,b8,c7,d6,f4,g3,h2,i1,a1,b2,c3,d4,f6,g7,h8,i9,d5,e6,f5,e4:
+  figcaption Gauche : tour promue. Droite : fou promu.
+
+h3 Plus d'information
+
+p
+  | Ce jeu est très populaire au Japon, donc beaucoup de ressources sont
+  | disponibles en ligne. Un bon point de départ est la 
+  a(href="https://www.pychess.org/variant/shogi") page Shogi
+  | &nbsp;sur pychess-variants, où vous pouvez également jouer, et / ou la 
+  a(href="https://fr.wikipedia.org/wiki/Shogi") page Wikipedia
+  | .

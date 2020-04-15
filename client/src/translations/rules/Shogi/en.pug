@@ -1,0 +1,131 @@
+p.boxed
+  | Every captured piece change color and can be dropped back later.
+  | Most pieces can promote on the three last ranks.
+
+p
+  | The following description is often borrowed from the 
+  a(href="https://www.pychess.org/variant/shogi") Shogi guide
+  | &nbsp;on pychess-variants, where I found the pieces images.
+  | Shogi is played on a 9 x 9 board.
+  | The side with a black king starts the game.
+
+p.
+  Captures are achieved by replacement on the destination square.
+  Any captured unit is added to a reserve of "pocket" pieces.
+  At each turn you can drop one of these pieces instead of moving one.
+  A dropped piece must be able to move, theoretically, considering only its
+  position on the board.
+  Pawns cannot be dropped on a file already containing a pawn of the same
+  color. They also can't be dropped to give checkmate.
+
+h3 Pieces movements
+
+h4 King, rook, bishop
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wk.svg")
+  img(src="/images/pieces/Shogi/bk.svg")
+  img(src="/images/pieces/Shogi/wr.svg")
+  img(src="/images/pieces/Shogi/wb.svg")
+  figcaption From left to right: black & white kings, rook, bishop.
+
+p These pieces look different but move exactly as in orthodox chess.
+
+h4
+  | Gold General
+  img(src="/images/pieces/Shogi/wg.svg")
+
+p.
+  The gold general moves by one square only, either like a rook or diagonally
+  forward.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4Gp3/9/9/9/9 d6,e6,f6,d5,f5,e4:
+  figcaption Gold general movements.
+
+h4
+  | Silver General
+  img(src="/images/pieces/Shogi/ws.svg")
+
+p.
+  The silver general moves by one square only, either like a bishop or
+  orthogonally forward.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4S4/5p3/9/9/9 d6,e6,f6,d4,f4:
+  figcaption Silver general movements.
+
+h4
+  | Knight
+  img(src="/images/pieces/Shogi/wn.svg")
+
+p.
+  The knight moves like a restricted orthodox knight: two squares forward,
+  and one to the side as the diagram illustrates.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/5p3/9/4N4/9/9/9/9 d7,f7:
+  figcaption Knight movements.
+
+h4
+  | Lance
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p The lance moves like a rook but only in one direction: forward.
+
+figure.diagram-container
+  .diagram
+    | fen:9/4p4/9/9/9/4L4/9/9/9 e5,e6,e7,e8:
+  figcaption Lance movements.
+
+h4
+  | Pawn
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p.
+  The pawn moves like in orthodox chess (without two squares initial move),
+  and he also captures in this way.
+
+h3 Promotion
+
+p.
+  All pieces except the gold general and the king can be promoted,
+  by playing a move arriving on one of the three last ranks.
+  Promotion is optional unless a normal move would result in a blocked piece.
+  Capturing a promoted piece put the non-promoted form in the reserve.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wq.svg")
+  img(src="/images/pieces/Shogi/wo.svg")
+  img(src="/images/pieces/Shogi/wm.svg")
+  img(src="/images/pieces/Shogi/wt.svg")
+  figcaption.
+    Promotions from left to right: pawn ('Q'), knight ('O'),
+    lance ('M'), and silver general ('T').
+
+p.
+  Minor pieces in this game are the pawn, knight, lance and silver general.
+  They all promote to a gold general: only their appearance differ.
+  The rook and the bishop promote respectively into a Dragon King and a
+  Dragon Horse, which allow them to move like a king in addition to their
+  usual movements.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/9/9/4D4/9/9/9/9 a5,b5,c5,d5,f5,g5,h5,i5,e1,e2,e3,e4,e6,e7,e8,e9,d4,d6,f6,f4:
+  .diagram.diag22
+    | fen:9/9/9/9/4H4/9/9/9/9 a9,b8,c7,d6,f4,g3,h2,i1,a1,b2,c3,d4,f6,g7,h8,i9,d5,e6,f5,e4:
+  figcaption Left: promoted rook. Right: promoted bishop.
+
+h3 More information
+
+p
+  | This game is very popular in Japan, so a lot of resources can be found
+  | online. A good starting point is the 
+  a(href="https://www.pychess.org/variant/shogi") Shogi page
+  | &nbsp;at pychess-variants, where you can also play, and / or the 
+  a(href="https://en.wikipedia.org/wiki/Shogi") Wikipedia page
+  | .

@@ -1,0 +1,137 @@
+p.boxed
+  | Una pieza capturada cambia de color y se puede soltar más tarde.
+  | La mayoría de las piezas se pueden promocionar en los últimos tres filas.
+
+p
+  | La siguiente descripción a menudo se toma del 
+  a(href="https://www.pychess.org/variant/shogi") guía Shogi
+  | &nbsp;en pychess-variantes, donde también encontré las imágenes de las
+  | piezas. El Shogi se juega en un tablero de 9 x 9.
+  | El lado del rey negro comienza el juego.
+
+p.
+  Las capturas se realizan mediante reemplazo en la casilla de destino.
+  Cualquier unidad capturada se agrega a una reserva de piezas "de bolsillo".
+  En cada turno puedes colocar una de estas piezas en lugar de mover una.
+  Una pieza paracaidizada debe poder moverse, teóricamente, mientras no
+  considerando su posición en el estante.
+  Los peones no se pueden colocar en una columna que ya contiene un peón
+  del mismo color. Tampoco pueden dar jaque mate.
+
+h3 Movimientos de las piezas
+
+h4 Rey, torre, alfil
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wk.svg")
+  img(src="/images/pieces/Shogi/bk.svg")
+  img(src="/images/pieces/Shogi/wr.svg")
+  img(src="/images/pieces/Shogi/wb.svg")
+  figcaption De izquierda a derecha: reyes en blanco & negro, torre, alfil.
+
+p.
+  Estas piezas parecen diferentes pero se mueven exactamente como
+  en ajedrez ortodoxo.
+
+h4
+  | General de oro
+  img(src="/images/pieces/Shogi/wg.svg")
+
+p.
+  El general del oro se mueve solo de una casilla, ya sea como una torre o
+  diagonalmente hacia adelante.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4Gp3/9/9/9/9 d6,e6,f6,d5,f5,e4:
+  figcaption Movimientos del general de oro.
+
+h4
+  | General de plata
+  img(src="/images/pieces/Shogi/ws.svg")
+
+p.
+  El general plateado se mueve solo de una casilla, ya sea como un alfil o
+  ortogonalmente hacia adelante.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/9/3b5/4S4/5p3/9/9/9 d6,e6,f6,d4,f4:
+  figcaption Movimientos del general de plata.
+
+h4
+  | Caballo
+  img(src="/images/pieces/Shogi/wn.svg")
+
+p.
+  El caballo se mueve como un caballo ortodoxo restringido: dos espacios
+  hacia adelante, luego uno en el costado como se muestra en el diagrama.
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/5p3/9/4N4/9/9/9/9 d7,f7:
+  figcaption Movimientos del caballo.
+
+h4
+  | Lanza
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p.
+  La lanza se mueve como una torre pero siempre en la misma dirección:
+  hacia adelante.
+
+figure.diagram-container
+  .diagram
+    | fen:9/4p4/9/9/9/4L4/9/9/9 e5,e6,e7,e8:
+  figcaption Movimientos de la lanza.
+
+h4
+  | Peón
+  img(src="/images/pieces/Shogi/wl.svg")
+
+p.
+  El peón avanza como en el ajedrez ortodoxo (sin desplazamiento inicial de dos
+  casillas), y también captura así.
+
+h3 Promoción
+
+p.
+  Todas las piezas excepto el general de oro y el rey pueden ser
+  promovido, jugando un movimiento que llega a una de las últimas tres filas.
+  La promoción es opcional a menos que una jugada normal resulte en una pieza
+  bloqueada. La captura de una pieza promocionada agrega su forma no promovida
+  a la reserva.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Shogi/wq.svg")
+  img(src="/images/pieces/Shogi/wo.svg")
+  img(src="/images/pieces/Shogi/wm.svg")
+  img(src="/images/pieces/Shogi/wt.svg")
+  figcaption.
+    Promociones de izquierda a derecha: peón ('Q'), caballo ('O'),
+    lanza ('M') y plata general ('T').
+
+p.
+  Las piezas menores en este juego son el peón, el caballo, la lanza y el
+  general de plata. Todos se promocionan como un general de oro: solo sus
+  apariencia es diferente.
+  La torre y el alfil son promovidos respectivamente en un Dragón Rey y un
+  Dragón Caballo, lo que les permite moverse como un rey además de su
+  capacidades usuales.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/9/9/4D4/9/9/9/9 a5,b5,c5,d5,f5,g5,h5,i5,e1,e2,e3,e4,e6,e7,e8,e9,d4,d6,f6,f4:
+  .diagram.diag22
+    | fen:9/9/9/9/4H4/9/9/9/9 a9,b8,c7,d6,f4,g3,h2,i1,a1,b2,c3,d4,f6,g7,h8,i9,d5,e6,f5,e4:
+  figcaption Izquierda: torre promovida. Derecha: alfil promovido.
+
+h3 Más información
+
+p
+  | Este juego es muy popular en Japón, por lo que muchos recursos son
+  | disponible en línea. Un buen punto de partida es la 
+  a(href="https://www.pychess.org/variant/shogi") página Shogi
+  | &nbsp;en pychess-variants, donde también puedes jugar, y / o la 
+  a(href="https://es.wikipedia.org/wiki/Shogi") página Wikipedia
+  | .

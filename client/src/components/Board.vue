@@ -214,7 +214,7 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    this.vr.getReservePpath(i, playingColor) +
+                    this.vr.getReservePpath(i, playingColor, orientation) +
                     ".svg"
                 }
               }),
@@ -241,7 +241,7 @@ export default {
                 attrs: {
                   src:
                     "/images/pieces/" +
-                    this.vr.getReservePpath(i, oppCol) +
+                    this.vr.getReservePpath(i, oppCol, orientation) +
                     ".svg"
                 }
               }),

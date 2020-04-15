@@ -212,6 +212,10 @@ export default {
       this.moves = JSON.parse(JSON.stringify(game.moves || []));
       // Post-processing: decorate each move with notation and FEN
       this.vr = new V(game.fenStart);
+      this.inMultimove = false; //in case of
+      this.$refs["board"].resetCurrentAttempt(); //also in case of
+      let analyseBtn = document.getElementById("analyzeBtn");
+      if (!!analyseBtn) analyseBtn.classList.remove("active");
       const parsedFen = V.ParseFen(game.fenStart);
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
