@@ -268,6 +268,7 @@ export class ShogiRules extends ChessRules {
 
   // Modified to take promotions into account
   getSlideNJumpMoves([x, y], steps, options) {
+    const options = options || {};
     const color = this.turn;
     const oneStep = options.oneStep;
     const forcePromoteOnLastRank = options.force;
