@@ -222,6 +222,7 @@ export const translations = {
   "Seirawan-Harper Chess": "Ajedrez Seirawan-Harper",
   "Shared pieces (v1)": "Piezas compartidas (v1)",
   "Shared pieces (v2)": "Piezas compartidas (v2)",
+  "Shogi 5 x 5": "Shogi 5 x 5",
   "Shoot pieces": "Tirar de las piezas",
   "Squares disappear": "Las casillas desaparecen",
   "Standard rules": "Reglas estandar",

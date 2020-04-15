@@ -50,6 +50,7 @@ insert or ignore into Variants (name, description) values
   ('Magnetic', 'Laws of attraction'),
   ('Makruk', 'Thai Chess'),
   ('Maxima', 'Occupy the enemy palace'),
+  ('Minishogi', 'Shogi 5 x 5'),
   ('Monochrome', 'All of the same color'),
   ('Monster', 'White move twice'),
   ('Omega', 'A wizard in the corner'),

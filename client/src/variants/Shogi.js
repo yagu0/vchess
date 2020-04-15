@@ -35,7 +35,7 @@ export class ShogiRules extends ChessRules {
   static get SILVER_G() {
     return "s";
   }
-  static get LANCER() {
+  static get LANCE() {
     return "l";
   }
 
@@ -49,7 +49,7 @@ export class ShogiRules extends ChessRules {
   static get P_SILVER() {
     return 't';
   }
-  static get P_LANCER() {
+  static get P_LANCE() {
     return 'm';
   }
   static get P_ROOK() {
@@ -68,11 +68,11 @@ export class ShogiRules extends ChessRules {
       ChessRules.KING,
       V.GOLD_G,
       V.SILVER_G,
-      V.LANCER,
+      V.LANCE,
       V.P_PAWN,
       V.P_KNIGHT,
       V.P_SILVER,
-      V.P_LANCER,
+      V.P_LANCE,
       V.P_ROOK,
       V.P_BISHOP
     ];
@@ -149,7 +149,7 @@ export class ShogiRules extends ChessRules {
         [V.GOLD_G]: parseInt(fenParsed.reserve[3]),
         [V.SILVER_G]: parseInt(fenParsed.reserve[4]),
         [V.KNIGHT]: parseInt(fenParsed.reserve[5]),
-        [V.LANCER]: parseInt(fenParsed.reserve[6])
+        [V.LANCE]: parseInt(fenParsed.reserve[6])
       },
       b: {
         [V.PAWN]: parseInt(fenParsed.reserve[7]),
@@ -158,7 +158,7 @@ export class ShogiRules extends ChessRules {
         [V.GOLD_G]: parseInt(fenParsed.reserve[10]),
         [V.SILVER_G]: parseInt(fenParsed.reserve[11]),
         [V.KNIGHT]: parseInt(fenParsed.reserve[12]),
-        [V.LANCER]: parseInt(fenParsed.reserve[13])
+        [V.LANCE]: parseInt(fenParsed.reserve[13])
       }
     };
   }
@@ -187,7 +187,7 @@ export class ShogiRules extends ChessRules {
   // Ordering on reserve pieces
   static get RESERVE_PIECES() {
     return (
-      [V.PAWN, V.ROOK, V.BISHOP, V.GOLD_G, V.SILVER_G, V.KNIGHT, V.LANCER]
+      [V.PAWN, V.ROOK, V.BISHOP, V.GOLD_G, V.SILVER_G, V.KNIGHT, V.LANCE]
     );
   }
 
@@ -213,7 +213,7 @@ export class ShogiRules extends ChessRules {
     const lastRanks = color == 'w' ? [0, 1] : [8, 7];
     for (let i = 0; i < V.size.x; i++) {
       if (
-        (i == lastRanks[0] && [V.PAWN, V.KNIGHT, V.LANCER].includes(p)) ||
+        (i == lastRanks[0] && [V.PAWN, V.KNIGHT, V.LANCE].includes(p)) ||
         (i == lastRanks[1] && p == V.KNIGHT)
       ) {
         continue;
@@ -266,8 +266,8 @@ export class ShogiRules extends ChessRules {
         return this.getPotentialBishopMoves([x, y]);
       case V.SILVER_G:
         return this.getPotentialSilverMoves([x, y]);
-      case V.LANCER:
-        return this.getPotentialLancerMoves([x, y]);
+      case V.LANCE:
+        return this.getPotentialLanceMoves([x, y]);
       case V.KING:
         return this.getPotentialKingMoves([x, y]);
       case V.P_ROOK:
@@ -278,7 +278,7 @@ export class ShogiRules extends ChessRules {
       case V.P_PAWN:
       case V.P_SILVER:
       case V.P_KNIGHT:
-      case V.P_LANCER:
+      case V.P_LANCE:
         return this.getPotentialGoldMoves([x, y]);
     }
     return []; //never reached
@@ -382,10 +382,10 @@ export class ShogiRules extends ChessRules {
       sq, V.steps[V.BISHOP], { promote: V.P_BISHOP });
   }
 
-  getPotentialLancerMoves(sq) {
+  getPotentialLanceMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
     return this.getSlideNJumpMoves(
-      sq, [[forward, 0]], { promote: V.P_LANCER });
+      sq, [[forward, 0]], { promote: V.P_LANCE });
   }
 
   getPotentialDragonMoves(sq) {
@@ -418,7 +418,7 @@ export class ShogiRules extends ChessRules {
       this.isAttackedByKnight(sq, color) ||
       this.isAttackedByBishop(sq, color) ||
       this.isAttackedByHorse(sq, color) ||
-      this.isAttackedByLancer(sq, color) ||
+      this.isAttackedByLance(sq, color) ||
       this.isAttackedBySilver(sq, color) ||
       this.isAttackedByGold(sq, color) ||
       this.isAttackedByKing(sq, color)
@@ -433,7 +433,7 @@ export class ShogiRules extends ChessRules {
         V.OnBoard(i, j) &&
         this.board[i][j] != V.EMPTY &&
         this.getColor(i, j) == color &&
-        [V.GOLD_G, V.P_PAWN, V.P_SILVER, V.P_KNIGHT, V.P_LANCER]
+        [V.GOLD_G, V.P_PAWN, V.P_SILVER, V.P_KNIGHT, V.P_LANCE]
           .includes(this.getPiece(i, j))
       ) {
         return true;
@@ -475,9 +475,9 @@ export class ShogiRules extends ChessRules {
       sq, color, V.KNIGHT, [[forward, 1], [forward, -1]], "oneStep");
   }
 
-  isAttackedByLancer(sq, color) {
+  isAttackedByLance(sq, color) {
     const forward = (color == 'w' ? 1 : -1);
-    return this.isAttackedBySlideNJump(sq, color, V.LANCER, [[forward, 0]]);
+    return this.isAttackedBySlideNJump(sq, color, V.LANCE, [[forward, 0]]);
   }
 
   isAttackedByDragon(sq, color) {
