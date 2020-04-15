@@ -114,7 +114,7 @@ export class ShogiRules extends ChessRules {
     let counts = new Array(14);
     for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
       counts[i] = this.reserve["w"][V.RESERVE_PIECES[i]];
-      counts[6 + i] = this.reserve["b"][V.RESERVE_PIECES[i]];
+      counts[7 + i] = this.reserve["b"][V.RESERVE_PIECES[i]];
     }
     return counts.join("");
   }
@@ -466,7 +466,7 @@ export class ShogiRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.P_ROOK, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
+        sq, color, V.P_ROOK, V.steps[V.BISHOP], "oneStep")
     );
   }
 
@@ -474,7 +474,7 @@ export class ShogiRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.P_BISHOP, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.DRAGON, V.steps[V.ROOK], "oneStep")
+        sq, color, V.P_BISHOP, V.steps[V.ROOK], "oneStep")
     );
   }
 
