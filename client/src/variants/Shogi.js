@@ -1,5 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
+import { shuffle } from "@/utils/alea";
 
 export class ShogiRules extends ChessRules {
   static get HasFlags() {
@@ -94,11 +95,28 @@ export class ShogiRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen() {
-    // No randomization for now:
+  static GenRandInitFen(randomness) {
+    if (randomness == 0) {
+      return (
+        "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL " +
+        "w 0 00000000000000"
+      );
+    }
+    let pieces = { w: new Array(9), b: new Array(9) };
+    for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        break;
+      }
+      let positions = shuffle(ArrayFun.range(9));
+      const composition = ['l', 'l', 'n', 'n', 's', 's', 'g', 'g', 'k'];
+      for (let i = 0; i < 9; i++) pieces[c][positions[i]] = composition[i];
+    }
     return (
-      "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL " +
-      "w 0 00000000000000"
+      pieces["b"].join("") +
+      "/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/" +
+      pieces["w"].join("").toUpperCase() +
+      " w 0 00000000000000"
     );
   }
 
