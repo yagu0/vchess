@@ -80,6 +80,11 @@ export const ChessRules = class ChessRules {
     return V.ShowMoves;
   }
 
+  // Used for Monochrome variant (TODO: harmonize: !canFlip ==> showFirstTurn)
+  get showFirstTurn() {
+    return false;
+  }
+
   // Some variants always show the same orientation
   static get CanFlip() {
     return true;

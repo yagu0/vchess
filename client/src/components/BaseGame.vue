@@ -105,7 +105,7 @@ export default {
         return this.st.tr[
           (this.vr.turn == 'w' ? "White" : "Black") + " to move"];
       }
-      // Cannot flip: racing king or circular chess
+      // Cannot flip (racing king or circular chess), or Monochrome
       return (
         this.vr.movesCount == 0 && this.game.mycolor == "w"
           ? this.st.tr["It's your turn!"]
@@ -128,7 +128,12 @@ export default {
     showTurn: function() {
       return (
         this.game.score == '*' &&
-        !!this.vr && (this.vr.showMoves != "all" || !this.vr.canFlip)
+        !!this.vr &&
+        (
+          this.vr.showMoves != "all" ||
+          !this.vr.canFlip ||
+          this.vr.showFirstTurn
+        )
       );
     },
     canAnalyze: function() {

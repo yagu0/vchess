@@ -6,6 +6,10 @@ export class MonochromeRules extends ChessRules {
     return false;
   }
 
+  get showFirstTurn() {
+    return true;
+  }
+
   static IsGoodPosition(position) {
     if (position.length == 0) return false;
     const rows = position.split("/");
