@@ -104,7 +104,7 @@ export class MakrukRules extends ChessRules {
   }
 
   isAttackedByBishop(sq, color) {
-    const forward = (this.turn == 'w' ? 1 : -1);
+    const forward = (color == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(
       sq,
       color,
