@@ -1,4 +1,4 @@
-import { ChessRules } from "@/base_rules";
+import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ShogiRules } from "@/variants/Shogi";
 
 export class MinishogiRules extends ShogiRules {
