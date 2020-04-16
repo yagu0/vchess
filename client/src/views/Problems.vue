@@ -505,6 +505,17 @@ export default {
   max-width: 767px
   max-height: 100%
 
+#rulesDiv > .card
+  padding: 5px 0
+  max-width: 50%
+  max-height: 100%
+  @media screen and (max-width: 1500px)
+    max-width: 67%
+  @media screen and (max-width: 1024px)
+    max-width: 85%
+  @media screen and (max-width: 767px)
+    max-width: 100%
+
 #inputFen
   width: 100%
 
