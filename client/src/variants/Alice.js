@@ -173,47 +173,13 @@ export class AliceRules extends ChessRules {
         m.vanish.length == 2 &&
         this.board[m.end.x][m.end.y] == V.EMPTY
       ) {
-        m.vanish[1].c = V.GetOppCol(this.getColor(x, y));
-        // In the special case of en-passant, if
-        //  - board1 takes board2 : vanish[1] --> Alice
-        //  - board2 takes board1 : vanish[1] --> normal
-        let van = m.vanish[1];
-        if (mirrorSide == 1 && codes.includes(this.getPiece(van.x, van.y)))
-          van.p = V.ALICE_CODES[van.p];
-        else if (
-          mirrorSide == 2 &&
-          pieces.includes(this.getPiece(van.x, van.y))
-        )
-          van.p = V.ALICE_PIECES[van.p];
+        m.vanish[1].c = V.GetOppCol(this.turn);
+        const [epX, epY] = [m.vanish[1].x, m.vanish[1].y];
+        m.vanish[1].p = this.getPiece(epX, epY);
       }
       return true;
     });
     return res;
-  }
-
-  getEnpassantCaptures([x, y], shiftX) {
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1]; //always at least one element
-    let enpassantMove = null;
-    if (
-      !!epSquare &&
-      epSquare.x == x + shiftX &&
-      Math.abs(epSquare.y - y) == 1
-    ) {
-      enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
-      // May capture in same world or different:
-      const capturedPiece =
-        this.board[x][epSquare.y] != V.EMPTY
-          ? this.getPiece(x, epSquare.y)
-          : ['p','s'][1 - "ps".indexOf(this.getPiece(x, y))];
-      enpassantMove.vanish.push({
-        x: x,
-        y: epSquare.y,
-        p: capturedPiece,
-        c: V.GetOppCol(this.turn)
-      });
-    }
-    return !!enpassantMove ? [enpassantMove] : [];
   }
 
   filterValid(moves, sideBoard) {
