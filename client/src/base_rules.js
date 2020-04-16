@@ -807,7 +807,6 @@ export const ChessRules = class ChessRules {
         this.getEnpassantCaptures([x, y], pawnShiftX)
       );
     }
-
     return pMoves;
   }
 

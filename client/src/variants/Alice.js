@@ -191,6 +191,31 @@ export class AliceRules extends ChessRules {
     return res;
   }
 
+  getEnpassantCaptures([x, y], shiftX) {
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    let enpassantMove = null;
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      // May capture in same world or different:
+      const capturedPiece =
+        this.board[x][epSquare.y] != V.EMPTY
+          ? this.getPiece(x, epSquare.y)
+          : ['p','s'][1 - "ps".indexOf(this.getPiece(x, y))];
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        p: capturedPiece,
+        c: V.GetOppCol(this.turn)
+      });
+    }
+    return !!enpassantMove ? [enpassantMove] : [];
+  }
+
   filterValid(moves, sideBoard) {
     if (moves.length == 0) return [];
     if (!sideBoard) sideBoard = [this.getSideBoard(1), this.getSideBoard(2)];
