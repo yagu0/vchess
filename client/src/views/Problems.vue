@@ -1,5 +1,15 @@
 <template lang="pug">
 main
+  input#modalRules.modal(type="checkbox")
+  div#rulesDiv(
+    role="dialog"
+    data-checkbox="modalRules"
+  )
+    .card
+      label.modal-close(for="modalRules")
+      a#variantNameInProblems(:href="'/#/variants/'+game.vname")
+        | {{ game.vname }}
+      div(v-html="rulesContent")
   input#modalNewprob.modal(
     type="checkbox"
     @change="fenFocusIfOpened($event)"
@@ -116,7 +126,7 @@ import { store } from "@/store";
 import { ajax } from "@/utils/ajax";
 import { checkProblem } from "@/data/problemCheck";
 import params from "@/parameters";
-import { getDiagram } from "@/utils/printDiagram";
+import { getDiagram, replaceByDiag } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { ArrayFun } from "@/utils/array";
 import BaseGame from "@/components/BaseGame.vue";
@@ -155,6 +165,7 @@ export default {
       onlyMine: false,
       showOne: false,
       infoMsg: "",
+      rulesContent: "",
       game: {
         players: [{ name: "Problem" }, { name: "Problem" }],
         mode: "analyze"
@@ -167,8 +178,10 @@ export default {
     else this.loadMore("others", () => { this.loadMore("mine"); });
   },
   mounted: function() {
-    document.getElementById("newprobDiv")
-      .addEventListener("click", processModalClick);
+    ["rulesDiv","newprobDiv"].forEach(eltName => {
+      document.getElementById(eltName)
+      .addEventListener("click", processModalClick)
+    });
   },
   watch: {
     // st.variants changes only once, at loading from [] to [...]
@@ -289,6 +302,19 @@ export default {
         this.loadedVar = vid;
         cb();
       });
+      // (AJAX) Request to get rules content (plain text, HTML)
+      this.rulesContent =
+        require(
+          "raw-loader!@/translations/rules/" +
+          variant.name + "/" +
+          this.st.lang + ".pug"
+        )
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ")
+        .replace(/\\"/g, '"')
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
+        .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     trySetDiagram: function(prob) {
       // Problem edit: FEN could be wrong or incomplete,
@@ -471,6 +497,7 @@ export default {
 
 <style lang="sass">
 @import "@/styles/_board_squares_img.sass"
+@import "@/styles/_rules.sass"
 </style>
 
 <style lang="sass" scoped>
@@ -525,4 +552,12 @@ p.oneInstructions
 @media screen and (max-width: 767px)
   #topPage
     text-align: center
+
+a#variantNameInProblems
+  color: var(--card-fore-color)
+  text-align: center
+  font-weight: bold
+  font-size: calc(1rem * var(--heading-ratio))
+  line-height: 1.2
+  margin: calc(1.5 * var(--universal-margin))
 </style>

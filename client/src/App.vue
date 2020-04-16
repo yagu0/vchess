@@ -94,6 +94,9 @@ html, *
   font-family: "Open Sans", Arial, sans-serif
   --a-link-color: darkred
   --a-visited-color: darkred
+  --card-back-color: #efefef
+  --button-back-color: lightgrey
+  --table-body-back-color: #f8f8f8
 
 body
   padding: 0
