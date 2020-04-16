@@ -90,10 +90,59 @@ export class ChakartRules extends ChessRules {
 
   //atLeastOneMove() should be OK
 
+  doClick(square) {
+    // A click to promote a piece on subTurn 2 would trigger this.
+    // For now it would then return [NaN, NaN] because surrounding squares
+    // have no IDs in the promotion modal. TODO: improve this?
+    if (!square[0]) return null;
+    // If subTurn == 2:
+    // if square is empty && firstMove is compatible,
+    // complete the move (banana or bomb).
+    // if square not empty, just complete with empty move
+    const Lf = this.firstMove.length;
+    if (this.subTurn == 2) {
+      if (
+        this.board[square[0]][square[1]] == V.EMPTY &&
+        !this.underCheck(this.turn) &&
+        (La == 0 || !this.oppositeMoves(this.amoves[La-1], this.firstMove[Lf-1]))
+      ) {
+        return {
+          start: { x: -1, y: -1 },
+          end: { x: -1, y: -1 },
+          appear: [],
+          vanish: []
+        };
+      }
+    }
+    return null;
+  }
+
+  postPlay(move) {
+    // TODO: king may also be "chomped"
+    super.updateCastleFlags(move, piece);
+  }
+
   getCurrentScore() {
+    if (this.kingPos[this.turn][0] < 0)
+      // King captured (or "chomped")
+      return this.turn == "w" ? "0-1" : "1-0";
+    const color = V.GetOppCol(this.turn);
+    const lastRank = (color == 'w' ? 0 : 7);
+    if (this.kingPos[color][0] == lastRank)
+      // The opposing edge is reached!
+      return color == "w" ? "1-0" : "0-1";
+    if (this.atLeastOneMove()) return "*";
+    // Game over
+    const oppCol = this.turn;
+    if (!this.underCheck(oppCol)) return "1/2";
+    return (oppCol == "w" ? "0-1" : "1-0");
     //TODO: But = capturer la princesse adverse. Variante : but = la princesse arrive de l'autre côté de l'échiquier.
     //==> On peut mixer ces deux conditions : arriver au bout du plateau ou capturer la princesse adverse.
     return '*';
+  }
+
+  getComputerMove() {
+    // TODO: random mover
   }
 
   //Détails :

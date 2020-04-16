@@ -34,6 +34,32 @@ export class AliceRules extends ChessRules {
     return (Object.keys(V.ALICE_PIECES).includes(b[1]) ? "Alice/" : "") + b;
   }
 
+  getEpSquare(moveOrSquare) {
+    if (!moveOrSquare) return undefined;
+    if (typeof moveOrSquare === "string") {
+      const square = moveOrSquare;
+      if (square == "-") return undefined;
+      return V.SquareToCoords(square);
+    }
+    // Argument is a move:
+    const move = moveOrSquare;
+    const s = move.start,
+          e = move.end;
+    if (
+      s.y == e.y &&
+      Math.abs(s.x - e.x) == 2 &&
+      // Special conditions: a pawn can be on the other side
+      ['p','s'].includes(move.appear[0].p) &&
+      ['p','s'].includes(move.vanish[0].p)
+    ) {
+      return {
+        x: (s.x + e.x) / 2,
+        y: s.y
+      };
+    }
+    return undefined; //default
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const rows = V.ParseFen(fen).position.split("/");

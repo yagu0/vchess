@@ -7,7 +7,7 @@ main
   )
     .card
       label.modal-close(for="modalRules")
-      h4#variantNameInGame(@click="gotoRules") {{ game.vname }}
+      a#variantNameInGame(:href="'/#/variants/'+game.vname") {{ game.vname }}
       div(v-html="rulesContent")
   input#modalScore.modal(type="checkbox")
   div#scoreDiv(
@@ -252,6 +252,9 @@ export default {
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
   created: function() {
+    if (this.$route.query["focus"] === "false")
+      // Focus explicitely set to false from Hall (live game)
+      this.focus = false;
     this.atCreation();
   },
   mounted: function() {
@@ -309,9 +312,6 @@ export default {
           append
         )
       );
-    },
-    gotoRules: function() {
-      this.$router.push("/variants/" + this.game.vname);
     },
     participateInChat: function(p) {
       return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
@@ -1801,11 +1801,13 @@ button.acceptBtn
 button.refuseBtn
   background-color: red
 
-h4#variantNameInGame
-  cursor: pointer
+a#variantNameInGame
+  color: var(--card-fore-color)
   text-align: center
-  text-decoration: underline
   font-weight: bold
+  font-size: calc(1rem * var(--heading-ratio))
+  line-height: 1.2
+  margin: calc(1.5 * var(--universal-margin))
 </style>
 
 <style lang="sass">

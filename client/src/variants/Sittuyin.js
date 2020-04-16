@@ -15,7 +15,6 @@ export class SittuyinRules extends ChessRules {
       {},
       ChessRules.PawnSpecs,
       {
-        twoSquares: false,
         // Promotions are handled differently here
         promotions: [V.QUEEN]
       }

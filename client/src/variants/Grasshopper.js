@@ -11,10 +11,7 @@ export class GrasshopperRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      {
-        twoSquares: false,
-        promotions: ChessRules.PawnSpecs.promotions.concat([V.GRASSHOPPER])
-      }
+      { promotions: ChessRules.PawnSpecs.promotions.concat([V.GRASSHOPPER]) }
     );
   }
 

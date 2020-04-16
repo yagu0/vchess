@@ -7,7 +7,8 @@ main
   )
     .card
       label.modal-close(for="modalRules")
-      h4#variantNameInAnalyze(@click="gotoRules()") {{ game.vname }}
+      a#variantNameInAnalyze(:href="'/#/variants/'+game.vname")
+        | {{ game.vname }}
       div(v-html="rulesContent")
   .row
     .col-sm-12
@@ -111,9 +112,6 @@ export default {
         .replace(/"$/, "")
         .replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
-    gotoRules: function() {
-      this.$router.push("/variants/" + this.gameRef.vname);
-    },
     loadGame: function(orientation) {
       this.game.vname = this.gameRef.vname;
       this.game.fenStart = this.gameRef.fen;
@@ -149,11 +147,13 @@ export default {
 </style>
 
 <style lang="sass" scoped>
-h4#variantNameInAnalyze
-  cursor: pointer
+a#variantNameInAnalyze
+  color: var(--card-fore-color)
   text-align: center
-  text-decoration: underline
   font-weight: bold
+  font-size: calc(1rem * var(--heading-ratio))
+  line-height: 1.2
+  margin: calc(1.5 * var(--universal-margin))
 
 #rulesDiv > .card
   padding: 5px 0

@@ -15,10 +15,7 @@ export class MakrukRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      {
-        twoSquares: false,
-        promotions: [V.QUEEN]
-      }
+      { promotions: [V.QUEEN] }
     );
   }
 

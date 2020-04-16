@@ -572,14 +572,12 @@ export default {
         }
       });
       const gid = gids[Math.floor(Math.random() * gids.length)];
-      const game = this.games.find(g => g.id == gid);
-      if (!!game) this.showGame(game);
-      else this.$router.push("/game/" + gid); //game vs. me
+      window.open("/#/game/" + gid, "_blank");
     },
     showGame: function(g) {
       // NOTE: we are an observer, since only games I don't play are shown here
       // ==> Moves sent by connected remote player(s) if live game
-      this.$router.push("/game/" + g.id);
+      window.open("/#/game/" + g.id, "_blank");
     },
     toggleSocialColor: function(action) {
       if (!action && document.getElementById("modalPeople").checked)
@@ -1302,7 +1300,8 @@ export default {
                 { body: "vs " + game.players[1-myIdx].name || "@nonymous" }
               );
             }
-            this.$router.push("/game/" + gameInfo.id);
+            this.$router.push(
+              "/game/" + gameInfo.id + "/?focus=" + this.focus);
           });
         },
         this.focus ? 500 + 1000 * Math.random() : 0
