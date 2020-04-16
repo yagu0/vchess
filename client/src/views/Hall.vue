@@ -822,12 +822,13 @@ export default {
           // Ignore games where I play (will go in MyGames page),
           // and also games that I already received.
           if (
+            this.games.findIndex(g => g.id == game.id) == -1 &&
             game.players.every(p => {
               return (
                 p.sid != this.st.user.sid &&
                 (p.id == 0 || p.id != this.st.user.id)
               );
-            }) && this.games.findIndex(g => g.id == game.id) == -1
+            })
           ) {
             let newGame = game;
             newGame.type = this.classifyObject(game);
@@ -837,6 +838,7 @@ export default {
               newGame.score = "*";
             this.games.push(newGame);
             if (
+              newGame.score == '*' &&
               (newGame.type == "live" && this.gdisplay == "corr") ||
               (newGame.type == "corr" && this.gdisplay == "live")
             ) {
@@ -888,7 +890,8 @@ export default {
               if (
                 this.cursor == Number.MAX_SAFE_INTEGER &&
                 this.games.length == 0 &&
-                this.gdisplay == "live"
+                this.gdisplay == "live" &&
+                res.games.some(g => g.score == '*')
               ) {
                 // First loading: show indicators
                 document

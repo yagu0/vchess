@@ -234,13 +234,14 @@ export class OrdaRules extends ChessRules {
         this.isAttackedByKheshig(sq, color)
       );
     }
-    // Horde: only pawn and queen (if promotions) in common:
+    // Horde: only pawn, king and queen (if promotions) in common:
     return (
       super.isAttackedByPawn(sq, color) ||
       this.isAttackedByLancer(sq, color) ||
       this.isAttackedByKheshig(sq, color) ||
       this.isAttackedByArcher(sq, color) ||
       this.isAttackedByYurt(sq, color) ||
+      super.isAttackedByKing(sq, color) ||
       super.isAttackedByQueen(sq, color)
     );
   }

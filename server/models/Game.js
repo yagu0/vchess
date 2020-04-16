@@ -128,12 +128,13 @@ const GameModel =
     db.serialize(function() {
       let query =
         "SELECT id, vid, cadence, created, score, white, black " +
-        "FROM Games ";
-      if (uid > 0) query +=
-        "WHERE " +
-        "  created < " + cursor + " AND " +
-        "  white <> " + uid + " AND " +
-        "  black <> " + uid + " ";
+        "FROM Games " +
+        "WHERE created < " + cursor + " ";
+      if (uid > 0) {
+        query +=
+          "  AND white <> " + uid + " " +
+          "  AND black <> " + uid + " ";
+      }
       query +=
         "ORDER BY created DESC " +
         "LIMIT 20"; //TODO: 20 hard-coded...

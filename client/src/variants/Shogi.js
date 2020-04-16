@@ -372,6 +372,18 @@ export class ShogiRules extends ChessRules {
     );
   }
 
+  getPotentialLanceMoves(sq) {
+    const forward = (this.turn == 'w' ? -1 : 1);
+    return this.getSlideNJumpMoves(
+      sq,
+      [[forward, 0]],
+      {
+        promote: V.P_LANCE,
+        force: true
+      }
+    );
+  }
+
   getPotentialRookMoves(sq) {
     return this.getSlideNJumpMoves(
       sq, V.steps[V.ROOK], { promote: V.P_ROOK });
@@ -380,12 +392,6 @@ export class ShogiRules extends ChessRules {
   getPotentialBishopMoves(sq) {
     return this.getSlideNJumpMoves(
       sq, V.steps[V.BISHOP], { promote: V.P_BISHOP });
-  }
-
-  getPotentialLanceMoves(sq) {
-    const forward = (this.turn == 'w' ? -1 : 1);
-    return this.getSlideNJumpMoves(
-      sq, [[forward, 0]], { promote: V.P_LANCE });
   }
 
   getPotentialDragonMoves(sq) {

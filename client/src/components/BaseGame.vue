@@ -218,7 +218,9 @@ export default {
       // Post-processing: decorate each move with notation and FEN
       this.vr = new V(game.fenStart);
       this.inMultimove = false; //in case of
-      this.$refs["board"].resetCurrentAttempt(); //also in case of
+      if (!!this.$refs["board"])
+        // Also in case of:
+        this.$refs["board"].resetCurrentAttempt();
       let analyseBtn = document.getElementById("analyzeBtn");
       if (!!analyseBtn) analyseBtn.classList.remove("active");
       const parsedFen = V.ParseFen(game.fenStart);
@@ -226,27 +228,35 @@ export default {
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
       let L = this.moves.length;
       if (L == 0) {
-        this.incheck = [];
-        this.score = "*";
+        // Could be started on a random position in analysis mode:
+        this.incheck = this.vr.getCheckSquares();
+        this.score = this.vr.getCurrentScore();
+        if (this.score != '*') {
+          // Show score on screen
+          const message = getScoreMessage(this.score);
+          this.showEndgameMsg(this.score + " . " + this.st.tr[message]);
+        }
       }
-      this.moves.forEach((move,idx) => {
-        // Strategy working also for multi-moves:
-        if (!Array.isArray(move)) move = [move];
-        const Lm = move.length;
-        move.forEach((m,idxM) => {
-          m.notation = this.vr.getNotation(m);
-          m.unambiguous = V.GetUnambiguousNotation(m);
-          this.vr.play(m);
-          const checkSquares = this.vr.getCheckSquares();
-          if (checkSquares.length > 0) m.notation += "+";
-          if (idxM == Lm - 1) m.fen = this.vr.getFen();
-          if (idx == L - 1 && idxM == Lm - 1) {
-            this.incheck = checkSquares;
-            this.score = this.vr.getCurrentScore();
-            if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
-          }
+      else {
+        this.moves.forEach((move,idx) => {
+          // Strategy working also for multi-moves:
+          if (!Array.isArray(move)) move = [move];
+          const Lm = move.length;
+          move.forEach((m,idxM) => {
+            m.notation = this.vr.getNotation(m);
+            m.unambiguous = V.GetUnambiguousNotation(m);
+            this.vr.play(m);
+            const checkSquares = this.vr.getCheckSquares();
+            if (checkSquares.length > 0) m.notation += "+";
+            if (idxM == Lm - 1) m.fen = this.vr.getFen();
+            if (idx == L - 1 && idxM == Lm - 1) {
+              this.incheck = checkSquares;
+              this.score = this.vr.getCurrentScore();
+              if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
+            }
+          });
         });
-      });
+      }
       if (firstMoveColor == "b") {
         // 'start' & 'end' is required for Board component
         this.moves.unshift({
@@ -420,7 +430,12 @@ export default {
     // "light": if gotoMove() or gotoEnd()
     play: function(move, received, light, autoplay) {
       // Freeze while choices are shown:
-      if (this.$refs["board"].choices.length > 0) return;
+      if (
+        !!this.$refs["board"].selectedPiece ||
+        this.$refs["board"].choices.length > 0
+      ) {
+        return;
+      }
       const navigate = !move;
       // Forbid navigation during autoplay:
       if (navigate && this.autoplay && !autoplay) return;
@@ -595,8 +610,13 @@ export default {
     },
     // "light": if gotoMove() or gotoBegin()
     undo: function(move, light) {
-      // Freeze while choices are shown:
-      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
+      if (
+        this.autoplay ||
+        !!this.$refs["board"].selectedPiece ||
+        this.$refs["board"].choices.length > 0
+      ) {
+        return;
+      }
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) {
         this.cancelCurrentMultimove();
@@ -623,7 +643,13 @@ export default {
       }
     },
     gotoMove: function(index) {
-      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
+      if (
+        this.autoplay ||
+        !!this.$refs["board"].selectedPiece ||
+        this.$refs["board"].choices.length > 0
+      ) {
+        return;
+      }
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) this.cancelCurrentMultimove();
       if (index == this.cursor) return;
@@ -642,7 +668,13 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoBegin: function() {
-      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
+      if (
+        this.autoplay ||
+        !!this.$refs["board"].selectedPiece ||
+        this.$refs["board"].choices.length > 0
+      ) {
+        return;
+      }
       this.$refs["board"].resetCurrentAttempt();
       if (this.inMultimove) this.cancelCurrentMultimove();
       const minCursor =
@@ -655,11 +687,8 @@ export default {
       this.emitFenIfAnalyze();
     },
     gotoEnd: function() {
-      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
-      this.$refs["board"].resetCurrentAttempt();
       if (this.cursor == this.moves.length - 1) return;
       this.gotoMove(this.moves.length - 1);
-      this.emitFenIfAnalyze();
     },
     flip: function() {
       if (this.$refs["board"].choices.length > 0) return;
