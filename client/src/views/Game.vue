@@ -1772,7 +1772,7 @@ span.yourturn
   background-color: lightyellow
 
 .draw-received, .draw-received:hover
-  background-color: #48C9B0
+  background-color: #73C6B6
 
 .draw-threerep, .draw-threerep:hover
   background-color: #D2B4DE
