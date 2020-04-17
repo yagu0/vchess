@@ -1,0 +1,27 @@
+p.boxed
+  | Click on an empty square to start the game.
+  | The first player unable to move the knight loses.
+
+p.
+  White puts a knight on any square of an empty chessboard.
+  Black moves the knight, and its initial square vanish:
+  the knight will no longer be able to land on that square.
+  Play alternates, always with the vanishing initial square condition.
+  The first player unable to make a move loses.
+
+figure.diagram-container
+  .diagram
+    | fen:3xx2x/1x1xNxx1/2xxxxxx/xxxxxx2/2xxxxx1/x1xxxx2/1xxxxx2/1x2xx2 g8,c8:
+  figcaption Ng8 wins, but Nc8 loses because it allows Na7.
+
+p
+  | Note about the name: when the game ends, the knight has walked on an 
+  a(href="https://en.wikipedia.org/wiki/Hamiltonian_path") Hamiltonian path
+  | &nbsp;considering the subgraph formed by all the removed squares
+  | plus the final square.
+
+p
+  | Inventor: David Silverman (1971) according to 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | . The game idea is probably quite older.

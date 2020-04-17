@@ -41,6 +41,7 @@ insert or ignore into Variants (name, description) values
   ('Extinction', 'Capture all of a kind'),
   ('Grand', 'Big board'),
   ('Grasshopper', 'Long jumps over pieces'),
+  ('Hamilton', 'Walk on a graph'),
   ('Horde', 'A pawns cloud'),
   ('Interweave', 'Interweaved colorbound teams'),
   ('Knightmate', 'Mate the knight'),

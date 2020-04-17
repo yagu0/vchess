@@ -1,0 +1,28 @@
+p.boxed
+  | Cliquez sur une case vide pour démarrer la partie.
+  | Le premier joueur incapable de déplacer le cavalier a perdu.
+
+p.
+  Les blancs posent le cavalier sur n'importe quelle case d'un échiquier vide.
+  Les noirs déplacent ce cavalier, et sa case de départ disparaît :
+  le cavalier ne pourra plus arriver sur cette case.
+  Le jeu continue, toujours avec la condition de disparition de la case
+  initiale. Le premier joueur ne pouvant effectuer un coup a perdu.
+
+figure.diagram-container
+  .diagram
+    | fen:3xx2x/1x1xNxx1/2xxxxxx/xxxxxx2/2xxxxx1/x1xxxx2/1xxxxx2/1x2xx2 g8,c8:
+  figcaption Ng8 gagne, mais Nc8 perd car cela permet Na7.
+
+p
+  | Note au sujet du nom : quand la partie s'achève, le cavalier s'est promené
+  | sur un 
+  a(href="https://fr.wikipedia.org/wiki/Graphe_hamiltonien") chemin hamiltonien
+  | &nbsp;considérant le sous-graphe constitué des cases supprimées et de la
+  | case finale.
+
+p
+  | Inventeur : David Silverman (1971) d'après 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | . L'idée du jeu est probablement plus ancienne.

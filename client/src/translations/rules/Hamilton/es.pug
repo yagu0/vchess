@@ -1,0 +1,29 @@
+p.boxed
+  | Haz clic en una casilla vacía para comenzar el juego.
+  | El primer jugador que no puede mover al caballo ha perdido.
+
+p.
+  White pone el caballo en cualquier casilla de un tablero vacío.
+  Las negras mueven a este caballo, y su casilla inicial desaparece:
+  el caballo ya no puede llegar a este espacio.
+  El juego continúa, siempre con la condición de desaparezca de la casilla
+  inicial. El primer jugador que no puede ejecutar un movimiento ha perdido.
+
+figure.diagram-container
+  .diagram
+    | fen:3xx2x/1x1xNxx1/2xxxxxx/xxxxxx2/2xxxxx1/x1xxxx2/1xxxxx2/1x2xx2 g8,c8:
+  figcaption Ng8 gana, pero Nc8 pierde porque permite Na7.
+
+p
+  | Nota sobre el nombre: cuando termina el juego, el caballo ha caminado
+  | sobre un 
+  a(href="https://es.wikipedia.org/wiki/Camino_hamiltoniano")
+    | camino hamiltoniano
+  | &nbsp;considerando el sub-gráfico que consiste en los cuadros eliminados y
+  | la casilla final.
+
+p
+  | Inventor: David Silverman (1971) después 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | . La idea del juego es probablemente más antigua.

@@ -233,5 +233,6 @@ export const translations = {
   "Two kings": "Dos reyes",
   "Two royal pieces": "Dos piezas reales",
   "Unidentified pieces": "Piezas no identificadas",
+  "Walk on a graph": "Camino en un gráfico",
   "White move twice": "Las blancas juegan dos veces"
 };
