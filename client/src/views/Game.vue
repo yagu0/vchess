@@ -1772,19 +1772,19 @@ span.yourturn
   background-color: lightyellow
 
 .draw-received, .draw-received:hover
-  background-color: lightgreen
+  background-color: #48C9B0
 
 .draw-threerep, .draw-threerep:hover
-  background-color: #e4d1fc
+  background-color: #D2B4DE
 
 .rematch-sent, .rematch-sent:hover
   background-color: lightyellow
 
 .rematch-received, .rematch-received:hover
-  background-color: lightgreen
+  background-color: #48C9B0
 
 .somethingnew
-  background-color: #b2ebf2
+  background-color: #D2B4DE
 
 .diagram
   margin: 0 auto

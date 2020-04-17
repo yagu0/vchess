@@ -23,14 +23,14 @@ div
     )
       | {{ st.tr["Rules"] }}
     button(
-      :class="btnTooltipClass"
+      :class="btnTooltipClass()"
       onClick="window.doClick('modalAdjust')"
       :aria-label="st.tr['Resize board']"
     )
       img.inline(src="/images/icons/resize.svg")
     button#analyzeBtn(
       v-if="canAnalyze"
-      :class="btnTooltipClass"
+      :class="btnTooltipClass()"
       @click="$emit('analyze')"
       :aria-label="st.tr['Analyse']"
     )
@@ -38,7 +38,7 @@ div
     #downloadDiv(v-if="canDownload")
       a#download(href="#")
       button(
-        :class="btnTooltipClass"
+        :class="btnTooltipClass()"
         @click="$emit('download')"
         :aria-label="st.tr['Download'] + ' PGN'"
       )
