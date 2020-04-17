@@ -1313,7 +1313,7 @@ export default {
 
 <style lang="sass" scoped>
 .active
-  color: #42a983
+  color: #388e3c
 
 #infoDiv > .card
   padding: 15px 0
@@ -1367,7 +1367,7 @@ button.player-action
   margin-left: 32px
 
 .somethingnew
-  background-color: #c5fefe !important
+  background-color: #b2ebf2 !important
 
 .tabbtn
   background-color: #f9faee

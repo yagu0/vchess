@@ -84,10 +84,10 @@ export default {
 
 <style lang="sass" scoped>
 .name
-  color: #abb2b9
+  color: #839192
 
 .my-chatmsg
-  color: #7d3c98
+  color: #6c3483
 .opp-chatmsg
-  color: #2471a3
+  color: #1f618d
 </style>

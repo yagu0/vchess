@@ -1784,7 +1784,7 @@ span.yourturn
   background-color: lightgreen
 
 .somethingnew
-  background-color: #c5fefe
+  background-color: #b2ebf2
 
 .diagram
   margin: 0 auto

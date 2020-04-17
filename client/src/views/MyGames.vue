@@ -395,7 +395,7 @@ export default {
 
 <style lang="sass" scoped>
 .active
-  color: #42a983
+  color: #388e3c
 
 .tabbtn
   background-color: #f9faee
@@ -405,7 +405,7 @@ button#loadMoreBtn
   margin: 0 auto
 
 .somethingnew
-  background-color: #c5fefe !important
+  background-color: #b2ebf2 !important
 </style>
 
 <!-- Not scoped because acting on GameList -->

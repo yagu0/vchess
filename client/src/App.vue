@@ -94,8 +94,8 @@ html, *
   font-family: "Open Sans", Arial, sans-serif
   --a-link-color: darkred
   --a-visited-color: darkred
-  --card-back-color: #efefef
-  --button-back-color: lightgrey
+  --card-back-color: #f4f6f6
+  --button-back-color: #d1d5d5
   --table-body-back-color: #f8f8f8
 
 body
@@ -194,7 +194,7 @@ nav
           text-decoration: none
           color: #2c3e50
           &.router-link-exact-active
-            color: #42b983
+            color: #388e3c
       & > #rightMenu
         padding: 0
         width: 50%
@@ -211,7 +211,7 @@ nav
           text-decoration: none
           color: #2c3e50
           &.router-link-exact-active
-            color: #42b983
+            color: #388e3c
       & > #rightMenu
         padding-top: 5px
         border-top: 1px solid darkgrey
@@ -266,7 +266,7 @@ footer
   align-items: center
   justify-content: center
   & > .router-link-exact-active
-    color: #42b983 !important
+    color: #388e3c !important
     text-decoration: none
   & > .menuitem
     margin: 0 12px
