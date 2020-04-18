@@ -129,15 +129,11 @@ export class BerolinaRules extends ChessRules {
 
   isAttackedByPawn([x, y], color) {
     let pawnShift = (color == "w" ? 1 : -1);
-    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-      if (
-        this.getPiece(x + pawnShift, y) == V.PAWN &&
-        this.getColor(x + pawnShift, y) == color
-      ) {
-        return true;
-      }
-    }
-    return false;
+    return (
+      x + pawnShift >= 0 && x + pawnShift < V.size.x &&
+      this.getPiece(x + pawnShift, y) == V.PAWN &&
+      this.getColor(x + pawnShift, y) == color
+    );
   }
 
   static get SEARCH_DEPTH() {

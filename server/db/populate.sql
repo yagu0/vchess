@@ -32,6 +32,7 @@ insert or ignore into Variants (name, description) values
   ('Coregal', 'Two royal pieces'),
   ('Crazyhouse', 'Captures reborn'),
   ('Cylinder', 'Neverending rows'),
+  ('Diamond', 'Rotating board'),
   ('Doublearmy', '64 pieces on the board'),
   ('Doublemove1', 'Double moves (v1)'),
   ('Doublemove2', 'Double moves (v2)'),

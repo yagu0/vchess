@@ -217,6 +217,7 @@ export const translations = {
   "Queen disguised as a pawn": "Queen disguised as a pawn",
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",
+  "Rotating board": "Rotating board",
   "Run forward": "Run forward",
   "Score a goal": "Score a goal",
   "Seirawan-Harper Chess": "Seirawan-Harper Chess",

@@ -217,6 +217,7 @@ export const translations = {
   "Queen disguised as a pawn": "Reina disfrazada de peón",
   "Reuse pieces": "Reutilizar piezas",
   "Reverse captures": "Capturas invertidas",
+  "Rotating board": "Tablero giratorio",
   "Run forward": "Correr hacia adelante",
   "Score a goal": "Marcar una meta",
   "Seirawan-Harper Chess": "Ajedrez Seirawan-Harper",
