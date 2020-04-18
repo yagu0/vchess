@@ -190,6 +190,7 @@ export const translations = {
   "Japanese Chess": "Japanese Chess",
   "Keep antiking in check (v1)": "Keep antiking in check (v1)",
   "Keep antiking in check (v2)": "Keep antiking in check (v2)",
+  "King of the Hill": "King of the Hill",
   "Kings cross the 8x8 board": "Kings cross the 8x8 board",
   "Kings cross the 11x11 board": "Kings cross the 11x11 board",
   "Landing on the board": "Landing on the board",

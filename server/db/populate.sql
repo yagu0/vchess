@@ -48,6 +48,7 @@ insert or ignore into Variants (name, description) values
   ('Knightmate', 'Mate the knight'),
   ('Knightrelay1', 'Move like a knight (v1)'),
   ('Knightrelay2', 'Move like a knight (v2)'),
+  ('Koth', 'King of the Hill'),
   ('Losers', 'Get strong at self-mate'),
   ('Magnetic', 'Laws of attraction'),
   ('Makruk', 'Thai Chess'),

@@ -241,7 +241,7 @@ span#rulesBtn
 button
   margin: 0
   &.active
-    background-color: #50E99A
+    background-color: #48C9B0
 
 #aboveMoves button
   padding-bottom: 5px
