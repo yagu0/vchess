@@ -15,6 +15,15 @@ export class RococoRules extends ChessRules {
     return ChessRules.PIECES.concat([V.IMMOBILIZER]);
   }
 
+  static get Lines() {
+    return [
+      [[1, 1], [1, 9]],
+      [[1, 9], [9, 9]],
+      [[9, 9], [9, 1]],
+      [[9, 1], [1, 1]]
+    ];
+  }
+
   getPpath(b) {
     if (b[1] == "m")
       //'m' for Immobilizer (I is too similar to 1)

@@ -6,24 +6,24 @@ figure.diagram-container
   .diagram
     display: block
     width: 50%
-    min-width: 240px
     margin-left: auto
     margin-right: auto
+    @media screen and (max-width: 630px)
+      width: 75%
   .diag12
     float: left
-    width: 40%
-    margin-left: calc(10% - 20px)
-    margin-right: 40px
+    width: 42%
+    margin: 0 2% 0 6%
     @media screen and (max-width: 630px)
-      float: none
-      margin: 0 auto 10px auto
+      width: 49%
+      margin: 0 1% 0 0
   .diag22
     float: left
-    width: 40%
-    margin-right: calc(10% - 20px)
+    width: 42%
+    margin: 0 6% 0 2%
     @media screen and (max-width: 630px)
-      float: none
-      margin: 0 auto
+      width: 49%
+      margin: 0 0 0 1%
   figcaption
     display: block
     clear: both

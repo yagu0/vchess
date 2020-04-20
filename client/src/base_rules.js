@@ -93,6 +93,25 @@ export const ChessRules = class ChessRules {
     return V.CanFlip;
   }
 
+  // For (generally old) variants without checkered board
+  static get Monochrome() {
+    return false;
+  }
+
+  // Some variants require lines drawing
+  static get Lines() {
+    if (V.Monochrome) {
+      let lines = [];
+      // Draw all inter-squares lines
+      for (let i = 0; i <= V.size.x; i++)
+        lines.push([[i, 0], [i, V.size.y]]);
+      for (let j = 0; j <= V.size.y; j++)
+        lines.push([[0, j], [V.size.x, j]]);
+      return lines;
+    }
+    return null;
+  }
+
   // Some variants use click infos:
   doClick() {
     return null;
@@ -998,9 +1017,8 @@ export const ChessRules = class ChessRules {
         if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
           const moves = this.getPotentialMovesFrom([i, j]);
           if (moves.length > 0) {
-            for (let k = 0; k < moves.length; k++) {
+            for (let k = 0; k < moves.length; k++)
               if (this.filterValid([moves[k]]).length > 0) return true;
-            }
           }
         }
       }
@@ -1042,21 +1060,15 @@ export const ChessRules = class ChessRules {
   }
 
   // Is square x,y attacked by 'color' pawns ?
-  isAttackedByPawn([x, y], color) {
+  isAttackedByPawn(sq, color) {
     const pawnShift = (color == "w" ? 1 : -1);
-    if (x + pawnShift >= 0 && x + pawnShift < V.size.x) {
-      for (let i of [-1, 1]) {
-        if (
-          y + i >= 0 &&
-          y + i < V.size.y &&
-          this.getPiece(x + pawnShift, y + i) == V.PAWN &&
-          this.getColor(x + pawnShift, y + i) == color
-        ) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return this.isAttackedBySlideNJump(
+      sq,
+      color,
+      V.PAWN,
+      [[pawnShift, 1], [pawnShift, -1]],
+      "oneStep"
+    );
   }
 
   // Is square x,y attacked by 'color' rooks ?

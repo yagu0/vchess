@@ -1,0 +1,28 @@
+p.boxed.
+  The board is divided into 16 square cells of size 2x2.
+  A piece must change cell at each move.
+
+p.
+  The board is decomposed into 16 little 2x2 squares, starting from
+  a1,b1,a2,b2 until g7,h7,g8,h8. When a piece moves, it must cross at least
+  one boundary: it cannot remain in the same cell.
+  So, pieces in the same cell don't attack each other.
+
+figure.diagram-container
+  .diagram
+    | fen:1r1kr3/3nbbQ1/6p1/4p3/1qp1p3/PR1P1NPP/4nP2/2B1KR1B:
+  figcaption.
+    The white king under check cannot take the knight,
+    and Rxb4 is not possible.
+
+p.
+  Pawns are Berolina pawns: they move one square diagonally forward and
+  capture one square orthogonally forward.
+
+h3 Source
+
+p
+  | This variant is mentioned in 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | .

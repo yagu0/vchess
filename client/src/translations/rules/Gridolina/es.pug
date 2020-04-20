@@ -1,0 +1,28 @@
+p.boxed.
+  El tablero de ajedrez se divide en 16 celdas cuadradas de tamaño 2x2.
+  Una pieza debe cambiar de celda cada jugada.
+
+p.
+  El tablero se divide en 16 cuadrados pequeños de 2x2, comenzando en
+  a1,b1,a2,b2 para terminar en g7,h7,g8,h8. Cuando una pieza se mueve, debe
+  cruzar al menos un borde: no puede permanecer en la misma celda.
+  Por lo tanto, las piezas de la misma célula no se atacan.
+
+figure.diagram-container
+  .diagram
+    | fen:1r1kr3/3nbbQ1/6p1/4p3/1qp1p3/PR1P1NPP/4nP2/2B1KR1B:
+  figcaption.
+    El rey blanco en jaque no puede tomar al caballo,
+    y Rxb4 no es posible.
+
+p.
+  Los peones son peones Berolina: se mueven un espacio
+  diagonalmente hacia adelante y capturar en la casilla frente a ellos.
+
+h3 Fuente
+
+p
+  | Esta variante se menciona en 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | .

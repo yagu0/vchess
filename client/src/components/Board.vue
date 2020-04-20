@@ -22,10 +22,11 @@ export default {
       mobileBrowser: ("ontouchstart" in window),
       possibleMoves: [], //filled after each valid click/dragstart
       choices: [], //promotion pieces, or checkered captures... (as moves)
+      containerPos: null,
       selectedPiece: null, //moving piece (or clicked piece)
       start: null, //pixels coordinates + id of starting square (click or drag)
       startArrow: null,
-      movingArrow: { x: -1, y: -1 },
+      movingArrow: null,
       arrows: [], //object of {start: x,y / end: x,y}
       circles: {}, //object of squares' ID --> true (TODO: use a set?)
       click: "",
@@ -36,11 +37,10 @@ export default {
   render(h) {
     if (!this.vr) {
       // Return empty div of class 'game' to avoid error when setting size
-      return h("div", {
-        class: {
-          game: true
-        }
-      });
+      return h(
+        "div",
+        { "class": { game: true } }
+      );
     }
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     // Precompute hints squares to facilitate rendering
@@ -100,6 +100,7 @@ export default {
     const gameDiv = h(
       "div",
       {
+        attrs: { id: "gamePosition" },
         "class": {
           game: true,
           clearer: true
@@ -173,8 +174,8 @@ export default {
                 "class": {
                   board: true,
                   ["board" + sizeY]: true,
-                  "light-square": lightSquare,
-                  "dark-square": !lightSquare,
+                  "light-square": lightSquare && !V.Monochrome,
+                  "dark-square": !lightSquare || !!V.Monochrome,
                   [this.settings.bcolor]: true,
                   "in-shadow": inShadow(ci, cj),
                   "highlight-light": inHighlight(ci, cj) && lightSquare,
@@ -197,6 +198,8 @@ export default {
     if (!!this.vr.reserve) {
       const playingColor = this.userColor || "w"; //default for an observer
       const shiftIdx = playingColor == "w" ? 0 : 1;
+      // Some variants have more than sizeY reserve pieces (Clorange: 10)
+      const reserveSquareNb = Math.max(sizeY, V.RESERVE_PIECES.length);
       let myReservePiecesArray = [];
       for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
         const qty = this.vr.reserve[playingColor][V.RESERVE_PIECES[i]];
@@ -204,7 +207,7 @@ export default {
           h(
             "div",
             {
-              "class": { board: true, ["board" + sizeY]: true },
+              "class": { board: true, ["board" + reserveSquareNb]: true },
               attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) },
               style: { opacity: qty > 0 ? 1 : 0.35 }
             },
@@ -231,7 +234,7 @@ export default {
           h(
             "div",
             {
-              "class": { board: true, ["board" + sizeY]: true },
+              "class": { board: true, ["board" + reserveSquareNb]: true },
               attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) },
               style: { opacity: qty > 0 ? 1 : 0.35 }
             },
@@ -256,7 +259,8 @@ export default {
       );
       // Center reserves, assuming same number of pieces for each side:
       const nbReservePieces = myReservePiecesArray.length;
-      const marginLeft = ((100 - nbReservePieces * (100 / sizeY)) / 2) + "%";
+      const marginLeft =
+        ((100 - nbReservePieces * (100 / reserveSquareNb)) / 2) + "%";
       const reserveTop =
         h(
           "div",
@@ -311,12 +315,10 @@ export default {
     }
     elementArray.push(gameDiv);
     if (!!this.vr.reserve) elementArray.push(reserveBottom);
-    const boardElt = document.querySelector(".game");
-    // boardElt might be undefine (at first drawing),
-    // but it won't be used in this case.
-    const squareWidth = (!!boardElt ? boardElt.offsetWidth / sizeY : 42);
+    const boardElt = document.getElementById("gamePosition");
+    // boardElt might be undefine (at first drawing)
     if (this.choices.length > 0 && !!boardElt) {
-      // No choices to show at first drawing
+      const squareWidth = boardElt.offsetWidth / sizeY;
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
       const maxNbeltsPerRow = Math.min(this.choices.length, sizeY);
       let topOffset = offset[0] + (sizeY / 2) * squareWidth - squareWidth / 2;
@@ -391,98 +393,6 @@ export default {
       );
       elementArray.unshift(choices);
     }
-    if (
-      !this.mobileBrowser &&
-      (this.arrows.length > 0 || this.movingArrow.x >= 0)
-    ) {
-      let svgArrows = [];
-      const arrowWidth = squareWidth / 4;
-      this.arrows.forEach(a => {
-        const endPoint = this.adjustEndArrow(a.start, a.end, squareWidth);
-        svgArrows.push(
-          h(
-            "path",
-            {
-              "class": { "svg-arrow": true },
-              attrs: {
-                d: (
-                  "M" + a.start.x + "," + a.start.y + " " +
-                  "L" + endPoint.x + "," + endPoint.y
-                ),
-                style: "stroke-width:" + arrowWidth + "px"
-              }
-            }
-          )
-        );
-      });
-      if (this.movingArrow.x >= 0) {
-        const endPoint =
-          this.adjustEndArrow(this.startArrow, this.movingArrow, squareWidth);
-        svgArrows.push(
-          h(
-            "path",
-            {
-              "class": { "svg-arrow": true },
-              attrs: {
-                d: (
-                  "M" + this.startArrow.x + "," + this.startArrow.y + " " +
-                  "L" + endPoint.x + "," + endPoint.y
-                ),
-                style: "stroke-width:" + arrowWidth + "px"
-              }
-            }
-          )
-        );
-      }
-      // Add SVG element for drawing arrows
-      elementArray.push(
-        h(
-          "svg",
-          {
-            attrs: {
-              id: "arrowCanvas",
-              stroke: "none"
-            }
-          },
-          [
-            h(
-              "defs",
-              {},
-              [
-                h(
-                  "marker",
-                  {
-                    attrs: {
-                      id: "arrow",
-                      markerWidth: (2 * arrowWidth) + "px",
-                      markerHeight: (3 * arrowWidth) + "px",
-                      markerUnits: "userSpaceOnUse",
-                      refX: "0",
-                      refY: (1.5 * arrowWidth) + "px",
-                      orient: "auto"
-                    }
-                  },
-                  [
-                    h(
-                      "path",
-                      {
-                        "class": { "arrow-head": true },
-                        attrs: {
-                          d: (
-                            "M0,0 L0," + (3 * arrowWidth) + " L" +
-                            (2 * arrowWidth) + "," + (1.5 * arrowWidth) + " z"
-                          )
-                        }
-                      }
-                    )
-                  ]
-                )
-              ]
-            )
-          ].concat(svgArrows)
-        )
-      );
-    }
     let onEvents = {};
     // NOTE: click = mousedown + mouseup
     if (this.mobileBrowser) {
@@ -503,7 +413,16 @@ export default {
         }
       };
     }
-    return h("div", onEvents, elementArray);
+    return (
+      h(
+        "div",
+        Object.assign({ attrs: { id: "rootBoardElement" } }, onEvents),
+        elementArray
+      )
+    );
+  },
+  updated: function() {
+    this.re_setDrawings();
   },
   methods: {
     blockContextMenu: function(e) {
@@ -515,23 +434,166 @@ export default {
       this.startArrow = null;
       this.arrows = [];
       this.circles = {};
+      const curCanvas = document.getElementById("arrowCanvas");
+      if (!!curCanvas) curCanvas.parentNode.removeChild(curCanvas);
     },
-    adjustEndArrow: function(start, end, squareWidth) {
+    coordsToXY: function(coords, top, left, squareWidth) {
+      return {
+        // [1] for x and [0] for y because conventions in rules are inversed.
+        x: (
+          left + window.scrollX +
+          (
+            squareWidth *
+            (this.orientation == 'w' ? coords[1] : (V.size.y - coords[1]))
+          )
+        ),
+        y: (
+          top + window.scrollY +
+          (
+            squareWidth *
+            (this.orientation == 'w' ? coords[0] : (V.size.x - coords[0]))
+          )
+        )
+      };
+    },
+    computeEndArrow: function(start, end, top, left, squareWidth) {
+      const endCoords = this.coordsToXY(end, top, left, squareWidth);
+      const delta = [endCoords.x - start.x, endCoords.y - start.y];
+      const dist = Math.sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
       // Simple heuristic for now, just remove 1/3 square.
       // TODO: should depend on the orientation.
-      const delta = [end.x - start.x, end.y - start.y];
-      const dist = Math.sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
       const fracSqWidth = squareWidth / 3;
       return {
-        x: end.x - delta[0] * fracSqWidth / dist,
-        y: end.y - delta[1] * fracSqWidth / dist
+        x: endCoords.x - delta[0] * fracSqWidth / dist,
+        y: endCoords.y - delta[1] * fracSqWidth / dist
       };
+    },
+    drawCurrentArrow: function() {
+      const boardElt = document.getElementById("gamePosition");
+      const squareWidth = boardElt.offsetWidth / V.size.y;
+      const bPos = boardElt.getBoundingClientRect();
+      const aStart =
+        this.coordsToXY(
+          [this.startArrow[0] + 0.5, this.startArrow[1] + 0.5],
+          bPos.top, bPos.left, squareWidth);
+      const aEnd =
+        this.computeEndArrow(
+          aStart, [this.movingArrow[0] + 0.5, this.movingArrow[1] + 0.5],
+          bPos.top, bPos.left, squareWidth);
+      let currentArrow = document.getElementById("currentArrow");
+      const d =
+        "M" + aStart.x + "," + aStart.y + " " + "L" + aEnd.x + "," + aEnd.y;
+      const arrowWidth = squareWidth / 4;
+      if (!!currentArrow) currentArrow.setAttribute("d", d);
+      else {
+        let domArrow =
+          document.createElementNS("http://www.w3.org/2000/svg", "path");
+        domArrow.classList.add("svg-arrow");
+        domArrow.id = "currentArrow";
+        domArrow.setAttribute("d", d);
+        domArrow.style = "stroke-width:" + arrowWidth + "px";
+        document.getElementById("arrowCanvas")
+          .insertAdjacentElement("beforeend", domArrow);
+      }
+    },
+    addArrow: function(arrow) {
+      this.arrows.push(arrow);
+      // Also add to DOM:
+      const boardElt = document.getElementById("gamePosition");
+      const squareWidth = boardElt.offsetWidth / V.size.y;
+      const bPos = boardElt.getBoundingClientRect();
+      const newArrow =
+        this.getSvgArrow(arrow, bPos.top, bPos.left, squareWidth);
+      document.getElementById("arrowCanvas")
+        .insertAdjacentElement("beforeend", newArrow);
+    },
+    getSvgArrow: function(arrow, top, left, squareWidth) {
+      const aStart =
+        this.coordsToXY(
+          [arrow.start[0] + 0.5, arrow.start[1] + 0.5],
+          top, left, squareWidth);
+      const aEnd =
+        this.computeEndArrow(
+          aStart, [arrow.end[0] + 0.5, arrow.end[1] + 0.5],
+          top, left, squareWidth);
+      const arrowWidth = squareWidth / 4;
+      let path =
+        document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.classList.add("svg-arrow");
+      path.setAttribute(
+        "d",
+        "M" + aStart.x + "," + aStart.y + " " + "L" + aEnd.x + "," + aEnd.y
+      );
+      path.style = "stroke-width:" + arrowWidth + "px";
+      return path;
+    },
+    re_setDrawings: function() {
+      // Remove current canvas, if any
+      const curCanvas = document.getElementById("arrowCanvas");
+      if (!!curCanvas) curCanvas.parentNode.removeChild(curCanvas);
+      // Add some drawing on board (for some variants + arrows and circles)
+      const boardElt = document.getElementById("gamePosition");
+      const squareWidth = boardElt.offsetWidth / V.size.y;
+      const bPos = boardElt.getBoundingClientRect();
+      let svgArrows = [];
+      this.arrows.forEach(a => {
+        svgArrows.push(this.getSvgArrow(a, bPos.top, bPos.left, squareWidth));
+      });
+      let vLines = [];
+      if (!!V.Lines) {
+        V.Lines.forEach(line => {
+          const lStart =
+            this.coordsToXY(line[0], bPos.top, bPos.left, squareWidth);
+          const lEnd =
+            this.coordsToXY(line[1], bPos.top, bPos.left, squareWidth);
+          let path =
+            document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.classList.add("svg-line");
+          path.setAttribute(
+            "d",
+            "M" + lStart.x + "," + lStart.y + " " +
+              "L" + lEnd.x + "," + lEnd.y
+          );
+          vLines.push(path);
+        });
+      }
+      let arrowCanvas =
+        document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      arrowCanvas.id = "arrowCanvas";
+      arrowCanvas.setAttribute("stroke", "none");
+      let defs =
+        document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      const arrowWidth = squareWidth / 4;
+      let marker =
+        document.createElementNS("http://www.w3.org/2000/svg", "marker");
+      marker.id = "arrow";
+      marker.setAttribute("markerWidth", (2 * arrowWidth) + "px");
+      marker.setAttribute("markerHeight", (3 * arrowWidth) + "px");
+      marker.setAttribute("markerUnits", "userSpaceOnUse");
+      marker.setAttribute("refX", "0");
+      marker.setAttribute("refY", (1.5 * arrowWidth) + "px");
+      marker.setAttribute("orient", "auto");
+      let head =
+        document.createElementNS("http://www.w3.org/2000/svg", "path");
+      head.classList.add("arrow-head");
+      head.setAttribute(
+        "d",
+        "M0,0 L0," + (3 * arrowWidth) + " L" +
+          (2 * arrowWidth) + "," + (1.5 * arrowWidth) + " z"
+      );
+      marker.appendChild(head);
+      defs.appendChild(marker);
+      arrowCanvas.appendChild(defs);
+      svgArrows.concat(vLines).forEach(av => arrowCanvas.appendChild(av));
+      document.getElementById("rootBoardElement").appendChild(arrowCanvas);
     },
     mousedown: function(e) {
       e.preventDefault();
       if (!this.mobileBrowser && e.which != 3)
         // Cancel current drawing and circles, if any
         this.cancelResetArrows();
+      this.containerPos =
+        document.getElementById("boardContainer").getBoundingClientRect();
       if (this.mobileBrowser || e.which == 1) {
         // Mouse left button
         if (!this.start) {
@@ -579,24 +641,34 @@ export default {
         let elem = e.target;
         // Next loop because of potential marks
         while (elem.tagName == "IMG") elem = elem.parentNode;
-        // To center the arrow in square:
-        const rect = elem.getBoundingClientRect();
-        this.startArrow = {
-          x: rect.x + rect.width / 2,
-          y: rect.y + rect.width / 2,
-          id: elem.id
-        };
+        this.startArrow = getSquareFromId(elem.id);
       }
     },
     mousemove: function(e) {
       if (!this.selectedPiece && !this.startArrow) return;
+      // Cancel if off boardContainer
+      const [offsetX, offsetY] =
+        this.mobileBrowser
+          ?
+            [
+              e.changedTouches[0].pageX,
+              // TODO: fixing attempt for smartphones, removing window.scrollY
+              e.changedTouches[0].pageY - window.scrollY
+            ]
+          : [e.clientX, e.clientY];
+      if (
+        offsetX < this.containerPos.left ||
+        offsetX > this.containerPos.right ||
+        offsetY < this.containerPos.top ||
+        offsetY > this.containerPos.bottom
+      ) {
+        this.selectedPiece = null;
+        this.startArrow = null;
+        return;
+      }
       e.preventDefault();
       if (!!this.selectedPiece) {
         // There is an active element: move it around
-        const [offsetX, offsetY] =
-          this.mobileBrowser
-            ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
-            : [e.clientX, e.clientY];
         Object.assign(
           this.selectedPiece.style,
           {
@@ -610,12 +682,13 @@ export default {
         // Next loop because of potential marks
         while (elem.tagName == "IMG") elem = elem.parentNode;
         // To center the arrow in square:
-        if (elem.id != this.startArrow.id) {
-          const rect = elem.getBoundingClientRect();
-          this.movingArrow = {
-            x: rect.x + rect.width / 2,
-            y: rect.y + rect.width / 2
-          };
+        const movingCoords = getSquareFromId(elem.id);
+        if (
+          movingCoords[0] != this.startArrow[0] ||
+          movingCoords[1] != this.startArrow[1]
+        ) {
+          this.movingArrow = movingCoords;
+          this.drawCurrentArrow();
         }
       }
     },
@@ -630,7 +703,7 @@ export default {
         this.processMoveAttempt(e);
       } else if (e.which == 3) {
         // Mouse right button
-        this.movingArrow = { x: -1, y: -1 };
+        this.movingArrow = null;
         this.processArrowAttempt(e);
       }
     },
@@ -645,7 +718,11 @@ export default {
       // Obtain the move from start and end squares
       const [offsetX, offsetY] =
         this.mobileBrowser
-          ? [e.changedTouches[0].pageX, e.changedTouches[0].pageY]
+          ?
+            [
+              e.changedTouches[0].pageX,
+              e.changedTouches[0].pageY - window.scrollY
+            ]
           : [e.clientX, e.clientY];
       let landing = document.elementFromPoint(offsetX, offsetY);
       // Next condition: classList.contains(piece) fails because of marks
@@ -676,21 +753,21 @@ export default {
       let landing = document.elementFromPoint(offsetX, offsetY);
       // Next condition: classList.contains(piece) fails because of marks
       while (landing.tagName == "IMG") landing = landing.parentNode;
-      if (this.startArrow.id == landing.id)
+      const landingCoords = getSquareFromId(landing.id);
+      if (
+        this.startArrow[0] == landingCoords[0] &&
+        this.startArrow[1] == landingCoords[1]
+      ) {
         // Draw (or erase) a circle
         this.$set(this.circles, landing.id, !this.circles[landing.id]);
+      }
       else {
         // OK: add arrow, landing is a new square
-        const rect = landing.getBoundingClientRect();
-        this.arrows.push({
-          start: {
-            x: this.startArrow.x,
-            y: this.startArrow.y
-          },
-          end: {
-            x: rect.x + rect.width / 2,
-            y: rect.y + rect.width / 2
-          }
+        const currentArrow = document.getElementById("currentArrow");
+        currentArrow.parentNode.removeChild(currentArrow);
+        this.addArrow({
+          start: this.startArrow,
+          end: landingCoords
         });
       }
       this.startArrow = null;
@@ -709,6 +786,29 @@ export default {
   }
 };
 </script>
+
+<style lang="sass">
+// SVG dynamically added, so not scoped
+#arrowCanvas
+  pointer-events: none
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+
+.svg-arrow
+  opacity: 0.65
+  stroke: #5f0e78
+  fill: none
+  marker-end: url(#arrow)
+
+.svg-line
+  stroke: black
+
+.arrow-head
+  fill: #5f0e78
+</style>
 
 <style lang="sass" scoped>
 @import "@/styles/_board_squares_img.sass";
@@ -752,23 +852,6 @@ img.ghost
   position: absolute
   opacity: 0.5
   top: 0
-
-#arrowCanvas
-  pointer-events: none
-  position: absolute
-  top: 0
-  left: 0
-  width: 100%
-  height: 100%
-
-.svg-arrow
-  opacity: 0.65
-  stroke: #5f0e78
-  fill: none
-  marker-end: url(#arrow)
-
-.arrow-head
-  fill: #5f0e78
 
 .incheck-light
   background-color: rgba(204, 51, 0, 0.7) !important

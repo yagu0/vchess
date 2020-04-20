@@ -1,45 +1,31 @@
 Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
 
-Chakart :)
-https://www.chessvariants.com/d.betza/chessvar/trapdoor.html
 https://www.chessvariants.com/crossover.dir/koopachess.html
 --> Can a stunned piece capture? Maybe not. ...recover? After 5 moves? Never?
-
-Bicolour Chess (Gabriel Authier, 1958). v1 et v2 : (Roméo Bédoni, 1958) 
-Kings are subject to check and checkmate by
-own as well as opponent’s pieces. The Q and
-QN are interchanged in the array
-.
-v2: y but a player may capture his
-own men (TODO: only v2?)
-
-Berolina Grid Chess, also known as
-Gridolina (originator not noted). A
-combination of Berolina and Grid Chess.
-Better than Grid Chess since Berolina pawns
-cross grid lines more easily. Described in
-World Game Review 10 as the most popular of
-the NOST combination games. (Nost-algia
-150, also Nost-algia 112 ‘not seen’) 
---> pourquoi pas, mais faudra pouvoir tracer des lignes sur plateau (Ball, Koth, Sittuyin, celle-là, Rococo)
++ Chakart :)
 
 https://www.chessvariants.com/diffmove.dir/checkers.html --> move forward (Multhopp)
 in 1974 by Hans Multhopp
-https://www.chessvariants.com/diffmove.dir/checkers.html
+https://www.chessvariants.com/diffmove.dir/checkers.html --> "Forward"
 
+Clorange:
 Clockwork Orange Chess (Fergus Duniho,
 1999). https://www.chessvariants.com/other.dir/clockworkorange.html
 implem : pieces code, yellow/red, easy
 
-http://abrobecker.free.fr/chess/fairyblitz.htm#football
-Le gagnant est le premier joueur à marquer un but, càd celui qui arrive à installer une de ses pièces dans les cages adverses: d8,e8 pour les blancs et d1,e1 pour les noirs.
+https://www.chessvariants.com/difftaking.dir/replacement.html
 
-Recycle1 et Recycle2 (--> celle-là)
-http://abrobecker.free.fr/chess/fairyblitz.htm#deplaceurdevivants
-Philippe Rouzaud, Phénix 151-152, mai 2006): Un camp peut, à la place d'un coup orthodoxe, capturer une de ses pièces et replacer la pièce capturée immédiatement sur l'échiquier. Un roi peut rester en échec durant cette action. Une pièce déplacée sur l'échiquier peut mater. Un pion ne peut pas être déplacé en première ou dernière rangée. Un roi peut déplacer et être déplacé, y compris pour se soustraire à un échec. Le roque ne peut se faire que de manière orthodoxe.
-Rouzaud-Banaddou: 1.Fxb2 (=f5) Dxc7 (=e6) 2.fxe6 dxe6 3.Txb1 (=b5) Dxe7 (=c7) 4.Txb2 (=a3) Dxf7 (=d6) 5.Txg1 (=g5) Dxg7 (=f6) 6.Txf1 (=f7)+ Rxf8 (=h4) 7.Fxb2 (=e8) Rxg7 (=c5) 8.Rxd1 (=f8)+ Rxh8 (=g7) 9.Dxg8+ Txg8 10.Txg8#
---> Implémenté comme Dynamo, déplacement d'une pièce éventuellement avec self-capture, puis capture (sur case vide), forcée si premier coup illégal.
+https://www.chessvariants.com/other.dir/pocket.html
+https://www.chessvariants.com/other.dir/fugue.html
+https://www.chessvariants.com/rules/spartan-chess
+https://www.chessvariants.com/mvopponent.dir/avalanche.html
 
-http://abrobecker.free.fr/chess/fairyblitz.htm#madrasi
-Madrasi Chess, Abdul J. Karwathar, 1979): Deux pièces de même nature (excepté les rois) qui s'observent, se paralysent mutuellement en perdant tout pouvoir (déplacement, prise, donner échec ou mat) sauf celui de paralyser une autre pièce.
-1.e4 e5 2.Cf3 Cc6 3.Fc4 Fc5 4.Cxe5 d6 5.d4 (5.Fxf7+ Rxf7 est légal; ou 5.Dh5 Fe6 immobilisant le Fc4) 5...Fxd4 6.Dxd4 dxe5 et la Dame blanche est perdue.
+https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
+https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
+
+=====
+
+weiqi, go13, go9, gomoku, reversi
+avalam, qoridor, xiangqi, draughts, draughts8
+(puis quand hexaboards peut-être: hexavariants + Hex)
+Byo-yomi possible: 1h+b15,5m (15 pierres 5 minutes)

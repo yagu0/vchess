@@ -94,7 +94,7 @@ export class ChakartRules extends ChessRules {
     // A click to promote a piece on subTurn 2 would trigger this.
     // For now it would then return [NaN, NaN] because surrounding squares
     // have no IDs in the promotion modal. TODO: improve this?
-    if (!square[0]) return null;
+    if (isNaN(square[0])) return null;
     // If subTurn == 2:
     // if square is empty && firstMove is compatible,
     // complete the move (banana or bomb).

@@ -11,6 +11,10 @@ export class MakrukRules extends ChessRules {
     return false;
   }
 
+  static get Monochrome() {
+    return true;
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},

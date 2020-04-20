@@ -1,17 +1,13 @@
 import { ChessRules } from "@/base_rules";
 
 export class KothRules extends ChessRules {
-  filterValid(moves) {
-    if (moves.length == 0) return [];
-    const color = this.turn;
-    const oppCol = V.GetOppCol(color);
-    return moves.filter(m => {
-      this.play(m);
-      // Giving check is forbidden as well:
-      const res = !this.underCheck(color) && !this.underCheck(oppCol);
-      this.undo(m);
-      return res;
-    });
+  static get Lines() {
+    return [
+      [[3, 3], [3, 5]],
+      [[3, 3], [5, 3]],
+      [[3, 5], [5, 5]],
+      [[5, 3], [5, 5]]
+    ];
   }
 
   getCurrentScore() {
@@ -24,9 +20,7 @@ export class KothRules extends ChessRules {
       // The middle is reached!
       return color == "w" ? "1-0" : "0-1";
     }
-    if (this.atLeastOneMove()) return "*";
-    // Stalemate (will probably never happen)
-    return "1/2";
+    return super.getCurrentScore();
   }
 
   evalPosition() {

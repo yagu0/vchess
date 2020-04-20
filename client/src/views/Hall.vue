@@ -1367,7 +1367,7 @@ button.player-action
   margin-left: 32px
 
 .somethingnew
-  background-color: #D6EAF8 !important
+  background-color: #90C4EC !important
 
 .tabbtn
   background-color: #f9faee

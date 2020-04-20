@@ -1,0 +1,28 @@
+p.boxed.
+  L'échiquier est divisé en 16 cellules carrées de taille 2x2.
+  Une pièce doit changer de cellule à chaque coup.
+
+p.
+  L'échiquier est décomposé en 16 petits carrés 2x2, démarrant en a1,b1,a2,b2
+  pour finir en g7,h7,g8,h8. Quand une pièce se déplace, elle doit traverser
+  au moins une frontière : elle ne peut rester dans la même cellule.
+  Ainsi, les pièces d'une même cellule ne s'attaquent pas.
+
+figure.diagram-container
+  .diagram
+    | fen:1r1kr3/3nbbQ1/6p1/4p3/1qp1p3/PR1P1NPP/4nP2/2B1KR1B:
+  figcaption.
+    Le roi blanc en échec ne peut pas prendre le cavalier,
+    et Rxb4 n'est pas possible.
+
+p.
+  Les pions sont des pions Berolina : ils se déplacent d'une case en
+  diagonale vers l'avant et capturent sur la case devant eux.
+
+h3 Source
+
+p
+  | Cette variante est mentionnée dans 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | .

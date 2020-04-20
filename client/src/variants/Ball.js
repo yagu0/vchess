@@ -3,6 +3,21 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class BallRules extends ChessRules {
+  static get Lines() {
+    return [
+      // White goal:
+      [[0, 3], [0, 6]],
+      [[0, 6], [1, 6]],
+      [[1, 6], [1, 3]],
+      [[1, 3], [0, 3]],
+      // Black goal:
+      [[9, 3], [9, 6]],
+      [[9, 6], [8, 6]],
+      [[8, 6], [8, 3]],
+      [[8, 3], [9, 3]]
+    ];
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},

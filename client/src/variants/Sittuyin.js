@@ -10,6 +10,17 @@ export class SittuyinRules extends ChessRules {
     return false;
   }
 
+  static get Monochrome() {
+    return true;
+  }
+
+  static get Lines() {
+    return ChessRules.Lines.concat([
+      [[0, 0], [8, 8]],
+      [[0, 8], [8, 0]]
+    ]);
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},

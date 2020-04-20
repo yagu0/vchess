@@ -43,7 +43,6 @@ export class DynamoRules extends ChessRules {
       });
       this.amoves.push(move);
     }
-    this.subTurn = 1;
     // Stack "first moves" (on subTurn 1) to merge and check opposite moves
     this.firstMove = [];
   }
@@ -750,7 +749,7 @@ export class DynamoRules extends ChessRules {
     // A click to promote a piece on subTurn 2 would trigger this.
     // For now it would then return [NaN, NaN] because surrounding squares
     // have no IDs in the promotion modal. TODO: improve this?
-    if (!square[0]) return null;
+    if (isNaN(square[0])) return null;
     // If subTurn == 2 && square is empty && !underCheck && !isOpposite,
     // then return an empty move, allowing to "pass" subTurn2
     const La = this.amoves.length;

@@ -11,6 +11,10 @@ export class ShogiRules extends ChessRules {
     return false;
   }
 
+  static get Monochrome() {
+    return true;
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);

@@ -55,7 +55,7 @@ div#baseGame
         @showrules="showRules"
         @analyze="toggleAnalyze"
         @goto-move="gotoMove"
-        @reset-arrows="resetArrows"
+        @redraw-board="redrawBoard"
       )
     .clearer
 </template>
@@ -200,9 +200,8 @@ export default {
       if (e.deltaY < 0) this.undo();
       else if (e.deltaY > 0) this.play();
     },
-    resetArrows: function() {
-      // TODO: make arrows scale with board, and remove this
-      this.$refs["board"].cancelResetArrows();
+    redrawBoard: function() {
+      this.$refs["board"].re_setDrawings();
     },
     showRules: function() {
       // The button is here only on Game page:

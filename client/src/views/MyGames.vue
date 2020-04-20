@@ -405,7 +405,7 @@ button#loadMoreBtn
   margin: 0 auto
 
 .somethingnew
-  background-color: #D6EAF8 !important
+  background-color: #90C4EC !important
 </style>
 
 <!-- Not scoped because acting on GameList -->
