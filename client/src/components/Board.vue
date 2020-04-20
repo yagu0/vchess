@@ -669,6 +669,8 @@ export default {
           delete this.selectedPiece;
           this.selectedPiece = null;
           this.start = null;
+          this.possibleMoves = []; //in case of
+          this.click = "";
           let selected = document.querySelector(".ghost");
           if (!!selected) selected.classList.remove("ghost");
         }
