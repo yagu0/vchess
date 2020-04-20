@@ -25,7 +25,8 @@ https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
 
 =====
 
-weiqi, go13, go9, gomoku, reversi
+gess https://en.wikipedia.org/wiki/Gess
+weiqi (check if landed stone captures, walk on connected components), go13, go9, gomoku, reversi
 avalam, qoridor, xiangqi, draughts, draughts8
 (puis quand hexaboards peut-être: hexavariants + Hex)
 Byo-yomi possible: 1h+b15,5m (15 pierres 5 minutes)
