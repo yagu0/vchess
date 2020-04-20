@@ -592,11 +592,11 @@ export default {
       if (!this.mobileBrowser && e.which != 3)
         // Cancel current drawing and circles, if any
         this.cancelResetArrows();
-      this.containerPos =
-        document.getElementById("boardContainer").getBoundingClientRect();
       if (this.mobileBrowser || e.which == 1) {
         // Mouse left button
         if (!this.start) {
+          this.containerPos =
+            document.getElementById("boardContainer").getBoundingClientRect();
           // NOTE: classList[0] is enough: 'piece' is the first assigned class
           const withPiece = (e.target.classList[0] == "piece");
           // Emit the click event which could be used by some variants
@@ -638,6 +638,8 @@ export default {
         }
       } else if (e.which == 3) {
         // Mouse right button
+        this.containerPos =
+          document.getElementById("gamePosition").getBoundingClientRect();
         let elem = e.target;
         // Next loop because of potential marks
         while (elem.tagName == "IMG") elem = elem.parentNode;
@@ -662,8 +664,21 @@ export default {
         offsetY < this.containerPos.top ||
         offsetY > this.containerPos.bottom
       ) {
-        this.selectedPiece = null;
-        this.startArrow = null;
+        if (!!this.selectedPiece) {
+          this.selectedPiece.parentNode.removeChild(this.selectedPiece);
+          delete this.selectedPiece;
+          this.selectedPiece = null;
+          this.start = null;
+          let selected = document.querySelector(".ghost");
+          if (!!selected) selected.classList.remove("ghost");
+        }
+        else {
+          this.startArrow = null;
+          this.movingArrow = null;
+          const currentArrow = document.getElementById("currentArrow");
+          if (!!currentArrow)
+            currentArrow.parentNode.removeChild(currentArrow);
+        }
         return;
       }
       e.preventDefault();
@@ -702,6 +717,7 @@ export default {
         this.selectedPiece = null;
         this.processMoveAttempt(e);
       } else if (e.which == 3) {
+        if (!this.startArrow) return;
         // Mouse right button
         this.movingArrow = null;
         this.processArrowAttempt(e);
