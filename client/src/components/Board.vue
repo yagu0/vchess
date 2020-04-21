@@ -675,12 +675,7 @@ export default {
       // Cancel if off boardContainer
       const [offsetX, offsetY] =
         this.mobileBrowser
-          ?
-            [
-              e.changedTouches[0].pageX,
-              // TODO: fixing attempt for smartphones, removing window.scrollY
-              e.changedTouches[0].pageY - window.scrollY
-            ]
+          ? [e.changedTouches[0].clientX, e.changedTouches[0].clientY]
           : [e.clientX, e.clientY];
       if (
         offsetX < this.containerPos.left ||
@@ -760,11 +755,7 @@ export default {
       // Obtain the move from start and end squares
       const [offsetX, offsetY] =
         this.mobileBrowser
-          ?
-            [
-              e.changedTouches[0].pageX,
-              e.changedTouches[0].pageY - window.scrollY
-            ]
+          ? [e.changedTouches[0].clientX, e.changedTouches[0].clientY]
           : [e.clientX, e.clientY];
       let landing = document.elementFromPoint(offsetX, offsetY);
       // Next condition: classList.contains(piece) fails because of marks
