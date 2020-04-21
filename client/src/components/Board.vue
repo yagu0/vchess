@@ -568,7 +568,11 @@ export default {
             this.coordsToXY(line[1], bPos.top, bPos.left, squareWidth);
           let path =
             document.createElementNS("http://www.w3.org/2000/svg", "path");
-          path.classList.add("svg-line");
+          if (line[0][0] == line[1][0] || line[0][1] == line[1][1])
+            path.classList.add("svg-line");
+          else
+            // "Diagonals" are drawn with a lighter color (TODO: generalize)
+            path.classList.add("svg-diag");
           path.setAttribute(
             "d",
             "M" + lStart.x + "," + lStart.y + " " +
@@ -843,6 +847,9 @@ export default {
 
 .svg-line
   stroke: black
+
+.svg-diag
+  stroke: grey
 
 .arrow-head
   fill: #5f0e78
