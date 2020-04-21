@@ -121,27 +121,28 @@ export default {
             const squareId = "sq-" + ci + "-" + cj;
             let elems = [];
             if (showPiece(ci, cj)) {
-              elems.push(
-                h("img", {
-                  "class": {
-                    piece: true,
-                    ghost:
-                      !!this.selectedPiece &&
-                      this.selectedPiece.parentNode.id == squareId
-                  },
-                  attrs: {
-                    src:
-                      "/images/pieces/" +
-                      this.vr.getPpath(
-                        this.vr.board[ci][cj],
-                        // Extra args useful for some variants:
-                        this.userColor,
-                        this.score,
-                        this.orientation) +
-                      V.IMAGE_EXTENSION
-                  }
-                })
-              );
+              let pieceSpecs = {
+                "class": {
+                  piece: true,
+                  ghost:
+                    !!this.selectedPiece &&
+                    this.selectedPiece.parentNode.id == squareId
+                },
+                attrs: {
+                  src:
+                    "/images/pieces/" +
+                    this.vr.getPpath(
+                      this.vr.board[ci][cj],
+                      // Extra args useful for some variants:
+                      this.userColor,
+                      this.score,
+                      this.orientation) +
+                    V.IMAGE_EXTENSION
+                }
+              };
+              if (this.arrows.length == 0)
+                pieceSpecs["style"] = { position: "absolute" };
+              elems.push(h("img", pieceSpecs));
             }
             if (this.settings.hints && hintSquares[ci][cj]) {
               elems.push(
@@ -174,12 +175,16 @@ export default {
                 "class": {
                   board: true,
                   ["board" + sizeY]: true,
-                  "light-square": lightSquare && !V.Monochrome,
-                  "dark-square": !lightSquare || !!V.Monochrome,
+                  "light-square":
+                    !V.Notoodark && lightSquare && !V.Monochrome,
+                  "dark-square":
+                    !V.Notoodark && (!lightSquare || !!V.Monochrome),
+                  "middle-square": V.Notoodark,
                   [this.settings.bcolor]: true,
                   "in-shadow": inShadow(ci, cj),
                   "highlight-light": inHighlight(ci, cj) && lightSquare,
-                  "highlight-dark": inHighlight(ci, cj) && !lightSquare,
+                  "highlight-dark":
+                    inHighlight(ci, cj) && (V.Monochrome || !lightSquare),
                   "incheck-light":
                     showCheck && lightSquare && incheckSq[ci][cj],
                   "incheck-dark":
@@ -213,6 +218,7 @@ export default {
             },
             [
               h("img", {
+                // NOTE: class "reserve" not used currently
                 "class": { piece: true, reserve: true },
                 attrs: {
                   src:
@@ -221,7 +227,14 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { "class": { "reserve-count": true } }, [ qty ])
+              h(
+                "sup",
+                {
+                  "class": { "reserve-count": true },
+                  style: { top: "calc(100% + 5px)" }
+                },
+                [ qty ]
+              )
             ]
           )
         );
@@ -248,7 +261,14 @@ export default {
                     ".svg"
                 }
               }),
-              h("sup", { "class": { "reserve-count": true } }, [ qty ])
+              h(
+                "sup",
+                {
+                  "class": { "reserve-count": true },
+                  style: { top: "calc(100% + 5px)" }
+                },
+                [ qty ]
+              )
             ]
           )
         );
@@ -831,11 +851,15 @@ export default {
 <style lang="sass" scoped>
 @import "@/styles/_board_squares_img.sass";
 
-// NOTE: no variants with reserve of size != 8
-.game.reserve-div
-  margin-bottom: 18px
+//.game.reserve-div
+  // TODO: would be cleaner to restrict width so that it doesn't overflow
+  // Commented out because pieces would disappear over the board otherwise:
+  //overflow: hidden
 .reserve-count
-  padding-left: 40%
+  width: 100%
+  text-align: center
+  display: inline-block
+  position: absolute
 .reserve-row
   margin-bottom: 15px
 
@@ -867,6 +891,7 @@ export default {
       display: block
 
 img.ghost
+  // NOTE: no need to set z-index here, since opacity is low
   position: absolute
   opacity: 0.5
   top: 0
@@ -877,19 +902,28 @@ img.ghost
   background-color: rgba(204, 51, 0, 0.9) !important
 
 .light-square.lichess
-  background-color: #f0d9b5;
+  background-color: #f0d9b5
 .dark-square.lichess
-  background-color: #b58863;
+  background-color: #b58863
 
 .light-square.chesscom
-  background-color: #e5e5ca;
+  background-color: #e5e5ca
 .dark-square.chesscom
-  background-color: #6f8f57;
+  background-color: #6f8f57
 
 .light-square.chesstempo
-  background-color: #dfdfdf;
+  background-color: #dfdfdf
 .dark-square.chesstempo
-  background-color: #7287b6;
+  background-color: #7287b6
+
+.middle-square.lichess
+  background-color: #D3B18C
+
+.middle-square.chesscom
+  background-color: #AABA91
+
+.middle-square.chesstempo
+  background-color: #A9B3CB
 
 // TODO: no predefined highlight colors, but layers. How?
 

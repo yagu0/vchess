@@ -1,9 +1,29 @@
 import { ChessRules } from "@/base_rules";
 
 export class ZenRules extends ChessRules {
-  // NOTE: enPassant, if enabled, would need to redefine carefully getEpSquare
-  static get HasEnpassant() {
-    return false;
+  getEpSquare(moveOrSquare) {
+    if (!moveOrSquare) return undefined;
+    if (typeof moveOrSquare === "string") {
+      const square = moveOrSquare;
+      if (square == "-") return undefined;
+      return V.SquareToCoords(square);
+    }
+    const move = moveOrSquare;
+    const s = move.start,
+          e = move.end;
+    if (
+      // Exclude captures (of rooks for example)
+      move.vanish.length == 1 &&
+      s.y == e.y &&
+      Math.abs(s.x - e.x) == 2 &&
+      move.appear[0].p == V.PAWN
+    ) {
+      return {
+        x: (s.x + e.x) / 2,
+        y: s.y
+      };
+    }
+    return undefined;
   }
 
   // TODO(?): some duplicated code in 2 next functions

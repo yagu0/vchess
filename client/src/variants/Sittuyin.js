@@ -14,6 +14,10 @@ export class SittuyinRules extends ChessRules {
     return true;
   }
 
+  static get Notoodark() {
+    return true;
+  }
+
   static get Lines() {
     return ChessRules.Lines.concat([
       [[0, 0], [8, 8]],
