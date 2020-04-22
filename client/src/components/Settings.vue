@@ -45,6 +45,7 @@ div
             option(value="lichess") {{ st.tr["brown"] }}
             option(value="chesscom") {{ st.tr["green"] }}
             option(value="chesstempo") {{ st.tr["blue"] }}
+            option(value="orangecc") {{ st.tr["orange"] }}
         fieldset
           label(for="setSound")
             | {{ st.tr["Sound alert at game start"] }}

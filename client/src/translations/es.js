@@ -94,6 +94,7 @@ export const translations = {
   "Offer draw?": "¿Ofrecer tablas?",
   Observe: "Observar",
   "Opponent action": "Acción del adversario",
+  orange: "naranja",
   "Participant(s):": "Participante(s):",
   "Play with": "Jugar con",
   Players: "Jugadores",

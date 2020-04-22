@@ -94,6 +94,7 @@ export const translations = {
   Observe: "Observe",
   "Offer draw?": "Offer draw?",
   "Opponent action": "Opponent action",
+  orange: "orange",
   "Participant(s):": "Participant(s):",
   "Play with": "Play with",
   Players: "Players",

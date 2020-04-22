@@ -915,4 +915,9 @@ img.ghost
   background-color: #9f9fff
 .dark-square.chesstempo.highlight-dark
   background-color: #557fff
+
+.light-square.orangecc.highlight-light
+  background-color: #fef273
+.dark-square.orangecc.highlight-dark
+  background-color: #e8c525
 </style>

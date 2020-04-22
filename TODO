@@ -1,6 +1,11 @@
 Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
 Also: if new live game starts in background, "new game" notify OK but not first move (not too serious however)
 
+For Teleport, Chakart and Hamilton at least: a piece should be attached to mouse cursor,
+waiting for a click dropping it somewhere. In BaseGame: find the appropriate place to call eg. Board::setHoverPiece(),
+which should be in effect when hovering over position only (#gamePosition), and cancelled when receiving the
+message stopHover() for example.
+
 https://www.chessvariants.com/crossover.dir/koopachess.html
 --> Can a stunned piece capture? Maybe not. ...recover? After 5 moves? Never?
 + Chakart :)
@@ -30,6 +35,6 @@ Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi
 gess https://en.wikipedia.org/wiki/Gess
 weiqi (check if landed stone captures, walk on connected components), go13, go9, gomoku, reversi
   first click show the stone, second click confirm the move?
-avalam, qoridor, xiangqi, draughts, draughts8
+avalam, qoridor (wider lines in another color, vr.lines [npt static get] for this one ?), xiangqi, draughts, draughts8
 (puis quand hexaboards peut-être: hexavariants + Hex)
 Byo-yomi possible: 1h+b15,5m (15 pierres 5 minutes)
