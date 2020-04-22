@@ -66,7 +66,7 @@ export default {
         msg: chatTxt,
         name: this.st.user.name,
         // SID is required only for anonymous users (in live games)
-        sid: this.st.user.id  == 0 ? this.st.user.sid : null
+        sid: this.st.user.id == 0 ? this.st.user.sid : null
       };
       this.$emit("mychat", chat);
       this.chats.unshift(chat);
