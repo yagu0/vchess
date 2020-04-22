@@ -1054,7 +1054,7 @@ export default {
         let gameInfo = {
           id: getRandString(), //ignored if corr
           fen: V.GenRandInitFen(this.game.randomness),
-          players: this.game.players.reverse(),
+          players: [this.game.players[1], this.game.players[0]],
           vid: this.game.vid,
           cadence: this.game.cadence
         };

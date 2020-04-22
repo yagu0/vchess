@@ -1,6 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
-import { shuffle } from "@/utils/alea";
+import { sample, shuffle } from "@/utils/alea";
 
 export class ShogiRules extends ChessRules {
   static get HasFlags() {
@@ -12,6 +12,10 @@ export class ShogiRules extends ChessRules {
   }
 
   static get Monochrome() {
+    return true;
+  }
+
+  static get Notoodark() {
     return true;
   }
 
@@ -106,20 +110,49 @@ export class ShogiRules extends ChessRules {
         "w 0 00000000000000"
       );
     }
-    let pieces = { w: new Array(9), b: new Array(9) };
+    // Randomization following these indications:
+    // http://www.shogi.net/shogi-l/Archive/2007/Nmar16-02.txt
+    let pieces1 = { w: new Array(4), b: new Array(4) };
+    let positions2 = { w: new Array(2), b: new Array(2) };
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'];
+        pieces1['b'] = JSON.parse(JSON.stringify(pieces1['w'])).reverse();
+        positions2['b'] =
+          JSON.parse(JSON.stringify(positions2['w'])).reverse()
+          .map(p => 8 - p);
         break;
       }
-      let positions = shuffle(ArrayFun.range(9));
-      const composition = ['l', 'l', 'n', 'n', 's', 's', 'g', 'g', 'k'];
-      for (let i = 0; i < 9; i++) pieces[c][positions[i]] = composition[i];
+      let positions = shuffle(ArrayFun.range(4));
+      const composition = ['s', 's', 'g', 'g'];
+      for (let i = 0; i < 4; i++) pieces1[c][positions[i]] = composition[i];
+      positions2[c] = sample(ArrayFun.range(9), 2).sort();
     }
     return (
-      pieces["b"].join("") +
-      "/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/" +
-      pieces["w"].join("").toUpperCase() +
+      (
+        "ln" +
+        pieces1["b"].slice(0, 2).join("") +
+        "k" +
+        pieces1["b"].slice(2, 4).join("") +
+        "nl/"
+      ) +
+      (
+        (positions2['b'][0] || "") + 'r' +
+        (positions2['b'][1] - positions2['b'][0] - 1 || "") + 'b' +
+        (8 - positions2['b'][1] || "")
+      ) +
+      "/ppppppppp/9/9/9/PPPPPPPPP/" +
+      (
+        (positions2['w'][0] || "") + 'B' +
+        (positions2['w'][1] - positions2['w'][0] - 1 || "") + 'R' +
+        (8 - positions2['w'][1] || "")
+      ) +
+      (
+        "/LN" +
+        pieces1["w"].slice(0, 2).join("").toUpperCase() +
+        "K" +
+        pieces1["w"].slice(2, 4).join("").toUpperCase() +
+        "NL"
+      ) +
       " w 0 00000000000000"
     );
   }
