@@ -1300,8 +1300,7 @@ export default {
                 { body: "vs " + game.players[1-myIdx].name || "@nonymous" }
               );
             }
-            this.$router.push(
-              "/game/" + gameInfo.id + "/?focus=" + this.focus);
+            this.$router.push("/game/" + gameInfo.id);
           });
         },
         this.focus ? 500 + 1000 * Math.random() : 0

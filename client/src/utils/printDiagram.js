@@ -1,4 +1,5 @@
 import { ArrayFun } from "@/utils/array";
+import { store } from "@/store";
 
 // Turn (human) marks into coordinates
 function getMarkArray(marks) {
@@ -64,6 +65,10 @@ function getShadowArray(shadow) {
 
 // args: object with position (mandatory), and
 // orientation, marks, shadow (optional)
+// TODO: in time, find a strategy to draw middle lines (weiqi, xianqi...)
+//       and maybe also some diagonals (fanorona...)
+// https://stackoverflow.com/questions/40697231/horizontal-line-in-the-middle-of-divs
+// + CSS rotate?
 export function getDiagram(args) {
   // Obtain the array of pieces images names:
   const board = V.GetBoard(args.position);
@@ -75,15 +80,22 @@ export function getDiagram(args) {
   const [startX, startY, inc] =
     orientation == "w" ? [0, 0, 1] : [V.size.x - 1, V.size.y - 1, -1];
   for (let i = startX; i >= 0 && i < V.size.x; i += inc) {
-    boardDiv += "<div class='row'>";
+    boardDiv += "<div class='row";
+    if (i == startX && V.Monochrome) boardDiv += " border-top";
+    boardDiv += "'>";
     for (let j = startY; j >= 0 && j < V.size.y; j += inc) {
-      boardDiv +=
-        "<div class='board board" +
-        V.size.y +
-        " " +
-        ((i + j) % 2 == 0 ? "light-square-diag" : "dark-square-diag") +
-        (shadowArray.length > 0 && shadowArray[i][j] ? " in-shadow" : "") +
-        "'>";
+      boardDiv += "<div class='board board" + V.size.y + " ";
+      if (V.Monochrome) {
+        boardDiv += "monochrome " +
+          (V.Notoodark ? "middle-square" : "dark-square");
+        if (j == startY) boardDiv += " border-left";
+      }
+      else if ((i + j) % 2 == 0) boardDiv += "light-square";
+      else boardDiv += "dark-square";
+      boardDiv += " " + store.state.settings.bcolor;
+      if (shadowArray.length > 0 && shadowArray[i][j])
+        boardDiv += " in-shadow";
+      boardDiv += "'>";
       if (board[i][j] != V.EMPTY) {
         boardDiv +=
           "<img " +

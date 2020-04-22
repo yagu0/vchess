@@ -252,9 +252,6 @@ export default {
   },
   // NOTE: some redundant code with Hall.vue (mostly related to people array)
   created: function() {
-    if (this.$route.query["focus"] === "false")
-      // Focus explicitely set to false from Hall (live game)
-      this.focus = false;
     this.atCreation();
   },
   mounted: function() {
@@ -749,6 +746,9 @@ export default {
           if (!this.game || !this.game.moves) this.lastateAsked = true;
           else this.sendLastate(data.from);
           break;
+        // TODO: possible bad scenario: reload page while oppponent sends a
+        // move => get both lastate and newmove, process both, add move twice.
+        // Confirm scenario? Fix?
         case "lastate": {
           // Got opponent infos about last move
           this.gotLastate = true;

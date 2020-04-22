@@ -1,12 +1,12 @@
 Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
+Also: if new live game starts in background, "new game" notify OK but not first move (not too serious however)
 
 https://www.chessvariants.com/crossover.dir/koopachess.html
 --> Can a stunned piece capture? Maybe not. ...recover? After 5 moves? Never?
 + Chakart :)
 
-https://www.chessvariants.com/diffmove.dir/checkers.html --> move forward (Multhopp)
-in 1974 by Hans Multhopp
 https://www.chessvariants.com/diffmove.dir/checkers.html --> "Forward"
+in 1974 by Hans Multhopp
 
 Clorange:
 Clockwork Orange Chess (Fergus Duniho,

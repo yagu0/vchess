@@ -68,11 +68,11 @@ export default {
     }
     const showLight = (
       this.settings.highlight &&
-      ["all","highlight"].includes(V.ShowMoves)
+      ["all", "highlight"].includes(V.ShowMoves)
     );
     const showCheck = (
       this.settings.highlight &&
-      ["all","highlight","byrow"].includes(V.ShowMoves)
+      ["all", "highlight", "byrow"].includes(V.ShowMoves)
     );
     const orientation = !V.CanFlip ? "w" : this.orientation;
     // Ensure that squares colors do not change when board is flipped
@@ -898,30 +898,6 @@ img.ghost
   background-color: rgba(204, 51, 0, 0.7) !important
 .incheck-dark
   background-color: rgba(204, 51, 0, 0.9) !important
-
-.light-square.lichess
-  background-color: #f0d9b5
-.dark-square.lichess
-  background-color: #b58863
-
-.light-square.chesscom
-  background-color: #e5e5ca
-.dark-square.chesscom
-  background-color: #6f8f57
-
-.light-square.chesstempo
-  background-color: #dfdfdf
-.dark-square.chesstempo
-  background-color: #7287b6
-
-.middle-square.lichess
-  background-color: #D3B18C
-
-.middle-square.chesscom
-  background-color: #AABA91
-
-.middle-square.chesstempo
-  background-color: #A9B3CB
 
 // TODO: no predefined highlight colors, but layers. How?
 
