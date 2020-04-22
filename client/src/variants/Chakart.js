@@ -32,7 +32,7 @@ export class ChakartRules extends ChessRules {
     //  dessus une pièce immédiatement adjacente (en atterissant juste derrière).
   }
 
-  // Coups en 2 temps (si pose)
+  // Coups en 2 temps (si pose possible)
   getPotentialRookMoves(sq) {
     //Donkey : tour
     //  pose une banane (optionnel) sur une case adjacente (diagonale) à celle d'arrivée

@@ -34,4 +34,24 @@ export class GridolinaRules extends BerolinaRules {
       })
     );
   }
+
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        rx += step[0];
+        ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color &&
+        V.OnDifferentGrids([x, y], [rx, ry])
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 };
