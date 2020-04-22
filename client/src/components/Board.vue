@@ -188,7 +188,8 @@ export default {
                   "incheck-light":
                     showCheck && lightSquare && incheckSq[ci][cj],
                   "incheck-dark":
-                    showCheck && !lightSquare && incheckSq[ci][cj]
+                    showCheck && !lightSquare && incheckSq[ci][cj],
+                  "hover-highlight": this.vr.hoverHighlight(ci, cj)
                 },
                 attrs: {
                   id: getSquareId({ x: ci, y: cj })
@@ -900,6 +901,10 @@ img.ghost
   background-color: rgba(204, 51, 0, 0.9) !important
 
 // TODO: no predefined highlight colors, but layers. How?
+
+.hover-highlight:hover
+  // TODO: color dependant on board theme, or inner border...
+  background-color: #C571E6
 
 .light-square.lichess.highlight-light
   background-color: #cdd26a

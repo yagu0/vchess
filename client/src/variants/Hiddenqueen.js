@@ -156,10 +156,22 @@ export class HiddenqueenRules extends ChessRules {
   }
 
   getNotation(move) {
-    const notation = super.getNotation(move);
-    if (notation.charAt(0) == 'T')
-      // Do not reveal hidden queens
-      return notation.substr(1);
+    if (this.getPiece(move.start.x, move.start.y) != V.HIDDEN_QUEEN)
+      return super.getNotation(move);
+    const finalSquare = V.CoordsToSquare(move.end);
+    if (move.appear[0].p == V.QUEEN) {
+      return (
+        "Q" +
+        (move.vanish.length > move.appear.length ? "x" : "") +
+        finalSquare
+      );
+    }
+    // Do not reveal hidden queens playing as pawns
+    let notation = "";
+    if (move.vanish.length == 2)
+      // Capture
+      notation = V.CoordToColumn(move.start.y) + "x" + finalSquare;
+    else notation = finalSquare;
     return notation;
   }
 };

@@ -14,6 +14,10 @@ export class HamiltonRules extends ChessRules {
     return "xx";
   }
 
+  hoverHighlight(x, y) {
+    return this.movesCount == 0;
+  }
+
   static board2fen(b) {
     if (b[0] == 'x') return 'x';
     return ChessRules.board2fen(b);

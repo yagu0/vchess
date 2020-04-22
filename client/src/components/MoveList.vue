@@ -46,20 +46,20 @@ div
   #scoreInfo(v-if="score!='*'")
     span.score {{ score }}
     span.score-msg {{ st.tr[message] }}
-  .moves-list(v-if="!['none','highlight'].includes(show)")
+  .moves-list
     .tr(v-for="moveIdx in evenNumbers")
       .td {{ firstNum + moveIdx / 2 }}
-      .td(v-if="moveIdx < moves.length-1 || show == 'all'"
+      .td(
         :class="{'highlight-lm': cursor == moveIdx}"
         @click="() => gotoMove(moveIdx)"
       )
-        | {{ notation(moves[moveIdx]) }}
+        | {{ notation(moveIdx) }}
       .td(
         v-if="moveIdx < moves.length-1"
-        :class="{'highlight-lm': highlightBlackmove(moveIdx+1)}"
+        :class="{'highlight-lm': cursor == moveIdx+1}"
         @click="() => gotoMove(moveIdx+1)"
       )
-        | {{ notation(moves[moveIdx + 1]) }}
+        | {{ notation(moveIdx + 1) }}
 </template>
 
 <script>
@@ -124,21 +124,20 @@ export default {
     }
   },
   methods: {
-    notation: function(move) {
-      return getFullNotation(move);
-    },
-    highlightBlackmove: function(moveIdx) {
-      return (
-        this.cursor == moveIdx ||
+    notation: function(moveIdx) {
+      const move = this.moves[moveIdx];
+      if (this.score != "*") return getFullNotation(move);
+      if (
+        ['none','highlight'].includes(this.show) ||
         (
-          // If display by rows, hightlight last black move while the white
-          // move is being played:
           this.show == "byrow" &&
-          this.cursor == moveIdx + 1 &&
-          // ...except if cursor is behind in the game:
-          this.cursor == this.moves.length - 1
+          moveIdx == this.moves.length-1 &&
+          moveIdx % 2 == 0
         )
-      );
+      ) {
+        return "?";
+      }
+      return getFullNotation(move);
     },
     btnTooltipClass: function() {
       return { tooltip: !("ontouchstart" in window) };

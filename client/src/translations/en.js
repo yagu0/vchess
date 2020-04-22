@@ -176,6 +176,7 @@ export const translations = {
   "Capture en passant": "Capture en passant",
   "Capture on the edge": "Capture on the edge",
   "Capture powers": "Capture powers",
+  "Capture the princess": "Capture the princess",
   "Captures reborn": "Captures reborn",
   "Change colors": "Change colors",
   "Dangerous collisions": "Dangerous collisions",

@@ -1,11 +1,6 @@
 Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
 Also: if new live game starts in background, "new game" notify OK but not first move (not too serious however)
 
-For Teleport, Chakart and Hamilton at least: a piece should be attached to mouse cursor,
-waiting for a click dropping it somewhere. In BaseGame: find the appropriate place to call eg. Board::setHoverPiece(),
-which should be in effect when hovering over position only (#gamePosition), and cancelled when receiving the
-message stopHover() for example.
-
 https://www.chessvariants.com/crossover.dir/koopachess.html
 --> Can a stunned piece capture? Maybe not. ...recover? After 5 moves? Never?
 + Chakart :)

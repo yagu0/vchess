@@ -2,6 +2,7 @@
 
 insert or ignore into Variants (name, description, noProblems) values
   ('Apocalypse', 'The end of the world', true),
+  ('Chakart', 'Capture the princess'),
   ('Dark', 'In the shadow', true),
   ('Hidden', 'Unidentified pieces', true),
   ('Hiddenqueen', 'Queen disguised as a pawn', true),

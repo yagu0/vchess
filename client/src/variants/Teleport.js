@@ -2,6 +2,11 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class TeleportRules extends ChessRules {
+  hoverHighlight(x, y) {
+    // TODO: only highlight if the move is legal
+    return (this.subTurn == 2 && this.board[x][y] == V.EMPTY);
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     this.subTurn = 1;

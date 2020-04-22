@@ -117,6 +117,11 @@ export const ChessRules = class ChessRules {
     return null;
   }
 
+  // Some variants may need to highlight squares on hover (Hamilton, Weiqi...)
+  hoverHighlight() {
+    return false;
+  }
+
   static get IMAGE_EXTENSION() {
     // All pieces should be in the SVG format
     return ".svg";
