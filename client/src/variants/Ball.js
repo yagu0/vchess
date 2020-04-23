@@ -35,22 +35,16 @@ export class BallRules extends ChessRules {
   }
 
   static get BALL() {
-    // 'b' is already taken:
+    // Ball is already taken:
     return "aa";
   }
-
-  // Special code for "something to fill space" (around goals)
-  // --> If goal is outside the board (current prototype: it's inside)
-//  static get FILL() {
-//    return "ff";
-//  }
 
   static get HAS_BALL_CODE() {
     return {
       'p': 's',
       'r': 'u',
       'n': 'o',
-      'b': 'd',
+      'b': 'c',
       'q': 't',
       'k': 'l',
       'h': 'i'
@@ -62,7 +56,7 @@ export class BallRules extends ChessRules {
       's': 'p',
       'u': 'r',
       'o': 'n',
-      'd': 'b',
+      'c': 'b',
       't': 'q',
       'l': 'k',
       'i': 'h'
@@ -84,6 +78,13 @@ export class BallRules extends ChessRules {
   static fen2board(f) {
     if (f == 'a') return V.BALL;
     return ChessRules.fen2board(f);
+  }
+
+  static ParseFen(fen) {
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { pmove: fen.split(" ")[4] }
+    );
   }
 
   // Check that exactly one ball is on the board
@@ -116,6 +117,19 @@ export class BallRules extends ChessRules {
     return true;
   }
 
+  static IsGoodFen(fen) {
+    if (!ChessRules.IsGoodFen(fen)) return false;
+    const fenParts = fen.split(" ");
+    if (fenParts.length != 5) return false;
+    if (
+      fenParts[4] != "-" &&
+      !fenParts[4].match(/^([a-i][1-9]){2,2}$/)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   getPpath(b) {
     let prefix = "";
     const withPrefix =
@@ -124,6 +138,18 @@ export class BallRules extends ChessRules {
       .concat(['a']);
     if (withPrefix.includes(b[1])) prefix = "Ball/";
     return prefix + b;
+  }
+
+  getPPpath(m) {
+    if (
+      m.vanish.length == 2 &&
+      m.appear.length == 2 &&
+      m.appear[0].c != m.appear[1].c
+    ) {
+      // Take ball in place (from opponent)
+      return "Ball/inplace";
+    }
+    return super.getPPpath(m);
   }
 
   canTake([x1, y1], [x2, y2]) {
@@ -141,13 +167,26 @@ export class BallRules extends ChessRules {
     );
   }
 
-  getCheckSquares() {
-    return [];
+  getFen() {
+    return super.getFen() + " " + this.getPmoveFen();
+  }
+
+  getFenForRepeat() {
+    return super.getFenForRepeat() + "_" + this.getPmoveFen();
+  }
+
+  getPmoveFen() {
+    const L = this.pmoves.length;
+    if (!this.pmoves[L-1]) return "-";
+    return (
+      V.CoordsToSquare(this.pmoves[L-1].start) +
+      V.CoordsToSquare(this.pmoves[L-1].end)
+    );
   }
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      return "hbnrqrnhb/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/HBNRQRNHB w 0 -";
+      return "hbnrqrnhb/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/HBNRQRNHB w 0 - -";
 
     let pieces = { w: new Array(9), b: new Array(9) };
     for (let c of ["w", "b"]) {
@@ -182,12 +221,26 @@ export class BallRules extends ChessRules {
       pieces["b"].join("") +
       "/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
-      // En-passant allowed, but no flags
-      " w 0 -"
+      " w 0 - -"
     );
   }
 
   scanKings() {}
+
+  setOtherVariables(fen) {
+    super.setOtherVariables(fen);
+    const pmove = V.ParseFen(fen).pmove;
+    // Local stack of "pass moves" (no need for appear & vanish)
+    this.pmoves = [
+      pmove != "-"
+        ?
+          {
+            start: V.SquareToCoords(pmove.substr(0, 2)),
+            end: V.SquareToCoords(pmove.substr(2))
+          }
+        : null
+    ];
+  }
 
   static get size() {
     return { x: 9, y: 9 };
@@ -295,13 +348,61 @@ export class BallRules extends ChessRules {
     return mv;
   }
 
-  // NOTE: if a pawn is captured en-passant, he doesn't hold the ball
+  // NOTE: if a pawn captures en-passant, he doesn't hold the ball
   // So base implementation is fine.
 
   getPotentialMovesFrom([x, y]) {
-    if (this.getPiece(x, y) == V.PHOENIX)
-      return this.getPotentialPhoenixMoves([x, y]);
-    return super.getPotentialMovesFrom([x, y]);
+    let moves = undefined;
+    const piece = this.getPiece(x, y);
+    if (piece == V.PHOENIX)
+      moves = this.getPotentialPhoenixMoves([x, y]);
+    else moves = super.getPotentialMovesFrom([x, y]);
+    // Add "taking ball in place" move (at most one in list)
+    for (let m of moves) {
+      if (
+        m.vanish.length == 2 &&
+        m.vanish[1].p != 'a' &&
+        Object.keys(V.HAS_BALL_DECODE).includes(m.appear[0].p)
+      ) {
+        const color = this.turn;
+        const oppCol = V.GetOppCol(color);
+        moves.push(
+          new Move({
+            appear: [
+              new PiPo({
+                x: x,
+                y: y,
+                c: color,
+                p: m.appear[0].p
+              }),
+              new PiPo({
+                x: m.vanish[1].x,
+                y: m.vanish[1].y,
+                c: oppCol,
+                p: V.HAS_BALL_DECODE[m.vanish[1].p]
+              })
+            ],
+            vanish: [
+              new PiPo({
+                x: x,
+                y: y,
+                c: color,
+                p: piece
+              }),
+              new PiPo({
+                x: m.vanish[1].x,
+                y: m.vanish[1].y,
+                c: oppCol,
+                p: m.vanish[1].p
+              })
+            ],
+            end: { x: m.end.x, y: m.end.y }
+          })
+        );
+        break;
+      }
+    }
+    return moves;
   }
 
   // "Sliders": at most 3 steps
@@ -328,14 +429,57 @@ export class BallRules extends ChessRules {
     return this.getSlideNJumpMoves(sq, V.steps[V.PHOENIX], "oneStep");
   }
 
+  getPmove(move) {
+    if (
+      move.vanish.length == 2 &&
+      move.appear.length == 2 &&
+      move.appear[0].c != move.appear[1].c
+    ) {
+      // In-place pass:
+      return {
+        start: move.start,
+        end: move.end
+      };
+    }
+    return null;
+  }
+
+  oppositePasses(m1, m2) {
+    return (
+      m1.start.x == m2.end.x &&
+      m1.start.y == m2.end.y &&
+      m1.end.x == m2.start.x &&
+      m1.end.y == m2.start.y
+    );
+  }
+
   filterValid(moves) {
-    return moves;
+    const L = this.pmoves.length;
+    const lp = this.pmoves[L-1];
+    if (!lp) return moves;
+    return moves.filter(m => {
+      return (
+        m.vanish.length == 1 ||
+        m.appear.length == 1 ||
+        m.appear[0].c == m.appear[1].c ||
+        !this.oppositePasses(lp, m)
+      );
+    });
   }
 
   // isAttacked: unused here (no checks)
 
-  postPlay() {}
-  postUndo() {}
+  postPlay(move) {
+    this.pmoves.push(this.getPmove(move));
+  }
+
+  postUndo() {
+    this.pmoves.pop();
+  }
+
+  getCheckSquares() {
+    return [];
+  }
 
   getCurrentScore() {
     // Turn has changed:

@@ -753,6 +753,8 @@ export default {
           // Got opponent infos about last move
           this.gotLastate = true;
           this.lastate = data.data;
+          if (this.lastate.movesCount > this.gotMoveIdx)
+            this.gotMoveIdx = this.lastate.movesCount;
           if (this.game.rendered)
             // Game is rendered (Board component)
             this.processLastate();
@@ -760,6 +762,12 @@ export default {
           break;
         }
         case "newmove": {
+
+// DEBUG:
+console.log("Receive move");
+console.log(data.data);
+//moveslist not updated when receiving a move? (see in baseGame)
+
           const movePlus = data.data;
           const movesCount = this.game.moves.length;
           if (movePlus.index > movesCount) {
