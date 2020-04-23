@@ -60,6 +60,30 @@ export class AliceRules extends ChessRules {
     return undefined; //default
   }
 
+  // king can be l or L (on the other mirror side)
+  static IsGoodPosition(position) {
+    if (position.length == 0) return false;
+    const rows = position.split("/");
+    if (rows.length != V.size.x) return false;
+    let kings = { "k": 0, "K": 0, 'l': 0, 'L': 0 };
+    for (let row of rows) {
+      let sumElts = 0;
+      for (let i = 0; i < row.length; i++) {
+        if (['K','k','L','l'].includes(row[i])) kings[row[i]]++;
+        if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
+        else {
+          const num = parseInt(row[i]);
+          if (isNaN(num)) return false;
+          sumElts += num;
+        }
+      }
+      if (sumElts != V.size.y) return false;
+    }
+    if (kings['k'] + kings['l'] != 1 || kings['K'] + kings['L'] != 1)
+      return false;
+    return true;
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const rows = V.ParseFen(fen).position.split("/");

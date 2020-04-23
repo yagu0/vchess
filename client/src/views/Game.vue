@@ -753,8 +753,8 @@ export default {
           // Got opponent infos about last move
           this.gotLastate = true;
           this.lastate = data.data;
-          if (this.lastate.movesCount > this.gotMoveIdx)
-            this.gotMoveIdx = this.lastate.movesCount;
+          if (this.lastate.movesCount - 1 > this.gotMoveIdx)
+            this.gotMoveIdx = this.lastate.movesCount - 1;
           if (this.game.rendered)
             // Game is rendered (Board component)
             this.processLastate();
@@ -1273,7 +1273,7 @@ console.log(data.data);
       this.$nextTick(() => {
         this.game.rendered = true;
         // Did lastate arrive before game was rendered?
-        if (this.lastate) this.processLastate();
+        if (!!this.lastate) this.processLastate();
       });
       if (this.lastateAsked) {
         this.lastateAsked = false;

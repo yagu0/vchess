@@ -61,6 +61,7 @@ export default {
   cursor: pointer
 
 .answer
+  margin-bottom: 10px
   ol, ul
     margin-top: 0
     margin-bottom: 0
