@@ -84,7 +84,6 @@ export const translations = {
   "New correspondance game:": "Nouvelle partie par corespondance :",
   "New game": "Nouvelle partie",
   "New problem": "Nouveau problème",
-  News: "Nouvelles",
   "No challenges found :( Click on 'New game'!": "Aucun défi trouvé :( Cliquez sur 'Nouvelle partie' !",
   "No games found :( Send a challenge!": "Aucune partie trouvée :( Envoyez un défi !",
   "No more problems": "Plus de problèmes",

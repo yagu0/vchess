@@ -299,10 +299,13 @@ export class TeleportRules extends ChessRules {
         moves2.forEach(m2 => {
           this.play(m2);
           const score = this.getCurrentScore();
-          const mvEval =
-            ["1-0", "0-1"].includes(score)
-              ? (score == "1-0" ? 1 : -1) * maxeval
-              : (score == "1/2" ? 0 : initEval);
+          let mvEval = 0;
+          if (["1-0", "0-1"].includes(score))
+            mvEval = (score == "1-0" ? 1 : -1) * maxeval;
+          else if (score == "*")
+            // Add small fluctuations to avoid dropping pieces always on the
+            // first square available.
+            mvEval = initEval + 0.05 - Math.random() / 10;
           if (
             (color == 'w' && mvEval > m.eval) ||
             (color == 'b' && mvEval < m.eval)

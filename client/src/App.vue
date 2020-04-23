@@ -33,7 +33,7 @@
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
-        router-link.menuitem#newsMenu(to="/news") {{ st.tr["News"] }}
+        router-link.menuitem(to="/faq") F.A.Q.
         a.menuitem(href="https://discord.gg/a9ZFKBe")
           span Discord
           img(src="/images/icons/discord.svg")
@@ -58,18 +58,6 @@ export default {
   },
   data: function() {
     return { st: store.state };
-  },
-  mounted: function() {
-    ajax(
-      "/newsts",
-      "GET",
-      {
-        success: (res) => {
-          if (this.st.user.newsRead < res.timestamp)
-            document.getElementById("newsMenu").classList.add("somenews");
-        }
-      }
-    );
   },
   computed: {
     userName: function() {
@@ -297,9 +285,4 @@ footer
     height: 55px
     display: block
     padding: 5px 0
-
-.menuitem.somenews
-  color: red
-  &:link, &:visited, &:hover
-    color: red
 </style>

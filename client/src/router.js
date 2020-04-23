@@ -62,9 +62,9 @@ const router = new Router({
       component: loadView("About")
     },
     {
-      path: "/news",
-      name: "news",
-      component: loadView("News")
+      path: "/faq",
+      name: "faq",
+      component: loadView("Faq")
     }
   ]
 });

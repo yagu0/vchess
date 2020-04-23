@@ -84,7 +84,6 @@ export const translations = {
   "New correspondance game:": "New correspondance game:",
   "New game": "New game",
   "New problem": "New problem",
-  News: "News",
   "No challenges found :( Click on 'New game'!": "No challenges found :( Click on 'New game'!",
   "No games found :( Send a challenge!": "No games found :( Send a challenge!",
   "No more problems": "No more problems",

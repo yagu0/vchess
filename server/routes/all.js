@@ -7,6 +7,5 @@ router.use("/", require("./messages"));
 router.use("/", require("./users"));
 router.use("/", require("./variants"));
 router.use("/", require("./problems"));
-router.use("/", require("./news"));
 
 module.exports = router;
