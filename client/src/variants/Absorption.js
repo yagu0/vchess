@@ -124,6 +124,13 @@ export class AbsorptionRules extends ChessRules {
     );
   }
 
+  static get VALUES() {
+    return Object.assign(
+      { a: 12, e: 7, s: 5 },
+      ChessRules.VALUES
+    );
+  }
+
   getNotation(move) {
     let notation = super.getNotation(move);
     if (move.vanish[0].p != V.PAWN && move.appear[0].p != move.vanish[0].p)
