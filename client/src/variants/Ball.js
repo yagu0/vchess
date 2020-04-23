@@ -362,6 +362,7 @@ export class BallRules extends ChessRules {
       if (
         m.vanish.length == 2 &&
         m.vanish[1].p != 'a' &&
+        m.vanish[0].c != m.vanish[1].c &&
         Object.keys(V.HAS_BALL_DECODE).includes(m.appear[0].p)
       ) {
         const color = this.turn;
