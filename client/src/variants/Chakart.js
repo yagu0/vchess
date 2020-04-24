@@ -127,7 +127,7 @@ export class ChakartRules extends ChessRules {
   getCapturedFen() {
     let counts = [...Array(10).fill(0)];
     let i = 0;
-    for (let p of [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.PAWN])
+    for (let p of [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.PAWN]) {
       counts[i] = this.captured["w"][p];
       counts[5 + i] = this.captured["b"][p];
       i++;
@@ -247,13 +247,10 @@ export class ChakartRules extends ChessRules {
   }
 
   doClick(square) {
-    // A click to promote a piece on subTurn 2 would trigger this.
-    // For now it would then return [NaN, NaN] because surrounding squares
-    // have no IDs in the promotion modal. TODO: improve this?
     if (isNaN(square[0])) return null;
-    // If subTurn == 2:
+    // TODO: If subTurn == 2:
     // if square is empty && firstMove is compatible,
-    // complete the move (banana or bomb).
+    // complete the move (banana or bomb or piece exchange).
     // if square not empty, just complete with empty move
     const Lf = this.firstMove.length;
     if (this.subTurn == 2) {
@@ -311,6 +308,5 @@ export class ChakartRules extends ChessRules {
 
   getNotation(move) {
     // invisibility used? --> move notation Q??
-
   }
 };
