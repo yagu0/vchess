@@ -80,6 +80,11 @@ export const ChessRules = class ChessRules {
     return V.ShowMoves;
   }
 
+  // Generally true, unless the variant includes random effects
+  static get CorrConfirm() {
+    return true;
+  }
+
   // Used for Monochrome variant (TODO: harmonize: !canFlip ==> showFirstTurn)
   get showFirstTurn() {
     return false;

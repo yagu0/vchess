@@ -1,4 +1,6 @@
 import { ChessRules } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { shuffle } from "@/utils/alea";
 
 export class FootballRules extends ChessRules {
   static get HasFlags() {

@@ -3,8 +3,27 @@ import { randInt } from "@/utils/alea";
 
 export class TeleportRules extends ChessRules {
   hoverHighlight(x, y) {
-    // TODO: only highlight if the move is legal
-    return (this.subTurn == 2 && this.board[x][y] == V.EMPTY);
+    if (this.subTurn == 1 || this.board[x][y] != V.EMPTY)
+      return false;
+    // Only highlight if the move is legal
+    const color = this.turn;
+    const tMove = new Move({
+      appear: [
+        new PiPo({
+          x: x,
+          y: y,
+          c: color,
+          // The dropped piece nature has no importance:
+          p: V.KNIGHT
+        })
+      ],
+      vanish: [],
+      start: { x: -1, y: -1 }
+    });
+    this.play(tMove);
+    const moveOk = !this.underCheck(color);
+    this.undo(tMove);
+    return moveOk;
   }
 
   setOtherVariables(fen) {

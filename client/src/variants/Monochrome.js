@@ -6,6 +6,10 @@ export class MonochromeRules extends ChessRules {
     return false;
   }
 
+  static get Lines() {
+    return [ [[4, 0], [4, 8]] ];
+  }
+
   get showFirstTurn() {
     return true;
   }

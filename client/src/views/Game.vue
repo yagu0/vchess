@@ -212,9 +212,6 @@ export default {
       curDiag: "", //for corr moves confirmation
       conn: null,
       roomInitialized: false,
-      // If newmove has wrong index: ask fullgame again:
-      askGameTime: 0,
-      gameIsLoading: false,
       // If asklastate got no reply, ask again:
       gotLastate: false,
       gotMoveIdx: -1, //last move index received
@@ -357,8 +354,6 @@ export default {
       this.rematchOffer = "";
       this.lastate = undefined;
       this.roomInitialized = false;
-      this.askGameTime = 0;
-      this.gameIsLoading = false;
       this.gotLastate = false;
       this.gotMoveIdx = -1;
       this.opponentGotMove = false;
@@ -535,27 +530,6 @@ export default {
       const nextGid = this.nextIds.pop();
       this.$router.push(
         "/game/" + nextGid + "/?next=" + JSON.stringify(this.nextIds));
-    },
-    askGameAgain: function() {
-      this.gameIsLoading = true;
-      const currentUrl = document.location.href;
-      const doAskGame = () => {
-        if (document.location.href != currentUrl) return; //page change
-        this.fetchGame((game) => {
-          if (!!game)
-            // This is my game: just reload.
-            this.loadGame(game);
-          else
-            // Just ask fullgame again (once!), this is much simpler.
-            // If this fails, the user could just reload page :/
-            this.send("askfullgame");
-        });
-      };
-      // Delay of at least 2s between two game requests
-      const now = Date.now();
-      const delay = Math.max(2000 - (now - this.askGameTime), 0);
-      this.askGameTime = now;
-      setTimeout(doAskGame, delay);
     },
     socketMessageListener: function(msg) {
       if (!this.conn) return;
@@ -770,76 +744,69 @@ console.log(data.data);
 
           const movePlus = data.data;
           const movesCount = this.game.moves.length;
-          if (movePlus.index > movesCount) {
-            // This can only happen if I'm an observer and missed a move.
-            if (this.gotMoveIdx < movePlus.index)
-              this.gotMoveIdx = movePlus.index;
-            if (!this.gameIsLoading) this.askGameAgain();
+          if (
+            movePlus.index < movesCount ||
+            this.gotMoveIdx >= movePlus.index
+          ) {
+            // Opponent re-send but we already have the move:
+            // (maybe he didn't receive our pingback...)
+            this.send("gotmove", {data: movePlus.index, target: data.from});
           }
           else {
-            if (
-              movePlus.index < movesCount ||
-              this.gotMoveIdx >= movePlus.index
-            ) {
-              // Opponent re-send but we already have the move:
-              // (maybe he didn't receive our pingback...)
-              this.send("gotmove", {data: movePlus.index, target: data.from});
-            } else {
-              this.gotMoveIdx = movePlus.index;
-              const receiveMyMove = (movePlus.color == this.game.mycolor);
-              const moveColIdx = ["w", "b"].indexOf(movePlus.color);
-              if (!receiveMyMove && !!this.game.mycolor) {
-                // Notify opponent that I got the move:
-                this.send(
-                  "gotmove",
-                  { data: movePlus.index, target: data.from }
-                );
-                // And myself if I'm elsewhere:
-                if (!this.focus) {
-                  notify(
-                    "New move",
-                    {
-                      body:
-                        (this.game.players[moveColIdx].name || "@nonymous") +
-                        " just played."
-                    }
-                  );
-                }
-              }
-              if (movePlus.cancelDrawOffer) {
-                // Opponent refuses draw
-                this.drawOffer = "";
-                // NOTE for corr games: drawOffer reset by player in turn
-                if (
-                  this.game.type == "live" &&
-                  !!this.game.mycolor &&
-                  !receiveMyMove
-                ) {
-                  GameStorage.update(this.gameRef, { drawOffer: "" });
-                }
-              }
-              this.$refs["basegame"].play(movePlus.move, "received");
-              // Freeze time while the move is being play
-              // (TODO: a callback would be cleaner here)
-              clearInterval(this.clockUpdate);
-              this.clockUpdate = null;
-              const freezeDuration = ["all", "highlight"].includes(V.ShowMoves)
-                // 250 = length of animation, 500 = delay between sub-moves
-                ? 250 + 750 *
-                  (Array.isArray(movePlus.move) ? movePlus.move.length - 1 : 0)
-                // Incomplete information: no move animation
-                : 0;
-              setTimeout(
-                () => {
-                  this.game.clocks[moveColIdx] = movePlus.clock;
-                  this.processMove(
-                    movePlus.move,
-                    { receiveMyMove: receiveMyMove }
-                  );
-                },
-                freezeDuration
+            this.gotMoveIdx = movePlus.index;
+            const receiveMyMove = (movePlus.color == this.game.mycolor);
+            const moveColIdx = ["w", "b"].indexOf(movePlus.color);
+            if (!receiveMyMove && !!this.game.mycolor) {
+              // Notify opponent that I got the move:
+              this.send(
+                "gotmove",
+                { data: movePlus.index, target: data.from }
               );
+              // And myself if I'm elsewhere:
+              if (!this.focus) {
+                notify(
+                  "New move",
+                  {
+                    body:
+                      (this.game.players[moveColIdx].name || "@nonymous") +
+                      " just played."
+                  }
+                );
+              }
             }
+            if (movePlus.cancelDrawOffer) {
+              // Opponent refuses draw
+              this.drawOffer = "";
+              // NOTE for corr games: drawOffer reset by player in turn
+              if (
+                this.game.type == "live" &&
+                !!this.game.mycolor &&
+                !receiveMyMove
+              ) {
+                GameStorage.update(this.gameRef, { drawOffer: "" });
+              }
+            }
+            this.$refs["basegame"].play(movePlus.move, "received");
+            // Freeze time while the move is being play
+            // (TODO: a callback would be cleaner here)
+            clearInterval(this.clockUpdate);
+            this.clockUpdate = null;
+            const freezeDuration = ["all", "highlight"].includes(V.ShowMoves)
+              // 250 = length of animation, 500 = delay between sub-moves
+              ? 250 + 750 *
+                (Array.isArray(movePlus.move) ? movePlus.move.length - 1 : 0)
+              // Incomplete information: no move animation
+              : 0;
+            setTimeout(
+              () => {
+                this.game.clocks[moveColIdx] = movePlus.clock;
+                this.processMove(
+                  movePlus.move,
+                  { receiveMyMove: receiveMyMove }
+                );
+              },
+              freezeDuration
+            );
           }
           break;
         }
@@ -1261,14 +1228,12 @@ console.log(data.data);
         game
       );
       this.$refs["basegame"].re_setVariables(this.game);
-      if (!this.gameIsLoading) {
-        // Initial loading:
-        this.gotMoveIdx = game.moves.length - 1;
-        // If we arrive here after 'nextGame' action, the board might be hidden
-        let boardDiv = document.querySelector(".game");
-        if (!!boardDiv && boardDiv.style.visibility == "hidden")
-          boardDiv.style.visibility = "visible";
-      }
+      // Initial loading:
+      this.gotMoveIdx = game.moves.length - 1;
+      // If we arrive here after 'nextGame' action, the board might be hidden
+      let boardDiv = document.querySelector(".game");
+      if (!!boardDiv && boardDiv.style.visibility == "hidden")
+        boardDiv.style.visibility = "visible";
       this.re_setClocks();
       this.$nextTick(() => {
         this.game.rendered = true;
@@ -1278,12 +1243,6 @@ console.log(data.data);
       if (this.lastateAsked) {
         this.lastateAsked = false;
         this.sendLastate(game.oppsid);
-      }
-      if (this.gameIsLoading) {
-        this.gameIsLoading = false;
-        if (this.gotMoveIdx >= game.moves.length)
-          // Some moves arrived meanwhile...
-          this.askGameAgain();
       }
       if (!!callback) callback();
     },
@@ -1512,7 +1471,7 @@ console.log(data.data);
           this.opponentGotMove = false;
           this.send("newmove", {data: sendMove});
           // If the opponent doesn't reply gotmove soon enough, re-send move:
-          // Do this at most 2 times, because mpore would mean network issues,
+          // Do this at most 2 times, because more would mean network issues,
           // opponent would then be expected to disconnect/reconnect.
           let counter = 1;
           const currentUrl = document.location.href;
@@ -1544,6 +1503,7 @@ console.log(data.data);
       };
       if (
         this.game.type == "corr" &&
+        V.CorrConfirm &&
         moveCol == this.game.mycolor &&
         !data.receiveMyMove
       ) {
@@ -1587,7 +1547,8 @@ console.log(data.data);
           });
           document.querySelector("#confirmDiv > .card").style.width =
             boardDiv.offsetWidth + "px";
-        } else {
+        }
+        else {
           // Incomplete information: just ask confirmation
           // Hide the board, because otherwise it could reveal infos
           boardDiv.style.visibility = "hidden";

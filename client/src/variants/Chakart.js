@@ -1,23 +1,38 @@
 import { ChessRules } from "@/base_rules";
 
 export class ChakartRules extends ChessRules {
-  // NOTE: getBasicMove, ajouter les bonus à vanish array
-  // + déterminer leur effet (si cavalier) ou case (si banane ou bombe)
-  // (L'effet doit être caché au joueur : devrait être OK)
-  //
-  // Saut possible par dessus bonus ou champis mais pas bananes ou bombes
-//==> redefinir isAttackedBySlide et getPotentialSlide...
+  static get CorrConfirm() {
+    // Because of bonus effects
+    return false;
+  }
 
-// keep track of captured pieces: comme Grand; pieces can get back to board with toadette bonus.
-// --> pour ce bonus, passer "capture" temporairement en "reserve" pour permettre de jouer le coup.
-
-  // "pièces" supplémentaires : bananes, bombes, champis, bonus --> + couleur ?
-  //   (Semble mieux sans couleur => couleur spéciale indiquant que c'est pas jouable)
-  // (Attention: pas jouables cf. getPotentialMoves...)
+  static get CanAnalyze() {
+    return false;
+  }
 
   hoverHighlight(x, y) {
-    // TODO: exact squares
-    return this.subTurn == 2; //&& this.firstMove.donkey or wario or bonus roi boo
+    if (
+      this.firstMove.appear.length == 0 ||
+      this.firstMove.vanish.length == 0 ||
+      this.board[x][y] != V.EMPTY
+    ) {
+      return false;
+    }
+    const deltaX = Math.abs(this.firstMove.end.x - x);
+    const deltaY = Math.abs(this.firstMove.end.y - y);
+    return (
+      this.subTurn == 2 &&
+      // Condition: rook or bishop move, may capture, but no bonus move
+      [V.ROOK, V.BISHOP].includes(this.firstMove.vanish[0].p) &&
+      (
+        this.firstMove.vanish.length == 1 ||
+        ['w', 'b'].includes(this.firstMove.vanish[1].c)
+      ) &&
+      (
+        this.firstMove.vanish[0].p == V.ROOK && deltaX == 1 && deltaY == 1 ||
+        this.firstMove.vanish[0].p == V.BISHOP && deltaX + deltaY == 1
+      )
+    );
   }
 
   static get IMMOBILIZE_CODE() {
@@ -46,9 +61,33 @@ export class ChakartRules extends ChessRules {
     return 'i';
   }
 
+  // Fictive color 'a', bomb banana mushroom egg
+  static get BOMB() {
+    // Doesn't collide with bishop because color 'a'
+    return 'b';
+  }
+  static get BANANA() {
+    return 'n';
+  }
+  static get EGG() {
+    return 'e';
+  }
+  static get MUSHROOM() {
+    return 'm';
+  }
+
+  static get PIECES() {
+    return (
+      ChessRules.PIECES.concat(
+      Object.keys(V.IMMOBILIZE_DECODE)).concat(
+      [V.BANANA, V.BOMB, V.EGG, V.MUSHROOM, V.INVISIBLE_QUEEN])
+    );
+  }
+
   getPpath(b) {
     let prefix = "";
     if (
+      b[0] == 'a' ||
       b[1] == V.INVISIBLE_QUEEN ||
       Object.keys(V.IMMOBILIZE_DECODE).includes(b[1])
     ) {
@@ -97,7 +136,7 @@ export class ChakartRules extends ChessRules {
   setFlags(fenflags) {
     super.setFlags(fenflags); //castleFlags
     this.powerFlags = {
-      w: [...Array(2)], //king can send red shell? Queen can be invisible?
+      w: [...Array(2)], //king can send shell? Queen can be invisible?
       b: [...Array(2)]
     };
     const flags = fenflags.substr(4); //skip first 4 letters, for castle
@@ -166,7 +205,13 @@ export class ChakartRules extends ChessRules {
     return fen;
   }
 
+  addBonusYoshi() {
+    // TODO
+// --> pour bonus toadette, passer "capture" temporairement en "reserve" pour permettre de jouer le coup.
+  }
+
   getPotentialMovesFrom([x, y]) {
+    // TODO: si banane ou bombe ou... alors return [] ?
     // TODO: bananes et bombes limitent les déplacements (agissent comme un mur "capturable")
     // bananes jaunes et rouges ?! (agissant sur une seule couleur ?) --> mauvaise idée.
     if (this.subTurn == 2) {
@@ -175,6 +220,17 @@ export class ChakartRules extends ChessRules {
   //Détails :
   //Si une pièce pose quelque chose sur une case ça remplace ce qui y était déjà.
   // TODO: un-immobilize my immobilized piece at the end of this turn, if any
+  }
+
+  getBasicMove([x1, y1], [x2, y2]) {
+  // NOTE: getBasicMove, ajouter les bonus à vanish array
+  // + déterminer leur effet (si cavalier) ou case (si banane ou bombe)
+  // (L'effet doit être caché au joueur : devrait être OK)
+  }
+
+  getSlideNJumpMpves(sq, steps, oneStep) {
+  // Saut possible par dessus bonus ou champis mais pas bananes ou bombes
+//==> redefinir isAttackedBySlide et getPotentialSlide...
   }
 
   getPotentialPawnMoves(sq) {
@@ -230,9 +286,17 @@ export class ChakartRules extends ChessRules {
     //  Profite des accélérateurs posés par les pions (+ 1 case : obligatoire).
   }
 
+  isAttackedBySlideNJump() {
+    // TODO:
+  }
+
   atLeastOneMove() {
     // TODO: check that
     return true;
+  }
+
+  getAllPotentialMoves() {
+    // (Attention: objets pas jouables cf. getPotentialMoves...)
   }
 
   play(move) {

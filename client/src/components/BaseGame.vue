@@ -461,7 +461,7 @@ export default {
           // To play a received move, cursor must be at the end of the game:
           this.gotoEnd();
       }
-      // The board may show some the possible moves: (TODO: bad solution)
+      // The board may show some possible moves: (TODO: bad solution)
       this.$refs["board"].resetCurrentAttempt();
       const playSubmove = (smove) => {
         smove.notation = this.vr.getNotation(smove);
