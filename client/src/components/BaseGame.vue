@@ -277,12 +277,18 @@ export default {
     },
     toggleAnalyze: function() {
       // Freeze while choices are shown (and autoplay has priority)
-      if (this.$refs["board"].choices.length > 0 || this.autoplay) return;
+      if (
+        this.inPlay ||
+        this.$refs["board"].choices.length > 0 ||
+        this.autoplay
+      ) {
+        return;
+      }
       if (this.mode != "analyze") {
         // Enter analyze mode:
+        this.mode = "analyze";
         if (this.inMultimove) this.cancelCurrentMultimove();
         this.gameMode = this.mode; //was not 'analyze'
-        this.mode = "analyze";
         this.gameCursor = this.cursor;
         this.gameMoves = JSON.parse(JSON.stringify(this.moves));
         document.getElementById("analyzeBtn").classList.add("active");
