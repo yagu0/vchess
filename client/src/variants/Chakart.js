@@ -20,26 +20,20 @@ export class ChakartRules extends ChessRules {
   }
 
   hoverHighlight(x, y) {
-    if (
-      this.firstMove.appear.length == 0 ||
-      this.firstMove.vanish.length == 0 ||
-      this.board[x][y] != V.EMPTY
-    ) {
-      return false;
-    }
-    const deltaX = Math.abs(this.firstMove.end.x - x);
-    const deltaY = Math.abs(this.firstMove.end.y - y);
+    if (this.subTurn == 1) return false;
+    const L = this.firstMove.length;
+    const fm = this.firstMove[L-1];
+    if (fm.end.effect != 0) return false;
+    const deltaX = Math.abs(fm.end.x - x);
+    const deltaY = Math.abs(fm.end.y - y);
     return (
-      this.subTurn == 2 &&
-      // Condition: rook or bishop move, may capture, but no bonus move
-      [V.ROOK, V.BISHOP].includes(this.firstMove.vanish[0].p) &&
+      (deltaX == 0 && deltaY == 0) ||
       (
-        this.firstMove.vanish.length == 1 ||
-        ['w', 'b'].includes(this.firstMove.vanish[1].c)
-      ) &&
-      (
-        this.firstMove.vanish[0].p == V.ROOK && deltaX == 1 && deltaY == 1 ||
-        this.firstMove.vanish[0].p == V.BISHOP && deltaX + deltaY == 1
+        this.board[x][y] == V.EMPTY &&
+        (
+          (fm.vanish[0].p == V.ROOK && deltaX == 1 && deltaY == 1) ||
+          (fm.vanish[0].p == V.BISHOP && deltaX + deltaY == 1)
+        )
       )
     );
   }
@@ -309,6 +303,7 @@ export class ChakartRules extends ChessRules {
     // Pas terrible, mais y'aura pas 36 variantes comme ça. Disons end.effect == 0, 1, 2 ou 3
     // 0 => tour ou fou, pose potentielle.
     // If queen can be invisible, add move same start + end but final type changes
+    // set move.end.effect (if subTurn --> 2)
   }
 
   getEnpassantCaptures([x, y], shiftX) {
@@ -412,25 +407,43 @@ export class ChakartRules extends ChessRules {
   }
 
   doClick(square) {
-    // TODO: if click on x, y (piece), then return empty move same as Dynamo
     if (isNaN(square[0])) return null;
-    // TODO: If subTurn == 2:
-    // if square is empty && firstMove is compatible,
-    // complete the move (banana or bomb or piece exchange).
-    // if square not empty, just complete with empty move
-    const Lf = this.firstMove.length;
-    if (this.subTurn == 2) {
-      if (
-        this.board[square[0]][square[1]] == V.EMPTY &&
-        (La == 0 || !this.oppositeMoves(this.amoves[La-1], this.firstMove[Lf-1]))
-      ) {
-        return {
-          start: { x: -1, y: -1 },
-          end: { x: -1, y: -1 },
-          appear: [],
-          vanish: []
-        };
-      }
+    if (this.subTurn == 1) return null;
+    const L = this.firstMove.length;
+    const fm = this.firstMove[L-1];
+    if (fm.end.effect != 0) return null;
+    const [x, y] = [square[0], square[1]];
+    const deltaX = Math.abs(fm.end.x - x);
+    const deltaY = Math.abs(fm.end.y - y);
+    if (deltaX == 0 && deltaY == 0) {
+      // Empty move:
+      return {
+        start: { x: -1, y: -1 },
+        end: { x: -1, y: -1 },
+        appear: [],
+        vanish: []
+      };
+    }
+    if (
+      this.board[x][y] == V.EMPTY &&
+      (
+        (fm.vanish[0].p == V.ROOK && deltaX == 1 && deltaY == 1) ||
+        (fm.vanish[0].p == V.BISHOP && deltaX + deltaY == 1)
+      )
+    ) {
+      return new Move({
+        start: { x: -1, y: -1 },
+        end: { x: x, y: y },
+        appear: [
+          new PiPo({
+            x: x,
+            y: y,
+            c: 'a',
+            p: (fm.vanish[0].p == V.ROOK ? V.BANANA : V.BOMB)
+          })
+        ],
+        vanish: []
+      });
     }
     return null;
   }
