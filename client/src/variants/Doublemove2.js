@@ -189,52 +189,24 @@ export class Doublemove2Rules extends ChessRules {
     };
   }
 
-  // No alpha-beta here, just adapted min-max at depth 2(+1)
+  // No alpha-beta here, just adapted min-max at depth 1(+1)
   getComputerMove() {
-    const maxeval = V.INFINITY;
     const color = this.turn;
-    const oppCol = V.GetOppCol(this.turn);
+    const moves11 = this.getAllValidMoves();
+    if (this.movesCount == 0)
+      // First white move at random:
+      return moves11[randInt(moves11.length)];
 
-    // Search best (half) move for opponent turn
-    const getBestMoveEval = () => {
-      let score = this.getCurrentScore();
-      if (score != "*") {
-        if (score == "1/2") return 0;
-        return maxeval * (score == "1-0" ? 1 : -1);
-      }
-      let moves = this.getAllValidMoves();
-      let res = oppCol == "w" ? -maxeval : maxeval;
-      for (let m of moves) {
-        this.play(m);
-        score = this.getCurrentScore();
-        // Now turn is oppCol,2
-        if (score != "*") {
-          if (score == "1/2")
-            res = oppCol == "w" ? Math.max(res, 0) : Math.min(res, 0);
-          else {
-            // King captured
-            this.undo(m);
-            return maxeval * (score == "1-0" ? 1 : -1);
-          }
-        }
-        const evalPos = this.evalPosition();
-        res = oppCol == "w" ? Math.max(res, evalPos) : Math.min(res, evalPos);
-        this.undo(m);
-      }
-      return res;
-    };
-
-    let moves11 = this.getAllValidMoves();
     let doubleMoves = [];
-    // Rank moves using a min-max at depth 2(+1)
+    // Rank moves using a min-max at depth 2
     for (let i = 0; i < moves11.length; i++) {
       this.play(moves11[i]);
-      let moves12 = this.getAllValidMoves();
+      const moves12 = this.getAllValidMoves();
       for (let j = 0; j < moves12.length; j++) {
         this.play(moves12[j]);
         doubleMoves.push({
           moves: [moves11[i], moves12[j]],
-          eval: getBestMoveEval()
+          eval: this.evalPosition()
         });
         this.undo(moves12[j]);
       }

@@ -1,6 +1,21 @@
 import { ChessRules } from "@/base_rules";
+import { SuicideRules } from "@/variants/Suicide";
 
 export class ChakartRules extends ChessRules {
+  static get PawnSpecs() {
+    return SuicideRules.PawnSpecs;
+  }
+
+  static get HasCastle() {
+    return false;
+  }
+
+  static get HasEnpassant() {
+    // TODO: maybe enable them later, but then the capturing pawn take the
+    // mushroom and continue diagonally?!
+    return false;
+  }
+
   static get CorrConfirm() {
     // Because of bonus effects
     return false;
@@ -100,7 +115,7 @@ export class ChakartRules extends ChessRules {
     const fenParts = fen.split(" ");
     return Object.assign(
       ChessRules.ParseFen(fen),
-      { captured: fenParts[5] }
+      { captured: fenParts[4] }
     );
   }
 
@@ -129,30 +144,27 @@ export class ChakartRules extends ChessRules {
   }
 
   static IsGoodFlags(flags) {
-    // 4 for castle + 4 for Peach + Mario w, b
-    return !!flags.match(/^[a-z]{4,4}[01]{4,4}$/);
+    // 4 for Peach + Mario w, b
+    return !!flags.match(/^[01]{4,4}$/);
   }
 
   setFlags(fenflags) {
-    super.setFlags(fenflags); //castleFlags
     this.powerFlags = {
       w: [...Array(2)], //king can send shell? Queen can be invisible?
       b: [...Array(2)]
     };
-    const flags = fenflags.substr(4); //skip first 4 letters, for castle
     for (let c of ["w", "b"]) {
       for (let i = 0; i < 2; i++)
-        this.pawnFlags[c][i] = flags.charAt((c == "w" ? 0 : 2) + i) == "1";
+        this.pawnFlags[c][i] = fenFlags.charAt((c == "w" ? 0 : 2) + i) == "1";
     }
   }
 
   aggregateFlags() {
-    return [this.castleFlags, this.powerFlags];
+    return this.powerFlags;
   }
 
   disaggregateFlags(flags) {
-    this.castleFlags = flags[0];
-    this.powerFlags = flags[1];
+    this.powerFlags = flags;
   }
 
   getFen() {
@@ -175,7 +187,6 @@ export class ChakartRules extends ChessRules {
   }
 
   setOtherVariables(fen) {
-    super.setOtherVariables(fen);
     const fenParsed = V.ParseFen(fen);
     // Initialize captured pieces' counts from FEN
     this.captured = {
@@ -198,116 +209,70 @@ export class ChakartRules extends ChessRules {
   }
 
   getFlagsFen() {
-    let fen = super.getFlagsFen();
+    let fen = "";
     // Add power flags
     for (let c of ["w", "b"])
       for (let i = 0; i < 2; i++) fen += (this.powerFlags[c][i] ? "1" : "0");
     return fen;
   }
 
-  addBonusYoshi() {
-    // TODO
-// --> pour bonus toadette, passer "capture" temporairement en "reserve" pour permettre de jouer le coup.
-  }
-
-  getPotentialMovesFrom([x, y]) {
-    // TODO: si banane ou bombe ou... alors return [] ?
-    // TODO: bananes et bombes limitent les déplacements (agissent comme un mur "capturable")
-    // bananes jaunes et rouges ?! (agissant sur une seule couleur ?) --> mauvaise idée.
+  getPotentialMovesFrom(sq) {
+    if (this.subTurn == 1) return super.getPotentialMovesFrom(sq);
     if (this.subTurn == 2) {
       // TODO: coup compatible avec firstMove
     }
-  //Détails :
-  //Si une pièce pose quelque chose sur une case ça remplace ce qui y était déjà.
-  // TODO: un-immobilize my immobilized piece at the end of this turn, if any
   }
 
   getBasicMove([x1, y1], [x2, y2]) {
-  // NOTE: getBasicMove, ajouter les bonus à vanish array
-  // + déterminer leur effet (si cavalier) ou case (si banane ou bombe)
-  // (L'effet doit être caché au joueur : devrait être OK)
+    // Apply mushroom, bomb or banana effect (hidden to the player).
+    // Determine egg effect, too, and apply its first part if possible.
+    // add egg + add mushroom for pawns.
+    let move = super.getBasicMove([x1, y1], [x2, y2]);
+    // TODO
+    return move;
+    // Infer move type based on its effects (used to decide subTurn 1 --> 2)
+    // --> impossible étant donné juste first part (egg --> effect?)
+    // => stocker l'effet (i, ii ou iii) dans le coup directement,
+    // Pas terrible, mais y'aura pas 36 variantes comme ça. Disons end.effect == null, 0, 1, 2 ou 3
+    // 0 => tour ou fou, pose potentielle.
+    // If queen can be invisible, add move same start + end but final type changes
   }
 
-  getSlideNJumpMpves(sq, steps, oneStep) {
-  // Saut possible par dessus bonus ou champis mais pas bananes ou bombes
-//==> redefinir isAttackedBySlide et getPotentialSlide...
+  getPotentialKingMoves([x, y]) {
+    let moves = super.getPotentialKingMoves([x, y]);
+    // TODO: if flags allows it, add 'remote shell captures'
+    return moves;
   }
 
-  getPotentialPawnMoves(sq) {
-    //Toad: pion
-    //  laisse sur sa case de départ un champi turbo permettant à Peach et cavalier et autres pions d'aller
-    //  un dep plus loin (evt 2 cases si pion saut initial), et aux pièces arrivant sur cette case de sauter par
-    //  dessus une pièce immédiatement adjacente dans leur trajectoire (en atterissant juste derrière).
-  }
-
-  // Coups en 2 temps (si pose possible)
-  getPotentialRookMoves(sq) {
-    //Donkey : tour
-    //  pose une banane (optionnel) sur une case adjacente (diagonale) à celle d'arrivée
-    //  Si une pièce arrive sur la peau de banane, alors elle effectue un déplacement
-    //  aléatoire d'une (2?) case (vertical ou horizontal) depuis sa position finale.
-  }
-
-  // Coups en 2 temps (si pose)
-  getPotentialBishopMoves([x, y]) {
-    //Wario: fou
-    //  pose une bombe (optionnel) sur une case orthogonalement adjacente à la case d'arrivée
-    //  Si une pièce arrive sur une bombe, alors elle effectue un déplacement diagonal
-    //  aléatoire d'une (2?) case depuis sa position finale (juste une case si impossible).
-  }
-
-  getPotentialKnightMoves([x, y]) {
-    //Yoshi: cavalier
-    //  laisse sur sa case de départ un bonus aléatoire
-    //  (NOTE: certains bonus pourraient ne pas être applicables ==> pion bloqué par exemple)
-    //    - i) roi boo(*E*) : échange avec n'importe quelle pièce (choix du joueur, type et/ou couleur différents)
-    //    - i*) koopa(*B*) : ramène sur la case initiale
-    //    - ii) toadette(*R*) : permet de poser une pièce capturée sur le plateau
-    //                         (n'importe où sauf 8eme rangée pour les pions)
-    //    - ii*) chomp(*W*) : mange la pièce ; si c'est Peach, c'est perdu
-    //    - iii) daisy(*T*) : permet de rejouer un coup avec la même pièce --> cumulable si ensuite coup sur bonus Daisy.
-    //    - iii*) bowser(*M*) : immobilise la pièce (marquée jaune/rouge), qui ne pourra pas jouer au tour suivant
-    //    - iv) luigi(*L*) : fait changer de camp une pièce adverse (aléatoire) (sauf le roi)
-    //    - iv*) waluigi(*D*) : fait changer de camp une de nos pièces (aléatoire, sauf le roi)
-    //  --> i, ii, iii en deux temps (subTurn 1 & 2)
-  }
-
-  getPotentialQueenMoves(sq) {
-    //Mario: dame
-    //  pouvoir "fantôme" : peut effectuer une fois dans la partie un coup non-capturant invisible (=> choix à chaque coup, getPPpath(m) teste m.nvisible...)
-    //wg bg ghost once in the game the queen can make an invisible move --> printed as "?"
-  }
-
-  getPotentialKingMoves(sq) {
-    //Peach: roi
-    //  Carapace rouge (disons ^^) jouable une seule fois dans la partie,
-    //  au lieu de se déplacer. Capture un ennemi au choix parmi les plus proches,
-    //  à condition qu'ils soient visibles (suivant les directions de déplacement d'une dame).
-    //  Profite des accélérateurs posés par les pions (+ 1 case : obligatoire).
-  }
-
-  isAttackedBySlideNJump() {
-    // TODO:
-  }
-
-  atLeastOneMove() {
-    // TODO: check that
-    return true;
+  getSlideNJumpMoves([x, y], steps, oneStep) {
+    let moves = [];
+    outerLoop: for (let step of steps) {
+      let i = x + step[0];
+      let j = y + step[1];
+      while (
+        V.OnBoard(i, j) &&
+        (
+          this.board[i][j] == V.EMPTY ||
+          (
+            this.getColor(i, j) == 'a' &&
+            [V.EGG, V.MUSHROOM].includes(this.getPiece(i, j))
+          )
+        )
+      ) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+        if (oneStep) continue outerLoop;
+        i += step[0];
+        j += step[1];
+      }
+      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
+        moves.push(this.getBasicMove([x, y], [i, j]));
+    }
+    return moves;
   }
 
   getAllPotentialMoves() {
-    // (Attention: objets pas jouables cf. getPotentialMoves...)
-  }
-
-  play(move) {
-    // TODO: subTurn passe à 2 si arrivée sur bonus cavalier
-    // potentiellement pose (tour, fou) ou si choix (reconnaître i (ok), ii (ok) et iii (si coup normal + pas immobilisé) ?)
-    // voire +2 si plusieurs daisy...
-    // si pièce immobilisée de ma couleur : elle redevient utilisable (changer status fin de play)
-  }
-
-  undo(move) {
-    // TODO: reconnaissance inverse si subTurn == 1 --> juste impossible ==> marquer pendant play (comme DoubleMove1 : move.turn = ...)
+    if (this.subTurn == 1) return super.getAllPotentialMoves();
+    // TODO: subTurn == 2, switch on firstMove.end.effect --> lack firstMove, setOtherVariables, play/undo, see Dynamo
   }
 
   doClick(square) {
@@ -320,7 +285,6 @@ export class ChakartRules extends ChessRules {
     if (this.subTurn == 2) {
       if (
         this.board[square[0]][square[1]] == V.EMPTY &&
-        !this.underCheck(this.turn) &&
         (La == 0 || !this.oppositeMoves(this.amoves[La-1], this.firstMove[Lf-1]))
       ) {
         return {
@@ -334,43 +298,76 @@ export class ChakartRules extends ChessRules {
     return null;
   }
 
-  postPlay(move) {
-    // TODO: king may also be "chomped"
-    super.updateCastleFlags(move, piece);
+  play(move) {
+    // TODO
+// --> pour bonus toadette, passer "capture" temporairement en "reserve" pour permettre de jouer le coup.
+    // il faut alors mettre à jour 'captured'
+    // TODO: subTurn passe à 2 si arrivée sur bonus cavalier + effect == 1, 2 ou 3 ou si coup de tour ou fou (non cumulables)
   }
+
   postPlay(move) {
-    super.postPlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 1)
+    // TODO: if effect = resurect a piece, then this.reserve = this.captured;
+    if (move.vanish.length == 2 && move.vanish[1].c != 'a')
       // Capture: update this.captured
       this.captured[move.vanish[1].c][move.vanish[1].p]++;
+    else if (move.vanish.length == 0) {
+      // A piece is back on board
+      this.captured[move.vanish[1].c][move.vanish[1].p]++;
+      this.reserve = null;
+    }
+    // si pièce immobilisée de ma couleur : elle redevient utilisable (changer status fin de play)
+    // TODO: un-immobilize my formerly immobilized piece, if any.
+    // Make invisible queen visible again, if any opponent invisible queen.
+  }
+
+  undo(move) {
+    // TODO: should be easy once end.effect is set in getBasicMove()
   }
 
   postUndo(move) {
-    super.postUndo(move);
-    if (move.vanish.length == 2 && move.appear.length == 1)
+    if (move.vanish.length == 2 && move.vanish[1].c != 'a')
       this.captured[move.vanish[1].c][move.vanish[1].p]--;
   }
 
+  getCheckSquares() {
+    return [];
+  }
+
   getCurrentScore() {
-    if (this.kingPos[this.turn][0] < 0)
-      // King captured (or "chomped")
-      return this.turn == "w" ? "0-1" : "1-0";
-    return '*';
+    // Find kings (not tracked in this variant)
+    let kingThere = { w: false, b: false };
+    for (let i=0; i<8; i++) {
+      for (let j=0; j<8; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getPiece(i, j) == V.KING)
+          kingThere[this.getColor(i, j)] = true;
+      }
+    }
+    if (!kingThere['w']) return "0-1";
+    if (!kingThere['b']) return "1-0";
+    return "*";
   }
 
   static GenRandInitFen(randomness) {
     return (
-      ChessRules.GenRandInitFen(randomness).slice(0, -2) +
+      SuicideRules.GenRandInitFen(randomness).slice(0, -1) +
       // Add Peach + Mario flags, re-add en-passant + capture counts
       "0000 - 0000000000"
     );
   }
 
+  filterValid(moves) {
+    return moves;
+  }
+
   getComputerMove() {
+    const moves = this.getAllValidMoves();
     // TODO: random mover
+    return moves[0];
   }
 
   getNotation(move) {
+    // TODO
     // invisibility used? --> move notation Q??
+    return "?";
   }
 };
