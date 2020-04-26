@@ -743,8 +743,7 @@ export const ChessRules = class ChessRules {
     if (x2 == lastRank) {
       // promotions arg: special override for Hiddenqueen variant
       if (!!promotions) finalPieces = promotions;
-      else if (!!V.PawnSpecs.promotions)
-        finalPieces = V.PawnSpecs.promotions;
+      else if (!!V.PawnSpecs.promotions) finalPieces = V.PawnSpecs.promotions;
     }
     let tr = null;
     for (let piece of finalPieces) {
@@ -793,10 +792,7 @@ export const ChessRules = class ChessRules {
         // Captures
         if (V.PawnSpecs.canCapture) {
           for (let shiftY of [-1, 1]) {
-            if (
-              y + shiftY >= 0 &&
-              y + shiftY < sizeY
-            ) {
+            if (y + shiftY >= 0 && y + shiftY < sizeY) {
               if (
                 this.board[x + shiftX][y + shiftY] != V.EMPTY &&
                 this.canTake([x, y], [x + shiftX, y + shiftY])
