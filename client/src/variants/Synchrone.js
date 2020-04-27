@@ -10,6 +10,10 @@ export class SynchroneRules extends ChessRules {
     return "byrow";
   }
 
+  static get SomeHiddenMoves() {
+    return true;
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);

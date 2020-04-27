@@ -121,13 +121,15 @@ export default {
     // TODO: is it OK to pass "computed" as properties?
     // Also, some are seemingly not recomputed when vr is initialized.
     showMoves: function() {
-      return this.game.score != "*"
-        ? "all"
-        : (!!this.vr ? this.vr.showMoves : "none");
+      return (
+        !!this.game.score && this.game.score != "*"
+          ? "all"
+          : (!!this.vr ? this.vr.showMoves : "none")
+      );
     },
     showTurn: function() {
       return (
-        this.game.score == '*' &&
+        !!this.game.score && this.game.score == '*' &&
         !!this.vr &&
         (
           this.vr.showMoves != "all" ||
@@ -138,7 +140,7 @@ export default {
     },
     canAnalyze: function() {
       return (
-        this.game.mode != "analyze" &&
+        !!this.game.mode && this.game.mode != "analyze" &&
         !!this.vr && this.vr.canAnalyze
       );
     },
@@ -147,8 +149,8 @@ export default {
     },
     allowDownloadPGN: function() {
       return (
-        this.game.score != "*" ||
-        (!!this.vr && this.vr.showMoves == "all")
+        (!!this.game.score && this.game.score != "*") ||
+        (!!this.vr && !this.vr.someHiddenMoves)
       );
     }
   },

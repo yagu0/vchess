@@ -80,6 +80,14 @@ export const ChessRules = class ChessRules {
     return V.ShowMoves;
   }
 
+  // Sometimes moves must remain hidden until game ends
+  static get SomeHiddenMoves() {
+    return false;
+  }
+  get someHiddenMoves() {
+    return V.SomeHiddenMoves;
+  }
+
   // Generally true, unless the variant includes random effects
   static get CorrConfirm() {
     return true;

@@ -11,6 +11,10 @@ export class HiddenRules extends ChessRules {
     return false;
   }
 
+  static get SomeHiddenMoves() {
+    return true;
+  }
+
   // Analyse in Hidden mode makes no sense
   static get CanAnalyze() {
     return false;

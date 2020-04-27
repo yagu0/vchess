@@ -13,6 +13,10 @@ export class DarkRules extends ChessRules {
     return "none";
   }
 
+  static get SomeHiddenMoves() {
+    return true;
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     const [sizeX, sizeY] = [V.size.x, V.size.y];

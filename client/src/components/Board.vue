@@ -60,9 +60,9 @@ export default {
     if (!!lm) {
       if (!Array.isArray(lm)) lm = [lm];
       lm.forEach(m => {
-        if (V.OnBoard(m.start.x, m.start.y))
+        if (!m.start.noHighlight && V.OnBoard(m.start.x, m.start.y))
           lmHighlights[m.start.x + sizeX * m.start.y] = true;
-        if (V.OnBoard(m.end.x, m.end.y))
+        if (!m.end.noHighlight && V.OnBoard(m.end.x, m.end.y))
           lmHighlights[m.end.x + sizeX * m.end.y] = true;
       });
     }
@@ -904,7 +904,7 @@ img.ghost
 
 .hover-highlight:hover
   // TODO: color dependant on board theme, or inner border...
-  background-color: #C571E6
+  background-color: #C571E6 !important
 
 .light-square.lichess.highlight-light
   background-color: #cdd26a

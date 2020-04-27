@@ -13,6 +13,10 @@ export class ApocalypseRules extends ChessRules {
     );
   }
 
+  static get SomeHiddenMoves() {
+    return true;
+  }
+
   static get HasCastle() {
     return false;
   }

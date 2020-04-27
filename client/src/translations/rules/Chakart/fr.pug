@@ -2,45 +2,57 @@ p.boxed.
   TODO
 
   //Détails :
-  //Si une pièce pose quelque chose sur une case ça remplace ce qui y était déjà.
-    
-    //Toad: pion
-    //  laisse sur sa case d'arrivée -1 un champi turbo permettant à Peach et cavalier et autres pions d'aller
-    //  un dep plus loin (evt 2 cases si pion saut initial), et aux pièces arrivant sur cette case de sauter par
-    //  dessus une pièce immédiatement adjacente dans leur trajectoire (en atterissant juste derrière, si case vide? Ou avec capture aussi?).
-  
-    //Donkey : tour
-    //  pose une banane (optionnel) sur une case adjacente (diagonale) à celle d'arrivée
-    //  Si une pièce arrive sur la peau de banane, alors elle effectue un déplacement
-    //  aléatoire d'une (2?) case (vertical ou horizontal) depuis sa position finale.
+            //Si une pièce pose quelque chose sur une case ça remplace ce qui y était déjà.
+              
+              //Toad: pion
+              //  laisse sur sa case d'arrivée -1 un champi turbo permettant à Peach et cavalier et autres pions d'aller
+              //  un dep plus loin (evt 2 cases si pion saut initial), et aux pièces arrivant sur cette case de sauter par
+              //  dessus une pièce immédiatement adjacente dans leur trajectoire (en atterissant juste derrière, si case vide? Ou avec capture aussi?).
+            
+              //Donkey : tour
+              //  pose une banane (optionnel) sur une case adjacente (diagonale) à celle d'arrivée
+              //  Si une pièce arrive sur la peau de banane, alors elle effectue un déplacement
+              //  aléatoire d'une (2?) case (vertical ou horizontal) depuis sa position finale.
 
-    //Wario: fou
-    //  pose une bombe (optionnel) sur une case orthogonalement adjacente à la case d'arrivée
-    //  Si une pièce arrive sur une bombe, alors elle effectue un déplacement diagonal
-    //  aléatoire d'une (2?) case depuis sa position finale (juste une case si impossible).
-    
-    //Yoshi: cavalier
-    //  laisse sur sa case de départ un bonus aléatoire
-    //  (NOTE: certains bonus pourraient ne pas être applicables ==> pion bloqué par exemple)
-    //    - i) roi boo(*E*) : échange avec n'importe quelle pièce (choix du joueur, type et/ou couleur différents)
-    //    - i*) koopa(*B*) : ramène sur la case initiale
-    //    - ii) toadette(*R*) : permet de poser une pièce capturée sur le plateau
-    //                         (n'importe où sauf 8eme rangée pour les pions)
-    //    - ii*) chomp(*W*) : mange la pièce ; si c'est Peach, c'est perdu
-    //    - iii) daisy(*T*) : permet de rejouer un coup avec la même pièce --> cumulable si ensuite coup sur bonus Daisy.
-    //    - iii*) bowser(*M*) : immobilise la pièce (marquée jaune/rouge), qui ne pourra pas jouer au tour suivant
-    //    - iv) luigi(*L*) : fait changer de camp une pièce adverse (aléatoire) (sauf le roi)
-    //    - iv*) waluigi(*D*) : fait changer de camp une de nos pièces (aléatoire, sauf le roi)
-    //  --> i, ii, iii en deux temps (subTurn 1 & 2)
-  
-    //Mario: dame
-    //  pouvoir "fantôme" : peut effectuer une fois dans la partie un coup non-capturant invisible (=> choix à chaque coup, getPPpath(m) teste m.nvisible...)
-    //wg bg ghost once in the game the queen can make an invisible move --> printed as "?"
+              //Wario: fou
+              //  pose une bombe (optionnel) sur une case orthogonalement adjacente à la case d'arrivée
+              //  Si une pièce arrive sur une bombe, alors elle effectue un déplacement diagonal
+              //  aléatoire d'une (2?) case depuis sa position finale (juste une case si impossible).
+              
+              //Yoshi: cavalier
+              //  laisse sur sa case de départ un bonus aléatoire
+              //  (NOTE: certains bonus pourraient ne pas être applicables ==> pion bloqué par exemple)
+              //    - i) roi boo(*E*) : échange avec n'importe quelle pièce (choix du joueur, type et/ou couleur différents)
+          B
+          //    - i*) koopa(*B*) : ramène sur la case initiale
+          K
+          //    - ii) toadette(*R*) : permet de poser une pièce capturée sur le plateau
+          T
+          //                         (n'importe où sauf 8eme rangée pour les pions)
+              //    - ii*) chomp(*W*) : mange la pièce ; si c'est Peach, c'est perdu
+          C
+          //    - iii) daisy(*T*) : permet de rejouer un coup avec la même pièce --> cumulable si ensuite coup sur bonus Daisy.
+          D
+          //    - iii*) bowser(*M*) : immobilise la pièce (marquée jaune/rouge), qui ne pourra pas jouer au tour suivant
+          I
+          //    - iv) luigi(*L*) : fait changer de camp une pièce adverse (aléatoire) (sauf le roi)
+          L
+          //    - iv*) waluigi(*D*) : fait changer de camp une de nos pièces (aléatoire, sauf le roi)
+          W
+          //  --> i, ii, iii en deux temps (subTurn 1 & 2)
+            
+              //Mario: dame
+              //  pouvoir "fantôme" : peut effectuer une fois dans la partie un coup non-capturant invisible (=> choix à chaque coup, getPPpath(m) teste m.nvisible...)
+              //wg bg ghost once in the game the queen can make an invisible move --> printed as "?"
 
-    //Peach: roi
-    //  Carapace rouge (disons ^^) jouable une seule fois dans la partie,
-    //  au lieu de se déplacer. Capture un ennemi au choix parmi les plus proches,
-    //  à condition qu'ils soient visibles (suivant les directions de déplacement d'une dame).
-    //  Profite des accélérateurs posés par les pions (+ 1 case : obligatoire).
+              //Peach: roi
+              //  Carapace rouge (disons ^^) jouable une seule fois dans la partie,
+              //  au lieu de se déplacer. Capture un ennemi au choix parmi les plus proches,
+              //  à condition qu'ils soient visibles (suivant les directions de déplacement d'une dame).
+              //  Profite des accélérateurs posés par les pions (+ 1 case : obligatoire).
 
-    // Promotion pion: n'importe quelle pièce y compris roi => Si plusieurs rois, il faut tous les capturer.
+              // Promotion pion: n'importe quelle pièce y compris roi => Si plusieurs rois, il faut tous les capturer.
+
+          p.
+            Règles imaginées par Charlotte Blard
+            et développées par Benjamin Auder (2020).

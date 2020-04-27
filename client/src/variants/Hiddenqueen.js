@@ -12,6 +12,10 @@ export class HiddenqueenRules extends ChessRules {
     return 't';
   }
 
+  static get SomeHiddenMoves() {
+    return true;
+  }
+
   static get PIECES() {
     return ChessRules.PIECES.concat([V.HIDDEN_QUEEN]);
   }
