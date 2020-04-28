@@ -1,58 +1,127 @@
 p.boxed.
-  TODO
+  Certains coups ont des effets aléatoires.
+  Le but est de capturer le roi adverse.
 
-  //Détails :
-            //Si une pièce pose quelque chose sur une case ça remplace ce qui y était déjà.
-              
-              //Toad: pion
-              //  laisse sur sa case d'arrivée -1 un champi turbo permettant à Peach et cavalier et autres pions d'aller
-              //  un dep plus loin (evt 2 cases si pion saut initial), et aux pièces arrivant sur cette case de sauter par
-              //  dessus une pièce immédiatement adjacente dans leur trajectoire (en atterissant juste derrière, si case vide? Ou avec capture aussi?).
-            
-              //Donkey : tour
-              //  pose une banane (optionnel) sur une case adjacente (diagonale) à celle d'arrivée
-              //  Si une pièce arrive sur la peau de banane, alors elle effectue un déplacement
-              //  aléatoire d'une (2?) case (vertical ou horizontal) depuis sa position finale.
+p
+  | Les pièces se déplacent comme habituellement, mais elles ont toutes un
+  | "pouvoir" spécial inspiré de 
+  a(href="https://fr.wikipedia.org/wiki/Mario_Kart") Mario Kart
+  | &nbsp;:
+ul
+  li.
+    Le pion (Toad) laisse un champignon "turbo" une case avant sa case
+    d'arrivée. Cela correspond à sa case initiale, sauf après le potentiel
+    déplacement initial de deux cases.
+  li.
+    Le cavalier (Yoshi) dépose un oeuf sur la première case intermédiaire
+    othogonalement adjacente dans la direction de son mouvement. Si ce n'est
+    pas possible, l'oeuf est laissé sur sa case de départ.
+  li.
+    La tour (Donkey) pose une banane sur une case diagonalement adjacente à
+    celle d'arrivée, si possible. En cas d'options multiples le choix est
+    laissé au joueur (cliquez sur une case après votre coup).
+  li.
+    Le fou (Wario) pose une bombe sur une case orthogonalement adjacente à
+    celle d'arrivée, si possible.
+    Vous pouvez aussi choisir la case.
+  li.
+    La dame (Mario) peut effectuer un coup furtif une fois dans la partie :
+    choisissez la case vide lorsque la dame se déplace vers une case vide.
+    Après ce coup, l'adversaire saura que votre dame a bougé mais pas où.
+    Une dame promue dispose aussi de ce pouvoir s'il n'a pas déjà été utilisé.
+  li.
+    Le roi (Peach) peut "lancer une carapace" sur un ennemi à portée de dame,
+    une fois dans la partie.
+    Un roi promu dispose également de ce pouvoir, s'il n'a pas encore été
+    utilisé. La capture s'effectue alors à distance sans se déplacer.
 
-              //Wario: fou
-              //  pose une bombe (optionnel) sur une case orthogonalement adjacente à la case d'arrivée
-              //  Si une pièce arrive sur une bombe, alors elle effectue un déplacement diagonal
-              //  aléatoire d'une (2?) case depuis sa position finale (juste une case si impossible).
-              
-              //Yoshi: cavalier
-              //  laisse sur sa case de départ un bonus aléatoire
-              //  (NOTE: certains bonus pourraient ne pas être applicables ==> pion bloqué par exemple)
-              //    - i) roi boo(*E*) : échange avec n'importe quelle pièce (choix du joueur, type et/ou couleur différents)
-          B
-          //    - i*) koopa(*B*) : ramène sur la case initiale
-          K
-          //    - ii) toadette(*R*) : permet de poser une pièce capturée sur le plateau
-          T
-          //                         (n'importe où sauf 8eme rangée pour les pions)
-              //    - ii*) chomp(*W*) : mange la pièce ; si c'est Peach, c'est perdu
-          C
-          //    - iii) daisy(*T*) : permet de rejouer un coup avec la même pièce --> cumulable si ensuite coup sur bonus Daisy.
-          D
-          //    - iii*) bowser(*M*) : immobilise la pièce (marquée jaune/rouge), qui ne pourra pas jouer au tour suivant
-          I
-          //    - iv) luigi(*L*) : fait changer de camp une pièce adverse (aléatoire) (sauf le roi)
-          L
-          //    - iv*) waluigi(*D*) : fait changer de camp une de nos pièces (aléatoire, sauf le roi)
-          W
-          //  --> i, ii, iii en deux temps (subTurn 1 & 2)
-            
-              //Mario: dame
-              //  pouvoir "fantôme" : peut effectuer une fois dans la partie un coup non-capturant invisible (=> choix à chaque coup, getPPpath(m) teste m.nvisible...)
-              //wg bg ghost once in the game the queen can make an invisible move --> printed as "?"
+figure.diagram-container
+  .diagram
+    | fen:qbbrrnek/pppppppp/5n2/8/1BwP4/3m4/PPP1PPPP/QBNN1KRR:
+  figcaption Après 1.d4 Nf6 2.Bb4 (pose une bombe en c4).
 
-              //Peach: roi
-              //  Carapace rouge (disons ^^) jouable une seule fois dans la partie,
-              //  au lieu de se déplacer. Capture un ennemi au choix parmi les plus proches,
-              //  à condition qu'ils soient visibles (suivant les directions de déplacement d'une dame).
-              //  Profite des accélérateurs posés par les pions (+ 1 case : obligatoire).
+p.
+  Le but est donc de capturer Peach :)
+  Si des pions se sont promus en roi, alors il faut tous les capturer aussi.
+  Comme ça avait encore l'air trop facile '^^
+  les 4 objets précités altèrent le coup joué, en général aléatoirement :
+ul
+  li.
+    Un roi ou un pion arrivant sur un champignon avance une case plus loin
+    (deux si un pion vient d'avancer de deux cases), tandis qu'un cavalier
+    effectue un coup supplémentaire dans la même direction, si possible.
+    Les pions peuvent "manger" les objets en diagonale aussi.
+  li.
+    Une tour, un fou ou une dame arrivant sur un champignon peut sauter par
+    dessus une pièce immédiatement adjacente dans la même direction, à
+    condition que la case située juste après ne soit pas occupée par une
+    pièce de sa couleur. Si l'adversaire s'y trouve, il est capturé.
+  li.
+    Une pièce arrivant sur une banane (resp. bombe) est redirigée
+    aléatoirement d'une case dans une direction orthogonale (resp. diagonale),
+    si possible.
+p.
+  Les effets peuvent se cumuler, comme illustré sur le diagramme :
+  le fou "capture" la banane en e4, puis est redirigé vers e5 : champignon,
+  il saute donc par dessus le pion noir pour se retrouver sur la bombe en e7,
+  qui l'envoie en d6 (f6 et f8 possibles aussi). Une bombe est finalement
+  posée en c6 qui est la seule case éligible.
+  Il se peut qu'une pièce revienne sur sa case initiale, recule, etc.
+  Ceci dit, un objet donné ne peut être utilisé qu'une fois sur le chemin.
 
-              // Promotion pion: n'importe quelle pièce y compris roi => Si plusieurs rois, il faut tous les capturer.
+figure.diagram-container
+  .diagram.diag12
+    | fen:rn1b2qk/pbppwppp/1w2p3/1p1Rm3/3PdnPr/4P1d1/PPP1mP1P/NNB1KRQB:
+  .diagram.diag22
+    | fen:rn1b2qk/pbpp1ppp/1wwBp3/1p1R4/3P1nPr/4P1d1/PPP1mP1P/NNB1KRQ1:
+  figcaption Gauche : avant 1.Bxe4. Droite : après le coup, terminant en d6.
 
-          p.
-            Règles imaginées par Charlotte Blard
-            et développées par Benjamin Auder (2020).
+p.
+  Le cas de l'oeuf est plus complexe : un déplacement se terminant sur un oeuf
+  provoque un effet choisi aléatoirement, positif ou négatif.
+  Il y a quatre bonus et quatre malus, d'importance variable.
+  Ils sont présentés sous forme duale : d'abord l'effet positif,
+  puis le négatif.
+ul
+  li.
+    Le Roi Boo (*B) permet d'échanger la position de la pièce ayant joué avec
+    n'importe quelle autre sur le plateau.
+  li Koopa (*K) ramène la pièce sur sa case initiale.
+  li.
+    Toadette (*T) permet de replacer une pièce capturée n'importe où sur le
+    plateau (sur une case vide ou un objet ; si ce dernier est une banane ou
+    une bombe, l'effet s'applique puis continue éventuellement).
+  li.
+    Chomp (*C) mange la pièce, qui se retrouve capturée. Si c'est Peach,
+    et bien vous avez perdu :)
+  li Daisy (*D) permet de rejouer un coup avec la même pièce.
+  li.
+    Bowser (*M) immobilise la pièce (qui passe en jaune ou rouge).
+    Celle-ci ne pourra pas jouer au tour suivant.
+  li Luigi (*L) fait changer de camp une pièce adverse aléatoire.
+  li Waluigi (*W) fait changer de camp une de vos pièces.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:erk2rq1/1m2e1m1/mppmne1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  .diagram.diag22
+    | fen:erk3Q1/1m2e1d1/mppmnr1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  figcaption.
+    1...Rxf6*W : Waluigi change de couleur la dame en g8.
+    Celle-ci peut capturer le roi : pas de chance :(
+
+p.
+  Note 1 : certains bonus pourraient ne pas être applicables. En particulier si
+  aucune pièce n'a été capturée "Toadette" ne s'applique pas.
+
+p.
+  Note 2 :
+  dans l'implémentation actuelle les pièces ne sont pas affectées par les
+  objets qu'elles déposent. Cela changera sans doute.
+
+h3 Source
+
+p.
+  Règles inventées par Charlotte Blard,
+  et développées par Benjamin Auder (2020).
+  Celles-ci sont susceptibles d'évoluer :)

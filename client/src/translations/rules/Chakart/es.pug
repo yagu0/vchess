@@ -1,2 +1,129 @@
 p.boxed.
-  TODO
+  Algunos movimientos tienen efectos aleatorios.
+  El objetivo es capturar al rey contrario.
+
+p
+  | Las piezas se mueven como siempre, pero todas tienen un
+  | "poder" especial inspirado por 
+  a(href="https://fr.wikipedia.org/wiki/Mario_Kart") Mario Kart
+  | :
+ul
+  li.
+    El peón (Toad) deja un hongo "turbo" un espacio antes de su espacio
+    de llegada. Esto corresponde a su casilla inicial, excepto despues el
+    potencial desplazamiento inicial de dos casillas.
+  li.
+    El caballo (Yoshi) pone un huevo en el primer cuadro intermedio
+    adyacente ortogonalmente en la dirección de su movimiento. Si no
+    es posible, el huevo se deja en su casilla inicial.
+  li.
+    La torre (Donkey) coloca un plátano en un cuadrado diagonalmente adyacente
+    a la de llegada, si es posible. En caso de múltiples opciones, la elección
+    le queda el jugador (haga clic en una casilla después de su movimiento).
+  li.
+    El alfil (Wario) coloca una bomba en un cuadrado ortogonalmente adyacente
+    a la de llegada, si es posible. También puedes elegir la casilla.
+  li.
+    La dama (Mario) puede hacer un movimiento sigiloso una vez en el juego:
+    elige la caja vacía cuando la dama se mude a una caja vacía.
+    Después de este movimiento, el oponente sabrá que tu dama se ha movido
+    pero no a dónde.
+    Una dama promovida también tiene este poder si aún no se ha utilizado.
+  li.
+    El rey (Peach) puede "arrojar un proyectil" sobre un enemigo dentro del
+    alcance de una dama, una vez en el juego.
+    Un rey promovido también tiene este poder, si aún no se ha utilizado.
+    La captura se lleva a cabo de forma remota sin moverse.
+
+figure.diagram-container
+  .diagram
+    | fen:qbbrrnek/pppppppp/5n2/8/1BwP4/3m4/PPP1PPPP/QBNN1KRR:
+  figcaption Después de 1.d4 Nf6 2.Bb4 (coloca una bomba en c4).
+
+p.
+  Entonces el objetivo es capturar a Peach :)
+  Si los peones han sido promovidos a rey, entonces todos deben ser capturados
+  también. Como todavía parecía demasiado fácil '^^
+  los 4 objetos mencionados alteran el movimiento, generalmente al azar:
+ul
+  li.
+    Un rey o un peón que llega a un hongo se mueve una casilla más
+    (dos si un peón solo ha avanzado dos espacios), mientras que un caballo
+    haz una jugada adicional en la misma dirección, si es posible.
+    Los peones también pueden "comer" objetos en diagonal.
+  li.
+    Una torre, un alfil o una dama que llega en un hongo puede saltar
+    encima de una pieza inmediatamente adyacente en la misma dirección,
+    siempre que la casilla inmediatamente posterior no esté ocupada por una
+    pieza de su color. Si el oponente está allí, es capturado.
+  li.
+    Una pieza que llega en un plátano (resp. bomba) se redirige
+    aleatoriamente de una casilla en una dirección ortogonal (resp. diagonal),
+    si es posible.
+p.
+  Los efectos pueden sumar, como se muestra en el diagrama:
+  el alfil "captura" el plátano en e4, luego es redirigido a e5: hongo,
+  así que salta sobre el peón negro para encontrarse en la bomba en e7,
+  que lo envía a d6 (f6 y f8 también son posible). Una bomba es finalmente
+  presentado en c6, que es la única casilla elegible.
+  Una pieza puede volver a su espacio original, retroceder, etc.
+  Dicho esto, un objeto dado solo se puede usar una vez en el camino.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rn1b2qk/pbppwppp/1w2p3/1p1Rm3/3PdnPr/4P1d1/PPP1mP1P/NNB1KRQB:
+  .diagram.diag22
+    | fen:rn1b2qk/pbpp1ppp/1wwBp3/1p1R4/3P1nPr/4P1d1/PPP1mP1P/NNB1KRQ1:
+  figcaption.
+    Izquierda: antes de 1.Bxe4.
+    Derecha: después del movimiento, terminando en d6.
+
+p.
+  El caso del huevo es más complejo: un desplazamiento que termina en un huevo
+  causa un efecto elegido al azar, positivo o negativo.
+  Hay cuatro bonos y cuatro penalizaciones, de diversa importancia.
+  Se presentan en forma dual: primero el efecto positivo,
+  entonces lo negativo.
+ul
+  li.
+    Rey Boo (*B) te permite cambiar la posición de la pieza que jugó con
+    cualquier otro en el tablero.
+  li Koopa (*K) devuelve la pieza a su casilla original.
+  li.
+    Toadette (*T) le permite reemplazar una pieza capturada en cualquier lugar
+    del tablero (en un espacio vacío o un objeto; si este último es un plátano
+    o una bomba, el efecto se aplica y finalmente continúa).
+  li.
+    Chomp (*C) se come la pieza, que termina capturada. Si es Peach,
+    pues perdiste :)
+  li Daisy (*D) te permite reproducir un movimiento con la misma pieza.
+  li.
+    Bowser (*M) inmoviliza la pieza (que se vuelve amarilla o roja).
+    Ella no podrá jugar la próxima ronda.
+  li Luigi (*L) hace que una pieza aleatoria del oponente cambie de bando.
+  li Waluigi (*W) cambia el color de una de tus piezas.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:erk2rq1/1m2e1m1/mppmne1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  .diagram.diag22
+    | fen:erk3Q1/1m2e1d1/mppmnr1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  figcaption.
+    1...Rxf6*W: Waluigi cambia el color de la dama en g8.
+    Este puede capturar al rey: sin suerte :(
+
+p.
+  Nota 1: algunos bonos pueden no ser aplicables. Especialmente si
+  ninguna pieza fue capturada, "Toadette" no se aplica.
+
+p.
+  Nota 2:
+  en la implementación actual, las piezas no se ven afectadas por
+  objetos que dejan caer. Esto sin duda cambiará.
+
+h3 Fuente
+
+p.
+  Reglas inventadas por Charlotte Blard,
+  y desarrollado por Benjamin Auder (2020).
+  Estos están sujetos a cambios :)

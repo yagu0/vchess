@@ -1,7 +1,120 @@
 p.boxed.
-  TODO
+  Some moves have random effects. The goal is to capture the enemy king.
 
-// TODO: banane ou bombe redirige vers bonus, puis enchaînement
-// (mushroom ou egg ou autre banane...etc)
-// Example a1 to a5 banana => b5 mushroom => jump over c5, arrive on d5, egg
-// Possible en sortant les fonctions applyEffect() de getBasicMove() ?
+p
+  | Pieces move as usual, but they all hide a special "power" inspired by 
+  a(href="https://fr.wikipedia.org/wiki/Mario_Kart") Mario Kart
+  | :
+ul
+  li.
+    The pawn (Toad) leaves a "turbo" mushroom one square before its
+    destination. This corresponds to its initial square, except after the
+    potential initial two squares move.
+  li.
+    The knight (Yoshi) let an egg on the first intermediate square
+    orthogonally adjacent in the direction of the movement. If this is not
+    possible, then the egg stays on the initial square.
+  li.
+    The rook (Donkey) put a banana on a square diagonally adjacent to the
+    arrival one, if possible. In case of multiple options the choice is left
+    to the player (click on a square after your move).
+  li.
+    The bishop (Wario) put a bomb on a square orthogonally adjacent to the
+    arrival one, if possible. You can also choose the square.
+  li.
+    The queen (Mario) can play a stealth move once in the game: choose the
+    empty square when the queen is going to an empty square. After this move,
+    the opponent will know that a queen moved but not where.
+    A promoted queen also has this power if not already used.
+  li.
+    The king (Peach) can "throw a shell" on an enemy reachable by a queen,
+    once in the game. A promoted king also has this power, if not already used.
+    The capture is done remotely without moving.
+
+figure.diagram-container
+  .diagram
+    | fen:qbbrrnek/pppppppp/5n2/8/1BwP4/3m4/PPP1PPPP/QBNN1KRR:
+  figcaption After 1.d4 Nf6 2.Bb4 (put a bomb on c4).
+
+p.
+  So the goal is to capture Peach :)
+  If pawns promoted into king, then all of them must be captured.
+    Since it still looked too easy '^^ the 4 mentioned objects
+    alter the played move, generally at random:
+ul
+  li.
+    A king or a pawn arriving on a mushroom advance one square further
+    (two if the pawn just moved two squares), while a knight jump another
+    time in the same direction, if possible.
+    Pawns can "eat" objects diagonally too.
+  li.
+    A rook, bishop or queen arriving on a mushroom can jump over the very next
+    piece in the movement direction, if the square right after isn't occupied
+    by a piece of its color.
+    If the opponent stands there, he is captured.
+  li.
+    A piece arriving on a banana (resp. bomb) is redirected at random by one
+    square in an orthogonal (resp. diagonal) direction, if possible.
+p.
+  The effects can cumulate, as illustrated on the diagram:
+  the bishop "captures" the banana on e4, and is then redirected twoard e5:
+  mushroom, it jumps over the black pawn to ends on the bomb on e7, which
+  sends it on d6 (f6 and f8 were possible too).
+  A bomb is finally put on c6 which is the only eligible square.
+  A piece may ends on its initial square, move back, and so on.
+  That being said, a given object can only be used once on the path.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rn1b2qk/pbppwppp/1w2p3/1p1Rm3/3PdnPr/4P1d1/PPP1mP1P/NNB1KRQB:
+  .diagram.diag22
+    | fen:rn1b2qk/pbpp1ppp/1wwBp3/1p1R4/3P1nPr/4P1d1/PPP1mP1P/NNB1KRQ1:
+  figcaption Left: before 1.Bxe4. Right: after the move, ending on d6.
+
+p.
+  The egg case is more complex: a move ending on an egg triggers an effect
+  chosen at random, positive or negative.
+  There are four bonus and four penalties. They are introduced in a dual form:
+  first the positive, then the negative.
+ul
+  li.
+    King Boo (*B) let you exchange the position of the playing piece with any
+    of the pieces of the board.
+  li Koopa (*K) drives the piece back onto its initial square.
+  li.
+    Toadette (*T) allows to place a captured piece on the board (on an empty
+    square or an object; if it's a banana or a bomb, the effect is applied
+    and may propagate).
+  li.
+    Chomp (*C) eats the piece, which is thus captured. If it's Peach,
+    then you have lost :)
+  li Daisy (*D) allows to play again with the same piece.
+  li.
+    Bowser (*M) immobilizes the piece (which turns into yellow or red).
+    It won't be allowed to move on next turn.
+  li Luigi (*L) change the color of an enemy piece.
+  li Waluigi (*W) change the color of one of your pieces.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:erk2rq1/1m2e1m1/mppmne1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  .diagram.diag22
+    | fen:erk3Q1/1m2e1d1/mppmnr1m/p1BpppPp/mm1P1QbP/1Nmnw1dm/e1mP2d1/1BwR1RKN:
+  figcaption.
+    1...Rxf6*W: Waluigi turns the g8 queen into white.
+    She can capture the king. Bad luck :(
+
+p.
+  Note 1: some bonus might not be applicable. In particular, if no piece was
+  captured "Toadette" cannot be applied.
+
+p.
+  Note 2:
+  in the current implementation pieces are unaffected by the objects they let
+  on the board. This will probably change.
+
+h3 Source
+
+p.
+  Rules invented by Charlotte Blard, and developed by Benjamin Auder (2020).
+  These are likely to evolve :)

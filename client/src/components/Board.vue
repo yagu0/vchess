@@ -638,6 +638,7 @@ export default {
           const color = this.analyze ? this.vr.turn : this.userColor;
           if (this.vr.canIplay(color, startSquare))
             this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+          else return;
           // For potential drag'n drop, remember start coordinates
           // (to center the piece on mouse cursor)
           const rect = parent.getBoundingClientRect();

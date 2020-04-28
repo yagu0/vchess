@@ -288,9 +288,9 @@ export default {
       }
       if (this.mode != "analyze") {
         // Enter analyze mode:
+        this.gameMode = this.mode; //was not 'analyze'
         this.mode = "analyze";
         if (this.inMultimove) this.cancelCurrentMultimove();
-        this.gameMode = this.mode; //was not 'analyze'
         this.gameCursor = this.cursor;
         this.gameMoves = JSON.parse(JSON.stringify(this.moves));
         document.getElementById("analyzeBtn").classList.add("active");
@@ -514,8 +514,9 @@ export default {
         (function executeMove() {
           const smove = move[moveIdx++];
           // NOTE: condition "smove.start.x >= 0" required for Dynamo,
-          // because second move may be empty.
-          if (animate && smove.start.x >= 0) {
+          // because second move may be empty. noHighlight condition
+          // is used at least for Chakart.
+          if (animate && smove.start.x >= 0 && !smove.end.noHighlight) {
             self.animateMove(smove, () => {
               playSubmove(smove);
               if (moveIdx < move.length) setTimeout(executeMove, 500);
