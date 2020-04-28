@@ -22,7 +22,7 @@ export class ChakartRules extends ChessRules {
   }
 
   static get CanAnalyze() {
-    return true; //false;
+    return false;
   }
 
   static get SomeHiddenMoves() {
@@ -268,50 +268,10 @@ export class ChakartRules extends ChessRules {
     const end = (color == 'b' && p == V.PAWN ? 7 : 8);
     for (let i = start; i < end; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        const colIJ = this.getColor(i, j);
-        if (this.board[i][j] == V.EMPTY || colIJ == 'a') {
-          let mv = new Move({
-            appear: [
-              new PiPo({
-                x: i,
-                y: j,
-                c: color,
-                p: p
-              })
-            ],
-            vanish: [],
-            start: { x: x, y: y }, //a bit artificial...
-            end: { x: i, y: j }
-          });
-          if (colIJ == 'a') {
-            const pieceIJ = this.getPiece(i, j);
-            mv.vanish.push(
-              new PiPo({
-                x: i,
-                y: j,
-                c: colIJ,
-                p: pieceIJ
-              })
-            );
-            if ([V.BANANA, V.BOMB].includes(pieceIJ)) {
-              // Apply first effect, remove bonus from board, and then
-              // relay to getBasicMove. Finally merge mv.appear/vanish and
-              // put back the bonus on the board:
-              const bSteps = V.steps[pieceIJ == V.BANANA ? V.ROOK : V.BISHOP];
-              const sqEffect = this.getRandomSquare([i, j], bSteps);
-              if (sqEffect[0] != i || sqEffect[1] != j) {
-                this.board[i][j] = color + p;
-                const bMove =
-                  this.getBasicMove([i, j], [sqEffect[0], sqEffect[1]]);
-                this.board[i][j] = 'a' + pieceIJ;
-                mv.appear[0].x = bMove.appear[0].x;
-                mv.appear[0].y = bMove.appear[0].y;
-                for (let k = 1; k < bMove.vanish.length; k++)
-                  mv.vanish.push(bMove.vanish[k]);
-              }
-            }
-          }
-          moves.push(mv);
+        if (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a') {
+          let m = this.getBasicMove({ p: p, x: i, y: j});
+          m.start = { x: x, y: y };
+          moves.push(m);
         }
       }
     }
@@ -381,7 +341,7 @@ export class ChakartRules extends ChessRules {
                     c: colIJ,
                     p: this.getPiece(i, j)
                   });
-                  let mMove = this.getBasicMove([x, y], [i, j]);
+                  let mMove = this.getBasicMove({ x: x, y: y }, [i, j]);
                   mMove.appear.push(movedUnit);
                   moves.push(mMove);
                 }
@@ -444,7 +404,6 @@ export class ChakartRules extends ChessRules {
       [V.KING, V.QUEEN].includes(piece)
         ? V.steps[V.ROOK].concat(V.steps[V.BISHOP])
         : V.steps[piece];
-    if (!Array.isArray(steps)) debugger;
     for (let step of steps) {
       const [i, j] = [x + step[0], y + step[1]];
       if (
@@ -457,14 +416,54 @@ export class ChakartRules extends ChessRules {
     return false;
   }
 
-  getBasicMove([x1, y1], [x2, y2], tr) {
-    // Apply mushroom, bomb or banana effect (hidden to the player).
-    // Determine egg effect, too, and apply its first part if possible.
-    let move = super.getBasicMove([x1, y1], [x2, y2], tr);
-    const color1 = this.getColor(x1, y1);
-    const piece1 = this.getPiece(x1, y1);
+  // Apply mushroom, bomb or banana effect (hidden to the player).
+  // Determine egg effect, too, and apply its first part if possible.
+  getBasicMove_aux(psq1, sq2, tr, initMove) {
+    const [x1, y1] = [psq1.x, psq1.y];
+    const color1 = this.turn;
+    const piece1 = psq1.p || this.getPiece(x1, y1);
     const oppCol = V.GetOppCol(color1);
-    if ([V.PAWN, V.KNIGHT].includes(piece1)) {
+    if (!sq2) {
+      let move = {
+        appear: [],
+        vanish: []
+      };
+      // banana or bomb defines next square, or the move ends there
+      move.appear = [
+        new PiPo({
+          x: x1,
+          y: y1,
+          c: color1,
+          p: piece1
+        })
+      ];
+      if (this.board[x1][y1] != V.EMPTY) {
+        const initP1 = this.getPiece(x1, y1);
+        move.vanish = [
+          new PiPo({
+            x: x1,
+            y: y1,
+            c: this.getColor(x1, y1),
+            p: initP1
+          })
+        ];
+        if ([V.BANANA, V.BOMB].includes(initP1)) {
+          const steps = V.steps[initP1 == V.BANANA ? V.ROOK : V.BISHOP];
+          move.next = this.getRandomSquare([x1, y1], steps);
+        }
+      }
+      move.end = { x: x1, y: y1 };
+      return move;
+    }
+    const [x2, y2] = [sq2[0], sq2[1]];
+    // The move starts normally, on board:
+    let move = super.getBasicMove([x1, y1], [x2, y2], tr);
+    const L = this.firstMove.length;
+    if (
+      [V.PAWN, V.KNIGHT].includes(piece1) &&
+      !!initMove &&
+      (this.subTurn == 1 || this.firstMove[L-1].end.effect == "daisy")
+    ) {
       switch (piece1) {
         case V.PAWN: {
           const twoSquaresMove = (Math.abs(x2 - x1) == 2);
@@ -525,62 +524,24 @@ export class ChakartRules extends ChessRules {
         }
       }
     }
-    // Avoid looping back on effect already applied:
-    let usedEffect = ArrayFun.init(8, 8, false);
-    const applyBeffect = (steps) => {
-      const [x, y] = [move.appear[0].x, move.appear[0].y];
-      if (usedEffect[x][y]) return;
-      usedEffect[x][y] = true;
-      const moveTo = this.getRandomSquare([x, y], steps);
-      move.appear[0].x = moveTo[0];
-      move.appear[0].y = moveTo[1];
-      if (
-        this.board[moveTo[0]][moveTo[1]] != V.EMPTY &&
-        this.getColor(moveTo[0], moveTo[1]) == 'a'
-      ) {
-        move.vanish.push(
-          new PiPo({
-            x: moveTo[0],
-            y: moveTo[1],
-            c: 'a',
-            p: this.getPiece(moveTo[0], moveTo[1])
-          })
-        );
-        // Artificially change direction, before applying new effects:
-        x1 = x;
-        y1 = y;
-        x2 = moveTo[0];
-        y2 = moveTo[1];
-        switch (this.getPiece(moveTo[0], moveTo[1])) {
-          case V.BANANA:
-            applyBeffect(V.steps[V.ROOK]);
-            break;
-          case V.BOMB:
-            applyBeffect(V.steps[V.BISHOP]);
-            break;
-          case V.MUSHROOM:
-            applyMushroomEffect();
-            break;
-          case V.EGG:
-            applyEggEffect();
-            break;
-        }
-      }
-    };
     // For (wa)luigi effect:
     const changePieceColor = (color) => {
       let pieces = [];
       const oppLastRank = (color == 'w' ? 7 : 0);
       for (let i=0; i<8; i++) {
         for (let j=0; j<8; j++) {
-          if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          if (
+            (i != move.vanish[0].x || j != move.vanish[0].y) &&
+            this.board[i][j] != V.EMPTY &&
+            this.getColor(i, j) == color
+          ) {
             const piece = this.getPiece(i, j);
             if (piece != V.KING && (piece != V.PAWN || i != oppLastRank))
               pieces.push({ x: i, y: j, p: piece });
           }
         }
       }
-      // Special case of the current piece (temporarily off board):
+      // Special case of the current piece (still at its initial position)
       if (color == color1)
         pieces.push({ x: move.appear[0].x, y: move.appear[0].y, p: piece1 });
       const cp = pieces[randInt(pieces.length)];
@@ -594,7 +555,7 @@ export class ChakartRules extends ChessRules {
           })
         );
       }
-      else move.appear.pop();
+      else move.appear.shift();
       move.appear.push(
         new PiPo({
           x: cp.x,
@@ -618,17 +579,15 @@ export class ChakartRules extends ChessRules {
         move.appear[0].p == V.PAWN &&
         move.appear[0].x == lastRank[color1]
       ) {
-        // Always possible: promote into a queen rook or king
+        // Always possible: promote into a queen, rook or king
         canPlayAgain = true;
       }
       else {
         move.end.effect = "daisy";
-        this.board[move.start.x][move.start.y] = saveCurrent;
         V.PlayOnBoard(this.board, move);
         const square = [move.appear[0].x, move.appear[0].y];
         canPlayAgain = this.canMove(square, piece1);
         V.UndoOnBoard(this.board, move);
-        this.board[move.start.x][move.start.y] = V.EMPTY;
         delete move.end["effect"];
       }
       if (canPlayAgain) effects.push("daisy");
@@ -689,8 +648,6 @@ export class ChakartRules extends ChessRules {
       }
     };
     const applyMushroomEffect = () => {
-      if (usedEffect[move.appear[0].x][move.appear[0].y]) return;
-      usedEffect[move.appear[0].x][move.appear[0].y] = true;
       if ([V.PAWN, V.KING, V.KNIGHT].includes(piece1)) {
         // Just make another similar step, if possible (non-capturing)
         const [i, j] = [
@@ -715,10 +672,9 @@ export class ChakartRules extends ChessRules {
             );
             switch (object) {
               case V.BANANA:
-                applyBeffect(V.steps[V.ROOK]);
-                break;
               case V.BOMB:
-                applyBeffect(V.steps[V.BISHOP]);
+                const steps = V.steps[object == V.BANANA ? V.ROOK : V.BISHOP];
+                move.next = this.getRandomSquare([i, j], steps);
                 break;
               case V.EGG:
                 applyEggEffect();
@@ -764,10 +720,11 @@ export class ChakartRules extends ChessRules {
                 );
                 switch (object) {
                   case V.BANANA:
-                    applyBeffect(V.steps[V.ROOK]);
-                    break;
                   case V.BOMB:
-                    applyBeffect(V.steps[V.BISHOP]);
+                    const steps =
+                      V.steps[object == V.BANANA ? V.ROOK : V.BISHOP];
+                    move.next = this.getRandomSquare(
+                      [afterNext[0], afterNext[1]], steps);
                     break;
                   case V.EGG:
                     applyEggEffect();
@@ -784,18 +741,12 @@ export class ChakartRules extends ChessRules {
     };
     const color2 = this.getColor(x2, y2);
     const piece2 = this.getPiece(x2, y2);
-    // In case of (bonus effects might go through initial square):
-    // TODO: push the idea further, objects left initially should alter the
-    // trajectory or move as well (mushroom or egg).
-    const saveCurrent = this.board[move.start.x][move.start.y];
-    this.board[move.start.x][move.start.y] = V.EMPTY;
     if (color2 == 'a') {
       switch (piece2) {
         case V.BANANA:
-          applyBeffect(V.steps[V.ROOK]);
-          break;
         case V.BOMB:
-          applyBeffect(V.steps[V.BISHOP]);
+          const steps = V.steps[piece2 == V.BANANA ? V.ROOK : V.BISHOP];
+          move.next = this.getRandomSquare([x2, y2], steps);
           break;
         case V.MUSHROOM:
           applyMushroomEffect();
@@ -809,6 +760,7 @@ export class ChakartRules extends ChessRules {
     }
     if (
       this.subTurn == 1 &&
+      !move.next &&
       move.appear.length > 0 &&
       [V.ROOK, V.BISHOP].includes(piece1)
     ) {
@@ -826,8 +778,7 @@ export class ChakartRules extends ChessRules {
               (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a')
             );
           });
-        if (validSteps.length >= 2) move.end.effect = 0;
-        else if (validSteps.length == 1) {
+        if (validSteps.length >= 1) {
           const [x, y] = [
             finalSquare[0] + validSteps[0][0],
             finalSquare[1] + validSteps[0][1]
@@ -847,17 +798,77 @@ export class ChakartRules extends ChessRules {
         }
       }
     }
-    this.board[move.start.x][move.start.y] = saveCurrent;
-    if (
-      move.appear.length == 2 &&
-      move.appear[0].x == move.appear[1].x &&
-      move.appear[0].y == move.appear[1].y
-    ) {
-      // Arrive on bonus left initially:
-      move.appear.pop();
+    return move;
+  }
+
+  getBasicMove(psq1, sq2, tr) {
+    let moves = [];
+    if (Array.isArray(psq1)) psq1 = { x: psq1[0], y: psq1[1] };
+    let m = this.getBasicMove_aux(psq1, sq2, tr, "initMove");
+    while (!!m.next) {
+      // Last move ended on bomb or banana, direction change
+      V.PlayOnBoard(this.board, m);
+      moves.push(m);
+      m = this.getBasicMove_aux(
+        { x: m.appear[0].x, y: m.appear[0].y }, m.next);
+    }
+    for (let i=moves.length-1; i>=0; i--) V.UndoOnBoard(this.board, moves[i]);
+    moves.push(m);
+    // Now merge moves into one
+    let move = {};
+    // start is wrong for Toadette moves --> it's fixed later
+    move.start = { x: psq1.x, y: psq1.y };
+    move.end = !!sq2 ? { x: sq2[0], y: sq2[1] } : { x: psq1.x, y: psq1.y };
+    let lm = moves[moves.length-1];
+    if (this.subTurn == 1 && !!lm.end.effect)
+      move.end.effect = lm.end.effect;
+    if (moves.length == 1) {
+      move.appear = moves[0].appear;
+      move.vanish = moves[0].vanish;
+    }
+    else {
+      // Keep first vanish and last appear (if any)
+      move.appear = lm.appear;
+      move.vanish = moves[0].vanish;
+      if (
+        move.vanish.length >= 1 &&
+        move.appear.length >= 1 &&
+        move.vanish[0].x == move.appear[0].x &&
+        move.vanish[0].y == move.appear[0].y
+      ) {
+        // Loopback on initial square:
+        move.vanish.shift();
+        move.appear.shift();
+      }
+      for (let i=1; i < moves.length - 1; i++) {
+        for (let v of moves[i].vanish) {
+          // Only vanishing objects, not appearing at init move
+          if (
+            v.c == 'a' &&
+            (
+              moves[0].appear.length == 1 ||
+              moves[0].appear[1].x != v.x ||
+              moves[0].appear[1].y != v.y
+            )
+          ) {
+            move.vanish.push(v);
+          }
+        }
+      }
+      // Final vanish is our piece, but others might be relevant
+      // (for some egg bonuses at least).
+      for (let i=1; i < lm.vanish.length; i++) {
+        if (
+          lm.vanish[i].c != 'a' ||
+          moves[0].appear.length == 1 ||
+          moves[0].appear[1].x != lm.vanish[i].x ||
+          moves[0].appear[1].y != lm.vanish[i].y
+        ) {
+          move.vanish.push(lm.vanish[i]);
+        }
+      }
     }
     return move;
-    // TODO: if loopback to initial square, simplify move.
   }
 
   getPotentialPawnMoves([x, y]) {
@@ -879,7 +890,7 @@ export class ChakartRules extends ChessRules {
           this.getColor(x + 2 * shiftX, y) == 'a'
         )
       ) {
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+        moves.push(this.getBasicMove({ x: x, y: y }, [x + 2 * shiftX, y]));
       }
     }
     for (let shiftY of [-1, 1]) {
@@ -981,19 +992,20 @@ export class ChakartRules extends ChessRules {
         V.OnBoard(i, j) &&
         (
           this.board[i][j] == V.EMPTY ||
+          this.getPiece(i, j) == V.INVISIBLE_QUEEN ||
           (
             this.getColor(i, j) == 'a' &&
             [V.EGG, V.MUSHROOM].includes(this.getPiece(i, j))
           )
         )
       ) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
+        moves.push(this.getBasicMove({ x: x, y: y }, [i, j]));
         if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
       if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
+        moves.push(this.getBasicMove({ x: x, y: y }, [i, j]));
     }
     return moves;
   }
@@ -1058,7 +1070,7 @@ export class ChakartRules extends ChessRules {
                 c: colIJ,
                 p: this.getPiece(i, j)
               });
-              let mMove = this.getBasicMove([x, y], [i, j]);
+              let mMove = this.getBasicMove({ x: x, y: y }, [i, j]);
               mMove.appear.push(movedUnit);
               moves.push(mMove);
             }
@@ -1159,9 +1171,14 @@ export class ChakartRules extends ChessRules {
     if (move.end.effect == "toadette") this.reserve = this.captured;
     else this.reserve = undefined;
     const color = move.turn[0];
-    if (move.vanish.length == 2 && move.vanish[1].c != 'a')
+    if (move.vanish.length == 2 && move.vanish[1].c != 'a') {
       // Capture: update this.captured
-      this.captured[move.vanish[1].c][move.vanish[1].p]++;
+      let capturedPiece = move.vanish[1].p;
+      if (capturedPiece == V.INVISIBLE_QUEEN) capturedPiece = V.QUEEN;
+      else if (Object.keys(V.IMMOBILIZE_DECODE).includes(capturedPiece))
+        capturedPiece = V.IMMOBILIZE_DECODE[capturedPiece];
+      this.captured[move.vanish[1].c][capturedPiece]++;
+    }
     else if (move.vanish.length == 0) {
       if (move.appear.length == 0 || move.appear[0].c == 'a') return;
       // A piece is back on board
@@ -1235,8 +1252,13 @@ export class ChakartRules extends ChessRules {
       const [i, j] = move.wasInvisible;
       this.board[i][j] = this.getColor(i, j) + V.INVISIBLE_QUEEN;
     }
-    if (move.vanish.length == 2 && move.vanish[1].c != 'a')
-      this.captured[move.vanish[1].c][move.vanish[1].p]--;
+    if (move.vanish.length == 2 && move.vanish[1].c != 'a') {
+      let capturedPiece = move.vanish[1].p;
+      if (capturedPiece == V.INVISIBLE_QUEEN) capturedPiece = V.QUEEN;
+      else if (Object.keys(V.IMMOBILIZE_DECODE).includes(capturedPiece))
+        capturedPiece = V.IMMOBILIZE_DECODE[capturedPiece];
+      this.captured[move.vanish[1].c][capturedPiece]--;
+    }
     else if (move.vanish.length == 0) {
       if (move.appear.length == 0 || move.appear[0].c == 'a') return;
       // A piece was back on board
@@ -1298,16 +1320,8 @@ export class ChakartRules extends ChessRules {
     return [move1, move2];
   }
 
-  // TODO: king chomped, king koopa: notation is incomplete.
-  // Also, king boo effect should be better written like "e4Sg1".
-  // Toadette placements on bonus square are badly written as well.
   getNotation(move) {
-    if (move.vanish.length == 0) {
-      if (move.appear.length == 0) return "-";
-      const piece =
-        move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
-      return piece + "@" + V.CoordsToSquare(move.end);
-    }
+    if (move.vanish.length == 0 && move.appear.length == 0) return "-";
     if (
       !move.end.effect &&
       move.appear.length > 0 &&
@@ -1316,27 +1330,46 @@ export class ChakartRules extends ChessRules {
       return "Q??";
     }
     const finalSquare = V.CoordsToSquare(move.end);
-    let piece = undefined;
-    if (move.appear.length == 0) {
-      piece = this.getPiece(move.start.x, move.start.y);
-      if (piece == V.KING) return "Kx" + finalSquare;
-      // Koopa or Chomp:
+    // Next condition also includes Toadette placements:
+    if (move.appear.length > 0 && move.vanish.every(a => a.c == 'a')) {
+      const piece =
+        move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
+      return piece + "@" + finalSquare;
+    }
+    else if (move.appear.length == 0) {
+      const piece = this.getPiece(move.start.x, move.start.y);
+      if (piece == V.KING && !move.end.effect)
+        // King remote capture
+        return "Kx" + finalSquare;
+      // Koopa or Chomp, or loopback after bananas, bombs & mushrooms:
       return (
         piece.toUpperCase() + "x" + finalSquare +
-        "*" + (move.end.effect == "koopa" ? "K" : "C")
+        (
+          !!move.end.effect
+            ? "*" + (move.end.effect == "koopa" ? "K" : "C")
+            : ""
+        )
       );
     }
-    else if (
+    if (
       move.appear.length == 1 &&
       move.vanish.length == 1 &&
       move.appear[0].c == 'a' &&
       move.vanish[0].c == 'a'
     ) {
       // Bonus replacement:
-      piece = move.appear[0].p.toUpperCase();
-      return piece + "@" + finalSquare;
+      return move.appear[0].p.toUpperCase() + "@" + finalSquare;
     }
-    piece = move.vanish[0].p;
+    if (
+      move.appear.length == 2 &&
+      move.vanish.length == 2 &&
+      move.appear.every(a => a.c != 'a') &&
+      move.vanish.every(v => v.c != 'a')
+    ) {
+      // King Boo exchange
+      return move.vanish[1].p.toUpperCase() + finalSquare;
+    }
+    const piece = move.vanish[0].p;
     let notation = undefined;
     if (piece == V.PAWN) {
       // Pawn move
@@ -1371,10 +1404,11 @@ export class ChakartRules extends ChessRules {
           notation += "*M";
           break;
         case "luigi":
-          notation += "*L";
-          break;
         case "waluigi":
-          notation += "*W";
+          const lastAppear = move.appear[move.appear.length - 1];
+          const effectOn =
+            V.CoordsToSquare({ x: lastAppear.x, y : lastAppear.y });
+          notation += "*" + move.end.effect[0].toUpperCase() + effectOn;
           break;
       }
     }
