@@ -155,7 +155,7 @@ export class ChakartRules extends ChessRules {
       }
       if (sumElts != V.size.y) return false;
     }
-    if (kings['k'] + kings['l'] != 1 || kings['K'] + kings['L'] != 1)
+    if (kings['k'] + kings['l'] == 0 || kings['K'] + kings['L'] == 0)
       return false;
     return true;
   }
