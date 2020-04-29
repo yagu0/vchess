@@ -1303,7 +1303,7 @@ export default {
             this.$router.push("/game/" + gameInfo.id);
           });
         },
-        this.focus ? 500 + 1000 * Math.random() : 0
+        this.focus ? 0 : 500 + 1000 * Math.random()
       );
     }
   }
