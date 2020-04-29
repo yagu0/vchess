@@ -10,6 +10,10 @@ export class HamiltonRules extends ChessRules {
     return false;
   }
 
+  get showFirstTurn() {
+    return true;
+  }
+
   static get HOLE() {
     return "xx";
   }
