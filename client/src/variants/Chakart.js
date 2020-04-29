@@ -1316,10 +1316,45 @@ export class ChakartRules extends ChessRules {
     return moves;
   }
 
+  static get VALUES() {
+    return Object.assign(
+      {},
+      ChessRules.VALUES,
+      {
+        s: 1,
+        u: 5,
+        o: 3,
+        c: 3,
+        t: 9,
+        l: 1000,
+        e: 0,
+        d: 0,
+        w: 0,
+        m: 0
+      }
+    );
+  }
+
+  static get SEARCH_DEPTH() {
+    return 1;
+  }
+
   getComputerMove() {
-    // Random mover:
     const moves = this.getAllValidMoves();
-    let move1 = moves[randInt(moves.length)];
+    // Split into "normal" and "random" moves:
+    // (Next splitting condition is OK because cannot take self object
+    // without a banana or bomb on the way).
+    const deterministicMoves = moves.filter(m => {
+      return m.vanish.every(a => a.c != 'a' || a.p == V.MUSHROOM);
+    });
+    const randomMoves = moves.filter(m => {
+      return m.vanish.some(a => a.c == 'a' && a.p != V.MUSHROOM);
+    });
+    if (Math.random() < deterministicMoves.length / randomMoves.length)
+      // Play a deterministic one: capture king or material if possible
+      return super.getComputerMove(deterministicMoves);
+    // Play a random effect move, at random:
+    let move1 = randomMoves[randInt(moves.length)];
     this.play(move1);
     let move2 = undefined;
     if (this.subTurn == 2) {
