@@ -114,6 +114,7 @@ export class ChakartRules extends ChessRules {
   }
 
   getPPpath(m) {
+    if (!!m.promoteInto) return m.promoteInto;
     let piece = m.appear[0].p;
     if (Object.keys(V.IMMOBILIZE_DECODE).includes(piece))
       piece = V.IMMOBILIZE_DECODE[piece];
@@ -386,16 +387,19 @@ export class ChakartRules extends ChessRules {
     if (piece == V.PAWN) {
       const forward = (color == 'w' ? -1 : 1);
       return (
-        this.board[x + forward][y] != oppCol ||
+        V.OnBoard(x + forward, y) &&
         (
-          V.OnBoard(x + forward, y + 1) &&
-          this.board[x + forward][y + 1] != V.EMPTY &&
-          this.getColor[x + forward, y + 1] == oppCol
-        ) ||
-        (
-          V.OnBoard(x + forward, y - 1) &&
-          this.board[x + forward][y - 1] != V.EMPTY &&
-          this.getColor[x + forward, y - 1] == oppCol
+          this.board[x + forward][y] != oppCol ||
+          (
+            V.OnBoard(x + forward, y + 1) &&
+            this.board[x + forward][y + 1] != V.EMPTY &&
+            this.getColor[x + forward, y + 1] == oppCol
+          ) ||
+          (
+            V.OnBoard(x + forward, y - 1) &&
+            this.board[x + forward][y - 1] != V.EMPTY &&
+            this.getColor[x + forward, y - 1] == oppCol
+          )
         )
       );
     }
@@ -421,7 +425,7 @@ export class ChakartRules extends ChessRules {
   getBasicMove_aux(psq1, sq2, tr, initMove) {
     const [x1, y1] = [psq1.x, psq1.y];
     const color1 = this.turn;
-    const piece1 = psq1.p || this.getPiece(x1, y1);
+    const piece1 = (!!tr ? tr.p : (psq1.p || this.getPiece(x1, y1)));
     const oppCol = V.GetOppCol(color1);
     if (!sq2) {
       let move = {
@@ -458,6 +462,7 @@ export class ChakartRules extends ChessRules {
     const [x2, y2] = [sq2[0], sq2[1]];
     // The move starts normally, on board:
     let move = super.getBasicMove([x1, y1], [x2, y2], tr);
+    if (!!tr) move.promoteInto = tr.c + tr.p; //in case of (chomped...)
     const L = this.firstMove.length;
     if (
       [V.PAWN, V.KNIGHT].includes(piece1) &&
@@ -819,6 +824,7 @@ export class ChakartRules extends ChessRules {
     // start is wrong for Toadette moves --> it's fixed later
     move.start = { x: psq1.x, y: psq1.y };
     move.end = !!sq2 ? { x: sq2[0], y: sq2[1] } : { x: psq1.x, y: psq1.y };
+    if (!!tr) move.promoteInto = moves[0].promoteInto;
     let lm = moves[moves.length-1];
     if (this.subTurn == 1 && !!lm.end.effect)
       move.end.effect = lm.end.effect;
@@ -1194,34 +1200,39 @@ export class ChakartRules extends ChessRules {
     }
     else if (move.appear[0].p == V.INVISIBLE_QUEEN)
       this.powerFlags[move.appear[0].c][V.QUEEN] = false;
-    if (move.turn[1] == 2) return;
+    if (this.subTurn == 2) return;
     if (
+      move.turn[1] == 1 &&
       move.appear.length == 0 ||
       !(Object.keys(V.IMMOBILIZE_DECODE).includes(move.appear[0].p))
     ) {
       // Look for an immobilized piece of my color: it can now move
-      // Also make opponent invisible queen visible again, if any
-      const oppCol = V.GetOppCol(color);
       for (let i=0; i<8; i++) {
         for (let j=0; j<8; j++) {
           if (this.board[i][j] != V.EMPTY) {
-            const colIJ = this.getColor(i, j);
             const piece = this.getPiece(i, j);
             if (
-              colIJ == color &&
+              this.getColor(i, j) == color &&
               Object.keys(V.IMMOBILIZE_DECODE).includes(piece)
             ) {
               this.board[i][j] = color + V.IMMOBILIZE_DECODE[piece];
               move.wasImmobilized = [i, j];
             }
-            else if (
-              colIJ == oppCol &&
-              piece == V.INVISIBLE_QUEEN
-            ) {
-              this.board[i][j] = oppCol + V.QUEEN;
-              move.wasInvisible = [i, j];
-            }
           }
+        }
+      }
+    }
+    // Also make opponent invisible queen visible again, if any
+    const oppCol = V.GetOppCol(color);
+    for (let i=0; i<8; i++) {
+      for (let j=0; j<8; j++) {
+        if (
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) == oppCol &&
+          this.getPiece(i, j) == V.INVISIBLE_QUEEN
+        ) {
+          this.board[i][j] = oppCol + V.QUEEN;
+          move.wasInvisible = [i, j];
         }
       }
     }
