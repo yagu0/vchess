@@ -254,16 +254,16 @@ footer
     & > p
       display: inline-block
       margin: 0 12px
-    @media screen and (max-width: 420px)
+    @media screen and (max-width: 500px)
       display: block
       width: 100%
-      margin-bottom: 10px
+      margin-bottom: 7px
       text-align: center
   .right-part
     display: inline-flex
     justify-content: flex-start
     width: 50%
-    @media screen and (max-width: 420px)
+    @media screen and (max-width: 500px)
       display: block
       width: 100%
       text-align: center
@@ -294,18 +294,18 @@ footer > .right-part > a.menuitem > img
   display: inline-block
   margin: 0
   &.first
-    @media screen and (min-width: 421px)
+    @media screen and (min-width: 501px)
       margin-left: 5px
 
 @media screen and (max-width: 767px)
   footer
     border: none
 
-@media screen and (max-width: 420px)
+@media screen and (max-width: 500px)
   .container
-    min-height: calc(100vh - 70px)
+    min-height: calc(100vh - 67px)
   footer
-    height: 70px
+    height: 67px
     display: block
     padding: 5px 0
 </style>
