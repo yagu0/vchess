@@ -28,7 +28,6 @@ export const translations = {
   "Challenge declined": "Desafío rechazado",
   "Chat here": "Chat aquí",
   "Clear history": "Clara historia",
-  Code: "Código",
   "Connection token sent. Check your emails!": "Token de conexión enviado. ¡Revisa tus correos!",
   Contact: "Contacto",
   "Correspondance challenges": "Desafíos por correspondencia",

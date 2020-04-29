@@ -35,11 +35,13 @@
         router-link.menuitem(to="/about") {{ st.tr["About"] }}
         router-link.menuitem(to="/faq") F.A.Q.
         a.menuitem(href="https://discord.gg/a9ZFKBe")
-          span Discord
-          img(src="/images/icons/discord.svg")
+          img.first(src="/images/icons/discord.svg")
         a.menuitem(href="https://github.com/yagu0/vchess")
-          span {{ st.tr["Code"] }}
           img(src="/images/icons/github.svg")
+        a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
+          img(src="/images/icons/facebook.svg")
+        a.menuitem(href="https://twitter.com/VchessC")
+          img.last(src="/images/icons/twitter.svg")
         p.clickable(onClick="window.doClick('modalContact')")
           | {{ st.tr["Contact"] }}
 </template>
@@ -267,9 +269,13 @@ footer
       color: #2c3e50
       text-decoration: none
     & > img
-      height: 1.2em
+      height: 1.5em
       display: inline-block
-      margin-left: 5px
+      margin: 0
+      &.first
+        margin-left: 5px
+      &.last
+        margin-right: 5px
   & > p
     display: inline-block
     margin: 0 12px

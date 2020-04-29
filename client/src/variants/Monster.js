@@ -45,7 +45,7 @@ export class MonsterRules extends ChessRules {
     );
   }
 
-  isAttacked(sq, color, castling) {
+  isAttacked() {
     // Goal is king capture => no checks
     return false;
   }

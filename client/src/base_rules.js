@@ -917,6 +917,7 @@ export const ChessRules = class ChessRules {
         if (
           // NOTE: "castling" arg is used by some variants (Monster),
           // where "isAttacked" is overloaded in an infinite-recursive way.
+          // TODO: not used anymore (Monster + Doublemove2 are simplified).
           (!castleInCheck && this.isAttacked([x, i], oppCol, "castling")) ||
           (this.board[x][i] != V.EMPTY &&
             // NOTE: next check is enough, because of chessboard constraints

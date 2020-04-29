@@ -79,7 +79,7 @@ export class Doublemove2Rules extends ChessRules {
     return moves;
   }
 
-  isAttacked(sq, color) {
+  isAttacked() {
     // Goal is king capture => no checks
     return false;
   }
