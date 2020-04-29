@@ -44,7 +44,11 @@ export default {
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
         self.$refs["basegame"].play(compMove, "received");
-        self.processMove(compMove);
+        const animationLength =
+          // 250 = length of animation, 500 = delay between sub-moves
+          // TODO: a callback would be cleaner.
+          250 + (Array.isArray(compMove) ? (compMove.length - 1) * 750 : 0);
+        setTimeout(() => self.processMove(compMove), animationLength);
         self.compThink = false;
         if (self.game.score != "*")
           // User action

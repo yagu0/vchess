@@ -46,21 +46,22 @@ export class MonsterRules extends ChessRules {
   }
 
   isAttacked(sq, color, castling) {
-    const singleMoveAttack = super.isAttacked(sq, color);
-    if (singleMoveAttack) return true;
-    if (color == 'b' || !!castling) return singleMoveAttack;
-    // Attacks by white: double-move allowed
-    const curTurn = this.turn;
-    this.turn = 'w';
-    const w1Moves = super.getAllPotentialMoves();
-    this.turn = curTurn;
-    for (let move of w1Moves) {
-      this.play(move);
-      const res = super.isAttacked(sq, 'w');
-      this.undo(move);
-      if (res) return res;
-    }
+    // Goal is king capture => no checks
     return false;
+  }
+
+  filterValid(moves) {
+    return moves;
+  }
+
+  getCheckSquares() {
+    return [];
+  }
+
+  getCurrentScore() {
+    const color = this.turn;
+    if (this.kingPos[color][0] < 0) return (color == 'w' ? "0-1" : "1-0");
+    return "*";
   }
 
   play(move) {
@@ -105,10 +106,11 @@ export class MonsterRules extends ChessRules {
     // Definition of 'c' in base class doesn't work:
     const c = move.vanish[0].c;
     const piece = move.vanish[0].p;
-    if (piece == V.KING) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-    }
+    if (piece == V.KING)
+      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      // Opponent's king is captured, game over
+      this.kingPos[move.vanish[1].c] = [-1, -1];
     this.updateCastleFlags(move, piece);
   }
 
@@ -120,52 +122,49 @@ export class MonsterRules extends ChessRules {
       if (this.subTurn == 2) this.subTurn = 1;
       else this.turn = 'b';
       this.movesCount--;
-    } else {
+    }
+    else {
       this.turn = 'w';
       this.subTurn = 2;
     }
     this.postUndo(move);
   }
 
-  filterValid(moves) {
-    if (this.turn == 'w' && this.subTurn == 1) {
-      return moves.filter(m1 => {
-        this.play(m1);
-        // NOTE: no recursion because next call will see subTurn == 2
-        const res = super.atLeastOneMove();
-        this.undo(m1);
-        return res;
-      });
-    }
-    return super.filterValid(moves);
+  postUndo(move) {
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      // Opponent's king was captured
+      this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
+    super.postUndo(move);
   }
 
-  static get SEARCH_DEPTH() {
-    return 1;
-  }
-
+  // Custom search at depth 1(+1)
   getComputerMove() {
-    const color = this.turn;
-    if (color == 'w') {
+    const getBestWhiteMove = (terminal) => {
       // Generate all sequences of 2-moves
-      const moves1 = this.getAllValidMoves();
+      let moves1 = this.getAllValidMoves();
       moves1.forEach(m1 => {
         m1.eval = -V.INFINITY;
         m1.move2 = null;
         this.play(m1);
-        const moves2 = this.getAllValidMoves();
-        moves2.forEach(m2 => {
-          this.play(m2);
-          const eval2 = this.evalPosition();
-          this.undo(m2);
-          if (eval2 > m1.eval) {
-            m1.eval = eval2;
-            m1.move2 = m2;
-          }
-        });
+        if (!!terminal) m1.eval = this.evalPosition();
+        else {
+          const moves2 = this.getAllValidMoves();
+          moves2.forEach(m2 => {
+            this.play(m2);
+            const eval2 = this.evalPosition() + 0.05 - Math.random() / 10;
+            this.undo(m2);
+            if (eval2 > m1.eval) {
+              m1.eval = eval2;
+              m1.move2 = m2;
+            }
+          });
+        }
         this.undo(m1);
       });
       moves1.sort((a, b) => b.eval - a.eval);
+      if (!!terminal)
+        // The move itself doesn't matter, only its eval:
+        return moves1[0];
       let candidates = [0];
       for (
         let i = 1;
@@ -178,8 +177,31 @@ export class MonsterRules extends ChessRules {
       const move2 = moves1[idx].move2;
       delete moves1[idx]["move2"];
       return [moves1[idx], move2];
-    }
-    // For black at depth 1, super method is fine:
-    return super.getComputerMove();
+    };
+
+    const getBestBlackMove = () => {
+      let moves = this.getAllValidMoves();
+      moves.forEach(m => {
+        m.eval = V.INFINITY;
+        this.play(m);
+        const evalM = getBestWhiteMove("terminal").eval
+        this.undo(m);
+        if (evalM < m.eval) m.eval = evalM;
+      });
+      moves.sort((a, b) => a.eval - b.eval);
+      let candidates = [0];
+      for (
+        let i = 1;
+        i < moves.length && moves[i].eval == moves[0].eval;
+        i++
+      ) {
+        candidates.push(i);
+      }
+      const idx = candidates[randInt(candidates.length)];
+      return moves[idx];
+    };
+
+    const color = this.turn;
+    return (color == 'w' ? getBestWhiteMove() : getBestBlackMove());
   }
 };

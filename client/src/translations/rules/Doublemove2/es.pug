@@ -1,15 +1,15 @@
 p.boxed
-  | Juega dos jugadas a cada turno.
+  | Juega dos jugadas a cada turno. El objetivo es capturar al rey.
 
 p.
   La única diferencia con el juego ortodoxo es la regla del doble movimiento,
   pero eso afecta mucho el juego
 
 p.
-  Al comienzo del juego, los blancos solo juegan un movimiento, como
+  Al comienzo del juego, las blancas solo juegan un movimiento, como
   en general. Sin embargo, después de eso y por el resto del juego,
-  cada lado debe jugar dos jugadas cada turno.
-  El objetivo es de dar jaque mate.
+  cada lado debe jugar dos jugadas cada turno
+  (incluso si la primera captura al rey contrario).
 
 figure.diagram-container
   .diagram.diag12
@@ -18,14 +18,13 @@ figure.diagram-container
     | fen:r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR:
   figcaption.
     Izquierda: después de las jugadas 1.e4 e5, el peón 'd' se clava.
-    Derecha: el rey negro está en jaque.
+    Derecha: el rey negro está "en jaque".
 
 p.
   En la posición del diagrama de la izquierda, después del primer movimiento
-  negro ...e5, el peón 'd' está clavado porque su movimiento autorizaría
-  2.Bb5,Bxe8 captura el rey.
-  A la derecha, después de 2.Qf3,Bc4 el rey negro está en jaque debido a las
-  posibilidades 3.Bxf7,Bxe8 o 3.Qxf7,Qxe8.
+  negro ...e5, un movimiento del peón 'd' autorizaría 2.Bb5,Bxe8 que
+  captura el rey. A la derecha, después de 2.Qf3,Bc4 las amenazas son
+  3.Bxf7,Bxe8 y 3.Qxf7,Qxe8.
 
 h3 Captura en passant
 
@@ -52,3 +51,5 @@ p
   | . También es jugable 
   a(href="https://greenchess.net/rules.php?v=double-move") en greenchess
   | .
+
+p Inventor: Fred Galvin (1957)

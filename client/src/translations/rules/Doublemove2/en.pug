@@ -1,5 +1,5 @@
 p.boxed
-  | Move twice at every turn.
+  | Move twice at every turn. The goal is to capture the king.
 
 p.
   The only difference with orthodox chess is the double-move rule,
@@ -8,7 +8,7 @@ p.
 p.
   At the very first move of the game, white make only one move - as usual.
   However, after that and for all the game each side must play twice at
-  every turn. The goal is to checkmate.
+  every turn (even if the first move captures the enemy king).
 
 figure.diagram-container
   .diagram.diag12
@@ -17,14 +17,12 @@ figure.diagram-container
     | fen:r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR:
   figcaption.
     Left: after the moves 1.e4 e5, the 'd' pawn is pinned.
-    Right: the black king is under check.
+    Right: the black king is "under check".
 
 p.
   In the diagram position on the left, after the first black move ...e5,
-  the 'd' pawn is pinned because moving it would allow 2.Bb5,Bxe8 capturing
-  the king.
-  On the right, after 2.Qf3,Bc4 black king is under check because of
-  the options 3.Bxf7,Bxe8 or 3.Qxf7,Qxe8.
+  moving the 'd' pawn would allow 2.Bb5,Bxe8 capturing the king.
+  On the right, after 2.Qf3,Bc4 the threats are 3.Bxf7,Bxe8 and 3.Qxf7,Qxe8.
 
 h3 En-passant capture
 
@@ -50,3 +48,5 @@ p
   | . It is also playable 
   a(href="https://greenchess.net/rules.php?v=double-move") on greenchess
   | .
+
+p Inventor: Fred Galvin (1957)

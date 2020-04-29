@@ -311,8 +311,6 @@ export class TeleportRules extends ChessRules {
             (color == 'w' && mvEval > m.eval) ||
             (color == 'b' && mvEval < m.eval)
           ) {
-            // TODO: if many second moves have the same eval, only the
-            // first is kept. Could be randomized.
             m.eval = mvEval;
             m.next = m2;
           }

@@ -1,5 +1,5 @@
 p.boxed
-  | Jouez deux coups à chaque tour.
+  | Jouez deux coups à chaque tour. Le but est de capturer le roi.
 
 p.
   La seule différence avec le jeu orthodoxe est la règle du double-coup, mais
@@ -8,7 +8,8 @@ p.
 p.
   Au tout début de la partie les blancs ne jouent qu'un seul coup, comme
   d'habitude. Cependant, après cela et ce pour tout le reste de la partie
-  chaque camp doit jouer deux coups à chaque tour. L'objectif est de mater.
+  chaque camp doit jouer deux coups à chaque tour
+  (même si le premier capture le roi adverse).
 
 figure.diagram-container
   .diagram.diag12
@@ -17,14 +18,12 @@ figure.diagram-container
     | fen:r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR:
   figcaption.
     Gauche : après les coups 1.e4 e5, le pion 'd' est cloué.
-    Droite : le roi noir est en échec.
+    Droite : le roi noir est "en échec".
 
 p.
   Dans la position du diagramme à gauche, après le premier coup noir ...e5,
-  le pion 'd' est cloué car son déplacement autoriserait 2.Bb5,Bxe8 capturant
-  le roi.
-  À droite, après 2.Qf3,Bc4 le roi noir est en échec à cause des possibilités
-  3.Bxf7,Bxe8 ou 3.Qxf7,Qxe8.
+  un déplacement du pion 'd' autoriserait 2.Bb5,Bxe8 capturant le roi.
+  À droite, après 2.Qf3,Bc4 les menaces sont 3.Bxf7,Bxe8 et 3.Qxf7,Qxe8.
 
 h3 Prise en passant
 
@@ -50,3 +49,5 @@ p
   | . Elle est jouable également 
   a(href="https://greenchess.net/rules.php?v=double-move") sur greenchess
   | .
+
+p Inventeur : Fred Galvin (1957)

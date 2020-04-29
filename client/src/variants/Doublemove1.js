@@ -201,7 +201,7 @@ export class Doublemove1Rules extends ChessRules {
       return res;
     };
 
-    let moves11 = this.getAllValidMoves();
+    const moves11 = this.getAllValidMoves();
     let doubleMoves = [];
     // Rank moves using a min-max at depth 2
     for (let i = 0; i < moves11.length; i++) {
@@ -209,13 +209,14 @@ export class Doublemove1Rules extends ChessRules {
       if (this.turn != color) {
         // We gave check with last move: search the best opponent move
         doubleMoves.push({ moves: [moves11[i]], eval: getBestMoveEval() });
-      } else {
+      }
+      else {
         let moves12 = this.getAllValidMoves();
         for (let j = 0; j < moves12.length; j++) {
           this.play(moves12[j]);
           doubleMoves.push({
             moves: [moves11[i], moves12[j]],
-            eval: getBestMoveEval()
+            eval: getBestMoveEval() + 0.05 - Math.random() / 10
           });
           this.undo(moves12[j]);
         }
@@ -223,6 +224,8 @@ export class Doublemove1Rules extends ChessRules {
       this.undo(moves11[i]);
     }
 
+    // TODO: array + sort + candidates logic not required when adding small
+    // fluctuations to the eval function (could also be generalized).
     doubleMoves.sort((a, b) => {
       return (color == "w" ? 1 : -1) * (b.eval - a.eval);
     });
@@ -234,7 +237,6 @@ export class Doublemove1Rules extends ChessRules {
     ) {
       candidates.push(i);
     }
-
     const selected = doubleMoves[randInt(candidates.length)].moves;
     if (selected.length == 1) return selected[0];
     return selected;
