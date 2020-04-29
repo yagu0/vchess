@@ -32,18 +32,20 @@
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
       footer
-        router-link.menuitem(to="/about") {{ st.tr["About"] }}
-        router-link.menuitem(to="/faq") F.A.Q.
-        a.menuitem(href="https://discord.gg/a9ZFKBe")
-          img.first(src="/images/icons/discord.svg")
-        a.menuitem(href="https://github.com/yagu0/vchess")
-          img(src="/images/icons/github.svg")
-        a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
-          img(src="/images/icons/facebook.svg")
-        a.menuitem(href="https://twitter.com/VchessC")
-          img.last(src="/images/icons/twitter.svg")
-        p.clickable(onClick="window.doClick('modalContact')")
-          | {{ st.tr["Contact"] }}
+        .left-part
+          router-link.menuitem(to="/about") {{ st.tr["About"] }}
+          router-link.menuitem(to="/faq") F.A.Q.
+          p.menuitem.clickable(onClick="window.doClick('modalContact')")
+            | {{ st.tr["Contact"] }}
+        .right-part
+          a.menuitem(href="https://discord.gg/a9ZFKBe")
+            img.first(src="/images/icons/discord.svg")
+          a.menuitem(href="https://github.com/yagu0/vchess")
+            img(src="/images/icons/github.svg")
+          a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
+            img(src="/images/icons/facebook.svg")
+          a.menuitem(href="https://twitter.com/VchessC")
+            img(src="/images/icons/twitter.svg")
 </template>
 
 <script>
@@ -245,6 +247,26 @@ nav
       border-top: 0
 
 footer
+  .left-part
+    display: inline-flex
+    justify-content: flex-end
+    width: 50%
+    & > p
+      display: inline-block
+      margin: 0 12px
+    @media screen and (max-width: 420px)
+      display: block
+      width: 100%
+      margin-bottom: 10px
+      text-align: center
+  .right-part
+    display: inline-flex
+    justify-content: flex-start
+    width: 50%
+    @media screen and (max-width: 420px)
+      display: block
+      width: 100%
+      text-align: center
   height: 45px
   border: 1px solid #ddd
   box-sizing: border-box
@@ -254,31 +276,26 @@ footer
   padding: 0
   display: inline-flex
   align-items: center
-  justify-content: center
-  & > .router-link-exact-active
+  & > .left-part > .router-link-exact-active
     color: #388e3c !important
     text-decoration: none
-  & > .menuitem
-    margin: 0 12px
-    display: inline-flex;
-    align-self: center;
-    &:link
-      color: #2c3e50
-      text-decoration: none
-    &:visited, &:hover
-      color: #2c3e50
-      text-decoration: none
-    & > img
-      height: 1.5em
-      display: inline-block
-      margin: 0
-      &.first
-        margin-left: 5px
-      &.last
-        margin-right: 5px
-  & > p
-    display: inline-block
-    margin: 0 12px
+footer .menuitem
+  margin: 0 12px
+  display: inline-flex
+  align-self: center
+  &:link
+    color: #2c3e50
+    text-decoration: none
+  &:visited, &:hover
+    color: #2c3e50
+    text-decoration: none
+footer > .right-part > a.menuitem > img
+  height: 1.5em
+  display: inline-block
+  margin: 0
+  &.first
+    @media screen and (min-width: 421px)
+      margin-left: 5px
 
 @media screen and (max-width: 767px)
   footer
@@ -286,9 +303,9 @@ footer
 
 @media screen and (max-width: 420px)
   .container
-    min-height: calc(100vh - 55px)
+    min-height: calc(100vh - 70px)
   footer
-    height: 55px
+    height: 70px
     display: block
     padding: 5px 0
 </style>

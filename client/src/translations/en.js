@@ -28,6 +28,7 @@ export const translations = {
   "Challenge declined": "Challenge declined",
   "Chat here": "Chat here",
   "Clear history": "Clear history",
+  Code: "Code",
   "Connection token sent. Check your emails!": "Connection token sent. Check your emails!",
   Contact: "Contact",
   "Correspondance challenges": "Correspondance challenges",
