@@ -141,7 +141,7 @@ export default {
     },
     canAnalyze: function() {
       return (
-        !!this.game.mode && this.game.mode != "analyze" &&
+        (!this.game.mode || this.game.mode != "analyze") &&
         !!this.vr && this.vr.canAnalyze
       );
     },
