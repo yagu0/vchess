@@ -48,11 +48,13 @@ export default {
           // 250 = length of animation, 500 = delay between sub-moves
           // TODO: a callback would be cleaner.
           250 + (Array.isArray(compMove) ? (compMove.length - 1) * 750 : 0);
-        setTimeout(() => self.processMove(compMove), animationLength);
-        self.compThink = false;
-        if (self.game.score != "*")
-          // User action
-          self.$emit("game-stopped");
+        setTimeout(
+          () => {
+            self.compThink = false;
+            self.processMove(compMove);
+          },
+          animationLength
+        );
       }, delay);
     };
   },
@@ -66,14 +68,14 @@ export default {
           moves: []
         };
         game.fen = game.fenStart;
-        if (this.gameInfo.mode == "versus")
-          CompgameStorage.add(game);
+        if (this.gameInfo.mode == "versus") CompgameStorage.add(game);
       }
       if (!game.mycolor) game.mycolor = (Math.random() < 0.5 ? "w" : "b");
       this.compWorker.postMessage(["init", game.fen]);
       this.vr = new V(game.fen);
-      game.players = [{ name: "Myself" }, { name: "Computer" }];
-      if (game.mycolor == "b") game.players = game.players.reverse();
+      game.players = [{ name: "Computer" }, { name: "Computer" }];
+      if (this.gameInfo.mode == "versus")
+        game.players[game.mycolor == 'w' ? 0 : 1] = { name: "Myself" };
       game.score = "*"; //finished games are removed
       game.mode = this.gameInfo.mode;
       this.currentUrl = document.location.href; //to avoid playing outside page
@@ -92,15 +94,17 @@ export default {
     },
     processMove: function(move, scoreObj) {
       playMove(move, this.vr);
-      // This move could have ended the game:
+      // Maybe the user stopped the game:
+      if (this.game.score != "*") {
+        this.$emit("game-stopped");
+        return;
+      }
+      // This move could have ended the game
       if (!scoreObj) scoreObj = { score: this.vr.getCurrentScore() };
       if (scoreObj.score != "*") {
         this.gameOver(scoreObj.score);
         return;
       }
-      if (this.game.score != "*")
-        // The game already ended, probably because of a user action
-        return;
       // Send the move to web worker (including his own moves)
       this.compWorker.postMessage(["newmove", move]);
       if (this.gameInfo.mode == "auto" || this.vr.turn != this.game.mycolor)

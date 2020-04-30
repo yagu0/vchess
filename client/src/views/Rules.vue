@@ -128,7 +128,7 @@ export default {
         this.$refs["compgame"].launchGame();
       }
     },
-    // user wants to stop the game:
+    // The user wants to stop the game:
     stopGame: function() {
       this.$refs["compgame"].gameOver("?", "Undetermined result");
     },
