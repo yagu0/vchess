@@ -99,6 +99,10 @@ export default {
       else if (this.gameInProgress) this.display = "computer";
     },
     re_setVariant: async function(vname) {
+      const key = "rr_" + vname;
+      if (!localStorage.getItem(key))
+        // Mark rules as "read"
+        localStorage.setItem(key, '1');
       await import("@/variants/" + vname + ".js")
       .then((vModule) => {
         this.V = window.V = vModule[vname + "Rules"];
