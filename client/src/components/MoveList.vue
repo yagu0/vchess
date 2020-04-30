@@ -125,7 +125,10 @@ export default {
     },
     btnRulesClass: function() {
       // "rr" for "rules read"
-      return { highlightRules: !localStorage.getItem("rr_" + this.vname) };
+      return {
+        highlightRules:
+          !!this.vname && !localStorage.getItem("rr_" + this.vname)
+      };
     }
   },
   methods: {
