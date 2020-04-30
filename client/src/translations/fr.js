@@ -220,6 +220,7 @@ export const translations = {
   "Play opponent's pieces": "Jouez les pièces adverses",
   "Powerful pieces": "Pièces puissantes",
   "Prolongated captures": "Captures prolongées",
+  "Protect your pawns": "Protégez vos pions",
   "Push and pull": "Pousser et tirer",
   "Queen disguised as a pawn": "Reine déguisée en pion",
   "Reposition pieces": "Replacer les pièces",

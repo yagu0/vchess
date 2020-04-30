@@ -19,7 +19,8 @@ div
     // NOTE: variants pages already have a "Rules" link on top
     span#rulesBtn(
       v-if="!$route.path.match('/variants/')"
-      @click="$emit('showrules')"
+      @click="clickRulesBtn()"
+      :class="btnRulesClass"
     )
       | {{ st.tr["Rules"] }}
     button(
@@ -70,7 +71,7 @@ export default {
   name: "my-move-list",
   props: [
     "moves", "show", "canAnalyze", "canDownload",
-    "cursor", "score", "message", "firstNum"],
+    "vname", "cursor", "score", "message", "firstNum"],
   data: function() {
     return {
       st: store.state
@@ -121,6 +122,10 @@ export default {
   computed: {
     evenNumbers: function() {
       return [...Array(this.moves.length).keys()].filter(i => i%2==0);
+    },
+    btnRulesClass: function() {
+      // "rr" for "rules read"
+      return { highlightRules: !localStorage.getItem("rr_" + this.vname) };
     }
   },
   methods: {
@@ -141,6 +146,14 @@ export default {
     },
     btnTooltipClass: function() {
       return { tooltip: !("ontouchstart" in window) };
+    },
+    clickRulesBtn: function() {
+      const key = "rr_" + this.vname;
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        document.getElementById("rulesBtn").classList.remove("highlightRules");
+      }
+      this.$emit("showrules");
     },
     gotoMove: function(index) {
       // Goto move except if click on current move:
@@ -193,6 +206,10 @@ export default {
 
 .td.highlight-lm
   background-color: plum
+
+.highlightRules
+  padding: 3px 5px
+  background-color: yellow
 
 #boardSizeBtnContainer
   width: 100%

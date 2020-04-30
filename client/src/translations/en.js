@@ -220,6 +220,7 @@ export const translations = {
   "Play opponent's pieces": "Play opponent's pieces",
   "Powerful pieces": "Powerful pieces",
   "Prolongated captures": "Prolongated captures",
+  "Protect your pawns": "Protect your pawns",
   "Push and pull": "Push and pull",
   "Queen disguised as a pawn": "Queen disguised as a pawn",
   "Reposition pieces": "Reposition pieces",

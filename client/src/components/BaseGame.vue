@@ -51,6 +51,7 @@ div#baseGame
         :firstNum="firstMoveNumber"
         :moves="moves"
         :cursor="cursor"
+        :vname="game.vname"
         @download="download"
         @showrules="showRules"
         @analyze="toggleAnalyze"

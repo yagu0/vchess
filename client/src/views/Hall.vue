@@ -1288,13 +1288,13 @@ export default {
         () => {
           const myIdx = (game.players[0].sid == this.st.user.sid ? 0 : 1);
           GameStorage.add(game, (err) => {
-            // If an error occurred, game is not added: a tab already
-            // added the game. Maybe a focused one, maybe not.
-            // We know for sure that it emitted the gong start sound.
-            // ==> Do not play it again.
-            if (!err && this.st.settings.sound)
-              new Audio("/sounds/newgame.flac").play().catch(() => {});
+            // If an error occurred, game is not added: the focused tab
+            // already added the game.
             if (!this.focus) {
+              if (this.st.settings.sound)
+                // This will be played several times if several hidden tabs
+                // on Hall... TODO: fix that (how ?!)
+                new Audio("/sounds/newgame.flac").play().catch(() => {});
               notify(
                 "New live game",
                 { body: "vs " + game.players[1-myIdx].name || "@nonymous" }

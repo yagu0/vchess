@@ -51,6 +51,7 @@ insert or ignore into Variants (name, description) values
   ('Hamilton', 'Walk on a graph'),
   ('Horde', 'A pawns cloud'),
   ('Interweave', 'Interweaved colorbound teams'),
+  ('Kinglet', 'Protect your pawns'),
   ('Knightmate', 'Mate the knight'),
   ('Knightrelay1', 'Move like a knight (v1)'),
   ('Knightrelay2', 'Move like a knight (v2)'),
