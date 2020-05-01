@@ -46,7 +46,6 @@ export const store = {
       name: localStorage.getItem("myname") || "", //"" for "anonymous"
       email: "", //unknown yet
       notify: false, //email notifications
-      newsRead: localStorage.getItem("newsRead") || 0,
       sid: mysid
     };
     // Slow verification through the server:
@@ -79,8 +78,6 @@ export const store = {
         localStorage.removeItem("myname");
       this.state.user.email = json.email;
       this.state.user.notify = json.notify;
-      if (!!json.newsRead && json.newsRead > this.state.user.newsRead)
-        this.state.user.newsRead = json.newsRead;
     });
     // Settings initialized with values from localStorage
     const getItemDefaultTrue = (item) => {

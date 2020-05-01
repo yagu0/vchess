@@ -154,7 +154,6 @@ export const translations = {
   "Who's there?": "Qui est là ?",
   With: "Avec",
   with: "avec",
-  "Write news": "Écrire une news",
   "Wrong time control": "Cadence erronée",
   "Your message": "Votre message",
 

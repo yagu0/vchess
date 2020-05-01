@@ -113,7 +113,7 @@ main
             v-for="sid in Object.keys(people)"
             v-if="!!people[sid].name"
           )
-            span {{ people[sid].name }}
+            UserBio(:id="people[sid].id" :name="people[sid].name")
             button.player-action(
               v-if="isGamer(sid)"
               @click="watchGame(sid)"
@@ -212,6 +212,7 @@ import params from "@/parameters";
 import { getRandString, shuffle, randInt } from "@/utils/alea";
 import { getDiagram } from "@/utils/printDiagram";
 import Chat from "@/components/Chat.vue";
+import UserBio from "@/components/UserBio.vue";
 import GameList from "@/components/GameList.vue";
 import ChallengeList from "@/components/ChallengeList.vue";
 import { GameStorage } from "@/utils/gameStorage";
@@ -220,6 +221,7 @@ export default {
   name: "my-hall",
   components: {
     Chat,
+    UserBio,
     GameList,
     ChallengeList
   },

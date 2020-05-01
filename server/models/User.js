@@ -13,7 +13,7 @@ const sendEmail = require('../utils/mailer');
  *   sessionToken: token in cookies for authentication
  *   notify: boolean (send email notifications for corr games)
  *   created: datetime
- *   newsRead: datetime
+ *   bio: text
  */
 
 const UserModel = {
@@ -58,6 +58,16 @@ const UserModel = {
     });
   },
 
+  getBio: function(id) {
+    db.serialize(function() {
+      const query =
+        "SELECT bio " +
+        "FROM Users " +
+        "WHERE id = " + id;
+      db.get(query, cb);
+    });
+  },
+
   /////////
   // MODIFY
 
@@ -71,13 +81,13 @@ const UserModel = {
     });
   },
 
-  setNewsRead: function(id) {
+  setBio: function(id, bio) {
     db.serialize(function() {
       const query =
         "UPDATE Users " +
-        "SET newsRead = " + Date.now() + " " +
+        "SET bio = ? " +
         "WHERE id = " + id;
-      db.run(query);
+      db.run(query, bio);
     });
   },
 

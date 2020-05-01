@@ -4,6 +4,22 @@ const sendEmail = require('../utils/mailer');
 const genToken = require("../utils/tokenGenerator");
 const access = require("../utils/access");
 const params = require("../config/parameters");
+const sanitizeHtml = require('sanitize-html');
+
+router.get("/userbio", access.ajax, (req,res) => {
+  const uid = req.query["id"];
+  if (!!(uid.toString().match(/^[0-9]+$/))) {
+    UserModel.getBio(uid, (err, bio) => {
+      res.json(bio);
+    });
+  }
+});
+
+router.put('/userbio', access.logged, access.ajax, (req,res) => {
+  const bio = sanitizeHtml(req.body.bio);
+  UserModel.setBio(req.userId, bio);
+  res.json({});
+});
 
 router.post('/register', access.unlogged, access.ajax, (req,res) => {
   const name = req.body.name;
@@ -36,16 +52,14 @@ router.get("/whoami", access.ajax, (req,res) => {
       name: user.name,
       email: user.email,
       id: user.id,
-      notify: user.notify,
-      newsRead: user.newsRead
+      notify: user.notify
     });
   };
   const anonymous = {
     name: "",
     email: "",
     id: 0,
-    notify: false,
-    newsRead: 0
+    notify: false
   };
   if (!req.cookies.token) callback(anonymous);
   else if (req.cookies.token.match(/^[a-z0-9]+$/)) {
@@ -60,8 +74,8 @@ router.get("/users", access.ajax, (req,res) => {
   const ids = req.query["ids"];
   // NOTE: slightly too permissive RegExp
   if (ids.match(/^([0-9]+,?)+$/)) {
-    UserModel.getByIds(ids, (err,users) => {
-      res.json({users:users});
+    UserModel.getByIds(ids, (err, users) => {
+      res.json({ users:users });
     });
   }
 });
@@ -79,12 +93,6 @@ router.put('/update', access.logged, access.ajax, (req,res) => {
     UserModel.updateSettings(user);
     res.json({});
   }
-});
-
-// Special route to update newsRead timestamp:
-router.put('/newsread', access.logged, access.ajax, (req,res) => {
-  UserModel.setNewsRead(req.userId);
-  res.json({});
 });
 
 // Authentication-related methods:

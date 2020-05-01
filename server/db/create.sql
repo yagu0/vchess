@@ -16,7 +16,7 @@ create table Users (
   sessionToken varchar,
   created datetime,
   notify boolean,
-  newsRead datetime
+  bio text default ''
 );
 
 create table Problems (
