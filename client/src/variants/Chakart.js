@@ -214,20 +214,20 @@ export class ChakartRules extends ChessRules {
     // Initialize captured pieces' counts from FEN
     this.captured = {
       w: {
-        [V.ROOK]: parseInt(fenParsed.captured[0]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[1]),
-        [V.BISHOP]: parseInt(fenParsed.captured[2]),
-        [V.QUEEN]: parseInt(fenParsed.captured[3]),
-        [V.KING]: parseInt(fenParsed.captured[4]),
-        [V.PAWN]: parseInt(fenParsed.captured[5]),
+        [V.PAWN]: parseInt(fenParsed.captured[0]),
+        [V.ROOK]: parseInt(fenParsed.captured[1]),
+        [V.KNIGHT]: parseInt(fenParsed.captured[2]),
+        [V.BISHOP]: parseInt(fenParsed.captured[3]),
+        [V.QUEEN]: parseInt(fenParsed.captured[4]),
+        [V.KING]: parseInt(fenParsed.captured[5])
       },
       b: {
-        [V.ROOK]: parseInt(fenParsed.captured[6]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[7]),
-        [V.BISHOP]: parseInt(fenParsed.captured[8]),
-        [V.QUEEN]: parseInt(fenParsed.captured[9]),
-        [V.KING]: parseInt(fenParsed.captured[10]),
-        [V.PAWN]: parseInt(fenParsed.captured[11]),
+        [V.PAWN]: parseInt(fenParsed.captured[6]),
+        [V.ROOK]: parseInt(fenParsed.captured[7]),
+        [V.KNIGHT]: parseInt(fenParsed.captured[8]),
+        [V.BISHOP]: parseInt(fenParsed.captured[9]),
+        [V.QUEEN]: parseInt(fenParsed.captured[10]),
+        [V.KING]: parseInt(fenParsed.captured[11])
       }
     };
     this.firstMove = [];
@@ -269,7 +269,11 @@ export class ChakartRules extends ChessRules {
     const end = (color == 'b' && p == V.PAWN ? 7 : 8);
     for (let i = start; i < end; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a') {
+        if (
+          this.board[i][j] == V.EMPTY ||
+          this.getColor(i, j) == 'a' ||
+          this.getPiece(i, j) == V.INVISIBLE_QUEEN
+        ) {
           let m = this.getBasicMove({ p: p, x: i, y: j});
           m.start = { x: x, y: y };
           moves.push(m);
@@ -1397,14 +1401,19 @@ export class ChakartRules extends ChessRules {
         )
       );
     }
-    if (
-      move.appear.length == 1 &&
-      move.vanish.length == 1 &&
-      move.appear[0].c == 'a' &&
-      move.vanish[0].c == 'a'
-    ) {
-      // Bonus replacement:
-      return move.appear[0].p.toUpperCase() + "@" + finalSquare;
+    if (move.appear.length == 1 && move.vanish.length == 1) {
+      const moveStart = move.appear[0].p.toUpperCase() + "@";
+      if (move.appear[0].c == 'a' && move.vanish[0].c == 'a')
+        // Bonus replacement:
+        return moveStart + finalSquare;
+      if (
+        move.vanish[0].p == V.INVISIBLE_QUEEN &&
+        move.appear[0].x == move.vanish[0].x &&
+        move.appear[0].y == move.vanish[0].y
+      ) {
+        // Toadette takes invisible queen
+        return moveStart + "Q" + finalSquare;
+      }
     }
     if (
       move.appear.length == 2 &&
