@@ -20,6 +20,7 @@ insert or ignore into Variants (name, description) values
   ('Arena', 'Middle battle'),
   ('Atomic', 'Explosive captures'),
   ('Ball', 'Score a goal'),
+  ('Balaklava', 'Meet the Mammoth'),
   ('Baroque', 'Exotic captures'),
   ('Benedict', 'Change colors'),
   ('Berolina', 'Pawns move diagonally'),

@@ -206,6 +206,7 @@ export const translations = {
   "Mate any piece (v1)": "Matez n'importe quelle pièce (v1)",
   "Mate any piece (v2)": "Matez n'importe quelle pièce (v2)",
   "Mate the knight": "Matez le cavalier",
+  "Meet the Mammoth": "Rencontrez le Mammouth",
   "Middle battle": "Bataille du milieu",
   "Mongolian Horde": "Horde mongole",
   "Move like a knight (v1)": "Bouger comme un cavalier (v1)",

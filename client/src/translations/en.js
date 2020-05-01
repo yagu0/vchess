@@ -206,6 +206,7 @@ export const translations = {
   "Mate any piece (v1)": "Mate any piece (v1)",
   "Mate any piece (v2)": "Mate any piece (v2)",
   "Mate the knight": "Mate the knight",
+  "Meet the Mammoth": "Meet the Mammoth",
   "Middle battle": "Middle battle",
   "Mongolian Horde": "Mongolian Horde",
   "Move like a knight (v1)": "Move like a knight (v1)",
