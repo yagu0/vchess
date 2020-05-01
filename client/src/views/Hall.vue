@@ -113,7 +113,7 @@ main
             v-for="sid in Object.keys(people)"
             v-if="!!people[sid].name"
           )
-            UserBio(:id="people[sid].id" :name="people[sid].name")
+            UserBio.user-bio(:uid="people[sid].id" :uname="people[sid].name")
             button.player-action(
               v-if="isGamer(sid)"
               @click="watchGame(sid)"
@@ -1401,6 +1401,9 @@ button.refuseBtn
 @media screen and (max-width: 767px)
   #div2, #div3
     margin-top: 0
+
+.user-bio
+  display: inline
 
 tr > td
   &.random-0

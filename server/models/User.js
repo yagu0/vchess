@@ -58,7 +58,7 @@ const UserModel = {
     });
   },
 
-  getBio: function(id) {
+  getBio: function(id, cb) {
     db.serialize(function() {
       const query =
         "SELECT bio " +

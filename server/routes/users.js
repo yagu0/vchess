@@ -32,7 +32,8 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
           ? "User name or email already in use"
           : "User creation failed. Try again";
         res.json({errmsg: msg});
-      } else {
+      }
+      else {
         const user = {
           id: ret.id,
           name: name,

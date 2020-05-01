@@ -120,8 +120,11 @@ main
         img(src="/images/icons/rematch.svg")
       #playersInfo
         div(v-if="isLargeScreen()")
-          span.name(:class="{connected: isConnected(0)}")
-            | {{ game.players[0].name || "@nonymous" }}
+          UserBio.user-bio(
+            :class="{connected: isConnected(0)}"
+            :uid="game.players[0].id"
+            :uname="game.players[0].name"
+          )
           span.time(
             v-if="game.score=='*'"
             :class="{yourturn: !!vr && vr.turn == 'w'}"
@@ -131,8 +134,11 @@ main
             span.time-right(v-if="!!virtualClocks[0][1]")
               | {{ virtualClocks[0][1] }}
           span.split-names -
-          span.name(:class="{connected: isConnected(1)}")
-            | {{ game.players[1].name || "@nonymous" }}
+          UserBio.user-bio(
+            :class="{connected: isConnected(1)}"
+            :uid="game.players[1].id"
+            :uname="game.players[1].name"
+          )
           span.time(
             v-if="game.score=='*'"
             :class="{yourturn: !!vr && vr.turn == 'b'}"
@@ -142,11 +148,17 @@ main
             span.time-right(v-if="!!virtualClocks[1][1]")
               | {{ virtualClocks[1][1] }}
         div(v-else)
-          span.name(:class="{connected: isConnected(0)}")
-            | {{ game.players[0].name || "@nonymous" }}
+          UserBio.user-bio(
+            :class="{connected: isConnected(0)}"
+            :uid="game.players[0].id"
+            :uname="game.players[0].name"
+          )
           span.split-names -
-          span.name(:class="{connected: isConnected(1)}")
-            | {{ game.players[1].name || "@nonymous" }}
+          UserBio.user-bio(
+            :class="{connected: isConnected(1)}"
+            :uid="game.players[1].id"
+            :uname="game.players[1].name"
+          )
           div(v-if="game.score=='*'")
             span.time(:class="{yourturn: !!vr && vr.turn == 'w'}")
               span.time-left {{ virtualClocks[0][0] }}
@@ -168,6 +180,7 @@ main
 
 <script>
 import BaseGame from "@/components/BaseGame.vue";
+import UserBio from "@/components/UserBio.vue";
 import Chat from "@/components/Chat.vue";
 import { store } from "@/store";
 import { GameStorage } from "@/utils/gameStorage";
@@ -188,7 +201,8 @@ export default {
   name: "my-game",
   components: {
     BaseGame,
-    Chat
+    Chat,
+    UserBio
   },
   data: function() {
     return {
@@ -1678,6 +1692,13 @@ button
 #aboveBoard
   text-align: center
 
+.user-bio
+  display: inline
+  font-size: 1.5rem
+  @media screen and (max-width: 767px)
+    font-size: 1.2rem
+  padding: 0 3px
+
 .variant-cadence
   padding-right: 10px
 
@@ -1696,12 +1717,6 @@ span.separator
   margin: 0
   padding: 0
   width: 10px
-
-span.name
-  font-size: 1.5rem
-  @media screen and (max-width: 767px)
-    font-size: 1.2rem
-  padding: 0 3px
 
 span.time
   font-size: 2rem
