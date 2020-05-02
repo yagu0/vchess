@@ -1,0 +1,30 @@
+p.boxed
+  | Las piezas pueden moverse en cualquier espacio defendido por más de
+  | piezas amigas que piezas enemigas.
+
+p.
+  Además de sus capacidades habituales, las piezas pueden saltar a
+  espacios controlados, es decir, espacios atacados por más piezas del
+  mismo lado que las piezas opuestas.
+  El rey en jaque solo puede hacer movimientos normales, pero las jugadas
+  "rampage" de las otras piezas pueden contrarrestar el jaque.
+
+p.
+  Los ataques a la misma columna, fila o diagonal son acumulativos. Entonces
+  en el siguiente diagrama, la casilla marcada (e5) es defendida dos veces por
+  cada lado: los movimientos "rampage" hacia esta casilla son imposibles.
+
+figure.diagram-container
+  .diagram
+    | fen:k7/p7/2n1r3/8/8/8/4R2P/4Q2K e5:
+  figcaption No movimientos de reposicionamiento a e5.
+
+h3 Fuente
+
+p
+  | Esta variante es 
+  a(href="https://www.chessvariants.com/play/erf/RampageC.html")
+    | mencionada aquí
+  | .
+
+p Inventor: Bruce R. Trose (1976)

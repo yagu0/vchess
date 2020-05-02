@@ -210,6 +210,7 @@ export const translations = {
   "Mongolian Horde": "Mongolian Horde",
   "Move like a knight (v1)": "Move like a knight (v1)",
   "Move like a knight (v2)": "Move like a knight (v2)",
+  "Move under cover": "Move under cover",
   "Neverending rows": "Neverending rows",
   "No-check mode": "No-check mode",
   "Non-conformism and utopia": "Non-conformism and utopia",

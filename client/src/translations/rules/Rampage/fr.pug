@@ -1,0 +1,30 @@
+p.boxed
+  | Les pièces peuvent se déplacer sur toute case défendue par plus de
+  | pièces amies que de pièces ennemies.
+
+p.
+  En plus de leurs capacités habituelles, les pièces peuvent sauter vers des
+  cases controlées, c'est-à-dire des cases attaquées par plus de pièces du
+  même camp que de pièces adverses.
+  Le roi en échec ne peut effectuer que des coups normaux, mais les coups
+  "rampage" des autres pièces sont autorisés pour parer l'échec.
+
+p.
+  Les attaques sur la même colonne, rangée ou diagonale se cumulent. Ainsi,
+  sur le diagramme suivant la case marquée (e5) est défendue deux fois par
+  chaque camp : les coups "rampage" vers cette case sont impossibles.
+
+figure.diagram-container
+  .diagram
+    | fen:k7/p7/2n1r3/8/8/8/4R2P/4Q2K e5:
+  figcaption Pas de coups de repositionnement vers e5.
+
+h3 Source
+
+p
+  | Cette variante est 
+  a(href="https://www.chessvariants.com/play/erf/RampageC.html")
+    | mentionnée ici
+  | .
+
+p Inventeur : Bruce R. Trose (1976)

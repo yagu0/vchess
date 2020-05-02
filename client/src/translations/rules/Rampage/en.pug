@@ -1,0 +1,29 @@
+p.boxed
+  | Units may move to any square that is guarded by more friendly units
+  | than enemy units.
+
+p.
+  In addition to their usual abilities, pieces may jump to controlled squares,
+  that is to say squares attacked by more friendly pieces than enemy pieces.
+  The king in check may only move as in orthodox chess, but "rampage" moves
+  of other pieces are allowed to cover the check.
+
+p.
+  Attacks on the same row, file or diagonal are cumulative. So,
+  on the next diagram the marked square (e5) is guarded twice by each side:
+  "rampage" moves to that square are impossible.
+
+figure.diagram-container
+  .diagram
+    | fen:k7/p7/2n1r3/8/8/8/4R2P/4Q2K e5:
+  figcaption No repositioning moves to e5.
+
+h3 Source
+
+p
+  | This variant is 
+  a(href="https://www.chessvariants.com/play/erf/RampageC.html")
+    | mentioned here
+  | .
+
+p Inventor: Bruce R. Trose (1976)

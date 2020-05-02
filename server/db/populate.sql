@@ -70,6 +70,7 @@ insert or ignore into Variants (name, description) values
   ('Parachute', 'Landing on the board'),
   ('Perfect', 'Powerful pieces'),
   ('Racingkings', 'Kings cross the 8x8 board'),
+  ('Rampage', 'Move under cover'),
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),
   ('Rococo', 'Capture on the edge'),
