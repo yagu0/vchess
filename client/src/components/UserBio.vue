@@ -10,8 +10,8 @@ div(:id="'player_' + uid")
   )
     .card
       div(v-if="st.user.id == uid")
-        div
-          button(@click="modeEdit = !modeEdit")
+        div.buttons
+          button(@click="toggleEdit()")
             | {{ st.tr[modeEdit ? "Cancel" : "Edit"] }}
           button(
             v-show="modeEdit"
@@ -20,7 +20,7 @@ div(:id="'player_' + uid")
             | {{ st.tr["Send"] }}
         fieldset(v-if="userBio !== undefined && modeEdit")
           textarea(
-            @input="adjustHeight($event)"
+            @input="adjustHeight()"
             v-model="userBio"
           )
       h3 {{ uname }}
@@ -55,14 +55,21 @@ export default {
   methods: {
     parseHtml: function(txt) {
       return !txt.match(/<[/a-zA-Z]+>/)
-        ? txt.replace(/\n/g, "<br/>") //no HTML tag
+        ?
+          // No HTML tag
+          txt.replace(/\n\n/g, "<br/><div class='br'></div>")
+             .replace(/\n/g, "<br/>")
         : txt;
     },
-    adjustHeight: function(e) {
+    adjustHeight: function() {
       // https://stackoverflow.com/a/48460773
-      let t = e.target;
+      let t = document.querySelector("#player_" + this.uid + " textarea");
       t.style.height = "";
-      t.style.height = t.scrollHeight + "px";
+      t.style.height = (t.scrollHeight + 3) + "px";
+    },
+    toggleEdit: function() {
+      this.modeEdit = !this.modeEdit;
+      if (this.modeEdit) this.$nextTick(this.adjustHeight);
     },
     showBio: function() {
       if (!this.uname)
@@ -84,6 +91,7 @@ export default {
         document.querySelector("#player_" + this.uid + " > .bio-div")
           .addEventListener("click", processModalClick);
       }
+      else if (this.modeEdit) this.adjustHeight();
     },
     sendBio: function() {
       ajax(
@@ -108,12 +116,21 @@ export default {
   margin: 0 var(--universal-margin)
   p, ul, ol
     margin: var(--universal-margin) 0
+  .br
+    display: block
+    margin: 10px 0
 </style>
 
 <style lang="sass" scoped>
 [type="checkbox"].modal+div .card
   max-width: 500px
   max-height: 100%
+
+.buttons > button
+  margin-bottom: 0
+
+h3
+  margin-bottom: 5px
 
 textarea
   display: block

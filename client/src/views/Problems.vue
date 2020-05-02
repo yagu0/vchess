@@ -44,14 +44,14 @@ main
       fieldset
         textarea.instructions-edit(
           :placeholder="st.tr['Instructions']"
-          @input="adjustHeight($event)"
+          @input="adjustHeight('instructions')"
           v-model="curproblem.instruction"
         )
         p(v-html="parseHtml(curproblem.instruction)")
       fieldset
         textarea.solution-edit(
           :placeholder="st.tr['Solution']"
-          @input="adjustHeight($event)"
+          @input="adjustHeight('solution')"
           v-model="curproblem.solution"
         )
         p(v-html="parseHtml(curproblem.solution)")
@@ -212,11 +212,11 @@ export default {
         document.getElementById("inputFen").focus();
       }
     },
-    adjustHeight: function(e) {
+    adjustHeight: function(elt) {
       // https://stackoverflow.com/a/48460773
-      let t = e.target;
+      let t = document.querySelector("." + elt + "-edit");
       t.style.height = "";
-      t.style.height = t.scrollHeight + "px";
+      t.style.height = (t.scrollHeight + 3) + "px";
     },
     setVname: function(prob) {
       prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
@@ -289,7 +289,10 @@ export default {
     },
     parseHtml: function(txt) {
       return !txt.match(/<[/a-zA-Z]+>/)
-        ? txt.replace(/\n/g, "<br/>") //no HTML tag
+        ?
+          // No HTML tag
+          txt.replace(/\n\n/g, "<br/><div class='br'></div>")
+             .replace(/\n/g, "<br/>")
         : txt;
     },
     changeVariant: function(prob) {
@@ -402,6 +405,8 @@ export default {
     },
     prepareNewProblem: function() {
       this.resetCurProb();
+      this.adjustHeight("instructions");
+      this.adjustHeight("solution");
       window.doClick("modalNewprob");
     },
     sendProblem: function() {
@@ -449,6 +454,8 @@ export default {
       // prob.diag might correspond to some other problem or be empty:
       this.setDiagram(prob); //V is loaded at this stage
       this.copyProblem(prob, this.curproblem);
+      this.adjustHeight("instructions");
+      this.adjustHeight("solution");
       window.doClick("modalNewprob");
     },
     deleteProblem: function(prob) {
@@ -506,6 +513,9 @@ export default {
 <style lang="sass">
 @import "@/styles/_board_squares_img.sass"
 @import "@/styles/_rules.sass"
+.br
+  display: block
+  margin: 10px 0
 </style>
 
 <style lang="sass" scoped>
