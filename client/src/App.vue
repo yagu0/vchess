@@ -292,10 +292,12 @@ footer .menuitem
     color: #2c3e50
     text-decoration: none
 footer > .right-part > a.menuitem > img
-  height: 1.5em
   display: inline-block
-  margin: 0
-  &.first
+  height: 1.3em
+  margin: 0 5px
+  //height: 1.5em
+  //margin: 0
+  //&.first
     @media screen and (min-width: 501px)
       margin-left: 5px
 
