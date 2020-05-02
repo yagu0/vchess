@@ -1,0 +1,69 @@
+p.boxed
+  | No hay capturas.
+  | Las piezas atacadas insuficientemente defendidas cambian de color.
+
+p.
+  Una conversión tiene lugar cuando la persuasión total es más fuerte que la
+  apoyo. Las piezas persuaden a los demás según sus movimientos de ataque.
+  Las piezas opuestas persuaden, las amigas apoyan.
+
+p.
+  En el siguiente diagrama, por ejemplo, 1.Nf5 ataca a g7.
+  Como el alfil no es defendido, se vuelve blanco. Del mismo modo para el peón
+  e7. Entonces la torre f8 se convierte. Esto convierte tanto el
+  caballo en d8 y el alfil en g8. Finalmente los peones f7 y h7 son atacados
+  y por lo tanto cambian de color.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rkqn1rb1/ppppppbp/P7/1n4p1/8/4N3/1PPPPPPP/RNK1BBQR:
+  .diagram.diag22
+    | fen:rkqN1RB1/ppppPPBP/P7/1n3Np1/8/8/1PPPPPPP/RNK1BBQR:
+  figcaption Antes y después 1.Nf5
+
+p.
+  El juego termina cuando un rey se convierte, y ningún rey puede ser
+  convertido a la siguiente ronda. Tenga en cuenta que los reyes se pueden
+  intercambiar, como en el siguiente diagrama: 1...g6 devolvería al rey negro
+  a su color original en e7, pero 1...Nb6 también es posible, convirtiendo el
+  rey blanco a a4 en negro.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nbr1b1qr/ppppKppp/7n/4pN2/K3P3/P7/QPPP1PPP/B1R1RBN1:
+  .diagram.diag22
+    | fen:1br1b1qr/ppppKppp/1n5n/4pN2/k3P3/P7/QPPP1PPP/B1R1RBN1:
+  figcaption Antes y después de 1...Nb6
+
+p.
+  En esta última ilustración, ningún rey puede convertirse en el turno
+  siguiente: las blancas ganan.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1rknn1br/p1pp1p1p/3bp1p1/1p1q2n1/5p2/2P4B/pP1PP1PP/B1RKR1QN:
+  .diagram.diag22
+    | fen:1RKNN1br/P1PP1p1p/1Q1Bp1p1/1P1q2n1/5P2/2P4B/pP1PP1PP/B1RKR2N:
+  figcaption Antes y después 1.Qb6#
+
+p Notas:
+ul
+  li.
+    Las piezas pueden persuadir o apoyar a través de otras piezas amigables.
+    Por ejemplo, torres y damas en el mismo ortogonal o alfiles y damas
+    en la misma diagonal.
+  li.
+    El peón no puede pasar a través de una casilla demasiado persuadida
+    durante su doble avance inicial.
+  li.
+    Un rey puede ir en casillas persuadidas, siempre que el nivel de
+    la persuasión no excede el número de seguidores.
+
+h3 Fuente
+
+p
+  | Adaptado de 
+  a(href="https://www.chessvariants.com/rules/pacifist-chess") Pacifist Chess
+  | &nbsp;en chessvariants.com.
+
+p Inventor: Larry L. Smith (2007)

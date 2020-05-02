@@ -1,0 +1,35 @@
+p.boxed
+  | Pas de captures.
+  | Les pièces attaquées insuffisamment défendues changent de couleur.
+
+p
+  | Pareil que 
+  a(href="/#/variants/Pacifist1") Pacifist1
+  | , mais la persuasion et le soutien sont déterminés par la somme des valeurs
+  | des pièces attaquant une case. Par exemple sur le diagramme suivant,
+  | 1...Qa7 convertit plusieurs pièces blanches puisque la tour vaut plus que
+  | le cavalier défendant e1, donc le roi devient noir. Il change ensuite
+  | toutes les pièces voisines en noir, puis c2 change de couleur car cette
+  | case est est attaquée par le fou en d1. Finalement le pion en c2 attaque la
+  | tour, qui convertit le fou en a1 puis le pion b2 avec l'aide du fou
+  | nouvellement converti.
+  | Dans Pacifist1, seule la tour aurait changé de couleur.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:qrbnkb1n/1pppp1rp/p7/5Pp1/5PPP/3N3Q/PPPPP3/BR1BK1RN:
+  .diagram.diag22
+    | fen:1rbnkb1n/qpppp1rp/p7/5Pp1/5PPP/3N3Q/Ppppp3/br1bk1rN:
+  figcaption Avant et après 1...Qa7
+
+p Les valeurs des pièces sont les suivantes :
+ul
+  li Pion : 1
+  li Tour : 5
+  li Cavalier : 3
+  li Fou : 3
+  li Dame : 9
+  li Roi : 1000
+p.
+  Ainsi le roi convertit tout ce qui se trouve autour de lui, à moins que
+  l'autre roi soit présent.

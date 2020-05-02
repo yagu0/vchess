@@ -1,0 +1,35 @@
+p.boxed
+  | No hay capturas.
+  | Las piezas atacadas insuficientemente defendidas cambian de color.
+
+p
+  | Igual que
+  a(href="/#/variants/Pacifist1") Pacifist1
+  | , pero la persuasión y el apoyo están determinados por la suma de valores
+  | de las piezas atacando una casilla. Por ejemplo en el siguiente diagrama,
+  | 1...Qa7 convierte varias piezas blancas ya que la torre vale más que
+  | el caballo defiende e1, por lo que el rey se vuelve negro. Luego cambia
+  | todas las habitaciones vecinas en negro, luego c2 cambia de color porque
+  | esta casilla es atacado por el alfil en d1. Finalmente el peón en c2 ataca
+  | la torre, que convierte al alfil en a1 y luego el peón b2 con la ayuda del
+  | alfil recien convertido.
+  | En Pacifist1, solo la torre habría cambiado de color.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:qrbnkb1n/1pppp1rp/p7/5Pp1/5PPP/3N3Q/PPPPP3/BR1BK1RN:
+  .diagram.diag22
+    | fen:1rbnkb1n/qpppp1rp/p7/5Pp1/5PPP/3N3Q/Ppppp3/br1bk1rN:
+  figcaption Antes y después de 1...Qa7
+
+p Los valores de las piezas son los siguientes:
+ul
+  Li Peón: 1
+  Li Torre: 5
+  li Caballo: 3
+  li Alfil: 3
+  li Dama: 9
+  li Rey: 1000
+p.
+  Entonces el rey convierte todo a su alrededor, a menos que
+  el otro rey esté presente.

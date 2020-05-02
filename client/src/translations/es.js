@@ -177,6 +177,8 @@ export const translations = {
   "Capture the princess": "Capturar a la princesa",
   "Captures reborn": "Las capturas renacen",
   "Change colors": "Cambiar colores",
+  "Convert & support (v1)": "Convertir & apoyar (v1)",
+  "Convert & support (v2)": "Convertir & apoyar (v2)",
   "Dangerous collisions": "Colisiones peligrosas",
   "Double moves (v1)": "Jugadas doble (v1)",
   "Double moves (v2)": "Jugadas doble (v2)",

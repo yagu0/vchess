@@ -67,6 +67,8 @@ insert or ignore into Variants (name, description) values
   ('Monster', 'White move twice'),
   ('Omega', 'A wizard in the corner'),
   ('Orda', 'Mongolian Horde'),
+  ('Pacifist1', 'Convert & support (v1)'),
+  ('Pacifist2', 'Convert & support (v2)'),
   ('Parachute', 'Landing on the board'),
   ('Perfect', 'Powerful pieces'),
   ('Racingkings', 'Kings cross the 8x8 board'),
