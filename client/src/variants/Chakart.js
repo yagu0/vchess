@@ -1358,7 +1358,7 @@ export class ChakartRules extends ChessRules {
       // Play a deterministic one: capture king or material if possible
       return super.getComputerMove(deterministicMoves);
     // Play a random effect move, at random:
-    let move1 = randomMoves[randInt(moves.length)];
+    let move1 = randomMoves[randInt(randomMoves.length)];
     this.play(move1);
     let move2 = undefined;
     if (this.subTurn == 2) {
