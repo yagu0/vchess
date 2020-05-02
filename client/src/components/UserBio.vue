@@ -101,7 +101,7 @@ export default {
         {
           data: { bio: this.userBio },
           success: () => {
-            this.infoMsg = this.st.tr["Modifications applied!"];
+            this.infoMsg = "Modifications applied!";
           }
         }
       );
