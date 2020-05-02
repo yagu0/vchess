@@ -47,14 +47,14 @@ main
           @input="adjustHeight('instructions')"
           v-model="curproblem.instruction"
         )
-        p(v-html="parseHtml(curproblem.instruction)")
+        .instructions(v-html="parseHtml(curproblem.instruction)")
       fieldset
         textarea.solution-edit(
           :placeholder="st.tr['Solution']"
           @input="adjustHeight('solution')"
           v-model="curproblem.solution"
         )
-        p(v-html="parseHtml(curproblem.solution)")
+        .solution(v-html="parseHtml(curproblem.solution)")
       button(@click="sendProblem()") {{ st.tr["Send"] }}
       #dialog.text-center {{ st.tr[infoMsg] }}
   .row(v-if="showOne")
@@ -70,12 +70,12 @@ main
           | {{ st.tr["Previous_p"] }}
         button.nomargin(@click="gotoPrevNext(curproblem,-1)")
           | {{ st.tr["Next_p"] }}
-      p.oneInstructions.clickable(
+      .instructions.oneInstructions.clickable(
         v-html="parseHtml(curproblem.instruction)"
         @click="curproblem.showSolution=!curproblem.showSolution"
       )
         | {{ st.tr["Show solution"] }}
-      p(
+      .solution(
         v-show="curproblem.showSolution"
         v-html="parseHtml(curproblem.solution)"
       )
@@ -513,9 +513,13 @@ export default {
 <style lang="sass">
 @import "@/styles/_board_squares_img.sass"
 @import "@/styles/_rules.sass"
-.br
-  display: block
-  margin: 10px 0
+.instructions, .solution
+  margin: 0 var(--universal-margin)
+  p, ul, ol, pre, table, h3, h4, h5, h6, blockquote
+    margin: var(--universal-margin) 0
+  .br
+    display: block
+    margin: 10px 0
 </style>
 
 <style lang="sass" scoped>
@@ -562,7 +566,7 @@ button#loadMoreBtn
   & > *
     margin: 0
 
-p.oneInstructions
+.oneInstructions
   margin: 0
   padding: 2px 5px
   background-color: lightgreen

@@ -2,7 +2,16 @@ let router = require("express").Router();
 const access = require("../utils/access");
 const params = require("../config/parameters");
 const ProblemModel = require("../models/Problem");
-const sanitizeHtml = require('sanitize-html');
+const sanitizeHtml_pkg = require('sanitize-html');
+
+const allowedTags = [
+  'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'li', 'b',
+  'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table',
+  'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre'
+];
+function sanitizeHtml(text) {
+  return sanitizeHtml_pkg(text, { allowedTags: allowedTags });
+}
 
 router.post("/problems", access.logged, access.ajax, (req,res) => {
   if (ProblemModel.checkProblem(req.body.prob)) {

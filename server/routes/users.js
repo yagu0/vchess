@@ -4,7 +4,16 @@ const sendEmail = require('../utils/mailer');
 const genToken = require("../utils/tokenGenerator");
 const access = require("../utils/access");
 const params = require("../config/parameters");
-const sanitizeHtml = require('sanitize-html');
+const sanitizeHtml_pkg = require('sanitize-html');
+
+const allowedTags = [
+  'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'li', 'b',
+  'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table',
+  'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre'
+];
+function sanitizeHtml(text) {
+  return sanitizeHtml_pkg(text, { allowedTags: allowedTags });
+}
 
 router.get("/userbio", access.ajax, (req,res) => {
   const uid = req.query["id"];

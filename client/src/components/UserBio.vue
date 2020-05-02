@@ -115,7 +115,7 @@ export default {
 .bio-content
   text-align: left
   margin: 0 var(--universal-margin)
-  p, ul, ol
+  p, ul, ol, pre, table, h3, h4, h5, h6, blockquote
     margin: var(--universal-margin) 0
   .br
     display: block
