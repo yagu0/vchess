@@ -135,13 +135,10 @@ export class BenedictRules extends ChessRules {
   // Stop at the first move found
   atLeastOneMove() {
     const color = this.turn;
-    const oppCol = V.GetOppCol(color);
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) != oppCol) {
-          const moves = this.getPotentialMovesFrom([i, j]);
-          if (moves.length > 0)
-            return true;
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          if (this.getPotentialMovesFrom([i, j]).length > 0) return true;
         }
       }
     }

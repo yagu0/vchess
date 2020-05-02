@@ -1,0 +1,33 @@
+p.boxed
+  | Pas de captures.
+  | Les pièces attaquées insuffisamment défendues changent de couleur.
+
+p
+  | Same as 
+  a(href="/#/variants/Pacifist1") Pacifist1
+  | , but persuasion and support are determined by the sum of pieces values
+  | attacking a square. For example on the following diagram,
+  | 1...Qa7 converts many white pieces because the rook is worth more than the
+  | knight defending e1, so the king turns black. The king then turns all
+  | surrounding pieces black, then c2 changes color because it is attacked by
+  | the bishop on d1. Finally the pawn on c2 attacks the rook, which converts
+  | the bishop on a1 and then the b2 pawn with the help of the newly converted
+  | bishop.
+  | In Pacifist1, only the rook would change color.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:qrbnkb1n/1pppp1rp/p7/5Pp1/5PPP/3N3Q/PPPPP3/BR1BK1RN:
+  .diagram.diag22
+    | fen:1rbnkb1n/qpppp1rp/p7/5Pp1/5PPP/3N3Q/Ppppp3/br1bk1rN:
+  figcaption Before and after 1...Qa7
+
+p The pieces values are taken as follows:
+ul
+  li Pawn: 1
+  li Rook: 5
+  li Knight: 3
+  li Bishop: 3
+  li Queen: 9
+  li King: 1000
+p So the king converts anything next to him, unless the other king is around.

@@ -1,0 +1,67 @@
+p.boxed
+  | No captures. Pieces under attack insufficiently defended change color.
+
+p.
+  Conversion occurs when the amount of persuasion exceeds the
+  amount of support. Pieces persuade and support according to
+  their standard attack moves. Opposing pieces persuade, friendly support.
+
+p.
+  For example on the following diagram, 1.Nf5 attacks g7.
+  Since the bishop is undefended, it turns white. Same for the pawn e7.
+  Then, the rook f8 is converted. This allows to convert both the knight
+  on d8 and the bishop on g8. Finally, the pawns f7 and h7 are under attack
+  and thus also change color.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rkqn1rb1/ppppppbp/P7/1n4p1/8/4N3/1PPPPPPP/RNK1BBQR:
+  .diagram.diag22
+    | fen:rkqN1RB1/ppppPPBP/P7/1n3Np1/8/8/1PPPPPPP/RNK1BBQR:
+  figcaption Before and after 1.Nf5
+
+p.
+  The game ends when a king is converted, and the side cannot convert a king
+  at the next turn. Note that kings may be exchanged, as on the following
+  diagram: 1...g6 would convert back the original black king on e7, but
+  1...Nb6 is also possible, turning the white one on a4 into black.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nbr1b1qr/ppppKppp/7n/4pN2/K3P3/P7/QPPP1PPP/B1R1RBN1:
+  .diagram.diag22
+    | fen:1br1b1qr/ppppKppp/1n5n/4pN2/k3P3/P7/QPPP1PPP/B1R1RBN1:
+  figcaption before and after 1...Nb6
+
+p.
+  On this final illustration, the king cannot be converted at next turn:
+  white wins.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1rknn1br/p1pp1p1p/3bp1p1/1p1q2n1/5p2/2P4B/pP1PP1PP/B1RKR1QN:
+  .diagram.diag22
+    | fen:1RKNN1br/P1PP1p1p/1Q1Bp1p1/1P1q2n1/5P2/2P4B/pP1PP1PP/B1RKR2N:
+  figcaption Before and after 1.Qb6#
+
+p Notes:
+ul
+  li.
+    It is possible for pieces to persuade or support through other
+    friendly pieces. For example, rooks and queens in the same orthogonal
+    or bishops and queens in the same diagonal.
+  li.
+    The Pawn is forbidden to move through a cell which is overly persuaded
+    during its initial two-step move.
+  li.
+    A King is allowed to move to cells which are being persuaded as
+    long as the level of persuasion is not greater than its support.
+
+h3 Source
+
+p
+  | Adapted from 
+  a(href="https://www.chessvariants.com/rules/pacifist-chess") Pacifist Chess
+  | &nbsp;description on chessvariants.com.
+
+p Inventor: Larry L. Smith (2007)
