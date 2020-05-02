@@ -39,12 +39,14 @@
             | {{ st.tr["Contact"] }}
         .right-part
           a.menuitem(href="https://discord.gg/a9ZFKBe")
+            span Discord
             img.first(src="/images/icons/discord.svg")
           a.menuitem(href="https://github.com/yagu0/vchess")
+            span {{ st.tr["Code"] }}
             img(src="/images/icons/github.svg")
-          a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
+          //a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
             img(src="/images/icons/facebook.svg")
-          a.menuitem(href="https://twitter.com/VchessC")
+          //a.menuitem(href="https://twitter.com/VchessC")
             img(src="/images/icons/twitter.svg")
 </template>
 
