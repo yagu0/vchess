@@ -127,10 +127,13 @@ export default {
   max-width: 500px
   max-height: 100%
 
-.buttons > button
-  margin-bottom: 0
+.buttons
+  text-align: center
+  & > button
+    margin-bottom: 0
 
 h3
+  text-align: center
   margin-bottom: 5px
 
 textarea
