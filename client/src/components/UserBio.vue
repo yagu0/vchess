@@ -1,24 +1,35 @@
 <template lang="pug">
-div
-  input#modalBio.modal(type="checkbox")
-  div#bioDiv(
+div(:id="'player_' + uid")
+  input.modal(
+    :id="'modalBio_' + uid"
+    type="checkbox"
+  )
+  div.bio-div(
     role="dialog"
-    data-checkbox="modalBio"
+    :data-checkbox="'modalBio_' + uid"
   )
     .card
-      div(v-if="st.user.id > 0 && st.user.id == uid")
-        h3.section(@click="modeEdit = !modeEdit") Click to edit
-        textarea(
-          v-if="userBio !== undefined && modeEdit"
-          v-model="userBio"
-        )
-        button#submitBtn(@click="sendBio()") Submit
-      div(
+      div(v-if="st.user.id == uid")
+        div
+          button(@click="modeEdit = !modeEdit")
+            | {{ st.tr[modeEdit ? "Cancel" : "Edit"] }}
+          button(
+            v-show="modeEdit"
+            @click="sendBio()"
+          )
+            | {{ st.tr["Send"] }}
+        fieldset(v-if="userBio !== undefined && modeEdit")
+          textarea(
+            @input="adjustHeight($event)"
+            v-model="userBio"
+          )
+      h3 {{ uname }}
+      .bio-content(
         v-if="userBio !== undefined"
-        v-html="userBio"
+        v-html="parseHtml(userBio)"
         @click="modeEdit = !modeEdit"
       )
-      #dialog.text-center {{ st.tr[infoMsg] }}
+      .dialog.text-center {{ st.tr[infoMsg] }}
   span(
     :class="{ clickable: !!uname }"
     @click="showBio()"
@@ -41,17 +52,24 @@ export default {
       modeEdit: false
     };
   },
-  mounted: function() {
-    document.getElementById("bioDiv")
-      .addEventListener("click", processModalClick);
-  },
   methods: {
+    parseHtml: function(txt) {
+      return !txt.match(/<[/a-zA-Z]+>/)
+        ? txt.replace(/\n/g, "<br/>") //no HTML tag
+        : txt;
+    },
+    adjustHeight: function(e) {
+      // https://stackoverflow.com/a/48460773
+      let t = e.target;
+      t.style.height = "";
+      t.style.height = t.scrollHeight + "px";
+    },
     showBio: function() {
       if (!this.uname)
         // Anonymous users have no bio:
         return;
       this.infoMsg = "";
-      document.getElementById("modalBio").checked = true;
+      document.querySelector("#modalBio_" + this.uid).checked = true;
       if (this.userBio === undefined) {
         ajax(
           "/userbio",
@@ -63,6 +81,8 @@ export default {
             }
           }
         );
+        document.querySelector("#player_" + this.uid + " > .bio-div")
+          .addEventListener("click", processModalClick);
       }
     },
     sendBio: function() {
@@ -81,16 +101,27 @@ export default {
 };
 </script>
 
+<style lang="sass">
+// bio-content HTML elements are added after initial rendering
+.bio-content
+  text-align: left
+  margin: 0 var(--universal-margin)
+  p, ul, ol
+    margin: var(--universal-margin) 0
+</style>
+
 <style lang="sass" scoped>
 [type="checkbox"].modal+div .card
-  max-width: 570px
+  max-width: 500px
   max-height: 100%
 
-#submitBtn
-  width: 50%
-  margin: 0 auto
+textarea
+  display: block
+  margin: 0 var(--universal-margin)
+  width: calc(100% - 2 * var(--universal-margin))
+  min-height: 100px
 
-#dialog
+.dialog
   padding: 5px
   color: blue
 </style>

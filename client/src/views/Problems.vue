@@ -42,14 +42,16 @@ main
         )
         #diagram(v-html="curproblem.diag")
       fieldset
-        textarea(
+        textarea.instructions-edit(
           :placeholder="st.tr['Instructions']"
+          @input="adjustHeight($event)"
           v-model="curproblem.instruction"
         )
         p(v-html="parseHtml(curproblem.instruction)")
       fieldset
-        textarea(
+        textarea.solution-edit(
           :placeholder="st.tr['Solution']"
+          @input="adjustHeight($event)"
           v-model="curproblem.solution"
         )
         p(v-html="parseHtml(curproblem.solution)")
@@ -209,6 +211,12 @@ export default {
         this.infoMsg = "";
         document.getElementById("inputFen").focus();
       }
+    },
+    adjustHeight: function(e) {
+      // https://stackoverflow.com/a/48460773
+      let t = e.target;
+      t.style.height = "";
+      t.style.height = t.scrollHeight + "px";
     },
     setVname: function(prob) {
       prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
@@ -479,7 +487,7 @@ export default {
               this.decorate(res.problems);
               this.problems[mode] =
                 this.problems[mode].concat(res.problems)
-                // TODO: problems are alrady sorted, would just need to insert
+                // TODO: problems are already sorted, would just need to insert
                 // the current individual problem in list; more generally
                 // there is probably only one misclassified problem.
                 // (Unless the user navigated several times by URL to show a
@@ -521,6 +529,10 @@ export default {
 
 textarea
   width: 100%
+  &.instructions-edit
+    min-height: 70px
+  &.solution-edit
+    min-height: 100px
 
 #diagram
   margin: 0 auto
