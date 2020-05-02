@@ -94,6 +94,7 @@ export default {
       else if (this.modeEdit) this.adjustHeight();
     },
     sendBio: function() {
+      this.modeEdit = false;
       ajax(
         "/userbio",
         "PUT",
