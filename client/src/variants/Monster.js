@@ -72,9 +72,17 @@ export class MonsterRules extends ChessRules {
     V.PlayOnBoard(this.board, move);
     if (this.turn == 'w') {
       if (this.subTurn == 1) this.movesCount++;
-      else this.turn = 'b';
-      this.subTurn = 3 - this.subTurn;
-    } else {
+      if (
+        this.subTurn == 2 ||
+        // King captured
+        (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      ) {
+        this.turn = 'b';
+        this.subTurn = 1;
+      }
+      else this.subTurn = 2;
+    }
+    else {
       this.turn = 'w';
       this.movesCount++;
     }
@@ -108,9 +116,11 @@ export class MonsterRules extends ChessRules {
     const piece = move.vanish[0].p;
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
-    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING) {
       // Opponent's king is captured, game over
       this.kingPos[move.vanish[1].c] = [-1, -1];
+      move.captureKing = true; //for undo
+    }
     this.updateCastleFlags(move, piece);
   }
 
@@ -125,7 +135,7 @@ export class MonsterRules extends ChessRules {
     }
     else {
       this.turn = 'w';
-      this.subTurn = 2;
+      this.subTurn = (!move.captureKing ? 2 : 1);
     }
     this.postUndo(move);
   }

@@ -46,7 +46,7 @@ main
         span {{ st.tr["Participant(s):"] }} 
         span(
           v-for="p in Object.values(people)"
-          v-if="participateInChat(p)"
+          v-if="!!p.name"
         )
           | {{ p.name }} 
         span.anonymous(v-if="someAnonymousPresent()") + @nonymous
@@ -320,9 +320,6 @@ export default {
           append
         )
       );
-    },
-    participateInChat: function(p) {
-      return Object.keys(p.tmpIds).some(x => p.tmpIds[x].focus) && !!p.name;
     },
     someAnonymousPresent: function() {
       return (

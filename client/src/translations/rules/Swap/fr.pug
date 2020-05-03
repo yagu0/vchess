@@ -1,0 +1,37 @@
+p.boxed.
+  À chaque tour jouez d'abord un coup normal, puis échangez les positions de
+  deux pièces en effectuant une capture.
+
+ol
+  li.
+    Chaque tour consiste en un coup standard suivi d'un coup d'échange
+    (voir 2). Lors du premier coup blanc, seul le coup normal est joué.
+  li.
+    Un coup d'échange est un échange des positions de deux pièces. Une des
+    deux est une pièce du joueur, et l'autre est sur une case où la première
+    pourrait aller (si la case était vide) ou capturer (si la case était
+    occupée par l'adversaire).
+  li Si un joueur ne peut effectuer de coup standard ou d'échange, il perd.
+
+p.
+  Sur le diagramme suivant la dame prend d'abord le pion g7, puis échange sa
+  position avec le cavalier g8 : échec et mat.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1pqk1n1/pn1pppp1/2p5/8/8/2PPPK2/BP4Q1/N1R2P2:
+  .diagram.diag22
+    | fen:r1pqk1Q1/pn1pppn1/2p5/8/8/2PPPK2/BP6/N1R2P2:
+  figcaption Avant et après 1.Qxg7,Sg7g8#
+
+h3 Source
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/diffmove.dir/balancedswap.html")
+    | variante Balanced Swap
+  | &nbsp;sur chessvariants.com. Voici une 
+  a(href="/variants/Swap/game.pgn") partie exemple
+  | &nbsp;jouée par le créateur de la variante.
+
+p Inventeur : Joao P. Neto (1998)

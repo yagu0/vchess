@@ -79,7 +79,7 @@ export class Doublemove1Rules extends ChessRules {
 
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
-    move.turn = this.turn + this.subTurn;
+    move.turn = [this.turn, this.subTurn];
     V.PlayOnBoard(this.board, move);
     const epSq = this.getEpSquare(move);
     if (this.movesCount == 0) {
@@ -94,12 +94,14 @@ export class Doublemove1Rules extends ChessRules {
       this.epSquares.push([epSq]);
       move.checkOnSubturn1 = true;
       this.movesCount++;
-    } else {
+    }
+    else {
       if (this.subTurn == 2) {
         this.turn = V.GetOppCol(this.turn);
         let lastEpsq = this.epSquares[this.epSquares.length - 1];
         lastEpsq.push(epSq);
-      } else {
+      }
+      else {
         this.epSquares.push([epSq]);
         this.movesCount++;
       }
@@ -109,7 +111,7 @@ export class Doublemove1Rules extends ChessRules {
   }
 
   postPlay(move) {
-    const c = move.turn.charAt(0);
+    const c = move.turn[0];
     const piece = move.vanish[0].p;
     const firstRank = c == "w" ? V.size.x - 1 : 0;
 
@@ -127,7 +129,8 @@ export class Doublemove1Rules extends ChessRules {
     ) {
       const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
       this.castleFlags[c][flagIdx] = V.size.y;
-    } else if (
+    }
+    else if (
       move.end.x == oppFirstRank && //we took opponent rook?
       this.castleFlags[oppCol].includes(move.end.y)
     ) {
@@ -144,13 +147,14 @@ export class Doublemove1Rules extends ChessRules {
       this.epSquares.pop();
       // Moves counter was just incremented:
       this.movesCount--;
-    } else {
+    }
+    else {
       // Undo the second half of a move
       let lastEpsq = this.epSquares[this.epSquares.length - 1];
       lastEpsq.pop();
     }
     this.turn = move.turn[0];
-    this.subTurn = parseInt(move.turn[1]);
+    this.subTurn = move.turn[1];
     super.postUndo(move);
   }
 

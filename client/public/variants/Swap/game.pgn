@@ -1,0 +1,30 @@
+[Site "vchess.club"]
+[Variant "Swap"]
+[Date "2004-01-01"]
+[White "Joao Neto"]
+[Black "Bill Taylor"]
+[Fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ahah - -"]
+[Result "0-1"]
+
+1.d4 Nc6,Bg7 2.Nf3,Bg2 Bxd4,Ba7 3.Nxd4,Ne2 f6,Qd7 4.Bxc6,Ra2 Qxc6,Qh1 5.Rxc7,Rc2 dxc7,Qh2 6.Rxa7,Ra1 Qxh1,Rh7 7.Bf4,Nd4 Bh3,Re7 8.Kd2,Nd2 Qxf1,Qf2 9.Nb5,Qd2 Qxf1,0-0 10.Be3,e3 Qxe2,Qb5
+
+1.w d2.d4 wpd4/wpd2
+1.b b8.c6 bnc6/bnb8,f8.g7 bbg7.bpf8/bbf8.bpg7
+2.w g1.f3 wnf3/wng1,f1.g2 wbg2.wpf1/wbf1.wpg2
+2.b g7.d4 bbd4/bbg7.wpd4,d4.a7 bba7.bpd4/bbd4.bpa7
+3.w f3.d4 wnd4/wnf3.bpd4,d4.e2 wne2.wpd4/wnd4.wpe2
+3.b f7.f6 bpf6/bpf7,d8.d7 bqd7.bpd8/bqd8.bpd7
+4.w g2.c6 wbc6/wbg2.bnc6,a1.a2 wra2.wpa1/wra1.wpa2
+4.b d7.c6 bqc6/bqd7.wbc6,c6.h1 bqh1.wrc6/bqc6.wrh1
+5.w c6.c7 wrc7/wrc6.bpc7,c7.c2 wrc2.wpc7/wrc7.wpc2
+5.b d8.c7 bpc7/bpd8.wpc7,h1.h2 bqh2.wph1/bqh1.wph2
+6.w a2.a7 wra7/wra2.bba7,a7.a1 wra1.wpa7/wra7.wpa1
+6.b h2.h1 bqh1/bqh2.wph1,h8.h7 brh7.bph8/brh8.bph7
+7.w c1.f4 wbf4/wbc1,e2.d4 wnd4.wpe2/wne2.wpd4
+7.b c8.h3 bbh3/bbc8,h7.e7 bre7.bph7/brh7.bpe7
+8.w e1.d2 wkd2/wke1,b1.d2 wnd2.wkb1/wnb1.wkd2
+8.b h1.f1 bqf1/bqh1.wpf1,f1.f2 bqf2.wpf1/bqf1.wpf2
+9.w d4.b5 wnb5/wnd4,d1.d2 wqd2.wnd1/wqd1.wnd2
+9.b f2.f1 bqf1/bqf2.wpf1,e8.f8 bkf8.bpe8/bke8.bpf8
+10.w f4.e3 wbe3/wbf4,e2.e3 wpe3.wbe2/wpe2.wbe3
+10.b f1.e2 bqe2/bqf1.wbe2,e2.b5 bqb5.wne2/bqe2.wnb5

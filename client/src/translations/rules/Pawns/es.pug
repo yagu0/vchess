@@ -1,0 +1,21 @@
+p.boxed
+  | Solo peones. Regla estándar.
+  | El primero que realiza una promoción gana.
+
+p.
+  Este juego puede sonar simple, pero como no tienes movimientos de espera,
+  ten cuidado con Zugzwang;)
+
+figure.diagram-container
+  .diagram
+    | fen:8/5p1p/2p1p1p1/1p1p2P1/p2P1P1P/P1P1P3/1P6/8:
+  figcaption El campamento al turno perderá.
+
+p.
+  El espacio también es importante. En el siguiente diagrama cualquier
+  movimiento de peón blanco no en el borde gana.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/pppppppp/8/PPPPPPPP/8/8/8:
+  figcaption Cualquier avance central gana.

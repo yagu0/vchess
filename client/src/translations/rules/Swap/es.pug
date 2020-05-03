@@ -1,0 +1,40 @@
+p.boxed.
+  En cada turno, primero haga un movimiento normal, luego cambie las posiciones de
+  dos piezas por capturar.
+
+ol
+  li.
+    Cada ronda consta de un movimiento estándar seguido de un movimiento de
+    intercambio (ver 2). Durante el primer movimiento blanco, solo se realiza
+    el movimiento normal.
+  li.
+    Un intercambio es un intercambio de posiciones de dos piezas. Una de las
+    dos es la pieza del jugador, y la otra está en una casilla donde la
+    primera podría ir (si la casilla estaba vacía) o capturar (si la
+    casilla estaba ocupada por el oponente).
+  li.
+    Si un jugador no puede hacer un movimiento estándar o un movimiento de
+    intercambio, pierde.
+
+p.
+  En el siguiente diagrama, la dama primero toma el peón g7, luego
+  intercambia su posición con el caballo g8: jaque mate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1pqk1n1/pn1pppp1/2p5/8/8/2PPPK2/BP4Q1/N1R2P2:
+  .diagram.diag22
+    | fen:r1pqk1Q1/pn1pppn1/2p5/8/8/2PPPK2/BP6/N1R2P2:
+  figcaption Antes y después 1.Qxg7,Sg7g8#
+
+h3 Fuente
+
+p
+  | La 
+  a(href="https://www.chessvariants.com/diffmove.dir/balancedswap.html")
+    | variante Balanced Swap
+  | &nbsp;en chessvariants.com. Aquí hay una 
+  a(href="/variants/Swap/game.pgn") partida ejemplo
+  | &nbsp;jugada por el creador de la variante.
+
+p Inventor: Joao P. Neto (1998)

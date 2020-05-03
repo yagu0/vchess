@@ -1,4 +1,5 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
+import { SuicideRules } from "@/variants/Suicide";
 
 export class SuctionRules extends ChessRules {
   static get PawnSpecs() {
@@ -141,7 +142,6 @@ export class SuctionRules extends ChessRules {
 
   filterValid(moves) {
     if (moves.length == 0) return [];
-    const color = this.turn;
     return moves.filter(m => {
       const L = this.cmoves.length; //at least 1: init from FEN
       return !this.oppositeMoves(this.cmoves[L - 1], m);
@@ -150,7 +150,7 @@ export class SuctionRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     // Add empty cmove:
-    return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "- -";
+    return SuicideRules.GenRandInitFen(randomness) + " -";
   }
 
   getCmoveFen() {

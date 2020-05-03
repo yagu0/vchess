@@ -1,0 +1,35 @@
+p.boxed.
+  At each turn play first a normal move, and then exchange two pieces'
+  positions by making a capture.
+
+ol
+  li.
+    Each turn is made of a standard move and a swap move (see 2).
+    At the first white move, only the regular move is done.
+  li.
+    A swap move is a two piece swap of positions. One piece is a player's
+    piece, and the other is on a square where the first piece could move
+    (if the square was empty) or take (if the square had an opponent piece).
+  li If a player cannot make the regular move or the swap, he loses.
+
+p.
+  On the diagram the queen first takes the g7 pawn, and then swap its
+  position with the g8 knight: checkmate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1pqk1n1/pn1pppp1/2p5/8/8/2PPPK2/BP4Q1/N1R2P2:
+  .diagram.diag22
+    | fen:r1pqk1Q1/pn1pppn1/2p5/8/8/2PPPK2/BP6/N1R2P2:
+  figcaption Before and after 1.Qxg7,Sg7g8#
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/diffmove.dir/balancedswap.html")
+    | Balanced Swap Chess
+  | &nbsp;on chessvariants.com. Here is an 
+  a(href="/variants/Swap/game.pgn") example game
+  | &nbsp;played by the variant's creator.
+
+p Inventor: Joao P. Neto (1998)

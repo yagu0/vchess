@@ -1,0 +1,32 @@
+p.boxed
+  | In addition to standard moves, a piece can be exchanged
+  | with an adjacent friendly unit.
+
+p.
+  Instead of a normal move, a piece may be exchanged with an adjacent
+  friendly one. Switching can move pawns until rank 1 or final rank.
+  In the first case a 2-squares jump is possible, and in the second a
+  promotion occurs.
+  Switching must involves two different units.
+  Switching while the king is under check is not allowed.
+
+p.
+  Notation: a switch move is marked by the capital letter 'S' followed by
+  the exchanged squares. Example in diagram: Sb8c8.
+
+figure.diagram-container
+  .diagram
+    | fen:1RB3k1/5ppp/8/8/8/8/8/K7:
+  figcaption White can mate in 1 by switching b8-c8
+
+p.
+  Note: to trigger a switch move involving the king, select the non-royal
+  piece first (to not interfere with castling).
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/diffmove.dir/switching.html") Switching chess 
+    | on chessvariants.com.
+
+p Inventor: Tony Quintanilla (2004)

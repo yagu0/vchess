@@ -1202,10 +1202,8 @@ export const ChessRules = class ChessRules {
       piece = move.appear[0].p;
 
     // Update king position + flags
-    if (piece == V.KING && move.appear.length > 0) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-    }
+    if (piece == V.KING && move.appear.length > 0)
+      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     if (V.HasCastle) this.updateCastleFlags(move, piece);
   }
 

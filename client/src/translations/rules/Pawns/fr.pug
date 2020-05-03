@@ -1,0 +1,21 @@
+p.boxed
+  | Seulement des pions. Règle standard.
+  | Le premier à effectuer une promotion gagne.
+
+p.
+  Ce jeu peut paraître simple, mais puisque vous ne disposez d'aucun coup
+  d'attente, faites attention au Zugzwang ;)
+
+figure.diagram-container
+  .diagram
+    | fen:8/5p1p/2p1p1p1/1p1p2P1/p2P1P1P/P1P1P3/1P6/8:
+  figcaption Le camp au trait perdra.
+
+p.
+  L'espace est important aussi. Sur le diagramme suivant n'importe quel coup
+  de pion blanc ne se trouvant pas sur le bord gagne.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/pppppppp/8/PPPPPPPP/8/8/8:
+  figcaption N'importe quelle avancée centrale gagne.

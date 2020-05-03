@@ -110,7 +110,13 @@ export class Doublemove2Rules extends ChessRules {
     else {
       this.epSquares.push([epSq]);
       this.movesCount++;
-      if (this.movesCount == 1) this.turn = "b";
+      if (
+        this.movesCount == 1 ||
+        // King is captured at subTurn 1?
+        (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      ) {
+        this.turn = "b";
+      }
     }
     if (this.movesCount > 1) this.subTurn = 3 - this.subTurn;
     this.postPlay(move);
@@ -127,9 +133,11 @@ export class Doublemove2Rules extends ChessRules {
       return;
     }
     const oppCol = V.GetOppCol(c);
-    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING) {
       // Opponent's king is captured, game over
       this.kingPos[oppCol] = [-1, -1];
+      move.captureKing = true; //for undo
+    }
     const oppFirstRank = V.size.x - 1 - firstRank;
     if (
       move.start.x == firstRank && //our rook moves?
@@ -150,7 +158,7 @@ export class Doublemove2Rules extends ChessRules {
   undo(move) {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
-    if (this.subTurn == 2 || this.movesCount == 1) {
+    if (this.subTurn == 2 || this.movesCount == 1 || !!move.captureKing) {
       this.epSquares.pop();
       this.movesCount--;
       if (this.movesCount == 0) this.turn = "w";
