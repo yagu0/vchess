@@ -4,6 +4,7 @@ insert or ignore into Variants (name, description, noProblems) values
   ('Apocalypse', 'The end of the world', true),
   ('Chakart', 'Capture the princess', true),
   ('Dark', 'In the shadow', true),
+  ('Dice', 'Roll the dice', true),
   ('Hidden', 'Unidentified pieces', true),
   ('Hiddenqueen', 'Queen disguised as a pawn', true),
   ('Synchrone', 'Play at the same time', true);

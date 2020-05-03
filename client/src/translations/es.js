@@ -232,6 +232,7 @@ export const translations = {
   "Reposition pieces": "Reposicionar las piezas",
   "Reuse pieces": "Reutilizar piezas",
   "Reverse captures": "Capturas invertidas",
+  "Roll the dice": "Tirar los dados",
   "Rotating board": "Tablero giratorio",
   "Run forward": "Correr hacia adelante",
   "Score a goal": "Marcar una meta",

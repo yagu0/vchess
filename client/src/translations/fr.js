@@ -232,6 +232,7 @@ export const translations = {
   "Reposition pieces": "Replacer les pièces",
   "Reuse pieces": "Réutiliser les pièces",
   "Reverse captures": "Captures inversées",
+  "Roll the dice": "Lancez le dé",
   "Rotating board": "Échiquier tournant",
   "Run forward": "Courir vers l'avant",
   "Score a goal": "Marquer un but",

@@ -232,6 +232,7 @@ export const translations = {
   "Reposition pieces": "Reposition pieces",
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",
+  "Roll the dice": "Roll the dice",
   "Rotating board": "Rotating board",
   "Run forward": "Run forward",
   "Score a goal": "Score a goal",
