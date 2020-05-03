@@ -71,7 +71,7 @@ export class SwapRules extends ChessRules {
     const color = this.turn;
     const piece = this.getPiece(x, y);
     const addSmoves = (i, j) => {
-      if (this.getPiece(i, j) != piece)
+      if (this.getPiece(i, j) != piece || this.getColor(i, j) != color)
         Array.prototype.push.apply(moves, this.getSwapMoves([x, y], [i, j]));
     };
     switch (piece) {
