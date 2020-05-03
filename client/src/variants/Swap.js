@@ -34,7 +34,7 @@ export class SwapRules extends ChessRules {
   }
 
   getPPpath(m) {
-    if (m.vanish.length == 1) return super.getPPpath(m);
+    if (m.appear.length == 1) return super.getPPpath(m);
     // Swap promotion:
     return m.appear[1].c + m.appear[1].p;
   }
