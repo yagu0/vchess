@@ -3,7 +3,7 @@ import { randInt } from "@/utils/alea";
 
 export class DiceRules extends ChessRules {
   static get CanAnalyze() {
-    return true;//false;
+    return false;
   }
 
   doClick(square) {
@@ -19,14 +19,39 @@ export class DiceRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
+    if (this.subTurn == 1) return [];
     const L = this.p2play.length;
-    if (
-      this.subTurn == 1 ||
-      // The piece type must match last p2play
-      this.getPiece(x, y) != this.p2play[L-1]
-    ) {
-      return [];
+    const piece = this.getPiece(x, y);
+    if (piece == V.PAWN && this.p2play[L-1] != V.PAWN) {
+      // The piece must be a pawn about to promote.
+      const color = this.turn;
+      const beforeLastRank = (color == 'w' ? 1 : 0);
+      const forward = (color == 'w' ? -1 : 1);
+      let moves = [];
+      if (this.board[x + forward][y] == V.EMPTY) {
+        moves.push(
+          this.getBasicMove(
+            [x, y], [x + forward], { c: color, p: this.p2play[L-1] })
+        );
+      }
+      for (let shift of [-1, 1]) {
+        const [i, j] = [x + forward, y + shift];
+        if (
+          V.OnBoard(i, j) &&
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) != color
+        ) {
+          moves.push(
+            this.getBasicMove(
+              [x, y], [i, j], { c: color, p: this.p2play[L-1] })
+          );
+        }
+      }
+      return moves;
     }
+    if (piece != this.p2play[L-1])
+      // The piece type must match last p2play
+      return [];
     return super.getPotentialMovesFrom([x, y]);
   }
 
