@@ -320,7 +320,6 @@ export class ChakartRules extends ChessRules {
       const L = this.firstMove.length;
       const fm = this.firstMove[L-1];
       switch (fm.end.effect) {
-        // case 0: a click is required (banana or bomb)
         case "kingboo":
           // Exchange position with any piece,
           // except pawns if arriving on last rank.
@@ -370,11 +369,12 @@ export class ChakartRules extends ChessRules {
 
   // Helper for getBasicMove()
   getRandomSquare([x, y], steps) {
+    const color = this.turn;
     const validSteps = steps.filter(s => {
       const [i, j] = [x + s[0], y + s[1]];
       return (
         V.OnBoard(i, j) &&
-        (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a')
+        (this.board[i][j] == V.EMPTY || this.getColor(i, j) != color)
       );
     });
     if (validSteps.length == 0)
