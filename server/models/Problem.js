@@ -81,7 +81,7 @@ const ProblemModel = {
 
   safeRemove: function(id, uid, devs) {
     db.serialize(function() {
-      let whereClause = "WHERE id = " + prob.id;
+      let whereClause = "WHERE id = " + id;
       if (!devs.includes(uid)) whereClause += " AND uid = " + uid;
       const query =
         "DELETE FROM Problems " +

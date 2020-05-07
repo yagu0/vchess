@@ -16,7 +16,8 @@ export function checkChallenge(c) {
   // Allow custom FEN (and check it) only for individual challenges
   if (c.fen.length > 0 && !!c.to) {
     if (!V.IsGoodFen(c.fen)) return "Errors in FEN";
-  } else c.fen = "";
+  }
+  else c.fen = "";
 
   return "";
 }

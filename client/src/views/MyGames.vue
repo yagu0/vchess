@@ -112,7 +112,7 @@ export default {
   },
   mounted: function() {
     const adjustAndSetDisplay = () => {
-      // showType is the last type viwed by the user (default)
+      // showType is the last type viewed by the user (default)
       let showType = localStorage.getItem("type-myGames") || "live";
       // Live games, my turn: highest priority:
       if (this.liveGames.some(g => !!g.myTurn)) showType = "live";
@@ -183,7 +183,7 @@ export default {
     setDisplay: function(type, e) {
       this.display = type;
       localStorage.setItem("type-myGames", type);
-      let elt = e ? e.target : document.getElementById(type + "Games");
+      let elt = (!!e ? e.target : document.getElementById(type + "Games"));
       elt.classList.add("active");
       elt.classList.remove("somethingnew"); //in case of
       for (let t of ["live","corr","import"]) {
@@ -252,7 +252,8 @@ export default {
           if (thing == "turn") {
             game.myTurn = !game.myTurn;
             if (game.myTurn) this.tryShowNewsIndicator(type);
-          } else game.myTurn = false;
+          }
+          else game.myTurn = false;
           // TODO: forcing refresh like that is ugly and wrong.
           //       How to do it cleanly?
           this.$refs[type + "games"].$forceUpdate();
@@ -357,7 +358,8 @@ export default {
                 moreGames.forEach(g => g.type = "corr");
                 this.decorate(moreGames);
                 this.corrGames = this.corrGames.concat(moreGames);
-              } else this.hasMore["corr"] = false;
+              }
+              else this.hasMore["corr"] = false;
               if (!!cb) cb();
             }
           }
@@ -372,7 +374,8 @@ export default {
             localGames.forEach(g => g.type = "live");
             this.decorate(localGames);
             this.liveGames = this.liveGames.concat(localGames);
-          } else this.hasMore["live"] = false;
+          }
+          else this.hasMore["live"] = false;
           if (!!cb) cb();
         });
       }
@@ -384,7 +387,8 @@ export default {
             this.cursor["import"] = importGames[L - 1].created - 1;
             importGames.forEach(g => g.type = "import");
             this.importGames = this.importGames.concat(importGames);
-          } else this.hasMore["import"] = false;
+          }
+          else this.hasMore["import"] = false;
           if (!!cb) cb();
         });
       }

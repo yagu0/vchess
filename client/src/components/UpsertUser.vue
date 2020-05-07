@@ -163,7 +163,8 @@ export default {
       if (this.stage == "Login") {
         const type = this.nameOrEmail.indexOf("@") >= 0 ? "email" : "name";
         error = checkNameEmail({ [type]: this.nameOrEmail });
-      } else error = checkNameEmail(this.user);
+      }
+      else error = checkNameEmail(this.user);
       if (error) {
         alert(this.st.tr[error]);
         return;

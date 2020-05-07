@@ -1,5 +1,4 @@
 let router = require("express").Router();
-const access = require("../utils/access");
 
 router.use("/", require("./challenges"));
 router.use("/", require("./games"));

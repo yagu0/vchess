@@ -142,7 +142,7 @@ input[type="checkbox"]:focus
   outline: 0
 
 input[type=checkbox]:checked:before
-  top: -5px;
+  top: -5px
   height: 18px
 
 table

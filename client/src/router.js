@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Hall from "./views/Hall.vue";
 
 Vue.use(Router);
 
@@ -14,7 +13,7 @@ const router = new Router({
     {
       path: "/",
       name: "hall",
-      component: Hall
+      component: loadView("Hall")
     },
     {
       path: "/variants",
