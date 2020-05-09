@@ -12,7 +12,6 @@ export const store = {
     settings: {},
     lang: ""
   },
-  socketCloseListener: null,
   initialize() {
     const headers = {
       "Content-Type": "application/json;charset=UTF-8",
@@ -97,7 +96,7 @@ export const store = {
       // Default: random asymmetric
       this.state.settings.randomness = 2;
     const supportedLangs = ["en", "es", "fr"];
-    const navLanguage = navigator.language.substr(0,2);
+    const navLanguage = navigator.language.substr(0, 2);
     this.state.lang =
       localStorage["lang"] ||
       (supportedLangs.includes(navLanguage) ? navLanguage : "en");

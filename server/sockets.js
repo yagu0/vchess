@@ -1,7 +1,4 @@
-const url = require('url');
-
 // Node version in Ubuntu 16.04 does not know about URL class
-// NOTE: url is already transformed, without ?xxx=yyy... parts
 function getJsonFromUrl(url) {
   const query = url.substr(2); //starts with "/?"
   let result = {};

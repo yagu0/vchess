@@ -256,7 +256,8 @@ export default {
           // In case of incomplete information variant:
           boardDiv.style.visibility = "hidden";
         this.atCreation();
-      } else
+      }
+      else
         // Same game ID
         this.nextIds = JSON.parse(this.$route.query["next"] || "[]");
     }

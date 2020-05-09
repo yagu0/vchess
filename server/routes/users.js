@@ -34,19 +34,19 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
   const name = req.body.name;
   const email = req.body.email;
   const notify = !!req.body.notify;
-  if (UserModel.checkNameEmail({name: name, email: email})) {
+  if (UserModel.checkNameEmail({ name: name, email: email })) {
     UserModel.create(name, email, notify, (err, ret) => {
       if (!!err) {
         const msg = err.code == "SQLITE_CONSTRAINT"
           ? "User name or email already in use"
           : "User creation failed. Try again";
-        res.json({errmsg: msg});
+        res.json({ errmsg: msg });
       }
       else {
         const user = {
           id: ret.id,
           name: name,
-          email: email,
+          email: email
         };
         setAndSendLoginToken("Welcome to " + params.siteURL, user, res);
         res.json({});
@@ -85,7 +85,7 @@ router.get("/users", access.ajax, (req,res) => {
   // NOTE: slightly too permissive RegExp
   if (ids.match(/^([0-9]+,?)+$/)) {
     UserModel.getByIds(ids, (err, users) => {
-      res.json({ users:users });
+      res.json({ users: users });
     });
   }
 });
@@ -93,7 +93,7 @@ router.get("/users", access.ajax, (req,res) => {
 router.put('/update', access.logged, access.ajax, (req,res) => {
   const name = req.body.name;
   const email = req.body.email;
-  if (UserModel.checkNameEmail({name: name, email: email})) {
+  if (UserModel.checkNameEmail({ name: name, email: email })) {
     const user = {
       id: req.userId,
       name: name,
@@ -125,7 +125,7 @@ function setAndSendLoginToken(subject, to, res) {
 router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
   const nameOrEmail = decodeURIComponent(req.query.nameOrEmail);
   const type = (nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
-  if (UserModel.checkNameEmail({[type]: nameOrEmail})) {
+  if (UserModel.checkNameEmail({ [type]: nameOrEmail })) {
     UserModel.getOne(type, nameOrEmail, (err,user) => {
       access.checkRequest(res, err, user, "Unknown user", () => {
         setAndSendLoginToken("Token for " + params.siteURL, user, res);
@@ -137,12 +137,12 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 
 router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
   if (!req.query.token.match(/^[a-z0-9]+$/))
-    return res.json({errmsg: "Bad token"});
+    return res.json({ errmsg: "Bad token" });
   UserModel.getOne("loginToken", req.query.token, (err,user) => {
     access.checkRequest(res, err, user, "Invalid token", () => {
       // If token older than params.tokenExpire, do nothing
       if (Date.now() > user.loginTime + params.token.expire)
-        res.json({errmsg: "Token expired"});
+        res.json({ errmsg: "Token expired" });
       else {
         // Generate session token (if not exists) + destroy login token
         UserModel.trySetSessionToken(user.id, (token) => {
@@ -155,7 +155,7 @@ router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
             id: user.id,
             name: user.name,
             email: user.email,
-            notify: user.notify,
+            notify: user.notify
           });
         });
       }

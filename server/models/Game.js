@@ -381,8 +381,10 @@ const GameModel =
                 "(" + id + ",?," + Date.now() + "," + obj.move.idx + ")";
               db.run(query, JSON.stringify(obj.move.squares));
               finishAndSendQuery();
-            } else cb({ errmsg: "Wrong move index" });
-          } else {
+            }
+            else cb({ errmsg: "Wrong move index" });
+          }
+          else {
             if (ret.maxIdx < 2) cb({ errmsg: "Time not over" });
             else {
               // We also need the game cadence
@@ -399,14 +401,16 @@ const GameModel =
             }
           }
         });
-      } else finishAndSendQuery();
+      }
+      else finishAndSendQuery();
       // NOTE: chat and delchat are mutually exclusive
       if (!!obj.chat) {
         const query =
           "INSERT INTO Chats (gid, msg, name, added) VALUES ("
             + id + ",?,'" + obj.chat.name + "'," + Date.now() + ")";
         db.run(query, obj.chat.msg);
-      } else if (obj.delchat) {
+      }
+      else if (obj.delchat) {
         const query =
           "DELETE " +
           "FROM Chats " +
