@@ -4,13 +4,13 @@ div(:id="'player_' + uid")
     :id="'modalBio_' + uid"
     type="checkbox"
   )
-  div.bio-div(
+  .bio-div(
     role="dialog"
     :data-checkbox="'modalBio_' + uid"
   )
     .card
       div(v-if="st.user.id == uid")
-        div.buttons
+        .buttons
           button(@click="toggleEdit()")
             | {{ st.tr[modeEdit ? "Cancel" : "Edit"] }}
           button(

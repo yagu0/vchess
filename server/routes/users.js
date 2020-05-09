@@ -83,7 +83,7 @@ router.get("/whoami", access.ajax, (req,res) => {
 router.get("/users", access.ajax, (req,res) => {
   const ids = req.query["ids"];
   // NOTE: slightly too permissive RegExp
-  if (ids.match(/^([0-9]+,?)+$/)) {
+  if (!!ids && !!ids.match(/^([0-9]+,?)+$/)) {
     UserModel.getByIds(ids, (err, users) => {
       res.json({ users: users });
     });

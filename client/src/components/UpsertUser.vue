@@ -4,7 +4,7 @@ div
     type="checkbox"
     @change="trySetEnterTime($event)"
   )
-  div#upsertDiv(
+  #upsertDiv(
     role="dialog"
     data-checkbox="modalUser"
   )
