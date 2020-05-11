@@ -213,6 +213,7 @@ export default {
       game: {}, //passed to BaseGame
       focus: !document.hidden, //will not always work... TODO
       // virtualClocks will be initialized from true game.clocks
+      // TODO: clock update triggers re-rendering. Should be out of Vue
       virtualClocks: [],
       vr: null, //"variant rules" object initialized from FEN
       rulesContent: "",
