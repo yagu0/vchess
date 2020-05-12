@@ -166,7 +166,7 @@ main
           button.tabbtn#btnClive(@click="setDisplay('c','live',$event)")
             | {{ st.tr["Live challenges"] }}
           button.tabbtn#btnCcorr(@click="setDisplay('c','corr',$event)")
-            | {{ st.tr["Correspondance challenges"] }}
+            | {{ st.tr["Correspondence challenges"] }}
         ChallengeList(
           v-show="cdisplay=='live'"
           :challenges="filterChallenges('live')"
@@ -182,7 +182,7 @@ main
           button.tabbtn#btnGlive(@click="setDisplay('g','live',$event)")
             | {{ st.tr["Live games"] }}
           button.tabbtn#btnGcorr(@click="setDisplay('g','corr',$event)")
-            | {{ st.tr["Correspondance games"] }}
+            | {{ st.tr["Correspondence games"] }}
         GameList(
           v-show="gdisplay=='live'"
           :games="filterGames('live')"
@@ -861,7 +861,7 @@ export default {
             this.startNewGame(gameInfo);
           else {
             this.infoMessage =
-              this.st.tr["New correspondance game:"] + " " +
+              this.st.tr["New correspondence game:"] + " " +
               "<a href='#/game/" + gameInfo.id + "'>" +
               "#/game/" + gameInfo.id + "</a>";
             document.getElementById("modalInfo").checked = true;
@@ -997,7 +997,7 @@ export default {
       if (!this.newchallenge.vid)
         error = this.st.tr["Please select a variant"];
       else if (ctype == "corr" && this.st.user.id <= 0)
-        error = this.st.tr["Please log in to play correspondance games"];
+        error = this.st.tr["Please log in to play correspondence games"];
       else if (!!this.newchallenge.to) {
         if (this.newchallenge.to == this.st.user.name)
           error = this.st.tr["Self-challenge is forbidden"];
@@ -1105,7 +1105,7 @@ export default {
         // Live challenges have a random ID
         finishAddChallenge(null);
       } else {
-        // Correspondance game: send challenge to server
+        // Correspondence game: send challenge to server
         ajax(
           "/challenges",
           "POST",
