@@ -25,7 +25,7 @@ export class DiceRules extends ChessRules {
     return super.getFen() + " " + this.getToplayFen();
   }
 
-  getFen() {
+  getFenForRepeat() {
     return super.getFenForRepeat() + "_" + this.getToplayFen();
   }
 
@@ -135,7 +135,7 @@ export class DiceRules extends ChessRules {
       V.PlayOnBoard(this.board, m);
       const [piece, square] = this.getRandPiece(oppCol);
       m.start.toplay = square;
-      m.end.piece = piece;
+      m.end.p = piece;
       V.UndoOnBoard(this.board, m);
     });
     return moves;
@@ -156,7 +156,7 @@ export class DiceRules extends ChessRules {
   }
 
   postPlay(move) {
-    this.p2play.push(move.end.piece);
+    this.p2play.push(move.end.p);
     if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       this.kingPos[move.vanish[1].c] = [-1, -1];
     // Castle flags for captured king won't be updated (not important...)
@@ -175,6 +175,6 @@ export class DiceRules extends ChessRules {
   }
 
   getNotation(move) {
-    return super.getNotation(move) + "/" + move.end.piece.toUpperCase();
+    return super.getNotation(move) + "/" + move.end.p.toUpperCase();
   }
 };
