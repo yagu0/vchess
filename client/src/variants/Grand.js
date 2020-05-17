@@ -55,24 +55,24 @@ export class GrandRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
+    const captured = V.ParseFen(fen).captured.split("").map(parseInt);
     // Initialize captured pieces' counts from FEN
     this.captured = {
       w: {
-        [V.ROOK]: parseInt(fenParsed.captured[0]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[1]),
-        [V.BISHOP]: parseInt(fenParsed.captured[2]),
-        [V.QUEEN]: parseInt(fenParsed.captured[3]),
-        [V.MARSHALL]: parseInt(fenParsed.captured[4]),
-        [V.CARDINAL]: parseInt(fenParsed.captured[5])
+        [V.ROOK]: captured[0],
+        [V.KNIGHT]: captured[1],
+        [V.BISHOP]: captured[2],
+        [V.QUEEN]: captured[3],
+        [V.MARSHALL]: captured[4],
+        [V.CARDINAL]: captured[5]
       },
       b: {
-        [V.ROOK]: parseInt(fenParsed.captured[6]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[7]),
-        [V.BISHOP]: parseInt(fenParsed.captured[8]),
-        [V.QUEEN]: parseInt(fenParsed.captured[9]),
-        [V.MARSHALL]: parseInt(fenParsed.captured[10]),
-        [V.CARDINAL]: parseInt(fenParsed.captured[11])
+        [V.ROOK]: captured[6],
+        [V.KNIGHT]: captured[7],
+        [V.BISHOP]: captured[8],
+        [V.QUEEN]: captured[9],
+        [V.MARSHALL]: captured[10],
+        [V.CARDINAL]: captured[11]
       }
     };
   }

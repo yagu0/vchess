@@ -64,6 +64,9 @@ export default {
           lmHighlights[m.start.x + sizeX * m.start.y] = true;
         if (!m.end.noHighlight && V.OnBoard(m.end.x, m.end.y))
           lmHighlights[m.end.x + sizeX * m.end.y] = true;
+        if (!!m.start.toplay)
+          // For Dice variant (at least?)
+          lmHighlights[m.start.toplay[0] + sizeX * m.start.toplay[1]] = true;
       });
     }
     const showLight = (

@@ -361,10 +361,9 @@ export class AliceRules extends ChessRules {
 
     // Piece or pawn movement
     let notation = piece.toUpperCase() + pawnMark + captureMark + finalSquare;
-    if (["s", "p"].includes(piece) && !["s", "p"].includes(move.appear[0].p)) {
+    if (["s", "p"].includes(piece) && !["s", "p"].includes(move.appear[0].p))
       // Promotion
       notation += "=" + move.appear[0].p.toUpperCase();
-    }
     return notation;
   }
 };

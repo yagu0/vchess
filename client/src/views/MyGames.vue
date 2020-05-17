@@ -6,7 +6,7 @@ main
         button.tabbtn#liveGames(@click="setDisplay('live',$event)")
           | {{ st.tr["Live games"] }}
         button.tabbtn#corrGames(@click="setDisplay('corr',$event)")
-          | {{ st.tr["Correspondance games"] }}
+          | {{ st.tr["Correspondence games"] }}
         button.tabbtn#importGames(@click="setDisplay('import',$event)")
           | {{ st.tr["Imported games"] }}
       GameList(

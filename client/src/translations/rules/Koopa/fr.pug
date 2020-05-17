@@ -1,0 +1,54 @@
+p.boxed
+  | Les pièces capturées sont étourdies.
+  | Elles disparaissent si vous les capturez à nouveau.
+
+p
+  | Cette variante est inspirée de l'univers 
+  a(href="https://fr.wikipedia.org/wiki/Super_Mario") Super Mario
+  | . Quand une pièce en capture une autre, elle "rebondit" dessus jusqu'à la
+  | case suivante dans la direction du déplacement. Si celle-ci est occupée,
+  | alors la pièce continue de rebondir dans la même direction, jusqu'à
+  | rencontrer une case vide ou bien le bord de l'échiquier. Dans ce dernier
+  | cas, la pièce capturante est perdue.
+
+p.
+  Les pièces sur lesquelles on rebondit sont étourdies pendant deux coups
+  (quatre demi-coups) : elles ne peuvent pas bouger pendant cette période.
+  Si elles sont capturées à nouveau pendant leur étourdissement, alors elles
+  sont envoyées en dehors de l'échiquier, et toutes les pièces sur leur chemin
+  disparaissent également.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nrkqnrbb/ppp2ppp/3p4/4p3/1P3P2/8/P1PPP1PP/BNQRNBKR:
+  .diagram.diag22
+    | fen:nukqnrbb/pps2ppp/3s4/4s3/1P6/8/P1PPP1PP/BNQRNBKR:
+  figcaption Avant et après 1.fxe5
+
+p.
+  Après le coup 1.fxe5 sur le diagramme, les pièces rouges sont étourdies
+  pendant deux coups. Ainsi les blancs peuvent jouer 2.Bxe5, faisant sortir
+  le pion qui emmène au moins le fou h8 avec lui. Une possibilité pour les
+  noirs serait de jouer 1...Qg5, pour qu'après 2.Bxe5 Qxe5 les noirs menacent
+  de faire sortir le fou étourdi.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nuk1nrb1/pps2p1p/3s4/4B1q1/1P6/8/P1PPP1PP/1NQRNBKR:
+  .diagram.diag22
+    | fen:nuk1nrb1/pps2p1p/3s4/3qC3/1P6/8/P1PPP1PP/1NQRNBKR:
+  figcaption Après 1...Qg5 2.Bxe5 Qxe5 : le fou blanc est étourdi.
+
+p.
+  L'objectif est de capturer le roi adverse. Les coups qui font sortir votre
+  propre roi sont interdits.
+
+h3 Source
+
+p
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | , section 3.6. Cette variante est également listée sur chessvariants.com : 
+  a(href="https://www.chessvariants.com/crossover.dir/koopachess.html")
+    | Koopa chess
+  | .

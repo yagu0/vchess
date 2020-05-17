@@ -1,3 +1,51 @@
-// TODO
-// Pritchard middle page 45, section 3.6
-//https://www.chessvariants.com/crossover.dir/koopachess.html
+p.boxed
+  | Captured pieces are stunned. They disappear if you capture them again.
+
+p
+  | This variant is inspired by the 
+  a(href="https://en.wikipedia.org/wiki/Super_Mario") Super Mario
+  | &nbsp;universe.
+  | When a piece captures another, it "bounce" on it until the next square in
+  | the movement's direction. If this next square is occupied, then it keeps
+  | bouncing and reach the following square, until either a free square or the
+  | edge of the board is met. In this last case, the capturer is lost.
+
+p.
+  Pieces bounced over are then "stunned" for two moves (four half-moves):
+  they cannot move during this period. If they get captured again while being
+  stunned, they are "kicked" out of the board, and all pieces standing on their
+  way vanish as well.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nrkqnrbb/ppp2ppp/3p4/4p3/1P3P2/8/P1PPP1PP/BNQRNBKR:
+  .diagram.diag22
+    | fen:nukqnrbb/pps2ppp/3s4/4s3/1P6/8/P1PPP1PP/BNQRNBKR:
+  figcaption Before and after 1.fxe5
+
+p.
+  After the move 1.fxe5 on the diagram, the red pieces are stunned for two
+  moves. So white can then play 2.Bxe5, kicking the pawn and capturing (for
+  real) at least the h8 bishop. An option for black may be 1...Qg5, such
+  that after 2.Bxe5 Qxe5 black threaten to kick the white stunned bishop out.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nuk1nrb1/pps2p1p/3s4/4B1q1/1P6/8/P1PPP1PP/1NQRNBKR:
+  .diagram.diag22
+    | fen:nuk1nrb1/pps2p1p/3s4/3qC3/1P6/8/P1PPP1PP/1NQRNBKR:
+  figcaption After 1...Qg5 2.Bxe5 Qxe5: white bishop is stunned.
+
+p.
+  The goal is to capture the enemy king. Moves which kick your own king
+  out are forbidden, but stunning him is allowed.
+
+h3 Source
+
+p
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | , section 3.6. This variant is also listed on chessvariants.com: 
+  a(href="https://www.chessvariants.com/crossover.dir/koopachess.html")
+    | Koopa chess
+  | .

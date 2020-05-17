@@ -150,8 +150,7 @@ export class ApocalypseRules extends ChessRules {
       start: this.whiteMove.start,
       end: this.whiteMove.end,
       appear: this.whiteMove.appear,
-      vanish: this.whiteMove.vanish,
-      illegal: this.whiteMove.illegal
+      vanish: this.whiteMove.vanish
     });
   }
 
@@ -181,7 +180,7 @@ export class ApocalypseRules extends ChessRules {
         const mHash = "m" + vm.start.x + vm.start.y + vm.end.x + vm.end.y;
         if (!moveSet[mHash]) {
           moveSet[mHash] = true;
-          vm.illegal = true; //potentially illegal!
+          vm.end.illegal = true; //potentially illegal!
           speculations.push(vm);
         }
       });
@@ -283,7 +282,7 @@ export class ApocalypseRules extends ChessRules {
             m.vanish[1].c != m.vanish[0].c ||
             // Self-capture attempt
             (
-              !other.illegal &&
+              !other.end.illegal &&
               other.end.x == m.end.x &&
               other.end.y == m.end.y
             )
@@ -292,7 +291,7 @@ export class ApocalypseRules extends ChessRules {
         ||
         (
           m.vanish[0].p == V.PAWN &&
-          !other.illegal &&
+          !other.end.illegal &&
           (
             (
               // Promotion attempt
@@ -319,14 +318,14 @@ export class ApocalypseRules extends ChessRules {
         )
       );
     };
-    if (!!m1.illegal && !isPossible(m1, m2)) {
+    if (!!m1.end.illegal && !isPossible(m1, m2)) {
       // Either an anticipated capture of something which didn't move
       // (or not to the right square), or a push through blocus.
       // ==> Just discard the move, and add a penalty point
       this.penaltyFlags[m1.vanish[0].c]++;
       m1.isNull = true;
     }
-    if (!!m2.illegal && !isPossible(m2, m1)) {
+    if (!!m2.end.illegal && !isPossible(m2, m1)) {
       this.penaltyFlags[m2.vanish[0].c]++;
       m2.isNull = true;
     }
@@ -375,8 +374,8 @@ export class ApocalypseRules extends ChessRules {
       let remain = null;
       const p1 = m1.vanish[0].p;
       const p2 = m2.vanish[0].p;
-      if (!!m1.illegal && !m2.illegal) remain = { c: 'w', p: p1 };
-      else if (!!m2.illegal && !m1.illegal) remain = { c: 'b', p: p2 };
+      if (!!m1.end.illegal && !m2.end.illegal) remain = { c: 'w', p: p1 };
+      else if (!!m2.end.illegal && !m1.end.illegal) remain = { c: 'b', p: p2 };
       if (!remain) {
         // Either both are illegal or both are legal
         if (p1 == V.KNIGHT && p2 == V.PAWN) remain = { c: 'w', p: p1 };
@@ -478,7 +477,7 @@ export class ApocalypseRules extends ChessRules {
     let illegalMoves = [];
     moves.forEach(m => {
       // Warning: m might be illegal!
-      if (!m.illegal) {
+      if (!m.end.illegal) {
         V.PlayOnBoard(this.board, m);
         m.eval = this.evalPosition();
         V.UndoOnBoard(this.board, m);

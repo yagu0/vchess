@@ -6,59 +6,139 @@ export class DiceRules extends ChessRules {
     return false;
   }
 
-  doClick(square) {
-    if (
-      this.subTurn == 2 ||
-      isNaN(square[0]) ||
-      this.board[square[0]][square[1]] != V.EMPTY
-    ) {
-      return null;
-    }
-    // Announce the piece' type to be played:
-    return this.getRandPieceMove();
-  }
-
-  getPotentialMovesFrom([x, y]) {
-    if (this.subTurn == 1) return [];
-    const L = this.p2play.length;
-    const piece = this.getPiece(x, y);
-    if (piece == V.PAWN && this.p2play[L-1] != V.PAWN) {
-      // The piece must be a pawn about to promote.
-      const color = this.turn;
-      const beforeLastRank = (color == 'w' ? 1 : 0);
-      const forward = (color == 'w' ? -1 : 1);
-      let moves = [];
-      if (this.board[x + forward][y] == V.EMPTY) {
-        moves.push(
-          this.getBasicMove(
-            [x, y], [x + forward], { c: color, p: this.p2play[L-1] })
-        );
-      }
-      for (let shift of [-1, 1]) {
-        const [i, j] = [x + forward, y + shift];
-        if (
-          V.OnBoard(i, j) &&
-          this.board[i][j] != V.EMPTY &&
-          this.getColor(i, j) != color
-        ) {
-          moves.push(
-            this.getBasicMove(
-              [x, y], [i, j], { c: color, p: this.p2play[L-1] })
-          );
-        }
-      }
-      return moves;
-    }
-    if (piece != this.p2play[L-1])
-      // The piece type must match last p2play
-      return [];
-    return super.getPotentialMovesFrom([x, y]);
+  static ParseFen(fen) {
+    const fenParts = fen.split(" ");
+    return Object.assign(
+      ChessRules.ParseFen(fen),
+      { toplay: fenParts[5] }
+    );
   }
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     this.p2play = [];
-    this.subTurn = 1;
+    const toplay = V.ParseFen(fen).toplay;
+    if (toplay != "-") this.p2play.push(toplay);
+  }
+
+  getFen() {
+    return super.getFen() + " " + this.getToplayFen();
+  }
+
+  getFen() {
+    return super.getFenForRepeat() + "_" + this.getToplayFen();
+  }
+
+  getToplayFen() {
+    const L = this.p2play.length;
+    return (L > 0 ? this.p2play[L-1] : "-");
+  }
+
+  static GenRandInitFen(randomness) {
+    return ChessRules.GenRandInitFen(randomness) + " -";
+  }
+
+  canMove(piece, color, [x, y]) {
+    const oppCol = V.GetOppCol(color);
+    if (piece == V.PAWN) {
+      const forward = (color == 'w' ? -1 : 1);
+      if (this.board[x + forward][y] == V.EMPTY) return true;
+      for (let shift of [-1, 1]) {
+        const [i, j] = [x + forward, y + shift];
+        if (
+          V.OnBoard(i, j) &&
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) == oppCol
+        ) {
+          return true;
+        }
+      }
+    }
+    else {
+      const steps =
+        [V.KING, V.QUEEN].includes(piece)
+          ? V.steps[V.ROOK].concat(V.steps[V.BISHOP])
+          : V.steps[piece];
+      for (let s of steps) {
+        const [i, j] = [x + s[0], y + s[1]];
+        if (
+          V.OnBoard(i, j) &&
+          (this.board[i][j] == V.EMPTY || this.getColor(i, j) == oppCol)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  getRandPiece(color) {
+    // Find pieces which can move and roll a dice
+    let canMove = {};
+    for (let i=0; i<8; i++) {
+      for (let j=0; j<8; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          const piece = this.getPiece(i, j);
+          if (!canMove[piece] && this.canMove(piece, color, [i, j]))
+            canMove[piece] = [i, j];
+        }
+      }
+    }
+    const options = Object.keys(canMove);
+    const randPiece = options[randInt(options.length)];
+    return [randPiece, canMove[randPiece]];
+  }
+
+  getPotentialMovesFrom([x, y]) {
+    const color = this.turn;
+    let moves = undefined;
+    if (this.movesCount == 0) moves = super.getPotentialMovesFrom([x, y]);
+    else {
+      const L = this.p2play.length; //L is >= 1
+      const piece = this.getPiece(x, y);
+      if (
+        piece == V.PAWN &&
+        this.p2play[L-1] != V.PAWN &&
+        ((color == 'w' && x == 1) || (color == 'b' && x == 6))
+      ) {
+        // The piece is a pawn about to promote
+        const destX = (color == 'w' ? 0 : 7);
+        moves = [];
+        if (this.board[destX][y] == V.EMPTY) {
+          moves.push(
+            this.getBasicMove(
+              [x, y], [destX, y], { c: color, p: this.p2play[L-1] })
+          );
+        }
+        for (let shift of [-1, 1]) {
+          const [i, j] = [destX, y + shift];
+          if (
+            V.OnBoard(i, j) &&
+            this.board[i][j] != V.EMPTY &&
+            this.getColor(i, j) != color
+          ) {
+            moves.push(
+              this.getBasicMove(
+                [x, y], [i, j], { c: color, p: this.p2play[L-1] })
+            );
+          }
+        }
+      }
+      else if (piece != this.p2play[L-1])
+        // The piece type must match last p2play
+        return [];
+      else moves = super.getPotentialMovesFrom([x, y]);
+    }
+    // Decide which piece the opponent will play:
+    const oppCol = V.GetOppCol(color);
+    moves.forEach(m => {
+      V.PlayOnBoard(this.board, m);
+      const [piece, square] = this.getRandPiece(oppCol);
+      m.start.toplay = square;
+      m.end.piece = piece;
+      V.UndoOnBoard(this.board, m);
+    });
+    return moves;
   }
 
   filterValid(moves) {
@@ -75,91 +155,26 @@ export class DiceRules extends ChessRules {
     return "*";
   }
 
-  play(move) {
-    if (this.subTurn == 1) {
-      this.subTurn = 2;
-      this.p2play.push(move.appear[0].p);
-      return;
-    }
-    // Subturn == 2 means the (dice-constrained) move is played
-    move.flags = JSON.stringify(this.aggregateFlags());
-    V.PlayOnBoard(this.board, move);
-    this.epSquares.push(this.getEpSquare(move));
-    this.movesCount++;
-    this.turn = V.GetOppCol(this.turn);
-    this.subTurn = 1;
-    this.postPlay(move);
-  }
-
   postPlay(move) {
+    this.p2play.push(move.end.piece);
     if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       this.kingPos[move.vanish[1].c] = [-1, -1];
     // Castle flags for captured king won't be updated (not important...)
     super.postPlay(move);
   }
 
-  undo(move) {
-    if (this.subTurn == 2) {
-      this.subTurn = 1;
-      this.p2play.pop();
-      return;
-    }
-    this.disaggregateFlags(JSON.parse(move.flags));
-    V.UndoOnBoard(this.board, move);
-    this.epSquares.pop();
-    this.movesCount--;
-    this.turn = V.GetOppCol(this.turn);
-    this.subTurn = 2;
-    this.postUndo(move);
-  }
-
   postUndo(move) {
+    this.p2play.pop();
     if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
     super.postUndo(move);
   }
 
-  getRandPieceMove() {
-    // For current turn, find pieces which can move and roll a dice
-    let canMove = {};
-    const color = this.turn;
-    for (let i=0; i<8; i++) {
-      for (let j=0; j<8; j++) {
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
-          const piece = this.getPiece(i, j);
-          if (
-            !canMove[piece] &&
-            super.getPotentialMovesFrom([i, j]).length > 0
-          ) {
-            canMove[piece] = [i, j];
-          }
-        }
-      }
-    }
-    const options = Object.keys(canMove);
-    const randPiece = options[randInt(options.length)];
-    return (
-      new Move({
-        appear: [{ p: randPiece }],
-        vanish: [],
-        start: { x: -1, y: -1 },
-        end: { x: canMove[randPiece][0], y: canMove[randPiece][1] }
-      })
-    );
-  }
-
-  // Random mover
-  getComputerMove() {
-    const toPlay = this.getRandPieceMove();
-    this.play(toPlay);
-    const moves = this.getAllValidMoves();
-    const choice = moves[randInt(moves.length)];
-    this.undo(toPlay);
-    return [toPlay, choice];
+  static get SEARCH_DEPTH() {
+    return 1;
   }
 
   getNotation(move) {
-    if (this.subTurn == 1) return move.appear[0].p.toUpperCase();
-    return super.getNotation(move);
+    return super.getNotation(move) + "/" + move.end.piece.toUpperCase();
   }
 };

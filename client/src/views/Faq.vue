@@ -50,6 +50,7 @@ export default {
 
 <style lang="sass">
 #faqDiv
+  margin-bottom: 10px
   @media screen and (max-width: 767px)
     margin-left: var(--universal-margin)
     margin-right: var(--universal-margin)

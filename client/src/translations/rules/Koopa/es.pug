@@ -1,0 +1,54 @@
+p.boxed
+  | Las piezas capturadas quedan aturdidas.
+  | Desaparecerán si los captura de nuevo.
+
+p
+  | Esta variante está inspirada en el universo 
+  a(href="https://fr.wikipedia.org/wiki/Super_Mario") Super Mario
+  | . Cuando una pieza captura a otra, "rebota" sobre ella hasta que
+  | siguiente casilla en la dirección del viaje. Si está ocupada
+  | entonces la pieza continúa rebotando en la misma dirección, hasta que
+  | encontrarse con una casilla vacía o el borde del tablero. En este ultimo
+  | caso, la pieza de captura se pierde.
+
+p.
+  Las piezas que rebotan son aturdidas por dos jugadas
+  (cuatro medios movimientos): no pueden moverse durante este período.
+  Si son capturados nuevamente durante su aturdimiento, entonces
+  son enviados fuera del tablero de ajedrez, y todas las piezas en camino
+  también desaparecen.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nrkqnrbb/ppp2ppp/3p4/4p3/1P3P2/8/P1PPP1PP/BNQRNBKR:
+  .diagram.diag22
+    | fen:nukqnrbb/pps2ppp/3s4/4s3/1P6/8/P1PPP1PP/BNQRNBKR:
+  figcaption Antes y después de 1.fxe5
+
+p.
+  Después del movimiento 1.fxe5 en el diagrama, las piezas rojas quedan
+  aturdidas por dos jugadas. Entonces las blancas pueden jugar 2.Bxe5,
+  sacando a relucir el peón que lleva al menos el loco h8 con él.
+  Una posibilidad para las negras serían jugar 1...Qg5, de modo que después
+  de 2.Bxe5 Qxe5 las negras amenacen para sacar el alfil mareado.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:nuk1nrb1/pps2p1p/3s4/4B1q1/1P6/8/P1PPP1PP/1NQRNBKR:
+  .diagram.diag22
+    | fen:nuk1nrb1/pps2p1p/3s4/3qC3/1P6/8/P1PPP1PP/1NQRNBKR:
+  figcaption Después de 1...Qg5 2.Bxe5 Qxe5: el alfil blanco está mareado.
+
+p.
+  El objetivo es capturar al rey contrario. Los movimientos que hacen sacar
+  tu propio rey están prohibidos.
+
+h3 Fuente
+
+p
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | The Classified Encyclopedia of Chess Variants
+  | , sección 3.6. Esta variante también aparece en chessvariants.com: 
+  a(href="https://www.chessvariants.com/crossover.dir/koopachess.html")
+    | Koopa chess
+  | .
