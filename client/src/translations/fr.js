@@ -157,6 +157,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 pièces sur l'échiquier",
+  "A Clockwork Orange": "Orange Mécanique",
   "A pawns cloud": "Une nuée de pions",
   "A wizard in the corner": "Un sorcier dans le coin",
   "Absorb powers": "Absorber les pouvoirs",
@@ -210,10 +211,12 @@ export const translations = {
   "Mate the knight": "Matez le cavalier",
   "Meet the Mammoth": "Rencontrez le Mammouth",
   "Middle battle": "Bataille du milieu",
-  "Mongolian Horde": "Horde mongole",
+  "Mongolian Horde (v1)": "Horde mongole (v1)",
+  "Mongolian Horde (v2)": "Horde mongole (v2)",
   "Move like a knight (v1)": "Bouger comme un cavalier (v1)",
   "Move like a knight (v2)": "Bouger comme un cavalier (v2)",
   "Move under cover": "Avancez à couvert",
+  "Moving forward": "Aller de l'avant",
   "Neverending rows": "Rangées sans fin",
   "No-check mode": "Mode sans échec",
   "Non-conformism and utopia": "Non-conformisme et utopie",

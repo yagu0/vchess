@@ -1,0 +1,27 @@
+p.boxed
+  | Pieces only move forward,
+  | until they reach the last rank where they promote.
+
+p.
+  Knights and bishops must move strictly forward, as in Draughts game.
+  Rooks, queen and king can also move laterally, on the same rank.
+  Pawns move as usual and are promoted into bidirectional pawns,
+  able to move and capture both ways.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:1qnrkrbb/pppppp1p/1n4p1/8/3B1P2/8/PPPPP1PP/RBKQNR1N c5,b6,e5,f6,g7,h8:
+  .diagram.diag22
+    | fen:1qnrkrbC/pppppp1p/1n4p1/8/5P2/8/PPPPP1PP/RBKQNR1N:
+  figcaption Before and after 1.Bxh8
+
+p Promoted pieces appear in yellow (for white) and red (for black).
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/diffmove.dir/checkers.html")
+    | Checkers Chess
+  | &nbsp;on chessvariants.com.
+
+p Inventor: Hans Multhopp (1974)

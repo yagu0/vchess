@@ -76,6 +76,7 @@ export class SwitchingRules extends ChessRules {
         this.castleFlags[a.c] = [V.size.y, V.size.y];
       }
     });
+    const firstRank = (move.vanish[0].c == 'w' ? 7 : 0);
     for (let coords of [move.start, move.end]) {
       if (
         Object.keys(firstRank).includes(coords.x) &&
@@ -106,7 +107,7 @@ export class SwitchingRules extends ChessRules {
     return super.getAllPotentialMoves().filter(m => {
       return (
         m.appear.length == 1 ||
-        (move.appear[0].p == V.KING && move.appear[1].p == V.ROOK) ||
+        (m.appear[0].p == V.KING && m.appear[1].p == V.ROOK) ||
         (m.appear[1].x <= m.vanish[1].x && m.appear[1].y <= m.vanish[1].y)
       );
     });

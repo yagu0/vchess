@@ -157,6 +157,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 piezas en el tablero",
+  "A Clockwork Orange": "Naranja Mecánica",
   "A pawns cloud": "Une nube de peones",
   "A wizard in the corner": "Un mago en la esquina",
   "Absorb powers": "Absorber poderes",
@@ -210,10 +211,12 @@ export const translations = {
   "Mate the knight": "Matar el caballo",
   "Meet the Mammoth": "Conoce al Mamut",
   "Middle battle": "Batalla media",
-  "Mongolian Horde": "Horda mongol",
+  "Mongolian Horde (v1)": "Horda mongol (v1)",
+  "Mongolian Horde (v2)": "Horda mongol (v2)",
   "Move like a knight (v1)": "Moverse como un caballo (v1)",
   "Move like a knight (v2)": "Moverse como un caballo (v2)",
   "Move under cover": "Ir bajo cubierta",
+  "Moving forward": "Ir adelante",
   "Neverending rows": "Filas interminables",
   "No-check mode": "Modo sin jaque",
   "Non-conformism and utopia": "No-conformismo y utopía",

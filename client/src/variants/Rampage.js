@@ -62,13 +62,19 @@ export class RampageRules extends ChessRules {
       return moves;
     // Remember current final squares to not add moves twice:
     const destinations = {};
+    const lastRank = (color == 'w' ? 0 : 7);
+    const piece = this.getPiece(x, y);
     moves.forEach(m => destinations[m.end.x + "_" + m.end.y] = true);
     for (let i=0; i<8; i++) {
       for (let j=0; j<8; j++) {
         if (this.board[i][j] == V.EMPTY && !destinations[i + "_" + j]) {
           const sa = this.sumAttacks([i, j]);
-          if ((color == 'w' && sa > 0) || (color == 'b' && sa < 0))
+          if (
+            ((color == 'w' && sa > 0) || (color == 'b' && sa < 0)) &&
+            (piece != V.PAWN || i != lastRank)
+          ) {
             moves.push(this.getBasicMove([x, y], [i, j]));
+          }
         }
       }
     }

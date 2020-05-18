@@ -766,6 +766,7 @@ export const ChessRules = class ChessRules {
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const pawnShiftX = V.PawnSpecs.directions[color];
     const firstRank = (color == "w" ? sizeX - 1 : 0);
+    const forward = (color == 'w' ? -1 : 1);
 
     // Pawn movements in shiftX direction:
     const getPawnMoves = (shiftX) => {
@@ -773,7 +774,7 @@ export const ChessRules = class ChessRules {
       // NOTE: next condition is generally true (no pawn on last rank)
       if (x + shiftX >= 0 && x + shiftX < sizeX) {
         if (this.board[x + shiftX][y] == V.EMPTY) {
-          // One square forward
+          // One square forward (or backward)
           this.addPawnMoves([x, y], [x + shiftX, y], moves, promotions);
           // Next condition because pawns on 1st rank can generally jump
           if (
@@ -784,7 +785,10 @@ export const ChessRules = class ChessRules {
               (color == 'b' && x <= V.PawnSpecs.initShift['b'])
             )
           ) {
-            if (this.board[x + 2 * shiftX][y] == V.EMPTY) {
+            if (
+              shiftX == forward &&
+              this.board[x + 2 * shiftX][y] == V.EMPTY
+            ) {
               // Two squares jump
               moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
               if (
@@ -811,13 +815,13 @@ export const ChessRules = class ChessRules {
                 );
               }
               if (
-                V.PawnSpecs.captureBackward &&
+                V.PawnSpecs.captureBackward && shiftX == forward &&
                 x - shiftX >= 0 && x - shiftX < V.size.x &&
                 this.board[x - shiftX][y + shiftY] != V.EMPTY &&
                 this.canTake([x, y], [x - shiftX, y + shiftY])
               ) {
                 this.addPawnMoves(
-                  [x, y], [x + shiftX, y + shiftY],
+                  [x, y], [x - shiftX, y + shiftY],
                   moves, promotions
                 );
               }

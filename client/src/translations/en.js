@@ -157,6 +157,7 @@ export const translations = {
 
   // Variants boxes:
   "64 pieces on the board": "64 pieces on the board",
+  "A Clockwork Orange": "A Clockwork Orange",
   "A pawns cloud": "A pawns cloud",
   "A wizard in the corner": "A wizard in the corner",
   "Absorb powers": "Absorb powers",
@@ -210,10 +211,12 @@ export const translations = {
   "Mate the knight": "Mate the knight",
   "Meet the Mammoth": "Meet the Mammoth",
   "Middle battle": "Middle battle",
-  "Mongolian Horde": "Mongolian Horde",
+  "Mongolian Horde (v1)": "Mongolian Horde (v1)",
+  "Mongolian Horde (v2)": "Mongolian Horde (v2)",
   "Move like a knight (v1)": "Move like a knight (v1)",
   "Move like a knight (v2)": "Move like a knight (v2)",
   "Move under cover": "Move under cover",
+  "Moving forward": "Moving forward",
   "Neverending rows": "Neverending rows",
   "No-check mode": "No-check mode",
   "Non-conformism and utopia": "Non-conformism and utopia",
