@@ -16,7 +16,7 @@ export class ExtinctionRules extends ChessRules {
     let pieces = {};
     for (let row of rows) {
       for (let i = 0; i < row.length; i++) {
-        if (isNaN(parseInt(row[i])) && !pieces[row[i]])
+        if (isNaN(parseInt(row[i], 10)) && !pieces[row[i]])
           pieces[row[i]] = true;
       }
     }

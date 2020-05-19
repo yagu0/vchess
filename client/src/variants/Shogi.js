@@ -176,26 +176,27 @@ export class ShogiRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
+    const reserve =
+      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.reserve[0]),
-        [V.ROOK]: parseInt(fenParsed.reserve[1]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[2]),
-        [V.GOLD_G]: parseInt(fenParsed.reserve[3]),
-        [V.SILVER_G]: parseInt(fenParsed.reserve[4]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[5]),
-        [V.LANCE]: parseInt(fenParsed.reserve[6])
+        [V.PAWN]: reserve[0],
+        [V.ROOK]: reserve[1],
+        [V.BISHOP]: reserve[2],
+        [V.GOLD_G]: reserve[3],
+        [V.SILVER_G]: reserve[4],
+        [V.KNIGHT]: reserve[5],
+        [V.LANCE]: reserve[6]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[7]),
-        [V.ROOK]: parseInt(fenParsed.reserve[8]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[9]),
-        [V.GOLD_G]: parseInt(fenParsed.reserve[10]),
-        [V.SILVER_G]: parseInt(fenParsed.reserve[11]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[12]),
-        [V.LANCE]: parseInt(fenParsed.reserve[13])
+        [V.PAWN]: reserve[7],
+        [V.ROOK]: reserve[8],
+        [V.BISHOP]: reserve[9],
+        [V.GOLD_G]: reserve[10],
+        [V.SILVER_G]: reserve[11],
+        [V.KNIGHT]: reserve[12],
+        [V.LANCE]: reserve[13]
       }
     };
   }

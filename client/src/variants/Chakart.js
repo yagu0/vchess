@@ -148,7 +148,7 @@ export class ChakartRules extends ChessRules {
         if (['K', 'k', 'L', 'l'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -210,24 +210,25 @@ export class ChakartRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Initialize captured pieces' counts from FEN
+    const captured =
+      V.ParseFen(fen).captured.split("").map(x => parseInt(x, 10));
     this.captured = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.captured[0]),
-        [V.ROOK]: parseInt(fenParsed.captured[1]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[2]),
-        [V.BISHOP]: parseInt(fenParsed.captured[3]),
-        [V.QUEEN]: parseInt(fenParsed.captured[4]),
-        [V.KING]: parseInt(fenParsed.captured[5])
+        [V.PAWN]: captured[0],
+        [V.ROOK]: captured[1],
+        [V.KNIGHT]: captured[2],
+        [V.BISHOP]: captured[3],
+        [V.QUEEN]: captured[4],
+        [V.KING]: captured[5]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.captured[6]),
-        [V.ROOK]: parseInt(fenParsed.captured[7]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[8]),
-        [V.BISHOP]: parseInt(fenParsed.captured[9]),
-        [V.QUEEN]: parseInt(fenParsed.captured[10]),
-        [V.KING]: parseInt(fenParsed.captured[11])
+        [V.PAWN]: captured[6],
+        [V.ROOK]: captured[7],
+        [V.KNIGHT]: captured[8],
+        [V.BISHOP]: captured[9],
+        [V.QUEEN]: captured[10],
+        [V.KING]: captured[11]
       }
     };
     this.firstMove = [];

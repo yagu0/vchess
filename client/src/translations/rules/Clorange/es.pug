@@ -1,2 +1,34 @@
 p.boxed
-  | TODO
+  | Las piezas capturadas se pueden soltar más adelante en el juego,
+  | con o sin capacidad de captura.
+
+p Se aplican reglas ortodoxas, con las siguientes excepciones:
+ul
+  li.
+    Cuando se captura una pieza estándar (resp. sin-captura), es
+    reemplazado por una pieza sin-captura (resp. estándar) del mismo color
+    y regresó al jugador de ese color, que lo tiene en la mano hasta que él
+    decide ponerlo en el tablero.
+  li.
+    Un jugador con una pieza en reserva puede soltarlo en cualquier casilla
+    del tablero en lugar de hacer un movimiento. Los peones no pueden alcanzar
+    la última fila así.
+
+p.
+  Las unidades que no capturan aparecen en amarillo para las blancas,
+  y en rojo para las negras.
+
+figure.diagram-container
+  .diagram
+    | fen:3nkr2/1pNSpp1b/1p1sq3/7p/rT1N1cPp/8/PPPPPP2/R1BB1KR1:
+  figcaption El rey negro debe capturar el peón blanco sin-captura.
+
+h3 Fuente
+
+p
+  | Ligeramente simplificado desde 
+  a(href="https://www.chessvariants.com/other.dir/clockworkorange.html")
+    | Clockwork Orange Chess
+  | &nbsp;en chessvariants.com.
+
+p Inventor: Fergus Duniho (1999)

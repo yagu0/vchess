@@ -81,7 +81,7 @@ export default {
     document.getElementById("adjuster")
       .addEventListener("click", processModalClick);
     // Take full width on small screens:
-    let boardSize = parseInt(localStorage.getItem("boardSize"));
+    let boardSize = parseInt(localStorage.getItem("boardSize"), 10);
     if (!boardSize) {
       boardSize =
         window.innerWidth >= 768

@@ -23,7 +23,7 @@ export class ParachuteRules extends ChessRules {
       for (let i = 0; i < row.length; i++) {
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -65,24 +65,25 @@ export class ParachuteRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
+    const reserve =
+      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.reserve[0]),
-        [V.ROOK]: parseInt(fenParsed.reserve[1]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[2]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[3]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[4]),
-        [V.KING]: parseInt(fenParsed.reserve[5])
+        [V.PAWN]: reserve[0],
+        [V.ROOK]: reserve[1],
+        [V.KNIGHT]: reserve[2],
+        [V.BISHOP]: reserve[3],
+        [V.QUEEN]: reserve[4],
+        [V.KING]: reserve[5]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[6]),
-        [V.ROOK]: parseInt(fenParsed.reserve[7]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[8]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[9]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[10]),
-        [V.KING]: parseInt(fenParsed.reserve[11])
+        [V.PAWN]: reserve[6],
+        [V.ROOK]: reserve[7],
+        [V.KNIGHT]: reserve[8],
+        [V.BISHOP]: reserve[9],
+        [V.QUEEN]: reserve[10],
+        [V.KING]: reserve[11]
       }
     };
   }

@@ -43,7 +43,7 @@ export class Antiking2Rules extends ChessRules {
             this.antikingPos["w"] = [i, k];
             break;
           default: {
-            const num = parseInt(rows[i].charAt(j));
+            const num = parseInt(rows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

@@ -158,7 +158,7 @@ export const ChessRules = class ChessRules {
     // 2) Check turn
     if (!fenParsed.turn || !V.IsGoodTurn(fenParsed.turn)) return false;
     // 3) Check moves count
-    if (!fenParsed.movesCount || !(parseInt(fenParsed.movesCount) >= 0))
+    if (!fenParsed.movesCount || !(parseInt(fenParsed.movesCount, 10) >= 0))
       return false;
     // 4) Check flags
     if (V.HasFlags && (!fenParsed.flags || !V.IsGoodFlags(fenParsed.flags)))
@@ -185,7 +185,7 @@ export const ChessRules = class ChessRules {
         if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -232,7 +232,7 @@ export const ChessRules = class ChessRules {
     return {
       // NOTE: column is always one char => max 26 columns
       // row is counted from black side => subtraction
-      x: V.size.x - parseInt(sq.substr(1)),
+      x: V.size.x - parseInt(sq.substr(1), 10),
       y: sq[0].charCodeAt() - 97
     };
   }
@@ -480,7 +480,7 @@ export const ChessRules = class ChessRules {
       let j = 0;
       for (let indexInRow = 0; indexInRow < rows[i].length; indexInRow++) {
         const character = rows[i][indexInRow];
-        const num = parseInt(character);
+        const num = parseInt(character, 10);
         // If num is a number, just shift j:
         if (!isNaN(num)) j += num;
         // Else: something at position i,j
@@ -512,7 +512,7 @@ export const ChessRules = class ChessRules {
     const fenParsed = V.ParseFen(fen);
     this.board = V.GetBoard(fenParsed.position);
     this.turn = fenParsed.turn;
-    this.movesCount = parseInt(fenParsed.movesCount);
+    this.movesCount = parseInt(fenParsed.movesCount, 10);
     this.setOtherVariables(fen);
   }
 
@@ -536,7 +536,7 @@ export const ChessRules = class ChessRules {
             this.INIT_COL_KING["w"] = k;
             break;
           default: {
-            const num = parseInt(fenRows[i].charAt(j));
+            const num = parseInt(fenRows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

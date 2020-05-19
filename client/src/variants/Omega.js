@@ -48,7 +48,7 @@ export class OmegaRules extends ChessRules {
         if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (['x'].concat(V.PIECES).includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }

@@ -49,7 +49,7 @@ export class MaximaRules extends ChessRules {
         if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (['x'].concat(V.PIECES).includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -76,7 +76,7 @@ export class MaximaRules extends ChessRules {
             this.kingPos["w"] = [i, k];
             break;
           default: {
-            const num = parseInt(position[i].charAt(j));
+            const num = parseInt(position[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

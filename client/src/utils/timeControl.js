@@ -28,7 +28,7 @@ export function extractTime(cadence) {
   tcParts[0] += "m";
   const mainTimeArray = tcParts[0].match(/^([0-9]+)([smhd]+)$/);
   if (!mainTimeArray) return null;
-  const mainTimeValue = parseInt(mainTimeArray[1]);
+  const mainTimeValue = parseInt(mainTimeArray[1], 10);
   const mainTimeUnit = mainTimeArray[2][0];
   const mainTime = timeUnitToSeconds(mainTimeValue, mainTimeUnit);
   let increment = 0;
@@ -38,7 +38,7 @@ export function extractTime(cadence) {
     tcParts[1] += "s";
     const incrementArray = tcParts[1].match(/^([0-9]+)([smhd]+)$/);
     if (!incrementArray) return null;
-    const incrementValue = parseInt(incrementArray[1]);
+    const incrementValue = parseInt(incrementArray[1], 10);
     const incrementUnit = incrementArray[2][0];
     // Increment unit cannot be larger than main unit:
     if (isLargerUnit(incrementUnit, mainTimeUnit)) return null;

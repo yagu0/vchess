@@ -54,7 +54,7 @@ export class RococoRules extends ChessRules {
             this.kingPos["w"] = [i, k];
             break;
           default: {
-            const num = parseInt(position[i].charAt(j));
+            const num = parseInt(position[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

@@ -2,15 +2,6 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
 export class ClorangeRules extends ChessRules {
-  static get PawnSpecs() {
-    return Object.assign(
-      {},
-      ChessRules.PawnSpecs,
-      // TODO: pawns reaching last rank promote normally? Seems better
-      { promotions: [V.PAWN] }
-    );
-  }
-
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -42,38 +33,64 @@ export class ClorangeRules extends ChessRules {
   }
 
   getReserveFen() {
-    let counts = new Array(10);
-    for (
-      let i = 0;
-      i < V.PIECES.length - 1;
-      i++ //-1: no king reserve
-    ) {
-      // TODO: adapt
-      counts[i] = this.reserve["w"][V.PIECES[i]];
-      counts[5 + i] = this.reserve["b"][V.PIECES[i]];
+    return (
+      Object.keys(this.reserve).map(
+        c => Object.values(this.reserve[c]).join("")).join("")
+    );
+  }
+
+  getEpSquare(moveOrSquare) {
+    if (!moveOrSquare) return undefined;
+    if (typeof moveOrSquare === "string") {
+      const square = moveOrSquare;
+      if (square == "-") return undefined;
+      return V.SquareToCoords(square);
     }
-    return counts.join("");
+    const move = moveOrSquare;
+    const s = move.start,
+          e = move.end;
+    if (
+      s.y == e.y &&
+      Math.abs(s.x - e.x) == 2 &&
+      move.vanish.length > 0 && ['p', 's'].includes(move.vanish[0].p)
+    ) {
+      return {
+        x: (s.x + e.x) / 2,
+        y: s.y
+      };
+    }
+    return undefined;
   }
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
-    // TODO: adapt
+    const reserve =
+      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.reserve[0]),
-        [V.ROOK]: parseInt(fenParsed.reserve[1]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[2]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[3]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[4])
+        'p': reserve[0],
+        'r': reserve[1],
+        'n': reserve[2],
+        'b': reserve[3],
+        'q': reserve[4],
+        's': reserve[5],
+        'u': reserve[6],
+        'o': reserve[7],
+        'c': reserve[8],
+        't': reserve[9]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[5]),
-        [V.ROOK]: parseInt(fenParsed.reserve[6]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[7]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[8]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[9])
+        'p': reserve[10],
+        'r': reserve[11],
+        'n': reserve[12],
+        'b': reserve[13],
+        'q': reserve[14],
+        's': reserve[15],
+        'u': reserve[16],
+        'o': reserve[17],
+        'c': reserve[18],
+        't': reserve[19]
       }
     };
   }
@@ -88,17 +105,27 @@ export class ClorangeRules extends ChessRules {
     return this.board[i][j].charAt(1);
   }
 
+  getPpath(b) {
+    return (V.NON_VIOLENT.includes(b[1]) ? "Clorange/" : "") + b;
+  }
+
   getReservePpath(index, color) {
-    return color + V.RESERVE_PIECES[index];
+    const prefix =
+      (V.NON_VIOLENT.includes(V.RESERVE_PIECES[index]) ? "Clorange/" : "");
+    return prefix + color + V.RESERVE_PIECES[index];
   }
 
   static get NON_VIOLENT() {
-    return ['s', 'u', 'o', 'c', 't', 'l'];
+    return ['s', 'u', 'o', 'c', 't'];
+  }
+
+  static get PIECES() {
+    return ChessRules.PIECES.concat(V.NON_VIOLENT);
   }
 
   // Ordering on reserve pieces
   static get RESERVE_PIECES() {
-    return ChessRules.PIECES.concat(V.NON_VIOLENT);
+    return V.PIECES.filter(p => p != 'k');
   }
 
   getReserveMoves([x, y]) {
@@ -106,8 +133,13 @@ export class ClorangeRules extends ChessRules {
     const p = V.RESERVE_PIECES[y];
     if (this.reserve[color][p] == 0) return [];
     let moves = [];
-    const pawnShift = p == V.PAWN ? 1 : 0;
-    for (let i = pawnShift; i < V.size.x - pawnShift; i++) {
+    let rank1 = 0;
+    let rank2 = V.size.x - 1;
+    if (['p', 's'].includes(p)) {
+      if (color == 'w') rank1++;
+      else rank2--;
+    }
+    for (let i = rank1; i <= rank2; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] == V.EMPTY) {
           let mv = new Move({
@@ -130,25 +162,49 @@ export class ClorangeRules extends ChessRules {
     return moves;
   }
 
-  // TODO: adapt all below:
   getPotentialMovesFrom([x, y]) {
-    if (x >= V.size.x) {
+    if (x >= V.size.x)
       // Reserves, outside of board: x == sizeX(+1)
       return this.getReserveMoves([x, y]);
-    }
     // Standard moves
-    return super.getPotentialMovesFrom([x, y]);
+    switch (this.getPiece(x, y)) {
+      case 's': return super.getPotentialPawnMoves([x, y]);
+      case 'u': return super.getPotentialRookMoves([x, y]);
+      case 'o': return super.getPotentialKnightMoves([x, y]);
+      case 'c': return super.getPotentialBishopMoves([x, y]);
+      case 't': return super.getPotentialQueenMoves([x, y]);
+      default: return super.getPotentialMovesFrom([x, y]);
+    }
+    return []; //never reached
   }
 
-  getPotentialPawnMoves([x, y]) {
-    
-    let moves = super.getPotentialPawnMoves([x, y]);
-    // Remove pawns on 8th rank ("fallen"):
-    const color = this.turn;
-    const lastRank = (color == "w" ? 0 : V.size.x - 1);
+  getPotentialPawnMoves(sq) {
+    let moves = super.getPotentialPawnMoves(sq);
     moves.forEach(m => {
-      if (m.appear[0].x == lastRank) m.appear.pop();
+      if (m.vanish[0].p == 's' && m.appear[0].p != 's') {
+        // Promotion pieces should be non-violent as well:
+        const pIdx = ChessRules.PIECES.findIndex(p => p == m.appear[0].p)
+        m.appear[0].p = V.NON_VIOLENT[pIdx];
+      }
     });
+    return moves;
+  }
+
+  getSlideNJumpMoves([x, y], steps, oneStep) {
+    let moves = [];
+    const canTake = ChessRules.PIECES.includes(this.getPiece(x, y));
+    outerLoop: for (let step of steps) {
+      let i = x + step[0];
+      let j = y + step[1];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+        if (oneStep) continue outerLoop;
+        i += step[0];
+        j += step[1];
+      }
+      if (V.OnBoard(i, j) && canTake && this.canTake([x, y], [i, j]))
+        moves.push(this.getBasicMove([x, y], [i, j]));
+    }
     return moves;
   }
 
@@ -177,20 +233,22 @@ export class ClorangeRules extends ChessRules {
     return true;
   }
 
-  canTake([x1, y1], [x2, y2]) {
-    // Self-captures allowed, except for the king:
-    return this.getPiece(x2, y2) != V.KING;
-  }
-
   prePlay(move) {
     super.prePlay(move);
     // Skip castle:
     if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = this.turn;
     if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]--;
-    else if (move.vanish.length == 2 && move.vanish[1].c == color)
-      // Self-capture
-      this.reserve[color][move.vanish[1].p]++;
+    else if (move.vanish.length == 2) {
+      // Capture
+      const normal = ChessRules.PIECES.includes(move.vanish[1].p);
+      const pIdx =
+        normal
+          ? ChessRules.PIECES.findIndex(p => p == move.vanish[1].p)
+          : V.NON_VIOLENT.findIndex(p => p == move.vanish[1].p);
+      const rPiece = (normal ? V.NON_VIOLENT : ChessRules.PIECES)[pIdx];
+      this.reserve[move.vanish[1].c][rPiece]++;
+    }
   }
 
   postUndo(move) {
@@ -198,12 +256,32 @@ export class ClorangeRules extends ChessRules {
     if (move.vanish.length == 2 && move.appear.length == 2) return;
     const color = this.turn;
     if (move.vanish.length == 0) this.reserve[color][move.appear[0].p]++;
-    else if (move.vanish.length == 2 && move.vanish[1].c == color)
-      this.reserve[color][move.vanish[1].p]--;
+    else if (move.vanish.length == 2) {
+      const normal = ChessRules.PIECES.includes(move.vanish[1].p);
+      const pIdx =
+        normal
+          ? ChessRules.PIECES.findIndex(p => p == move.vanish[1].p)
+          : V.NON_VIOLENT.findIndex(p => p == move.vanish[1].p);
+      const rPiece = (normal ? V.NON_VIOLENT : ChessRules.PIECES)[pIdx];
+      this.reserve[move.vanish[1].c][rPiece]--;
+    }
   }
 
   static get SEARCH_DEPTH() {
     return 2;
+  }
+
+  static get VALUES() {
+    return Object.assign(
+      {
+        s: 0.75,
+        u: 4,
+        o: 2,
+        c: 2,
+        t: 7
+      },
+      ChessRules.VALUES
+    );
   }
 
   evalPosition() {
@@ -220,16 +298,12 @@ export class ClorangeRules extends ChessRules {
   getNotation(move) {
     const finalSquare = V.CoordsToSquare(move.end);
     if (move.vanish.length > 0) {
-      if (move.appear.length > 0) {
-        // Standard move
-        return super.getNotation(move);
-      } else {
-        // Pawn fallen: capturing or not
-        let res = "";
-        if (move.vanish.length == 2)
-          res += V.CoordToColumn(move.start.y) + "x";
-        return res + finalSquare;
-      }
+      // Standard move (maybe with non-violent piece)
+      let notation = super.getNotation(move);
+      if (move.vanish[0].p == 's' && move.appear[0].p != 's')
+        // Fix non-violent promotions:
+        notation += "=" + move.appear[0].p.toUpperCase();
+      return notation;
     }
     // Rebirth:
     const piece =

@@ -1,5 +1,5 @@
 export function checkProblem(p) {
-  const vid = parseInt(p.vid);
+  const vid = parseInt(p.vid, 10);
   if (isNaN(vid) || vid <= 0) return "Please select a variant";
 
   if (!V.IsGoodFen(p.fen)) return "Errors in FEN";

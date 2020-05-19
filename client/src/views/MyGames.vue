@@ -244,7 +244,7 @@ export default {
         case "notifyturn":
         case "notifyscore": {
           const info = data.data;
-          const type = (!!parseInt(info.gid) ? "corr" : "live");
+          const type = (!!parseInt(info.gid, 10) ? "corr" : "live");
           let game = gamesArrays[type].find(g => g.id == info.gid);
           // "notifything" --> "thing":
           const thing = data.code.substr(6);

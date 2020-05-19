@@ -105,7 +105,7 @@ export class BallRules extends ChessRules {
           if (withBall.includes(lowerRi)) ballCount++;
           sumElts++;
         } else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }

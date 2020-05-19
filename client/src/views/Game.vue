@@ -1285,7 +1285,10 @@ console.log(data.data);
     //  - from server (one correspondance game I play[ed] or not)
     //  - from remote peer (one live game I don't play, finished or not)
     fetchGame: function(callback) {
-      if (Number.isInteger(this.gameRef) || !isNaN(parseInt(this.gameRef))) {
+      if (
+        Number.isInteger(this.gameRef) ||
+        !isNaN(parseInt(this.gameRef, 10))
+      ) {
         // corr games identifiers are integers
         ajax(
           "/games",

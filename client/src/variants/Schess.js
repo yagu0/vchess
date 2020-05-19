@@ -119,12 +119,12 @@ export class SchessRules extends ChessRules {
     const fenParsed = V.ParseFen(fen);
     this.pocket = {
       "w": {
-        h: parseInt(fenParsed.pocket[0]),
-        e: parseInt(fenParsed.pocket[1])
+        h: parseInt(fenParsed.pocket[0], 10),
+        e: parseInt(fenParsed.pocket[1], 10)
       },
       "b": {
-        h: parseInt(fenParsed.pocket[2]),
-        e: parseInt(fenParsed.pocket[3])
+        h: parseInt(fenParsed.pocket[2], 10),
+        e: parseInt(fenParsed.pocket[3], 10)
       }
     };
   }

@@ -37,7 +37,7 @@ export class CoregalRules extends ChessRules {
             this.kingPos["w"] = [i, k];
             break;
           default: {
-            const num = parseInt(fenRows[i].charAt(j));
+            const num = parseInt(fenRows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }
@@ -123,8 +123,10 @@ export class CoregalRules extends ChessRules {
         if (!!bishop1Options[pos]) delete bishop1Options[pos];
         else if (!!bishop2Options[pos]) delete bishop2Options[pos];
       });
-      const bishop1Pos = parseInt(sample(Object.keys(bishop1Options), 1)[0]);
-      const bishop2Pos = parseInt(sample(Object.keys(bishop2Options), 1)[0]);
+      const bishop1Pos =
+        parseInt(sample(Object.keys(bishop1Options), 1)[0], 10);
+      const bishop2Pos =
+        parseInt(sample(Object.keys(bishop2Options), 1)[0], 10);
 
       // Knights' positions are now determined
       const forbidden = [

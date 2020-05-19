@@ -55,7 +55,8 @@ export class GrandRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const captured = V.ParseFen(fen).captured.split("").map(parseInt);
+    const captured =
+      V.ParseFen(fen).captured.split("").map(x => parseInt(x, 10));
     // Initialize captured pieces' counts from FEN
     this.captured = {
       w: {

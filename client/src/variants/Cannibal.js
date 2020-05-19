@@ -49,7 +49,7 @@ export class CannibalRules extends ChessRules {
         else if (kingWhiteCodes.includes(row[i])) kings['w']++;
         if (allPiecesCodes.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -74,7 +74,7 @@ export class CannibalRules extends ChessRules {
             const color = (piece.charCodeAt(0) <= 90 ? 'w' : 'b');
             this.kingPos[color] = [i, k];
           } else {
-            const num = parseInt(rows[i].charAt(j));
+            const num = parseInt(rows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
           k++;

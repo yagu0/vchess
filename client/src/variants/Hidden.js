@@ -94,7 +94,7 @@ export class HiddenRules extends ChessRules {
             this.kingPos["w"] = [i, k];
             break;
           default: {
-            const num = parseInt(fenRows[i].charAt(j));
+            const num = parseInt(fenRows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

@@ -90,7 +90,7 @@ export const store = {
       hints: getItemDefaultTrue("hints"),
       highlight: getItemDefaultTrue("highlight"),
       gotonext: getItemDefaultTrue("gotonext"),
-      randomness: parseInt(localStorage.getItem("randomness"))
+      randomness: parseInt(localStorage.getItem("randomness"), 10)
     };
     if (isNaN(this.state.settings.randomness))
       // Default: random asymmetric

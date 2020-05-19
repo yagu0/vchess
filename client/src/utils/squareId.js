@@ -7,5 +7,5 @@ export function getSquareId(o) {
 // Inverse function
 export function getSquareFromId(id) {
   const idParts = id.split("-");
-  return [parseInt(idParts[1]), parseInt(idParts[2])];
+  return [parseInt(idParts[1], 10), parseInt(idParts[2], 10)];
 }

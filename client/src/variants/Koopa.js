@@ -49,11 +49,9 @@ export class KoopaRules extends ChessRules {
   }
 
   getStunnedFen() {
-    return (
-      Object.keys(this.stunned)
-      .map(square => square + this.stunned[square])
-      .join(",")
-    );
+    const squares = Object.keys(this.stunned);
+    if (squares.length == 0) return "-";
+    return squares.map(square => square + this.stunned[square]).join(",");
   }
 
   // Base GenRandInitFen() is fine because en-passant indicator will
@@ -80,7 +78,7 @@ export class KoopaRules extends ChessRules {
             this.INIT_COL_KING["w"] = k;
             break;
           default: {
-            const num = parseInt(fenRows[i].charAt(j));
+            const num = parseInt(fenRows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }
@@ -100,7 +98,7 @@ export class KoopaRules extends ChessRules {
         .map(s => {
           return {
             square: s.substr(0, 2),
-            state: parseInt(s[2])
+            state: parseInt(s[2], 10)
           };
         });
     }

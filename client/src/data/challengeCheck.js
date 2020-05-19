@@ -1,7 +1,7 @@
 import { extractTime } from "@/utils/timeControl";
 
 export function checkChallenge(c) {
-  const vid = parseInt(c.vid);
+  const vid = parseInt(c.vid, 10);
   if (isNaN(vid) || vid <= 0) return "Please select a variant";
 
   const tc = extractTime(c.cadence);

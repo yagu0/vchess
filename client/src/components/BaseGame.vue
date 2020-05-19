@@ -87,6 +87,7 @@ export default {
       endgameMessage: "",
       orientation: "w",
       mode: "",
+      gameMode: "",
       score: "*", //'*' means 'unfinished'
       moves: [],
       cursor: -1, //index of the move just played
@@ -298,7 +299,7 @@ export default {
       }
       else {
         // Exit analyze mode:
-        this.mode = this.gameMode ;
+        this.mode = this.gameMode;
         this.cursor = this.gameCursor;
         this.moves = this.gameMoves;
         let fen = this.game.fenStart;
@@ -464,11 +465,11 @@ export default {
           this.stackToPlay.unshift(move);
           return;
         }
-        this.inPlay = true;
         if (this.mode == "analyze") this.toggleAnalyze();
         if (this.cursor < this.moves.length - 1)
           // To play a received move, cursor must be at the end of the game:
           this.gotoEnd();
+        this.inPlay = true;
       }
       // The board may show some possible moves: (TODO: bad solution)
       this.$refs["board"].resetCurrentAttempt();

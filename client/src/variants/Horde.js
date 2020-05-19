@@ -24,7 +24,7 @@ export class HordeRules extends ChessRules {
           }
           sumElts++;
         } else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }

@@ -42,22 +42,23 @@ export class MinishogiRules extends ShogiRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
+    const reserve =
+      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.reserve[0]),
-        [V.ROOK]: parseInt(fenParsed.reserve[1]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[2]),
-        [V.GOLD_G]: parseInt(fenParsed.reserve[3]),
-        [V.SILVER_G]: parseInt(fenParsed.reserve[4])
+        [V.PAWN]: reserve[0],
+        [V.ROOK]: reserve[1],
+        [V.BISHOP]: reserve[2],
+        [V.GOLD_G]: reserve[3],
+        [V.SILVER_G]: reserve[4]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[5]),
-        [V.ROOK]: parseInt(fenParsed.reserve[6]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[7]),
-        [V.GOLD_G]: parseInt(fenParsed.reserve[8]),
-        [V.SILVER_G]: parseInt(fenParsed.reserve[9])
+        [V.PAWN]: reserve[5],
+        [V.ROOK]: reserve[6],
+        [V.BISHOP]: reserve[7],
+        [V.GOLD_G]: reserve[8],
+        [V.SILVER_G]: reserve[9]
       }
     };
   }

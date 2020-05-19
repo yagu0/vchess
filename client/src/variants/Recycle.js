@@ -54,22 +54,23 @@ export class RecycleRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
+    const reserve =
+      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.PAWN]: parseInt(fenParsed.reserve[0]),
-        [V.ROOK]: parseInt(fenParsed.reserve[1]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[2]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[3]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[4])
+        [V.PAWN]: reserve[0],
+        [V.ROOK]: reserve[1],
+        [V.KNIGHT]: reserve[2],
+        [V.BISHOP]: reserve[3],
+        [V.QUEEN]: reserve[4]
       },
       b: {
-        [V.PAWN]: parseInt(fenParsed.reserve[5]),
-        [V.ROOK]: parseInt(fenParsed.reserve[6]),
-        [V.KNIGHT]: parseInt(fenParsed.reserve[7]),
-        [V.BISHOP]: parseInt(fenParsed.reserve[8]),
-        [V.QUEEN]: parseInt(fenParsed.reserve[9])
+        [V.PAWN]: reserve[5],
+        [V.ROOK]: reserve[6],
+        [V.KNIGHT]: reserve[7],
+        [V.BISHOP]: reserve[8],
+        [V.QUEEN]: reserve[9]
       }
     };
   }
@@ -124,10 +125,9 @@ export class RecycleRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    if (x >= V.size.x) {
+    if (x >= V.size.x)
       // Reserves, outside of board: x == sizeX(+1)
       return this.getReserveMoves([x, y]);
-    }
     // Standard moves
     return super.getPotentialMovesFrom([x, y]);
   }

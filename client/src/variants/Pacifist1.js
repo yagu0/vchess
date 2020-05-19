@@ -24,7 +24,7 @@ export class Pacifist1Rules extends ChessRules {
         if (['K','k'].includes(row[i])) kingsCount++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -52,7 +52,7 @@ export class Pacifist1Rules extends ChessRules {
             this.INIT_COL_KING["w"] = k;
             break;
           default: {
-            const num = parseInt(fenRows[i].charAt(j));
+            const num = parseInt(fenRows[i].charAt(j), 10);
             if (!isNaN(num)) k += num - 1;
           }
         }

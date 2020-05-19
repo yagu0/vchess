@@ -21,7 +21,7 @@ export class TwokingsRules extends CoregalRules {
         if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }

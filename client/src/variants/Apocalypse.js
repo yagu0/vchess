@@ -55,7 +55,7 @@ export class ApocalypseRules extends ChessRules {
         if (['P','p'].includes(row[i])) pawns[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -139,8 +139,8 @@ export class ApocalypseRules extends ChessRules {
 
   setFlags(fenflags) {
     this.penaltyFlags = {
-      'w': parseInt(fenflags[0]),
-      'b': parseInt(fenflags[1])
+      'w': parseInt(fenflags[0], 10),
+      'b': parseInt(fenflags[1], 10)
     };
   }
 

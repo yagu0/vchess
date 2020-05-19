@@ -56,7 +56,7 @@ export class InterweaveRules extends ChessRules {
         if (['K','k'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -97,18 +97,19 @@ export class InterweaveRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
-    const fenParsed = V.ParseFen(fen);
+    const captured =
+      V.ParseFen(fen).captured.split("").map(x => parseInt(x, 10));
     // Initialize captured pieces' counts from FEN
     this.captured = {
       w: {
-        [V.ROOK]: parseInt(fenParsed.captured[0]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[1]),
-        [V.BISHOP]: parseInt(fenParsed.captured[2]),
+        [V.ROOK]: captured[0],
+        [V.KNIGHT]: captured[1],
+        [V.BISHOP]: captured[2]
       },
       b: {
-        [V.ROOK]: parseInt(fenParsed.captured[3]),
-        [V.KNIGHT]: parseInt(fenParsed.captured[4]),
-        [V.BISHOP]: parseInt(fenParsed.captured[5]),
+        [V.ROOK]: captured[3],
+        [V.KNIGHT]: captured[4],
+        [V.BISHOP]: captured[5]
       }
     };
     // Stack of "last move" only for intermediate captures

@@ -72,7 +72,7 @@ export class AliceRules extends ChessRules {
         if (['K','k','L','l'].includes(row[i])) kings[row[i]]++;
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
-          const num = parseInt(row[i]);
+          const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
         }
@@ -101,7 +101,7 @@ export class AliceRules extends ChessRules {
               this.kingPos["w"] = [i, k];
               break;
             default: {
-              const num = parseInt(rows[i].charAt(j));
+              const num = parseInt(rows[i].charAt(j), 10);
               if (!isNaN(num)) k += num - 1;
             }
           }

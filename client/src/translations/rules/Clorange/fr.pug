@@ -1,2 +1,34 @@
 p.boxed
-  | TODO
+  | Les pièces capturées peuvent être parachutées plus tard dans la partie,
+  | avec ou sans capacité de capture.
+
+p Les règles orthodoxes s'appliquent, avec les exceptions suivantes :
+ul
+  li.
+    Quand une pièce standard (resp. non-capturante) est capturée, elle est
+    remplacée par une pièce non-capturante (resp. standard) de la même couleur
+    et rendue au joueur de cette couleur, qui la garde en main jusqu'à ce qu'il
+    décide de la poser sur l'échiquier.
+  li.
+    Un joueur ayant une pièce en réserve peut la parachuter n'importe où sur
+    l'échiquier au lieu d'effectuer un coup. Les pions ne peuvent atteindre
+    la dernière rangée ainsi.
+
+p.
+  Les unités non-capturantes apparaissent en jaune pour les blancs,
+  et en rouge pour les noirs.
+
+figure.diagram-container
+  .diagram
+    | fen:3nkr2/1pNSpp1b/1p1sq3/7p/rT1N1cPp/8/PPPPPP2/R1BB1KR1:
+  figcaption le roi noir doit capturer le pion blanc non-capturant.
+
+h3 Source
+
+p
+  | Légèrement simplifié depuis 
+  a(href="https://www.chessvariants.com/other.dir/clockworkorange.html")
+    | Clockwork Orange Chess
+  | &nbsp;sur chessvariants.com.
+
+p Inventeur : Fergus Duniho (1999)

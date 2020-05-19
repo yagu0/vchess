@@ -240,12 +240,12 @@ export default {
       infoMessage: "",
       newchallenge: {
         fen: "",
-        vid: parseInt(localStorage.getItem("vid")) || 0,
+        vid: parseInt(localStorage.getItem("vid"), 10) || 0,
         to: "", //name of challenged player (if any)
         cadence: localStorage.getItem("cadence") || "",
         randomness:
           // Warning: randomness can be 0, then !!randomness is false
-          (parseInt(localStorage.getItem("challRandomness"))+1 || 3) - 1,
+          (parseInt(localStorage.getItem("challRandomness"),10)+1 || 3) - 1,
         // VariantRules object, stored to not interfere with
         // diagrams of targetted challenges:
         V: null,

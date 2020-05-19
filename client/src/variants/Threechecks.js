@@ -11,7 +11,7 @@ export class ThreechecksRules extends ChessRules {
     this.checkFlags = { w: 0, b: 0 };
     const flags = fenflags.substr(4); //skip first 4 digits, for castle
     for (let c of ["w", "b"]) {
-      this.checkFlags[c] = parseInt(flags.charAt(c == "w" ? 0 : 1));
+      this.checkFlags[c] = parseInt(flags.charAt(c == "w" ? 0 : 1), 10);
     }
   }
 

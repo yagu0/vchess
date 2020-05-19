@@ -54,7 +54,7 @@ export class Checkered1Rules extends ChessRules {
     }
     // Stage 1: as Checkered2. Stage 2: checkered pieces are autonomous
     const stageInfo = V.ParseFen(fen).stage;
-    this.stage = parseInt(stageInfo[0]);
+    this.stage = parseInt(stageInfo[0], 10);
     this.sideCheckered = (this.stage == 2 ? stageInfo[1] : undefined);
   }
 

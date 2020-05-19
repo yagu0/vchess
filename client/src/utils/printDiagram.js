@@ -19,7 +19,7 @@ function getShadowArray(shadow) {
   let shadowArray = ArrayFun.init(V.size.x, V.size.y, false);
   const squares = shadow.split(",");
   for (let i = 0; i < squares.length; i++) {
-    const rownum = V.size.x - parseInt(squares[i]);
+    const rownum = V.size.x - parseInt(squares[i], 10);
     if (!isNaN(rownum)) {
       // Shadow a full row
       for (let i = 0; i < V.size.y; i++) shadowArray[rownum][i] = true;
