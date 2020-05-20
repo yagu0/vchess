@@ -738,13 +738,6 @@ export class DynamoRules extends ChessRules {
     return potentialMoves;
   }
 
-  getCurrentScore() {
-    if (this.subTurn == 2)
-      // Move not over
-      return "*";
-    return super.getCurrentScore();
-  }
-
   doClick(square) {
     // A click to promote a piece on subTurn 2 would trigger this.
     // For now it would then return [NaN, NaN] because surrounding squares

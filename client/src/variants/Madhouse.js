@@ -1,7 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export class TeleportRules extends ChessRules {
+export class MadhouseRules extends ChessRules {
   hoverHighlight(x, y) {
     // Testing move validity results in an infinite update loop.
     // TODO: find a way to test validity anyway.
@@ -12,23 +12,6 @@ export class TeleportRules extends ChessRules {
     super.setOtherVariables(fen);
     this.subTurn = 1;
     this.firstMove = [];
-  }
-
-  canTake([x1, y1], [x2, y2]) {
-    return this.subTurn == 1;
-  }
-
-  getPPpath(m) {
-    if (
-      m.vanish.length == 2 &&
-      m.appear.length == 1 &&
-      m.vanish[0].c == m.vanish[1].c &&
-      m.appear[0].p == V.KING
-    ) {
-      // Rook teleportation with the king
-      return this.getPpath(m.vanish[1].c + m.vanish[1].p);
-    }
-    return this.getPpath(m.appear[0].c + m.appear[0].p);
   }
 
   getPotentialMovesFrom([x, y]) {
@@ -43,33 +26,29 @@ export class TeleportRules extends ChessRules {
     return moves.filter(m => {
       this.play(m);
       let res = false;
-      if (
-        m.vanish.length == 1 ||
-        m.appear.length == 2 ||
-        m.vanish[0].c != m.vanish[1].c
-      ) {
+      if (m.vanish.length == 1 || m.appear.length == 2)
         // Standard check:
         res = !this.underCheck(color);
-      }
       else {
-        // Self-capture: find landing square not resulting in check
-        outerLoop: for (let i=0; i<8; i++) {
+        // Capture: find landing square not resulting in check
+        const boundary = (m.vanish[1].p != V.PAWN ? [0, 7] : [1, 6]);
+        const sqColor =
+          m.vanish[1].p == V.BISHOP
+            ? (m.vanish[1].x + m.vanish[1].y) % 2
+            : null;
+        outerLoop: for (let i = boundary[0]; i <= boundary[1]; i++) {
           for (let j=0; j<8; j++) {
             if (
               this.board[i][j] == V.EMPTY &&
-              (
-                m.vanish[1].p != V.PAWN ||
-                i != (color == 'w' ? 0 : 7)
-              )
+              (!sqColor || (i + j) % 2 == sqColor)
             ) {
               const tMove = new Move({
                 appear: [
                   new PiPo({
                     x: i,
                     y: j,
-                    c: color,
-                    // The dropped piece nature has no importance:
-                    p: V.KNIGHT
+                    c: m.vanish[1].c,
+                    p: m.vanish[1].p
                   })
                 ],
                 vanish: [],
@@ -93,26 +72,30 @@ export class TeleportRules extends ChessRules {
 
   getAllValidMoves() {
     if (this.subTurn == 1) return super.getAllValidMoves();
-    // Subturn == 2: only teleportations
+    // Subturn == 2: only replacements
     let moves = [];
     const L = this.firstMove.length;
+    const fm = this.firstMove[L - 1];
     const color = this.turn;
-    for (let i=0; i<8; i++) {
+    const oppCol = V.GetOppCol(color);
+    const boundary = (fm.vanish[1].p != V.PAWN ? [0, 7] : [1, 6]);
+    const sqColor =
+      fm.vanish[1].p == V.BISHOP
+        ? (fm.vanish[1].x + fm.vanish[1].y) % 2
+        : null;
+    for (let i = boundary[0]; i < boundary[1]; i++) {
       for (let j=0; j<8; j++) {
         if (
           this.board[i][j] == V.EMPTY &&
-          (
-            this.firstMove[L-1].vanish[1].p != V.PAWN ||
-            i != (color == 'w' ? 0 : 7)
-          )
+          (!sqColor || (i + j) % 2 == sqColor)
         ) {
           const tMove = new Move({
             appear: [
               new PiPo({
                 x: i,
                 y: j,
-                c: color,
-                p: this.firstMove[L-1].vanish[1].p
+                c: oppCol,
+                p: fm.vanish[1].p
               })
             ],
             vanish: [],
@@ -128,24 +111,23 @@ export class TeleportRules extends ChessRules {
     return moves;
   }
 
-  underCheck(color) {
-    if (this.kingPos[color][0] < 0)
-      // King is being moved:
-      return false;
-    return super.underCheck(color);
-  }
-
   doClick(square) {
     if (isNaN(square[0])) return null;
-    // If subTurn == 2 && square is empty && !underCheck, then teleport
+    // If subTurn == 2 && square is empty && !underCheck, then replacement
     if (this.subTurn == 2 && this.board[square[0]][square[1]] == V.EMPTY) {
       const L = this.firstMove.length;
+      const fm = this.firstMove[L - 1];
       const color = this.turn;
+      const oppCol = V.GetOppCol(color);
       if (
-        this.firstMove[L-1].vanish[1].p == V.PAWN &&
-        square[0] == (color == 'w' ? 0 : 7)
+        (fm.vanish[1].p == V.PAWN && [0, 7].includes(square[0])) ||
+        (
+          fm.vanish[1].p == V.BISHOP &&
+          (square[0] + square[1] + fm.vanish[1].x + fm.vanish[1].y) % 2 != 0
+        )
       ) {
-        // Pawns cannot be teleported on last rank
+        // Pawns cannot be replaced on first or last rank,
+        // bishops must be replaced on same square color.
         return null;
       }
       const tMove = new Move({
@@ -153,8 +135,8 @@ export class TeleportRules extends ChessRules {
           new PiPo({
             x: square[0],
             y: square[1],
-            c: color,
-            p: this.firstMove[L-1].vanish[1].p
+            c: oppCol,
+            p: fm.vanish[1].p
           })
         ],
         vanish: [],
@@ -178,51 +160,20 @@ export class TeleportRules extends ChessRules {
     if (
       this.subTurn == 2 ||
       move.vanish.length == 1 ||
-      move.appear.length == 2 ||
-      move.vanish[0].c != move.vanish[1].c
+      move.appear.length == 2
     ) {
       this.turn = V.GetOppCol(this.turn);
       this.subTurn = 1;
       this.movesCount++;
     }
     else this.subTurn = 2;
-    this.postPlay(move);
+    if (move.vanish.length > 0) this.postPlay(move);
   }
 
   postPlay(move) {
-    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
-      // A king is moved: temporarily off board
-      this.kingPos[move.vanish[1].c] = [-1, -1];
-    else if (move.appear[0].p == V.KING)
+    if (move.appear[0].p == V.KING)
       this.kingPos[move.appear[0].c] = [move.appear[0].x, move.appear[0].y];
-    this.updateCastleFlags(move);
-  }
-
-  // NOTE: no need to update if castleFlags already off
-  updateCastleFlags(move) {
-    if (move.vanish.length == 0) return;
-    const c = move.vanish[0].c;
-    if (
-      move.vanish.length == 2 &&
-      move.appear.length == 1 &&
-      move.vanish[0].c == move.vanish[1].c
-    ) {
-      // Self-capture: of the king or a rook?
-      if (move.vanish[1].p == V.KING)
-        this.castleFlags[c] = [V.size.y, V.size.y];
-      else if (move.vanish[1].p == V.ROOK) {
-        const firstRank = (c == "w" ? V.size.x - 1 : 0);
-        if (
-          move.end.x == firstRank &&
-          this.castleFlags[c].includes(move.end.y)
-        ) {
-          const flagIdx = (move.end.y == this.castleFlags[c][0] ? 0 : 1);
-          this.castleFlags[c][flagIdx] = V.size.y;
-        }
-      }
-    }
-    // Normal check:
-    super.updateCastleFlags(move, move.vanish[0].p, c);
+    this.updateCastleFlags(move, move.appear[0].p, move.appear[0].c);
   }
 
   undo(move) {
@@ -238,19 +189,7 @@ export class TeleportRules extends ChessRules {
       this.movesCount--;
       this.subTurn = (move.vanish.length > 0 ? 1 : 2);
     }
-    this.postUndo(move);
-  }
-
-  postUndo(move) {
-    if (move.vanish.length == 0) {
-      if (move.appear[0].p == V.KING)
-        // A king was teleported
-        this.kingPos[move.appear[0].c] = [-1, -1];
-    }
-    else if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
-      // A king was (self-)taken
-      this.kingPos[move.vanish[1].c] = [move.end.x, move.end.y];
-    else super.postUndo(move);
+    if (move.vanish.length > 0) super.postUndo(move);
   }
 
   getComputerMove() {
@@ -263,11 +202,7 @@ export class TeleportRules extends ChessRules {
     moves.forEach(m => {
       this.play(m);
       m.eval = (color == "w" ? -1 : 1) * maxeval;
-      if (
-        m.vanish.length == 2 &&
-        m.appear.length == 1 &&
-        m.vanish[0].c == m.vanish[1].c
-      ) {
+      if (m.vanish.length == 2 && m.appear.length == 1) {
         const moves2 = this.getAllValidMoves();
         m.next = moves2[0];
         moves2.forEach(m2 => {
@@ -314,7 +249,7 @@ export class TeleportRules extends ChessRules {
 
   getNotation(move) {
     if (move.vanish.length > 0) return super.getNotation(move);
-    // Teleportation:
+    // Replacement:
     const piece =
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);

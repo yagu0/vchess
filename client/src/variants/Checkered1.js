@@ -487,31 +487,6 @@ export class Checkered1Rules extends ChessRules {
     this.postPlay(move);
   }
 
-  updateCastleFlags(move, piece) {
-    const c = V.GetOppCol(this.turn);
-    const firstRank = (c == "w" ? V.size.x - 1 : 0);
-    // Update castling flags if rooks are moved
-    const oppCol = this.turn;
-    const oppFirstRank = V.size.x - 1 - firstRank;
-    if (piece == V.KING && move.appear.length > 0)
-      this.castleFlags[c] = [V.size.y, V.size.y];
-    else if (
-      move.start.x == firstRank && //our rook moves?
-      this.castleFlags[c].includes(move.start.y)
-    ) {
-      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-      this.castleFlags[c][flagIdx] = V.size.y;
-    }
-    // NOTE: not "else if" because a rook could take an opposing rook
-    if (
-      move.end.x == oppFirstRank && //we took opponent rook?
-      this.castleFlags[oppCol].includes(move.end.y)
-    ) {
-      const flagIdx = (move.end.y == this.castleFlags[oppCol][0] ? 0 : 1);
-      this.castleFlags[oppCol][flagIdx] = V.size.y;
-    }
-  }
-
   postPlay(move) {
     if (move.appear.length == 0 && move.vanish.length == 0) {
       this.stage = 2;
@@ -524,7 +499,7 @@ export class Checkered1Rules extends ChessRules {
         this.kingPos[c][0] = move.appear[0].x;
         this.kingPos[c][1] = move.appear[0].y;
       }
-      this.updateCastleFlags(move, piece);
+      super.updateCastleFlags(move, piece);
       // Does this move turn off a 2-squares pawn flag?
       if ([1, 6].includes(move.start.x) && move.vanish[0].p == V.PAWN)
         this.pawnFlags[move.start.x == 6 ? "w" : "b"][move.start.y] = false;
@@ -609,7 +584,7 @@ export class Checkered1Rules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    // Add 16 pawns flags + empty cmovei + stage == 1:
+    // Add 16 pawns flags + empty cmove + stage == 1:
     return ChessRules.GenRandInitFen(randomness)
       .slice(0, -2) + "1111111111111111 - - 1";
   }

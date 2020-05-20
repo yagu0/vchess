@@ -252,12 +252,10 @@ export default {
             const checkSquares = this.vr.getCheckSquares();
             if (checkSquares.length > 0) m.notation += "+";
             if (idxM == Lm - 1) m.fen = this.vr.getFen();
-            if (idx == L - 1 && idxM == Lm - 1) {
-              this.incheck = checkSquares;
-              this.score = this.vr.getCurrentScore();
-              if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
-            }
+            if (idx == L - 1 && idxM == Lm - 1) this.incheck = checkSquares;
           });
+          this.score = this.vr.getCurrentScore();
+          if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
         });
       }
       if (firstMoveColor == "b") {

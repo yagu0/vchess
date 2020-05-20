@@ -131,7 +131,7 @@ export class TakenmakeRules extends ChessRules {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
     }
-    super.updateCastleFlags(move, piece);
+    super.updateCastleFlags(move, piece, c);
   }
 
   undo(move) {

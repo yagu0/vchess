@@ -1169,8 +1169,8 @@ export const ChessRules = class ChessRules {
     this.postPlay(move);
   }
 
-  updateCastleFlags(move, piece) {
-    const c = V.GetOppCol(this.turn);
+  updateCastleFlags(move, piece, color) {
+    const c = color || V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     // Update castling flags if rooks are moved
     const oppCol = this.turn;

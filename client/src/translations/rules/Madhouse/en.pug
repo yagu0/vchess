@@ -1,0 +1,26 @@
+p.boxed
+  | Captured pieces are immediatly repositioned on the board.
+
+p.
+  The orthodox rules apply, with the following exception.
+  Each piece taken from the opponent is placed back on an empty
+  square by the player that made the capture, such that
+ul
+  li Bishops remain on squares of the same color.
+  li Pawns are not placed on the first or last row.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkbnr/pppp1ppp/2B2n2/4p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Bishop takes knight, which is repositioned on g8.
+
+p To place the captured piece, just click on an empty square.
+
+h3 Source
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/replacement.html")
+    | Replacement chess
+  | &nbsp;on chessvariants.com.
