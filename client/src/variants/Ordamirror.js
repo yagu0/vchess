@@ -3,7 +3,7 @@ import { OrdaRules } from "@/variants/Orda";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export class DoubleordaRules extends OrdaRules {
+export class OrdamirrorRules extends OrdaRules {
   static get PawnSpecs() {
     return Object.assign(
       {},
