@@ -185,9 +185,7 @@ export default {
                   "middle-square": V.Notoodark,
                   [this.settings.bcolor]: true,
                   "in-shadow": inShadow(ci, cj),
-                  "highlight-light": inHighlight(ci, cj) && lightSquare,
-                  "highlight-dark":
-                    inHighlight(ci, cj) && (V.Monochrome || !lightSquare),
+                  "highlight": inHighlight(ci, cj),
                   "incheck-light":
                     showCheck && lightSquare && incheckSq[ci][cj],
                   "incheck-dark":
@@ -910,23 +908,32 @@ img.ghost
   // TODO: color dependant on board theme, or inner border...
   background-color: #C571E6 !important
 
-.light-square.lichess.highlight-light
-  background-color: #cdd26a
-.dark-square.lichess.highlight-dark
-  background-color: #aaa23a
-
-.light-square.chesscom.highlight-light
-  background-color: #f7f783
-.dark-square.chesscom.highlight-dark
-  background-color: #bacb44
-
-.light-square.chesstempo.highlight-light
-  background-color: #9f9fff
-.dark-square.chesstempo.highlight-dark
-  background-color: #557fff
-
-.light-square.orangecc.highlight-light
-  background-color: #fef273
-.dark-square.orangecc.highlight-dark
-  background-color: #e8c525
+.highlight
+  &.light-square
+    &.lichess
+      background-color: #cdd26a
+    &.chesscom
+      background-color: #f7f783
+    &.chesstempo
+      background-color: #9f9fff
+    &.orangecc
+      background-color: #fef273
+  &.dark-square
+    &.lichess
+      background-color: #aaa23a
+    &.chesscom
+      background-color: #bacb44
+    &.chesstempo
+      background-color: #557fff
+    &.orangecc
+      background-color: #e8c525
+  &.middle-square
+    &.lichess
+      background-color: #BCBA52
+    &.chesscom
+      background-color: #D9E164
+    &.chesstempo
+      background-color: #7A8FFF
+    &.orangecc
+      background-color: #F3DC4C
 </style>

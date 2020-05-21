@@ -11,11 +11,16 @@ https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
 
 Squatter Chess: safe on last rank = win
 Companion Chess : pieces of same nature don't attack each others
-Medusa Chess = Isardam
 Crossing Chess = win when the king cross half-board
+Crown Chess: place all units on move 1 (similar to Sittuyin, more freely --> in own half-board, possible pawns on 1st rank)
+Medusa Chess = Isardam
+--> à chaque déplacement, check attaques directes + découvertes autour de case de départ dans 8 directions (pas caval)
+
 Kingmaker: pawns can promote also into enemy king
+--> no king tracking, getCheckSquares + underCheck test all kings
+
 Eightkings: 8 pawns + 8 kings (non-royal until the last remains?)
-Crown Chess: place all units on move 1 (similar to Sittuyin, more freely)
+--> yes seems better, no king tracking + no underCheck/...etc when >= 2 kings
 
 =====
 
