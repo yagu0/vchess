@@ -184,7 +184,10 @@ export class KoopaRules extends ChessRules {
             m.appear[0].x = i;
             m.appear[0].y = j;
             // Is it a pawn on last rank?
-            if ((color == 'w' && i == 0) || (color == 'b' && i == 7)) {
+            if (
+              m.appear[0].p == V.PAWN &&
+              ((color == 'w' && i == 0) || (color == 'b' && i == 7))
+            ) {
               m.appear[0].p = V.ROOK;
               for (let ppiece of [V.KNIGHT, V.BISHOP, V.QUEEN]) {
                 let mp = JSON.parse(JSON.stringify(m));
