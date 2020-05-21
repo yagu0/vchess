@@ -235,11 +235,16 @@ export class KoopaRules extends ChessRules {
     // Base method is fine because a stunned king (which won't be detected)
     // can still castle after going back to normal.
     super.postPlay(move);
-    const kIdx = move.vanish.findIndex(
-      (v,i) => v.p == 'l' || (i >= 1 && v.p == 'k'));
-    if (kIdx >= 0)
-      // A (stunned or not) king vanish: game over
-      this.kingPos[move.vanish[kIdx].c] = [-1, -1];
+    const color = this.turn;
+    const kp = this.kingPos[color];
+    if (
+      this.board[kp[0], kp[1]] == V.EMPTY ||
+      !['k', 'l'].includes(this.getPiece(kp[0], kp[1])) ||
+      this.getColor(kp[0], kp[1]) != color
+    ) {
+      // King didn't move by itself, and vanished => game over
+      this.kingPos[color] = [-1, -1];
+    }
     move.stunned = JSON.stringify(this.stunned);
     // Array of stunned stage 1 pieces (just back to normal then)
     Object.keys(this.stunned).forEach(square => {
@@ -269,12 +274,12 @@ export class KoopaRules extends ChessRules {
 
   postUndo(move) {
     super.postUndo(move);
-    const kIdx = move.vanish.findIndex(
-      (v,i) => v.p == 'l' || (i >= 1 && v.p == 'k'));
-    if (kIdx >= 0) {
-      // A king vanished
-      this.kingPos[move.vanish[kIdx].c] =
-        [move.vanish[kIdx].x, move.vanish[kIdx].y];
+    const oppCol = V.GetOppCol(this.turn);
+    if (this.kingPos[oppCol][0] < 0) {
+      // Opponent's king vanished
+      const psq =
+        move.vanish.find((v,i) => i >= 1 && ['k', 'l'].includes(v.p));
+      this.kingPos[oppCol] = [psq.x, psq.y];
     }
     this.stunned = JSON.parse(move.stunned);
     for (let i=0; i<8; i++) {
