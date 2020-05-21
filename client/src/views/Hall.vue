@@ -15,6 +15,8 @@ main
         span.variantName {{ curChallToAccept.vname }} 
         span {{ curChallToAccept.cadence }} 
         span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
+      p.text-center(v-if="!!curChallToAccept.color")
+        | {{ st.tr["Your color:"] + " " + invColor(curChallToAccept.color) }}
       .diagram(
         v-if="!!curChallToAccept.fen"
         v-html="tchallDiag"
@@ -88,7 +90,13 @@ main
             type="text"
             v-model="newchallenge.to"
           )
-        fieldset(v-if="st.user.id > 0 && newchallenge.to.length > 0")
+        fieldset(v-show="st.user.id > 0 && newchallenge.to.length > 0")
+          label(for="selectColor") {{ st.tr["Color"] }}
+          select#selectColor(v-model="newchallenge.color")
+            option(value='') 
+            option(value='w') {{ st.tr["White"] }}
+            option(value='b') {{ st.tr["Black"] }}
+          br
           input#inputFen(
             placeholder="FEN"
             @input="trySetNewchallDiag()"
@@ -242,6 +250,7 @@ export default {
         fen: "",
         vid: parseInt(localStorage.getItem("vid"), 10) || 0,
         to: "", //name of challenged player (if any)
+        color: '',
         cadence: localStorage.getItem("cadence") || "",
         randomness:
           // Warning: randomness can be 0, then !!randomness is false
@@ -255,7 +264,7 @@ export default {
       },
       focus: true,
       tchallDiag: "",
-      curChallToAccept: {from: {}},
+      curChallToAccept: { from: {} },
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
       conn: null,
       connexionString: "",
@@ -301,6 +310,28 @@ export default {
     const connectAndPoll = () => {
       this.send("connect");
       this.send("pollclientsandgamers");
+      if (!!this.$route.query["challenge"]) {
+        // Automatic challenge sending, for tournaments
+        this.loadNewchallVariant(
+          () => {
+            this.newchallenge = {
+              fen: "",
+              vid:
+                this.st.variants
+                .find(v => v.name == this.$route.query["variant"])
+                .id,
+              to: this.$route.query["challenge"],
+              color: this.$route.query["color"] || '',
+              cadence: this.$route.query["cadence"],
+              // Tournament: no randomness (TODO: for now at least)
+              randomness: 0,
+              memorize: false
+            };
+            this.issueNewChallenge();
+          },
+          this.$route.query["variant"]
+        );
+      }
     };
     // Initialize connection
     this.connexionString =
@@ -454,9 +485,14 @@ export default {
       this.focus = false;
       this.send("losefocus");
     },
+    invColor: function(c) {
+      if (c == 'w') return this.st.tr["Black"];
+      return this.tr.tr["White"];
+    },
     partialResetNewchallenge: function() {
       // Reset potential target and custom FEN:
       this.newchallenge.to = "";
+      this.newchallenge.color = '';
       this.newchallenge.fen = "";
       this.newchallenge.diag = "";
       this.newchallenge.memorize = false;
@@ -499,6 +535,7 @@ export default {
       if (!this.newchallenge.to) {
         // Reset potential FEN + diagram
         this.newchallenge.fen = "";
+        this.newchallenge.color = '';
         this.newchallenge.diag = "";
       }
     },
@@ -952,8 +989,8 @@ export default {
         }
       }
     },
-    loadNewchallVariant: async function(cb) {
-      const vname = this.getVname(this.newchallenge.vid);
+    loadNewchallVariant: async function(cb, vname) {
+      vname = vname || this.getVname(this.newchallenge.vid);
       await import("@/variants/" + vname + ".js")
       .then((vModule) => {
         window.V = vModule[vname + "Rules"];
@@ -976,8 +1013,8 @@ export default {
       ) {
         const parsedFen = V.ParseFen(this.newchallenge.fen);
         this.newchallenge.diag = getDiagram({
-          position: parsedFen.position,
-          orientation: parsedFen.turn
+          position: parsedFen.position
+          //,orientation: parsedFen.turn
         });
       } else this.newchallenge.diag = "";
     },
@@ -998,6 +1035,8 @@ export default {
         error = this.st.tr["Please select a variant"];
       else if (ctype == "corr" && this.st.user.id <= 0)
         error = this.st.tr["Please log in to play correspondence games"];
+      else if (!this.newchallenge.to && !!this.newchallenge.color)
+        error = this.st.tr["Color option only for targeted challenge"];
       else if (!!this.newchallenge.to) {
         if (this.newchallenge.to == this.st.user.name)
           error = this.st.tr["Self-challenge is forbidden"];
@@ -1007,8 +1046,14 @@ export default {
         ) {
           error = this.newchallenge.to + " " + this.st.tr["is not online"];
         }
+        if (
+          !!this.newchallenge.color &&
+          !['w', 'b'].includes(this.newchallenge.color)
+        ) {
+          error = this.st.tr["Wrong color"];
+        }
       }
-      if (error) {
+      if (!!error) {
         alert(error);
         return;
       }
@@ -1020,11 +1065,16 @@ export default {
       }
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
-      // Add only if not already issued (not counting target or FEN):
+      // Add only if not already issued (not counting FEN):
       if (this.challenges.some(c =>
         (
           c.from.sid == this.st.user.sid ||
           (c.from.id > 0 && c.from.id == this.st.user.id)
+        )
+        &&
+        (
+          (!c.to && !chall.to) ||
+          c.to == chall.to
         )
         &&
         c.vid == chall.vid &&
@@ -1175,10 +1225,9 @@ export default {
             // c.to == this.st.user.name (connected)
             if (!!c.fen) {
               const parsedFen = V.ParseFen(c.fen);
-              c.mycolor = V.GetOppCol(parsedFen.turn);
               this.tchallDiag = getDiagram({
                 position: parsedFen.position,
-                orientation: c.mycolor
+                orientation: parsedFen.turn
               });
             }
             this.curChallToAccept = c;
@@ -1205,8 +1254,8 @@ export default {
     launchGame: function(c) {
       // White player index 0, black player index 1:
       let players =
-        !!c.mycolor
-          ? (c.mycolor == "w" ? [c.seat, c.from] : [c.from, c.seat])
+        !!c.color
+          ? (c.color == "w" ? [c.from, c.seat] : [c.seat, c.from])
           : shuffle([c.from, c.seat]);
       players.forEach(p => {
         if (!!p["tmpIds"]) delete p["tmpIds"];
