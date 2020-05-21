@@ -199,10 +199,32 @@ export class PocketknightRules extends ChessRules {
   getComputerMove() {
     let moves = this.getAllValidMoves();
     if (moves.length == 0) return null;
-    // Custom "search" at depth 1 (for now. TODO?)
     const maxeval = V.INFINITY;
     const color = this.turn;
-    const initEval = this.evalPosition();
+    const oppCol = V.GetOppCol(color);
+    const getOppEval = () => {
+      let evalOpp = this.evalPosition();
+      this.getAllValidMoves().forEach(m => {
+        // Do not consider knight landings here
+        if (m.appear.length > 0) {
+          this.play(m);
+          const score = this.getCurrentScore();
+          let mvEval = 0;
+          if (["1-0", "0-1"].includes(score))
+            mvEval = (score == "1-0" ? 1 : -1) * maxeval;
+          else if (score == "*") mvEval = this.evalPosition();
+          if (
+            (oppCol == 'w' && mvEval > evalOpp) ||
+            (oppCol == 'b' && mvEval < evalOpp)
+          ) {
+            evalOpp = mvEval;
+          }
+          this.undo(m);
+        }
+      });
+      return evalOpp;
+    };
+    // Custom "search" at depth 2
     moves.forEach(m => {
       this.play(m);
       m.eval = (color == "w" ? -1 : 1) * maxeval;
@@ -217,8 +239,8 @@ export class PocketknightRules extends ChessRules {
             mvEval = (score == "1-0" ? 1 : -1) * maxeval;
           else if (score == "*")
             // Add small fluctuations to avoid dropping pieces always on the
-            // first square available.
-            mvEval = initEval + 0.05 - Math.random() / 10;
+            // first available square.
+            mvEval = getOppEval() + 0.05 - Math.random() / 10;
           if (
             (color == 'w' && mvEval > m.eval) ||
             (color == 'b' && mvEval < m.eval)
@@ -233,7 +255,7 @@ export class PocketknightRules extends ChessRules {
         const score = this.getCurrentScore();
         if (score != "1/2") {
           if (score != "*") m.eval = (score == "1-0" ? 1 : -1) * maxeval;
-          else m.eval = this.evalPosition();
+          else m.eval = getOppEval();
         }
       }
       this.undo(m);
