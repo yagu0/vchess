@@ -17,7 +17,6 @@ module.exports =
       UserModel.getOne("sessionToken", req.cookies.token, (err, user) => {
         if (!!user) {
           req.userId = user.id;
-          req.userName = user.name;
           loggedIn = true;
         } else {
           // Token in cookies presumably wrong: erase it
