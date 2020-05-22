@@ -48,7 +48,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
           name: name,
           email: email
         };
-        setAndSendLoginToken("Welcome to " + params.siteURL, user, res);
+        setAndSendLoginToken("Welcome to " + params.siteURL, user);
         res.json({});
       }
     });
@@ -108,7 +108,7 @@ router.put('/update', access.logged, access.ajax, (req,res) => {
 // Authentication-related methods:
 
 // to: object user (to who we send an email)
-function setAndSendLoginToken(subject, to, res) {
+function setAndSendLoginToken(subject, to) {
   // Set login token and send welcome(back) email with auth link
   const token = genToken(params.token.length);
   UserModel.setLoginToken(token, to.id);
@@ -128,7 +128,7 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
   if (UserModel.checkNameEmail({ [type]: nameOrEmail })) {
     UserModel.getOne(type, nameOrEmail, (err,user) => {
       access.checkRequest(res, err, user, "Unknown user", () => {
-        setAndSendLoginToken("Token for " + params.siteURL, user, res);
+        setAndSendLoginToken("Token for " + params.siteURL, user);
         res.json({});
       });
     });
