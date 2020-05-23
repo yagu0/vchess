@@ -37,11 +37,11 @@ const UserModel = {
   },
 
   // Find one user by id, name, email, or token
-  getOne: function(by, value, cb) {
+  getOne: function(by, value, fields, cb) {
     const delimiter = (typeof value === "string" ? "'" : "");
     db.serialize(function() {
       const query =
-        "SELECT * " +
+        "SELECT " + fields + " " +
         "FROM Users " +
         "WHERE " + by + " = " + delimiter + value + delimiter;
       db.get(query, cb);
@@ -139,7 +139,7 @@ const UserModel = {
   },
 
   tryNotify: function(id, message) {
-    UserModel.getOne("id", id, (err,user) => {
+    UserModel.getOne("id", id, "name, email", (err, user) => {
       if (!err && user.notify) UserModel.notify(user, message);
     });
   },

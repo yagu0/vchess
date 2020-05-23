@@ -20,18 +20,21 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
       });
     };
     if (req.body.chall.to) {
-      UserModel.getOne("name", challenge.to, (err,user) => {
-        if (err || !user)
-          res.json(err || {errmsg: "Typo in player name"});
-        else {
-          challenge.to = user.id; //ready now to insert challenge
-          insertChallenge();
-          if (user.notify)
-            UserModel.notify(
-              user,
-              "New challenge : " + params.siteURL + "/#/?disp=corr");
+      UserModel.getOne(
+        "name", challenge.to, "id, name, email, notify",
+        (err, user) => {
+          if (err || !user) res.json(err || {errmsg: "Typo in player name"});
+          else {
+            challenge.to = user.id; //ready now to insert challenge
+            insertChallenge();
+            if (user.notify) {
+              UserModel.notify(
+                user,
+                "New challenge : " + params.siteURL + "/#/?disp=corr");
+            }
+          }
         }
-      });
+      );
     } else insertChallenge();
   }
 });

@@ -73,9 +73,10 @@ router.get("/whoami", access.ajax, (req,res) => {
   };
   if (!req.cookies.token) callback(anonymous);
   else if (req.cookies.token.match(/^[a-z0-9]+$/)) {
-    UserModel.getOne("sessionToken", req.cookies.token, (err, user) => {
-      callback(user || anonymous);
-    });
+    UserModel.getOne(
+      "sessionToken", req.cookies.token, "name, email, id, notify",
+      (err, user) => callback(user || anonymous)
+    );
   }
 });
 
@@ -126,7 +127,7 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
   const nameOrEmail = decodeURIComponent(req.query.nameOrEmail);
   const type = (nameOrEmail.indexOf('@') >= 0 ? "email" : "name");
   if (UserModel.checkNameEmail({ [type]: nameOrEmail })) {
-    UserModel.getOne(type, nameOrEmail, (err,user) => {
+    UserModel.getOne(type, nameOrEmail, "id, name, email", (err, user) => {
       access.checkRequest(res, err, user, "Unknown user", () => {
         setAndSendLoginToken("Token for " + params.siteURL, user);
         res.json({});
@@ -138,29 +139,27 @@ router.get('/sendtoken', access.unlogged, access.ajax, (req,res) => {
 router.get('/authenticate', access.unlogged, access.ajax, (req,res) => {
   if (!req.query.token.match(/^[a-z0-9]+$/))
     return res.json({ errmsg: "Bad token" });
-  UserModel.getOne("loginToken", req.query.token, (err,user) => {
-    access.checkRequest(res, err, user, "Invalid token", () => {
-      // If token older than params.tokenExpire, do nothing
-      if (Date.now() > user.loginTime + params.token.expire)
-        res.json({ errmsg: "Token expired" });
-      else {
-        // Generate session token (if not exists) + destroy login token
-        UserModel.trySetSessionToken(user.id, (token) => {
-          res.cookie("token", token, {
-            httpOnly: true,
-            secure: !!params.siteURL.match(/^https/),
-            maxAge: params.cookieExpire,
+  UserModel.getOne(
+    "loginToken", req.query.token, "id, name, email, notify",
+    (err,user) => {
+      access.checkRequest(res, err, user, "Invalid token", () => {
+        // If token older than params.tokenExpire, do nothing
+        if (Date.now() > user.loginTime + params.token.expire)
+          res.json({ errmsg: "Token expired" });
+        else {
+          // Generate session token (if not exists) + destroy login token
+          UserModel.trySetSessionToken(user.id, (token) => {
+            res.cookie("token", token, {
+              httpOnly: true,
+              secure: !!params.siteURL.match(/^https/),
+              maxAge: params.cookieExpire,
+            });
+            res.json(user);
           });
-          res.json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            notify: user.notify
-          });
-        });
-      }
-    });
-  });
+        }
+      });
+    }
+  );
 });
 
 router.get('/logout', access.logged, access.ajax, (req,res) => {

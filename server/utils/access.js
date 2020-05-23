@@ -1,7 +1,6 @@
 var UserModel = require("../models/User");
 
-module.exports =
-{
+module.exports = {
   // Prevent access to "users pages"
   logged: function(req, res, next) {
     const callback = () => {
@@ -14,17 +13,20 @@ module.exports =
       loggedIn = false;
       callback();
     } else {
-      UserModel.getOne("sessionToken", req.cookies.token, (err, user) => {
-        if (!!user) {
-          req.userId = user.id;
-          loggedIn = true;
-        } else {
-          // Token in cookies presumably wrong: erase it
-          res.clearCookie("token");
-          loggedIn = false;
+      UserModel.getOne(
+        "sessionToken", req.cookies.token, "id",
+        (err, user) => {
+          if (!!user) {
+            req.userId = user.id;
+            loggedIn = true;
+          } else {
+            // Token in cookies presumably wrong: erase it
+            res.clearCookie("token");
+            loggedIn = false;
+          }
+          callback();
         }
-        callback();
-      });
+      );
     }
   },
 
@@ -53,4 +55,4 @@ module.exports =
       res.json({ errmsg: msg });
     } else cb();
   }
-}
+};

@@ -8,4 +8,4 @@ module.exports = function(tokenLength) {
   const nbRands = Math.ceil(tokenLength/10);
   for (let i = 0; i < nbRands; i++) res += randString();
   return res.substr(0, tokenLength);
-}
+};

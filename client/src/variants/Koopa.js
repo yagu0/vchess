@@ -219,14 +219,14 @@ export class KoopaRules extends ChessRules {
     // Forbid kicking own king out
     const color = this.turn;
     return moves.filter(m => {
-      const kingAppear = m.appear.some(a => a.c == color && a.p == V.KING);
-      return m.vanish.every(v => {
-        return (
-          v.c != color ||
-          !["k", "l"].includes(v.p) ||
-          (v.p == "k" && kingAppear)
-        );
-      });
+      const kingVanish =
+        m.vanish.some(v => v.c == color && ['k', 'l'].includes(v.p));
+      if (kingVanish) {
+        const kingAppear =
+          m.appear.some(a => a.c == color && ['k', 'l'].includes(a.p));
+        return kingAppear;
+      }
+      return true;
     });
   }
 

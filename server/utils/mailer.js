@@ -43,4 +43,4 @@ module.exports = function(from, to, subject, body, cb) {
     //console.log('Message sent: %s', info.messageId);
     cb(error);
   });
-}
+};
