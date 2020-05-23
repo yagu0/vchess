@@ -884,7 +884,7 @@ export const ChessRules = class ChessRules {
   }
 
   // "castleInCheck" arg to let some variants castle under check
-  getCastleMoves([x, y], castleInCheck) {
+  getCastleMoves([x, y], castleInCheck, castleWith) {
     const c = this.getColor(x, y);
     if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
       return []; //x isn't first rank, or king has moved (shortcut)
@@ -908,9 +908,14 @@ export const ChessRules = class ChessRules {
 
       // NOTE: in some variants this is not a rook
       const rookPos = this.castleFlags[c][castleSide];
-      if (this.board[x][rookPos] == V.EMPTY || this.getColor(x, rookPos) != c)
+      if (
+        this.board[x][rookPos] == V.EMPTY ||
+        this.getColor(x, rookPos) != c ||
+        (!!castleWith && !castleWith.includes(this.getPiece(x, rookPos)))
+      ) {
         // Rook is not here, or changed color (see Benedict)
         continue;
+      }
 
       // Nothing on the path of the king ? (and no checks)
       const castlingPiece = this.getPiece(x, rookPos);

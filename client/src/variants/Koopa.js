@@ -205,6 +205,16 @@ export class KoopaRules extends ChessRules {
     return moves.concat(promoteAfterStun);
   }
 
+  getPotentialKingMoves(sq) {
+    return (
+      this.getSlideNJumpMoves(
+        sq,
+        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+        "oneStep"
+      ).concat(super.getCastleMoves(sq, true, ['r']))
+    );
+  }
+
   filterValid(moves) {
     // Forbid kicking own king out
     const color = this.turn;
