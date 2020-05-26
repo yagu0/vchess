@@ -118,7 +118,17 @@ export class KoopaRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    let moves = super.getPotentialMovesFrom([x, y]);
+    let moves = super.getPotentialMovesFrom([x, y]).filter(m => {
+      if (
+        m.vanish[0].p != V.PAWN ||
+        m.appear[0].p == V.PAWN ||
+        m.vanish.length == 1
+      ) {
+        return true;
+      }
+      // Pawn promotion, "capturing": remove duplicates
+      return m.appear[0].p == V.QUEEN;
+    });
     // Complete moves: stuns & kicks
     let promoteAfterStun = [];
     const color = this.turn;

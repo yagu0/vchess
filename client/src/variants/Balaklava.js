@@ -61,8 +61,19 @@ export class BalaklavaRules extends ChessRules {
         : super.getPotentialMovesFrom([x, y]);
     if (piece != V.KING) {
       // Add non-capturing knight movements
-      const lastRank = (this.turn == 'w' ? 0 : 7);
+      const color = this.turn;
+      const lastRank = (color == 'w' ? 0 : 7);
       V.steps[V.KNIGHT].forEach(step => {
+        // Pawns cannot go backward:
+        if (
+          piece == V.PAWN &&
+          (
+            (color == 'w' && step[0] > 0) ||
+            (color == 'b' && step[0] < 0)
+          )
+        ) {
+          return;
+        }
         const [i, j] = [x + step[0], y + step[1]];
         if (
           V.OnBoard(i, j) &&
