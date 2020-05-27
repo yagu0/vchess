@@ -230,33 +230,34 @@ export default {
       const firstMoveColor = parsedFen.turn;
       this.firstMoveNumber = Math.floor(parsedFen.movesCount / 2) + 1;
       let L = this.moves.length;
-      if (L == 0) {
-        // Could be started on a random position in analysis mode:
-        this.incheck = this.vr.getCheckSquares();
-        this.score = this.vr.getCurrentScore();
-        if (this.score != '*') {
-          // Show score on screen
-          const message = getScoreMessage(this.score);
-          this.showEndgameMsg(this.score + " . " + this.st.tr[message]);
-        }
-      }
-      else {
-        this.moves.forEach((move,idx) => {
-          // Strategy working also for multi-moves:
-          if (!Array.isArray(move)) move = [move];
-          const Lm = move.length;
-          move.forEach((m,idxM) => {
-            m.notation = this.vr.getNotation(m);
-            m.unambiguous = V.GetUnambiguousNotation(m);
-            this.vr.play(m);
-            const checkSquares = this.vr.getCheckSquares();
-            if (checkSquares.length > 0) m.notation += "+";
-            if (idxM == Lm - 1) m.fen = this.vr.getFen();
-            if (idx == L - 1 && idxM == Lm - 1) this.incheck = checkSquares;
-          });
-          this.score = this.vr.getCurrentScore();
-          if (["1-0", "0-1"].includes(this.score)) m.notation += "#";
+      this.moves.forEach((move,idx) => {
+        // Strategy working also for multi-moves:
+        if (!Array.isArray(move)) move = [move];
+        move.forEach(m => {
+          m.notation = this.vr.getNotation(m);
+          m.unambiguous = V.GetUnambiguousNotation(m);
+          this.vr.play(m);
         });
+        const Lm = move.length;
+        move[Lm - 1].fen = this.vr.getFen();
+        if (idx < L - 1 && this.vr.getCheckSquares().length > 0)
+          move[Lm - 1].notation += "+";
+      });
+      this.incheck = this.vr.getCheckSquares();
+      this.score = this.vr.getCurrentScore();
+      if (L >= 1) {
+        const move =
+          !Array.isArray(this.moves[L - 1])
+            ? [this.moves[L - 1]]
+            : this.moves[L - 1];
+        const Lm = move.length;
+        if (["1-0", "0-1"].includes(this.score)) move[Lm - 1].notation += "#";
+        else if (this.incheck.length > 0) move[Lm - 1].notation += "+";
+      }
+      if (this.score != '*') {
+        // Show score on screen
+        const message = getScoreMessage(this.score);
+        this.showEndgameMsg(this.score + " . " + this.st.tr[message]);
       }
       if (firstMoveColor == "b") {
         // 'start' & 'end' is required for Board component
@@ -431,8 +432,11 @@ export default {
     },
     clickSquare: function(square) {
       // Some variants make use of a single click at specific times:
-      const move = this.vr.doClick(square);
-      if (!!move) this.play(move);
+      const move_s = this.vr.doClick(square);
+      if (!!move_s) {
+        if (!Array.isArray(move_s)) this.play(move_s);
+        else this.$refs["board"].choices = move_s;
+      }
     },
     // "light": if gotoMove() or gotoEnd()
     play: function(move, received, light, autoplay) {
@@ -480,9 +484,6 @@ export default {
             this.lastMove = [this.lastMove, smove];
           else this.lastMove.push(smove);
         }
-        // Is opponent (or me) in check?
-        this.incheck = this.vr.getCheckSquares();
-        if (this.incheck.length > 0) smove.notation += "+";
         if (!this.inMultimove) {
           // First sub-move:
           this.lastMove = smove;
@@ -555,6 +556,8 @@ export default {
             smove.fen = this.vr.getFen();
           this.emitFenIfAnalyze();
           this.inMultimove = false;
+          this.incheck = this.vr.getCheckSquares();
+          if (this.incheck.length > 0) smove.notation += "+";
           this.score = computeScore();
           if (this.autoplay) {
             if (this.cursor < this.moves.length - 1)

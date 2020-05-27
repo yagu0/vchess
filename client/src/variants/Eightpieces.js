@@ -317,9 +317,9 @@ export class EightpiecesRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    // At subTurn == 2, jailers aren't effective (Jeff K)
     const piece = this.getPiece(x, y);
     const L = this.sentryPush.length;
+    // At subTurn == 2, jailers aren't effective (Jeff K)
     if (this.subTurn == 1) {
       const jsq = this.isImmobilized([x, y]);
       if (!!jsq) {
@@ -473,6 +473,60 @@ export class EightpiecesRules extends ChessRules {
     return moves;
   }
 
+  doClick(square) {
+    if (isNaN(square[0])) return null;
+    const L = this.sentryPush.length;
+    const [x, y] = [square[0], square[1]];
+    const color = this.turn;
+    if (
+      this.subTurn == 2 ||
+      this.board[x][y] == V.EMPTY ||
+      this.getPiece(x, y) != V.LANCER ||
+      this.getColor(x, y) != color ||
+      !!this.sentryPush[L-1]
+    ) {
+      return null;
+    }
+    // Stuck lancer?
+    const orientation = this.board[x][y][1];
+    const step = V.LANCER_DIRS[orientation];
+    if (!V.OnBoard(x + step[0], y + step[1])) {
+      let choices = [];
+      Object.keys(V.LANCER_DIRS).forEach(k => {
+        const dir = V.LANCER_DIRS[k];
+        if (
+          (dir[0] != step[0] || dir[1] != step[1]) &&
+          V.OnBoard(x + dir[0], y + dir[1])
+        ) {
+          choices.push(
+            new Move({
+              vanish: [
+                new PiPo({
+                  x: x,
+                  y: y,
+                  c: color,
+                  p: orientation
+                })
+              ],
+              appear: [
+                new PiPo({
+                  x: x,
+                  y: y,
+                  c: color,
+                  p: k
+                })
+              ],
+              start: { x: x, y : y },
+              end: { x: -1, y: -1 }
+            })
+          );
+        }
+      });
+      return choices;
+    }
+    return null;
+  }
+
   // Obtain all lancer moves in "step" direction
   getPotentialLancerMoves_aux([x, y], step, tr) {
     let moves = [];
@@ -502,6 +556,7 @@ export class EightpiecesRules extends ChessRules {
     // Except if just after a push: allow all movements from init square then
     const L = this.sentryPush.length;
     const color = this.getColor(x, y);
+    const dirCode = this.board[x][y][1];
     if (!!this.sentryPush[L-1]) {
       // Maybe I was pushed
       const pl = this.sentryPush[L-1].length;
@@ -512,7 +567,43 @@ export class EightpiecesRules extends ChessRules {
         // I was pushed: allow all directions (for this move only), but
         // do not change direction after moving, *except* if I keep the
         // same orientation in which I was pushed.
-        const curDir = V.LANCER_DIRS[this.board[x][y].charAt(1)];
+        const curDir = V.LANCER_DIRS[dirCode];
+        // Also allow simple reorientation ("capturing king"):
+        if (!V.OnBoard(x + curDir[0], y + curDir[1])) {
+          const kp = this.kingPos[color];
+          let reorientMoves = [];
+          Object.keys(V.LANCER_DIRS).forEach(k => {
+            const dir = V.LANCER_DIRS[k];
+            if (
+              (dir[0] != curDir[0] || dir[1] != curDir[1]) &&
+              V.OnBoard(x + dir[0], y + dir[1])
+            ) {
+              reorientMoves.push(
+                new Move({
+                  vanish: [
+                    new PiPo({
+                      x: x,
+                      y: y,
+                      c: color,
+                      p: dirCode
+                    })
+                  ],
+                  appear: [
+                    new PiPo({
+                      x: x,
+                      y: y,
+                      c: color,
+                      p: k
+                    })
+                  ],
+                  start: { x: x, y : y },
+                  end: { x: kp[0], y: kp[1] }
+                })
+              );
+            }
+          });
+          Array.prototype.push.apply(moves, reorientMoves);
+        }
         Object.values(V.LANCER_DIRS).forEach(step => {
           const dirCode = Object.keys(V.LANCER_DIRS).find(k => {
             return (
@@ -543,7 +634,6 @@ export class EightpiecesRules extends ChessRules {
       }
     }
     // I wasn't pushed: standard lancer move
-    const dirCode = this.board[x][y][1];
     const monodirMoves =
       this.getPotentialLancerMoves_aux([x, y], V.LANCER_DIRS[dirCode]);
     // Add all possible orientations aftermove except if I'm being pushed
@@ -1052,7 +1142,16 @@ export class EightpiecesRules extends ChessRules {
         end: move.end
       };
       notation = super.getNotation(simpleMove);
-    } else notation = super.getNotation(move);
+    }
+    else if (
+      move.appear.length > 0 &&
+      move.vanish[0].x == move.appear[0].x &&
+      move.vanish[0].y == move.appear[0].y
+    ) {
+      // Lancer in-place reorientation:
+      notation = "L" + V.CoordsToSquare(move.start) + ":R";
+    }
+    else notation = super.getNotation(move);
     if (Object.keys(V.LANCER_DIRNAMES).includes(move.vanish[0].p))
       // Lancer: add direction info
       notation += "=" + V.LANCER_DIRNAMES[move.appear[0].p];
