@@ -622,13 +622,18 @@ export class EightpiecesRules extends ChessRules {
             let chooseMoves = [];
             dirMoves.forEach(m => {
               Object.keys(V.LANCER_DIRS).forEach(k => {
-                let mk = JSON.parse(JSON.stringify(m));
-                mk.appear[0].p = k;
-                moves.push(mk);
+                const newDir = V.LANCER_DIRS[k];
+                // Prevent orientations toward outer board:
+                if (V.OnBoard(m.end.x + newDir[0], m.end.y + newDir[1])) {
+                  let mk = JSON.parse(JSON.stringify(m));
+                  mk.appear[0].p = k;
+                  chooseMoves.push(mk);
+                }
               });
             });
             Array.prototype.push.apply(moves, chooseMoves);
-          } else Array.prototype.push.apply(moves, dirMoves);
+          }
+          else Array.prototype.push.apply(moves, dirMoves);
         });
         return moves;
       }
@@ -640,13 +645,18 @@ export class EightpiecesRules extends ChessRules {
     if (this.subTurn == 1) {
       monodirMoves.forEach(m => {
         Object.keys(V.LANCER_DIRS).forEach(k => {
-          let mk = JSON.parse(JSON.stringify(m));
-          mk.appear[0].p = k;
-          moves.push(mk);
+          const newDir = V.LANCER_DIRS[k];
+          // Prevent orientations toward outer board:
+          if (V.OnBoard(m.end.x + newDir[0], m.end.y + newDir[1])) {
+            let mk = JSON.parse(JSON.stringify(m));
+            mk.appear[0].p = k;
+            moves.push(mk);
+          }
         });
       });
       return moves;
-    } else {
+    }
+    else {
       // I'm pushed: add potential nudges, except for current orientation
       let potentialNudges = [];
       for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
