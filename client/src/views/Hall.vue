@@ -128,7 +128,8 @@ main
             )
               | {{ st.tr["Observe"] }}
             button.player-action(
-              v-else-if="isFocusedOnHall(sid)"
+              v-else-if="st.user.sid != sid"
+              :class="{focused: isFocusedOnHall(sid)}"
               @click="challenge(sid)"
             )
               | {{ st.tr["Challenge"] }}
@@ -1415,6 +1416,8 @@ div#peopleWrap > .card
 
 button.player-action
   margin-left: 32px
+  &.focused
+    background-color: #E6D271
 
 .somethingnew
   background-color: #90C4EC !important
