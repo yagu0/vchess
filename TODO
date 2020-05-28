@@ -1,3 +1,10 @@
+Simultaneous games: view Game + Simultaneous, using component (One)Game
+Storage: just key ID => IDs of actual games (in indexedDB)
+In Hall challenge: acceptation on sender side (who launch the game when ready --> left click [which just delete if nobody registered, with confirm box])
+
+Tournaments: merge with tournament.auder.net code. At the beginning, still admin / users. Later : admin / supervisors / users
+=> recurrent tournament, eg. every sunday (late?) afternoon + wednesday evening, Discord-vote for variant?
+
 Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
 Also: if new live game starts in background, "new game" notify OK but not first move (not too serious however)
 On smartphone for Teleport, Chakart, Weiqi and some others: option "confirm moves on touch screen"
