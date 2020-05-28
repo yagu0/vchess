@@ -406,12 +406,18 @@ export class EightpiecesRules extends ChessRules {
     // Pawns might be pushed on 1st rank and attempt to move again:
     if (!V.OnBoard(x + shiftX, y)) return [];
 
-    const finalPieces =
-      // A push cannot put a pawn on last rank (it goes backward)
-      x + shiftX == lastRank
-        ? Object.keys(V.LANCER_DIRS).concat(
-          [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER])
-        : [V.PAWN];
+    // A push cannot put a pawn on last rank (it goes backward)
+    let finalPieces = [V.PAWN];
+    if (x + shiftX == lastRank) {
+      // Only allow direction facing inside board:
+      const allowedLancerDirs =
+        lastRank == 0
+          ? ['e', 'f', 'g', 'h', 'm']
+          : ['c', 'd', 'e', 'm', 'o'];
+      finalPieces =
+        allowedLancerDirs
+        .concat([V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN, V.SENTRY, V.JAILER]);
+    }
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward
       for (let piece of finalPieces) {
