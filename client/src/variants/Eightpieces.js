@@ -557,6 +557,7 @@ export class EightpiecesRules extends ChessRules {
     const L = this.sentryPush.length;
     const color = this.getColor(x, y);
     const dirCode = this.board[x][y][1];
+    const curDir = V.LANCER_DIRS[dirCode];
     if (!!this.sentryPush[L-1]) {
       // Maybe I was pushed
       const pl = this.sentryPush[L-1].length;
@@ -567,7 +568,6 @@ export class EightpiecesRules extends ChessRules {
         // I was pushed: allow all directions (for this move only), but
         // do not change direction after moving, *except* if I keep the
         // same orientation in which I was pushed.
-        const curDir = V.LANCER_DIRS[dirCode];
         // Also allow simple reorientation ("capturing king"):
         if (!V.OnBoard(x + curDir[0], y + curDir[1])) {
           const kp = this.kingPos[color];
@@ -647,10 +647,11 @@ export class EightpiecesRules extends ChessRules {
       });
       return moves;
     } else {
-      // I'm pushed: add potential nudges
+      // I'm pushed: add potential nudges, except for current orientation
       let potentialNudges = [];
       for (let step of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
         if (
+          (step[0] != curDir[0] || step[1] != curDir[1]) &&
           V.OnBoard(x + step[0], y + step[1]) &&
           this.board[x + step[0]][y + step[1]] == V.EMPTY
         ) {
@@ -842,9 +843,21 @@ export class EightpiecesRules extends ChessRules {
         coord.x += step[0];
         coord.y += step[1];
       }
+      const L = this.sentryPush.length;
+      const pl = (!!this.sentryPush[L-1] ? this.sentryPush[L-1].length : 0);
       for (let xy of lancerPos) {
         const dir = V.LANCER_DIRS[this.board[xy.x][xy.y].charAt(1)];
-        if (dir[0] == -step[0] && dir[1] == -step[1]) return true;
+        if (
+          (dir[0] == -step[0] && dir[1] == -step[1]) ||
+          // If the lancer was just pushed, this is an attack too:
+          (
+            !!this.sentryPush[L-1] &&
+            this.sentryPush[L-1][pl-1].x == xy.x &&
+            this.sentryPush[L-1][pl-1].y == xy.y
+          )
+        ) {
+          return true;
+        }
       }
     }
     return false;

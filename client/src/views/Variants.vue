@@ -2,18 +2,9 @@
 main
   .row
     .col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-      input#prefixFilter(
-        v-model="curPrefix"
-        @input="setCurPrefix($event)"
-        :placeholder="st.tr['Prefix?']"
-      )
-    .variant.col-sm-12.col-md-5.col-lg-4(
-      v-for="(v,idx) in filteredVariants"
-      :class="getVclasses(filteredVariants, idx)"
-    )
-      router-link(:to="getLink(v.name)")
-        h4.boxtitle.text-center {{ v.name }}
-        p.description.text-center {{ st.tr[v.desc] }}
+      a#mainLink(href="/#/variants/list")
+        | {{ st.tr["View alphabetical variants list"] }}
+      div(v-html="content")
 </template>
 
 <script>
@@ -22,32 +13,20 @@ export default {
   name: "my-variants",
   data: function() {
     return {
-      curPrefix: "",
       st: store.state
     };
   },
-  mounted: function() {
-    document.getElementById("prefixFilter").focus();
-  },
   computed: {
-    filteredVariants: function() {
-      const capitalizedPrefix = this.curPrefix.replace(/^\w/, c =>
-        c.toUpperCase()
+    content: function() {
+      // (AJAX) Request to get rules content (plain text, HTML)
+      return (
+        require("raw-loader!@/translations/variants/" + this.st.lang + ".pug")
+        // Next two lines fix a weird issue after last update (2019-11)
+        .replace(/\\n/g, " ")
+        .replace(/\\"/g, '"')
+        .replace('module.exports = "', "")
+        .replace(/"$/, "")
       );
-      const variants = this.st.variants
-        .filter(v => {
-          return v.name.startsWith(capitalizedPrefix);
-        })
-        .map(v => {
-          return {
-            name: v.name,
-            desc: v.description
-          };
-        })
-        .sort((a, b) => {
-          return a.name.localeCompare(b.name);
-        });
-      return variants;
     }
   },
   methods: {
@@ -71,26 +50,9 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-input#prefixFilter
+a#mainLink
   display: block
-  margin: 0 auto
-
-.variant
-  box-sizing: border-box
-  border: 1px solid brown
-  background-color: lightyellow
-  &:hover
-    background-color: yellow
-  a
-    color: #663300
-    text-decoration: none
-  .boxtitle
-    font-weight: bold
-    margin-bottom: 0
-  .description
-    @media screen and (max-width: 767px)
-      margin-top: 0
-
-.last-noneighb
-  margin: 0 auto
+  margin: 10px auto
+  text-align: center
+  font-size: 1.3em
 </style>

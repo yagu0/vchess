@@ -1,0 +1,35 @@
+p.boxed
+  | Les blancs jouent un coup, puis les noirs jouent deux fois,
+  | ensuite les blancs jouent trois coups...
+
+p.
+  Au tout premier coup de la partie, les blancs ne jouent qu'une fois -
+  comme d'habitude. Cependant, après après cela et pour le reste du jeu, chaque
+  camp doit jouer autant de coups que l'adversaire vient de jouer plus un.
+
+p.
+  Si un coup donne échec, alors la séquence s'arrête ici, mais l'adversaire
+  peut toujours jouer autant de coups qu'il aurait été théoriquement possible.
+  De plus, si un camp est mat ou pat avant que le nombre maximal de coups
+  soit joué, la partie s'arrête.
+  Il n'y a pas de prises en passant.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqk2r/pppp2pp/4p3/8/1b1P4/4pN2/PPP1PPPP/RN1QKB1R:
+  figcaption "Mat en 1"
+
+p.
+  Sur le diagramme les blancs matent avec la séquence de 5 coups
+  c3 Ne5 Qd3 Qf5 Qf7. La notation des coups est remplacée par &#8734; (infini)
+  quand il y a quatre coups ou plus à afficher.
+
+h3 Plus d'informations
+
+p
+  | Vous pouvez commencer par la 
+  a(href="https://en.wikipedia.org/wiki/Progressive_chess")
+    | page Wikipedia
+  | , qui pointe vers 
+  a(href="http://users.ics.aalto.fi/tho/chess.html") cette page
+  | &nbsp;avec plusieurs parties commentées.

@@ -1,12 +1,11 @@
 import { ChessRules } from "@/base_rules";
 
-export class PawnsRules extends ChessRules {
+export class DiscoduelRules extends ChessRules {
   static get PawnSpecs() {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      // The promotion piece doesn't matter, the game is won
-      { promotions: [V.QUEEN] }
+      { promotions: [V.PAWN] }
     );
   }
 
@@ -17,7 +16,15 @@ export class PawnsRules extends ChessRules {
   scanKings() {}
 
   static GenRandInitFen() {
-    return "8/pppppppp/8/8/8/8/PPPPPPPP/8 w 0 -";
+    return "1n4n1/8/8/8/8/8/PPPPPPPP/8 w 0 -";
+  }
+
+  getPotentialMovesFrom(sq) {
+    const moves = super.getPotentialMovesFrom(sq);
+    if (this.turn == 'b')
+      // Prevent pawn captures on last rank:
+      return moves.filter(m => m.vanish.length == 1 || m.vanish[1].x != 0);
+    return moves;
   }
 
   filterValid(moves) {
@@ -29,12 +36,7 @@ export class PawnsRules extends ChessRules {
   }
 
   getCurrentScore() {
-    const oppCol = V.GetOppCol(this.turn);
-    if (this.board.some(b =>
-      b.some(cell => cell[0] == oppCol && cell[1] != V.PAWN))
-    ) {
-      return (oppCol == 'w' ? "1-0" : "0-1");
-    }
+    // No real winning condition (promotions count...)
     if (!this.atLeastOneMove()) return "1/2";
     return "*";
   }

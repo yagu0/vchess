@@ -127,7 +127,7 @@ export class Doublemove2Rules extends ChessRules {
     const piece = move.vanish[0].p;
     const firstRank = c == "w" ? V.size.x - 1 : 0;
 
-    if (piece == V.KING && move.appear.length > 0) {
+    if (piece == V.KING) {
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
       this.castleFlags[c] = [V.size.y, V.size.y];
       return;
@@ -146,7 +146,7 @@ export class Doublemove2Rules extends ChessRules {
       const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
       this.castleFlags[c][flagIdx] = V.size.y;
     }
-    else if (
+    if (
       move.end.x == oppFirstRank && //we took opponent rook?
       this.castleFlags[oppCol].includes(move.end.y)
     ) {
@@ -210,34 +210,28 @@ export class Doublemove2Rules extends ChessRules {
     if (this.movesCount == 0)
       // First white move at random:
       return moves11[randInt(moves11.length)];
-    let doubleMoves = [];
+    let doubleMove = null;
+    let bestEval = Number.POSITIVE_INFINITY * (color == 'w' ? -1 : 1);
     // Rank moves using a min-max at depth 2
     for (let i = 0; i < moves11.length; i++) {
       this.play(moves11[i]);
       const moves12 = this.getAllValidMoves();
       for (let j = 0; j < moves12.length; j++) {
         this.play(moves12[j]);
-        doubleMoves.push({
-          moves: [moves11[i], moves12[j]],
-          // Small fluctuations to uniformize play a little
-          eval: getBestMoveEval() + 0.05 - Math.random() / 10
-        });
+        // Small fluctuations to uniformize play a little
+        const evalM = getBestMoveEval() + 0.05 - Math.random() / 10
+        if (
+          (color == 'w' && evalM > bestEval) ||
+          (color == 'b' && evalM < bestEval)
+        ) {
+          doubleMove = [moves11[i],  moves12[j]];
+          bestEval = evalM;
+        }
         this.undo(moves12[j]);
       }
       this.undo(moves11[i]);
     }
-
-    doubleMoves.sort((a, b) => {
-      return (color == "w" ? 1 : -1) * (b.eval - a.eval);
-    });
-    let candidates = [0]; //indices of candidates moves
-    for (
-      let i = 1;
-      i < doubleMoves.length && doubleMoves[i].eval == doubleMoves[0].eval;
-      i++
-    ) {
-      candidates.push(i);
-    }
-    return doubleMoves[randInt(candidates.length)].moves;
+    // TODO: not always the best move played (why ???)
+    return doubleMove;
   }
 };

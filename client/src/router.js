@@ -21,6 +21,11 @@ const router = new Router({
       component: loadView("Variants")
     },
     {
+      path: "/variants/list",
+      name: "variantlist",
+      component: loadView("VariantList")
+    },
+    {
       path: "/variants/:vname([a-zA-Z0-9]+)",
       name: "rules",
       component: loadView("Rules")

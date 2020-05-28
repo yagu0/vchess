@@ -53,14 +53,12 @@ div
       .td(
         :class="{'highlight-lm': cursor == moveIdx}"
         @click="() => gotoMove(moveIdx)"
-      )
-        | {{ notation(moveIdx) }}
+        v-html="notation(moveIdx)")
       .td(
         v-if="moveIdx < moves.length-1"
         :class="{'highlight-lm': cursor == moveIdx+1}"
         @click="() => gotoMove(moveIdx+1)"
-      )
-        | {{ notation(moveIdx + 1) }}
+        v-html="notation(moveIdx + 1)")
 </template>
 
 <script>

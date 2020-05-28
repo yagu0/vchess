@@ -1,0 +1,35 @@
+p.boxed
+  | White plays one move, then black play twice,
+  | then white plays three moves...
+
+p.
+  At the very first move of the game, white make only one move - as usual.
+  However, after that and for all the game, each side must play as many moves
+  as the opponent just played plus one.
+
+p.
+  If a move gives check, then the sequence stops here, but the opponent can
+  still play as many moves as would be theoretically possible.
+  Also, if a checkmate or stalemate situation occurs before the maximal number
+  of moves are played, the game ends.
+  There are no en-passant captures.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqk2r/pppp2pp/4p3/8/1b1P4/4pN2/PPP1PPPP/RN1QKB1R:
+  figcaption "Mate in 1"
+
+p.
+  On the diagram white mates with the sequence of 5 moves c3 Ne5 Qd3 Qf5 Qf7.
+  Moves' notation is replaced by &#8734; (infinity) when there are four moves
+  or more to print.
+
+h3 More information
+
+p
+  | You can start from the 
+  a(href="https://en.wikipedia.org/wiki/Progressive_chess")
+    | Wikipedia page
+  | , which points to 
+  a(href="http://users.ics.aalto.fi/tho/chess.html") this page
+  | &nbsp;with several commented games.

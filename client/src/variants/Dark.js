@@ -109,7 +109,7 @@ export class DarkRules extends ChessRules {
 
   postPlay(move) {
     super.postPlay(move);
-    if (move.vanish.length >= 2 && move.vanish[1].p == V.KING)
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       // We took opponent king (because if castle vanish[1] is a rook)
       this.kingPos[this.turn] = [-1, -1];
 
@@ -119,11 +119,9 @@ export class DarkRules extends ChessRules {
 
   postUndo(move) {
     super.postUndo(move);
-    const c = move.vanish[0].c;
-    const oppCol = V.GetOppCol(c);
-    if (this.kingPos[oppCol][0] < 0)
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
       // Last move took opponent's king:
-      this.kingPos[oppCol] = [move.vanish[1].x, move.vanish[1].y];
+      this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
 
     // Update lights for both colors:
     this.updateEnlightened();

@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export class PawnsRules extends ChessRules {
+export class RookpawnsRules extends ChessRules {
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -17,7 +17,7 @@ export class PawnsRules extends ChessRules {
   scanKings() {}
 
   static GenRandInitFen() {
-    return "8/pppppppp/8/8/8/8/PPPPPPPP/8 w 0 -";
+    return "8/ppppp3/8/8/8/8/8/7R w 0 -";
   }
 
   filterValid(moves) {
@@ -29,12 +29,15 @@ export class PawnsRules extends ChessRules {
   }
 
   getCurrentScore() {
-    const oppCol = V.GetOppCol(this.turn);
-    if (this.board.some(b =>
-      b.some(cell => cell[0] == oppCol && cell[1] != V.PAWN))
-    ) {
-      return (oppCol == 'w' ? "1-0" : "0-1");
+    // If all pieces of some color vanished, the opponent wins:
+    for (let c of ['w', 'b']) {
+      if (this.board.every(b => b.every(cell => !cell || cell[0] != c)))
+        return (c == 'w' ? "0-1" : "1-0");
     }
+    // Did a black pawn promote? Can the rook take it?
+    const qIdx = this.board[7].findIndex(cell => cell[1] == V.QUEEN);
+    if (qIdx >= 0 && !super.isAttackedByRook([7, qIdx], 'w'))
+      return "0-1";
     if (!this.atLeastOneMove()) return "1/2";
     return "*";
   }

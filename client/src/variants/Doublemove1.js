@@ -1,5 +1,4 @@
 import { ChessRules } from "@/base_rules";
-import { randInt } from "@/utils/alea";
 
 export class Doublemove1Rules extends ChessRules {
   static IsGoodEnpassant(enpassant) {
@@ -88,8 +87,15 @@ export class Doublemove1Rules extends ChessRules {
       this.epSquares.push([epSq]);
       this.movesCount = 1;
     }
-    // Does this move give check on subturn 1? If yes, skip subturn 2
-    else if (this.subTurn == 1 && this.underCheck(V.GetOppCol(this.turn))) {
+    // Does this move give check on subturn 1 or reach stalemate?
+    // If yes, skip subturn 2
+    else if (
+      this.subTurn == 1 &&
+      (
+        this.underCheck(V.GetOppCol(this.turn)) ||
+        !this.atLeastOneMove()
+      )
+    ) {
       this.turn = V.GetOppCol(this.turn);
       this.epSquares.push([epSq]);
       move.checkOnSubturn1 = true;
@@ -115,7 +121,7 @@ export class Doublemove1Rules extends ChessRules {
     const piece = move.vanish[0].p;
     const firstRank = c == "w" ? V.size.x - 1 : 0;
 
-    if (piece == V.KING && move.appear.length > 0) {
+    if (piece == V.KING) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
       this.castleFlags[c] = [V.size.y, V.size.y];
@@ -130,7 +136,7 @@ export class Doublemove1Rules extends ChessRules {
       const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
       this.castleFlags[c][flagIdx] = V.size.y;
     }
-    else if (
+    if (
       move.end.x == oppFirstRank && //we took opponent rook?
       this.castleFlags[oppCol].includes(move.end.y)
     ) {
@@ -206,43 +212,39 @@ export class Doublemove1Rules extends ChessRules {
     };
 
     const moves11 = this.getAllValidMoves();
-    let doubleMoves = [];
+    let doubleMove = null;
+    let bestEval = Number.POSITIVE_INFINITY * (color == 'w' ? -1 : 1);
     // Rank moves using a min-max at depth 2
     for (let i = 0; i < moves11.length; i++) {
       this.play(moves11[i]);
       if (this.turn != color) {
         // We gave check with last move: search the best opponent move
-        doubleMoves.push({ moves: [moves11[i]], eval: getBestMoveEval() });
+        const evalM = getBestMoveEval() + 0.05 - Math.random() / 10;
+        if (
+          (color == 'w' && evalM > bestEval) ||
+          (color == 'b' && evalM < bestEval)
+        ) {
+          doubleMove = moves11[i];
+          bestEval = evalM;
+        }
       }
       else {
         let moves12 = this.getAllValidMoves();
         for (let j = 0; j < moves12.length; j++) {
           this.play(moves12[j]);
-          doubleMoves.push({
-            moves: [moves11[i], moves12[j]],
-            eval: getBestMoveEval() + 0.05 - Math.random() / 10
-          });
+          const evalM  = getBestMoveEval() + 0.05 - Math.random() / 10
+          if (
+            (color == 'w' && evalM > bestEval) ||
+            (color == 'b' && evalM < bestEval)
+          ) {
+            doubleMove = [moves11[i], moves12[j]];
+            bestEval = evalM;
+          }
           this.undo(moves12[j]);
         }
       }
       this.undo(moves11[i]);
     }
-
-    // TODO: array + sort + candidates logic not required when adding small
-    // fluctuations to the eval function (could also be generalized).
-    doubleMoves.sort((a, b) => {
-      return (color == "w" ? 1 : -1) * (b.eval - a.eval);
-    });
-    let candidates = [0]; //indices of candidates moves
-    for (
-      let i = 1;
-      i < doubleMoves.length && doubleMoves[i].eval == doubleMoves[0].eval;
-      i++
-    ) {
-      candidates.push(i);
-    }
-    const selected = doubleMoves[randInt(candidates.length)].moves;
-    if (selected.length == 1) return selected[0];
-    return selected;
+    return doubleMove;
   }
 };

@@ -1,0 +1,405 @@
+p.text-center
+  a(href="https://www.chessvariants.com/what.html") Qu'est-ce qu'une variante ?
+  | &nbsp;&nbsp;&nbsp;&nbsp;
+  a(href="https://www.chessvariants.com/why.html") Pourquoi jouer aux variantes ?
+
+p
+  | La variante 
+  a(href="/#/variants/Chess960") Chess960
+  | &nbsp;permet de jouer avec les règles standard, depuis une position
+  | initiale aléatoire (ou non) symétrique (ou non).
+
+h3 Pour les débutants, pour apprendre le jeu.
+
+p Variantes avec très peu de pièces différentes, et un but simplifié.
+-
+  var varlist = [
+    "Bishopawns",
+    "Discoduel",
+    "Knightpawns",
+    "Pawns",
+    "Pawnsking",
+    "Rookpawns"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Captures obligatoires
+
+p.
+  Dans une position donnée, il y a généralement moins de coups possibles que
+  dans le jeu orthodoxe puisque vous devez capturer.
+-
+  var varlist = [
+    "Arena",
+    "Capture",
+    "Interweave",
+    "Losers",
+    "Suicide"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Transformations
+
+p En général les pièces se transforment en capturant.
+-
+  var varlist = [
+    "Absorption",
+    "Cannibal"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Frontières modifiées
+
+p Échiquiers aux bords communiquants.
+-
+  var varlist = [
+    "Circular",
+    "Cylinder"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Différents coups de pions
+
+p.
+  Tout se déroule comme au jeu orthodoxe,
+  mais les pions se déplacent d'une manière inhabituelle.
+-
+  var varlist = [
+    "Berolina",
+    "Diamond"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Armées différentes
+
+p Pièces standard contre une équipe de pièces différentes.
+-
+  var varlist = [
+    "Colorbound",
+    "Horde",
+    "Orda"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Inspirées par des jeux de ballon
+
+p.
+  Variantes utilisant un ballon, abstrait ou non,
+  qui doit traverser l'échiquier.
+-
+  var varlist = [
+    "Ball",
+    "Football",
+    "Rugby"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Nouvelles pièces
+
+p.
+  Une large gamme de pièces féériques peuvent être introduites.
+  Certaines sont très puissantes comme l'Amazone,
+  d'autres plutôt faibles comme la Sauterelle.
+-
+  var varlist = [
+    "Eightpieces",
+    "Grand",
+    "Grasshopper",
+    "Omega",
+    "Perfect",
+    "Schess",
+    "Shako",
+    "Tencubed",
+    "Wildebeest"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Plusieurs pièces royales
+
+p Dans ces jeux vous devez garder à l'abri deux "rois" ou plus.
+-
+  var varlist = [
+    "Coregal",
+    "Twokings",
+    "Antiking1",
+    "Antiking2"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Captures non orthodoxes
+
+p Captures non-standard, mais utilisant des mécanismes connus.
+-
+  var varlist = [
+    "Enpassant",
+    "Rifle",
+    "Zen"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+p.
+  Les captures s'effectuent généralement sans remplacement. C'est-à-dire
+  que vous ne remplacez pas les pièces adverses sur leur case de capture.
+-
+  var varlist = [
+    "Allmate1",
+    "Allmate2",
+    "Baroque",
+    "Dynamo",
+    "Fugue",
+    "Rococo",
+    "Maxima"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Pièces changeant de camp
+
+p Les propriétaires (couleurs) des pièces peuvent changer pendant la partie.
+-
+  var varlist = [
+    "Benedict",
+    "Checkered1",
+    "Checkered2",
+    "Pacifist1",
+    "Pacifist2"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Information incomplète
+
+p.
+  Une part de spéculation est requise pour ces variantes,
+  où certaines informations sur le jeu sont cachées.
+-
+  var varlist = [
+    "Apocalypse",
+    "Dark",
+    "Hidden",
+    "Hiddenqueen",
+    "Synchrone"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Facteurs aléatoires
+
+p.
+  Ces jeux incluent des effets aléatoires,
+  qui peuvent être amusants, frustrants ou bien les deux :)
+-
+  var varlist = [
+    "Chakart",
+    "Dice"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Inspirées par le déplacement du cavalier
+
+p.
+  Variantes basées sur le coup de cavalier,
+  qui augmente ou transforme les capacités des pièces.
+-
+  var varlist = [
+    "Balaklava",
+    "Knightmate",
+    "Knightrelay1",
+    "Knightrelay2"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Arrangement initial inhabituel
+
+p.
+  Les pions et / ou les pièces sont échangés,
+  résultant en un jeu très différent.
+-
+  var varlist = [
+    "Upsidedown",
+    "Pawnmassacre"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Variantes "faciles" : règles simples
+
+p.
+  Les règles orthodoxes ne sont que légèrement modifiées,
+  ce qui donne un jeu très similaire.
+-
+  var varlist = [
+    "Coronation",
+    "Pocketknight"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+p ...Ou mène à des stratégies très différentes :
+-
+  var varlist = [
+    "Antimatter",
+    "Atomic",
+    "Checkless"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+//h3 Initially empty board
+//
+//Parachute
+//"Crown chess" (place all units at move 1)
+
+h3 Repositionnement
+
+p.
+  Les pièces peuvent être parachutées sur l'échiquier,
+  soit immédiatement soit plus tard dans la partie.
+-
+  var varlist = [
+    "Clorange",
+    "Crazyhouse",
+    "Madhouse",
+    "Rampage",
+    "Recycle",
+    "Teleport"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Immobilisation
+
+p Les pièces peuvent être paralysées dans certaines circonstances.
+-
+  var varlist = [
+    "Koopa",
+    "Madrasi"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Variantes régionales et historiques
+
+p Évolution (partielle) du jeu dans l'espace et le temps.
+-
+  var varlist = [
+    "Makruk",
+    "Minishogi",
+    "Shatranj",
+    "Shogi",
+    "Sittuyin"
+  ]
+  //Chinese chess (TODO)
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Course de rois
+
+p L'objectif est de traverser l'échiquier avec votre roi.
+-
+  var varlist = [
+    "Racingkings",
+    "Royalrace"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Plusieurs coups par tour
+
+p Dans ces variantes, vous pouvez jouer deux coups ou plus par tour.
+-
+  var varlist = [
+    "Doublemove1",
+    "Doublemove2",
+    "Monster",
+    "Progressive"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Échange des positions des pièces
+
+p Certaines ou toutes les pièces peuvent être échangées.
+-
+  var varlist = [
+    "Suction",
+    "Swap",
+    "Switching"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Objectif différent
+
+p Règles orthodoxes, mais le but n'est pas de mater (ou pas seulement).
+-
+  var varlist = [
+    "Extinction",
+    "Threechecks",
+    "Kinglet",
+    "Koth"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Divers
+
+p.
+  Ces variantes ne sont pas encore classées, en général car elles sont
+  l'unique représentant de leur type sur ce site.
+-
+  var varlist = [
+    "Alice",
+    "Ambiguous",
+    "Bicolour",
+    "Doublearmy",
+    "Forward",
+    "Freecapture",
+    "Gridolina",
+    "Hamilton",
+    "Magnetic",
+    "Monochrome",
+    "Parachute",
+    "Takenmake",
+    "Wormhole"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
