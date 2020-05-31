@@ -50,12 +50,11 @@ export class SuicideRules extends ChessRules {
   // Stop at the first capture found (if any)
   atLeastOneCapture() {
     const color = this.turn;
-    const oppCol = V.GetOppCol(color);
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (
           this.board[i][j] != V.EMPTY &&
-          this.getColor(i, j) != oppCol &&
+          this.getColor(i, j) == color &&
           this.getPotentialMovesFrom([i, j]).some(m => m.vanish.length == 2)
         ) {
           return true;

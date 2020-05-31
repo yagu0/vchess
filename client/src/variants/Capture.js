@@ -9,15 +9,18 @@ export class CaptureRules extends ChessRules {
   // Stop at the first capture found (if any)
   atLeastOneCapture() {
     const color = this.turn;
-    const oppCol = V.GetOppCol(color);
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (
           this.board[i][j] != V.EMPTY &&
-          this.getColor(i, j) != oppCol &&
-          this.filterValid(this.getPotentialMovesFrom([i, j])).some(m =>
-            // Warning: discard castle moves
-            m.vanish.length == 2 && m.appear.length == 1)
+          this.getColor(i, j) == color &&
+          this.filterValid(this.getPotentialMovesFrom([i, j])).some(m => {
+            return (
+              // Warning: discard castle moves
+              m.vanish.length == 2 && m.appear.length == 1 &&
+              this.filterValid([m]).length == 1
+            );
+          })
         ) {
           return true;
         }
