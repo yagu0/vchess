@@ -562,9 +562,12 @@ export default {
     },
     // o: challenge or game
     classifyObject: function(o) {
-      // Consider imports as live games (TODO)
-      if (!!o.id && !!o.id.toString().match(/^i/)) return "live";
-      return o.cadence.indexOf("d") === -1 ? "live" : "corr";
+      // No imported games here
+      return (
+        game.cadence.indexOf("d") >= 0
+          ? "corr"
+          : (game.cadence.indexOf("/") >= 0 ? "simul" : "live")
+      );
     },
     setDisplay: function(letter, type, e) {
       this[letter + "display"] = type;
