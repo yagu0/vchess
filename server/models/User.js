@@ -139,7 +139,7 @@ const UserModel = {
   },
 
   tryNotify: function(id, message) {
-    UserModel.getOne("id", id, "name, email", (err, user) => {
+    UserModel.getOne("id", id, "name, email, notify", (err, user) => {
       if (!err && user.notify) UserModel.notify(user, message);
     });
   },
