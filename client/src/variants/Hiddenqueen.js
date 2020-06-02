@@ -42,6 +42,29 @@ export class HiddenqueenRules extends ChessRules {
     return b;
   }
 
+  getEpSquare(moveOrSquare) {
+    if (!moveOrSquare) return undefined;
+    if (typeof moveOrSquare === "string") {
+      const square = moveOrSquare;
+      if (square == "-") return undefined;
+      return V.SquareToCoords(square);
+    }
+    const move = moveOrSquare;
+    const s = move.start,
+          e = move.end;
+    if (
+      s.y == e.y &&
+      Math.abs(s.x - e.x) == 2 &&
+      [V.PAWN, V.HIDDEN_QUEEN].includes(move.vanish[0].p)
+    ) {
+      return {
+        x: (s.x + e.x) / 2,
+        y: s.y
+      };
+    }
+    return undefined; //default
+  }
+
   isValidPawnMove(move) {
     const color = move.vanish[0].c;
     const pawnShift = color == "w" ? -1 : 1;
@@ -89,6 +112,27 @@ export class HiddenqueenRules extends ChessRules {
       return pawnMoves.concat(queenMoves);
     }
     return super.getPotentialMovesFrom([x, y]);
+  }
+
+  getEnpassantCaptures([x, y], shiftX) {
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1];
+    let enpassantMove = null;
+    if (
+      !!epSquare &&
+      epSquare.x == x + shiftX &&
+      Math.abs(epSquare.y - y) == 1
+    ) {
+      enpassantMove = this.getBasicMove([x, y], [epSquare.x, epSquare.y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare.y,
+        // Captured piece may be a hidden queen
+        p: this.board[x][epSquare.y][1],
+        c: this.getColor(x, epSquare.y)
+      });
+    }
+    return !!enpassantMove ? [enpassantMove] : [];
   }
 
   getPotentialPawnMoves([x, y]) {
@@ -160,7 +204,8 @@ export class HiddenqueenRules extends ChessRules {
   }
 
   getNotation(move) {
-    if (this.getPiece(move.start.x, move.start.y) != V.HIDDEN_QUEEN)
+    // Not using getPiece() method because it would transform HQ into pawn:
+    if (this.board[move.start.x][move.start.y][1] != V.HIDDEN_QUEEN)
       return super.getNotation(move);
     const finalSquare = V.CoordsToSquare(move.end);
     if (move.appear[0].p == V.QUEEN) {
