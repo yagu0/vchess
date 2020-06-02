@@ -564,9 +564,9 @@ export default {
     classifyObject: function(o) {
       // No imported games here
       return (
-        game.cadence.indexOf("d") >= 0
+        o.cadence.indexOf("d") >= 0
           ? "corr"
-          : (game.cadence.indexOf("/") >= 0 ? "simul" : "live")
+          : (o.cadence.indexOf("/") >= 0 ? "simul" : "live")
       );
     },
     setDisplay: function(letter, type, e) {
