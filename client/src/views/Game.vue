@@ -522,7 +522,11 @@ export default {
     },
     getGameType: function(game) {
       if (!!game.id.toString().match(/^i/)) return "import";
-      return game.cadence.indexOf("d") >= 0 ? "corr" : "live";
+      return (
+        game.cadence.indexOf("d") >= 0
+          ? "corr"
+          : (game.cadence.indexOf("/") >= 0 ? "simul" : "live")
+      );
     },
     // Notify something after a new move (to opponent and me on MyGames page)
     notifyMyGames: function(thing, data) {
