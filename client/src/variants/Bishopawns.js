@@ -36,8 +36,12 @@ export class BishopawnsRules extends ChessRules {
     }
     // Did a black pawn promote? Can the bishop take it?
     const qIdx = this.board[7].findIndex(cell => cell[1] == V.QUEEN);
-    if (qIdx >= 0 && !super.isAttackedByBishop([7, qIdx], 'w'))
+    if (
+      qIdx >= 0 &&
+      (this.turn == 'b' || !super.isAttackedByBishop([7, qIdx], 'w'))
+    ) {
       return "0-1";
+    }
     if (!this.atLeastOneMove()) return "1/2";
     return "*";
   }

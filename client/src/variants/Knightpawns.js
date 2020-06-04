@@ -34,10 +34,14 @@ export class KnightpawnsRules extends ChessRules {
       if (this.board.every(b => b.every(cell => !cell || cell[0] != c)))
         return (c == 'w' ? "0-1" : "1-0");
     }
-    // Did a black pawn promote? Can the rook take it?
+    // Did a black pawn promote? Can the knight take it?
     const qIdx = this.board[7].findIndex(cell => cell[1] == V.QUEEN);
-    if (qIdx >= 0 && !super.isAttackedByKnight([7, qIdx], 'w'))
+    if (
+      qIdx >= 0 &&
+      (this.turn == 'b' || !super.isAttackedByKnight([7, qIdx], 'w'))
+    ) {
       return "0-1";
+    }
     if (!this.atLeastOneMove()) return "1/2";
     return "*";
   }

@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export class RookpawnsRules extends ChessRules {
+export class QueenpawnsRules extends ChessRules {
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -17,7 +17,7 @@ export class RookpawnsRules extends ChessRules {
   scanKings() {}
 
   static GenRandInitFen() {
-    return "8/ppppp3/8/8/8/8/8/7R w 0 -";
+    return "3q4/8/8/8/8/8/PPPPPPPP/8 w 0 -";
   }
 
   filterValid(moves) {
@@ -34,13 +34,13 @@ export class RookpawnsRules extends ChessRules {
       if (this.board.every(b => b.every(cell => !cell || cell[0] != c)))
         return (c == 'w' ? "0-1" : "1-0");
     }
-    // Did a black pawn promote? Can the rook take it?
-    const qIdx = this.board[7].findIndex(cell => cell[1] == V.QUEEN);
+    // Did a white pawn promote? Can the queen (in turn) take it?
+    const qIdx = this.board[0].findIndex(cell => cell == "wq");
     if (
       qIdx >= 0 &&
-      (this.turn == 'b' || !super.isAttackedByRook([7, qIdx], 'w'))
+      (this.turn == 'w' || !super.isAttackedByQueen([0, qIdx], 'b'))
     ) {
-      return "0-1";
+      return "1-0";
     }
     if (!this.atLeastOneMove()) return "1/2";
     return "*";

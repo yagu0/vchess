@@ -244,6 +244,7 @@ export const translations = {
   "Protect your pawns": "Protege tus peones",
   "Push and pull": "Empujar y tirar",
   "Queen disguised as a pawn": "Reina disfrazada de peón",
+  "Queen versus pawns": "Dama contra peones",
   "Reach the last rank (v1)": "Llegar a la última fila (v1)",
   "Reach the last rank (v2)": "Llegar a la última fila (v2)",
   "Reposition pieces": "Reposicionar las piezas",

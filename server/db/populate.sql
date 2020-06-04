@@ -86,6 +86,7 @@ insert or ignore into Variants (name, description) values
   ('Perfect', 'Powerful pieces'),
   ('Pocketknight', 'Knight in pocket'),
   ('Progressive', 'Play more and more moves'),
+  ('Queenpawns', 'Queen versus pawns'),
   ('Racingkings', 'Kings cross the 8x8 board'),
   ('Rampage', 'Move under cover'),
   ('Rifle', 'Shoot pieces'),

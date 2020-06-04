@@ -244,6 +244,7 @@ export const translations = {
   "Protect your pawns": "Protect your pawns",
   "Push and pull": "Push and pull",
   "Queen disguised as a pawn": "Queen disguised as a pawn",
+  "Queen versus pawns": "Queen versus pawns",
   "Reach the last rank (v1)": "Reach the last rank (v1)",
   "Reach the last rank (v2)": "Reach the last rank (v2)",
   "Reposition pieces": "Reposition pieces",
