@@ -105,7 +105,21 @@ export class MonochromeRules extends ChessRules {
   }
 
   getPotentialMovesFrom(sq) {
-    return super.getPotentialMovesFrom(sq).concat(this.findCaptures(sq));
+    const moves = super.getPotentialMovesFrom(sq);
+    const zenCaptures = this.findCaptures(sq);
+    // Remove duplicate captures in a lazy way (TODO: more efficient...)
+    let hashMoves = {};
+    moves.forEach(m => {
+      if (m.vanish.length == 2) {
+        const hash =
+          m.start.x + "." + m.start.y + "." + m.end.x + "." + m.end.y;
+        hashMoves[hash] = true;
+      }
+    }
+    return moves.concat(zenCaptures.filter(m => {
+      const hash = m.start.x + "." + m.start.y + "." + m.end.x + "." + m.end.y;
+      return !hashMoves[hash];
+    });
   }
 
   getAllPotentialMoves() {
