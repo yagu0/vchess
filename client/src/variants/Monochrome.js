@@ -115,7 +115,7 @@ export class MonochromeRules extends ChessRules {
           m.start.x + "." + m.start.y + "." + m.end.x + "." + m.end.y;
         hashMoves[hash] = true;
       }
-    }
+    });
     return moves.concat(zenCaptures.filter(m => {
       const hash = m.start.x + "." + m.start.y + "." + m.end.x + "." + m.end.y;
       return !hashMoves[hash];
