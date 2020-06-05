@@ -6,6 +6,10 @@ export class MonochromeRules extends ChessRules {
     return false;
   }
 
+  static get HasFlags() {
+    return false;
+  }
+
   static get Lines() {
     return [ [[4, 0], [4, 8]] ];
   }
@@ -43,9 +47,65 @@ export class MonochromeRules extends ChessRules {
     return ((x1 <= 3 && x2 >= 4) || (x1 >= 4 && x2 <= 3));
   }
 
+  // follow steps from x,y until something is met.
+  // if met piece is opponent and same movement (asA): eat it!
+  findCaptures_aux([x, y], asA) {
+    let moves = [];
+    const steps =
+      asA != V.PAWN
+        ? [V.QUEEN, V.KING].includes(asA)
+          ? V.steps[V.ROOK].concat(V.steps[V.BISHOP])
+          : V.steps[asA]
+        : this.turn == "w"
+          ? [
+            [-1, -1],
+            [-1, 1]
+          ]
+          : [
+            [1, -1],
+            [1, 1]
+          ];
+    const oneStep = [V.KNIGHT, V.PAWN, V.KING].includes(asA);
+    outerLoop: for (let loop = 0; loop < steps.length; loop++) {
+      const step = steps[loop];
+      let i = x + step[0];
+      let j = y + step[1];
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        if (oneStep) continue outerLoop;
+        i += step[0];
+        j += step[1];
+      }
+      if (
+        V.OnBoard(i, j) &&
+        this.getPiece(i, j) == asA &&
+        this.canTake([i, j], [x, y])
+      ) {
+        // eat!
+        moves.push(this.getBasicMove([x, y], [i, j]));
+      }
+    }
+    return moves;
+  }
+
+  // Find possible captures from a square: look in every direction!
+  findCaptures(sq) {
+    let moves = [];
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.PAWN));
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.ROOK));
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.KNIGHT));
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.BISHOP));
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.QUEEN));
+    Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.KING));
+    return moves;
+  }
+
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
-    return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
+    return moves.filter(m => m.vanish.length == 2);
+  }
+
+  getPotentialMovesFrom(sq) {
+    return super.getPotentialMovesFrom(sq).concat(this.findCaptures(sq));
   }
 
   getAllPotentialMoves() {
@@ -88,9 +148,7 @@ export class MonochromeRules extends ChessRules {
       for (let j = 0; j < V.size.y; j++) {
         if (
           this.board[i][j] != V.EMPTY &&
-          this.getPotentialMovesFrom([i, j]).some(m =>
-            // Warning: discard castle moves
-            m.vanish.length == 2 && m.appear.length == 1)
+          this.getPotentialMovesFrom([i, j]).some(m => m.vanish.length == 2)
         ) {
           return true;
         }
@@ -120,7 +178,7 @@ export class MonochromeRules extends ChessRules {
   }
 
   getCurrentScore() {
-    // Is there anything in my half board?
+    // Is there anything in opponent's half board?
     const color = V.GetOppCol(this.turn);
     const xBounds = color == 'w' ? [4,7] : [0,3];
     let nothingHere = true;
@@ -138,8 +196,8 @@ export class MonochromeRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    // Remove the en-passant part of the FEN
-    const fen = ChessRules.GenRandInitFen(randomness).slice(0, -2);
+    // Remove the en-passant + castle part of the FEN
+    const fen = ChessRules.GenRandInitFen(randomness).slice(0, -6);
     const firstSpace = fen.indexOf(' ');
     return (
       fen.substr(0, firstSpace).replace(/[A-Z]/g, (c) => c.toLowerCase()) +
@@ -163,5 +221,34 @@ export class MonochromeRules extends ChessRules {
       }
     }
     return evaluation;
+  }
+
+  getNotation(move) {
+    // Translate initial square (because pieces may fly unusually!)
+    const initialSquare = V.CoordsToSquare(move.start);
+
+    // Translate final square
+    const finalSquare = V.CoordsToSquare(move.end);
+
+    let notation = "";
+    const piece = this.getPiece(move.start.x, move.start.y);
+    if (piece == V.PAWN) {
+      // pawn move (TODO: enPassant indication)
+      if (move.vanish.length == 2) {
+        // capture
+        notation = initialSquare + "x" + finalSquare;
+      }
+      else notation = finalSquare;
+      if (piece != move.appear[0].p)
+        //promotion
+        notation += "=" + move.appear[0].p.toUpperCase();
+    }
+    else {
+      // Piece movement
+      notation = piece.toUpperCase();
+      if (move.vanish.length > 1) notation += initialSquare + "x";
+      notation += finalSquare;
+    }
+    return notation;
   }
 };

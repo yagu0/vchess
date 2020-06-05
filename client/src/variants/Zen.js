@@ -66,6 +66,7 @@ export class ZenRules extends ChessRules {
     const oneStep = [V.KNIGHT,V.PAWN].includes(asA); //we don't capture king
     const lastRank = color == "w" ? 0 : V.size.x - 1;
     const promotionPieces = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
+    const oppCol = V.GetOppCol(color);
     outerLoop: for (let loop = 0; loop < steps.length; loop++) {
       const step = steps[loop];
       let i = x + step[0];
@@ -77,7 +78,7 @@ export class ZenRules extends ChessRules {
       }
       if (
         V.OnBoard(i, j) &&
-        this.getColor(i, j) == V.GetOppCol(color) &&
+        this.getColor(i, j) == oppCol &&
         this.getPiece(i, j) == asA
       ) {
         // eat!
@@ -98,13 +99,11 @@ export class ZenRules extends ChessRules {
   // Find possible captures from a square: look in every direction!
   findCaptures(sq) {
     let moves = [];
-
     Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.PAWN));
     Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.ROOK));
     Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.KNIGHT));
     Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.BISHOP));
     Array.prototype.push.apply(moves, this.findCaptures_aux(sq, V.QUEEN));
-
     return moves;
   }
 
@@ -112,49 +111,8 @@ export class ZenRules extends ChessRules {
     return false; //captures handled separately
   }
 
-  getPotentialPawnMoves([x, y]) {
-    let moves = super.getPotentialPawnMoves([x, y]);
-    // Add "zen" captures
-    Array.prototype.push.apply(moves, this.findCaptures([x, y]));
-    return moves;
-  }
-
-  getPotentialRookMoves(sq) {
-    let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.ROOK]);
-    let captures = this.findCaptures(sq);
-    return noCaptures.concat(captures);
-  }
-
-  getPotentialKnightMoves(sq) {
-    let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
-    let captures = this.findCaptures(sq);
-    return noCaptures.concat(captures);
-  }
-
-  getPotentialBishopMoves(sq) {
-    let noCaptures = this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]);
-    let captures = this.findCaptures(sq);
-    return noCaptures.concat(captures);
-  }
-
-  getPotentialQueenMoves(sq) {
-    let noCaptures = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    );
-    let captures = this.findCaptures(sq);
-    return noCaptures.concat(captures);
-  }
-
-  getPotentialKingMoves(sq) {
-    // Initialize with normal moves
-    let noCaptures = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
-    let captures = this.findCaptures(sq);
-    return noCaptures.concat(captures).concat(this.getCastleMoves(sq));
+  getPotentialMovesFrom(sq) {
+    return super.getPotentialMovesFrom(sq).concat(this.findCaptures(sq));
   }
 
   getNotation(move) {
@@ -175,15 +133,16 @@ export class ZenRules extends ChessRules {
     const piece = this.getPiece(move.start.x, move.start.y);
     if (piece == V.PAWN) {
       // pawn move (TODO: enPassant indication)
-      if (move.vanish.length > 1) {
+      if (move.vanish.length == 2) {
         // capture
         notation = initialSquare + "x" + finalSquare;
-      } //no capture
+      }
       else notation = finalSquare;
       if (piece != move.appear[0].p)
         //promotion
         notation += "=" + move.appear[0].p.toUpperCase();
-    } else {
+    }
+    else {
       // Piece movement
       notation = piece.toUpperCase();
       if (move.vanish.length > 1) notation += initialSquare + "x";
