@@ -80,6 +80,15 @@ export class AbsorptionRules extends ChessRules {
       default:
         moves = super.getPotentialMovesFrom(sq);
     }
+    // Filter out capturing promotions (except one),
+    // because they are all the same.
+    moves = moves.filter(m => {
+      return (
+        m.vanish.length == 1 ||
+        m.vanish[0].p != V.PAWN ||
+        [V.PAWN, V.QUEEN].includes(m.appear[0].p)
+      );
+    });
     moves.forEach(m => {
       if (m.vanish.length == 2) {
         // Augment pieces abilities in case of captures
