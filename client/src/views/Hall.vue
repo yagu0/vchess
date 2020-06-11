@@ -857,6 +857,10 @@ export default {
           }
           break;
         }
+        case "entersimul":
+          // TODO: confirm box accept/refuse.
+          // If accept, update seat (array in this case)
+          break;
         case "game": // Individual request
         case "newgame": {
           const game = data.data;
@@ -1221,24 +1225,33 @@ export default {
           alert(this.st.tr["Please log in to accept corr challenges"]);
           return;
         }
-        c.accepted = true;
-        await import("@/variants/" + c.vname + ".js")
-        .then((vModule) => {
-          window.V = vModule[c.vname + "Rules"];
-          if (!!c.to) {
-            // c.to == this.st.user.name (connected)
-            if (!!c.fen) {
-              const parsedFen = V.ParseFen(c.fen);
-              this.tchallDiag = getDiagram({
-                position: parsedFen.position,
-                orientation: parsedFen.turn
-              });
+        if (c.type == "simul") {
+          // Just notify that I wanna enter the simultaneous game(s)
+          // TODO: dans défi, indiquer si positions aleatoires, si tjours blancs ou noirs
+          // --> /w30 ou b1h ou juste 30 (random, sans préfixe).
+          // => message "entersimul" to c.from
+          return;
+        }
+        else {
+          c.accepted = true;
+          await import("@/variants/" + c.vname + ".js")
+          .then((vModule) => {
+            window.V = vModule[c.vname + "Rules"];
+            if (!!c.to) {
+              // c.to == this.st.user.name (connected)
+              if (!!c.fen) {
+                const parsedFen = V.ParseFen(c.fen);
+                this.tchallDiag = getDiagram({
+                  position: parsedFen.position,
+                  orientation: parsedFen.turn
+                });
+              }
+              this.curChallToAccept = c;
+              document.getElementById("modalAccept").checked = true;
             }
-            this.curChallToAccept = c;
-            document.getElementById("modalAccept").checked = true;
-          }
-          else this.finishProcessingChallenge(c);
-        });
+            else this.finishProcessingChallenge(c);
+          });
+        }
       }
       else {
         // My challenge
@@ -1249,12 +1262,19 @@ export default {
             { data: { id: c.id } }
           );
         }
+        else if (c.type == "simul" && !!c.seat && Array.isArray(c.seat))
+          // TODO: if some players entered, start game
+          this.launchSimultaneous(c);
         this.send("deletechallenge_s", { data: { cid: c.id } });
       }
       // In all cases, the challenge is consumed:
       ArrayFun.remove(this.challenges, ch => ch.id == c.id);
     },
     // NOTE: when launching game, the challenge is already being deleted
+    // TODO: adapt for simultaneous games, or just write a new function (better)
+    launchSimultaneous: function(c) {
+      // TODO
+    },
     launchGame: function(c) {
       // White player index 0, black player index 1:
       let players =

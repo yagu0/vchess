@@ -179,6 +179,9 @@ main
 </template>
 
 <script>
+// TODO: this will be a component instead ?
+// If simultaneous games, no "rematch" button
+
 import BaseGame from "@/components/BaseGame.vue";
 import UserBio from "@/components/UserBio.vue";
 import Chat from "@/components/Chat.vue";

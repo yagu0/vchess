@@ -15,7 +15,7 @@ div
       )
         td {{ c.vname }}
         td {{ withWho(c) }}
-        td {{ c.cadence }}
+        td(:class="getCadenceClass(c)") {{ c.cadence }}
         td(:class="getRandomnessClass(c)")
   p(v-else)
     | {{ st.tr["No challenges found :( Click on 'New game'!"] }}
@@ -66,6 +66,11 @@ export default {
       return {
         ["random-" + c.randomness]: true
       };
+    },
+    getCadenceClass: function(c) {
+      return {
+        "simultaneous": c.cadence.indexOf("/") >= 0
+      };
     }
   }
 };
@@ -81,6 +86,9 @@ tr.fromyou > td
   font-style: italic
 tr.toyou > td
   background-color: #fcd785
+
+td.simultaneous
+  background-color: purple
 
 tr > td:last-child
   &.random-0
