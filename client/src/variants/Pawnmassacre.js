@@ -6,13 +6,18 @@ export class PawnmassacreRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    return (
-      ChessRules.GenRandIntFen(randomness)
+    const bFen =
+      ChessRules.GenRandInitFen(randomness)
       // Remove castle flags
-      .slice(0, -6).concat("-")
+      .slice(0, -6).concat("-");
+    const splitIdx = bFen.indexOf(' ');
+    return (
+      bFen.substr(0, splitIdx)
       .replace("PPPPPPPP", "pppppppp")
       // Next replacement is OK because only acts on first occurrence
       .replace("pppppppp", "PPPPPPPP")
+      .split("").reverse().join("")
+      .concat(bFen.substr(splitIdx))
     );
   }
 };
