@@ -394,7 +394,7 @@ export class ChakartRules extends ChessRules {
       return (
         V.OnBoard(x + forward, y) &&
         (
-          this.board[x + forward][y] != oppCol ||
+          this.board[x + forward][y] == V.EMPTY ||
           (
             V.OnBoard(x + forward, y + 1) &&
             this.board[x + forward][y + 1] != V.EMPTY &&

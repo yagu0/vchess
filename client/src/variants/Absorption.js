@@ -49,8 +49,8 @@ export class AbsorptionRules extends ChessRules {
       // p1 or p2 already have knight + other piece
       return (p1 == V.KNIGHT ? p2 : p1);
     }
+    if ([p1, p2].includes(V.QN)) return V.QN;
     for (let p of [p1, p2]) {
-      if (p == V.QN) return V.QN;
       if ([V.BN, V.RN].includes(p))
         return V.MergeComposed[[p1, p2].sort().join("")];
     }

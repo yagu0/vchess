@@ -1524,7 +1524,6 @@ console.log(data.data);
       };
       if (
         this.game.type == "corr" &&
-        V.CorrConfirm &&
         moveCol == this.game.mycolor &&
         !data.receiveMyMove
       ) {
@@ -1540,6 +1539,10 @@ console.log(data.data);
             if (data.score == "*") this.re_setClocks();
           }
         };
+        if (!V.CorrConfirm) {
+          afterSetScore();
+          return;
+        }
         let el = document.querySelector("#buttonsConfirm > .acceptBtn");
         // We may play several moves in a row: in case of, remove listener:
         let elClone = el.cloneNode(true);
