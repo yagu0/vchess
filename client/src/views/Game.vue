@@ -182,6 +182,12 @@ main
 // TODO: this will be a component instead ?
 // If simultaneous games, no "rematch" button
 
+// simult : open connexion to rooms from list, in all (if I'm the "simultaneer" --> TODO: indicate sid + side [random,white, black] in challenge)
+// if I'm just one of the players (one game), just one game.
+// view "Game_s", with pug list of components Game.
+// generally only one element, unless I'm the simultaneer.
+// Add messages ?
+
 import BaseGame from "@/components/BaseGame.vue";
 import UserBio from "@/components/UserBio.vue";
 import Chat from "@/components/Chat.vue";
