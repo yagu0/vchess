@@ -1056,6 +1056,7 @@ console.log(data.data);
         let gameInfo = {
           id: getRandString(), //ignored if corr
           fen: V.GenRandInitFen(this.game.randomness),
+          randomness: this.game.randomness,
           players: [this.game.players[1], this.game.players[0]],
           vid: this.game.vid,
           cadence: this.game.cadence
@@ -1077,7 +1078,6 @@ console.log(data.data);
             "/games",
             "POST",
             {
-              // cid is useful to delete the challenge:
               data: { gameInfo: gameInfo },
               success: (response) => {
                 gameInfo.id = response.gameId;
