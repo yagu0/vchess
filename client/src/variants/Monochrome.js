@@ -60,8 +60,8 @@ export class MonochromeRules extends ChessRules {
   getPotentialKingMoves(sq) {
     // King become queen:
     return (
-      this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
-    )
+      this.getSlideNJumpMoves(sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]))
+    );
   }
 
   getAllPotentialMoves() {
@@ -153,12 +153,16 @@ export class MonochromeRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     // Remove the en-passant + castle part of the FEN
-    const fen = ChessRules.GenRandInitFen(randomness).slice(0, -6);
+    let fen = ChessRules.GenRandInitFen(randomness).slice(0, -6);
+    // Move pawns up:
+    fen = fen.replace("pppppppp/8","8/pppppppp")
+             .replace("8/PPPPPPPP","PPPPPPPP/8");
     const firstSpace = fen.indexOf(' ');
-    return (
+    // Paint it black:
+    fen =
       fen.substr(0, firstSpace).replace(/[A-Z]/g, (c) => c.toLowerCase()) +
-      fen.substr(firstSpace)
-    );
+      fen.substr(firstSpace);
+    return fen;
   }
 
   static get SEARCH_DEPTH() {
