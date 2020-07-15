@@ -13,6 +13,10 @@ export class EnpassantRules extends ChessRules {
     return true;
   }
 
+  getPpath(b) {
+    return (b[1] == V.KNIGHT ? "Enpassant/" : "") + b;
+  }
+
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
     if (typeof moveOrSquare === "string") {

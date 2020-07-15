@@ -37,6 +37,10 @@ export class MonochromeRules extends ChessRules {
     return true;
   }
 
+  getPpath(b) {
+    return (b[1] == V.KNIGHT ? "Enpassant/" : "") + b;
+  }
+
   canIplay(side, [x, y]) {
     const xBounds = side == 'w' ? [4,7] : [0,3];
     return this.turn == side && x >= xBounds[0] && x <= xBounds[1];
@@ -154,6 +158,8 @@ export class MonochromeRules extends ChessRules {
   static GenRandInitFen(randomness) {
     // Remove the en-passant + castle part of the FEN
     let fen = ChessRules.GenRandInitFen(randomness).slice(0, -6);
+    // Replace kings with queens
+    fen = fen.replace("k", "q").replace("K", "Q");
     // Move pawns up:
     fen = fen.replace("pppppppp/8","8/pppppppp")
              .replace("8/PPPPPPPP","PPPPPPPP/8");

@@ -19,6 +19,10 @@ export class RoyalraceRules extends ChessRules {
     return { x: 11, y: 11 };
   }
 
+  getPpath(b) {
+    return (b[1] == V.KNIGHT ? "Enpassant/" : "") + b;
+  }
+
   static GenRandInitFen(randomness) {
     if (randomness == 0)
       return "92/92/92/92/92/92/92/92/92/qrbnp1PNBRQ/krbnp1PNBRK w 0";
