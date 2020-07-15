@@ -1,7 +1,7 @@
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export class ProgressiveRules extends ChessRules {
+export class Progressive1Rules extends ChessRules {
   static get HasEnpassant() {
     return false;
   }
