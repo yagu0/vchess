@@ -111,6 +111,7 @@ insert or ignore into Variants (name, description) values
   ('Threechecks', 'Give three checks'),
   ('Twokings', 'Two kings'),
   ('Upsidedown', 'Board upside down'),
+  ('Vchess', 'Pawns capture backward'),
   ('Wildebeest', 'Balanced sliders & leapers'),
   ('Wormhole', 'Squares disappear'),
   ('Zen', 'Reverse captures');

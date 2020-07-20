@@ -11,7 +11,16 @@ export class VchessRules extends ChessRules {
 
   getNotation(move) {
     let notation = super.getNotation(move);
-    // TODO: if capture backwards, add an indication 'b'
+    // If pawn captures backward, add an indication 'b'
+    if (
+      move.appear[0].p == V.PAWN &&
+      (
+        (move.appear[0].c == 'w' && (move.end.x - move.start.x > 0)) ||
+        (move.appear[0].c == 'b' && (move.end.x - move.start.x < 0))
+      )
+    ) {
+      notation += 'b';
+    }
     return notation;
   }
 };

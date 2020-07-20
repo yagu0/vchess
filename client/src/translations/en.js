@@ -234,6 +234,7 @@ export const translations = {
   "Non-conformism and utopia": "Non-conformism and utopia",
   "Occupy the enemy palace": "Occupy the enemy palace",
   "Paralyzed pieces": "Paralyzed pieces",
+  "Pawns capture backward": "Pawns capture backward",
   "Pawns move diagonally": "Pawns move diagonally",
   "Pieces upside down": "Pieces upside down",
   "Play at the same time": "Play at the same time",
