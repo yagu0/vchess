@@ -28,7 +28,7 @@ export class Progressive1Rules extends ChessRules {
   }
 
   play(move) {
-    move.flags = JSON.stringify(this.aggregateFlags());
+    if (V.HasFlags) move.flags = JSON.stringify(this.aggregateFlags());
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
     move.turn = [color, this.subTurn];

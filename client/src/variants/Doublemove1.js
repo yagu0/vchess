@@ -76,11 +76,38 @@ export class Doublemove1Rules extends ChessRules {
     return moves;
   }
 
+  atLeastOneMove() {
+    const color = this.turn;
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          const moves = this.getPotentialMovesFrom([i, j]);
+          if (moves.length > 0) {
+            for (let k = 0; k < moves.length; k++) {
+              const m = moves[k];
+              // NOTE: not using play() here (=> infinite loop)
+              V.PlayOnBoard(this.board, m);
+              if (m.vanish[0].p == V.KING)
+                this.kingPos[color] = [m.appear[0].x, m.appear[0].y];
+              const res = !this.underCheck(color);
+              V.UndoOnBoard(this.board, m);
+              if (m.vanish[0].p == V.KING)
+                this.kingPos[color] = [m.start.x, m.start.y];
+              if (res) return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
     move.turn = [this.turn, this.subTurn];
     V.PlayOnBoard(this.board, move);
     const epSq = this.getEpSquare(move);
+    const oppCol = V.GetOppCol(this.turn);
     if (this.movesCount == 0) {
       // First move in game
       this.turn = "b";
@@ -96,14 +123,14 @@ export class Doublemove1Rules extends ChessRules {
         !this.atLeastOneMove()
       )
     ) {
-      this.turn = V.GetOppCol(this.turn);
+      this.turn = oppCol;
       this.epSquares.push([epSq]);
       move.checkOnSubturn1 = true;
       this.movesCount++;
     }
     else {
       if (this.subTurn == 2) {
-        this.turn = V.GetOppCol(this.turn);
+        this.turn = oppCol;
         let lastEpsq = this.epSquares[this.epSquares.length - 1];
         lastEpsq.push(epSq);
       }
@@ -122,8 +149,7 @@ export class Doublemove1Rules extends ChessRules {
     const firstRank = c == "w" ? V.size.x - 1 : 0;
 
     if (piece == V.KING) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
+      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
       this.castleFlags[c] = [V.size.y, V.size.y];
       return;
     }

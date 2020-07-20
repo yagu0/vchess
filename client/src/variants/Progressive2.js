@@ -26,7 +26,6 @@ export class Progressive2Rules extends Progressive1Rules {
   }
 
   undo(move) {
-    this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     if (this.turn != move.turn[0]) this.movesCount--;
     this.turn = move.turn[0];
