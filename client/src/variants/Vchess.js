@@ -9,6 +9,16 @@ export class VchessRules extends ChessRules {
     );
   }
 
+  isAttackedByPawn(sq, color) {
+    return this.isAttackedBySlideNJump(
+      sq,
+      color,
+      V.PAWN,
+      V.steps[V.BISHOP],
+      "oneStep"
+    );
+  }
+
   getNotation(move) {
     let notation = super.getNotation(move);
     // If pawn captures backward, add an indication 'b'
