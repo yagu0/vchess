@@ -307,6 +307,22 @@ export class OmegaRules extends ChessRules {
     return moves;
   }
 
+  addPawnMoves([x1, y1], [x2, y2], moves, promotions) {
+    let finalPieces = [V.PAWN];
+    const color = this.turn;
+    const lastRank = (color == "w" ? 1 : V.size.x - 2);
+    if (x2 == lastRank) {
+      // promotions arg: special override for Hiddenqueen variant
+      if (!!promotions) finalPieces = promotions;
+      else if (!!V.PawnSpecs.promotions) finalPieces = V.PawnSpecs.promotions;
+    }
+    let tr = null;
+    for (let piece of finalPieces) {
+      tr = (piece != V.PAWN ? { c: color, p: piece } : null);
+      moves.push(this.getBasicMove([x1, y1], [x2, y2], tr));
+    }
+  }
+
   getPotentialChampionMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], "oneStep");
   }
