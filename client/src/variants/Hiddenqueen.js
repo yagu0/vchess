@@ -52,9 +52,11 @@ export class HiddenqueenRules extends ChessRules {
     const move = moveOrSquare;
     const s = move.start,
           e = move.end;
+    const color = move.vanish[0].c;
     if (
       s.y == e.y &&
       Math.abs(s.x - e.x) == 2 &&
+      ((color == 'w' && s.x == 6) || (color == 'b' && s.x == 1)) &&
       [V.PAWN, V.HIDDEN_QUEEN].includes(move.vanish[0].p)
     ) {
       return {
