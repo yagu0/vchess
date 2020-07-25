@@ -63,7 +63,7 @@ export class Allmate2Rules extends ChessRules {
               case V.KING:
                 // Do not allow castling to escape from check
                 oppMoves = super.getSlideNJumpMoves(
-                  [x, y],
+                  [i, j],
                   V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
                   "oneStep"
                 );
