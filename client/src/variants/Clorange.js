@@ -168,7 +168,7 @@ export class ClorangeRules extends ChessRules {
       return this.getReserveMoves([x, y]);
     // Standard moves
     switch (this.getPiece(x, y)) {
-      case 's': return super.getPotentialPawnMoves([x, y]);
+      case 's': return this.getPotentialPawnMoves([x, y]);
       case 'u': return super.getPotentialRookMoves([x, y]);
       case 'o': return super.getPotentialKnightMoves([x, y]);
       case 'c': return super.getPotentialBishopMoves([x, y]);
@@ -180,13 +180,17 @@ export class ClorangeRules extends ChessRules {
 
   getPotentialPawnMoves(sq) {
     let moves = super.getPotentialPawnMoves(sq);
-    moves.forEach(m => {
-      if (m.vanish[0].p == 's' && m.appear[0].p != 's') {
-        // Promotion pieces should be non-violent as well:
-        const pIdx = ChessRules.PIECES.findIndex(p => p == m.appear[0].p)
-        m.appear[0].p = V.NON_VIOLENT[pIdx];
-      }
-    });
+    if (moves.length > 0 && moves[0].vanish[0].p == 's') {
+      // Remove captures for non-violent pawns:
+      moves = moves.filter(m => m.vanish.length == 1);
+      moves.forEach(m => {
+        if (m.appear[0].p != 's') {
+          // Promotion pieces should be non-violent as well:
+          const pIdx = ChessRules.PIECES.findIndex(p => p == m.appear[0].p)
+          m.appear[0].p = V.NON_VIOLENT[pIdx];
+        }
+      });
+    }
     return moves;
   }
 

@@ -180,6 +180,11 @@ export class HiddenqueenRules extends ChessRules {
       this.kingPos[oppCol] = [move.vanish[1].x, move.vanish[1].y];
   }
 
+  underCheck(color) {
+    if (this.kingPos[color][0] < 0) return false;
+    return super.underCheck(color);
+  }
+
   getCurrentScore() {
     const color = this.turn;
     if (this.kingPos[color][0] < 0)

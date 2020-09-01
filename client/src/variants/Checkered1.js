@@ -131,7 +131,7 @@ export class Checkered1Rules extends ChessRules {
     );
   }
 
-  getPotentialMovesFrom([x, y]) {
+  getPotentialMovesFrom([x, y], noswitch) {
     let standardMoves = super.getPotentialMovesFrom([x, y]);
     if (this.stage == 1) {
       const color = this.turn;
@@ -141,7 +141,10 @@ export class Checkered1Rules extends ChessRules {
       // King is treated differently: it never turn checkered
       if (this.getPiece(x, y) == V.KING) {
         // If at least one checkered piece, allow switching:
-        if (this.board.some(b => b.some(cell => cell[0] == 'c'))) {
+        if (
+          !noswitch &&
+          this.board.some(b => b.some(cell => cell[0] == 'c'))
+        ) {
           const oppCol = V.GetOppCol(color);
           moves.push(
             new Move({
@@ -328,7 +331,7 @@ export class Checkered1Rules extends ChessRules {
             )
           )
         ) {
-          const moves = this.getPotentialMovesFrom([i, j]);
+          const moves = this.getPotentialMovesFrom([i, j], "noswitch");
           if (moves.length > 0) {
             for (let k = 0; k < moves.length; k++)
               if (this.filterValid([moves[k]]).length > 0) return true;
