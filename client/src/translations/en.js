@@ -273,5 +273,6 @@ export const translations = {
   "Two royal pieces": "Two royal pieces",
   "Unidentified pieces": "Unidentified pieces",
   "Walk on a graph": "Walk on a graph",
-  "White move twice": "White move twice"
+  "White move twice": "White move twice",
+  "Win by castling long": "Win by castling long"
 };

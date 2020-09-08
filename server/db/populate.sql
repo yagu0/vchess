@@ -29,6 +29,7 @@ insert or ignore into Variants (name, description) values
   ('Bishopawns', 'Bishop versus pawns'),
   ('Cannibal', 'Capture powers'),
   ('Capture', 'Mandatory captures'),
+  ('Castle', 'Win by castling long'),
   ('Checkered1', 'Shared pieces (v1)'),
   ('Checkered2', 'Shared pieces (v2)'),
   ('Checkless', 'No-check mode'),
