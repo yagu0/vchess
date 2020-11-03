@@ -179,15 +179,6 @@ main
 </template>
 
 <script>
-// TODO: this will be a component instead ?
-// If simultaneous games, no "rematch" button
-
-// simult : open connexion to rooms from list, in all (if I'm the "simultaneer" --> TODO: indicate sid + side [random,white, black] in challenge)
-// if I'm just one of the players (one game), just one game.
-// view "Game_s", with pug list of components Game.
-// generally only one element, unless I'm the simultaneer.
-// Add messages ?
-
 import BaseGame from "@/components/BaseGame.vue";
 import UserBio from "@/components/UserBio.vue";
 import Chat from "@/components/Chat.vue";
@@ -531,11 +522,7 @@ export default {
     },
     getGameType: function(game) {
       if (!!game.id.toString().match(/^i/)) return "import";
-      return (
-        game.cadence.indexOf("d") >= 0
-          ? "corr"
-          : (game.cadence.indexOf("/") >= 0 ? "simul" : "live")
-      );
+      return (game.cadence.indexOf("d") >= 0 ? "corr" : "live");
     },
     // Notify something after a new move (to opponent and me on MyGames page)
     notifyMyGames: function(thing, data) {
@@ -764,9 +751,9 @@ export default {
         case "newmove": {
 
 // DEBUG:
-console.log("Receive move");
-console.log(data.data);
-//moveslist not updated when receiving a move? (see in baseGame)
+//console.log("Receive move");
+//console.log(data.data);
+//moveslist not updated when receiving a move? (see in BaseGame)
 
           const movePlus = data.data;
           const movesCount = this.game.moves.length;
