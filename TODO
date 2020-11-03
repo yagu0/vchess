@@ -1,28 +1,28 @@
-r5k1/1R5p/3N4/4pP2/1p4P1/2p5/1rP1PKP1/8 w - - 0 1
-
+WON'T IMPLEMENT:
 Simultaneous games: view Game + Simultaneous, using component (One)Game
 Storage: just key ID => IDs of actual games (in indexedDB)
 In Hall challenge: acceptation on sender side (who launch the game when ready --> left click [which just delete if nobody registered, with confirm box])
 
 Tournaments: merge with tournament.auder.net code. At the beginning, still admin / users. Later : admin / supervisors / users
 => recurrent tournament, eg. every sunday (late?) afternoon + wednesday evening, Discord-vote for variant?
+(Can be replaced by still separated tournament.audeR.net, using vchess credentials...)
 
-Issue: embedded rules language not updated when language is set (in Analyse, Game and Problems)
-Also: if new live game starts in background, "new game" notify OK but not first move (not too serious however)
+Embedded rules language not updated when language is set (in Analyse, Game and Problems)
+If new live game starts in background, "new game" notify OK but not first move (not too serious however)
 On smartphone for Teleport, Chakart, Weiqi and some others: option "confirm moves on touch screen"
 (=> comme pour corr) + option "confirm moves in corr games"?
 
+NEW VARIANTS:
 https://www.chessvariants.com/other.dir/fugue.html
 https://www.chessvariants.com/rules/spartan-chess
 https://www.chessvariants.com/mvopponent.dir/avalanche.html
 https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
 https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
-
 https://brainking.com/en/GameRules?tp=47&fwa=ArchivedGame!g=8204276$i=1
-
 https://musketeerchess.net/games/cerebral/rules/rules.php
+EvolutionChess: jump from 1st line, Zied
+TitanChess: bishop+knight
 http://history.chess.free.fr/rollerball.htm
-
 Squatter Chess: safe on last rank = win
 Companion Chess : pieces of same nature don't attack each others
 https://www.chessvariants.com/difftaking.dir/brotherhood.html
@@ -30,30 +30,23 @@ Crossing Chess = win when the king cross half-board
 Crown Chess: place all units on move 1 (similar to Sittuyin, more freely --> in own half-board, possible pawns on 1st rank)
 Medusa Chess = Isardam
 --> à chaque déplacement, check attaques directes + découvertes autour de case de départ dans 8 directions (pas caval)
-
 Kingmaker: pawns can promote also into enemy king
 --> no king tracking, getCheckSquares + underCheck test all kings
-
 Eightkings: 8 pawns + 8 kings (non-royal until the last remains?)
 --> yes seems better, no king tracking + no underCheck/...etc when >= 2 kings
-
 https://www.jatektan.hu/_2018_vissza/2011_ig/uj2001/isakk1.html
 https://boardgamegeek.com/boardgame/18661/alapo
 Alapo is a strategy game. Each player owns twelve abstract pieces, two each of six different kinds. Round pieces move in any of the eight directions on the 6 by 6 board; square pieces move only orthogonally and triangular pieces only diagonally. Large pieces move any distance, small pieces only one field per turn.
 Opponent pieces can be eliminated by moving onto their position. The goal is to reach the opponent's base line with one of your pieces without the opponent being able to eliminate your piece in his/her next move.
-
 https://www.chessvariants.com/incinf.dir/bario.html
 https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/
 Full Cavalry : JeffK variant without jailer but 2 lancers.
 Paco-Sako : https://www.youtube.com/watch?v=tEv8TVqyZdQ + PDF rules
 https://discord.com/channels/686736099959504907/687076968046395410/735678637432635473 + Amazon Chess
-
 Maybe:
 https://www.chessvariants.com/diffmove.dir/asymmetric.html
 https://www.chessvariants.com/play/connected-chess
-
-=====
-
+Non-chess:
 fanorona https://fr.wikipedia.org/wiki/Fanorona
 Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi-bin/zilligames/submissions.cgi/92187?do=show;id=960
 gess https://en.wikipedia.org/wiki/Gess
