@@ -83,12 +83,12 @@ export default {
           "raw-loader!@/translations/rules/" +
           this.gameInfo.vname + "/" +
           this.st.lang + ".pug"
-        )
+          ).default
+        .replace('export default "', "")
+        .replace(/";$/, "")
         // Next two lines fix a weird issue after last update (2019-11)
         .replace(/\\n/g, " ")
         .replace(/\\"/g, '"')
-        .replace('module.exports = "', "")
-        .replace(/"$/, "")
         .replace(/(fen:)([^:]*):/g, replaceByDiag)
       );
     }
