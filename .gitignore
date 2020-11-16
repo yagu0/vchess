@@ -4,7 +4,7 @@
 /server/fallback/*
 !/server/fallback/README
 /client/dist/*
-!/client/dist/.gitkeep
+!/client/dist/favicon.ico
 /client/src/parameters.js
 
 # Dependency directories#
