@@ -131,6 +131,7 @@ import params from "@/parameters";
 import { getDiagram, replaceByDiag } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { ArrayFun } from "@/utils/array";
+import afterRawLoad from "@/utils/afterRawLoad";
 import BaseGame from "@/components/BaseGame.vue";
 export default {
   name: "my-problems",
@@ -313,19 +314,13 @@ export default {
         this.loadedVar = vid;
         cb();
       });
-      // (AJAX) Request to get rules content (plain text, HTML)
       this.rulesContent =
-        require(
-          "raw-loader!@/translations/rules/" +
-          variant.name + "/" +
-          this.st.lang + ".pug"
-        )
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ")
-        .replace(/\\"/g, '"')
-        .replace('module.exports = "', "")
-        .replace(/"$/, "")
-        .replace(/(fen:)([^:]*):/g, replaceByDiag);
+        afterRawLoad(
+          require(
+            "raw-loader!@/translations/rules/" + variant.name + "/" +
+            this.st.lang + ".pug"
+          ).default
+        ).replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     trySetDiagram: function(prob) {
       // Problem edit: FEN could be wrong or incomplete,

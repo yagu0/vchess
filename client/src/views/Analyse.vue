@@ -29,6 +29,7 @@ import BaseGame from "@/components/BaseGame.vue";
 import { processModalClick } from "@/utils/modalClick";
 import { replaceByDiag } from "@/utils/printDiagram";
 import { store } from "@/store";
+import afterRawLoad from "@/utils/afterRawLoad";
 export default {
   name: "my-analyse",
   // TODO: game import ==> require some adjustments, like
@@ -100,17 +101,12 @@ export default {
       })
       .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
       this.rulesContent =
-        require(
-          "raw-loader!@/translations/rules/" +
-          this.gameRef.vname + "/" +
-          this.st.lang + ".pug"
+        afterRawLoad(
+          require(
+            "raw-loader!@/translations/rules/" +
+            this.gameRef.vname + "/" + this.st.lang + ".pug"
           ).default
-        .replace('export default "', "")
-        .replace(/";$/, "")
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ")
-        .replace(/\\"/g, '"')
-        .replace(/(fen:)([^:]*):/g, replaceByDiag);
+        ).replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     loadGame: function(orientation) {
       this.game.vname = this.gameRef.vname;

@@ -196,6 +196,7 @@ import { getDiagram, replaceByDiag } from "@/utils/printDiagram";
 import { processModalClick } from "@/utils/modalClick";
 import { playMove, getFilteredMove } from "@/utils/playUndo";
 import { ArrayFun } from "@/utils/array";
+import afterRawLoad from "@/utils/afterRawLoad";
 import params from "@/parameters";
 export default {
   name: "my-game",
@@ -1266,19 +1267,13 @@ export default {
         window.V = vModule[game.vname + "Rules"];
         this.loadGame(game, callback);
       });
-      // (AJAX) Request to get rules content (plain text, HTML)
       this.rulesContent =
-        require(
-          "raw-loader!@/translations/rules/" +
-          game.vname + "/" +
-          this.st.lang + ".pug"
-        )
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ")
-        .replace(/\\"/g, '"')
-        .replace('module.exports = "', "")
-        .replace(/"$/, "")
-        .replace(/(fen:)([^:]*):/g, replaceByDiag);
+        afterRawLoad(
+          require(
+            "raw-loader!@/translations/rules/" +
+            game.vname + "/" + this.st.lang + ".pug"
+          ).default
+        ).replace(/(fen:)([^:]*):/g, replaceByDiag);
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)

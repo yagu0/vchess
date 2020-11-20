@@ -7,6 +7,7 @@ main
 
 <script>
 import { store } from "@/store";
+import afterRawLoad from "@/utils/afterRawLoad";
 export default {
   name: "my-faq",
   data: function() {
@@ -14,14 +15,12 @@ export default {
   },
   computed: {
     content: function() {
-      // (AJAX) Request to get FAQ content (plain text, HTML)
       return (
-        require("raw-loader!@/translations/faq/" + this.st.lang + ".pug")
-        // Next two lines fix a weird issue after last update (2019-11)
-        .replace(/\\n/g, " ")
-        .replace(/\\"/g, '"')
-        .replace('module.exports = "', "")
-        .replace(/"$/, "")
+        afterRawLoad(
+          require(
+            "raw-loader!@/translations/faq/" + this.st.lang + ".pug"
+          ).default
+        )
       );
     }
   },
