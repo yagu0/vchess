@@ -5,39 +5,74 @@ export class TitanRules extends ChessRules {
   // and, red = bishop + purple = knight (black side)
   // (avoid using a bigger board, or complicated drawings)
 
-  // TODO: decode if piece + bishop or knight
-  getPiece() {}
+  // Decode if normal piece, or + bishop or knight
+  getPiece(i, j) {
+    const piece = this.board[i][j].charAt(1);
+    if (ChessRules.PIECES.includes(piece)) return piece;
+    // Augmented piece:
+    switch (piece) {
+      case 'a':
+      case 'c':
+        return 'b';
+      case 'j':
+      case 'l':
+        return 'k';
+      case 'm':
+      case 'o':
+        return 'n';
+      case 's':
+      case 't':
+        return 'q';
+      case 'u':
+      case 'v':
+        return 'r';
+    }
+  }
+
+  // TODO: subtelty, castle forbidden if 
 
   // Code: a/c = bishop + knight/bishop j/l for king,
   // m/o for knight, s/t for queen, u/v for rook
   static get AUGMENTED_PIECES() {
-    return {
-      // ...
-    };
-  }
-  // or:
-  getExtraPiece(symbol) {
-    // TODO: switch ... case ... return b or n
+    return [
+      'a',
+      'c',
+      'j',
+      'l',
+      'm',
+      'o',
+      's',
+      't',
+      'u',
+      'v'
+    ];
   }
 
-  // TODO: hook after any move from 1st rank,
-  // if piece not in usual list, bishop or knight appears.
-  getPotentialMovesFrom(sq) {
+  // Decode above notation into additional piece
+  getExtraPiece(symbol) {
+    if (['a','j','m','s','u'].includes(symbol))
+      return 'n';
+    return 'b';
+  }
+
+  // If piece not in usual list, bishop or knight appears.
+  getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom(sq);
     const color = this.turn;
+    
+// treat castle case here (both pieces appear!)
     if (
-      !ChessRules.PIECES.includes(this.board[sq[0]][sq[1]][1]) &&
-      ((color == 'w' && sq[0] == 7) || (color == "b" && sq[0] == 0))
+      V.AUGMENTED_PIECES.includes(this.board[x][y][1]) &&
+      ((color == 'w' && x == 7) || (color == "b" && x == 0))
     ) {
-      // (or lookup table)
-      const newPiece = this.getExtraPiece(this.board[sq[0]][sq[1]][1])
+      const newPiece = this.getExtraPiece(this.board[x][y][1]);
       moves.forEach(m => {
         m.appear.push(
           new PiPo({
             p: newPiece,
             c: color,
-            x: sq[0],
-            y: sq[1]
+            x: x,
+            y: y
           })
         );
       });
