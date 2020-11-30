@@ -196,6 +196,8 @@ export const translations = {
   "Exchange pieces' positions": "Échangez les positions des pièces",
   "Exotic captures": "Captures exotiques",
   "Explosive captures": "Captures explosives",
+  "Extra bishops and knights": "Fous et cavaliers supplémentaires",
+  "Faster development": "Développement accéléré",
   "Four new pieces": "Quatre nouvelles pièces",
   "In the shadow": "Dans l'ombre",
   "Interweaved colorbound teams": "Équipes unicolores entremêlées",

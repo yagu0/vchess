@@ -196,6 +196,8 @@ export const translations = {
   "Exchange pieces' positions": "Exchange pieces' positions",
   "Exotic captures": "Exotic captures",
   "Explosive captures": "Explosive captures",
+  "Extra bishops and knights": "Extra bishops and knights",
+  "Faster development": "Faster development",
   "Four new pieces": "Four new pieces",
   "In the shadow": "In the shadow",
   "Interweaved colorbound teams": "Interweaved colorbound teams",
