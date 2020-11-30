@@ -2,6 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { SuicideRules } from "@/variants/Suicide";
 
 export class SuctionRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -235,4 +236,5 @@ export class SuctionRules extends ChessRules {
       finalSquare
     );
   }
+
 };

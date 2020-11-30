@@ -1,6 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class CannibalRules extends ChessRules {
+
   static get KING_CODE() {
     return {
       'p': 's',
@@ -246,4 +247,5 @@ export class CannibalRules extends ChessRules {
     }
     return notation;
   }
+
 };

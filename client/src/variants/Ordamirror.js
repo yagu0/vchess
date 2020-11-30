@@ -4,6 +4,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class OrdamirrorRules extends OrdaRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -145,4 +146,5 @@ export class OrdamirrorRules extends OrdaRules {
       k: 1000
     };
   }
+
 };

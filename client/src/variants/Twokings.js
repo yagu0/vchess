@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { CoregalRules } from "@/variants/Coregal";
 
 export class TwokingsRules extends CoregalRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -101,6 +102,11 @@ export class TwokingsRules extends CoregalRules {
     );
   }
 
+  getPotentialQueenMoves(sq) {
+    return this.getSlideNJumpMoves(sq,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
+  }
+
   underCheck(color) {
     const oppCol = V.GetOppCol(color);
     for (let i=0; i<V.size.x; i++) {
@@ -123,4 +129,5 @@ export class TwokingsRules extends CoregalRules {
   }
 
   postUndo() {}
+
 };

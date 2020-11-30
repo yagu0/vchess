@@ -3,6 +3,7 @@ import { randInt, shuffle } from "@/utils/alea";
 import { ArrayFun } from "@/utils/array";
 
 export class AmbiguousRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -292,4 +293,5 @@ export class AmbiguousRules extends ChessRules {
     else move.vanish[1].p = V.TARGET_CODE[move.vanish[1].p];
     return notation;
   }
+
 };

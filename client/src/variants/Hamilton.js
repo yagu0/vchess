@@ -2,6 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class HamiltonRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -158,4 +159,5 @@ export class HamiltonRules extends ChessRules {
     // First game move:
     return "N@" + V.CoordsToSquare(move.end);
   }
+
 };

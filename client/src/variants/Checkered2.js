@@ -1,6 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class Checkered2Rules extends ChessRules {
+
   static board2fen(b) {
     const checkered_codes = {
       p: "s",
@@ -462,4 +463,5 @@ export class Checkered2Rules extends ChessRules {
       notation += "=" + move.appear[0].p.toUpperCase();
     return notation;
   }
+
 };

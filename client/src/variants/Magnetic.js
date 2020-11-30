@@ -1,6 +1,7 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
 export class MagneticRules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -210,4 +211,5 @@ export class MagneticRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

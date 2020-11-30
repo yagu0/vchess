@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class TencubedRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -242,4 +243,5 @@ export class TencubedRules extends ChessRules {
       { c: 4, w: 3, a: 6, m: 8 }
     );
   }
+
 };

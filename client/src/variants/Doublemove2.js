@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class Doublemove2Rules extends ChessRules {
+
   static IsGoodEnpassant(enpassant) {
     const squares = enpassant.split(",");
     if (squares.length > 2) return false;
@@ -234,4 +235,5 @@ export class Doublemove2Rules extends ChessRules {
     // TODO: not always the best move played (why ???)
     return doubleMove;
   }
+
 };

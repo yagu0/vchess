@@ -2,6 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
 export class ClorangeRules extends ChessRules {
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -314,4 +315,5 @@ export class ClorangeRules extends ChessRules {
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);
   }
+
 };

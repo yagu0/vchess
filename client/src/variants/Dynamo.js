@@ -2,6 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class DynamoRules extends ChessRules {
+
   // TODO? later, allow to push out pawns on a and h files
   static get HasEnpassant() {
     return false;
@@ -873,4 +874,5 @@ export class DynamoRules extends ChessRules {
       return initialSquare + "R";
     return move.appear[0].p.toUpperCase() + initialSquare + finalSquare;
   }
+
 };

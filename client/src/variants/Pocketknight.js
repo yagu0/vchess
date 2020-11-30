@@ -2,6 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class PocketknightRules extends ChessRules {
+
   hoverHighlight(x, y) {
     // Testing move validity results in an infinite update loop.
     // TODO: find a way to test validity anyway.
@@ -282,4 +283,5 @@ export class PocketknightRules extends ChessRules {
     // Knight landing:
     return "N@" + V.CoordsToSquare(move.end);
   }
+
 };

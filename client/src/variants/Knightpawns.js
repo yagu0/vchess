@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class KnightpawnsRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -48,4 +49,5 @@ export class KnightpawnsRules extends ChessRules {
 
   postPlay() {}
   postUndo() {}
+
 };

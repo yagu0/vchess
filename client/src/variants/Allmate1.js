@@ -1,6 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class Allmate1Rules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -125,7 +126,7 @@ export class Allmate1Rules extends ChessRules {
 
   // No "under check" conditions in castling
   getCastleMoves(sq) {
-    return super.getCastleMoves(sq, "castleInCheck");
+    return super.getCastleMoves(sq, null, "castleInCheck");
   }
 
   // TODO: allow pieces to "commit suicide"? (Currently yes except king)
@@ -201,10 +202,10 @@ export class Allmate1Rules extends ChessRules {
           this.kingPos[this.turn] = [-1, -1];
         // Or maybe a rook?
         else if (v.p == V.ROOK) {
-          if (v.y < this.INIT_COL_KING[v.c])
+          if (v.y < this.kingPos[v.c][1])
             this.castleFlags[v.c][0] = 8;
           else
-            // v.y > this.INIT_COL_KING[v.c]
+            // v.y > this.kingPos[v.c][1]
             this.castleFlags[v.c][1] = 8;
         }
       }
@@ -248,4 +249,5 @@ export class Allmate1Rules extends ChessRules {
     }
     return notation;
   }
+
 };

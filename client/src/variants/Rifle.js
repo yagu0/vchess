@@ -1,6 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class RifleRules extends ChessRules {
+
   getBasicMove([sx, sy], [ex, ey], tr) {
     let mv = new Move({
       appear: [],
@@ -71,4 +72,5 @@ export class RifleRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

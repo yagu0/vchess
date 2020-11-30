@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class ApocalypseRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -512,4 +513,5 @@ export class ApocalypseRules extends ChessRules {
       V.CoordsToSquare(move.end)
     );
   }
+
 };

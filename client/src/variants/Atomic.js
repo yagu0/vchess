@@ -1,6 +1,7 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
 export class AtomicRules extends ChessRules {
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 
@@ -149,4 +150,5 @@ export class AtomicRules extends ChessRules {
     if (!this.isAttacked(kp, V.GetOppCol(color))) return "1/2";
     return color == "w" ? "0-1" : "1-0"; //checkmate
   }
+
 };

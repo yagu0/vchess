@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class WormholeRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -327,4 +328,5 @@ export class WormholeRules extends ChessRules {
       notation += "=" + move.appear[0].p.toUpperCase();
     return notation;
   }
+
 };

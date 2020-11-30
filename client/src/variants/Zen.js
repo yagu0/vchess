@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ZenRules extends ChessRules {
+
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
     if (typeof moveOrSquare === "string") {
@@ -161,4 +162,5 @@ export class ZenRules extends ChessRules {
       k: 1000
     };
   }
+
 };

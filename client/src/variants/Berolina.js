@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class BerolinaRules extends ChessRules {
+
   // En-passant after 2-sq jump
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
@@ -161,4 +162,5 @@ export class BerolinaRules extends ChessRules {
     }
     return super.getNotation(move); //all other pieces are orthodox
   }
+
 };

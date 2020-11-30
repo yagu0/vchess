@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class CastleRules extends ChessRules {
+
   getCurrentScore() {
     const baseScore = super.getCurrentScore();
     if (baseScore != '*') return baseScore;
@@ -11,4 +12,5 @@ export class CastleRules extends ChessRules {
     }
     return '*';
   }
+
 };

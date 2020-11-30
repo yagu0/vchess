@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class OmegaRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -331,102 +332,12 @@ export class OmegaRules extends ChessRules {
     return this.getSlideNJumpMoves(sq, V.steps[V.WIZARD], "oneStep");
   }
 
-  getCastleMoves([x, y], castleInCheck) {
-    const c = this.getColor(x, y);
-    if (x != (c == "w" ? V.size.x - 2 : 1) || y != this.INIT_COL_KING[c])
-      return []; //x isn't first rank, or king has moved (shortcut)
-
-    // Castling ?
-    const oppCol = V.GetOppCol(c);
-    let moves = [];
-    let i = 0;
-    // King, then rook:
+  getCastleMoves([x, y]) {
     const finalSquares = [
       [4, 5],
       [8, 7]
     ];
-    castlingCheck: for (
-      let castleSide = 0;
-      castleSide < 2;
-      castleSide++ //large, then small
-    ) {
-      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
-      // If this code is reached, rook and king are on initial position
-
-      // NOTE: in some variants this is not a rook
-      const rookPos = this.castleFlags[c][castleSide];
-      if (this.board[x][rookPos] == V.EMPTY || this.getColor(x, rookPos) != c)
-        // Rook is not here, or changed color (see Benedict)
-        continue;
-
-      // Nothing on the path of the king ? (and no checks)
-      const castlingPiece = this.getPiece(x, rookPos);
-      const finDist = finalSquares[castleSide][0] - y;
-      let step = finDist / Math.max(1, Math.abs(finDist));
-      i = y;
-      do {
-        if (
-          (!castleInCheck && this.isAttacked([x, i], oppCol)) ||
-          (this.board[x][i] != V.EMPTY &&
-            // NOTE: next check is enough, because of chessboard constraints
-            (this.getColor(x, i) != c ||
-              ![V.KING, castlingPiece].includes(this.getPiece(x, i))))
-        ) {
-          continue castlingCheck;
-        }
-        i += step;
-      } while (i != finalSquares[castleSide][0]);
-
-      // Nothing on the path to the rook?
-      step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != rookPos; i += step) {
-        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-      }
-
-      // Nothing on final squares, except maybe king and castling rook?
-      for (i = 0; i < 2; i++) {
-        if (
-          finalSquares[castleSide][i] != rookPos &&
-          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          (
-            this.getPiece(x, finalSquares[castleSide][i]) != V.KING ||
-            this.getColor(x, finalSquares[castleSide][i]) != c
-          )
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // If this code is reached, castle is valid
-      moves.push(
-        new Move({
-          appear: [
-            new PiPo({
-              x: x,
-              y: finalSquares[castleSide][0],
-              p: V.KING,
-              c: c
-            }),
-            new PiPo({
-              x: x,
-              y: finalSquares[castleSide][1],
-              p: castlingPiece,
-              c: c
-            })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookPos, p: castlingPiece, c: c })
-          ],
-          end:
-            Math.abs(y - rookPos) <= 2
-              ? { x: x, y: rookPos }
-              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
-        })
-      );
-    }
-
-    return moves;
+    return super.getCastleMoves([x, y], finalSquares);
   }
 
   isAttacked(sq, color) {
@@ -506,4 +417,5 @@ export class OmegaRules extends ChessRules {
     }
     return evaluation;
   }
+
 };

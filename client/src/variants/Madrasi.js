@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class MadrasiRules extends ChessRules {
+
   isImmobilized(sq) {
     const oppCol = V.GetOppCol(this.getColor(sq[0], sq[1]));
     const piece = this.getPiece(sq[0], sq[1]);
@@ -61,4 +62,5 @@ export class MadrasiRules extends ChessRules {
     // Connected kings paralyze each other
     return false;
   }
+
 };

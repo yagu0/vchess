@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class HordeRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -80,4 +81,5 @@ export class HordeRules extends ChessRules {
     // From black side, just run usual checks:
     return super.getCurrentScore();
   }
+
 };

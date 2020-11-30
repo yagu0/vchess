@@ -5,6 +5,7 @@ import { ArrayFun } from "@/utils/array";
 // TODO? atLeastOneMove() would be more efficient if rewritten here
 // (less sideBoard computations)
 export class AliceRules extends ChessRules {
+
   static get ALICE_PIECES() {
     return {
       s: "p",
@@ -366,4 +367,5 @@ export class AliceRules extends ChessRules {
       notation += "=" + move.appear[0].p.toUpperCase();
     return notation;
   }
+
 };

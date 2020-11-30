@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ThreechecksRules extends ChessRules {
+
   static IsGoodFlags(flags) {
     // 4 for castle + 2 for checks (0,1 or 2)
     return !!flags.match(/^[01]{4,4}[012]{2,2}$/);
@@ -64,4 +65,5 @@ export class ThreechecksRules extends ChessRules {
     // Take number of checks into account
     return baseEval/5 - this.checkFlags["w"] + this.checkFlags["b"];
   }
+
 };

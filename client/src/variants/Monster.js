@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class MonsterRules extends ChessRules {
+
   static IsGoodFlags(flags) {
     // Only black can castle
     return !!flags.match(/^[a-z]{2,2}$/);
@@ -214,4 +215,5 @@ export class MonsterRules extends ChessRules {
     const color = this.turn;
     return (color == 'w' ? getBestWhiteMove() : getBestBlackMove());
   }
+
 };

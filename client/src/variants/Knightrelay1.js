@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class Knightrelay1Rules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -139,4 +140,5 @@ export class Knightrelay1Rules extends ChessRules {
 
     return notation;
   }
+
 };

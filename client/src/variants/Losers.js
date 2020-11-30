@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class LosersRules extends ChessRules {
+
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
     return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
@@ -75,4 +76,5 @@ console.log(this.atLeastOneCapture());
     // Less material is better (more subtle in fact but...)
     return -super.evalPosition();
   }
+
 };

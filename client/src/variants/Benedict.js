@@ -1,6 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class BenedictRules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -166,4 +167,5 @@ export class BenedictRules extends ChessRules {
     };
     return super.getNotation(basicMove);
   }
+
 };

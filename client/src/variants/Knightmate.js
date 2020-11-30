@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class KnightmateRules extends ChessRules {
+
   static get COMMONER() {
     return "c";
   }
@@ -82,4 +83,5 @@ export class KnightmateRules extends ChessRules {
       k: 1000
     };
   }
+
 };

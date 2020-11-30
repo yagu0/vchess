@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class DarkRules extends ChessRules {
+
   // Analyse in Dark mode makes no sense
   static get CanAnalyze() {
     return false;
@@ -269,4 +270,5 @@ export class DarkRules extends ChessRules {
       candidates.push(j);
     return moves[candidates[randInt(candidates.length)]];
   }
+
 };

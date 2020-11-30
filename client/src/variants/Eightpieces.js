@@ -3,6 +3,7 @@ import { randInt } from "@/utils/alea";
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class EightpiecesRules extends ChessRules {
+
   static get JAILER() {
     return "j";
   }
@@ -1194,4 +1195,5 @@ export class EightpiecesRules extends ChessRules {
     }
     return notation;
   }
+
 };

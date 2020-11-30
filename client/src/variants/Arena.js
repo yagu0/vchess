@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ArenaRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -143,4 +144,5 @@ export class ArenaRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 4;
   }
+
 };

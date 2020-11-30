@@ -1,9 +1,9 @@
 import { ChessRules } from "@/base_rules";
 
 export class AntimatterRules extends ChessRules {
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
-
     // Handle "matter collisions"
     moves.forEach(m => {
       if (
@@ -14,7 +14,7 @@ export class AntimatterRules extends ChessRules {
         m.appear.pop();
       }
     });
-
     return moves;
   }
+
 };

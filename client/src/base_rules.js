@@ -30,6 +30,7 @@ export const Move = class Move {
 // NOTE: x coords = top to bottom; y = left to right
 // (from white player perspective)
 export const ChessRules = class ChessRules {
+
   //////////////
   // MISC UTILS
 
@@ -518,7 +519,6 @@ export const ChessRules = class ChessRules {
 
   // Scan board for kings positions
   scanKings(fen) {
-    this.INIT_COL_KING = { w: -1, b: -1 };
     // Squares of white and black king:
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
@@ -529,11 +529,9 @@ export const ChessRules = class ChessRules {
         switch (fenRows[i].charAt(j)) {
           case "k":
             this.kingPos["b"] = [i, k];
-            this.INIT_COL_KING["b"] = k;
             break;
           case "K":
             this.kingPos["w"] = [i, k];
-            this.INIT_COL_KING["w"] = k;
             break;
           default: {
             const num = parseInt(fenRows[i].charAt(j), 10);
@@ -667,7 +665,7 @@ export const ChessRules = class ChessRules {
   // tr: transformation
   getBasicMove([sx, sy], [ex, ey], tr) {
     const initColor = this.getColor(sx, sy);
-    const initPiece = this.getPiece(sx, sy);
+    const initPiece = this.board[sx][sy].charAt(1);
     let mv = new Move({
       appear: [
         new PiPo({
@@ -694,7 +692,7 @@ export const ChessRules = class ChessRules {
           x: ex,
           y: ey,
           c: this.getColor(ex, ey),
-          p: this.getPiece(ex, ey)
+          p: this.board[ex][ey].charAt(1)
         })
       );
     }
@@ -735,8 +733,7 @@ export const ChessRules = class ChessRules {
       enpassantMove.vanish.push({
         x: x,
         y: epSquare.y,
-        // Captured piece is usually a pawn, but next line seems harmless
-        p: this.getPiece(x, epSquare.y),
+        p: this.board[x][epSquare.y].charAt(1),
         c: this.getColor(x, epSquare.y)
       });
     }
@@ -879,25 +876,22 @@ export const ChessRules = class ChessRules {
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"
     );
-    if (V.HasCastle) moves = moves.concat(this.getCastleMoves(sq));
+    if (V.HasCastle && this.castleFlags[this.turn].some(v => v < V.size.y))
+      moves = moves.concat(this.getCastleMoves(sq));
     return moves;
   }
 
   // "castleInCheck" arg to let some variants castle under check
-  getCastleMoves([x, y], castleInCheck, castleWith) {
+  getCastleMoves([x, y], finalSquares, castleInCheck, castleWith) {
     const c = this.getColor(x, y);
-    if (x != (c == "w" ? V.size.x - 1 : 0) || y != this.INIT_COL_KING[c])
-      return []; //x isn't first rank, or king has moved (shortcut)
 
     // Castling ?
     const oppCol = V.GetOppCol(c);
     let moves = [];
     let i = 0;
     // King, then rook:
-    const finalSquares = [
-      [2, 3],
-      [V.size.y - 2, V.size.y - 3]
-    ];
+    finalSquares = finalSquares || [ [2, 3], [V.size.y - 2, V.size.y - 3] ];
+    const castlingKing = this.board[x][y].charAt(1);
     castlingCheck: for (
       let castleSide = 0;
       castleSide < 2;
@@ -908,30 +902,28 @@ export const ChessRules = class ChessRules {
 
       // NOTE: in some variants this is not a rook
       const rookPos = this.castleFlags[c][castleSide];
+      const castlingPiece = this.board[x][rookPos].charAt(1);
       if (
         this.board[x][rookPos] == V.EMPTY ||
         this.getColor(x, rookPos) != c ||
-        (!!castleWith && !castleWith.includes(this.getPiece(x, rookPos)))
+        (!!castleWith && !castleWith.includes(castlingPiece))
       ) {
         // Rook is not here, or changed color (see Benedict)
         continue;
       }
 
       // Nothing on the path of the king ? (and no checks)
-      const castlingPiece = this.getPiece(x, rookPos);
       const finDist = finalSquares[castleSide][0] - y;
       let step = finDist / Math.max(1, Math.abs(finDist));
       i = y;
       do {
         if (
-          // NOTE: "castling" arg is used by some variants (Monster),
-          // where "isAttacked" is overloaded in an infinite-recursive way.
-          // TODO: not used anymore (Monster + Doublemove2 are simplified).
-          (!castleInCheck && this.isAttacked([x, i], oppCol, "castling")) ||
-          (this.board[x][i] != V.EMPTY &&
+          (!castleInCheck && this.isAttacked([x, i], oppCol)) ||
+          (
+            this.board[x][i] != V.EMPTY &&
             // NOTE: next check is enough, because of chessboard constraints
-            (this.getColor(x, i) != c ||
-              ![V.KING, castlingPiece].includes(this.getPiece(x, i))))
+            (this.getColor(x, i) != c || ![y, rookPos].includes(i))
+          )
         ) {
           continue castlingCheck;
         }
@@ -950,7 +942,7 @@ export const ChessRules = class ChessRules {
           finalSquares[castleSide][i] != rookPos &&
           this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
           (
-            this.getPiece(x, finalSquares[castleSide][i]) != V.KING ||
+            finalSquares[castleSide][i] != y ||
             this.getColor(x, finalSquares[castleSide][i]) != c
           )
         ) {
@@ -965,7 +957,7 @@ export const ChessRules = class ChessRules {
             new PiPo({
               x: x,
               y: finalSquares[castleSide][0],
-              p: V.KING,
+              p: castlingKing,
               c: c
             }),
             new PiPo({
@@ -976,7 +968,8 @@ export const ChessRules = class ChessRules {
             })
           ],
           vanish: [
-            new PiPo({ x: x, y: y, p: V.KING, c: c }),
+            // King might be initially disguised (Titan...)
+            new PiPo({ x: x, y: y, p: this.board[x][y][1], c: c }),
             new PiPo({ x: x, y: rookPos, p: castlingPiece, c: c })
           ],
           end:
@@ -1479,4 +1472,5 @@ export const ChessRules = class ChessRules {
       )
     );
   }
+
 };

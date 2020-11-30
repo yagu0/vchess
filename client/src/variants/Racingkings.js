@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class RacingkingsRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -61,4 +62,5 @@ export class RacingkingsRules extends ChessRules {
     // Ponder with king position:
     return evaluation/5 + this.kingPos["b"][0] - this.kingPos["w"][0];
   }
+
 };

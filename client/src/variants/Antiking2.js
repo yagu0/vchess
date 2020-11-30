@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class Antiking2Rules extends ChessRules {
+
   static get ANTIKING() {
     return "a";
   }
@@ -232,4 +233,5 @@ export class Antiking2Rules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

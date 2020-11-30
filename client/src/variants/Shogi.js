@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { sample, shuffle } from "@/utils/alea";
 
 export class ShogiRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -656,4 +657,5 @@ export class ShogiRules extends ChessRules {
       )
     );
   }
+
 };

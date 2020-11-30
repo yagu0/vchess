@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ForwardRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -26,7 +27,6 @@ export class ForwardRules extends ChessRules {
   }
 
   scanKings(fen) {
-    this.INIT_COL_KING = { w: -1, b: -1 };
     // Squares of white and black king:
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
@@ -38,12 +38,10 @@ export class ForwardRules extends ChessRules {
           case "k":
           case "l":
             this.kingPos["b"] = [i, k];
-            this.INIT_COL_KING["b"] = k;
             break;
           case "K":
           case "L":
             this.kingPos["w"] = [i, k];
-            this.INIT_COL_KING["w"] = k;
             break;
           default: {
             const num = parseInt(fenRows[i].charAt(j), 10);
@@ -140,4 +138,5 @@ export class ForwardRules extends ChessRules {
       ChessRules.VALUES
     );
   }
+
 };

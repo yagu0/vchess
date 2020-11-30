@@ -1,6 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class ParachuteRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -234,4 +235,5 @@ export class ParachuteRules extends ChessRules {
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);
   }
+
 };

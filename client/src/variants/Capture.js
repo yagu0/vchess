@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class CaptureRules extends ChessRules {
+
   // Trim all non-capturing moves
   static KeepCaptures(moves) {
     return moves.filter(m => m.vanish.length == 2 && m.appear.length == 1);
@@ -43,4 +44,5 @@ export class CaptureRules extends ChessRules {
       return V.KeepCaptures(moves);
     return moves;
   }
+
 };

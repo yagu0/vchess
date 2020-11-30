@@ -2,6 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class SittuyinRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -402,4 +403,5 @@ export class SittuyinRules extends ChessRules {
     }
     return super.getNotation(move);
   }
+
 };

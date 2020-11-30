@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class TakenmakeRules extends ChessRules {
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     // Stack of "last move" only for intermediate captures
@@ -197,4 +198,5 @@ export class TakenmakeRules extends ChessRules {
     delete moves[mIdx]["next"];
     return [moves[mIdx], move2];
   }
+
 };

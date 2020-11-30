@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class Progressive1Rules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -108,4 +109,5 @@ export class Progressive1Rules extends ChessRules {
     for (let i=res.length - 1; i>= 0; i--) this.undo(res[i]);
     return res;
   }
+
 };

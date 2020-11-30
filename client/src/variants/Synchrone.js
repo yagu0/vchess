@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class SynchroneRules extends ChessRules {
+
   static get CanAnalyze() {
     return false;
   }
@@ -78,7 +79,6 @@ export class SynchroneRules extends ChessRules {
         : null;
   }
 
-  // After undo(): no need to re-set INIT_COL_KING
   scanKings() {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     for (let i = 0; i < V.size.x; i++) {
@@ -516,4 +516,5 @@ export class SynchroneRules extends ChessRules {
       V.CoordsToSquare(move.end)
     );
   }
+
 };

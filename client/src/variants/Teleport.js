@@ -2,6 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class TeleportRules extends ChessRules {
+
   hoverHighlight(x, y) {
     // Testing move validity results in an infinite update loop.
     // TODO: find a way to test validity anyway.
@@ -319,4 +320,5 @@ export class TeleportRules extends ChessRules {
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);
   }
+
 };

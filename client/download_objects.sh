@@ -7,6 +7,12 @@ for color in "w" "b"; do
     wget -q -O public/images/pieces/Eightpieces/tmp_png/"$color$piece".png https://vchess.club/images/pieces/Eightpieces/tmp_png/"$color$piece".png
   done
 done
+for color in "w" "b"; do
+  for piece in "a" "c" "s" "t" "u" "v" "j" "l" "m" "o" "r" "n" "b" "q" "k"; do
+    rm -f public/images/pieces/Titan/"$color$piece".png
+    wget -q -O public/images/pieces/Titan/"$color$piece".png https://vchess.club/images/pieces/Titan/"$color$piece".png
+  done
+done
 for image in "Orda" "Archer" "Lancer" "Kheshig" "Yurt"; do
   rm -f /public/images/variants/Orda/"$image".png
   wget -q -O public/images/variants/Orda/"$image".png https://vchess.club/images/variants/Orda/"$image".png

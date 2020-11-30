@@ -6,6 +6,7 @@ import { ChessRules } from "@/base_rules";
 // ...But the middle king will get captured quickly...
 
 export class DoublearmyRules extends ChessRules {
+
   static get COMMONER() {
     return "c";
   }
@@ -78,4 +79,5 @@ export class DoublearmyRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

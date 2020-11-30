@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class BallRules extends ChessRules {
+
   static get Lines() {
     return [
       // White goal:
@@ -565,4 +566,5 @@ export class BallRules extends ChessRules {
       finalSquare
     );
   }
+
 };

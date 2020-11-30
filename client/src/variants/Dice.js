@@ -2,6 +2,7 @@ import { ChessRules, Move } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class DiceRules extends ChessRules {
+
   static get CanAnalyze() {
     return false;
   }
@@ -177,4 +178,5 @@ export class DiceRules extends ChessRules {
   getNotation(move) {
     return super.getNotation(move) + "/" + move.end.p.toUpperCase();
   }
+
 };

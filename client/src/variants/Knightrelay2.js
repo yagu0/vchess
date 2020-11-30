@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class Knightrelay2Rules extends ChessRules {
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 
@@ -120,4 +121,5 @@ export class Knightrelay2Rules extends ChessRules {
 
     return notation;
   }
+
 };

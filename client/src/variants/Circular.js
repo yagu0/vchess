@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class CircularRules extends ChessRules {
+
   static get HasCastle() {
     return false;
   }
@@ -221,4 +222,5 @@ export class CircularRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

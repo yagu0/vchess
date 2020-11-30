@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class VchessRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -33,4 +34,5 @@ export class VchessRules extends ChessRules {
     }
     return notation;
   }
+
 };

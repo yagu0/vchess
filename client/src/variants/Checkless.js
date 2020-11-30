@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ChecklessRules extends ChessRules {
+
   // Cannot use super.atLeastOneMove: lead to infinite recursion
   atLeastOneMove_aux() {
     const color = this.turn;
@@ -45,4 +46,5 @@ export class ChecklessRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

@@ -3,6 +3,7 @@ import { randInt } from "@/utils/alea";
 import { ArrayFun } from "@/utils/array";
 
 export class BicolourRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -108,4 +109,5 @@ export class BicolourRules extends ChessRules {
       this.isAttacked(this.kingPos[color], 'b')
     );
   }
+
 };

@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class SuicideRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -165,4 +166,5 @@ export class SuicideRules extends ChessRules {
       " w 0 -"
     );
   }
+
 };

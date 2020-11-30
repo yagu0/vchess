@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
 export class InterweaveRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -639,4 +640,5 @@ export class InterweaveRules extends ChessRules {
     if (move.vanish.length >= 2) notation += "X";
     return notation;
   }
+
 };

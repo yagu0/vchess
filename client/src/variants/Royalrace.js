@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
 export class RoyalraceRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -219,4 +220,5 @@ export class RoyalraceRules extends ChessRules {
       V.CoordsToSquare(move.end)
     );
   }
+
 };

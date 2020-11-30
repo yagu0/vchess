@@ -5,6 +5,7 @@ import { randInt } from "@/utils/alea";
 // NOTE: initial setup differs from the original; see
 // https://www.chessvariants.com/large.dir/freeling.html
 export class GrandRules extends ChessRules {
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -391,4 +392,5 @@ export class GrandRules extends ChessRules {
       " w 0 " + flags + " - 00000000000000"
     );
   }
+
 };

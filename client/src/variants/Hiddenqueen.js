@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class HiddenqueenRules extends ChessRules {
+
   // Analyse in Hiddenqueen mode makes no sense
   static get CanAnalyze() {
     return false;
@@ -230,4 +231,5 @@ export class HiddenqueenRules extends ChessRules {
     else notation = finalSquare;
     return notation;
   }
+
 };

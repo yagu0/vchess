@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class MonochromeRules extends ChessRules {
+
   static get HasEnpassant() {
     // Pawns would be on the same side
     return false;
@@ -217,4 +218,5 @@ export class MonochromeRules extends ChessRules {
     }
     return notation;
   }
+
 };

@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class BalaklavaRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -117,4 +118,5 @@ export class BalaklavaRules extends ChessRules {
       ChessRules.VALUES
     );
   }
+
 };

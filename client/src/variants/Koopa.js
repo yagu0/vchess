@@ -1,6 +1,7 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
 export class KoopaRules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -58,7 +59,6 @@ export class KoopaRules extends ChessRules {
   // stand for stunned indicator.
 
   scanKings(fen) {
-    this.INIT_COL_KING = { w: -1, b: -1 };
     // Squares of white and black king:
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
@@ -70,12 +70,10 @@ export class KoopaRules extends ChessRules {
           case "k":
           case "l":
             this.kingPos["b"] = [i, k];
-            this.INIT_COL_KING["b"] = k;
             break;
           case "K":
           case "L":
             this.kingPos["w"] = [i, k];
-            this.INIT_COL_KING["w"] = k;
             break;
           default: {
             const num = parseInt(fenRows[i].charAt(j), 10);
@@ -221,7 +219,7 @@ export class KoopaRules extends ChessRules {
         sq,
         V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
         "oneStep"
-      ).concat(super.getCastleMoves(sq, true, ['r']))
+      ).concat(super.getCastleMoves(sq, null, true, ['r']))
     );
   }
 
@@ -369,4 +367,5 @@ export class KoopaRules extends ChessRules {
     }
     return notation;
   }
+
 };

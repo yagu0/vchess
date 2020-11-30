@@ -2,6 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ShogiRules } from "@/variants/Shogi";
 
 export class MinishogiRules extends ShogiRules {
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -168,4 +169,5 @@ export class MinishogiRules extends ShogiRules {
   static get SEARCH_DEPTH() {
     return 3;
   }
+
 };

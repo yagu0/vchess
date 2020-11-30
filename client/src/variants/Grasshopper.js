@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class GrasshopperRules extends ChessRules {
+
   static get HasEnpassant() {
     return false;
   }
@@ -108,4 +109,5 @@ export class GrasshopperRules extends ChessRules {
         "/gggggggg/pppppppp/8/8/PPPPPPPP/GGGGGGGG/"
       );
   }
+
 };

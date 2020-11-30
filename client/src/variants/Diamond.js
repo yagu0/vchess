@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class DiamondRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -136,4 +137,5 @@ export class DiamondRules extends ChessRules {
     }
     return super.getNotation(move); //all other pieces are orthodox
   }
+
 };

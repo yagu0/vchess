@@ -1,6 +1,7 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
 export class SchessRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -349,4 +350,5 @@ export class SchessRules extends ChessRules {
     }
     return super.getNotation(move);
   }
+
 };

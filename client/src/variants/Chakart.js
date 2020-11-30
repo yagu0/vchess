@@ -4,6 +4,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class ChakartRules extends ChessRules {
+
   static get PawnSpecs() {
     return SuicideRules.PawnSpecs;
   }
@@ -1470,4 +1471,5 @@ export class ChakartRules extends ChessRules {
     }
     return notation;
   }
+
 };

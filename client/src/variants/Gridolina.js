@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { BerolinaRules } from "@/variants/Berolina";
 
 export class GridolinaRules extends BerolinaRules {
+
   static get Lines() {
     return [
       [[2, 0], [2, 8]],
@@ -54,4 +55,5 @@ export class GridolinaRules extends BerolinaRules {
     }
     return false;
   }
+
 };

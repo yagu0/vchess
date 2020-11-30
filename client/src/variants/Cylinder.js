@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
 export class CylinderRules extends ChessRules {
+
   // Output basically x % 8 (circular board)
   static ComputeY(y) {
     let res = y % V.size.y;
@@ -154,4 +155,5 @@ export class CylinderRules extends ChessRules {
       k: 1000
     };
   }
+
 };

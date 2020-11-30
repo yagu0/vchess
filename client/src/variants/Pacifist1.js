@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class Pacifist1Rules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -36,30 +37,8 @@ export class Pacifist1Rules extends ChessRules {
     return true;
   }
 
-  scanKings(fen) {
-    // Kings may be swapped, so they are not tracked (no kingPos)
-    this.INIT_COL_KING = { w: -1, b: -1 };
-    const fenRows = V.ParseFen(fen).position.split("/");
-    const startRow = { 'w': V.size.x - 1, 'b': 0 };
-    for (let i = 0; i < fenRows.length; i++) {
-      let k = 0; //column index on board
-      for (let j = 0; j < fenRows[i].length; j++) {
-        switch (fenRows[i].charAt(j)) {
-          case "k":
-            this.INIT_COL_KING["b"] = k;
-            break;
-          case "K":
-            this.INIT_COL_KING["w"] = k;
-            break;
-          default: {
-            const num = parseInt(fenRows[i].charAt(j), 10);
-            if (!isNaN(num)) k += num - 1;
-          }
-        }
-        k++;
-      }
-    }
-  }
+  // Kings may be swapped, so they are not tracked (no kingPos)
+  scanKings(fen) { }
 
   // Sum white pieces attacking a square, and remove black pieces count.
   sumAttacks([x, y]) {
@@ -260,4 +239,5 @@ export class Pacifist1Rules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 1;
   }
+
 };

@@ -1,6 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class SwitchingRules extends ChessRules {
+
   // Build switch move between squares x1,y1 and x2,y2
 	getSwitchMove_s([x1, y1], [x2, y2]) {
 		const c = this.getColor(x1, y1); //same as color at square 2
@@ -123,4 +124,5 @@ export class SwitchingRules extends ChessRules {
     // Switch
     return "S" + V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
   }
-}
+
+};

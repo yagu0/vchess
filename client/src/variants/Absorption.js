@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class AbsorptionRules extends ChessRules {
+
   getPpath(b) {
     if ([V.BN, V.RN, V.QN].includes(b[1])) return "Absorption/" + b;
     return b;
@@ -147,4 +148,5 @@ export class AbsorptionRules extends ChessRules {
       notation += "=" + move.appear[0].p.toUpperCase();
     return notation;
   }
+
 };

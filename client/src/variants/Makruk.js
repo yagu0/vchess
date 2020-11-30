@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, shuffle } from "@/utils/alea";
 
 export class MakrukRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -136,4 +137,5 @@ export class MakrukRules extends ChessRules {
       k: 1000
     };
   }
+
 };

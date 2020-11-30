@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { SuicideRules } from "@/variants/Suicide";
 
 export class KingletRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -84,4 +85,5 @@ export class KingletRules extends ChessRules {
       k: 4
     };
   }
+
 };

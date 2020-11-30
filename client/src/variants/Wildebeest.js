@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { sample, randInt } from "@/utils/alea";
 
 export class WildebeestRules extends ChessRules {
+
   static get size() {
     return { x: 10, y: 11 };
   }
@@ -315,4 +316,5 @@ export class WildebeestRules extends ChessRules {
       " w 0 " + flags + " -"
     );
   }
+
 };

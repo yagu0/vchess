@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class Doublemove1Rules extends ChessRules {
+
   static IsGoodEnpassant(enpassant) {
     const squares = enpassant.split(",");
     if (squares.length > 2) return false;
@@ -273,4 +274,5 @@ export class Doublemove1Rules extends ChessRules {
     }
     return doubleMove;
   }
+
 };

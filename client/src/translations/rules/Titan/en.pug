@@ -1,0 +1,40 @@
+p.boxed
+  | Choose squares for new pieces to appear when the initial ones are moved.
+  | One extra knight (first move), and one extra bishop (second move).
+
+p.
+  Everything is the same as in orthodox rules, except that new pieces appear
+  at initially selected locations: a knight and a bishop.
+
+p.
+  The first move of the game selects the square for the knight
+  (just click on a square on the first rank),
+  and the second move picks the square for the bishop.
+  When an "augmented piece" moves, the extra piece enter into play on the
+  initial square.
+
+figure.diagram-container
+  .diagram
+    | fen:rnaqkbor/pppppppp/8/8/8/8/PPPPPPPP/RMBQKCNR:
+  figcaption Augmented pieces on b1, f1, c8 and g8.
+
+p.
+  Castling is always possible. If both pieces involved are augmented,
+  then two extra pieces appear at the end of the move.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rm1qkbor/ppp2ppp/4b3/3pp3/8/5NP1/PPPPPPBP/RNBQJ2V:
+  .diagram.diag22
+    | fen:rm1qkbor/ppp2ppp/4b3/3pp3/8/5NP1/PPPPPPBP/RNBQNRKB:
+  figcaption Before and after 0-0.
+
+h3 More information
+
+p
+  | The variant idea was suggested recently, and corresponds to 
+  a(href="https://musketeerchess.net/home/index.html")
+    | Musketeer Chess
+  | , using non-fairy pieces.
+
+p Inventor: Zied Haddad (2020)

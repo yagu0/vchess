@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class PawnmassacreRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -20,4 +21,5 @@ export class PawnmassacreRules extends ChessRules {
       .concat(bFen.substr(splitIdx))
     );
   }
+
 };

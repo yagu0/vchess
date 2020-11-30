@@ -1,6 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class CoronationRules extends ChessRules {
+
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
     // If no queen on board, allow rook+bishop fusions:
@@ -47,4 +48,5 @@ export class CoronationRules extends ChessRules {
       notation += "=Q";
     return notation;
   }
+
 };

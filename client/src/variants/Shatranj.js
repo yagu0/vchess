@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ShatranjRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -151,4 +152,5 @@ export class ShatranjRules extends ChessRules {
       k: 1000
     };
   }
+
 };

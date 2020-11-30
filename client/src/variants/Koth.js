@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class KothRules extends ChessRules {
+
   static get Lines() {
     return [
       [[3, 3], [3, 5]],
@@ -39,4 +40,5 @@ export class KothRules extends ChessRules {
       ) / 2
     );
   }
+
 };

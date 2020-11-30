@@ -2,6 +2,7 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
 export class RecycleRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -227,4 +228,5 @@ export class RecycleRules extends ChessRules {
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
     return piece + "@" + V.CoordsToSquare(move.end);
   }
+
 };

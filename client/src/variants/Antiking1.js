@@ -4,6 +4,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class Antiking1Rules extends BerolinaRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -221,4 +222,5 @@ export class Antiking1Rules extends BerolinaRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

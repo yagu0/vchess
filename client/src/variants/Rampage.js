@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class RampageRules extends ChessRules {
+
   // Sum white pieces attacking a square, and remove black pieces count.
   sumAttacks([x, y]) {
     const getSign = (color) => {
@@ -84,4 +85,5 @@ export class RampageRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 1;
   }
+
 };

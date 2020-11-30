@@ -4,6 +4,7 @@ import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class Progressive2Rules extends Progressive1Rules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -47,4 +48,5 @@ export class Progressive2Rules extends Progressive1Rules {
       k: 1000
     };
   }
+
 };

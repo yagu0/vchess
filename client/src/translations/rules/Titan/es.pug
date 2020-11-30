@@ -1,0 +1,42 @@
+p.boxed
+  | Elige espacios donde aparezcan nuevas piezas,
+  | durante un primer desplazamiento desde la primera fila.
+  | Un caballo adicional (primer movimiento) y un alfil adicional
+  | (segundo movimiento).
+
+p.
+  Todo va como el ajedrez ortodoxo, excepto las nuevas
+  piezas que aparecen en lugares designados: un caballo y un alfil.
+
+p.
+  El primer movimiento del juego selecciona una casilla para el caballo
+  (simplemente haga clic en un cuadro en la primera fila),
+  y el segundo movimiento designa una casilla para el alfil.
+  Cuando se mueve una "pieza aumentada", entra la pieza adicional
+  en el juego en la casilla de salida.
+
+figure.diagram-container
+  .diagram
+    | fen:rnaqkbor/pppppppp/8/8/8/8/PPPPPPPP/RMBQKCNR:
+  figcaption Piezas aumentadas en b1, f1, c8 y g8.
+
+p.
+  El enroque siempre es posible. Si las dos piezas involucradas son
+  aumentado, luego aparecen dos nuevas piezas después del movimiento.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rm1qkbor/ppp2ppp/4b3/3pp3/8/5NP1/PPPPPPBP/RNBQJ2V:
+  .diagram.diag22
+    | fen:rm1qkbor/ppp2ppp/4b3/3pp3/8/5NP1/PPPPPPBP/RNBQNRKB:
+  figcaption Antes y después de 0-0.
+
+h3 Más información
+
+p
+  | Esta idea ha sido sugerida recientemente y corresponde a 
+  a(href = "https://musketeerchess.net/home/index.html")
+    | Ajedrez Mosquetero
+  | , con piezas estándar.
+
+p Inventor: Zied Haddad (2020)

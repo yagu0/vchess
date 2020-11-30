@@ -1,6 +1,7 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class EnpassantRules extends ChessRules {
+
   static IsGoodEnpassant(enpassant) {
     if (enpassant != "-") {
       const squares = enpassant.split(",");
@@ -204,4 +205,5 @@ export class EnpassantRules extends ChessRules {
       k: 1000
     };
   }
+
 };

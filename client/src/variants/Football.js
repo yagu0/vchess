@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class FootballRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -112,4 +113,5 @@ export class FootballRules extends ChessRules {
       " w 0 -"
     );
   }
+
 };

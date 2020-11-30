@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { shuffle } from "@/utils/alea";
 
 export class MaximaRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -827,4 +828,5 @@ export class MaximaRules extends ChessRules {
     if (move.vanish.length > 1 && move.appear[0].p != V.KING) notation += "X";
     return notation;
   }
+
 };

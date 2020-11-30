@@ -1,6 +1,7 @@
 import { Pacifist1Rules } from "@/variants/Pacifist1";
 
 export class Pacifist2Rules extends Pacifist1Rules {
+
   // Sum values of white pieces attacking a square,
   // and remove (sum of) black pieces values.
   sumAttacks([x, y]) {
@@ -55,4 +56,5 @@ export class Pacifist2Rules extends Pacifist1Rules {
     });
     return res;
   }
+
 };

@@ -3,6 +3,7 @@ import { randInt } from "@/utils/alea";
 import { ArrayFun } from "@/utils/array";
 
 export class UpsidedownRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -77,4 +78,5 @@ export class UpsidedownRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 2;
   }
+
 };

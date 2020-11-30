@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt, sample } from "@/utils/alea";
 
 export class CoregalRules extends ChessRules {
+
   static IsGoodPosition(position) {
     if (!ChessRules.IsGoodPosition(position)) return false;
     const rows = position.split("/");
@@ -20,8 +21,7 @@ export class CoregalRules extends ChessRules {
     return !!flags.match(/^[a-z]{8,8}$/);
   }
 
-  // Scanning king position for faster updates is still interesting,
-  // but no need for INIT_COL_KING because it's given in castle flags.
+  // Scanning king position for faster updates is still interesting.
   scanKings(fen) {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
@@ -44,6 +44,18 @@ export class CoregalRules extends ChessRules {
         k++;
       }
     }
+  }
+
+  getPPpath(m) {
+    if (
+      m.vanish.length == 2 &&
+      m.appear.length == 2 &&
+      m.vanish[0].p == V.QUEEN
+    ) {
+      // Large castle: show castle symbol
+      return "Coregal/castle";
+    }
+    return super.getPPpath(m);
   }
 
   getCheckSquares() {
@@ -164,103 +176,42 @@ export class CoregalRules extends ChessRules {
     }
   }
 
-  getPotentialQueenMoves(sq) {
-    return super.getPotentialQueenMoves(sq).concat(this.getCastleMoves(sq));
+  getPotentialQueenMoves([x, y]) {
+    let moves = super.getPotentialQueenMoves([x, y]);
+    const c = this.getColor(x, y);
+    if (this.castleFlags[c].slice(1, 3).includes(y))
+      moves = moves.concat(this.getCastleMoves([x, y]));
+    return moves;
+  }
+
+  getPotentialKingMoves([x, y]) {
+    let moves = this.getSlideNJumpMoves(
+      [x, y],
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+      "oneStep"
+    );
+    const c = this.getColor(x, y);
+    if (this.castleFlags[c].slice(1, 3).includes(y))
+      moves = moves.concat(this.getCastleMoves([x, y]));
+    return moves;
   }
 
   getCastleMoves([x, y]) {
-    const c = this.getColor(x, y);
-    if (
-      x != (c == "w" ? V.size.x - 1 : 0) ||
-      !this.castleFlags[c].slice(1, 3).includes(y)
-    ) {
-      // x isn't first rank, or piece moved
-      return [];
-    }
-    const castlingPiece = this.getPiece(x, y);
-
     // Relative position of the selected piece: left or right ?
     // If left: small castle left, large castle right.
     // If right: usual situation.
+    const c = this.getColor(x, y);
     const relPos = (this.castleFlags[c][1] == y ? "left" : "right");
 
-    // Castling ?
-    const oppCol = V.GetOppCol(c);
-    let moves = [];
-    let i = 0;
-    // Castling piece, then rook:
-    const finalSquares = {
-      0: (relPos == "left" ? [1, 2] : [2, 3]),
-      3: (relPos == "right" ? [6, 5] : [5, 4])
-    };
-
-    // Left, then right castle:
-    castlingCheck: for (let castleSide of [0, 3]) {
-      if (this.castleFlags[c][castleSide] >= 8) continue;
-
-      // Rook and castling piece are on initial position
-      const rookPos = this.castleFlags[c][castleSide];
-
-      // Nothing on the path of the king ? (and no checks)
-      const finDist = finalSquares[castleSide][0] - y;
-      let step = finDist / Math.max(1, Math.abs(finDist));
-      i = y;
-      do {
-        if (
-          this.isAttacked([x, i], oppCol) ||
-          (this.board[x][i] != V.EMPTY &&
-            // NOTE: next check is enough, because of chessboard constraints
-            (this.getColor(x, i) != c ||
-              ![castlingPiece, V.ROOK].includes(this.getPiece(x, i))))
-        ) {
-          continue castlingCheck;
-        }
-        i += step;
-      } while (i != finalSquares[castleSide][0]);
-
-      // Nothing on the path to the rook?
-      step = castleSide == 0 ? -1 : 1;
-      for (i = y + step; i != rookPos; i += step) {
-        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
-      }
-
-      // Nothing on final squares, except maybe castling piece and rook?
-      for (i = 0; i < 2; i++) {
-        if (
-          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
-          ![y, rookPos].includes(finalSquares[castleSide][i])
-        ) {
-          continue castlingCheck;
-        }
-      }
-
-      // If this code is reached, castle is valid
-      moves.push(
-        new Move({
-          appear: [
-            new PiPo({
-              x: x,
-              y: finalSquares[castleSide][0],
-              p: castlingPiece,
-              c: c
-            }),
-            new PiPo({
-              x: x,
-              y: finalSquares[castleSide][1],
-              p: V.ROOK,
-              c: c
-            })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, p: castlingPiece, c: c }),
-            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
-          ],
-          // In this variant, always castle by playing onto the rook
-          end: { x: x, y: rookPos }
-        })
-      );
-    }
-
+    const finalSquares = [
+      relPos == "left" ? [1, 2] : [2, 3],
+      relPos == "right" ? [6, 5] : [5, 4]
+    ];
+    const saveFlags = JSON.stringify(this.castleFlags[c]);
+    // Alter flags to follow base_rules semantic
+    this.castleFlags[c] = [0, 3].map(i => this.castleFlags[c][i]);
+    const moves = super.getCastleMoves([x, y], finalSquares);
+    this.castleFlags[c] = JSON.parse(saveFlags);
     return moves;
   }
 
@@ -341,4 +292,5 @@ export class CoregalRules extends ChessRules {
     }
     return super.getNotation(move);
   }
+
 };

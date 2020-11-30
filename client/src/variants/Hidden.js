@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class HiddenRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -327,4 +328,5 @@ export class HiddenRules extends ChessRules {
       finalSquare
     );
   }
+
 };

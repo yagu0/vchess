@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 
 export class RugbyRules extends ChessRules {
+
   static get HasFlags() {
     return false;
   }
@@ -61,4 +62,5 @@ export class RugbyRules extends ChessRules {
     // Stalemate (will probably never happen)
     return "1/2";
   }
+
 };

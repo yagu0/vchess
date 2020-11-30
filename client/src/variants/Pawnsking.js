@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class PawnskingRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -53,4 +54,5 @@ export class PawnskingRules extends ChessRules {
   static get SEARCH_DEPTH() {
     return 4;
   }
+
 };

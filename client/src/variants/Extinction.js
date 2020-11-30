@@ -1,6 +1,7 @@
 import { ChessRules } from "@/base_rules";
 
 export class ExtinctionRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -113,4 +114,5 @@ export class ExtinctionRules extends ChessRules {
     }
     return super.evalPosition();
   }
+
 };

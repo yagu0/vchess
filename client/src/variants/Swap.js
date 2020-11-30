@@ -2,6 +2,7 @@ import { ChessRules, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
 export class SwapRules extends ChessRules {
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     // Local stack of swaps
@@ -341,4 +342,5 @@ export class SwapRules extends ChessRules {
     // Swap
     return "S" + V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
   }
+
 };

@@ -3,6 +3,7 @@ import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
 export class PerfectRules extends ChessRules {
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -200,4 +201,5 @@ export class PerfectRules extends ChessRules {
       " w 0 " + flags + " -"
     );
   }
+
 };
