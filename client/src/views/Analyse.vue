@@ -99,7 +99,7 @@ export default {
           this.alertAndQuit("Analysis disabled for this variant");
         else this.loadGame(orientation);
       })
-      .catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
+      //.catch((err) => { this.alertAndQuit("Mispelled variant name", true); });
       this.rulesContent =
         afterRawLoad(
           require(

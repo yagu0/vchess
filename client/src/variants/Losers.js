@@ -35,9 +35,6 @@ export class LosersRules extends ChessRules {
   getPossibleMovesFrom(sq) {
     let moves = this.filterValid(this.getPotentialMovesFrom(sq));
     const captureMoves = V.KeepCaptures(moves);
-
-console.log(this.atLeastOneCapture());
-
     if (captureMoves.length > 0) return captureMoves;
     if (this.atLeastOneCapture()) return [];
     return moves;

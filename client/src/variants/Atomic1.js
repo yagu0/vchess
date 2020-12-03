@@ -1,6 +1,6 @@
 import { ChessRules, PiPo } from "@/base_rules";
 
-export class AtomicRules extends ChessRules {
+export class Atomic1Rules extends ChessRules {
 
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
@@ -79,7 +79,8 @@ export class AtomicRules extends ChessRules {
 
   postPlay(move) {
     super.postPlay(move);
-    if (move.appear.length == 0) {
+    // NOTE: (harmless) condition on movesCount for Atomic2
+    if (move.appear.length == 0 && this.movesCount >= 2) {
       // Capture
       const firstRank = { w: 7, b: 0 };
       for (let c of ["w", "b"]) {
@@ -107,7 +108,11 @@ export class AtomicRules extends ChessRules {
     super.postUndo(move);
     const c = this.turn;
     const oppCol = V.GetOppCol(c);
-    if ([this.kingPos[c][0], this.kingPos[oppCol][0]].some(e => e < 0)) {
+    // NOTE: condition on movesCount for Atomic2
+    if (
+      this.movesCount >= 1 &&
+      [this.kingPos[c][0], this.kingPos[oppCol][0]].some(e => e < 0)
+    ) {
       // There is a chance that last move blowed some king away..
       for (let psq of move.vanish) {
         if (psq.p == "k")

@@ -185,6 +185,14 @@ export class TitanRules extends ChessRules {
     return moves;
   }
 
+  hoverHighlight(x, y) {
+    const c = this.turn;
+    return (
+      this.movesCount <= 3 &&
+      ((c == 'w' && x == 7) || (c == 'b' && x == 0))
+    );
+  }
+
   // Special case of move 1 = choose squares, knight first, then bishop
   doClick(square) {
     if (this.movesCount >= 4) return null;

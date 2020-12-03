@@ -1,4 +1,3 @@
-import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
@@ -170,79 +169,56 @@ export class EightpiecesRules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     if (randomness == 0)
-      // Deterministic:
       return "jfsqkbnr/pppppppp/8/8/8/8/PPPPPPPP/JDSQKBNR w 0 ahah - -";
 
-    let pieces = { w: new Array(8), b: new Array(8) };
-    let flags = "";
-    // Shuffle pieces on first (and last rank if randomness == 2)
-    for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
-        const lancerIdx = pieces['w'].findIndex(p => {
-          return Object.keys(V.LANCER_DIRS).includes(p);
-        });
-        pieces['b'] =
-          pieces['w'].slice(0, lancerIdx)
-          .concat(['g'])
-          .concat(pieces['w'].slice(lancerIdx + 1));
-        flags += flags;
-        break;
+    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const fenParts = baseFen.split(' ');
+    const posParts = fenParts[0].split('/');
+
+    // Replace one bishop by sentry, so that sentries on different colors
+    // Also replace one random rook by jailer,
+    // and one random knight by lancer (facing north/south)
+
+    // "replaced" array contains -2 initially, then either -1 if skipped,
+    // or (eventually) the index of replacement:
+    let newPos = { 0: "", 7: "" };
+    let sentryOddity = -1;
+    for (let rank of [0, 7]) {
+      let replaced = { 'b': -2, 'n': -2, 'r': -2 };
+      for (let i = 0; i < 8; i++) {
+        const curChar = posParts[rank].charAt(i).toLowerCase();
+        if (['b', 'n', 'r'].includes(curChar)) {
+          if (
+            replaced[curChar] == -1 ||
+            (curChar == 'b' && rank == 7 && i % 2 == sentryOddity) ||
+            (
+              (curChar != 'b' || rank == 0) &&
+              replaced[curChar] == -2 &&
+              randInt(2) == 0
+            )
+          ) {
+            replaced[curChar] = i;
+            if (curChar == 'b') {
+              if (sentryOddity < 0) sentryOddity = i % 2;
+              newPos[rank] += 's';
+            }
+            else if (curChar == 'r') newPos[rank] += 'j';
+            else
+              // Lancer: orientation depends on side
+              newPos[rank] += (rank == 0 ? 'g' : 'c');
+          }
+          else {
+            if (replaced[curChar] == -2) replaced[curChar]++;
+            newPos[rank] += curChar;
+          }
+        }
+        else newPos[rank] += curChar;
       }
-
-      let positions = ArrayFun.range(8);
-
-      // Get random squares for bishop and sentry
-      let randIndex = 2 * randInt(4);
-      let bishopPos = positions[randIndex];
-      // The sentry must be on a square of different color
-      let randIndex_tmp = 2 * randInt(4) + 1;
-      let sentryPos = positions[randIndex_tmp];
-      if (c == 'b') {
-        // Check if white sentry is on the same color as ours.
-        // If yes: swap bishop and sentry positions.
-        // NOTE: test % 2 == 1 because there are 7 slashes.
-        if ((pieces['w'].indexOf('s') - sentryPos) % 2 == 1)
-          [bishopPos, sentryPos] = [sentryPos, bishopPos];
-      }
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
-
-      // Get random squares for knight and lancer
-      randIndex = randInt(6);
-      const knightPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(5);
-      const lancerPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Get random square for queen
-      randIndex = randInt(4);
-      const queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      // Rook, jailer and king positions are now almost fixed,
-      // only the ordering rook->jailer or jailer->rook must be decided.
-      let rookPos = positions[0];
-      let jailerPos = positions[2];
-      const kingPos = positions[1];
-      flags += V.CoordToColumn(rookPos) + V.CoordToColumn(jailerPos);
-      if (Math.random() < 0.5) [rookPos, jailerPos] = [jailerPos, rookPos];
-
-      pieces[c][rookPos] = "r";
-      pieces[c][knightPos] = "n";
-      pieces[c][bishopPos] = "b";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][sentryPos] = "s";
-      // Lancer faces north for white, and south for black:
-      pieces[c][lancerPos] = c == 'w' ? 'c' : 'g';
-      pieces[c][jailerPos] = "j";
     }
+
     return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0 " + flags + " - -"
+      newPos[0] + "/" + posParts.slice(1, 7).join('/') + "/" +
+      newPos[7].toUpperCase() + " " + fenParts.slice(1, 5).join(' ') + " -"
     );
   }
 
@@ -384,7 +360,8 @@ export class EightpiecesRules extends ChessRules {
         }
         return true;
       });
-    } else if (this.subTurn == 2) {
+    }
+    else if (this.subTurn == 2) {
       // Put back the sentinel on board:
       const color = this.turn;
       moves.forEach(m => {
