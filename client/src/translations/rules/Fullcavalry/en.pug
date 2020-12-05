@@ -8,16 +8,25 @@ p
   | .
 
 p.
-  White lancers are facing diagonally upward, while black lancers point
-  diagonally down in the deterministic initial setup.
-  In the randomized version, to avoid complex setup rules,
-  all lancers are facing up.
+  Lancers are initially facing each other.
+  They can be reoriented after castling, if they effectively moved.
+  While castling, some pieces can stand on the lancer's path,
+  since it can jump over them.
 
 figure.diagram-container
-  .diagram
-    | fen:efbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/EDBQKBNM:
-  figcaption Initial deterministic position.
+  .diagram.diag12
+    | fen:nn1ekm2/p1ppppqp/bp3bp1/8/8/BPPN2N1/P1QPPPPP/EB4KM:
+  .diagram.diag22
+    | fen:nn1e1mk1/p1ppppqp/bp3bp1/8/8/BPPN2N1/P1QPPPPP/1BKC3M:
+  figcaption Before and after 0-0-0+L:N 0-0 (no reorientation)
 
-h3 More information
+p.
+  Pawn cannot promote in rooks, and, since they are absent of this game,
+  neither do they promote in jailer or sentry.
 
-p TODO
+h3 Source
+
+p
+  | This variant was imagined by the creator of 
+  a(href="/variants/Eightpieces") Eightpieces
+  | .

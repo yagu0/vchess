@@ -76,9 +76,11 @@ export class FullcavalryRules extends ChessRules {
   }
 
   getPPpath(m, orientation) {
+    // If castle, show choices on m.appear[1]:
+    const index = (m.appear.length == 2 ? 1 : 0);
     return (
       this.getPpath(
-        m.appear[0].c + m.appear[0].p,
+        m.appear[index].c + m.appear[index].p,
         null,
         null,
         orientation
@@ -92,9 +94,18 @@ export class FullcavalryRules extends ChessRules {
       return "efbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/EDBQKBNM w 0 ahah -";
 
     const baseFen = ChessRules.GenRandInitFen(randomness);
-    // Replace black rooks by lancers oriented south,
-    // and white rooks by lancers oriented north:
-    return baseFen.replace(/r/g, 'g').replace(/R/g, 'C');
+    // Replace rooks by lancers with expected orientation:
+    const firstBlackRook = baseFen.indexOf('r'),
+          lastBlackRook = baseFen.lastIndexOf('r'),
+          firstWhiteRook = baseFen.indexOf('R'),
+          lastWhiteRook = baseFen.lastIndexOf('R');
+    return (
+      baseFen.substring(0, firstBlackRook) + 'e' +
+      baseFen.substring(firstBlackRook + 1, lastBlackRook) + 'm' +
+      baseFen.substring(lastBlackRook + 1, firstWhiteRook) + 'E' +
+      baseFen.substring(firstWhiteRook + 1, lastWhiteRook) + 'M' +
+      baseFen.substring(lastWhiteRook + 1)
+    );
   }
 
   // Because of the lancers, getPiece() could be wrong:
@@ -143,6 +154,65 @@ export class FullcavalryRules extends ChessRules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
+  getPotentialPawnMoves([x, y]) {
+    const color = this.getColor(x, y);
+    let moves = [];
+    const [sizeX, sizeY] = [V.size.x, V.size.y];
+    let shiftX = (color == "w" ? -1 : 1);
+    const startRank = color == "w" ? sizeX - 2 : 1;
+    const lastRank = color == "w" ? 0 : sizeX - 1;
+
+    let finalPieces = [V.PAWN];
+    if (x + shiftX == lastRank) {
+      // Only allow direction facing inside board:
+      const allowedLancerDirs =
+        lastRank == 0
+          ? ['e', 'f', 'g', 'h', 'm']
+          : ['c', 'd', 'e', 'm', 'o'];
+      finalPieces = allowedLancerDirs.concat([V.KNIGHT, V.BISHOP, V.QUEEN]);
+    }
+    if (this.board[x + shiftX][y] == V.EMPTY) {
+      // One square forward
+      for (let piece of finalPieces) {
+        moves.push(
+          this.getBasicMove([x, y], [x + shiftX, y], {
+            c: color,
+            p: piece
+          })
+        );
+      }
+      if (x == startRank && this.board[x + 2 * shiftX][y] == V.EMPTY)
+        // Two squares jump
+        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
+    }
+    // Captures
+    for (let shiftY of [-1, 1]) {
+      if (
+        y + shiftY >= 0 &&
+        y + shiftY < sizeY &&
+        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        this.canTake([x, y], [x + shiftX, y + shiftY])
+      ) {
+        for (let piece of finalPieces) {
+          moves.push(
+            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
+              c: color,
+              p: piece
+            })
+          );
+        }
+      }
+    }
+
+    // Add en-passant captures
+    Array.prototype.push.apply(
+      moves,
+      this.getEnpassantCaptures([x, y], shiftX)
+    );
+
+    return moves;
+  }
+
   // Obtain all lancer moves in "step" direction
   getPotentialLancerMoves_aux([x, y], step, tr) {
     let moves = [];
@@ -181,6 +251,100 @@ export class FullcavalryRules extends ChessRules {
         }
       });
     });
+    return moves;
+  }
+
+  getCastleMoves([x, y]) {
+    const c = this.getColor(x, y);
+
+    // Castling ?
+    const oppCol = V.GetOppCol(c);
+    let moves = [];
+    let i = 0;
+    // King, then lancer:
+    const finalSquares = [ [2, 3], [V.size.y - 2, V.size.y - 3] ];
+    castlingCheck: for (
+      let castleSide = 0;
+      castleSide < 2;
+      castleSide++ //large, then small
+    ) {
+      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
+      // If this code is reached, lancer and king are on initial position
+
+      const lancerPos = this.castleFlags[c][castleSide];
+      const castlingPiece = this.board[x][lancerPos].charAt(1);
+
+      // Nothing on the path of the king ? (and no checks)
+      const finDist = finalSquares[castleSide][0] - y;
+      let step = finDist / Math.max(1, Math.abs(finDist));
+      i = y;
+      do {
+        if (
+          (this.isAttacked([x, i], oppCol)) ||
+          (
+            this.board[x][i] != V.EMPTY &&
+            // NOTE: next check is enough, because of chessboard constraints
+            (this.getColor(x, i) != c || ![y, lancerPos].includes(i))
+          )
+        ) {
+          continue castlingCheck;
+        }
+        i += step;
+      } while (i != finalSquares[castleSide][0]);
+
+      // Nothing on final squares, except maybe king and castling lancer?
+      for (i = 0; i < 2; i++) {
+        if (
+          finalSquares[castleSide][i] != lancerPos &&
+          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
+          (
+            finalSquares[castleSide][i] != y ||
+            this.getColor(x, finalSquares[castleSide][i]) != c
+          )
+        ) {
+          continue castlingCheck;
+        }
+      }
+
+      // If this code is reached, castle is valid
+      let allowedLancerDirs = [castlingPiece];
+      if (finalSquares[castleSide][1] != lancerPos) {
+        // It moved: allow reorientation
+        allowedLancerDirs =
+          x == 0
+            ? ['e', 'f', 'g', 'h', 'm']
+            : ['c', 'd', 'e', 'm', 'o'];
+      }
+      allowedLancerDirs.forEach(dir => {
+        moves.push(
+          new Move({
+            appear: [
+              new PiPo({
+                x: x,
+                y: finalSquares[castleSide][0],
+                p: V.KING,
+                c: c
+              }),
+              new PiPo({
+                x: x,
+                y: finalSquares[castleSide][1],
+                p: dir,
+                c: c
+              })
+            ],
+            vanish: [
+              new PiPo({ x: x, y: y, p: V.KING, c: c }),
+              new PiPo({ x: x, y: lancerPos, p: castlingPiece, c: c })
+            ],
+            end:
+              Math.abs(y - lancerPos) <= 2
+                ? { x: x, y: lancerPos }
+                : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
+          })
+        );
+      });
+    }
+
     return moves;
   }
 
@@ -254,6 +418,9 @@ export class FullcavalryRules extends ChessRules {
     if (Object.keys(V.LANCER_DIRNAMES).includes(move.vanish[0].p))
       // Lancer: add direction info
       notation += "=" + V.LANCER_DIRNAMES[move.appear[0].p];
+    else if (move.appear.length == 2 && move.vanish[1].p != move.appear[1].p)
+      // Same after castle:
+      notation += "+L:" + V.LANCER_DIRNAMES[move.appear[1].p];
     else if (
       move.vanish[0].p == V.PAWN &&
       Object.keys(V.LANCER_DIRNAMES).includes(move.appear[0].p)

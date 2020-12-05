@@ -969,7 +969,7 @@ export const ChessRules = class ChessRules {
           ],
           vanish: [
             // King might be initially disguised (Titan...)
-            new PiPo({ x: x, y: y, p: this.board[x][y][1], c: c }),
+            new PiPo({ x: x, y: y, p: castlingKing, c: c }),
             new PiPo({ x: x, y: rookPos, p: castlingPiece, c: c })
           ],
           end:

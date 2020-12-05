@@ -8,17 +8,25 @@ p
   | .
 
 p.
-  Les lanciers blancs regarde vers l'avant en diagonale, tandis que les
-  lanciers noirs pointent vers le sud (toujours en diagonale) dans
-  l'arrangement initial déterministe.
-  Dans la version aléatoire, tous les lanciers regardent droit devant afin
-  d'éviter des règles d'initialisation complexes.
+  Les lanciers se font initialement face.
+  Ils peuvent être réorientés après le roque, s'ils ont effectivement bougé.
+  Pendant le roque, des pièces peuvent se trouver sur le chemin du lancier,
+  puisqu'il peut sauter par dessus.
 
 figure.diagram-container
-  .diagram
-    | fen:efbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/EDBQKBNM:
-  figcaption Position initiale déterministe.
+  .diagram.diag12
+    | fen:nn1ekm2/p1ppppqp/bp3bp1/8/8/BPPN2N1/P1QPPPPP/EB4KM:
+  .diagram.diag22
+    | fen:nn1e1mk1/p1ppppqp/bp3bp1/8/8/BPPN2N1/P1QPPPPP/1BKC3M:
+  figcaption Avant et après 0-0-0+L:N 0-0 (pas de réorientation)
 
-h3 Plus d'information
+p.
+  Les pions ne peuvent être promus en tours, et, puisqu'ils sont absents de
+  ce jeu, ils ne se promeuvent pas non plus en geôlier ou sentinelle.
 
-p TODO
+h3 Source
+
+p
+  | Cette variante a été imaginée par le créateur de 
+  a(href="/variants/Eightpieces") Eightpieces
+  | .
