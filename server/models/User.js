@@ -17,6 +17,7 @@ const sendEmail = require('../utils/mailer');
  */
 
 const UserModel = {
+
   checkNameEmail: function(o) {
     return (
       (!o.name || !!(o.name.match(/^[\w-]+$/))) &&
@@ -177,7 +178,8 @@ const UserModel = {
         }
       });
     });
-  },
-}
+  }
+
+};
 
 module.exports = UserModel;

@@ -34,8 +34,8 @@ const UserModel = require("./User");
  *   added: datetime
  */
 
-const GameModel =
-{
+const GameModel = {
+
   checkGameInfo: function(g) {
     return (
       g.vid.toString().match(/^[0-9]+$/) &&
@@ -502,6 +502,7 @@ const GameModel =
       });
     });
   }
-}
+
+};
 
 module.exports = GameModel;

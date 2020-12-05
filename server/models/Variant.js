@@ -8,6 +8,7 @@ const db = require("../utils/database");
  */
 
 const VariantModel = {
+
   getAll: function(callback) {
     db.serialize(function() {
       const query =
@@ -15,9 +16,10 @@ const VariantModel = {
         "FROM Variants";
       db.all(query, callback);
     });
-  },
+  }
 
   //create, update, delete: directly in DB
-}
+
+};
 
 module.exports = VariantModel;

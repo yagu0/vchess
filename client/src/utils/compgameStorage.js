@@ -37,6 +37,7 @@ function dbOperation(callback) {
 }
 
 export const CompgameStorage = {
+
   add: function(game) {
     dbOperation((err, db) => {
       if (err) return;
@@ -90,4 +91,5 @@ export const CompgameStorage = {
       }
     });
   }
+
 };

@@ -1,6 +1,7 @@
 var UserModel = require("../models/User");
 
 module.exports = {
+
   // Prevent access to "users pages"
   logged: function(req, res, next) {
     const callback = () => {
@@ -55,4 +56,5 @@ module.exports = {
       res.json({ errmsg: msg });
     } else cb();
   }
+
 };

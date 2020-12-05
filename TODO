@@ -1,3 +1,6 @@
+getRepetitionStatus() lose or draw... (for some variants)
+Chakart: king remote capture, is an option if short range
+
 WON'T IMPLEMENT:
 Simultaneous games: view Game + Simultaneous, using component (One)Game
 Storage: just key ID => IDs of actual games (in indexedDB)

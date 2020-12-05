@@ -12,6 +12,7 @@ const db = require("../utils/database");
  */
 
 const ProblemModel = {
+
   checkProblem: function(p) {
     return (
       p.id.toString().match(/^[0-9]+$/) &&
@@ -88,7 +89,8 @@ const ProblemModel = {
         whereClause;
       db.run(query);
     });
-  },
-}
+  }
+
+};
 
 module.exports = ProblemModel;

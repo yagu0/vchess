@@ -1,5 +1,6 @@
 // Remove item(s) in array (if present)
 export const ArrayFun = {
+
   remove: function(arr, rfun, all) {
     const index = arr.findIndex(rfun);
     if (index >= 0) {
@@ -21,4 +22,5 @@ export const ArrayFun = {
   range: function(max) {
     return [...Array(max).keys()];
   }
+
 };

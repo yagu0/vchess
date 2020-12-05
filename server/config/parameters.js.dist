@@ -1,4 +1,5 @@
 module.exports = {
+
   // For mail sending. NOTE: *no trailing slash*
   siteURL: "http://localhost:8080",
 
@@ -33,4 +34,5 @@ module.exports = {
 
   // IDs of users allowed to post news and edit any problem
   devs: []
+
 };

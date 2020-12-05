@@ -14,6 +14,7 @@ const UserModel = require("./User");
  */
 
 const ChallengeModel = {
+
   checkChallenge: function(c) {
     return (
       c.vid.toString().match(/^[0-9]+$/) &&
@@ -76,7 +77,8 @@ const ChallengeModel = {
           ChallengeModel.remove(id);
       });
     });
-  },
-}
+  }
+
+};
 
 module.exports = ChallengeModel;

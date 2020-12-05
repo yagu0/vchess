@@ -33,6 +33,7 @@ function dbOperation(callback) {
 }
 
 export const ImportgameStorage = {
+
   // Optional callback to get error status
   add: function(game, callback) {
     dbOperation((err, db) => {
@@ -110,4 +111,5 @@ export const ImportgameStorage = {
       }
     });
   }
+
 };
