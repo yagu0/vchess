@@ -5,7 +5,7 @@ const sendEmail = require('../utils/mailer');
 
 /*
  * Structure:
- *   _id: integer
+ *   id: integer
  *   name: varchar
  *   email: varchar
  *   loginToken: token on server only
