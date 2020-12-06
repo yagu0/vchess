@@ -100,10 +100,14 @@ export class FullcavalryRules extends ChessRules {
           firstWhiteRook = baseFen.indexOf('R'),
           lastWhiteRook = baseFen.lastIndexOf('R');
     return (
-      baseFen.substring(0, firstBlackRook) + 'e' +
-      baseFen.substring(firstBlackRook + 1, lastBlackRook) + 'm' +
-      baseFen.substring(lastBlackRook + 1, firstWhiteRook) + 'E' +
-      baseFen.substring(firstWhiteRook + 1, lastWhiteRook) + 'M' +
+      baseFen.substring(0, firstBlackRook) +
+        (firstBlackRook <= 3 ? 'e' : 'm') +
+      baseFen.substring(firstBlackRook + 1, lastBlackRook) +
+        (lastBlackRook >= 5 ? 'm' : 'e') +
+      baseFen.substring(lastBlackRook + 1, firstWhiteRook) +
+        (firstWhiteRook <= 3 ? 'E' : 'M') +
+      baseFen.substring(firstWhiteRook + 1, lastWhiteRook) +
+        (lastWhiteRook >= 5 ? 'M' : 'E') +
       baseFen.substring(lastWhiteRook + 1)
     );
   }
