@@ -104,10 +104,12 @@ export class FullcavalryRules extends ChessRules {
         (firstBlackRook <= 3 ? 'e' : 'm') +
       baseFen.substring(firstBlackRook + 1, lastBlackRook) +
         (lastBlackRook >= 5 ? 'm' : 'e') +
+      // Subtract 35 = total number of characters before last FEN row:
+      // 8x3 (full rows) + 4 (empty rows) + 7 (separators)
       baseFen.substring(lastBlackRook + 1, firstWhiteRook) +
-        (firstWhiteRook <= 3 ? 'E' : 'M') +
+        (firstWhiteRook - 35 <= 3 ? 'E' : 'M') +
       baseFen.substring(firstWhiteRook + 1, lastWhiteRook) +
-        (lastWhiteRook >= 5 ? 'M' : 'E') +
+        (lastWhiteRook - 35 >= 5 ? 'M' : 'E') +
       baseFen.substring(lastWhiteRook + 1)
     );
   }
