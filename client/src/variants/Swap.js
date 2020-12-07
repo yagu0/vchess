@@ -270,28 +270,8 @@ export class SwapRules extends ChessRules {
     const color = this.turn;
     const oppCol = V.GetOppCol(this.turn);
 
-    // Search best (half) move for opponent turn (TODO: a bit too slow)
-//    const getBestMoveEval = () => {
-//      let score = this.getCurrentScore();
-//      if (score != "*") return maxeval * (score == "1-0" ? 1 : -1);
-//      let moves = this.getAllValidMoves();
-//      let res = (oppCol == "w" ? -maxeval : maxeval);
-//      for (let m of moves) {
-//        this.play(m);
-//        score = this.getCurrentScore();
-//        // Now turn is oppCol,2 if m allow a swap and movesCount >= 2
-//        // Otherwise it's color,1. In both cases the next test makes sense
-//        if (score != "*") {
-//          // Game over
-//          this.undo(m);
-//          return maxeval * (score == "1-0" ? 1 : -1);
-//        }
-//        const evalPos = this.evalPosition();
-//        res = oppCol == "w" ? Math.max(res, evalPos) : Math.min(res, evalPos);
-//        this.undo(m);
-//      }
-//      return res;
-//    };
+    // NOTE: searching best (half) move for opponent turn is a bit too slow.
+    // => Only 2 half moves depth here.
 
     const moves11 = this.getAllValidMoves();
     if (this.movesCount == 0)
@@ -312,7 +292,6 @@ export class SwapRules extends ChessRules {
         let moves12 = this.getAllValidMoves();
         for (let j = 0; j < moves12.length; j++) {
           this.play(moves12[j]);
-//          const evalMove = getBestMoveEval() + 0.05 - Math.random() / 10;
           const evalMove = this.evalPosition() + 0.05 - Math.random() / 10;
           if (
             !bestMove ||

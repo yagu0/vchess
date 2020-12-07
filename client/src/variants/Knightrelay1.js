@@ -6,7 +6,19 @@ export class Knightrelay1Rules extends ChessRules {
     return false;
   }
 
-  // TODO: IsGoodPosition to check that 2 knights are on the board...
+  static IsGoodPosition(position) {
+    if (!ChessRules.IsGoodPosition(position)) return false;
+    // Check that (at least) 2 knights per side are on the board
+    const rows = position.split("/");
+    let knights = { 'N': 0, 'n': 0 };
+    for (let row of rows) {
+      for (let i = 0; i < row.length; i++) {
+        if (['N','n'].includes(row[i])) knights[row[i]]++;
+      }
+    }
+    if (Object.values(knights).some(v => v < 2)) return false;
+    return true;
+  }
 
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);

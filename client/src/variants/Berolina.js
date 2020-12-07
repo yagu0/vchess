@@ -54,6 +54,26 @@ export class BerolinaRules extends ChessRules {
     );
   }
 
+  getEnpassantCaptures([x, y], shift) {
+    const Lep = this.epSquares.length;
+    const epSquare = this.epSquares[Lep - 1]; //always at least one element
+    if (
+      !!epSquare &&
+      epSquare[0].x == x + shift &&
+      epSquare[0].y == y
+    ) {
+      let enpassantMove = this.getBasicMove([x, y], [x + shift, y]);
+      enpassantMove.vanish.push({
+        x: x,
+        y: epSquare[1],
+        p: "p",
+        c: this.getColor(x, epSquare[1])
+      });
+      return [enpassantMove];
+    }
+    return [];
+  }
+
   // Special pawns movements
   getPotentialPawnMoves([x, y]) {
     const color = this.turn;
@@ -105,24 +125,13 @@ export class BerolinaRules extends ChessRules {
     }
 
     // Next condition so that other variants could inherit from this class
-    if (V.PawnSpecs.enPassant) {
-      // En passant
-      const Lep = this.epSquares.length;
-      const epSquare = this.epSquares[Lep - 1]; //always at least one element
-      if (
-        !!epSquare &&
-        epSquare[0].x == x + shiftX &&
-        epSquare[0].y == y
-      ) {
-        let enpassantMove = this.getBasicMove([x, y], [x + shiftX, y]);
-        enpassantMove.vanish.push({
-          x: x,
-          y: epSquare[1],
-          p: "p",
-          c: this.getColor(x, epSquare[1])
-        });
-        moves.push(enpassantMove);
-      }
+    if (V.HasEnpassant) {
+      // NOTE: backward en-passant captures are not considered
+      // because no rules define them (for now).
+      Array.prototype.push.apply(
+        moves,
+        this.getEnpassantCaptures([x, y], shiftX)
+      );
     }
 
     return moves;

@@ -35,59 +35,10 @@ export class ColorboundRules extends ChessRules {
       'k': 'k'
     };
 
-    let pieces = { w: new Array(8), b: new Array(8) };
-    let flags = "";
-    // Shuffle pieces on first (and last rank if randomness == 2)
-    for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'].map(p => piecesMap[p]);
-        flags += flags;
-        break;
-      }
-
-      // TODO: same code as in base_rules. Should extract and factorize?
-
-      let positions = ArrayFun.range(8);
-
-      let randIndex = 2 * randInt(4);
-      const bishop1Pos = positions[randIndex];
-      let randIndex_tmp = 2 * randInt(4) + 1;
-      const bishop2Pos = positions[randIndex_tmp];
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
-
-      randIndex = randInt(6);
-      const knight1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(5);
-      const knight2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(4);
-      const queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      const rook1Pos = positions[0];
-      const kingPos = positions[1];
-      const rook2Pos = positions[2];
-
-      pieces[c][rook1Pos] = "r";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][bishop1Pos] = "b";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][bishop2Pos] = "b";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][rook2Pos] = "r";
-      if (c == 'b') pieces[c] = pieces[c].map(p => piecesMap[p]);
-      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
-    }
-    // Add turn + flags + enpassant
+    const baseFen = ChessRules.GenRandInitFen(randomness);
     return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0 " + flags + " -"
+      baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
+      baseFen.substr(8)
     );
   }
 

@@ -160,7 +160,7 @@ export class WildebeestRules extends ChessRules {
       for (let epsq of epSquare) {
         // TODO: some redundant checks
         if (epsq.x == x + shiftX && Math.abs(epsq.y - y) == 1) {
-          var enpassantMove = this.getBasicMove([x, y], [epsq.x, epsq.y]);
+          let enpassantMove = this.getBasicMove([x, y], [epsq.x, epsq.y]);
           // WARNING: the captured pawn may be diagonally behind us,
           // if it's a 3-squares jump and we take on 1st passing square
           const px = this.board[x][epsq.y] != V.EMPTY ? x : x - shiftX;
@@ -177,8 +177,6 @@ export class WildebeestRules extends ChessRules {
 
     return moves;
   }
-
-  // TODO: wildebeest castle
 
   getPotentialCamelMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.CAMEL], "oneStep");

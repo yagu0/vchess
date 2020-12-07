@@ -112,38 +112,9 @@ export class CannibalRules extends ChessRules {
   // Because of the disguised kings, getPiece() could be wrong:
   // use board[x][y][1] instead (always valid).
   getBasicMove([sx, sy], [ex, ey], tr) {
-    const initColor = this.getColor(sx, sy);
-    const initPiece = this.board[sx][sy].charAt(1);
-    let mv = new Move({
-      appear: [
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: tr ? tr.c : initColor,
-          p: tr ? tr.p : initPiece
-        })
-      ],
-      vanish: [
-        new PiPo({
-          x: sx,
-          y: sy,
-          c: initColor,
-          p: initPiece
-        })
-      ]
-    });
+    let mv = super.getBasicMove([sx, sy], [ex, ey], tr);
 
-    // The opponent piece disappears if we take it
     if (this.board[ex][ey] != V.EMPTY) {
-      mv.vanish.push(
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: this.getColor(ex, ey),
-          p: this.board[ex][ey].charAt(1)
-        })
-      );
-
       // If the captured piece has a different nature: take it as well
       if (mv.vanish[0].p != mv.vanish[1].p) {
         if (
@@ -151,7 +122,8 @@ export class CannibalRules extends ChessRules {
           Object.keys(V.KING_DECODE).includes(mv.vanish[0].p)
         ) {
           mv.appear[0].p = V.KING_CODE[mv.vanish[1].p];
-        } else mv.appear[0].p = mv.vanish[1].p;
+        }
+        else mv.appear[0].p = mv.vanish[1].p;
       }
     }
     else if (!!tr && mv.vanish[0].p != V.PAWN)

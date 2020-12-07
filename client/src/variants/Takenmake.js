@@ -23,7 +23,7 @@ export class TakenmakeRules extends ChessRules {
     switch (asA || piece) {
       case V.PAWN:
         if (!asA || piece == V.PAWN)
-          moves = this.getPotentialPawnMoves([x, y]);
+          moves = super.getPotentialPawnMoves([x, y]);
         else {
           // Special case: we don't want promotion, since just moving like
           // a pawn, but I'm in fact not a pawn :)

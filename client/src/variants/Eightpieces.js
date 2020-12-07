@@ -246,45 +246,6 @@ export class EightpiecesRules extends ChessRules {
     return null;
   }
 
-  // Because of the lancers, getPiece() could be wrong:
-  // use board[x][y][1] instead (always valid).
-  getBasicMove([sx, sy], [ex, ey], tr) {
-    const initColor = this.getColor(sx, sy);
-    const initPiece = this.board[sx][sy].charAt(1);
-    let mv = new Move({
-      appear: [
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: tr ? tr.c : initColor,
-          p: tr ? tr.p : initPiece
-        })
-      ],
-      vanish: [
-        new PiPo({
-          x: sx,
-          y: sy,
-          c: initColor,
-          p: initPiece
-        })
-      ]
-    });
-
-    // The opponent piece disappears if we take it
-    if (this.board[ex][ey] != V.EMPTY) {
-      mv.vanish.push(
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: this.getColor(ex, ey),
-          p: this.board[ex][ey].charAt(1)
-        })
-      );
-    }
-
-    return mv;
-  }
-
   canIplay(side, [x, y]) {
     return (
       (this.subTurn == 1 && this.turn == side && this.getColor(x, y) == side)

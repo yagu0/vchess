@@ -1,14 +1,7 @@
+Implement Wildebeest castle rules
+=> (1, 2, 3 or 4 squares slide; randomized: may be impossible >1, but possible >4...)
 getRepetitionStatus() lose or draw... (for some variants)
 Chakart: king remote capture, is an option if short range
-
-WON'T IMPLEMENT:
-Simultaneous games: view Game + Simultaneous, using component (One)Game
-Storage: just key ID => IDs of actual games (in indexedDB)
-In Hall challenge: acceptation on sender side (who launch the game when ready --> left click [which just delete if nobody registered, with confirm box])
-
-Tournaments: merge with tournament.auder.net code. At the beginning, still admin / users. Later : admin / supervisors / users
-=> recurrent tournament, eg. every sunday (late?) afternoon + wednesday evening, Discord-vote for variant?
-(Can be replaced by still separated tournament.audeR.net, using vchess credentials...)
 
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move (not too serious however)

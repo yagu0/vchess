@@ -3,7 +3,7 @@ import { ChessRules } from "@/base_rules";
 // Ideas with 2 kings:
 // Stage 1 {w, b} : 2 kings on board, value 5.
 // Stage 2: only one, get mated and all that, value 1000
-// ...But the middle king will get captured quickly...
+// ...But the middle king will be captured quickly...
 
 export class DoublearmyRules extends ChessRules {
 

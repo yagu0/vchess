@@ -15,7 +15,7 @@ export class TwokingsRules extends CoregalRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kings = { "w": 0, "b": 0 };
+    let kings = { 'K': 0, 'k': 0 };
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {

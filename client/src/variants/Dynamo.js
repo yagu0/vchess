@@ -767,6 +767,8 @@ export class DynamoRules extends ChessRules {
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
     V.PlayOnBoard(this.board, move);
+    // NOTE; if subTurn == 1, there may be no available moves at subTurn == 2.
+    // However, it's quite easier to wait for a user click.
     if (this.subTurn == 2) {
       const L = this.firstMove.length;
       this.amoves.push(this.getAmove(this.firstMove[L-1], move));

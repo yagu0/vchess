@@ -114,46 +114,6 @@ export class FullcavalryRules extends ChessRules {
     );
   }
 
-  // Because of the lancers, getPiece() could be wrong:
-  // use board[x][y][1] instead (always valid).
-  // TODO: base implementation now uses this too (no?)
-  getBasicMove([sx, sy], [ex, ey], tr) {
-    const initColor = this.getColor(sx, sy);
-    const initPiece = this.board[sx][sy].charAt(1);
-    let mv = new Move({
-      appear: [
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: tr ? tr.c : initColor,
-          p: tr ? tr.p : initPiece
-        })
-      ],
-      vanish: [
-        new PiPo({
-          x: sx,
-          y: sy,
-          c: initColor,
-          p: initPiece
-        })
-      ]
-    });
-
-    // The opponent piece disappears if we take it
-    if (this.board[ex][ey] != V.EMPTY) {
-      mv.vanish.push(
-        new PiPo({
-          x: ex,
-          y: ey,
-          c: this.getColor(ex, ey),
-          p: this.board[ex][ey].charAt(1)
-        })
-      );
-    }
-
-    return mv;
-  }
-
   getPotentialMovesFrom([x, y]) {
     if (this.getPiece(x, y) == V.LANCER)
       return this.getPotentialLancerMoves([x, y]);
@@ -162,12 +122,8 @@ export class FullcavalryRules extends ChessRules {
 
   getPotentialPawnMoves([x, y]) {
     const color = this.getColor(x, y);
-    let moves = [];
-    const [sizeX, sizeY] = [V.size.x, V.size.y];
     let shiftX = (color == "w" ? -1 : 1);
-    const startRank = color == "w" ? sizeX - 2 : 1;
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-
+    const lastRank = (color == "w" ? 0 : 7);
     let finalPieces = [V.PAWN];
     if (x + shiftX == lastRank) {
       // Only allow direction facing inside board:
@@ -177,46 +133,7 @@ export class FullcavalryRules extends ChessRules {
           : ['c', 'd', 'e', 'm', 'o'];
       finalPieces = allowedLancerDirs.concat([V.KNIGHT, V.BISHOP, V.QUEEN]);
     }
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      // One square forward
-      for (let piece of finalPieces) {
-        moves.push(
-          this.getBasicMove([x, y], [x + shiftX, y], {
-            c: color,
-            p: piece
-          })
-        );
-      }
-      if (x == startRank && this.board[x + 2 * shiftX][y] == V.EMPTY)
-        // Two squares jump
-        moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-    }
-    // Captures
-    for (let shiftY of [-1, 1]) {
-      if (
-        y + shiftY >= 0 &&
-        y + shiftY < sizeY &&
-        this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-        this.canTake([x, y], [x + shiftX, y + shiftY])
-      ) {
-        for (let piece of finalPieces) {
-          moves.push(
-            this.getBasicMove([x, y], [x + shiftX, y + shiftY], {
-              c: color,
-              p: piece
-            })
-          );
-        }
-      }
-    }
-
-    // Add en-passant captures
-    Array.prototype.push.apply(
-      moves,
-      this.getEnpassantCaptures([x, y], shiftX)
-    );
-
-    return moves;
+    return super.getPotentialPawnMoves([x, y], finalPieces);
   }
 
   // Obtain all lancer moves in "step" direction
@@ -375,12 +292,8 @@ export class FullcavalryRules extends ChessRules {
           this.getColor(coord.x, coord.y) == color
         )
       ) {
-        if (
-          this.getPiece(coord.x, coord.y) == V.LANCER &&
-          !this.isImmobilized([coord.x, coord.y])
-        ) {
+        if (this.getPiece(coord.x, coord.y) == V.LANCER)
           lancerPos.push({x: coord.x, y: coord.y});
-        }
         coord.x += step[0];
         coord.y += step[1];
       }
@@ -417,6 +330,10 @@ export class FullcavalryRules extends ChessRules {
     // At move 1, forbid captures (in case of...):
     if (this.movesCount >= 2) return moves;
     return moves.filter(m => m.vanish.length == 1);
+  }
+
+  static get SEARCH_DEPTH() {
+    return 2;
   }
 
   getNotation(move) {
