@@ -116,8 +116,12 @@ export class ChakartRules extends ChessRules {
 
   getPPpath(m) {
     if (!!m.promoteInto) return m.promoteInto;
+    if (m.appear.length == 0 && m.vanish.length == 1)
+      // King 'remote shell capture', on an adjacent square:
+      return this.getPpath(m.vanish[0].c + m.vanish[0].p);
     let piece = m.appear[0].p;
     if (Object.keys(V.IMMOBILIZE_DECODE).includes(piece))
+      // Promotion by capture into immobilized piece: do not reveal!
       piece = V.IMMOBILIZE_DECODE[piece];
     return this.getPpath(m.appear[0].c + piece);
   }
@@ -946,48 +950,36 @@ export class ChakartRules extends ChessRules {
     // If flag allows it, add 'remote shell captures'
     if (this.powerFlags[this.turn][V.KING]) {
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]).forEach(step => {
-        const [nextX, nextY] = [x + step[0], y + step[1]];
-        if (
-          V.OnBoard(nextX, nextY) &&
+        let [i, j] = [x + step[0], y + step[1]];
+        while (
+          V.OnBoard(i, j) &&
           (
-            this.board[nextX][nextY] == V.EMPTY ||
+            this.board[i][j] == V.EMPTY ||
             (
-              this.getColor(nextX, nextY) == 'a' &&
-              [V.EGG, V.MUSHROOM].includes(this.getPiece(nextX, nextY))
+              this.getColor(i, j) == 'a' &&
+              [V.EGG, V.MUSHROOM].includes(this.getPiece(i, j))
             )
           )
         ) {
-          let [i, j] = [x + 2 * step[0], y + 2 * step[1]];
-          while (
-            V.OnBoard(i, j) &&
-            (
-              this.board[i][j] == V.EMPTY ||
-              (
-                this.getColor(i, j) == 'a' &&
-                [V.EGG, V.MUSHROOM].includes(this.getPiece(i, j))
-              )
-            )
-          ) {
-            i += step[0];
-            j += step[1];
-          }
-          if (V.OnBoard(i, j)) {
-            const colIJ = this.getColor(i, j);
-            if (colIJ != color) {
-              // May just destroy a bomb or banana:
-              moves.push(
-                new Move({
-                  start: { x: x, y: y},
-                  end: { x: i, y: j },
-                  appear: [],
-                  vanish: [
-                    new PiPo({
-                      x: i, y: j, c: colIJ, p: this.getPiece(i, j)
-                    })
-                  ]
-                })
-              );
-            }
+          i += step[0];
+          j += step[1];
+        }
+        if (V.OnBoard(i, j)) {
+          const colIJ = this.getColor(i, j);
+          if (colIJ != color) {
+            // May just destroy a bomb or banana:
+            moves.push(
+              new Move({
+                start: { x: x, y: y},
+                end: { x: i, y: j },
+                appear: [],
+                vanish: [
+                  new PiPo({
+                    x: i, y: j, c: colIJ, p: this.getPiece(i, j)
+                  })
+                ]
+              })
+            );
           }
         }
       });
