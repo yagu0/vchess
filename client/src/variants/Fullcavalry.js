@@ -91,7 +91,7 @@ export class FullcavalryRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0)
       // Deterministic:
-      return "efbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/EDBQKBNM w 0 ahah -";
+      return "enbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/ENBQKBNM w 0 ahah -";
 
     const baseFen = ChessRules.GenRandInitFen(randomness);
     // Replace rooks by lancers with expected orientation:
@@ -328,7 +328,7 @@ export class FullcavalryRules extends ChessRules {
 
   filterValid(moves) {
     // At move 1, forbid captures (in case of...):
-    if (this.movesCount >= 2) return moves;
+    if (this.movesCount >= 2) return super.filterValid(moves);
     return moves.filter(m => m.vanish.length == 1);
   }
 
