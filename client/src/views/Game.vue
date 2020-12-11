@@ -1391,7 +1391,11 @@ export default {
           !!this.repeat[fenObj]
             ? this.repeat[fenObj] + 1
             : 1;
-        if (this.repeat[fenObj] >= 3) this.drawOffer = "threerep";
+        if (this.repeat[fenObj] >= 3) {
+          if (V.LoseOnRepetition)
+            this.gameOver(moveCol == "w" ? "0-1" : "1-0", "Repetition");
+          else this.drawOffer = "threerep";
+        }
         else if (this.drawOffer == "threerep") this.drawOffer = "";
         if (!!this.game.mycolor && !data.receiveMyMove) {
           // NOTE: 'var' to see that variable outside this block

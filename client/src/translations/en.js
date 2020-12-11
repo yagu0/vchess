@@ -116,6 +116,7 @@ export const translations = {
   Rematch: "Rematch",
   "Rematch in progress": "Rematch in progress",
   "Remove game?": "Remove game?",
+  Repetition: "Repetition",
   Resign: "Resign",
   "Resign the game?": "Resign the game?",
   "Resize board": "Resize board",

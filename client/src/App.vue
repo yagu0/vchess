@@ -157,7 +157,9 @@ table
   padding: 0 10px 0 0
   height: 100%
   & > span
-    padding: 0 5px 0 0
+    padding-top: 0
+    padding-bottom: 0
+    padding-right: 5px
     vertical-align: middle
   & > img
     padding: 0

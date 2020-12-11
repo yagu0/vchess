@@ -31,17 +31,6 @@ export class MinixiangqiRules extends XiangqiRules {
     return { x: 7, y: 7};
   }
 
-  getPotentialMovesFrom(sq) {
-    switch (this.getPiece(sq[0], sq[1])) {
-      case V.PAWN: return this.getPotentialPawnMoves(sq);
-      case V.ROOK: return super.getPotentialRookMoves(sq);
-      case V.KNIGHT: return super.getPotentialKnightMoves(sq);
-      case V.KING: return super.getPotentialKingMoves(sq);
-      case V.CANNON: return super.getPotentialCannonMoves(sq);
-    }
-    return []; //never reached
-  }
-
   getPotentialPawnMoves([x, y]) {
     const c = this.getColor(x, y);
     const shiftX = (c == 'w' ? -1 : 1);

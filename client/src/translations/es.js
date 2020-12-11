@@ -116,6 +116,7 @@ export const translations = {
   Rematch: "Revancha",
   "Rematch in progress": "Revancha en progreso",
   "Remove game?": "¿Eliminar la partida?",
+  Repetition: "Repetición",
   Resign: "Abandonar",
   "Resign the game?": "¿Abandonar la partida?",
   "Resize board": "Redimensionar el tablero",

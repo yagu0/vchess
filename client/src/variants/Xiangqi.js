@@ -36,6 +36,10 @@ export class XiangqiRules extends ChessRules {
     return false;
   }
 
+  static get LoseOnRepetition() {
+    return true;
+  }
+
   static get ELEPHANT() {
     return "e";
   }
@@ -61,16 +65,80 @@ export class XiangqiRules extends ChessRules {
   }
 
   getPotentialMovesFrom(sq) {
-    switch (this.getPiece(sq[0], sq[1])) {
-      case V.PAWN: return this.getPotentialPawnMoves(sq);
-      case V.ROOK: return super.getPotentialRookMoves(sq);
-      case V.KNIGHT: return this.getPotentialKnightMoves(sq);
-      case V.ELEPHANT: return this.getPotentialElephantMoves(sq);
-      case V.ADVISOR: return this.getPotentialAdvisorMoves(sq);
-      case V.KING: return this.getPotentialKingMoves(sq);
-      case V.CANNON: return this.getPotentialCannonMoves(sq);
+    let moves = [];
+    const piece = this.getPiece(sq[0], sq[1]);
+    switch (piece) {
+      case V.PAWN:
+        moves = this.getPotentialPawnMoves(sq);
+        break;
+      case V.ROOK:
+        moves = super.getPotentialRookMoves(sq);
+        break;
+      case V.KNIGHT:
+        moves = this.getPotentialKnightMoves(sq);
+        break;
+      case V.ELEPHANT:
+        moves = this.getPotentialElephantMoves(sq);
+        break;
+      case V.ADVISOR:
+        moves = this.getPotentialAdvisorMoves(sq);
+        break;
+      case V.KING:
+        moves = this.getPotentialKingMoves(sq);
+        break;
+      case V.CANNON:
+        moves = this.getPotentialCannonMoves(sq);
+        break;
     }
-    return []; //never reached
+    if (piece != V.KING && this.kingPos['w'][1] != this.kingPos['b'][1])
+      return moves;
+    if (this.kingPos['w'][1] == this.kingPos['b'][1]) {
+      const colKing = this.kingPos['w'][1];
+      let intercept = 0; //count intercepting pieces
+      for (let i = this.kingPos['b'][0] + 1; i < this.kingPos['w'][0]; i++) {
+        if (this.board[i][colKing] != V.EMPTY) intercept++;
+      }
+      if (intercept >= 2) return moves;
+      // intercept == 1 (0 is impossible):
+      // Any move not removing intercept is OK
+      return moves.filter(m => {
+        return (
+          // From another column?
+          m.start.y != colKing ||
+          // From behind a king? (including kings themselves!)
+          m.start.x <= this.kingPos['b'][0] ||
+          m.start.x >= this.kingPos['w'][0] ||
+          // Intercept piece moving: must remain in-between
+          (
+            m.end.y == colKing &&
+            m.end.x > this.kingPos['b'][0] &&
+            m.end.x < this.kingPos['w'][0]
+          )
+        );
+      });
+    }
+    // piece == king: check only if move.end.y == enemy king column
+    const color = this.getColor(sq[0], sq[1]);
+    const oppCol = V.GetOppCol(color);
+    // colCheck == -1 if unchecked, 1 if checked and occupied,
+    //              0 if checked and clear
+    let colCheck = -1;
+    return moves.filter(m => {
+      if (m.end.y != this.kingPos[oppCol][1]) return true;
+      if (colCheck < 0) {
+        // Do the check:
+        colCheck = 0;
+        for (let i = this.kingPos['b'][0] + 1; i < this.kingPos['w'][0]; i++) {
+          if (this.board[i][m.end.y] != V.EMPTY) {
+            colCheck++;
+            break;
+          }
+        }
+        return colCheck == 1;
+      }
+      // Check already done:
+      return colCheck == 1;
+    });
   }
 
   getPotentialPawnMoves([x, y]) {
@@ -253,6 +321,14 @@ export class XiangqiRules extends ChessRules {
       }
     }
     return false;
+  }
+
+  getCurrentScore() {
+    if (this.atLeastOneMove()) return "*";
+    // Game over
+    const color = this.turn;
+    // No valid move: I lose!
+    return (color == "w" ? "0-1" : "1-0");
   }
 
   static get VALUES() {

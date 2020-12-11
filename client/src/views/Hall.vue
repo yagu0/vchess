@@ -1350,7 +1350,7 @@ export default {
                 new Audio("/sounds/newgame.flac").play().catch(() => {});
               notify(
                 "New live game",
-                { body: "vs " + game.players[1-myIdx].name || "@nonymous" }
+                { body: "vs " + (game.players[1-myIdx].name || "@nonymous") }
               );
             }
             this.$router.push("/game/" + gameInfo.id);

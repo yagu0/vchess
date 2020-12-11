@@ -126,6 +126,11 @@ export const ChessRules = class ChessRules {
     return null;
   }
 
+  // In some variants, the player who repeat a position loses
+  static get LoseOnRepetition() {
+    return false;
+  }
+
   // Some variants use click infos:
   doClick() {
     return null;
