@@ -5,6 +5,7 @@ const genToken = require("../utils/tokenGenerator");
 const access = require("../utils/access");
 const params = require("../config/parameters");
 const sanitizeHtml_pkg = require('sanitize-html');
+const { exec } = require("child_process");
 
 const allowedTags = [
   'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'li', 'b',
@@ -49,6 +50,8 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
           email: email
         };
         setAndSendLoginToken("Welcome to " + params.siteURL, user);
+        // Update tournament DB (TODO: if error, log it)
+        exec(params.tourneyPath + "/sync_users.py");
         res.json({});
       }
     });

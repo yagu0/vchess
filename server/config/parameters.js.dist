@@ -5,7 +5,7 @@ module.exports = {
 
   // To know in which environment the code run
   env: process.env.NODE_ENV || 'development',
-  
+
   // CORS: cross-origin resource sharing options
   cors: {
     enable: true,
@@ -20,6 +20,9 @@ module.exports = {
     length: 16,
     expire: 30*60*1000, //30 minutes in milliseconds
   },
+
+  // Path to tournament repository (to synchronize DBs)
+  tourneyPath: "/path/to/folder",
 
   // Email settings
   mail: {
