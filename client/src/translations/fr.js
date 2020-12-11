@@ -279,5 +279,6 @@ export const translations = {
   "Unidentified pieces": "Pièces non identifiées",
   "Walk on a graph": "Marche sur un graphe",
   "White move twice": "Les blancs jouent deux fois",
-  "Win by castling long": "Gagnez en jouant grand roque"
+  "Win by castling long": "Gagnez en jouant grand roque",
+  "Xiangqi 7 x 7": "Xiangqi 7 x 7"
 };

@@ -279,5 +279,6 @@ export const translations = {
   "Unidentified pieces": "Unidentified pieces",
   "Walk on a graph": "Walk on a graph",
   "White move twice": "White move twice",
-  "Win by castling long": "Win by castling long"
+  "Win by castling long": "Win by castling long",
+  "Xiangqi 7 x 7": "Xiangqi 7 x 7"
 };

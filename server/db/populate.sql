@@ -76,6 +76,7 @@ insert or ignore into Variants (name, description) values
   ('Makruk', 'Thai Chess'),
   ('Maxima', 'Occupy the enemy palace'),
   ('Minishogi', 'Shogi 5 x 5'),
+  ('Minixiangqi', 'Xiangqi 7 x 7'),
   ('Monochrome', 'All of the same color'),
   ('Monster', 'White move twice'),
   ('Omega', 'A wizard in the corner'),
