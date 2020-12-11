@@ -51,7 +51,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
         };
         setAndSendLoginToken("Welcome to " + params.siteURL, user);
         // Update tournament DB (TODO: if error, log it)
-        exec(params.tourneyPath + "/sync_users.py");
+        exec(params.tourneyPath + "/dbsync/update_users.py");
         res.json({});
       }
     });

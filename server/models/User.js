@@ -171,10 +171,13 @@ const UserModel = {
           }
         });
         if (toRemove.length > 0) {
+          const remArg = toRemove.join(",");
           db.run(
             "DELETE FROM Users " +
-            "WHERE id IN (" + toRemove.join(",") + ")"
+            "WHERE id IN (" + remArg + ")"
           );
+          // Update tournament DB:
+          exec(params.tourneyPath + "/dbsync/delete_users.py " + remArg);
         }
       });
     });
