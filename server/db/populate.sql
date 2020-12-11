@@ -104,7 +104,7 @@ insert or ignore into Variants (name, description) values
   ('Shako', 'Non-conformism and utopia'),
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),
-  ('Sittuyin', 'Burmese chess'),
+  ('Sittuyin', 'Burmese Chess'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
   ('Swap', 'Dangerous captures'),
@@ -119,4 +119,5 @@ insert or ignore into Variants (name, description) values
   ('Vchess', 'Pawns capture backward'),
   ('Wildebeest', 'Balanced sliders & leapers'),
   ('Wormhole', 'Squares disappear'),
+  ('Xiangqi', 'Chinese Chess'),
   ('Zen', 'Reverse captures');

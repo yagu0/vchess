@@ -1,0 +1,68 @@
+p.boxed.
+  Ajedrez chino, con diferentes piezas comportándose
+  diferente al ajedrez ortodoxo.
+
+p.
+  Las piezas se colocan en las intersecciones en lugar de en el centro de
+  las casillas. El efecto es solo estético, no hay impacto en la descripción
+  de los desplazamientos.
+
+figure
+  img.img-center(src="/variants/Xiangqi/Boards.png")
+  figcaption
+    | Meseta Xiangqi tomado de 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | . Piezas chinas a la derecha, internacionales a la izquierda.
+
+p.
+  La parte central entre las filas 5 y 6 se llama "río".
+  Afecta el comportamiento de ciertas piezas.
+
+p.
+  Solo las torres se comportan como en el ajedrez estándar.
+  Todas las demás piezas son bastante diferentes:
+ul
+  li.
+    El Rey se mueve ortogonalmente una casilla y no puede salir
+    el "palacio" que consta de las nueve intersecciones de rectángulos grises
+    en el diagrama de arriba.
+  li.
+    Las piezas que rodean al rey son los Consejeros: mueven una
+    casilla a la vez, solo en diagonal.
+    Ellos también están restringidos al palacio.
+  li.
+    Los peones ("Soldados") se mueven y capturan subiendo uno
+    intersección. Una vez que cruzan el río, también pueden
+    mover (y capturar) un cuadrado de lado.
+  li.
+    El Elefante se mueve desde dos intersecciones diagonales. No puede
+    saltar obstáculos: la intersección en el punto central debe
+    ser libre. Los elefantes no pueden cruzar el río.
+li.
+    Los Caballos tampoco pueden saltar obstáculos,
+    aunque parecen moverse como los caballos ortodoxos.
+    Ellos primero dar un paso ortogonal, luego un paso diagonal de
+    para estar a una distancia de caballo "estándar" de la intersección
+    inicial. Sin embargo, la casilla después del primer paso debe estar vacía.
+  li.
+    Los Cañones se mueven como una torre pero capturan saltando primero
+    sobre un obstáculo (amigo o enemigo). Después de tal salto el cañón
+    solo puede capturar (sin movimientos normales).
+
+figure.diagram-container
+  .diagram.diag12
+    img(src="/variants/Xiangqi/ElephantDiagram.png")
+  .diagram.diag22
+    img(src="/variants/Xiangqi/HorseDiagram.png")
+  figcaption
+    | Jugadas del Elefante y del Caballo illustradas, de 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | .
+
+h3 Más información
+
+p
+  | Hay muchos recursos disponibles en línea, solo busque
+  | con las palabras clave Xiangqi o Ajedrez chino. Puedes jugarlo en 
+  a(href="https://www.pychess.org") pychess-variants
+  | , contra humanos o un programa (básico).

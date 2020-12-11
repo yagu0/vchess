@@ -1,0 +1,66 @@
+p.boxed.
+  Chinese chess, with different pieces behaving
+  differently than orthodox chess.
+
+p.
+  Pieces stand on intersections rather than squares: this is purely aesthetic,
+  and doesn't affect movements' descriptions.
+
+figure
+  img.img-center(src="/variants/Xiangqi/Boards.png")
+  figcaption
+    | Xiangqi boards borrowed from 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | . Chinese pieces on the right, international ones on the left.
+
+p.
+  The central area between rows 5 and 6 is called the "river".
+  It affects some pieces behavior.
+
+p.
+  Only the rooks behave exactly as in standard chess.
+  All other pieces are quite different:
+ul
+  li.
+    The King moves orthogonaly by one square, and cannot leave the "palace"
+    consisting of the nine intersections of the grey rectangles
+    on the diagram above.
+  li.
+    The pieces surrounding the king are Advisors: they move by one square
+    at a time, diagonally only. They are also restricted to the palace.
+  li.
+    The pawns ("Soldiers") move - and capture - by going up one intersection.
+    After they reach the second half of the board, they can then also move
+    (and capture) by one square lateraly.
+  li.
+    The Elephant moves by two intersections diagonally. It cannot jump over
+    obstacles: the midpoint intersection should be vacant.
+    The elephants cannot cross the river.
+  li.
+    The knights ("Horses") also cannot jump over obstacles, although they
+    appear to move as in orthodox chess. They make an orthogonal step first,
+    and then a diagonal step so that they are at a regular "knight distance"
+    from the initial intersection.
+    However, the square after first step must be empty.
+  li.
+    The Cannons move like a rook but capture by jumping first over an
+    obstacle (friendly or enemy). After such a jump the cannon can only
+    capture (no normal moves).
+
+figure.diagram-container
+  .diagram.diag12
+    img(src="/variants/Xiangqi/ElephantDiagram.png")
+  .diagram.diag22
+    img(src="/variants/Xiangqi/HorseDiagram.png")
+  figcaption
+    | Elephant and Horse moves illustrated, from 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | .
+
+h3 More information
+
+p
+  | Many resources are available online: just search with keywords Xiangqi
+  | or Chinese chess. You can play it on 
+  a(href="https://www.pychess.org") pychess-variants
+  | , against humans or a (basic) bot.

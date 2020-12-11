@@ -1,0 +1,68 @@
+p.boxed.
+  Échecs chinois, avec différentes pièces se comportant
+  différemment des échecs orthodoxes.
+
+p.
+  Les pièces se positionnent sur les intersections plutôt qu'au centre des
+  cases. L'effet n'est qu'esthétique, il n'y a pas d'impact sur la description
+  des déplacements.
+
+figure
+  img.img-center(src="/variants/Xiangqi/Boards.png")
+  figcaption
+    | Plateau de Xiangqi empruntés à 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | . Pièces chinoises à droite, internationales à gauche.
+
+p.
+  La partie centrale entre les rangées 5 et 6 est appelée la "rivière".
+  Elle affecte le comportement de certaines pièces.
+
+p.
+  Seules les tours se comportent comme aux échecs standards.
+  Toutes les autres pièces sont plutôt différentes :
+ul
+  li.
+    Le Roi se déplace orthogonalement d'une case, et ne peut pas quitter
+    le "palais" consistant en les neuf intersections des rectangles gris
+    sur le diagramme ci-dessus.
+  li.
+    Les pièces entourant le roi sont les Conseillers : ils se déplacent d'une
+    case à la fois, en diagonale seulement.
+    Ils sont eux-aussi restreints au palais.
+  li.
+    Les pions ("Soldats") se déplacent - et capturent - en montant d'une
+    intersection. Une fois qu'ils on franchi la rivière, ils peuvent aussi
+    se déplacer (et capturer) d'une case latéralement.
+  li.
+    L'Éléphant se déplacent de deux intersections en diagonale. Il ne peut pas
+    sauter par dessus les obstacles : l'intersection au point central doit
+    être libre. Les éléphants ne peuvent traverser la rivière.
+  li.
+    Les cavaliers ("Chevaux") ne peuvent pas non plus sauter les obstacles,
+    bien qu'ils paraissent se déplacer comme les cavaliers orthodoxes. Ils
+    effecuent d'abord un pas orthogonal, puis ensuite un en diagonale de
+    manière à se retrouver à distance de cavalier "standard" de l'intersection
+    initiale. Cependant, la case après le premier pas doit être vide.
+  li.
+    Les Canons se déplacent comme une tour mais capturent en sautant d'abord
+    par dessus un obstacle (ami ou ennemi). Après un tel saut le canon
+    ne peut que capturer (pas de coups normaux).
+
+figure.diagram-container
+  .diagram.diag12
+    img(src="/variants/Xiangqi/ElephantDiagram.png")
+  .diagram.diag22
+    img(src="/variants/Xiangqi/HorseDiagram.png")
+  figcaption
+    | Coups de l'Élephant et du Cheval illustrés, depuis 
+    a(href="https://www.pychess.org/variant/xiangqi") pychess-variants
+    | .
+
+h3 Plus d'information
+
+p
+  | Beaucoup de ressources sont disponibles en ligne : cherchez simplement
+  avec les mots-clé Xiangqi ou Échecs chinois. Vous pouvez y jouer sur 
+  a(href="https://www.pychess.org") pychess-variants
+  | , contre des humains ou un programme (basique).
