@@ -37,58 +37,11 @@ export class OrdaRules extends ChessRules {
       'k': 'k'
     };
 
-    let pieces = { w: new Array(8), b: new Array(8) };
-    let flags = "";
-    // Shuffle pieces on first (and last rank if randomness == 2)
-    for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'].map(p => piecesMap[p]);
-        break;
-      }
-
-      // TODO: same code as in base_rules. Should extract and factorize?
-
-      let positions = ArrayFun.range(8);
-
-      let randIndex = 2 * randInt(4);
-      const bishop1Pos = positions[randIndex];
-      let randIndex_tmp = 2 * randInt(4) + 1;
-      const bishop2Pos = positions[randIndex_tmp];
-      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
-      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
-
-      randIndex = randInt(6);
-      const knight1Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-      randIndex = randInt(5);
-      const knight2Pos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      randIndex = randInt(4);
-      const queenPos = positions[randIndex];
-      positions.splice(randIndex, 1);
-
-      const rook1Pos = positions[0];
-      const kingPos = positions[1];
-      const rook2Pos = positions[2];
-
-      pieces[c][rook1Pos] = "r";
-      pieces[c][knight1Pos] = "n";
-      pieces[c][bishop1Pos] = "b";
-      pieces[c][queenPos] = "q";
-      pieces[c][kingPos] = "k";
-      pieces[c][bishop2Pos] = "b";
-      pieces[c][knight2Pos] = "n";
-      pieces[c][rook2Pos] = "r";
-      if (c == 'b') pieces[c] = pieces[c].map(p => piecesMap[p]);
-      else flags = V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
-    }
-    // Add turn + flags + enpassant
+    const baseFen = ChessRules.GenRandInitFen(randomness);
     return (
-      pieces["b"].join("") +
-      "/8/pppppppp/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      " w 0 " + flags + " -"
+      baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
+      // Skip 3 first rows + black castle flags
+      "/8/pppppppp" + baseFen.substr(19, 31) + " -"
     );
   }
 
@@ -186,24 +139,8 @@ export class OrdaRules extends ChessRules {
     return onlyMoves.concat(onlyTakes);
   }
 
-  getPotentialLancerMoves(sq) {
-    const onlyMoves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT],
-      "oneStep",
-      { onlyMove: true }
-    );
-    const onlyTakes = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK],
-      null,
-      { onlyTake: true }
-    );
-    return onlyMoves.concat(onlyTakes);
-  }
-
   getPotentialKheshigMoves(sq) {
-    return this.getSlideNJumpMoves(
+    return super.getSlideNJumpMoves(
       sq,
       V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]),
       "oneStep"
@@ -211,7 +148,7 @@ export class OrdaRules extends ChessRules {
   }
 
   getPotentialYurtMoves(sq) {
-    return this.getSlideNJumpMoves(
+    return super.getSlideNJumpMoves(
       sq,
       V.steps[V.BISHOP].concat([ [1, 0] ]),
       "oneStep"
@@ -221,7 +158,7 @@ export class OrdaRules extends ChessRules {
   getPotentialKingMoves([x, y]) {
     if (this.getColor(x, y) == 'w') return super.getPotentialKingMoves([x, y]);
     // Horde doesn't castle:
-    return this.getSlideNJumpMoves(
+    return super.getSlideNJumpMoves(
       [x, y],
       V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
       "oneStep"

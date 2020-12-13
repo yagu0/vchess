@@ -259,17 +259,8 @@ export class XiangqiRules extends ChessRules {
   isAttackedByPawn([x, y], color) {
     // The pawn necessarily crossed the river (attack on king)
     const shiftX = (color == 'w' ? 1 : -1); //shift from king
-    for (let s of [[shiftX, 0], [0, 1], [0, -1]]) {
-      const [i, j] = [x + s[0], y + s[1]];
-      if (
-        this.board[i][j] != V.EMPTY &&
-        this.getColor(i, j) == color &&
-        this.getPiece(i, j) == V.PAWN
-      ) {
-        return true;
-      }
-    }
-    return false;
+    return super.isAttackedBySlideNJump(
+      [x, y], color, V.PAWN, [[shiftX, 0], [0, 1], [0, -1]], "oneStep");
   }
 
   knightStepsFromBishopStep(step) {
@@ -367,6 +358,10 @@ export class XiangqiRules extends ChessRules {
       }
     }
     return evaluation;
+  }
+
+  static get SEARCH_DEPTH() {
+    return 2;
   }
 
   static GenRandInitFen() {

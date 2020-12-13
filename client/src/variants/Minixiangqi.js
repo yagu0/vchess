@@ -74,6 +74,10 @@ export class MinixiangqiRules extends XiangqiRules {
     return evaluation;
   }
 
+  static get SEARCH_DEPTH() {
+    return 3;
+  }
+
   // Also no randomization here
   static GenRandInitFen() {
     return "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w 0";
