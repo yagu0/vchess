@@ -1,1 +1,117 @@
-p.boxed TODO
+p.boxed
+  | El jugador inicial tiene un conjunto diferente de piezas, moviéndose
+  | generalmente como una dama pero capturando (casi) como de costumbre.
+
+figure
+  img.img-center(src="/variants/Empire/Board.png")
+  figcaption.text-center Posición inicial determinista.
+
+p.
+  Imperial Chess es una variante desarrollada en 2020 por Couch Tomato,
+  el tercer juego asimétrico. Esta variante presenta el ejército de
+  "Imperio" (oro) contra el ejército inicial habitual ("Reino", negro).
+  Las piezas del imperio generalmente se mueven como damas, pero
+  capturar de manera diferente, y esto es lo que hace que la originalidad de
+la variante.
+
+h3 Reglas generales
+
+ol
+  li El Imperio (oro) juega el primer movimiento.
+  li El Imperio no puede enroquar.
+  li.
+    Como los peones del Imperio comienzan en la tercera fila,
+    no tienen el salto de dos casillas y por lo tanto no pueden ser
+    capturado en passant.
+  li Los peones de cada campo se promocionan a damas (ortodoxos).
+  li.
+    Puedes ganar llevando al rey a la última fila sin estar en jaque.
+    Esta situación se denomina "mate de campo".
+  li Empate, así como las jugadas repetidas, significan derrota.
+  li.
+    Reyes opuestos &mdash; El Rey y el Kaiser (Emperador) nunca deben
+    encontrarse cara a cara en una columna o fila.
+
+h3 Piezas imperiales
+
+p.
+  Cinco nuevas figuras son exclusivas del Imperio: las Torres de Asedio, las
+  Águilas, los Cardenales, el Duque y los Soldados. Las piezas de la primera
+  fila son todos más fuertes que sus contrapartes del Reino,
+  con la excepción del Duque.
+
+ul
+  li.
+    Kaiser (K) &mdash; El Emperador se llama Kaiser y tiene un símbolo
+    diferente, pero el cambio es puramente estético y temático: se comporta
+    como un rey ortodoxo.
+  li.
+    Soldado (S) &mdash; Los soldados son las dos piezas que se asemejan
+    peones inicialmente en el centro de la tercera fila. Se están moviendo
+    una casilla a la vez hacia adelante o hacia los lados.
+
+p.
+  Las piezas restantes son "divergentes": se mueven y atacan
+  diferente (como hacen los peones). Las piezas imperiales se mueven
+  como damas pero atacan como sus contrapartes del reino, excepto
+  para los duques.
+
+ul
+  li.
+    Torre de Asedio (T) &mdash; La Torre de Asedio, o simplemente la Torre,
+    captura como una torre ortodoxa.
+  li Águila (E) &mdash; El Águila captura como un caballo.
+  li Cardenal (C) &mdash; El Cardenal captura como un alfil.
+  li Duc (D) &mdash; El duque captura como un rey.
+
+figure
+  img.img-center(src="/variants/Empire/EagleMoves.png")
+  figcaption.text-center Movimientos del águila (verde) & capturas (rojo).
+
+h3 Valores de las piezas
+
+p El ordenador utiliza los siguientes valores simplificados:
+
+table
+  tr
+    th Piezas del reino
+    th Valor
+    a Pieza imperial
+    th Valor
+  tr
+    td Peón
+    td 1
+    td Peón
+    td 1
+  tr
+    td Dama
+    td 9
+    td Duque
+    td 4
+  tr
+    td Alfil
+    td 3
+    td Cardenal
+    td 4
+  tr
+    td Caballo
+    td 3
+    td Águil
+    td 7
+  tr
+    td Torre
+    td 5
+    td Torre de Asedio
+    td 7
+  tr
+    td Soldado
+    td 2
+    td -
+    td -
+
+h3 Más información
+
+p
+  | Ver el 
+  a(href="https://www.pychess.org/variant/empirechess") Ajedrez imperial
+  | &nbsp;en pychess-variants, donde puedes jugar esta variante.

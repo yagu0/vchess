@@ -1,1 +1,116 @@
-p.boxed TODO
+p.boxed
+  | Le joueur qui commence a un jeu de pièces différent, se déplaçant
+  | généralement comme une dame mais capturant (presque) comme d'habitude.
+
+figure
+  img.img-center(src="/variants/Empire/Board.png")
+  figcaption.text-center Position initiale déterministe.
+
+p.
+  Les Échecs Impériaux sont une variante élaborée en 2020 par Couch Tomato,
+  le troisième jeu asymétrique. Cette variante met en scène l'armée de
+  "l'Empire" (or) contre l'armée initiale usuelle (le "Royaume", noir).
+  Les pièces de l'Empire se déplacent en général comme des dames mais
+  capturent différemment, et c'est ce qui fait l'originalité de la variante.
+
+h3 Règles générales
+
+ol
+  li L'Empire (or) joue le premier coup.
+  li L'Empire ne peut pas roquer.
+  li.
+    Comme les pions de l'Empire démarrent sur la troisème rangée,
+    ils ne disposent pas du saut de deux cases et ne peuvent donc pas être
+    capturés en passant.
+  li Les pions de chaque camp sont promus en dames (orthodoxes).
+  li.
+    On peut gagner en amenant le roi sur la dernière rangée sans être en échec.
+    Cette situation s'appelle le "mat de camp".
+  li Le pat ainsi que la répétition de coups signifie la défaite.
+  li.
+    Roi en vis-à-vis &mdash; Le Roi et le Kaiser (Empereur) ne doivent jamais
+    se retrouver face à face sur une colonne ou une rangée.
+
+h3 Pièces impériales
+
+p.
+  Cinq nouvelles figures sont unique à l'Empire : les Tours de Siège, les
+  Aigles, les Cardinaux, le Duc et les Soldats. Les pièces du premier rang
+  sont toutes plus fortes que leurs homologues du Royaume,
+  à l'exception du Duc.
+
+ul
+  li.
+    Kaiser (K) &mdash; L'Empereur est appelé Kaiser et a un symbole différent,
+    mais le changement est purement esthétique et thématique : il se comporte
+    comme un roi orthodoxe.
+  li.
+    Soldat (S) &mdash; Les Soldats sont les deux pièces ressemblant à des
+    pions initialement au centre de la troisème rangée. Ils se déplacent
+    d'une case à la fois vers l'avant, ou latéralement.
+
+p.
+  Les pièces restantes sont "divergentes": elles se déplacent et attaquent
+  différemment (comme le font les pions). Les pièces impériales se déplacent
+  comme des dames mais attaquent comme leur homologues du Royaume, excepté
+  pour les Ducs.
+
+ul
+  li.
+    Tour de Siège (T) &mdash; La TOur de Siège, ou simplement Tour, capture
+    comme une tour orthodoxe.
+  li Aigle (E) &mdash; L'Aigle capture comme un cavalier.
+  li Cardinal (C) &mdash; Le Cardinal capture comme un fou.
+  li Duc (D) &mdash; Le Duc capture comme un roi.
+
+figure
+  img.img-center(src="/variants/Empire/EagleMoves.png")
+  figcaption.text-center Coups de l'Aigle (vert) & captures (rouge).
+
+h3 Valeurs des pièces
+
+p Les valeurs simplifiées suivantes sont utilisées par l'ordinateur :
+
+table
+  tr
+    th Pièce du royaume
+    th Valeur
+    th Pièce impériale
+    th Valeur
+  tr
+    td Pion
+    td 1
+    td Pion
+    td 1
+  tr
+    td Dame
+    td 9
+    td Duc
+    td 4
+  tr
+    td Fou
+    td 3
+    td Cardinal
+    td 4
+  tr
+    td Cavalier
+    td 3
+    td Aigle
+    td 7
+  tr
+    td Tour
+    td 5
+    td Tour de Siège
+    td 7
+  tr
+    td Soldat
+    td 2
+    td -
+    td -
+
+h3 Plus d'information
+
+p
+  | Voir les 
+  a(href="https://www.pychess.org/variant/empirechess") Échecs Impériaux
+  | &nbsp;sur pychess-variants, où vous pouvez jouer à cette variante.
