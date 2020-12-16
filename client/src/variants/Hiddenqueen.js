@@ -190,8 +190,12 @@ export class HiddenqueenRules extends ChessRules {
     const color = this.turn;
     if (this.kingPos[color][0] < 0)
       // King disappeared
-      return color == "w" ? "0-1" : "1-0";
-    return super.getCurrentScore();
+      return (color == "w" ? "0-1" : "1-0");
+    const oldSide = this.side;
+    this.side = color;
+    const res = super.getCurrentScore();
+    this.side = oldSide;
+    return res;
   }
 
   // Search is biased, so not really needed to explore deeply
@@ -213,7 +217,7 @@ export class HiddenqueenRules extends ChessRules {
 
   getNotation(move) {
     // Not using getPiece() method because it would transform HQ into pawn:
-    if (this.board[move.start.x][move.start.y][1] != V.HIDDEN_QUEEN)
+    if (this.board[move.start.x][move.start.y].charAt(1) != V.HIDDEN_QUEEN)
       return super.getNotation(move);
     const finalSquare = V.CoordsToSquare(move.end);
     if (move.appear[0].p == V.QUEEN) {

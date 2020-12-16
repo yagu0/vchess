@@ -2,6 +2,7 @@ const db = require("../utils/database");
 const genToken = require("../utils/tokenGenerator");
 const params = require("../config/parameters");
 const sendEmail = require('../utils/mailer');
+const { exec } = require("child_process");
 
 /*
  * Structure:
