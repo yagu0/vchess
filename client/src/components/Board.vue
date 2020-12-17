@@ -208,135 +208,153 @@ export default {
       // Some variants have more than sizeY reserve pieces (Clorange: 10)
       const reserveSquareNb = Math.max(sizeY, V.RESERVE_PIECES.length);
       let myReservePiecesArray = [];
-      for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-        const qty = this.vr.reserve[playingColor][V.RESERVE_PIECES[i]];
-        myReservePiecesArray.push(
-          h(
-            "div",
-            {
-              "class": { board: true, ["board" + reserveSquareNb]: true },
-              attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) },
-              style: { opacity: qty > 0 ? 1 : 0.35 }
-            },
-            [
-              h("img", {
-                // NOTE: class "reserve" not used currently
-                "class": { piece: true, reserve: true },
-                attrs: {
-                  src:
-                    "/images/pieces/" +
-                    this.vr.getReservePpath(i, playingColor, orientation) +
-                    ".svg"
-                }
-              }),
-              h(
-                "sup",
-                {
-                  "class": { "reserve-count": true },
-                  style: { top: "calc(100% + 5px)" }
-                },
-                [ qty ]
-              )
-            ]
-          )
-        );
+      if (!!this.vr.reserve[playingColor]) {
+        for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+          const qty = this.vr.reserve[playingColor][V.RESERVE_PIECES[i]];
+          myReservePiecesArray.push(
+            h(
+              "div",
+              {
+                "class": { board: true, ["board" + reserveSquareNb]: true },
+                attrs: { id: getSquareId({ x: sizeX + shiftIdx, y: i }) },
+                style: { opacity: qty > 0 ? 1 : 0.35 }
+              },
+              [
+                h("img", {
+                  // NOTE: class "reserve" not used currently
+                  "class": { piece: true, reserve: true },
+                  attrs: {
+                    src:
+                      "/images/pieces/" +
+                      this.vr.getReservePpath(i, playingColor, orientation) +
+                      ".svg"
+                  }
+                }),
+                h(
+                  "sup",
+                  {
+                    "class": { "reserve-count": true },
+                    style: { top: "calc(100% + 5px)" }
+                  },
+                  [ qty ]
+                )
+              ]
+            )
+          );
+        }
       }
       let oppReservePiecesArray = [];
       const oppCol = V.GetOppCol(playingColor);
-      for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-        const qty = this.vr.reserve[oppCol][V.RESERVE_PIECES[i]];
-        oppReservePiecesArray.push(
-          h(
-            "div",
-            {
-              "class": { board: true, ["board" + reserveSquareNb]: true },
-              attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) },
-              style: { opacity: qty > 0 ? 1 : 0.35 }
-            },
-            [
-              h("img", {
-                "class": { piece: true, reserve: true },
-                attrs: {
-                  src:
-                    "/images/pieces/" +
-                    this.vr.getReservePpath(i, oppCol, orientation) +
-                    ".svg"
-                }
-              }),
-              h(
-                "sup",
-                {
-                  "class": { "reserve-count": true },
-                  style: { top: "calc(100% + 5px)" }
-                },
-                [ qty ]
-              )
-            ]
-          )
-        );
+      if (!!this.vr.reserve[oppCol]) {
+        for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+          const qty = this.vr.reserve[oppCol][V.RESERVE_PIECES[i]];
+          oppReservePiecesArray.push(
+            h(
+              "div",
+              {
+                "class": { board: true, ["board" + reserveSquareNb]: true },
+                attrs: { id: getSquareId({ x: sizeX + (1 - shiftIdx), y: i }) },
+                style: { opacity: qty > 0 ? 1 : 0.35 }
+              },
+              [
+                h("img", {
+                  "class": { piece: true, reserve: true },
+                  attrs: {
+                    src:
+                      "/images/pieces/" +
+                      this.vr.getReservePpath(i, oppCol, orientation) +
+                      ".svg"
+                  }
+                }),
+                h(
+                  "sup",
+                  {
+                    "class": { "reserve-count": true },
+                    style: { top: "calc(100% + 5px)" }
+                  },
+                  [ qty ]
+                )
+              ]
+            )
+          );
+        }
       }
       const myReserveTop = (
         (playingColor == 'w' && orientation == 'b') ||
         (playingColor == 'b' && orientation == 'w')
       );
+      const hasReserveTop = (
+        (myReserveTop && !!this.vr.reserve[playingColor]) ||
+        (!myReserveTop && !!this.vr.reserve[oppCol])
+      );
+      // "var" because must be reachable from outside this block
+      var hasReserveBottom = (
+        (myReserveTop && !!this.vr.reserve[oppCol]) ||
+        (!myReserveTop && !!this.vr.reserve[playingColor])
+      );
       // Center reserves, assuming same number of pieces for each side:
       const nbReservePieces = myReservePiecesArray.length;
       const marginLeft =
         ((100 - nbReservePieces * (100 / reserveSquareNb)) / 2) + "%";
-      const reserveTop =
-        h(
-          "div",
-          {
-            "class": {
-              game: true,
-              "reserve-div": true
-            },
-            style: {
-              "margin-left": marginLeft
-            }
-          },
-          [
-            h(
-              "div",
-              {
-                "class": {
-                  row: true,
-                  "reserve-row": true
-                }
+      if (hasReserveTop) {
+        var reserveTop =
+          h(
+            "div",
+            {
+              "class": {
+                game: true,
+                "reserve-div": true
               },
-              myReserveTop ? myReservePiecesArray : oppReservePiecesArray
-            )
-          ]
-        );
-      var reserveBottom =
-        h(
-          "div",
-          {
-            "class": {
-              game: true,
-              "reserve-div": true
+              style: {
+                "margin-left": marginLeft
+              }
             },
-            style: {
-              "margin-left": marginLeft
-            }
-          },
-          [
-            h(
-              "div",
-              {
-                "class": {
-                  row: true,
-                  "reserve-row": true
-                }
+            [
+              h(
+                "div",
+                {
+                  "class": {
+                    row: true,
+                    "reserve-row": true
+                  }
+                },
+                myReserveTop ? myReservePiecesArray : oppReservePiecesArray
+              )
+            ]
+          );
+      }
+      if (hasReserveBottom) {
+        var reserveBottom =
+          h(
+            "div",
+            {
+              "class": {
+                game: true,
+                "reserve-div": true
               },
-              myReserveTop ? oppReservePiecesArray : myReservePiecesArray
-            )
-          ]
-        );
-      elementArray.push(reserveTop);
+              style: {
+                "margin-left": marginLeft
+              }
+            },
+            [
+              h(
+                "div",
+                {
+                  "class": {
+                    row: true,
+                    "reserve-row": true
+                  }
+                },
+                myReserveTop ? oppReservePiecesArray : myReservePiecesArray
+              )
+            ]
+          );
+      }
+      if (hasReserveTop) elementArray.push(reserveTop);
     }
     elementArray.push(gameDiv);
-    if (!!this.vr.reserve) elementArray.push(reserveBottom);
+    if (!!this.vr.reserve && hasReserveBottom)
+      elementArray.push(reserveBottom);
     const boardElt = document.getElementById("gamePosition");
     // boardElt might be undefine (at first drawing)
     if (this.choices.length > 0 && !!boardElt) {
@@ -425,7 +443,8 @@ export default {
           touchend: this.mouseup
         }
       };
-    } else {
+    }
+    else {
       onEvents = {
         on: {
           mousedown: this.mousedown,

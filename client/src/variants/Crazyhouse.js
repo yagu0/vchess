@@ -166,10 +166,9 @@ export class CrazyhouseRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y]) {
-    if (x >= V.size.x) {
+    if (x >= V.size.x)
       // Reserves, outside of board: x == sizeX(+1)
       return this.getReserveMoves([x, y]);
-    }
     // Standard moves
     return super.getPotentialMovesFrom([x, y]);
   }
