@@ -1,6 +1,7 @@
 Implement Wildebeest castle rules
 => (1, 2, 3 or 4 squares slide; randomized: may be impossible >1, but possible >4...)
 Fix Omega squares' color (queen on its color: need new static customization "getSquareColor()")
+Finish writing Synochess rules.
 
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move (not too serious however)
