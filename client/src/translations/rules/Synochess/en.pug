@@ -2,41 +2,40 @@ p.boxed
   | The player in second has a different set of pieces,
   | mostly coming from Chinese and Korean chess.
 
+figure.diagram-container
+  .diagram
+    | fen:rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Initial deterministic setup.
+
 p.
-  Synochess is a chess variant designed in 2020 by Couch Tomato.
-  The idea of the game was to create a variant where the western chess army
-  can fight against the xiangqi or Chinese chess army in a fair manner.
-  In this game, the white army represents the western chess side and is
-  called the Kingdom, while the black army represents an amalgamation of
-  xiangqi and janggi (Korean chess) and is called the Dynasty.
+  Synochess is a variant designed in 2020 by Couch Tomato.
+  The idea is to permit the western chess army (white) to fight
+  against the xiangqi or Chinese chess army (black) in a fair manner.
+  The white army is called the Kingdom, while the black army represents
+  an amalgamation of xiangqi and janggi (Korean chess)
+  and is called the Dynasty.
 
 p.
   The name Synochess is based off an earlier name, Sinochess, but it was
   changed as the Dynasty became less "Sino" (as in Chinese) and more a
-  mixture of Chinese and Korean. Instead, the prefix syn- means together,
-  and the game represents two different historic branches of chess coming
-  together into one.
+  mixture of Chinese and Korean. Instead, the prefix syn- means together.
 
 ul
   li The Kingdom (white) always moves first.
   li The Dynasty (black) cannot castle.
-  li.
-    Kingdom pawns can only promote to their own pieces (queen, rook, knight,
-    bishop). Dynasty soldiers do not promote.
+  li Dynasty soldiers do not promote (on last rank).
 
 h3 Special Rules
 
 ul
   li.
     King Faceoff &mdash; As in Xiangqi, Kings may not face each other
-    (on a file or rank) without intervening pieces.
+    (on a file or rank).
   li.
     Reinforcement Soldiers &mdash; Black starts with two soldiers in hand.
     Instead of moving a piece on the board, the Dynasty player can drop a
-    soldier onto an open square in rank 5 (Dynasty's 4th rank).
-  li.
-    Campmate &mdash; A king that reaches the final rank (without moving
-    into check) wins the game.
+    soldier onto an open square in rank 5.
+  li Campmate &mdash; A king that reaches the final rank wins the game.
   li.
     Stalemate &mdash; As in Xiangqi, stalemates
     and moves repetitions are a loss.
@@ -44,16 +43,77 @@ ul
 h3 Dynasty Pieces
 
 p.
-  There are four new units unique to the Dynasty: 6 Soldiers (2 start in
+  Four new units on the Dynasty side: 6 Soldiers (2 start in
   hand), 2 Cannons, 2 Elephants, and 1 Advisor.
 p.
   The Chariots are equal to the Rooks and use the same abbreviation (R)
   &mdash; the difference is purely cosmetic. Similarly, the Kings are the
   same, but just appear different.
 
-p.
-  Details and diagrams of each piece are below.  
+ul
+  li.
+    Soldier (S) &mdash; The Soldiers can move one square orthogonally forward,
+    or lateraly.
+  li Advisor (A) &mdash; The Advisor moves and captures exactly like a king.
+  li.
+    Cannon (C) &mdash; The Cannon moves like a rook, but needs an
+    intervening piece in-between to achieve a capture.
+    It cannot hop over another cannon, however.
+  li.
+    Elephant (E) &mdash; The Elephant is a leaping piece that moves
+    diagonally one or two spaces.
 
-p TODO: continue
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/6P1/5P2/4e3/3P1p2/8/8/8 c3,c7,d4,d6,g3,f6,g7:
+  .diagram.diag22
+    | fen:3B4/3P4/8/1P1c1p1P/8/3c4/8/3N4 d8,d6,c5,e5,h5,d4:
+  figcaption Elephant & Cannon movements.
 
-p https://www.pychess.org/variant/synochess
+h3 Piece valuation
+
+p The following simplified values are used by the basic bot:
+
+table
+  tr
+    th Kingdom piece
+    th Value
+    th Dynasty piece
+    th Value
+  tr
+    td Pawn
+    td 1
+    td Soldier
+    td 2
+  tr
+    td Queen
+    td 9
+    td Elephant
+    td 2.75
+  tr
+    td Bishop
+    td 3
+    td Advisor
+    td 2.75
+  tr
+    td Knight
+    td 3
+    td Cannon
+    td 3
+  tr
+    td Rook
+    td 5
+    td Knight
+    td 3
+  tr
+    td -
+    td -
+    td Chariot
+    td 5
+
+h3 More information
+
+p
+  | See 
+  a(href="https://www.pychess.org/variant/synochess") Synochess
+  | &nbsp;on pychess-variants, where you can also play this variant.
