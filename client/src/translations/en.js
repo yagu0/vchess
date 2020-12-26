@@ -206,6 +206,7 @@ export const translations = {
   "Four new pieces": "Four new pieces",
   "In the shadow": "In the shadow",
   "Interweaved colorbound teams": "Interweaved colorbound teams",
+  "Get rid of the queen": "Get rid of the queen",
   "Get strong at self-mate": "Get strong at self-mate",
   "Give three checks": "Give three checks",
   "Harassed kings": "Harassed kings",

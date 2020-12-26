@@ -206,6 +206,7 @@ export const translations = {
   "Four new pieces": "Quatre nouvelles pièces",
   "In the shadow": "Dans l'ombre",
   "Interweaved colorbound teams": "Équipes unicolores entremêlées",
+  "Get rid of the queen": "Débarrassez-vous de la dame",
   "Get strong at self-mate": "Progressez en mats aidés",
   "Give three checks": "Donnez trois échecs",
   "Harassed kings": "Rois harcelés",

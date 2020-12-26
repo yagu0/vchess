@@ -71,6 +71,7 @@ insert or ignore into Variants (name, description) values
   ('Koopa', 'Stun & kick pieces'),
   ('Koth', 'King of the Hill'),
   ('Losers', 'Get strong at self-mate'),
+  ('Lostqueen', 'Get rid of the queen'),
   ('Madhouse', 'Rearrange enemy pieces'),
   ('Madrasi', 'Paralyzed pieces'),
   ('Magnetic', 'Laws of attraction'),
