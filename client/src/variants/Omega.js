@@ -17,6 +17,10 @@ export class OmegaRules extends ChessRules {
     );
   }
 
+  static get DarkBottomRight() {
+    return true;
+  }
+
   // For space between corners:
   static get NOTHING() {
     return "xx";

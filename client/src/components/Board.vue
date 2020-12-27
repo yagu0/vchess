@@ -171,7 +171,11 @@ export default {
                 })
               );
             }
-            const lightSquare = (ci + cj) % 2 == lightSquareMod;
+            const oddity = (ci + cj) % 2;
+            const lightSquare = (
+              (!V.DarkBottomRight && oddity == lightSquareMod) ||
+              (V.DarkBottomRight && oddity != lightSquareMod)
+            );
             return h(
               "div",
               {

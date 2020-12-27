@@ -112,6 +112,11 @@ export const ChessRules = class ChessRules {
     return false;
   }
 
+  // Some games are drawn unusually (bottomr right corner is black)
+  static get DarkBottomRight() {
+    return false;
+  }
+
   // Some variants require lines drawing
   static get Lines() {
     if (V.Monochrome) {

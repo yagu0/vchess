@@ -90,8 +90,16 @@ export function getDiagram(args) {
           (V.Notoodark ? "middle-square" : "dark-square");
         if (j == startY) boardDiv += " border-left";
       }
-      else if ((i + j) % 2 == 0) boardDiv += "light-square";
-      else boardDiv += "dark-square";
+      else {
+        const oddity = (i + j) % 2;
+        if (
+          (oddity == 0 && !V.DarkBottomRight) ||
+          (oddity == 1 && V.DarkBottomRight)
+        ) {
+          boardDiv += "light-square";
+        }
+        else boardDiv += "dark-square";
+      }
       boardDiv += " " + store.state.settings.bcolor;
       if (shadowArray.length > 0 && shadowArray[i][j])
         boardDiv += " in-shadow";
