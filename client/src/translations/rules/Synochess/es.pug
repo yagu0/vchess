@@ -1,1 +1,119 @@
-p.boxed TODO
+p.boxed
+  | El segundo jugador tiene un juego de piezas diferente,
+  | principalmente del ajedrez chino y coreano.
+
+figure.diagram-container
+  .diagram
+    | fen:rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Posición inicial determinista.
+
+p.
+  Synochess es una variante imaginada en 2020 por Couch Tomato.
+  La idea es permitir un duelo equilibrado entre los ejércitos occidentales
+  (blanco) y oriental (chino y coreano, negro).
+  El ejército blanco se llama Reino, mientras que las piezas negras
+  provienen de una amalgama de ajedrez chino y coreano (jangqi), este campo
+  siendo llamado la Dinastía.
+
+p.
+  El nombre Synochess se basa en un nombre anterior, Sinochess, refiriéndose
+  a China (prefijo sino-). El juego se ha convertido en una mezcla de ajedrez
+  Chino y coreano, el prefijo syn- significando "juntos" es más adecuado.
+
+ul
+  li El Reino (blancos) siempre comienza.
+  li La dinastía (negros) no puede enrocar.
+  li Los soldados de la dinastía no ascienden (en la última fila).
+
+h3 Reglas especiales
+
+ul
+  li.
+    Rey opuestos &mdash; Como en Xiangqi, los reyes no pueden ser
+    cara a cara (en una columna o fila).
+  li.
+    Soldados de refuerzo &mdash; Las negras comienzan con dos soldados en la
+    mano. En lugar de jugar un movimiento, pueden dejar caer a un soldado en
+    una casilla libre de la quinta fila.
+  li.
+    "Mate de campo" &mdash; Si el rey llega a la última fila, entonces
+    el juego está ganado.
+  li.
+    Empate &mdash; Como en Xiangqi,
+    el empate y la repetición de jugadas pierden.
+
+h3 Piezas de la dinastía
+
+p.
+  Cuatro piezas nuevas del lado de la Dinastía: 6 Soldados (2 serán
+  en paracaídas), 2 Cañones, 2 Elefantes y 1 Asesor.
+p.
+  Los Carros equivalen a torres y utilizan la misma abreviatura &mdash;
+  la diferencia es puramente cosmética. Asimismo, los Reyes son iguales
+  piezas dibujadas de manera diferente.
+
+ul
+  li Los Soldados (S) se mueven una casilla hacia adelante o hacia los lados.
+  li El Consejero (A) se mueve y captura como un rey.
+  li.
+    El cañón (C) se mueve como una torre, pero necesita una pieza
+    intermediario para realizar una captura.
+    Sin embargo, no puede saltar sobre otro cañón.
+  li.
+    El elefante (E) avanza en diagonal uno o dos cuadrados,
+    posiblemente saltando sobre una pieza.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/6P1/5P2/4e3/3P1p2/8/8/8 c3,c7,d4,d6,g3,f6,g7:
+  .diagram.diag22
+    | fen:3B4/3P4/8/1P1c1p1P/8/3c4/8/3N4 d8,d6,c5,e5,h5,d4:
+  figcaption Movimientos del elefante y el cañón.
+
+h3 Valores de las piezas
+
+p El ordenador utiliza los siguientes valores simplificados:
+
+table
+  tr
+    th Pieza del Reino
+    th Valor
+    th Pieza de la Dinastía
+    th Valor
+  tr
+    td Peón
+    td 1
+    td Soldado
+    td 2
+  tr
+    td Dama
+    td 9
+    td Elefante
+    td 2.75
+  tr
+    td Alfil
+    td 3
+    td Asesor
+    td 2.75
+  tr
+    td Caballo
+    td 3
+    td Canon
+    td 3
+  tr
+    td Torre
+    td 5
+    td Caballo
+    td 3
+  tr
+    td -
+    td -
+    td Carrito
+    td 5
+
+h3 Más información
+
+p
+  | Ver 
+  a(href="https://www.pychess.org/variant/synochess") Synochess
+  | &nbsp;en pychess-variants, donde también puedes jugarlo.
