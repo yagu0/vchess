@@ -19,6 +19,11 @@ export class TeleportRules extends ChessRules {
     return this.subTurn == 1;
   }
 
+  canIplay(side, [x, y]) {
+    if (this.subTurn == 2) return (this.board[x][y] == V.EMPTY);
+    return super.canIplay(side, [x, y]);
+  }
+
   getPPpath(m) {
     if (
       m.vanish.length == 2 &&

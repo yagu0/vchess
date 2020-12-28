@@ -73,7 +73,7 @@ export class Knightrelay1Rules extends ChessRules {
 
     // Check if a (non-knight) piece at knight distance
     // is guarded by a knight (and thus attacking)
-    // --> Except for pawns targetting last rank.
+    // --> Except for kings, and pawns targetting last rank.
     const x = sq[0],
           y = sq[1];
     // Last rank for me, that is to say oppCol of color:
@@ -84,7 +84,10 @@ export class Knightrelay1Rules extends ChessRules {
         this.getColor(x+step[0],y+step[1]) == color
       ) {
         const piece = this.getPiece(x+step[0],y+step[1]);
-        if (piece != V.KNIGHT && (piece != V.PAWN || x != lastRank)) {
+        if (
+          ![V.KNIGHT, V.KING].includes(piece) &&
+          (piece != V.PAWN || x != lastRank)
+        ) {
           for (const step2 of V.steps[V.KNIGHT]) {
             const xx = x+step[0]+step2[0],
                   yy = y+step[1]+step2[1];

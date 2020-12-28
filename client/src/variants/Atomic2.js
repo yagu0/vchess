@@ -27,6 +27,12 @@ export class Atomic2Rules extends Atomic1Rules {
     return this.movesCount == 0 && [1, 6].includes(x);
   }
 
+  canIplay(side, [x, y]) {
+    if (this.movesCount == 0)
+      return (this.turn == side && this.getPiece(x, y) == V.PAWN);
+    return super.canIplay(side, [x, y]);
+  }
+
   doClick(square) {
     if (this.movesCount >= 1) return null;
     const [x, y] = [square[0], square[1]];

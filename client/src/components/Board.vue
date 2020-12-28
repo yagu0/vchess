@@ -648,45 +648,45 @@ export default {
             document.getElementById("boardContainer").getBoundingClientRect();
           // NOTE: classList[0] is enough: 'piece' is the first assigned class
           const withPiece = (e.target.classList[0] == "piece");
-          // Emit the click event which could be used by some variants
-          this.$emit(
-            "click-square",
-            getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id)
-          );
-          // Start square must contain a piece.
-          if (!withPiece) return;
-          let parent = e.target.parentNode; //surrounding square
           // Show possible moves if current player allowed to play
-          const startSquare = getSquareFromId(parent.id);
+          const startSquare =
+            getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id);
           this.possibleMoves = [];
           const color = this.analyze ? this.vr.turn : this.userColor;
-          if (this.vr.canIplay(color, startSquare))
-            this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-          else return;
-          // For potential drag'n drop, remember start coordinates
-          // (to center the piece on mouse cursor)
-          const rect = parent.getBoundingClientRect();
-          this.start = {
-            x: rect.x + rect.width / 2,
-            y: rect.y + rect.width / 2,
-            id: parent.id
-          };
-          // Add the moving piece to the board, just after current image
-          this.selectedPiece = e.target.cloneNode();
-          Object.assign(
-            this.selectedPiece.style,
-            {
-              position: "absolute",
-              top: 0,
-              display: "inline-block",
-              zIndex: 3000
+          if (this.vr.canIplay(color, startSquare)) {
+            // Emit the click event which could be used by some variants
+            const targetId =
+              (withPiece ? e.target.parentNode.id : e.target.id);
+            this.$emit("click-square", getSquareFromId(targetId));
+            if (withPiece) {
+              this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
+              // For potential drag'n drop, remember start coordinates
+              // (to center the piece on mouse cursor)
+              let parent = e.target.parentNode; //surrounding square
+              const rect = parent.getBoundingClientRect();
+              this.start = {
+                x: rect.x + rect.width / 2,
+                y: rect.y + rect.width / 2,
+                id: parent.id
+              };
+              // Add the moving piece to the board, just after current image
+              this.selectedPiece = e.target.cloneNode();
+              Object.assign(
+                this.selectedPiece.style,
+                {
+                  position: "absolute",
+                  top: 0,
+                  display: "inline-block",
+                  zIndex: 3000
+                }
+              );
+              parent.insertBefore(this.selectedPiece, e.target.nextSibling);
             }
-          );
-          parent.insertBefore(this.selectedPiece, e.target.nextSibling);
-        } else {
-          this.processMoveAttempt(e);
+          }
         }
-      } else if (e.which == 3) {
+        else this.processMoveAttempt(e);
+      }
+      else if (e.which == 3) {
         // Mouse right button
         this.containerPos =
           document.getElementById("gamePosition").getBoundingClientRect();
