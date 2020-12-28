@@ -1,4 +1,4 @@
-import { ChessRules } from "@/base_rules";
+import { ChessRules, Move, PiPo } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { sample, randInt } from "@/utils/alea";
 
@@ -188,6 +188,75 @@ export class WildebeestRules extends ChessRules {
       V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]),
       "oneStep"
     );
+  }
+
+  getPPpath(m) {
+    if (
+      m.appear.length == 2 && m.vanish.length == 2 &&
+      Math.abs(m.end.y - m.start.y) == 1 &&
+      this.board[m.end.x][m.end.y] == V.EMPTY
+    ) {
+      // Castle, king moved by one square only, not directly onto rook
+      return "Wildebeest/castle";
+    }
+    return super.getPPpath(m);
+  }
+
+  // Special Wildebeest castling rules:
+  getCastleMoves([x, y]) {
+    const c = this.getColor(x, y);
+    const oppCol = V.GetOppCol(c);
+    let moves = [];
+    let i = 0;
+    const castlingKing = this.board[x][y].charAt(1);
+    castlingCheck: for (
+      let castleSide = 0;
+      castleSide < 2;
+      castleSide++ //"large", then "small"
+    ) {
+      if (this.castleFlags[c][castleSide] >= V.size.y) continue;
+      // Rook and king are on initial position
+      const rookPos = this.castleFlags[c][castleSide];
+      const range = (castleSide == 0 ? [rookPos, y] : [y, rookPos]);
+
+      // King and rook must be connected:
+      for (let i = range[0] + 1; i <= range[1] - 1; i++) {
+        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
+      }
+      const step = 2 * castleSide - 1;
+      // No attacks on the path of the king ?
+      for (let i = range[0]; i <= range[1]; i++) {
+        if (i != rookPos && this.isAttacked([x, i], oppCol))
+          continue castlingCheck;
+        if (i != y) {
+          // Found a possible castle move:
+          moves.push(
+            new Move({
+              appear: [
+                new PiPo({
+                  x: x,
+                  y: i,
+                  p: V.KING,
+                  c: c
+                }),
+                new PiPo({
+                  x: x,
+                  y: i - step,
+                  p: V.ROOK,
+                  c: c
+                })
+              ],
+              vanish: [
+                new PiPo({ x: x, y: y, p: V.KING, c: c }),
+                new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+              ]
+            })
+          );
+        }
+      }
+    }
+
+    return moves;
   }
 
   isAttacked(sq, color) {

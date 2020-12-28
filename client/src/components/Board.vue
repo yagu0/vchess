@@ -402,10 +402,12 @@ export default {
               this.choices = [];
               this.play(m);
             };
+            const stopPropagation = (e) => { e.stopPropagation(); }
             const onClick =
               this.mobileBrowser
-                ? { touchend: applyMove }
-                : { mouseup: applyMove };
+                // Must cancel mousedown logic:
+                ? { touchstart: stopPropagation, touchend: applyMove }
+                : { mousedown: stopPropagation, mouseup: applyMove };
             return h(
               "div",
               {
