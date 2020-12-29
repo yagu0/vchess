@@ -92,6 +92,7 @@ export default {
       moves: [],
       cursor: -1, //index of the move just played
       lastMove: null,
+      touchLastClick: "",
       firstMoveNumber: 0, //for printing
       incheck: [], //for Board
       inMultimove: false,
@@ -434,8 +435,16 @@ export default {
       // Some variants make use of a single click at specific times:
       const move_s = this.vr.doClick(square);
       if (!!move_s) {
-        if (!Array.isArray(move_s)) this.play(move_s);
-        else this.$refs["board"].choices = move_s;
+        const playMove = () => {
+          if (!Array.isArray(move_s)) this.play(move_s);
+          else this.$refs["board"].choices = move_s;
+        }
+        if ("ontouchstart" in window) {
+          // Touch screen (smartphone): require confirmation
+          if (this.touchLastClick == square) playMove();
+          this.touchLastClick = square;
+        }
+        else playMove();
       }
     },
     // "light": if gotoMove() or gotoEnd()
