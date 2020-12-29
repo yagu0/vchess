@@ -83,7 +83,7 @@ export class WildebeestRules extends ChessRules {
         }
       ];
       if (sx + 2 * step != ex) {
-        //3-squares move
+        // 3-squares move
         res.push({
           x: sx + 2 * step,
           y: sy
@@ -228,7 +228,12 @@ export class WildebeestRules extends ChessRules {
       for (let i = range[0]; i <= range[1]; i++) {
         if (i != rookPos && this.isAttacked([x, i], oppCol))
           continue castlingCheck;
-        if (i != y) {
+        if (
+          i != y &&
+          // Do not end in the corner, except if starting square is too near
+          (i > 0 || y == 1) &&
+          (i < V.size.y - 1 || y == V.size.y - 2)
+        ) {
           // Found a possible castle move:
           moves.push(
             new Move({
@@ -305,7 +310,6 @@ export class WildebeestRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (!randomness) randomness = 2;
     if (randomness == 0) {
       return (
         "rnccwkqbbnr/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/RNBBQKWCCNR " +
