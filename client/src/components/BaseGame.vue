@@ -440,9 +440,25 @@ export default {
           else this.$refs["board"].choices = move_s;
         }
         if ("ontouchstart" in window) {
+          const squareId = "sq-" + square[0] + "-" + square[1];
+          const highlight = function(on, sq) {
+            let elt = document.getElementById(sq);
+            if (!!elt) {
+              if (on) elt.classList.add("touch-hover");
+              else elt.classList.remove("touch-hover");
+            }
+          }
           // Touch screen (smartphone): require confirmation
-          if (this.touchLastClick == square) playMove();
-          this.touchLastClick = square;
+          const squareStr = square[0] + "_" + square[1]
+          if (this.touchLastClick == squareId) {
+            highlight(false, squareId);
+            playMove();
+          }
+          else {
+            highlight(true, squareId);
+            highlight(false, this.touchLastClick);
+          }
+          this.touchLastClick = squareId;
         }
         else playMove();
       }
