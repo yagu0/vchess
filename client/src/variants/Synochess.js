@@ -344,7 +344,6 @@ export class SynochessRules extends ChessRules {
       let i = x + step[0];
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
         i += step[0];
         j += step[1];
       }
@@ -353,6 +352,7 @@ export class SynochessRules extends ChessRules {
         i += step[0];
         j += step[1];
         while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+          moves.push(this.getBasicMove([x, y], [i, j]));
           i += step[0];
           j += step[1];
         }

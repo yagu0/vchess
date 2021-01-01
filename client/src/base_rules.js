@@ -655,18 +655,12 @@ export const ChessRules = class ChessRules {
   // All possible moves from selected square
   getPotentialMovesFrom([x, y]) {
     switch (this.getPiece(x, y)) {
-      case V.PAWN:
-        return this.getPotentialPawnMoves([x, y]);
-      case V.ROOK:
-        return this.getPotentialRookMoves([x, y]);
-      case V.KNIGHT:
-        return this.getPotentialKnightMoves([x, y]);
-      case V.BISHOP:
-        return this.getPotentialBishopMoves([x, y]);
-      case V.QUEEN:
-        return this.getPotentialQueenMoves([x, y]);
-      case V.KING:
-        return this.getPotentialKingMoves([x, y]);
+      case V.PAWN: return this.getPotentialPawnMoves([x, y]);
+      case V.ROOK: return this.getPotentialRookMoves([x, y]);
+      case V.KNIGHT: return this.getPotentialKnightMoves([x, y]);
+      case V.BISHOP: return this.getPotentialBishopMoves([x, y]);
+      case V.QUEEN: return this.getPotentialQueenMoves([x, y]);
+      case V.KING: return this.getPotentialKingMoves([x, y]);
     }
     return []; //never reached
   }

@@ -1,16 +1,10 @@
+PROBABLY WON'T FIX:
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move (not too serious however)
-On smartphone for Teleport, Chakart, Weiqi and some others: option "confirm moves on touch screen"
-(=> comme pour corr) + option "confirm moves in corr games"?
 
 NEW VARIANTS:
 https://www.pychess.org/variant/manchu
 https://www.pychess.org/variant/dobutsu
-https://www.pychess.org/variant/cambodian
-https://www.pychess.org/variant/makpong
-https://www.pychess.org/variant/janggi
-https://www.pychess.org/variant/kyotoshogi
-https://www.pychess.org/variant/hoppelpoppel
 https://musketeerchess.net/games/musketeer/index.php Attention règle de promotion + SVG / PNG
 (https://www.pychess.org/variant/shogun)
 Isardam (type B) : https://echekk.fr/spip.php?page=article&id_article=280

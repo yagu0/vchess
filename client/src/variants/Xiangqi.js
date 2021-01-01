@@ -2,6 +2,8 @@ import { ChessRules } from "@/base_rules";
 
 export class XiangqiRules extends ChessRules {
 
+  // NOTE (TODO?) scanKings() could be more efficient (in Jangqi too)
+
   static get Monochrome() {
     return true;
   }
@@ -189,34 +191,55 @@ export class XiangqiRules extends ChessRules {
     return super.getSlideNJumpMoves([x, y], steps, "oneStep");
   }
 
-  insidePalace(x, y, c) {
-    return (
-      (y >= 3 && y <= 5) &&
-      (
-        (c == 'w' && x >= 7) ||
-        (c == 'b' && x <= 2)
-      )
-    );
-  }
-
   getPotentialAdvisorMoves([x, y]) {
     // Diagonal steps inside palace
-    let steps = [];
     const c = this.getColor(x, y);
-    for (let s of ChessRules.steps[V.BISHOP]) {
-      if (this.insidePalace(x + s[0], y + s[1], c)) steps.push(s);
+    if (
+      y != 4 ||
+      (c == 'w' && x != V.size.x - 2) ||
+      (c == 'b' && x != 1)
+    ) {
+      // In a corner: only one step available
+      let step = null;
+      const direction = (c == 'w' ? -1 : 1);
+      if ((c == 'w' && x == V.size.x - 1) || (c == 'b' && x == 0)) {
+        // On first line
+        if (y == 3) step = [direction, 1];
+        else step = [direction, -1];
+      }
+      else {
+        // On third line
+        if (y == 3) step = [-direction, 1];
+        else step = [-direction, -1];
+      }
+      return super.getSlideNJumpMoves([x, y], [step], "oneStep");
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    // In the middle of the palace:
+    return (
+      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.BISHOP], "oneStep")
+    );
   }
 
   getPotentialKingMoves([x, y]) {
     // Orthogonal steps inside palace
-    let steps = [];
     const c = this.getColor(x, y);
-    for (let s of ChessRules.steps[V.ROOK]) {
-      if (this.insidePalace(x + s[0], y + s[1], c)) steps.push(s);
+    if (
+      y != 4 ||
+      (c == 'w' && x != V.size.x - 2) ||
+      (c == 'b' && x != 1)
+    ) {
+      // On the edge: only two steps available
+      let steps = [];
+      if (x < (c == 'w' ? V.size.x - 1 : 2)) steps.push([1, 0]);
+      if (x > (c == 'w' ? V.size.x - 3 : 0)) steps.push([-1, 0]);
+      if (y > 3) steps.push([0, -1]);
+      if (y < 5) steps.push([0, 1]);
+      return super.getSlideNJumpMoves([x, y], steps, "oneStep");
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    // In the middle of the palace:
+    return (
+      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.ROOK], "oneStep")
+    );
   }
 
   // NOTE: duplicated from Shako (TODO?)
@@ -367,6 +390,13 @@ export class XiangqiRules extends ChessRules {
   static GenRandInitFen() {
     // No randomization here (TODO?)
     return "rneakaenr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNEAKAENR w 0";
+  }
+
+  getNotation(move) {
+    let notation = super.getNotation(move);
+    if (move.vanish.length == 2 && move.vanish[0].p == V.PAWN)
+      notation = "P" + substr(notation, 1);
+    return notation;
   }
 
 };
