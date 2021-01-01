@@ -1,6 +1,103 @@
 p.boxed
-  | TODO: Korean Chess
+  | Korean Chess, with different pieces behaving
+  | differently than orthodox chess.
 
-p https://www.pychess.org/variant/janggi
+p.
+  Pieces stand on intersections rather than squares: this is purely aesthetic,
+  and doesn't affect movements' descriptions.
 
-p https://fr.wikipedia.org/wiki/Janggi
+p
+  | Initial position is almost the same as in 
+  a(href="/#/variants/Xiangqi") Xiangqi
+  | , with the exception of the kings in the middle of the palaces.
+  | Also, at the first move you may choose to swap knight and elephant
+  | positions: either both, or on one side only.
+
+p More precisely, at first move:
+ul
+  li White can keep the initial setup by playing a pass move, or
+  li
+    | exchange knight / elephant positions on either side, and then
+    ul
+      li pass (by bringing your king onto the enemy king), or
+      li exchange positions on the other side too.
+p Then it's Black turn to do the same, and the game starts.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnea1aenr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNEA1AENR:
+  .diagram.diag22
+    | fen:rnea1aner/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RENA1AENR:
+  figcaption Left: initial position. Right: after rearranging.
+
+h3 Pieces movements
+
+ul
+  li.
+    The King moves along any line of the palace, but cannot leave the palace.
+    The same goes for his Advisors.
+    Contrary to Xiangqi, kings can face each other on a file, but if this
+    situation lasts two half moves, the game is a draw: "bikjang".
+  li.
+    Rooks and knights move like in orthodox chess, but the knight does not
+    jump: it goes one square orthogonally first, then one diagonally.
+    If the first is occupied, the move is impossible.
+  li.
+    Elephants move like knights, but one square diagonally further: they
+    land at the opposite corner of a 2 x 3 rectangle, and intermediate squares
+    must be free.
+  li.
+    The Cannons move like rooks but need a piece on their way to jump first.
+    That is to say, on an empty rank or file cannons cannot move at all.
+    They can only reach the squares behind the first obstacle.
+    Moreover, a cannon cannot jump over or capture another cannon.
+  li.
+    Pawns behave like promoted pawns from Xiangqi: they move one square
+    forward or lateraly.
+
+p.
+  Additionally, cannons, rooks and pawns may move along the palace diagonals.
+  Also, it's possible to pass instead of playing a move.
+  Two consecutive passes result in a draw.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4r4/9/4n4/9/9/2r1Cr2c/9/4C4/9/9 a5,b5,e9,e10,g5,h5:
+  .diagram.diag22
+    | fen:9/9/2r6/9/9/4EP3/3p5/5p3/9/9 b7,b3,c2,c8,g8:
+  figcaption Left: Cannon moves. Right: Elephant moves.
+
+h3 Pieces valuation
+
+p These are the official values:
+
+table
+  tr
+    th Piece
+    th Value
+  tr
+    td Chariot
+    td 13
+  tr
+    td Cannon
+    td 7
+  tr
+    td Horse
+    td 5
+  tr
+    td Elephant
+    td 3
+  tr
+    td Advisor
+    td 3
+  tr
+    td Pawn
+    td 2
+
+h3 More information
+
+p
+  | This variant is playable on 
+  a(href="https://www.pychess.org/variant/janggi")
+    | pychess-variants
+  | . See also the Wikipedia page.

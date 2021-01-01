@@ -1,1 +1,108 @@
-p.boxed TODO
+p.boxed
+  | Échecs coréens, avec un jeu de pièces différant des échecs orthodoxes.
+
+p.
+  Les pièces se positionnent sur les intersections plutôt qu'au centre des
+  cases. L'effet n'est qu'esthétique, il n'y a pas d'impact sur la description
+  des déplacements.
+
+p
+  | La position de départ est presque la même qu'au 
+  a(href="/#/variants/Xiangqi") Xiangqi
+  | , à l'exception des rois qui se retrouvent au centre des palais.
+  | De plus, au premier coup vous pouvez choisir d'échanger les positions des
+  | cavalier et éléphants : d'un seul côté, ou bien des deux.
+
+p Plus précisément, a premier coup :
+ul
+  li Les blancs peuvent conserver la position initiale en passant, ou
+  li
+    | échanger les positions de l'éléphant et du cavalier d'un côté, puis
+    ul
+      li passer (en amenant son roi sur le roi adverse), ou
+      li échanger les pisitions de l'autre côté aussi.
+p Ensuite c'est aux noirs de faire de même, puis la partie commence.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnea1aenr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNEA1AENR:
+  .diagram.diag22
+    | fen:rnea1aner/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RENA1AENR:
+  figcaption Gauche : position initiale. Droite : après réarrangement.
+
+h3 Déplacements des pièces
+
+ul
+  li.
+    Le Roi se déplace le long des lignes du palais, et ne peut quitter cette
+    zone. De même pour les Conseillers.
+    Contrairement au Xiangqi, les rois peuvent se faire face sur une colonne,
+    mais si cette situation dure deux demi-coups
+    la partie est déclarée nulle : "bikjang".
+  li.
+    Les Tours ("chariots") et Cavaliers ("chevaux") se déplacent comme aux
+    échecs orthodoxes, mais le cavalier ne saute pas : il avance d'abord
+    d'une case orthogonalement, puis d'un pas en diagonale.
+    Si la première est occupée, le coup est impossible.
+  li.
+    Les Éléphants se déplacent comme les cavaliers, mais parcourent une case
+    supplémentaire dans la même direction diagonale : ils atterrissent au
+    coin opposé d'un rectangle 2 x 3, et
+    les cases intermédiaires doivent être libres.
+  li.
+    Les Canons se déplacent comme des tours mais ont besoin d'une pièce sur
+    leur chemin pour sauter d'abord. C'est-à-dire qu'ils ne peuvent pas bouger
+    sur des colonnes ou rangées vides. Ils peuvent seulement atteindre les
+    cases situées derrière le premier obstacle.
+    De plus, un canon ne peut sauter par dessus ou capturer un autre canon.
+  li.
+    Les Pions se comportent comme des pions promus du Xiangqi : ils se
+    déplacent d'une case vers l'avant ou latéralement.
+
+p.
+  Les canons, tours et pions peuvent aussi se déplacer le long des diagonales
+  Il est également possible de passer au lieu de jouer un coup.
+  Deux passes consécutives équivaut à un match nul.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4r4/9/4n4/9/9/2r1Cr2c/9/4C4/9/9 a5,b5,e9,e10,g5,h5:
+  .diagram.diag22
+    | fen:9/9/2r6/9/9/4EP3/3p5/5p3/9/9 b7,b3,c2,c8,g8:
+  figcaption Gauche : coups du Canon. Droite : coups de l'Éléphant.
+
+h3 Valeur des pièces
+
+p Voici les valeurs officielles :
+
+table
+  tr
+    th Piece
+    th Valeur
+  tr
+    td Chariot
+    td 13
+  tr
+    td Canon
+    td 7
+  tr
+    td Cheval
+    td 5
+  tr
+    td Élephant
+    td 3
+  tr
+    td Conseiller
+    td 3
+  tr
+    td Pion
+    td 2
+
+h3 Plus d'information
+
+p
+  | Cette variante est jouable sur 
+  a(href="https://www.pychess.org/variant/janggi")
+    | pychess-variants
+  | . Voir aussi la page Wikipedia.
+

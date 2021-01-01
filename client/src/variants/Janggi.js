@@ -35,10 +35,6 @@ export class JanggiRules extends ChessRules {
     return false;
   }
 
-  static get LoseOnRepetition() {
-    return true;
-  }
-
   static get ELEPHANT() {
     return "e";
   }
@@ -110,9 +106,10 @@ export class JanggiRules extends ChessRules {
     // TODO: next "if" is mutually exclusive with the block above
     if (this.movesCount <= 1) {
       const firstRank = (this.movesCount == 0 ? 9 : 0);
-      const [initFile, destFile] = (this.subTurn == 1 ? [1, 2] : [7, 6]);
+      const initDestFile = new Map([[1, 2], [7, 6]]);
       // Only option is knight / elephant swap:
-      if (x == firstRank && y == initFile) {
+      if (x == firstRank && !!initDestFile.get(y)) {
+        const destFile = initDestFile.get(y);
         moves.push(
           new Move({
             appear: [
