@@ -62,19 +62,6 @@ export class JangqiRules extends ChessRules {
     return { x: 10, y: 9};
   }
 
-  getPotentialMovesFrom(sq) {
-    switch (this.getPiece(sq[0], sq[1])) {
-      case V.PAWN: return this.getPotentialPawnMoves(sq);
-      case V.ROOK: return this.getPotentialRookMoves(sq);
-      case V.KNIGHT: return this.getPotentialKnightMoves(sq);
-      case V.ELEPHANT: return this.getPotentialElephantMoves(sq);
-      case V.ADVISOR: return this.getPotentialAdvisorMoves(sq);
-      case V.KING: return this.getPotentialKingMoves(sq);
-      case V.CANNON: return this.getPotentialCannonMoves(sq);
-    }
-    return []; //never reached
-  }
-
   static IsGoodFlags(flags) {
     // bikjang status of last move + pass
     return !!flags.match(/^[0-2]{2,2}$/);
@@ -161,8 +148,33 @@ export class JangqiRules extends ChessRules {
         );
       }
     }
-    else
-      Array.prototype.push.apply(moves, super.getPotentialMovesFrom([x, y]));
+    else {
+      let normalMoves = [];
+      switch (this.getPiece(x, y)) {
+        case V.PAWN:
+          normalMoves = this.getPotentialPawnMoves([x, y]);
+          break;
+        case V.ROOK:
+          normalMoves = this.getPotentialRookMoves([x, y]);
+          break;
+        case V.KNIGHT:
+          normalMoves = this.getPotentialKnightMoves([x, y]);
+          break;
+        case V.ELEPHANT:
+          normalMoves = this.getPotentialElephantMoves([x, y]);
+          break;
+        case V.ADVISOR:
+          normalMoves = this.getPotentialAdvisorMoves([x, y]);
+          break;
+        case V.KING:
+          normalMoves = this.getPotentialKingMoves([x, y]);
+          break;
+        case V.CANNON:
+          normalMoves = this.getPotentialCannonMoves([x, y]);
+          break;
+      }
+      Array.prototype.push.apply(moves, normalMoves);
+    }
     return moves;
   }
 

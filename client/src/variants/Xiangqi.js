@@ -395,7 +395,7 @@ export class XiangqiRules extends ChessRules {
   getNotation(move) {
     let notation = super.getNotation(move);
     if (move.vanish.length == 2 && move.vanish[0].p == V.PAWN)
-      notation = "P" + substr(notation, 1);
+      notation = "P" + notation.substr(1);
     return notation;
   }
 
