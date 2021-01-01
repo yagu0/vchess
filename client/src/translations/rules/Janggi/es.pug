@@ -1,1 +1,108 @@
-p.boxed TODO
+p.boxed
+  | Ajedrez coreano, con un juego de piezas diferente al ajedrez ortodoxo.
+
+p.
+  Las piezas se colocan en intersecciones en lugar de en el centro de
+  casillas. El efecto es solo estético, no hay impacto en la descripción de
+  los movimientos.
+
+p
+  | La posición inicial es casi la misma que al 
+  a(href="/#/variants/Xiangqi") Xiangqi
+  | , a excepción de los reyes que se encuentran en el centro de los palacios.
+  | Además, en el primer movimiento puede optar por intercambiar las
+  | posiciones del caballo y elefante: de un lado o de ambos.
+
+p Más precisamente, a primera jugada:
+ul
+  li Las blancas pueden mantener la posición original al pasar, o
+  li
+    | intercambie las posiciones del elefante y el caballo en un lado, luego
+    ul
+      li saltando su turno (llevando a su rey sobre el rey opuesto), o
+      li intercambiar las posiciones en el otro lado también.
+p Entonces le toca al negro hacer lo mismo, y despues comienza el juego.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnea1aenr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNEA1AENR:
+  .diagram.diag22
+    | fen:rnea1aner/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RENA1AENR:
+  figcaption Izquierda: posición inicial. Derecha: después del reordenamiento.
+
+h3 Movimientos de piezas
+
+ul
+  li.
+    El Rey se mueve a lo largo de las líneas del palacio y no puede dejar este
+    zonificado. Lo mismo ocurre con los Asesores.
+    A diferencia de Xiangqi, los reyes pueden enfrentarse en una columna,
+    pero si esta situación dura dos medios movimientos
+    el juego se declara empate: "bikjang".
+  li.
+    Los Torres ("carros") y los Caballos se mueven como en
+    ajedrez ortodoxo, pero el caballo no salta: avanza primero
+    un cuadrado ortogonalmente, luego un paso en diagonal.
+    Si el primero está ocupado, el movimiento es imposible.
+  li.
+    Los Elefantes se mueven como caballos, pero caminan por una plaza más
+    en la misma dirección diagonal: aterrizan en el
+    esquina opuesta de un rectángulo de 2 x 3, y
+    las casillas intermedias deben estar libres.
+  li.
+    Los Cañones se mueven como torres pero necesitan una pieza
+    en su camino para saltar primero. Es decir, no pueden moverse
+    en columnas o filas vacías. Solo pueden alcanzar los
+    cuadrados detrás del primer obstáculo.
+    Además, un cañón no puede saltar ni capturar otro cañón.
+  li.
+    Los Peones se comportan como peones promocionados de Xiangqi:
+    mueva una casilla hacia adelante o hacia los lados.
+
+p.
+  Los cañones, torres y peones también pueden moverse a lo largo de las
+  diagonales del palacio.
+  También es posible pasar en lugar de jugar un movimiento.
+  Dos pases consecutivos equivalen a un empate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4r4/9/4n4/9/9/2r1Cr2c/9/4C4/9/9 a5,b5,e9,e10,g5,h5:
+  .diagram.diag22
+    | fen:9/9/2r6/9/9/4EP3/3p5/5p3/9/9 b7,b3,c2,c8,g8:
+  figcaption Izquierda: jugadas del cañón. Derecha: jugadas del elefante.
+
+h3 Valor de las piezas
+
+p Estos son los valores oficiales:
+
+table
+  tr
+    th Pieza
+    th Valor
+  tr
+    td Carrito
+    td 13
+  tr
+    td Canon
+    td 7
+  tr
+    td Caballo
+    td 5
+  tr
+    td Elefante
+    td 3
+  tr
+    td Asesor
+    td 3
+  tr
+    td Peón
+    td 2
+
+h3 Más información
+
+p
+  | Esta variante se puede jugar en 
+  a(href="https://www.pychess.org/variant/janggi")
+    | pychess-variants
+  | . Consulte también la página de Wikipedia.
