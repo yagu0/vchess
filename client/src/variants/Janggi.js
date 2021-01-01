@@ -1,4 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class JanggiRules extends ChessRules {
 
@@ -588,6 +589,24 @@ export class JanggiRules extends ChessRules {
 
   postUndo(move) {
     if (move.vanish.length > 0) super.postUndo(move);
+  }
+
+  getComputerMove() {
+    if (this.movesCount <= 1) {
+      // Special case: swap and pass at random
+      const moves1 = this.getAllValidMoves();
+      const m1 = moves1[randInt(moves1.length)];
+      this.play(m1);
+      if (m1.vanish.length == 0) {
+        this.undo(m1);
+        return m1;
+      }
+      const moves2 = this.getAllValidMoves();
+      const m2 = moves2[randInt(moves2.length)];
+      this.undo(m1);
+      return [m1, m2];
+    }
+    return super.getComputerMove();
   }
 
   getNotation(move) {
