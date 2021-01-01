@@ -42,7 +42,5 @@ https://www.chessvariants.com/play/connected-chess
 Non-chess:
 fanorona https://fr.wikipedia.org/wiki/Fanorona
 Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi-bin/zilligames/submissions.cgi/92187?do=show;id=960
-gess https://en.wikipedia.org/wiki/Gess
-gomoku, reversi
-avalam, qoridor (wider lines in another color, vr.lines [npt static get] for this one ?), draughts, draughts8
+gomoku, avalam, qoridor (wider lines in another color ?), draughts, draughts8
 (puis quand hexaboards peut-être: hexavariants + Hex)

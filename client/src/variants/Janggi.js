@@ -1,6 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class JangqiRules extends ChessRules {
+export class JanggiRules extends ChessRules {
 
   static get Monochrome() {
     return true;
