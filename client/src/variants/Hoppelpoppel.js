@@ -51,7 +51,7 @@ export class HoppelpoppelRules extends ChessRules {
     );
   }
 
-  isAttackedByAntiking([x, y], color) {
+  isAttackedByBishop([x, y], color) {
     return super.isAttackedBySlideNJump(
       [x, y],
       color,
