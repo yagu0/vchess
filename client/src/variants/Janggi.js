@@ -52,7 +52,7 @@ export class JanggiRules extends ChessRules {
   }
 
   getPpath(b) {
-    return "Jiangqi/" + b;
+    return "Janggi/" + b;
   }
 
   static get size() {

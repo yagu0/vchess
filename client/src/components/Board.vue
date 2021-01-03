@@ -425,7 +425,7 @@ export default {
                   attrs: {
                     src:
                       "/images/pieces/" +
-                      // orientation: extra arg useful for some variants:
+                      // orientation: extra arg useful for some variants
                       this.vr.getPPpath(m, this.orientation) +
                       V.IMAGE_EXTENSION
                   },

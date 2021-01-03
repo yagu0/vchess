@@ -112,7 +112,7 @@ export const ChessRules = class ChessRules {
     return false;
   }
 
-  // Some games are drawn unusually (bottomr right corner is black)
+  // Some games are drawn unusually (bottom right corner is black)
   static get DarkBottomRight() {
     return false;
   }
@@ -197,7 +197,7 @@ export const ChessRules = class ChessRules {
         if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
         else {
           const num = parseInt(row[i], 10);
-          if (isNaN(num)) return false;
+          if (isNaN(num) || num <= 0) return false;
           sumElts += num;
         }
       }
@@ -653,14 +653,14 @@ export const ChessRules = class ChessRules {
   // MOVES GENERATION
 
   // All possible moves from selected square
-  getPotentialMovesFrom([x, y]) {
-    switch (this.getPiece(x, y)) {
-      case V.PAWN: return this.getPotentialPawnMoves([x, y]);
-      case V.ROOK: return this.getPotentialRookMoves([x, y]);
-      case V.KNIGHT: return this.getPotentialKnightMoves([x, y]);
-      case V.BISHOP: return this.getPotentialBishopMoves([x, y]);
-      case V.QUEEN: return this.getPotentialQueenMoves([x, y]);
-      case V.KING: return this.getPotentialKingMoves([x, y]);
+  getPotentialMovesFrom(sq) {
+    switch (this.getPiece(sq[0], sq[1])) {
+      case V.PAWN: return this.getPotentialPawnMoves(sq);
+      case V.ROOK: return this.getPotentialRookMoves(sq);
+      case V.KNIGHT: return this.getPotentialKnightMoves(sq);
+      case V.BISHOP: return this.getPotentialBishopMoves(sq);
+      case V.QUEEN: return this.getPotentialQueenMoves(sq);
+      case V.KING: return this.getPotentialKingMoves(sq);
     }
     return []; //never reached
   }
@@ -675,8 +675,8 @@ export const ChessRules = class ChessRules {
         new PiPo({
           x: ex,
           y: ey,
-          c: tr ? tr.c : initColor,
-          p: tr ? tr.p : initPiece
+          c: !!tr ? tr.c : initColor,
+          p: !!tr ? tr.p : initPiece
         })
       ],
       vanish: [
