@@ -1071,6 +1071,7 @@ export const ChessRules = class ChessRules {
       }
       if (
         V.OnBoard(rx, ry) &&
+        this.board[rx][ry] != V.EMPTY &&
         this.getPiece(rx, ry) == piece &&
         this.getColor(rx, ry) == color
       ) {

@@ -120,9 +120,6 @@ export class PacosakoRules extends ChessRules {
 
   getPiece(i, j, color) {
     const p = this.board[i][j].charAt(1);
-
-console.log(p);
-
     if (ChessRules.PIECES.includes(p)) return p;
     const c = this.board[i][j].charAt(0);
     // NOTE: this.turn == HACK, but should work...
@@ -288,6 +285,7 @@ console.log(p);
       this.lastMoveEnd.push(Object.assign({}, move.end, { p: released }));
     }
     V.PlayOnBoard(this.board, move);
+    this.postPlay(move);
   }
 
   undo(move) {
@@ -298,6 +296,7 @@ console.log(p);
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
+    this.postUndo(move);
   }
 
   getCurrentScore() {
