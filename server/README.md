@@ -19,6 +19,13 @@ sqlite> .read populate.sql
 sqlite> .exit
 ```
 
+2. Rename and edit `db/dbconnect.py.dist` into `db/dbconnect.py`.
+Then synchronize the GameStat table:
+
+```
+./sync_gamestat.py
+```
+
 2. Rename and edit `config/parameters.js.dist` into `config/parameters.js`
 
 3. Install npm modules
