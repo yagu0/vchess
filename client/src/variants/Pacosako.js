@@ -472,6 +472,7 @@ export class PacosakoRules extends ChessRules {
   }
 
   play(move) {
+    move.flags = JSON.stringify(this.aggregateFlags());
     this.epSquares.push(this.getEpSquare(move));
     // Check if the move is the last of the turn: all cases except releases
     if (!move.released) {
@@ -499,6 +500,7 @@ export class PacosakoRules extends ChessRules {
 
   undo(move) {
     this.epSquares.pop();
+    this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     this.lastMoveEnd.pop();
     if (!move.released) {
