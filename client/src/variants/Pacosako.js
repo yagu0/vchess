@@ -405,6 +405,23 @@ export class PacosakoRules extends ChessRules {
     return moves;
   }
 
+  getPotentialKingMoves(sq) {
+    let moves = this.getSlideNJumpMoves(
+      sq,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
+      "oneStep"
+    );
+    const c = this.turn;
+    const oppCol = V.GetOppCol(c);
+    if (
+      !this.isAttacked(this.kingPos[c], oppCol) &&
+      this.castleFlags[c].some(v => v < V.size.y)
+    ) {
+      moves = moves.concat(super.getCastleMoves(sq, null, true));
+    }
+    return moves;
+  }
+
   getEpSquare(moveOrSquare) {
     if (typeof moveOrSquare === "string") {
       const square = moveOrSquare;
