@@ -1,13 +1,105 @@
-p.boxed TODO
+p.boxed
+  | "Capturer" une pièce crée une union, que votre adversaire peut encore
+  | utiliser sur son tour. Entrez dans une union pour délivrer votre pièce.
 
-p WARNING 1: totally buggish right now.
-
-p WARNING 2: this variant may in the end not be playable here at all - will depend on the author decision.
+p.
+  Le nom de la variante signifie "Les Échecs de la Paix" en Esperanto.
+  Paco-Sako a été inventée par Felix Albers en 2017, et développée ensuite
+  également par Rolf Kreibaum et Raimond Fluijt.
 
 p
-  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") Video
-  | &nbsp;showing gameplay. See also 
-  a(href="http://pacosako.com/") the main website
-  | , and the associated 
-  a(href="http://pacoplay.com/") playing area
+  | Vous pouvez en apprendre plus sur l'histoire de la variante et acheter
+  | de jolies pièces (et échiquiers) dédiées sur le site officiel 
+  a(href="http://pacosako.com/") pacosako.com
+  | . La variante est jouable en ligne sur 
+  a(href="http://pacoplay.com/") pacoplay.com
   | .
+  br
+  | Par conséquent, Paco-Sako n'est 
+  span.warning pas garantie de rester jouable sur vchess.club.
+  br
+  | Vous êtes invités à plutôt aller y jouer là-bas :-)
+  | En outre, les dessins des unions sont plus mignons.
+
+h3 Règles de base
+
+p.
+  Il n'y a pas de captures dans ce jeu : seulement des unions de pièces,
+  qui sont délivrées quand d'autres pièces amies les remplacent.
+  L'objectif est de créer une union avec le roi adverse.
+  J'aime penser aux unions en terme de "pièces dansant ensemble",
+  donc les deux termes seront utilisés sur cette page.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pacosako/wc.png")
+  img(src="/images/pieces/Pacosako/bc.png")
+  img(src="/images/pieces/Pacosako/bt.png")
+  img(src="/images/pieces/Pacosako/wv.png")
+  figcaption Quelques pièces unions.
+
+p.
+  À chaque tour, un joueur sélectionne l'une de ses pièces ou
+  une pièce-union ; notons la A.
+ul
+  li.
+    Cas 1 : A est une pièce dansante. Alors, elle ne peut que se déplacer
+    vers une case vide selon le type de notre pièce.
+  li.
+    Cas 2 : A est une pièce standard.
+    Elle peut alors être déplacée n'importe où sauf sur nos propres pièces
+    (normales). "Capturer" une pièce ennemie crée une union composée des
+    deux pièces. "Capturer" une union libère notre pièce s'y trouvant, et
+    celle-ci doit être déplacée immédiatement par le même joueur. Elle peut
+    à son tour délivrer d'autres pièces, suivant ainsi une chaines d'unions.
+
+p
+  | Ceci peut paraître indigeste à première lecture, mais c'est plus simple
+  | que ça en a l'air. Voyez par exemple cette 
+  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") vidéo de gameplay
+  | , ou une autre de la même chaîne YouTube.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/2q5/8/4O3/2w2B2/8/5K2:
+  .diagram.diag22
+    | fen:4k3/8/2Y5/8/4s3/2S5/8/5K2:
+  figcaption Avant et après le coup "chaînant" Bxe4, Ne4xc3, Qc3xc6.
+
+h3 Coups spéciaux, notes additionnelles
+
+p.
+  "Capturer" une union en passant libère notre pièce dansante depuis la
+  case intermédiaire.
+
+p.
+  Une promotion a lieu quand n'importe quel pion (éventuellement en union)
+  atteint sa dernière rangée.
+
+p.
+  Les attaques sur le roi sont ignorées dans cette implémentation : vous
+  pouvez aller ou rester en "échec". Ainsi, les conditions du roque se
+  retrouvent assouplie.
+  Si vous formez une union avec votre roi mais terminez par danser avec
+  le roi adverse à l'autre bout de la chaîne, la partie est nulle. 
+  span.warning Cela ne suit pas (du tout) les règles officielles.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+  .diagram.diag22
+    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
+  figcaption.
+    Gauche : Bd3(+) peut être paré par
+    Droite : h6xg5 (libérant le cavalier), Ne4.
+
+p.
+  Annuler un coup d'union est interdit. Par exemple, si un fou danse avec
+  une dame, et effectue un déplacement de e5 en g3, l'autre joueur ne peut
+  pas la replacer en e5 immédiatement après. Ceci est également non-officiel.
+
+h3 Plus d'information
+
+p
+  | Les auteurs ont écrit 
+  a(href="/variants/Pacosako/manual.pdf") un manuel
+  | &nbsp;avec bien plus de diagrammes et d'explications.

@@ -1,5 +1,7 @@
 # Various files
 /server/db/vchess.sqlite
+/server/db/dbconnect.py
+/server/db/__pycache__/
 /server/config/parameters.js
 /server/fallback/*
 !/server/fallback/README

@@ -514,7 +514,8 @@ export default {
             "DELETE",
             { data: { gid: this.game.id } }
           );
-        } else {
+        }
+        else {
           // Live game
           GameStorage.update(this.gameRef, { delchat: true });
         }
@@ -578,7 +579,8 @@ export default {
             // For self multi-connects tests:
             this.newConnect[data.from[0]] = true;
             this.send("askidentity", { target: data.from[0] });
-          } else {
+          }
+          else {
             this.people[data.from[0]].tmpIds[data.from[1]] = { focus: true };
             this.$forceUpdate(); //TODO: shouldn't be required
           }
@@ -674,9 +676,8 @@ export default {
                 ) {
                   this.send("asklastate", { target: user.sid });
                   counter++;
-                } else {
-                  clearInterval(this.askLastate);
                 }
+                else clearInterval(this.askLastate);
               },
               1500
             );
@@ -874,13 +875,15 @@ export default {
             gameInfo.players.some(p => p.sid == this.st.user.sid)
           ) {
             this.addAndGotoLiveGame(gameInfo);
-          } else if (
+          }
+          else if (
             gameType == "corr" &&
             this.st.user.id > 0 &&
             gameInfo.players.some(p => p.id == this.st.user.id)
           ) {
             this.$router.push("/game/" + gameInfo.id);
-          } else {
+          }
+          else {
             this.rematchId = gameInfo.id;
             document.getElementById("modalRules").checked = false;
             document.getElementById("modalScore").checked = false;
@@ -972,7 +975,8 @@ export default {
           // Just got last move from him
           this.$refs["basegame"].play(data.lastMove, "received");
           this.processMove(data.lastMove);
-        } else {
+        }
+        else {
           if (!!this.clockUpdate) clearInterval(this.clockUpdate);
           this.re_setClocks();
         }
@@ -994,7 +998,8 @@ export default {
             : "Three repetitions";
         this.send("draw", { data: message });
         this.gameOver("1/2", message);
-      } else if (this.drawOffer == "") {
+      }
+      else if (this.drawOffer == "") {
         // No effect if drawOffer == "sent"
         if (this.game.mycolor != this.vr.turn) {
           alert(this.st.tr["Draw offer only in your turn"]);
@@ -1008,7 +1013,8 @@ export default {
             this.gameRef,
             { drawOffer: this.game.mycolor }
           );
-        } else this.updateCorrGame({ drawOffer: this.game.mycolor });
+        }
+        else this.updateCorrGame({ drawOffer: this.game.mycolor });
       }
     },
     addAndGotoLiveGame: function(gameInfo, callback) {
@@ -1075,7 +1081,8 @@ export default {
             }
           );
         }
-      } else if (this.rematchOffer == "") {
+      }
+      else if (this.rematchOffer == "") {
         this.rematchOffer = "sent";
         this.send("rematchoffer", { data: true });
         if (this.game.type == "live") {
@@ -1083,8 +1090,10 @@ export default {
             this.gameRef,
             { rematchOffer: this.game.mycolor }
           );
-        } else this.updateCorrGame({ rematchOffer: this.game.mycolor });
-      } else if (this.rematchOffer == "sent") {
+        }
+        else this.updateCorrGame({ rematchOffer: this.game.mycolor });
+      }
+      else if (this.rematchOffer == "sent") {
         // Toggle rematch offer (on --> off)
         this.rematchOffer = "";
         this.send("rematchoffer", { data: false });
@@ -1093,7 +1102,8 @@ export default {
             this.gameRef,
             { rematchOffer: '' }
           );
-        } else this.updateCorrGame({ rematchOffer: 'n' });
+        }
+        else this.updateCorrGame({ rematchOffer: 'n' });
       }
     },
     abortGame: function() {
@@ -1162,11 +1172,10 @@ export default {
               { clocks: game.clocks }
             );
           }
-        } else {
-          if (!!game.initime)
-            // It's my turn: clocks not updated yet
-            game.clocks[myIdx] -= (Date.now() - game.initime) / 1000;
         }
+        else if (!!game.initime)
+          // It's my turn: clocks not updated yet
+          game.clocks[myIdx] -= (Date.now() - game.initime) / 1000;
       }
       else
         // gtype == "import"
@@ -1329,7 +1338,8 @@ export default {
                 currentTurn == "w" ? "0-1" : "1-0",
                 "Time"
               );
-          } else {
+          }
+          else {
             this.$set(
               this.virtualClocks,
               colorIdx,

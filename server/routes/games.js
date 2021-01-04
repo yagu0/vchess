@@ -5,6 +5,14 @@ const GameModel = require('../models/Game');
 const access = require("../utils/access");
 const params = require("../config/parameters");
 
+router.post("/gamestat", access.ajax, (req,res) => {
+  const vid = req.body.vid;
+  if (!!vid && !!vid.toString().match(/^[0-9]+$/)) {
+    GameModel.incrementCounter(vid);
+    res.json({});
+  }
+});
+
 // From main hall, start game between players 0 and 1
 router.post("/games", access.logged, access.ajax, (req,res) => {
   const gameInfo = req.body.gameInfo;

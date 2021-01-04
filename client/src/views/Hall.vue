@@ -441,7 +441,8 @@ export default {
                 }
               }
             );
-          } else addChallenges();
+          }
+          else addChallenges();
         }
       }
     );
@@ -701,7 +702,8 @@ export default {
             // For self multi-connects tests:
             this.newConnect[data.from[0]] = true;
             this.send("askidentity", { target: data.from[0], page: page });
-          } else {
+          }
+          else {
             this.people[data.from[0]].tmpIds[data.from[1]] =
               { page: page, focus: true };
             this.$forceUpdate(); //TODO: shouldn't be required
@@ -733,7 +735,8 @@ export default {
                 "all"
               );
             }
-          } else {
+          }
+          else {
             // Remove the matching live game if now unreachable
             const gid = data.page.match(/[a-zA-Z0-9]+$/)[0];
             // Corr games are always reachable:
@@ -948,7 +951,8 @@ export default {
                 );
               });
               this.games = this.games.concat(moreGames);
-            } else this.hasMore = false;
+            }
+            else this.hasMore = false;
           }
         }
       );
@@ -1016,7 +1020,8 @@ export default {
           position: parsedFen.position
           //,orientation: parsedFen.turn
         });
-      } else this.newchallenge.diag = "";
+      }
+      else this.newchallenge.diag = "";
     },
     newChallFromPreset(pchall) {
       this.partialResetNewchallenge();
@@ -1154,7 +1159,8 @@ export default {
       if (ctype == "live") {
         // Live challenges have a random ID
         finishAddChallenge(null);
-      } else {
+      }
+      else {
         // Correspondence game: send challenge to server
         ajax(
           "/challenges",
@@ -1193,7 +1199,8 @@ export default {
         else
           // Corr challenge: just remove the challenge
           this.send("deletechallenge_s", { data: { cid: c.id } });
-      } else {
+      }
+      else {
         const oppsid = this.getOppsid(c);
         if (!!oppsid)
           this.send("refusechallenge", { data: c.id, target: oppsid });
@@ -1300,7 +1307,14 @@ export default {
       if (c.type == "live") {
         notifyNewgame();
         this.startNewGame(gameInfo);
-      } else {
+        // Increment game stats counter in DB
+        ajax(
+          "/gamestat",
+          "POST",
+          { data: { vid: gameInfo.vid } }
+        );
+      }
+      else {
         // corr: game only on server
         ajax(
           "/games",

@@ -1,13 +1,102 @@
-p.boxed TODO
+p.boxed
+  | "Capturing" a piece creates an union,
+  | which your opponent can still use on his turn.
+  | Enter an union to release your piece.
 
-p WARNING 1: totally buggish right now.
-
-p WARNING 2: this variant may in the end not be playable here at all - will depend on the author decision.
+p.
+  The variant's name means "Chess of Peace" in Esperanto.
+  Paco-Sako was invented by Felix Albers in 2017, and further developped
+  also by Rolf Kreibaum and Raimond Fluijt.
 
 p
-  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") Video
-  | &nbsp;showing gameplay. See also 
-  a(href="http://pacosako.com/") the main website
-  | , and the associated 
-  a(href="http://pacoplay.com/") playing area
+  | You can learn more about the variant's history and buy nice dedicated
+  | pieces (and boards) on the official website 
+  a(href="http://pacosako.com/") pacosako.com
+  | . The variant is playable online at 
+  a(href="http://pacoplay.com/") pacoplay.com
   | .
+  br
+  | Consequently, Paco-Sako is 
+  span.warning not garanteed to remain playable on vchess.club.
+  br
+  | You're invited to play over there instead :-)
+  | Besides, they have cuter unions' drawings.
+
+h3 Basic rules
+
+p.
+  There are no captures in this game: only unions of pieces,
+  which are released when replaced by another friendly piece.
+  The goal is to create an union with the enemy king.
+  I like to think of unions as "pieces dancing together", so both
+  terms will be used on this page.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pacosako/wc.png")
+  img(src="/images/pieces/Pacosako/bc.png")
+  img(src="/images/pieces/Pacosako/bt.png")
+  img(src="/images/pieces/Pacosako/wv.png")
+  figcaption Some union pieces.
+
+p.
+  At each turn, a player chooses either one of his pieces or an union piece;
+  let's write this piece A.
+ul
+  li.
+    Case 1: A is a dancing piece. Then, it's only allowed to move
+    to a vacant square according to our piece's type.
+  li.
+    Case 2: A is a standard piece.
+    It can then be moved anywhere but on our own (normal) pieces.
+    "Capturing" an enemy piece creates an union composed of both pieces.
+    "Capturing" an union releases our piece formerly in union,
+    which has to be moved immediately by the same player. It can in turn
+    release another piece, thus following a chain of unions.
+
+p
+  | This may appear confusing at first reading, but is simpler than it seems.
+  | See for example this 
+  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") gameplay video
+  | , or another one from the same YouTube channel.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/2q5/8/4O3/2w2B2/8/5K2:
+  .diagram.diag22
+    | fen:4k3/8/2Y5/8/4s3/2S5/8/5K2:
+  figcaption Before and after the chaining move Bxe4, Ne4xc3, Qc3xc6.
+
+h3 Special moves, additional notes
+
+p.
+  "Capturing" an union en passant releases our dancing piece from the
+  intermediate square.
+
+p Promotion occur when any pawn (in union or not) reaches its final rank.
+
+p.
+  Attacks on the king are ignored in this implementation: you can run
+  or remain into "check". So, castling conditions are quite permissive.
+  Also, if you form an union with your king but end dancing with the
+  other king on the other end of the chain, the game is a draw. 
+  span.warning This does not follow (at all) the official rules.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+  .diagram.diag22
+    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
+  figcaption.
+    Left: Bd3(+) can be covered by Right: h6xg5 (releasing the knight), Ne4.
+
+p.
+  Canceling an union move is forbidden. For example if a bishop is
+  dancing with a queen, and makes the move e5 to g3, the other player cannot
+  move it back to e5 just after. This is also non-official.
+
+h3 More information
+
+p
+  | The authors wrote 
+  a(href="/variants/Pacosako/manual.pdf") a manual
+  | &nbsp;with many more diagrams and explanations.

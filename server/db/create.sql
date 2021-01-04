@@ -44,6 +44,12 @@ create table Challenges (
   foreign key (vid) references Variants(id)
 );
 
+create table GameStat (
+  vid integer,
+  total integer default 0,
+  foreign key (vid) references Variants(id)
+);
+
 create table Games (
   id integer primary key,
   vid integer,

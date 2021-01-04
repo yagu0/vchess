@@ -1,13 +1,106 @@
-p.boxed TODO
+p.boxed
+  | "Capturar" una pieza crea una unión, que tu oponente aún puede
+  | utilizar en turno. Entra en una unión para entregar tu pieza.
 
-p WARNING 1: totally buggish right now.
-
-p WARNING 2: this variant may in the end not be playable here at all - will depend on the author decision.
+p.
+  El nombre de la variante significa "El Ajedrez de la Paz" en Esperanto.
+  Paco-Sako fue inventado por Felix Albers en 2017, y luego desarrollado
+  también por Rolf Kreibaum y Raimond Fluijt.
 
 p
-  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") Video
-  | &nbsp;showing gameplay. See also 
-  a(href="http://pacosako.com/") the main website
-  | , and the associated 
-  a(href="http://pacoplay.com/") playing area
+  | Puede obtener más información sobre el historial de la variante y comprar
+  | piezas bastante dedicadas (y tableros) en el sitio web oficial 
+  a(href="http://pacosako.com/") pacosako.com
+  | . La variante se puede jugar en línea en 
+  a(href="http://pacoplay.com/") pacoplay.com
   | .
+  br
+  | Por tanto, Paco-Sako  
+  span.warning no se garantiza que siga siendo jugable en vchess.club.
+  br
+  | Puedes ir a jugar allí en su lugar :-)
+  | Además, los diseños de las uniones son más lindos.
+
+h3 Reglas básicas
+
+p.
+  No hay capturas en este juego: solo uniones de piezas,
+  que se emiten cuando otras piezas amigas los reemplazan.
+  El objetivo es crear una unión con el rey contrario.
+  Me gusta pensar en las uniones en términos de "piezas bailando juntas",
+  por lo tanto, ambos términos se utilizarán en esta página.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pacosako/wc.png")
+  img(src="/images/pieces/Pacosako/bc.png")
+  img(src="/images/pieces/Pacosako/bt.png")
+  img(src="/images/pieces/Pacosako/wv.png")
+  figcaption Algunas uniones de piezas.
+
+p.
+  Cada turno, un jugador selecciona una de sus piezas o
+  una pieza-unión; denotar por A.
+ul
+  li.
+    Caso 1: A es una pieza bailando. Entonces ella solo puede moverse
+    a una casilla vacía dependiendo del tipo de nuestra pieza.
+  li.
+    Caso 2: A es una pieza estándar.
+    Luego se puede mover a cualquier lugar excepto en nuestras propias piezas
+    (normales). "Capturar" una pieza enemiga crea una unión formada por
+    dos piezas. "Capturar" una unión libera nuestra pieza en ella, y
+    debe ser movido inmediatamente por el mismo jugador. Ella puede
+    a su vez entregan otras piezas, siguiendo así una cadena de uniones.
+
+p
+  | Esto puede parecer indigerible en la primera lectura, pero es más fácil
+  | de lo que parece. Ver por ejemplo esto 
+  a(href="https://www.youtube.com/watch?v=tQ2JLsFvfxI") video de gameplay
+  | , u otro del mismo canal de YouTube.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:4k3/8/2q5/8/4O3/2w2B2/8/5K2:
+  .diagram.diag22
+    | fen:4k3/8/2Y5/8/4s3/2S5/8/5K2:
+  figcaption.
+    Antes y después del movimiento de "encadenamiento" Bxe4, Ne4xc3, Qc3xc6.
+
+h3 Movimientos especiales, notas adicionales
+
+p.
+  "Capturar" una unión en passant libera nuestra pieza bailando despues la
+  casilla intermedia.
+
+p.
+  Una promoción tiene lugar cuando cualquier peón (posiblemente en unión)
+  llegó a su última fila.
+
+p.
+  Los ataques al rey se ignoran en esta implementación:
+  puede ir o permanecer en "jaque". Por lo tanto, las condiciones de enroque
+  son encontrar relajado.
+  Si formas una unión con tu rey pero terminas bailando con
+  el rey oponente en el otro extremo de la cadena, el juego se empata.
+  span.warning Esto no sigue las reglas oficiales (en absoluto).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+  .diagram.diag22
+    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
+  figcaption.
+    Izquierda: Bd3(+) puede ser bloqueado por
+    Derecha: h6xg5 (liberando al caballo), Ne4.
+
+p.
+  Está prohibido cancelar una jugada de unión. Por ejemplo, si un alfil
+  baila con una reina y hace un movimiento de e5 a g3, el otro jugador no
+  puede lo reemplace en e5 inmediatamente después. Esto tampoco es oficial.
+
+h3 Más información
+
+p
+  | Los autores escribieron 
+  a(href="/variants/Pacosako/manual.pdf") un manual
+  | &nbsp;con muchos más diagramas y explicaciones.

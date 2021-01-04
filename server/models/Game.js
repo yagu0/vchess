@@ -47,6 +47,16 @@ const GameModel = {
     );
   },
 
+  incrementCounter: function(vid, cb) {
+    db.serialize(function() {
+      let query =
+        "UPDATE GameStat " +
+        "SET total = total + 1 " +
+        "WHERE vid = " + vid;
+      db.run(query, cb);
+    });
+  },
+
   create: function(vid, fen, randomness, cadence, players, cb) {
     db.serialize(function() {
       let query =

@@ -275,7 +275,7 @@ export const ChessRules = class ChessRules {
 
   // En-passant square, if any
   getEpSquare(moveOrSquare) {
-    if (!moveOrSquare) return undefined;
+    if (!moveOrSquare) return undefined; //TODO: necessary line?!
     if (typeof moveOrSquare === "string") {
       const square = moveOrSquare;
       if (square == "-") return undefined;
@@ -1073,7 +1073,8 @@ export const ChessRules = class ChessRules {
         V.OnBoard(rx, ry) &&
         this.board[rx][ry] != V.EMPTY &&
         this.getPiece(rx, ry) == piece &&
-        this.getColor(rx, ry) == color
+        this.getColor(rx, ry) == color &&
+        this.canTake([rx, ry], [x, y])
       ) {
         return true;
       }
