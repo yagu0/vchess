@@ -75,23 +75,38 @@ p.
   Los ataques al rey se ignoran en esta implementación:
   puede ir o permanecer en "jaque". Por lo tanto, las condiciones de enroque
   son encontrar relajado.
-  Si formas una unión con tu rey pero terminas bailando con
-  el rey oponente en el otro extremo de la cadena, el juego se empata.
-  span.warning Esto no sigue las reglas oficiales (en absoluto).
+
+figure.diagram-container
+  .diagram
+    | fen:r1q1k2r/p1Pb1ppp/5n2/1f1p4/AV5P/2dDP3/P2B1PP1/R3K1NR:
+  figcaption.
+    Las negras no pueden enroquar a causa de la cadena
+    Bxc3, c3xb5, b5xb4, b4xf8
+
+h3 Reglas no oficiales
+
+p.
+    Hice algunas adiciones, en general para complicar la defensa.
+    No forman parte de las reglas oficiales.
+
+ul
+  li.
+    Está prohibido cancelar una jugada de unión. Por ejemplo, si un alfil
+    baila con una reina y hace un movimiento de e5 a g3, el otro jugador no
+    puede lo reemplace en e5 inmediatamente después.
+  li.
+    Los peones pueden avanzar dos espacios solo si nunca han
+    movido (por sí mismos o como miembro de una unión).
+  li.
+    Si formas una unión con tu rey pero terminas bailando con
+    el rey oponente en el otro extremo de la cadena, el juego se empata.
 
 figure.diagram-container
   .diagram.diag12
-    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+    | fen:r2qk2r/pbpe1pp1/np5p/2b1p3/4P1t1/2N3K1/PPPP1PPP/R1B3NR:
   .diagram.diag22
-    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
-  figcaption.
-    Izquierda: Bd3(+) puede ser bloqueado por
-    Derecha: h6xg5 (liberando al caballo), Ne4.
-
-p.
-  Está prohibido cancelar una jugada de unión. Por ejemplo, si un alfil
-  baila con una reina y hace un movimiento de e5 a g3, el otro jugador no
-  puede lo reemplace en e5 inmediatamente después. Esto tampoco es oficial.
+    | fen:r2qX2r/pbpf1pp1/np5p/2b1p3/4P1u1/2N5/PPPP1PPP/R1B3NR:
+  figcaption Antes y despues Kxg4, g4xd7, d7xe8 1/2
 
 h3 Más información
 

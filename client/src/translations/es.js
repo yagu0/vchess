@@ -241,6 +241,7 @@ export const translations = {
   "Move under cover": "Ir bajo cubierta",
   "Moving forward": "Ir adelante",
   "Neverending rows": "Filas interminables",
+  "No paralyzed pieces": "No piezas paralizadas",
   "No-check mode": "Modo sin jaque",
   "Non-conformism and utopia": "No-conformismo y utopía",
   "Occupy the enemy palace": "Ocupar el palacio enemigo",

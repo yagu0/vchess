@@ -29,7 +29,8 @@ export class PacosakoRules extends ChessRules {
       w: ['b', 'q'],
       x: ['b', 'k'],
       y: ['q', 'q'],
-      z: ['q', 'k']
+      z: ['q', 'k'],
+      '_': ['k', 'k']
     };
   }
 
@@ -37,16 +38,17 @@ export class PacosakoRules extends ChessRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kingSymb = ['k', 'g', 'm', 'u', 'x'];
+    let kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
     let kings = { 'k': 0, 'K': 0 };
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
         const lowR = row[i].toLowerCase
-        if (!!(row[i].toLowerCase().match(/[a-z]/))) {
+        if (!!(row[i].toLowerCase().match(/[a-z_]/))) {
           sumElts++;
           if (kingSymb.includes(row[i])) kings['k']++;
-          else if (kingSymb.some(s => row[i] == s.toUpperCase())) kings['K']++;
+          // Not "else if", if two kings dancing together
+          if (kingSymb.some(s => row[i] == s.toUpperCase())) kings['K']++;
         }
         else {
           const num = parseInt(row[i], 10);
@@ -98,15 +100,18 @@ export class PacosakoRules extends ChessRules {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
-    const kingSymb = ['k', 'g', 'm', 'u', 'x'];
+    const kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0;
       for (let j = 0; j < fenRows[i].length; j++) {
         const c = fenRows[i].charAt(j);
-        if (kingSymb.includes(c))
-          this.kingPos["b"] = [i, k];
-        else if (kingSymb.some(s => c == s.toUpperCase()))
-          this.kingPos["w"] = [i, k];
+        if (!!(c.toLowerCase().match(/[a-z_]/))) {
+          if (kingSymb.includes(c))
+            this.kingPos["b"] = [i, k];
+          // Not "else if", in case of two kings dancing together
+          if (kingSymb.some(s => c == s.toUpperCase()))
+            this.kingPos["w"] = [i, k];
+        }
         else {
           const num = parseInt(fenRows[i].charAt(j), 10);
           if (!isNaN(num)) k += num - 1;
@@ -141,6 +146,33 @@ export class PacosakoRules extends ChessRules {
     return true;
   }
 
+  static IsGoodFlags(flags) {
+    // 4 for castle + 16 for pawns
+    return !!flags.match(/^[a-z]{4,4}[01]{16,16}$/);
+  }
+
+  setFlags(fenflags) {
+    super.setFlags(fenflags); //castleFlags
+    this.pawnFlags = {
+      w: [...Array(8)], //pawns can move 2 squares?
+      b: [...Array(8)]
+    };
+    const flags = fenflags.substr(4); //skip first 4 letters, for castle
+    for (let c of ["w", "b"]) {
+      for (let i = 0; i < 8; i++)
+        this.pawnFlags[c][i] = flags.charAt((c == "w" ? 0 : 8) + i) == "1";
+    }
+  }
+
+  aggregateFlags() {
+    return [this.castleFlags, this.pawnFlags];
+  }
+
+  disaggregateFlags(flags) {
+    this.castleFlags = flags[0];
+    this.pawnFlags = flags[1];
+  }
+
   getUmove(move) {
     if (
       move.vanish.length == 1 &&
@@ -161,8 +193,17 @@ export class PacosakoRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    // Add empty umove
-    return ChessRules.GenRandInitFen(randomness) + " -";
+    // Add 16 pawns flags + empty umove:
+    return ChessRules.GenRandInitFen(randomness)
+      .slice(0, -2) + "1111111111111111 - -";
+  }
+
+  getFlagsFen() {
+    let fen = super.getFlagsFen();
+    // Add pawns flags
+    for (let c of ["w", "b"])
+      for (let i = 0; i < 8; i++) fen += (this.pawnFlags[c][i] ? "1" : "0");
+    return fen;
   }
 
   getUmoveFen() {
@@ -322,10 +363,28 @@ export class PacosakoRules extends ChessRules {
       this.board[x][y] = this.turn + piece;
     }
     let baseMoves = [];
+    const c = this.turn;
     switch (piece || this.getPiece(x, y)) {
-      case V.PAWN:
-        baseMoves = this.getPotentialPawnMoves([x, y]);
+      case V.PAWN: {
+        const firstRank = (c == 'w' ? 7 : 0);
+        baseMoves = this.getPotentialPawnMoves([x, y]).filter(m => {
+          // Skip forbidden 2-squares jumps (except from first rank)
+          // Also skip unions capturing en-passant (not allowed).
+          return (
+            (
+              m.start.x == firstRank ||
+              Math.abs(m.end.x - m.start.x) == 1 ||
+              this.pawnFlags[c][m.start.y]
+            )
+            &&
+            (
+              this.board[x][y].charAt(1) == V.PAWN ||
+              m.start.y == m.end.y
+            )
+          );
+        });
         break;
+      }
       case V.ROOK:
         baseMoves = this.getPotentialRookMoves([x, y]);
         break;
@@ -345,7 +404,6 @@ export class PacosakoRules extends ChessRules {
     // When a pawn in an union reaches final rank with a non-standard
     // promotion move: apply promotion anyway
     let moves = [];
-    const c = this.turn;
     const oppCol = V.GetOppCol(c);
     const oppLastRank = (c == 'w' ? 7 : 0);
     baseMoves.forEach(m => {
@@ -405,23 +463,6 @@ export class PacosakoRules extends ChessRules {
     return moves;
   }
 
-  getPotentialKingMoves(sq) {
-    let moves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
-    const c = this.turn;
-    const oppCol = V.GetOppCol(c);
-    if (
-      !this.isAttacked(this.kingPos[c], oppCol) &&
-      this.castleFlags[c].some(v => v < V.size.y)
-    ) {
-      moves = moves.concat(super.getCastleMoves(sq, null, true));
-    }
-    return moves;
-  }
-
   getEpSquare(moveOrSquare) {
     if (typeof moveOrSquare === "string") {
       const square = moveOrSquare;
@@ -451,6 +492,7 @@ export class PacosakoRules extends ChessRules {
       !!m1 &&
       !(ChessRules.PIECES.includes(m2.appear[0].p)) &&
       m2.vanish.length == 1 &&
+      !m2.released &&
       m1.start.x == m2.end.x &&
       m1.end.x == m2.start.x &&
       m1.start.y == m2.end.y &&
@@ -458,10 +500,158 @@ export class PacosakoRules extends ChessRules {
     );
   }
 
-  // Do not consider checks for now (TODO)
-  underCheck() {
+  getCastleMoves([x, y]) {
+    const c = this.getColor(x, y);
+    const oppCol = V.GetOppCol(c);
+    let moves = [];
+    const finalSquares = [ [2, 3], [6, 5] ];
+    castlingCheck: for (let castleSide = 0; castleSide < 2; castleSide++) {
+      if (this.castleFlags[c][castleSide] >= 8) continue;
+      const rookPos = this.castleFlags[c][castleSide];
+
+      // Nothing on the path of the king ?
+      const finDist = finalSquares[castleSide][0] - y;
+      let step = finDist / Math.max(1, Math.abs(finDist));
+      let i = y;
+      let kingSquares = [y];
+      do {
+        if (
+          (
+            this.board[x][i] != V.EMPTY &&
+            (this.getColor(x, i) != c || ![y, rookPos].includes(i))
+          )
+        ) {
+          continue castlingCheck;
+        }
+        i += step;
+        kingSquares.push(i);
+      } while (i != finalSquares[castleSide][0]);
+      // No checks on the path of the king ?
+      if (this.isAttacked(kingSquares, oppCol)) continue castlingCheck;
+
+      // Nothing on the path to the rook?
+      step = castleSide == 0 ? -1 : 1;
+      for (i = y + step; i != rookPos; i += step) {
+        if (this.board[x][i] != V.EMPTY) continue castlingCheck;
+      }
+
+      // Nothing on final squares, except maybe king and castling rook?
+      for (i = 0; i < 2; i++) {
+        if (
+          finalSquares[castleSide][i] != rookPos &&
+          this.board[x][finalSquares[castleSide][i]] != V.EMPTY &&
+          (
+            finalSquares[castleSide][i] != y ||
+            this.getColor(x, finalSquares[castleSide][i]) != c
+          )
+        ) {
+          continue castlingCheck;
+        }
+      }
+
+      moves.push(
+        new Move({
+          appear: [
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][0],
+              p: V.KING,
+              c: c
+            }),
+            new PiPo({
+              x: x,
+              y: finalSquares[castleSide][1],
+              p: V.ROOK,
+              c: c
+            })
+          ],
+          vanish: [
+            // King might be initially disguised (Titan...)
+            new PiPo({ x: x, y: y, p: V.KING, c: c }),
+            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+          ],
+          end:
+            Math.abs(y - rookPos) <= 2
+              ? { x: x, y: rookPos }
+              : { x: x, y: y + 2 * (castleSide == 0 ? -1 : 1) }
+        })
+      );
+    }
+
+    return moves;
+  }
+
+  isAttacked_aux(files, color, positions, fromSquare, released) {
+    // "positions" = array of FENs to detect infinite loops. Example:
+    // r1q1k2r/p1Pb1ppp/5n2/1f1p4/AV5P/P1eDP3/3B1PP1/R3K1NR,
+    // Bxd2 Bxc3 Bxb4 Bxc3 Bxb4 etc.
+    const newPos = { fen: super.getBaseFen(), piece: released };
+    if (positions.some(p => p.piece == newPos.piece && p.fen == newPos.fen))
+      // Start of an infinite loop: exit
+      return false;
+    positions.push(newPos);
+    const rank = (color == 'w' ? 0 : 7);
+    const moves = this.getPotentialMovesFrom(fromSquare);
+    if (moves.some(m => m.end.x == rank && files.includes(m.end.y)))
+      // Found an attack!
+      return true;
+    for (let m of moves) {
+      if (!!m.released) {
+        // Turn won't change since !!m.released
+        this.play(m);
+        const res = this.isAttacked_aux(
+          files, color, positions, [m.end.x, m.end.y], m.released);
+        this.undo(m);
+        if (res) return true;
+      }
+    }
     return false;
   }
+
+  isAttacked(files, color) {
+    const rank = (color == 'w' ? 0 : 7);
+    // Since it's too difficult (impossible?) to search from the square itself,
+    // let's adopt a suboptimal but working strategy: find all attacks.
+    const c = this.turn;
+    // Artificial turn change is required:
+    this.turn = color;
+    let res = false;
+    outerLoop: for (let i=0; i<8; i++) {
+      for (let j=0; j<8; j++) {
+        // Attacks must start from a normal piece, not an union.
+        // Therefore, the following test is correct.
+        if (
+          this.board[i][j] != V.EMPTY &&
+          // Do not start with king (irrelevant, and lead to infinite calls)
+          [V.PAWN, V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN].includes(
+            this.board[i][j].charAt(1)) &&
+          this.board[i][j].charAt(0) == color
+        ) {
+          // Try from here.
+          const moves = this.getPotentialMovesFrom([i, j]);
+          if (moves.some(m => m.end.x == rank && files.includes(m.end.y))) {
+            res = true;
+            break outerLoop;
+          }
+          for (let m of moves) {
+            if (!!m.released) {
+              // Turn won't change since !!m.released
+              this.play(m);
+              let positions = [];
+              res = this.isAttacked_aux(
+                files, color, positions, [m.end.x, m.end.y], m.released);
+              this.undo(m);
+              if (res) break outerLoop;
+            }
+          }
+        }
+      }
+    }
+    this.turn = c;
+    return res;
+  }
+
+  // Do not consider checks, except to forbid castling
   getCheckSquares() {
     return [];
   }
@@ -489,13 +679,29 @@ export class PacosakoRules extends ChessRules {
 
   postPlay(move) {
     if (move.vanish.length == 0)
-      // A piece released just moved. Cannot be the king.
+      // A released piece just moved. Cannot be the king.
       return;
     const c = move.vanish[0].c;
     const piece = move.vanish[0].p;
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     this.updateCastleFlags(move, piece);
+    if (
+      [1, 6].includes(move.start.x) &&
+      move.vanish.length >= 1 &&
+      move.appear.length == 1
+    ) {
+      // Does this move turn off a 2-squares pawn flag?
+      if (
+        move.vanish[0].p == V.PAWN ||
+        (
+          !(ChessRules.PIECES.includes(move.vanish[0].p)) &&
+          this.getUnionPieces(move.vanish[0].c, move.vanish[0].p)[c] == V.PAWN
+        )
+      ) {
+        this.pawnFlags[move.start.x == 6 ? "w" : "b"][move.start.y] = false;
+      }
+    }
   }
 
   undo(move) {

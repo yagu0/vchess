@@ -64,6 +64,7 @@ insert or ignore into Variants (name, description) values
   ('Hoppelpoppel', 'Knibis and Bisknis'),
   ('Horde', 'A pawns cloud'),
   ('Interweave', 'Interweaved colorbound teams'),
+  ('Isardam', 'No paralyzed pieces'),
   ('Janggi', 'Korean Chess'),
   ('Kinglet', 'Protect your pawns'),
   ('Knightmate', 'Mate the knight'),

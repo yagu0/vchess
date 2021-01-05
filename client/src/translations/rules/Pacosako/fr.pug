@@ -71,26 +71,42 @@ p.
   atteint sa dernière rangée.
 
 p.
-  Les attaques sur le roi sont ignorées dans cette implémentation : vous
-  pouvez aller ou rester en "échec". Ainsi, les conditions du roque se
-  retrouvent assouplie.
-  Si vous formez une union avec votre roi mais terminez par danser avec
-  le roi adverse à l'autre bout de la chaîne, la partie est nulle. 
-  span.warning Cela ne suit pas (du tout) les règles officielles.
+  Le roque est interdit si une attaque directe ou "chaînée" existe sur
+  n'importe quelle case sur le chemin du roi. Cependant, les attaques sur
+  le roi (directes ou chaînées) sont ignorées le reste du temps : vous
+  pouvez vous mettre ou rester en "échec".
+
+figure.diagram-container
+  .diagram
+    | fen:r1q1k2r/p1Pb1ppp/5n2/1f1p4/AV5P/2dDP3/P2B1PP1/R3K1NR:
+  figcaption.
+    Les noirs ne peuvent pas roquer à cause de la chaîne
+    Bxc3, c3xb5, b5xb4, b4xf8
+
+h3 Règles non-officielles
+
+p.
+  J'ai effectué quelques ajouts, globalement pour compliquer la défense.
+  Ils ne font pas partie des règles officielles.
+
+ul
+  li.
+    Annuler un coup d'union est interdit. Par exemple, si un fou danse avec
+    une dame, et effectue un déplacement de e5 en g3, l'autre joueur ne peut
+    pas la replacer en e5 immédiatement après.
+  li.
+    Les pions peuvent avancer de deux cases seulement s'ils n'ont jamais
+    bougé (par eux-mêmes ou comme membre d'une union).
+  li.
+    Si vous formez une union avec votre roi mais terminez par danser avec
+    le roi adverse à l'autre bout de la chaîne, la partie est nulle.
 
 figure.diagram-container
   .diagram.diag12
-    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+    | fen:r2qk2r/pbpe1pp1/np5p/2b1p3/4P1t1/2N3K1/PPPP1PPP/R1B3NR:
   .diagram.diag22
-    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
-  figcaption.
-    Gauche : Bd3(+) peut être paré par
-    Droite : h6xg5 (libérant le cavalier), Ne4.
-
-p.
-  Annuler un coup d'union est interdit. Par exemple, si un fou danse avec
-  une dame, et effectue un déplacement de e5 en g3, l'autre joueur ne peut
-  pas la replacer en e5 immédiatement après. Ceci est également non-officiel.
+    | fen:r2qX2r/pbpf1pp1/np5p/2b1p3/4P1u1/2N5/PPPP1PPP/R1B3NR:
+  figcaption Avant et après Kxg4, g4xd7, d7xe8 1/2
 
 h3 Plus d'information
 

@@ -892,7 +892,6 @@ export const ChessRules = class ChessRules {
     // Castling ?
     const oppCol = V.GetOppCol(c);
     let moves = [];
-    let i = 0;
     // King, then rook:
     finalSquares = finalSquares || [ [2, 3], [V.size.y - 2, V.size.y - 3] ];
     const castlingKing = this.board[x][y].charAt(1);
@@ -919,7 +918,7 @@ export const ChessRules = class ChessRules {
       // Nothing on the path of the king ? (and no checks)
       const finDist = finalSquares[castleSide][0] - y;
       let step = finDist / Math.max(1, Math.abs(finDist));
-      i = y;
+      let i = y;
       do {
         if (
           (!castleInCheck && this.isAttacked([x, i], oppCol)) ||

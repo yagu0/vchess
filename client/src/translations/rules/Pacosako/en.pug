@@ -70,24 +70,40 @@ p.
 p Promotion occur when any pawn (in union or not) reaches its final rank.
 
 p.
-  Attacks on the king are ignored in this implementation: you can run
-  or remain into "check". So, castling conditions are quite permissive.
-  Also, if you form an union with your king but end dancing with the
-  other king on the other end of the chain, the game is a draw. 
-  span.warning This does not follow (at all) the official rules.
+  Castling is forbidden if a direct or "chained" attack exists on any square
+  in the king's path. However, direct or chained attacks on the king are
+  otherwise ignored: you can run or remain into "check".
+
+figure.diagram-container
+  .diagram
+    | fen:r1q1k2r/p1Pb1ppp/5n2/1f1p4/AV5P/2dDP3/P2B1PP1/R3K1NR:
+  figcaption.
+    Black cannot castle because of the chain Bxc3, c3xb5, b5xb4, b4xf8
+
+h3 Non-official rules
+
+p.
+  I added some small changes, globally to complicate defense.
+  These are not in the official rules.
+
+ul
+  li.
+    Canceling an union move is forbidden. For example if a bishop is
+    dancing with a queen, and makes the move e5 to g3, the other player
+    cannot move it back to e5 just after.
+  li.
+    Pawns can advance two squares only if they never moved (by themselves
+    or as part of an union).
+  li.
+    If you form an union with your king but end dancing with the
+    other king on the other end of the chain, the game is a draw.
 
 figure.diagram-container
   .diagram.diag12
-    | fen:rnbq1r2/1ppppp1k/p6p/4P1OP/1PPP3c/3B4/P2V1PP1/R2QK1N1:
+    | fen:r2qk2r/pbpe1pp1/np5p/2b1p3/4P1t1/2N3K1/PPPP1PPP/R1B3NR:
   .diagram.diag22
-    | fen:rnbq1r2/1ppppp1k/p7/4P1dP/1PPPn2c/3B4/P2V1PP1/R2QK1N1:
-  figcaption.
-    Left: Bd3(+) can be covered by Right: h6xg5 (releasing the knight), Ne4.
-
-p.
-  Canceling an union move is forbidden. For example if a bishop is
-  dancing with a queen, and makes the move e5 to g3, the other player cannot
-  move it back to e5 just after. This is also non-official.
+    | fen:r2qX2r/pbpf1pp1/np5p/2b1p3/4P1u1/2N5/PPPP1PPP/R1B3NR:
+  figcaption Before and after Kxg4, g4xd7, d7xe8 1/2
 
 h3 More information
 
