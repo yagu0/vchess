@@ -508,6 +508,8 @@ export class PacosakoRules extends ChessRules {
     castlingCheck: for (let castleSide = 0; castleSide < 2; castleSide++) {
       if (this.castleFlags[c][castleSide] >= 8) continue;
       const rookPos = this.castleFlags[c][castleSide];
+      const castlingColor = this.board[x][rookPos].charAt(0);
+      const castlingPiece = this.board[x][rookPos].charAt(1);
 
       // Nothing on the path of the king ?
       const finDist = finalSquares[castleSide][0] - y;
@@ -561,14 +563,14 @@ export class PacosakoRules extends ChessRules {
             new PiPo({
               x: x,
               y: finalSquares[castleSide][1],
-              p: V.ROOK,
-              c: c
+              p: castlingPiece,
+              c: castlingColor
             })
           ],
           vanish: [
             // King might be initially disguised (Titan...)
             new PiPo({ x: x, y: y, p: V.KING, c: c }),
-            new PiPo({ x: x, y: rookPos, p: V.ROOK, c: c })
+            new PiPo({ x: x, y: rookPos, p: castlingPiece, c: castlingColor })
           ],
           end:
             Math.abs(y - rookPos) <= 2
@@ -579,6 +581,14 @@ export class PacosakoRules extends ChessRules {
     }
 
     return moves;
+  }
+
+  getEnpassantCaptures(sq, shiftX) {
+    // HACK: when artificially change turn, do not consider en-passant
+    const mcMod2 = this.movesCount % 2;
+    const c = this.turn;
+    if ((c == 'w' && mcMod2 == 1) || (c == 'b' && mcMod2 == 0)) return [];
+    return super.getEnpassantCaptures(sq, shiftX);
   }
 
   isAttacked_aux(files, color, positions, fromSquare, released) {
@@ -675,6 +685,23 @@ export class PacosakoRules extends ChessRules {
     V.PlayOnBoard(this.board, move);
     this.umoves.push(this.getUmove(move));
     this.postPlay(move);
+  }
+
+  updateCastleFlags(move, piece) {
+    const c = V.GetOppCol(this.turn);
+    const firstRank = (c == "w" ? 7 : 0);
+    const oppCol = this.turn;
+    const oppFirstRank = 7 - firstRank;
+    if (piece == V.KING && move.appear.length > 0)
+      this.castleFlags[c] = [V.size.y, V.size.y];
+    else if (
+      move.start.x == firstRank &&
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    }
+    // No more checking: a rook in union can take part in castling.
   }
 
   postPlay(move) {
