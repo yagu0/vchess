@@ -2,9 +2,12 @@
 
 ## Project setup
 
-Rename and edit src/parameters.js.dist into parameters.js. Then:
+Rename and edit src/parameters.js.dist into parameters.js. Then,
+download the folders and files listed in download\_objects file.
+(This is optional, most variants will work without it).
+
+Finally install dependencies.
 ```
-./download_objects.sh
 npm install
 ```
 

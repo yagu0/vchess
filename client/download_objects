@@ -1,0 +1,22 @@
+# NOTES to restore binary files
+# (They are normally retrieved using git-fat, but it won't work if I don't know you)
+
+* Full folders (these are supposed to be temporary)
+
+client/public/images/pieces/Eightpieces/tmp_png
+client/public/images/pieces/Titan
+client/public/images/pieces/Pacosako
+
+* And some files (permanent)
+
+client/public/variants/Empire/EagleMoves.png
+client/public/variants/Empire/Board.png
+client/public/variants/Xiangqi/HorseDiagram.png
+client/public/variants/Xiangqi/Boards.png
+client/public/variants/Xiangqi/ElephantDiagram.png
+client/public/variants/Orda/Falcon.png
+client/public/variants/Orda/Archer.png
+client/public/variants/Orda/Orda.png
+client/public/variants/Orda/Kheshig.png
+client/public/variants/Orda/Lancer.png
+client/public/variants/Orda/Yurt.png
