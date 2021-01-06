@@ -246,6 +246,7 @@ export const translations = {
   "Non-conformism and utopia": "No-conformismo y utopía",
   "Occupy the enemy palace": "Ocupar el palacio enemigo",
   "Paralyzed pieces": "Piezas paralizadas",
+  "Pawnfalls": "Peones cayendo",
   "Pawns capture backward": "Los peones capturan hacia atrás",
   "Pawns move diagonally": "Los peones se mueven en diagonal",
   "Pieces upside down": "Piezas al revés",

@@ -982,13 +982,13 @@ export default {
             .getElementById("btnC" + newChall.type)
             .classList.add("somethingnew");
         }
-        if (!!chall.to) {
+        if (chall.to == this.st.user.name) {
           notify(
             "New challenge",
             // fromValues.name should exist since the player is online, but
             // let's consider there is some chance that the challenge arrives
             // right after we connected and before receiving the poll result:
-            { body: "from " + (fromValues.name || "unknown yet...") }
+            { body: "from " + (fromValues.name || "@nonymous") }
           );
         }
       }

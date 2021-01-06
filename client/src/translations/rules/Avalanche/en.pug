@@ -1,0 +1,34 @@
+p.boxed
+  | A normal move is always followed by an opponent's pawn push.
+
+p.
+  Each turn consists of two parts. The first part is a move
+  legal with the orthodox chess rules. The second part of the move,
+  called "push", consists of moving an opponent's pawn a single space forward
+  (toward the player in turn).
+  White has no pawn push on the first move ("balanced" Avalanche).
+
+p.
+  If no pawn can advance at the second part, then it's
+  opponent's turn. If a pushed pawn reaches its last rank,
+  the opponent decides next in which piece it promotes.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/1pppp1pp/8/p7/P3Pp2/8/1PPPKPPP/RNBQ1BNR:
+  .diagram.diag22
+    | fen:rnbqkbnr/1pppp1pp/8/p7/P3P3/2N2p2/1PPPKPPP/R1BQ1BNR:
+  figcaption.
+    White plays Nc3,f3 (bad idea). Then Black can capture the king.
+
+p In some cases, kings can be captured. This counts as a win.
+
+p There are no en-passant captures.
+
+h3 More information
+
+p
+  | See 
+  a(href="https://www.chessvariants.com/mvopponent.dir/avalanche.html")
+    | Avalanche Chess
+  | &nbsp;on chessvariants.com.

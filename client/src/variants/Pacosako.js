@@ -671,8 +671,47 @@ export class PacosakoRules extends ChessRules {
     return moves.filter(m => !this.oppositeMoves(this.umoves[L - 1], m));
   }
 
+  updateCastleFlags(move, piece) {
+    const c = this.turn;
+    const firstRank = (c == "w" ? 7 : 0);
+    if (piece == V.KING && move.appear.length > 0)
+      this.castleFlags[c] = [V.size.y, V.size.y];
+    else if (
+      move.start.x == firstRank &&
+      this.castleFlags[c].includes(move.start.y)
+    ) {
+      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    }
+    else if (
+      move.end.x == firstRank &&
+      this.castleFlags[c].includes(move.end.y)
+    ) {
+      // Move to our rook: necessary normal piece, to union, releasing
+      // (or the rook was moved before!)
+      const flagIdx = (move.end.y == this.castleFlags[c][0] ? 0 : 1);
+      this.castleFlags[c][flagIdx] = V.size.y;
+    }
+  }
+
+  prePlay(move) {
+    // Easier before move is played in this case (flags are saved)
+    const c = this.turn;
+    const L = this.lastMoveEnd.length;
+    const lm = this.lastMoveEnd[L-1];
+    const piece = (!!lm ? lm.p : move.vanish[0].p);
+    if (piece == V.KING)
+      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
+    this.updateCastleFlags(move, piece);
+    const pawnFirstRank = (c == 'w' ? 6 : 1);
+    if (move.start.x == pawnFirstRank)
+      // This move (potentially) turns off a 2-squares pawn flag
+      this.pawnFlags[c][move.start.y] = false;
+  }
+
   play(move) {
     move.flags = JSON.stringify(this.aggregateFlags());
+    this.prePlay(move);
     this.epSquares.push(this.getEpSquare(move));
     // Check if the move is the last of the turn: all cases except releases
     if (!move.released) {
@@ -684,51 +723,6 @@ export class PacosakoRules extends ChessRules {
     else this.lastMoveEnd.push(Object.assign({ p: move.released }, move.end));
     V.PlayOnBoard(this.board, move);
     this.umoves.push(this.getUmove(move));
-    this.postPlay(move);
-  }
-
-  updateCastleFlags(move, piece) {
-    const c = V.GetOppCol(this.turn);
-    const firstRank = (c == "w" ? 7 : 0);
-    const oppCol = this.turn;
-    const oppFirstRank = 7 - firstRank;
-    if (piece == V.KING && move.appear.length > 0)
-      this.castleFlags[c] = [V.size.y, V.size.y];
-    else if (
-      move.start.x == firstRank &&
-      this.castleFlags[c].includes(move.start.y)
-    ) {
-      const flagIdx = (move.start.y == this.castleFlags[c][0] ? 0 : 1);
-      this.castleFlags[c][flagIdx] = V.size.y;
-    }
-    // No more checking: a rook in union can take part in castling.
-  }
-
-  postPlay(move) {
-    if (move.vanish.length == 0)
-      // A released piece just moved. Cannot be the king.
-      return;
-    const c = move.vanish[0].c;
-    const piece = move.vanish[0].p;
-    if (piece == V.KING)
-      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
-    this.updateCastleFlags(move, piece);
-    if (
-      [1, 6].includes(move.start.x) &&
-      move.vanish.length >= 1 &&
-      move.appear.length == 1
-    ) {
-      // Does this move turn off a 2-squares pawn flag?
-      if (
-        move.vanish[0].p == V.PAWN ||
-        (
-          !(ChessRules.PIECES.includes(move.vanish[0].p)) &&
-          this.getUnionPieces(move.vanish[0].c, move.vanish[0].p)[c] == V.PAWN
-        )
-      ) {
-        this.pawnFlags[move.start.x == 6 ? "w" : "b"][move.start.y] = false;
-      }
-    }
   }
 
   undo(move) {

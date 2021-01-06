@@ -73,4 +73,8 @@ export class IsardamRules extends ChessRules {
     );
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
 };

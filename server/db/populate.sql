@@ -21,6 +21,7 @@ insert or ignore into Variants (name, description) values
   ('Arena', 'Middle battle'),
   ('Atomic1', 'Explosive captures (v1)'),
   ('Atomic2', 'Explosive captures (v2)'),
+  ('Avalanche', 'Pawnfalls'),
   ('Ball', 'Score a goal'),
   ('Balaklava', 'Meet the Mammoth'),
   ('Baroque', 'Exotic captures'),

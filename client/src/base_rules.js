@@ -1173,6 +1173,7 @@ export const ChessRules = class ChessRules {
   }
 
   updateCastleFlags(move, piece, color) {
+    // TODO: check flags. If already off, no need to always re-evaluate
     const c = color || V.GetOppCol(this.turn);
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     // Update castling flags if rooks are moved
