@@ -34,6 +34,11 @@ export class PacosakoRules extends ChessRules {
     };
   }
 
+  static fen2board(f) {
+    // Underscore is character 95, in file w_
+    return f.charCodeAt() <= 95 ? "w" + f.toLowerCase() : "b" + f;
+  }
+
   static IsGoodPosition(position) {
     if (position.length == 0) return false;
     const rows = position.split("/");

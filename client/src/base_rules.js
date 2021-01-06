@@ -158,7 +158,7 @@ export const ChessRules = class ChessRules {
 
   // Turn "p" into "bp" (for board)
   static fen2board(f) {
-    return f.charCodeAt() <= 90 ? "w" + f.toLowerCase() : "b" + f;
+    return f.charCodeAt(0) <= 90 ? "w" + f.toLowerCase() : "b" + f;
   }
 
   // Check if FEN describes a board situation correctly

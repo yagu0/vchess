@@ -12,10 +12,6 @@ export class ScreenRules extends ChessRules {
     return false;
   }
 
-  get showFirstTurn() {
-    return true;
-  }
-
   get canAnalyze() {
     return this.movesCount >= 2;
   }
