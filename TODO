@@ -4,7 +4,6 @@ If new live game starts in background, "new game" notify OK but not first move.
 
 NEW VARIANTS:
 https://www.chessvariants.com/incinf.dir/bario.html
-https://www.chessvariants.com/mvopponent.dir/avalanche.html
 https://www.pychess.org/variant/manchu
 https://www.pychess.org/variant/dobutsu
 https://musketeerchess.net/games/musketeer/index.php Attention règle de promotion + SVG / PNG
@@ -15,8 +14,10 @@ https://www.chessvariants.com/other.dir/fugue.html
 https://www.chessvariants.com/rules/spartan-chess
 https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
 https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
+
 https://brainking.com/en/GameRules?tp=47&fwa=ArchivedGame!g=8204276$i=1
 related to: Crown Chess: place all units on move 1 (similar to Sittuyin, more freely --> in own half-board, possible pawns on 1st rank)
+
 http://history.chess.free.fr/rollerball.htm
 Squatter Chess: safe on last rank = win
 Companion Chess : pieces of same nature don't attack each others

@@ -205,6 +205,7 @@ export const translations = {
   "Extra bishops and knights": "Alfiles y caballos adicionales",
   "Faster development": "Desarrollo acelerado",
   "Four new pieces": "Quatro nuevas piezas",
+  "Free initial setup": "Posición inicial libre",
   "In the shadow": "En la sombra",
   "Interweaved colorbound teams": "Equipos unicolores entrelazados",
   "Get strong at self-mate": "Progreso en mates asistidos",

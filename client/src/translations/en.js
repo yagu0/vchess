@@ -205,6 +205,7 @@ export const translations = {
   "Extra bishops and knights": "Extra bishops and knights",
   "Faster development": "Faster development",
   "Four new pieces": "Four new pieces",
+  "Free initial setup": "Free initial setup",
   "In the shadow": "In the shadow",
   "Interweaved colorbound teams": "Interweaved colorbound teams",
   "Get strong at self-mate": "Get strong at self-mate",

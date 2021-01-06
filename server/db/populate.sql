@@ -109,6 +109,7 @@ insert or ignore into Variants (name, description) values
   ('Royalrace', 'Kings cross the 11x11 board'),
   ('Rugby', 'Transform an essay'),
   ('Schess', 'Seirawan-Harper Chess'),
+  ('Screen', 'Free initial setup'),
   ('Shako', 'Non-conformism and utopia'),
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),

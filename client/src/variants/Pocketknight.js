@@ -45,6 +45,12 @@ export class PocketknightRules extends ChessRules {
     );
   }
 
+  canIplay(side, [x, y]) {
+    if (this.subTurn == 1) return super.canIplay(side, [x, y]);
+    // subturn == 2, drop the knight:
+    return side == this.turn && this.board[x][y] == V.EMPTY;
+  }
+
   getPotentialMovesFrom([x, y]) {
     if (this.subTurn == 1) {
       let moves = super.getPotentialMovesFrom([x, y]);

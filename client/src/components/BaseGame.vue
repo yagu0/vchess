@@ -520,7 +520,8 @@ export default {
           }
           this.inMultimove = true; //potentially
           this.cursor++;
-        } else if (!navigate) {
+        }
+        else if (!navigate) {
           // Already in the middle of a multi-move
           const L = this.moves.length;
           if (!Array.isArray(this.moves[L-1]))
@@ -548,7 +549,8 @@ export default {
               if (moveIdx < move.length) setTimeout(executeMove, 500);
               else afterMove(smove, initurn);
             });
-          } else {
+          }
+          else {
             playSubmove(smove);
             if (moveIdx < move.length) executeMove();
             else afterMove(smove, initurn);
@@ -600,7 +602,8 @@ export default {
               const L = this.moves.length;
               // NOTE: always emit the score, even in unfinished
               this.$emit("newmove", this.moves[L-1], { score: this.score });
-            } else {
+            }
+            else {
               this.inPlay = false;
               if (this.stackToPlay.length > 0)
                 // Move(s) arrived in-between
@@ -659,7 +662,8 @@ export default {
         this.incheck = this.vr.getCheckSquares();
         if (this.cursor >= 0) this.lastMove = this.moves[this.cursor];
         else this.lastMove = null;
-      } else {
+      }
+      else {
         if (!move) {
           const minCursor =
             this.moves.length > 0 && this.moves[0].notation == "..."
