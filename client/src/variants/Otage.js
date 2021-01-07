@@ -381,7 +381,7 @@ export class OtageRules extends ChessRules {
         break;
       case V.KING:
         baseMoves = this.getSlideNJumpMoves(
-          sq,
+          [x, y],
           V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
           "oneStep"
         );
