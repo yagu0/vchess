@@ -7,7 +7,8 @@ insert or ignore into Variants (name, description, noProblems) values
   ('Dice', 'Roll the dice', true),
   ('Hidden', 'Unidentified pieces', true),
   ('Hiddenqueen', 'Queen disguised as a pawn', true),
-  ('Synchrone', 'Play at the same time', true);
+  ('Synchrone1', 'Play at the same time (v1)', true);
+  ('Synchrone2', 'Play at the same time (v2)', true);
 
 insert or ignore into Variants (name, description) values
   ('Absorption', 'Absorb powers'),
@@ -88,6 +89,7 @@ insert or ignore into Variants (name, description) values
   ('Omega', 'A wizard in the corner'),
   ('Orda', 'Mongolian Horde (v1)'),
   ('Ordamirror', 'Mongolian Horde (v2)'),
+  ('Otage', 'Capture and release hostages'),
   ('Pacifist1', 'Convert & support (v1)'),
   ('Pacifist2', 'Convert & support (v2)'),
   ('Pacosako', 'Dance with the King'),

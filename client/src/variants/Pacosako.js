@@ -48,7 +48,6 @@ export class PacosakoRules extends ChessRules {
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        const lowR = row[i].toLowerCase
         if (!!(row[i].toLowerCase().match(/[a-z_]/))) {
           sumElts++;
           if (kingSymb.includes(row[i])) kings['k']++;
@@ -181,7 +180,8 @@ export class PacosakoRules extends ChessRules {
   getUmove(move) {
     if (
       move.vanish.length == 1 &&
-      !(ChessRules.PIECES.includes(move.appear[0].p))
+      !(ChessRules.PIECES.includes(move.appear[0].p)) &&
+      move.appear[0].p == move.vanish[0].p //not a promotion
     ) {
       // An union moving
       return { start: move.start, end: move.end };
@@ -354,7 +354,8 @@ export class PacosakoRules extends ChessRules {
         p: cp.p
       })
     ];
-    mv.released = up[c];
+    // In move.end, to be sent to the server
+    mv.end.released = up[c];
     return mv;
   }
 
@@ -443,7 +444,6 @@ export class PacosakoRules extends ChessRules {
             return;
           // Fix en-passant capture: union type, maybe released piece too
           const cs = [m.end.x + (c == 'w' ? 1 : -1), m.end.y];
-          const color = this.board[cs[0]][cs[1]].charAt(0);
           const code = this.board[cs[0]][cs[1]].charAt(1);
           if (code == V.PAWN) {
             // Simple en-passant capture (usual: just form union)
@@ -451,9 +451,10 @@ export class PacosakoRules extends ChessRules {
             m.appear[0].p = 'a';
           }
           else {
-            // An union pawn + something juste moved two squares
+            // An union pawn + something just moved two squares
+            const color = this.board[cs[0]][cs[1]].charAt(0);
             const up = this.getUnionPieces(color, code);
-            m.released = up[c];
+            m.end.released = up[c];
             let args = [V.PAWN, up[oppCol]];
             if (c == 'b') args = args.reverse();
             const cp = this.getUnionCode(args[0], args[1]);
@@ -477,11 +478,10 @@ export class PacosakoRules extends ChessRules {
     const move = moveOrSquare;
     const s = move.start,
           e = move.end;
-    const oppCol = V.GetOppCol(this.turn);
     if (
       s.y == e.y &&
       Math.abs(s.x - e.x) == 2 &&
-      this.getPiece(s.x, s.y, oppCol) == V.PAWN
+      this.getPiece(s.x, s.y, this.turn) == V.PAWN
     ) {
       return {
         x: (s.x + e.x) / 2,
@@ -497,7 +497,7 @@ export class PacosakoRules extends ChessRules {
       !!m1 &&
       !(ChessRules.PIECES.includes(m2.appear[0].p)) &&
       m2.vanish.length == 1 &&
-      !m2.released &&
+      !m2.end.released &&
       m1.start.x == m2.end.x &&
       m1.end.x == m2.start.x &&
       m1.start.y == m2.end.y &&
@@ -611,11 +611,11 @@ export class PacosakoRules extends ChessRules {
       // Found an attack!
       return true;
     for (let m of moves) {
-      if (!!m.released) {
+      if (!!m.end.released) {
         // Turn won't change since !!m.released
         this.play(m);
         const res = this.isAttacked_aux(
-          files, color, positions, [m.end.x, m.end.y], m.released);
+          files, color, positions, [m.end.x, m.end.y], m.end.released);
         this.undo(m);
         if (res) return true;
       }
@@ -649,12 +649,12 @@ export class PacosakoRules extends ChessRules {
             break outerLoop;
           }
           for (let m of moves) {
-            if (!!m.released) {
+            if (!!m.end.released) {
               // Turn won't change since !!m.released
               this.play(m);
               let positions = [];
               res = this.isAttacked_aux(
-                files, color, positions, [m.end.x, m.end.y], m.released);
+                files, color, positions, [m.end.x, m.end.y], m.end.released);
               this.undo(m);
               if (res) break outerLoop;
             }
@@ -719,13 +719,19 @@ export class PacosakoRules extends ChessRules {
     this.prePlay(move);
     this.epSquares.push(this.getEpSquare(move));
     // Check if the move is the last of the turn: all cases except releases
-    if (!move.released) {
+    if (!move.end.released) {
       // No more union releases available
       this.turn = V.GetOppCol(this.turn);
       this.movesCount++;
       this.lastMoveEnd.push(null);
     }
-    else this.lastMoveEnd.push(Object.assign({ p: move.released }, move.end));
+    else {
+      this.lastMoveEnd.push({
+        p: move.end.released,
+        x: move.end.x,
+        y: move.end.y
+      });
+    }
     V.PlayOnBoard(this.board, move);
     this.umoves.push(this.getUmove(move));
   }
@@ -735,7 +741,7 @@ export class PacosakoRules extends ChessRules {
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     this.lastMoveEnd.pop();
-    if (!move.released) {
+    if (!move.end.released) {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
@@ -775,13 +781,13 @@ export class PacosakoRules extends ChessRules {
         mv = moves[randInt(moves.length)];
         mvArray.push(mv);
         this.play(mv);
-        if (!!mv.released)
+        if (!!mv.end.released)
           // A piece was just released from an union
           moves = this.getPotentialMovesFrom([mv.end.x, mv.end.y]);
         else break;
       }
       for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
-      if (!mv.released) return (mvArray.length > 1 ? mvArray : mvArray[0]);
+      if (!mv.end.released) return (mvArray.length > 1 ? mvArray : mvArray[0]);
     }
   }
 

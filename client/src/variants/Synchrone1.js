@@ -1,7 +1,7 @@
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export class SynchroneRules extends ChessRules {
+export class Synchrone1Rules extends ChessRules {
 
   static get CanAnalyze() {
     return false;
@@ -48,8 +48,8 @@ export class SynchroneRules extends ChessRules {
   static ParseFen(fen) {
     const fenParts = fen.split(" ");
     return Object.assign(
-      ChessRules.ParseFen(fen),
-      { whiteMove: fenParts[5] }
+      { whiteMove: fenParts[5] },
+      ChessRules.ParseFen(fen)
     );
   }
 
@@ -71,7 +71,7 @@ export class SynchroneRules extends ChessRules {
     const epArray = parsedFen.enpassant.split(",");
     this.epSquares = [];
     epArray.forEach(epsq => this.epSquares.push(this.getEpSquare(epsq)));
-    super.scanKings(fen);
+    this.scanKings();
     // Also init whiteMove
     this.whiteMove =
       parsedFen.whiteMove != "-"
@@ -299,7 +299,8 @@ export class SynchroneRules extends ChessRules {
         // Castle
         smove.appear.push(m1.appear[1]);
         smove.vanish.push(m1.vanish[1]);
-      } else if (
+      }
+      else if (
         m1.vanish.length == 2 &&
         (
           m1.vanish[1].x != m2.start.x ||
@@ -312,7 +313,8 @@ export class SynchroneRules extends ChessRules {
         // Castle
         smove.appear.push(m2.appear[1]);
         smove.vanish.push(m2.vanish[1]);
-      } else if (
+      }
+      else if (
         m2.vanish.length == 2 &&
         (
           m2.vanish[1].x != m1.start.x ||
@@ -321,7 +323,8 @@ export class SynchroneRules extends ChessRules {
       ) {
         smove.vanish.push(m2.vanish[1]);
       }
-    } else {
+    }
+    else {
       // Collision:
       if (m1.vanish.length == 1 && m2.vanish.length == 1) {
         // Easy case: both disappear except if one is a king
@@ -335,7 +338,8 @@ export class SynchroneRules extends ChessRules {
             c: (p1 == V.KING ? 'w' : 'b')
           });
         }
-      } else {
+      }
+      else {
         // One move is a self-capture and the other a normal capture:
         // only the self-capture appears
         const selfCaptureMove =
@@ -434,7 +438,8 @@ export class SynchroneRules extends ChessRules {
       this.scanKings();
       // Also reset whiteMove
       this.whiteMove = null;
-    } else this.whiteMove = move.whiteMove;
+    }
+    else this.whiteMove = move.whiteMove;
   }
 
   getCheckSquares() {

@@ -528,6 +528,7 @@ export const ChessRules = class ChessRules {
   }
 
   // Scan board for kings positions
+  // TODO: should be done from board, no need for the complete FEN
   scanKings(fen) {
     // Squares of white and black king:
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
@@ -1073,7 +1074,7 @@ export const ChessRules = class ChessRules {
         this.board[rx][ry] != V.EMPTY &&
         this.getPiece(rx, ry) == piece &&
         this.getColor(rx, ry) == color &&
-        this.canTake([rx, ry], [x, y])
+        this.canTake([rx, ry], [x, y]) //for Paco-Sako (TODO: necessary?)
       ) {
         return true;
       }

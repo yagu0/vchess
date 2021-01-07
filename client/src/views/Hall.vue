@@ -982,7 +982,7 @@ export default {
             .getElementById("btnC" + newChall.type)
             .classList.add("somethingnew");
         }
-        if (chall.to == this.st.user.name) {
+        if (!!chall.to && chall.to == this.st.user.name) {
           notify(
             "New challenge",
             // fromValues.name should exist since the player is online, but

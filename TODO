@@ -20,8 +20,6 @@ Squatter Chess: safe on last rank = win
 Companion Chess : pieces of same nature don't attack each others
 https://www.chessvariants.com/difftaking.dir/brotherhood.html
 Crossing Chess = win when the king cross half-board
-Medusa Chess = Isardam
---> à chaque déplacement, check attaques directes + découvertes autour de case de départ dans 8 directions (pas caval)
 Kingmaker: pawns can promote also into enemy king
 --> no king tracking, getCheckSquares + underCheck test all kings
 Eightkings: 8 pawns + 8 kings (non-royal until the last remains?)
