@@ -386,7 +386,7 @@ export class OtageRules extends ChessRules {
           "oneStep"
         );
         if (!noCastle && this.castleFlags[this.turn].some(v => v < V.size.y))
-          baseMoves = baseMoves.concat(this.getCastleMoves(sq));
+          baseMoves = baseMoves.concat(this.getCastleMoves([x, y]));
         break;
     }
     // When a pawn in an union reaches final rank with a non-standard
