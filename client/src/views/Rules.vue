@@ -123,9 +123,8 @@ export default {
           // NOTE: game might be null
           this.$refs["compgame"].launchGame(game);
         });
-      } else {
-        this.$refs["compgame"].launchGame();
       }
+      else this.$refs["compgame"].launchGame();
     },
     // The user wants to stop the game:
     stopGame: function() {

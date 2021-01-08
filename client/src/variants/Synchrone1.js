@@ -399,7 +399,7 @@ export class Synchrone1Rules extends ChessRules {
 
     // Update king position + flags
     let kingAppear = { 'w': false, 'b': false };
-    for (let i=0; i<smove.appear.length; i++) {
+    for (let i = 0; i < smove.appear.length; i++) {
       if (smove.appear[i].p == V.KING) {
         const c = smove.appear[i].c;
         kingAppear[c] = true;
@@ -407,7 +407,7 @@ export class Synchrone1Rules extends ChessRules {
         this.kingPos[c][1] = smove.appear[i].y;
       }
     }
-    for (let i=0; i<smove.vanish.length; i++) {
+    for (let i = 0; i < smove.vanish.length; i++) {
       if (smove.vanish[i].p == V.KING) {
         const c = smove.vanish[i].c;
         if (!kingAppear[c]) {
@@ -434,7 +434,7 @@ export class Synchrone1Rules extends ChessRules {
 
   postUndo(move) {
     if (this.turn == 'w') {
-      // Reset king positions: scan board
+      // Reset king positions: scan board (TODO: could be more efficient)
       this.scanKings();
       // Also reset whiteMove
       this.whiteMove = null;
