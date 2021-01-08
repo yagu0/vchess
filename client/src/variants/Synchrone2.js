@@ -5,7 +5,7 @@ import { randInt } from "@/utils/alea";
 export class Synchrone2Rules extends Synchrone1Rules {
 
   static get CanAnalyze() {
-    return true;//false;
+    return false;
   }
 
   static get HasEnpassant() {
@@ -199,7 +199,17 @@ export class Synchrone2Rules extends Synchrone1Rules {
     this.turn = V.GetOppCol(this.turn);
     this.movesCount--;
     if (this.movesCount % 4 == 0) this.initfenStack.pop();
-    if (move.vanish.length > 0) super.postUndo(move);
+    this.postUndo(move);
+  }
+
+  postUndo(move) {
+    if (this.turn == 'w') {
+      // Reset king positions: scan board (TODO: could be more efficient)
+      if (move.vanish.length > 0) this.scanKings();
+      // Also reset whiteMove
+      this.whiteMove = null;
+    }
+    else this.whiteMove = move.whiteMove;
   }
 
   getCurrentScore() {
