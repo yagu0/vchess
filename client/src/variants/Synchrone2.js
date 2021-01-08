@@ -118,10 +118,10 @@ export class Synchrone2Rules extends Synchrone1Rules {
   }
 
   filterValid(moves) {
-    if (moves.length == 0) return [];
-    if (moves.length == 1 && moves[0].vanish.length == 0) return moves;
+    const nonEmptyMove = moves.find(m => m.vanish.length > 0);
+    if (!nonEmptyMove) return moves;
     // filterValid can be called when it's "not our turn":
-    const color = moves.find(m => m.vanish.length > 0).vanish[0].c;
+    const color = nonEmptyMove.vanish[0].c;
     return moves.filter(m => {
       if (m.vanish.length == 0) return true;
       const piece = m.vanish[0].p;
