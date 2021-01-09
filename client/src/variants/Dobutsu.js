@@ -199,7 +199,7 @@ export class DobutsuRules extends ChessRules {
     }
   }
 
-  getPotentialHenMoves([x, y]) {
+  getPotentialHenMoves(sq) {
     const c = this.turn;
     const forward = (c == 'w' ? -1 : 1);
     const steps = V.steps[V.ROOK].concat([[forward, 1], [forward, -1]]);
