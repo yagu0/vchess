@@ -308,7 +308,7 @@ export class ShogiRules extends ChessRules {
       case V.LANCE:
         return this.getPotentialLanceMoves([x, y]);
       case V.KING:
-        return this.getPotentialKingMoves([x, y]);
+        return super.getPotentialKingMoves([x, y]);
       case V.P_ROOK:
         return this.getPotentialDragonMoves([x, y]);
       case V.P_BISHOP:
@@ -444,14 +444,6 @@ export class ShogiRules extends ChessRules {
     return (
       this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
       this.getSlideNJumpMoves(sq, V.steps[V.ROOK], { oneStep: true }))
-    );
-  }
-
-  getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      { oneStep: true }
     );
   }
 

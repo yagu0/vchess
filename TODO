@@ -3,36 +3,32 @@ Embedded rules language not updated when language is set (in Analyse, Game and P
 If new live game starts in background, "new game" notify OK but not first move.
 
 NEW VARIANTS:
-https://www.chessvariants.com/incinf.dir/bario.html
-https://www.pychess.org/variant/manchu
-https://discord.com/channels/686736099959504907/687076968046395410/735678637432635473 + Amazon Chess
-https://www.pychess.org/variant/dobutsu
-https://musketeerchess.net/games/musketeer/index.php Attention règle de promotion + SVG / PNG
-https://musketeerchess.net/games/cerebral/rules/rules.php : from Titan, should be easy
-https://www.pychess.org/variant/shogun
-https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/
-https://www.chessvariants.com/other.dir/fugue.html
-https://www.chessvariants.com/rules/spartan-chess
-https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
-https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
-http://history.chess.free.fr/rollerball.htm
 Squatter Chess: safe on last rank = win
-Companion Chess : pieces of same nature don't attack each others
-https://www.chessvariants.com/difftaking.dir/brotherhood.html
 Crossing Chess = win when the king cross half-board
 Kingmaker: pawns can promote also into enemy king
 --> no king tracking, getCheckSquares + underCheck test all kings
-Eightkings: 8 pawns + 8 kings (non-royal until the last remains?)
---> yes seems better, no king tracking + no underCheck/...etc when >= 2 kings
-https://www.jatektan.hu/_2018_vissza/2011_ig/uj2001/isakk1.html
+
 https://boardgamegeek.com/boardgame/18661/alapo
 Alapo is a strategy game. Each player owns twelve abstract pieces, two each of six different kinds. Round pieces move in any of the eight directions on the 6 by 6 board; square pieces move only orthogonally and triangular pieces only diagonally. Large pieces move any distance, small pieces only one field per turn.
 Opponent pieces can be eliminated by moving onto their position. The goal is to reach the opponent's base line with one of your pieces without the opponent being able to eliminate your piece in his/her next move.
-Maybe:
-https://www.chessvariants.com/diffmove.dir/asymmetric.html
-https://www.chessvariants.com/play/connected-chess
+
+https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
+https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
+https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/
+http://history.chess.free.fr/rollerball.htm
+
+https://www.chessvariants.com/other.dir/fugue.html
+https://www.chessvariants.com/rules/spartan-chess
+https://www.chessvariants.com/incinf.dir/bario.html
+https://www.pychess.org/variant/shogun
+
+https://musketeerchess.net/games/musketeer/index.php Attention règle de promotion + SVG / PNG
+https://musketeerchess.net/games/cerebral/rules/rules.php : from Titan, should be easy
+
 Non-chess:
-fanorona https://fr.wikipedia.org/wiki/Fanorona
+gomoku, avalam, draughts, draughts8
 Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi-bin/zilligames/submissions.cgi/92187?do=show;id=960
-gomoku, avalam, qoridor (wider lines in another color ?), draughts, draughts8
+Fanorona https://fr.wikipedia.org/wiki/Fanorona
+
 (puis quand hexaboards peut-être: hexavariants + Hex)
+qoridor (wider lines in another color ?)
