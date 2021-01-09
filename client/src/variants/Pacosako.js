@@ -666,6 +666,28 @@ export class PacosakoRules extends ChessRules {
     return res;
   }
 
+  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1];
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+        rx += step[0];
+        ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.board[rx][ry] != V.EMPTY &&
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color &&
+        this.canTake([rx, ry], [x, y]) //TODO: necessary line?
+                                       //If not, generic method is OK
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Do not consider checks, except to forbid castling
   getCheckSquares() {
     return [];

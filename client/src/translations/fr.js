@@ -291,6 +291,7 @@ export const translations = {
   "Two kings": "Deux rois",
   "Two royal pieces": "Deux pièces royales",
   "Unidentified pieces": "Pièces non identifiées",
+  "Upgrade pieces": "Augmenter les pièces",
   "Walk on a graph": "Marche sur un graphe",
   "White move twice": "Les blancs jouent deux fois",
   "Win by castling long": "Gagnez en jouant grand roque",

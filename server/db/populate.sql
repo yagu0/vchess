@@ -107,6 +107,7 @@ insert or ignore into Variants (name, description) values
   ('Queenpawns', 'Queen versus pawns'),
   ('Racingkings', 'Kings cross the 8x8 board'),
   ('Rampage', 'Move under cover'),
+  ('Relayup', 'Upgrade pieces'),
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),
   ('Rococo', 'Capture on the edge'),

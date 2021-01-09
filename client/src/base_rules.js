@@ -1073,8 +1073,7 @@ console.log("ddd");
         V.OnBoard(rx, ry) &&
         this.board[rx][ry] != V.EMPTY &&
         this.getPiece(rx, ry) == piece &&
-        this.getColor(rx, ry) == color &&
-        this.canTake([rx, ry], [x, y]) //for Paco-Sako (TODO: necessary?)
+        this.getColor(rx, ry) == color
       ) {
         return true;
       }

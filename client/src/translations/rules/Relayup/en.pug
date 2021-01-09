@@ -1,0 +1,32 @@
+p.boxed
+  | Pieces inherit the movement of friendly pieces observing them.
+
+p
+  | This variant is based on 
+  a(href="https://www.chessvariants.com/rules/relay-chess") Relay Chess
+  | &nbsp;from chessvariants.com by Johnny Luken (2012).
+
+p.
+  As in Relay Chess, there is no castle or en passant captures, and pawns
+  can only advance one square forward (by themselves).
+
+p However, I made two substantial changes:
+ul
+  li.
+    Being relayed by a friendly piece adds moving options, without canceling
+    the base movements of a piece. Thus the relay is an "upgrade", explaining
+    the chosen name "Relayup".
+  li.
+    Pawns relayed by any friendly piece (except pawns) gain the ability to
+    move and capture like it, but by one step only.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR c3,d4,d3,e3,f4,f3,g3:
+  figcaption.
+    Movements of the e2 pawn, relayed by knight and queen (+ king and bishop).
+
+p.
+  Finally, since stalemate counts as a win and (I believe) no fully blocked
+  positions can be reached, the goal is now to capture the enemy king.
+  You can theoretically go or remain into check.

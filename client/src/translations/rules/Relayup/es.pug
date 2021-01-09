@@ -1,0 +1,33 @@
+p.boxed
+  | Las piezas heredan los movimientos de las piezas amigas observándolas.
+
+p
+  | Esta variante se basa en 
+  a(href="https://www.chessvariants.com/rules/relay-chess") Relay Chess
+  | &nbsp;de chessvariants.com por Johnny Luken (2012).
+
+p.
+  Como en Relay Chess, no hay enroque ni captura en passant, y los peones
+  solo pueden avanzar una casilla (por sí mismos).
+
+p Sin embargo, hice dos cambios sustanciales:
+ul
+  li.
+    Ser transmitido por una parte amiga agrega capacidades de movimiento, sin
+    cancelar los movimientos básicos de una pieza. Entonces el relé
+    corresponde a un "upgrade", explicando el nombre elegido "Relayup".
+  li.
+    Peones transmitidos por cualquier pieza amiga (excepto los peones)
+    ganar la oportunidad de moverse y capturar como ellos, pero
+    con solo un paso.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR c3,d4,d3,e3,f4,f3,g3:
+  figcaption.
+    Movimientos del peón e2, transmitidos por caballo y dama (+ rey y alfil).
+
+p.
+  Finalmente, dado que el empate cuenta como una victoria y (creo)
+  no hay configuraciones completamente bloqueadas, el objetivo es capturar
+  el rey. Tiene derecho a ir o permanecer en jaque.
