@@ -17,6 +17,10 @@ export class Progressive2Rules extends Progressive1Rules {
     return false;
   }
 
+  static get HasEnpassant() {
+    return false;
+  }
+
   postPlay(move) {
     const c = move.turn[0];
     const piece = move.vanish[0].p;

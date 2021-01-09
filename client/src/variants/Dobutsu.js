@@ -177,6 +177,7 @@ export class DobutsuRules extends ChessRules {
     }
     switch (this.getPiece(sq[0], sq[1])) {
       case V.PAWN: return this.getPotentialPawnMoves(sq);
+      case V.HEN: return this.getPotentialHenMoves(sq);
       case V.ELEPHANT: return this.getPotentialElephantMoves(sq);
       case V.GIRAFFE: return this.getPotentialGiraffeMoves(sq);
       case V.KING: return super.getPotentialKingMoves(sq);
@@ -196,6 +197,13 @@ export class DobutsuRules extends ChessRules {
       const tr = (x == beforeLastRank ? { p: V.HEN, c: c } : null);
       return [super.getBasicMove([x, y], [x + forward, y], tr)];
     }
+  }
+
+  getPotentialHenMoves([x, y]) {
+    const c = this.turn;
+    const forward = (c == 'w' ? -1 : 1);
+    const steps = V.steps[V.ROOK].concat([[forward, 1], [forward, -1]]);
+    return super.getSlideNJumpMoves(sq, steps, "oneStep");
   }
 
   getPotentialElephantMoves(sq) {
