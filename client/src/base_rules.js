@@ -163,6 +163,7 @@ export const ChessRules = class ChessRules {
 
   // Check if FEN describes a board situation correctly
   static IsGoodFen(fen) {
+console.log("ddd");
     const fenParsed = V.ParseFen(fen);
     // 1) Check position
     if (!V.IsGoodPosition(fenParsed.position)) return false;
@@ -533,7 +534,6 @@ export const ChessRules = class ChessRules {
     // Squares of white and black king:
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
-    const startRow = { 'w': V.size.x - 1, 'b': 0 };
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0; //column index on board
       for (let j = 0; j < fenRows[i].length; j++) {

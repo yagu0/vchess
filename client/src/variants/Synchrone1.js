@@ -363,9 +363,11 @@ export class Synchrone1Rules extends ChessRules {
     return smove;
   }
 
-  play(move) {
-    move.flags = JSON.stringify(this.aggregateFlags()); //save flags (for undo)
-    this.epSquares.push(this.getEpSquare(move));
+  play(move, noFlag) {
+    if (!noFlag) {
+      move.flags = JSON.stringify(this.aggregateFlags());
+      this.epSquares.push(this.getEpSquare(move));
+    }
     // Do not play on board (would reveal the move...)
     this.turn = V.GetOppCol(this.turn);
     this.movesCount++;
@@ -421,9 +423,11 @@ export class Synchrone1Rules extends ChessRules {
     move.smove = smove;
   }
 
-  undo(move) {
-    this.epSquares.pop();
-    this.disaggregateFlags(JSON.parse(move.flags));
+  undo(move, noFlag) {
+    if (!noFlag) {
+      this.epSquares.pop();
+      this.disaggregateFlags(JSON.parse(move.flags));
+    }
     if (this.turn == 'w')
       // Back to the middle of the move
       V.UndoOnBoard(this.board, move.smove);
@@ -447,14 +451,14 @@ export class Synchrone1Rules extends ChessRules {
     if (color == 'b') {
       // kingPos must be reset for appropriate highlighting:
       var lastMove = JSON.parse(JSON.stringify(this.whiteMove));
-      this.undo(lastMove); //will erase whiteMove, thus saved above
+      this.undo(lastMove, "noFlag"); //will erase whiteMove, thus saved above
     }
     let res = [];
     if (this.kingPos['w'][0] >= 0 && this.underCheck('w'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['w'])));
     if (this.kingPos['b'][0] >= 0 && this.underCheck('b'))
       res.push(JSON.parse(JSON.stringify(this.kingPos['b'])));
-    if (color == 'b') this.play(lastMove);
+    if (color == 'b') this.play(lastMove, "noFlag");
     return res;
   }
 

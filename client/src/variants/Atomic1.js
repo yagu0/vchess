@@ -91,7 +91,8 @@ export class Atomic1Rules extends ChessRules {
         ) {
           this.kingPos[c] = [-1, -1];
           this.castleFlags[c] = [8, 8];
-        } else {
+        }
+        else {
           // Now check if init rook(s) exploded
           if (Math.abs(move.end.x - firstRank[c]) <= 1) {
             if (Math.abs(move.end.y - this.castleFlags[c][0]) <= 1)

@@ -93,7 +93,7 @@ export class Synchrone2Rules extends Synchrone1Rules {
     this.board = initBoard;
     const movesInit = super.getPotentialMovesFrom([x, y]);
     this.board = saveBoard;
-    const target = appeared.find(a => a.c == oppCol);
+    const target = appeared.find(a => a.c == oppCol) || { x: -1, y: -1 };
     let movesNow = super.getPotentialMovesFrom([x, y]).filter(m => {
       return (
         m.end.x == target.x &&
@@ -102,7 +102,7 @@ export class Synchrone2Rules extends Synchrone1Rules {
       );
     });
     const passTarget =
-      (x != this.kingPos[c][0] || y != this.kingPos[c][1]) ? c : oppCol;
+      (x != this.kingPos[c][0] || y != this.kingPos[c][0]) ? c : oppCol;
     movesNow.push(
       new Move({
         start: { x: x, y: y },
@@ -141,9 +141,19 @@ export class Synchrone2Rules extends Synchrone1Rules {
     return this.filterValid(this.getPotentialMovesFrom([x, y]));
   }
 
-  play(move) {
+  getAllValidMoves() {
+    const moves = this.filterValid(super.getAllPotentialMoves());
+    if (this.movesCount % 4 <= 1) return moves;
+    const emptyIdx = moves.findIndex(m => m.vanish.length == 0);
+    if (emptyIdx >= 0)
+      // Keep only one pass move (for computer play)
+      return moves.filter((m, i) => m.vanish.length > 0 || i == emptyIdx);
+    return moves;
+  }
+
+  play(move, noFlag) {
     if (this.movesCount % 4 == 0) this.initfenStack.push(this.getBaseFen());
-    move.flags = JSON.stringify(this.aggregateFlags());
+    if (!noFlag) move.flags = JSON.stringify(this.aggregateFlags());
     // Do not play on board (would reveal the move...)
     this.turn = V.GetOppCol(this.turn);
     this.movesCount++;
@@ -191,8 +201,8 @@ export class Synchrone2Rules extends Synchrone1Rules {
     move.smove = smove;
   }
 
-  undo(move) {
-    this.disaggregateFlags(JSON.parse(move.flags));
+  undo(move, noFlag) {
+    if (!noFlag) this.disaggregateFlags(JSON.parse(move.flags));
     if (this.turn == 'w')
       // Back to the middle of the move
       V.UndoOnBoard(this.board, move.smove);
@@ -234,6 +244,12 @@ export class Synchrone2Rules extends Synchrone1Rules {
     // Checkmate: could be mutual
     if (!whiteCanMove && !blackCanMove) return "1/2";
     return (whiteCanMove ? "1-0" : "0-1");
+  }
+
+  getComputerMove() {
+    if (this.movesCount % 4 <= 1) return super.getComputerMove();
+    const moves = this.getAllValidMoves();
+    return moves[randInt(moves.length)];
   }
 
   getNotation(move) {
