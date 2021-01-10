@@ -1,1 +1,28 @@
-p.boxed TODO
+p.boxed
+  | You can control enemy pieces which are attacked.
+
+p.
+  Rather than moving one of his own pieces, a player may elect to move any
+  enemy piece that is attacked. The move must be a legal move for the enemy
+  piece, except that the (hypnotized) piece now captures its friends.
+
+p.
+  The hypnotized piece is temporarily frozen and thus cannot be moved by its
+  owner on the next turn.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bnk1nr/pppp1ppp/8/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Before and after Nxd8 (controlled by bishop on b5).
+
+h3 Source
+
+p
+  | Hypnotic Chess on 
+  a(href="https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html")
+    | chessvariants.com
+  | .
+
+p Inventor: W. D. Troyka (2003)

@@ -3,8 +3,6 @@ Embedded rules language not updated when language is set (in Analyse, Game and P
 If new live game starts in background, "new game" notify OK but not first move.
 
 NEW VARIANTS:
-https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
-https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
 https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/
 --> replaced by "Joker" chess --> start on bishop of our color (instead),
     moves like a Bishop + Dabbabah, can swap with a piece *on same color* (as a move) at anytime. hmm

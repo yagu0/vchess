@@ -241,6 +241,8 @@ export const translations = {
   "Mate the knight": "Matez le cavalier",
   "Meet the Mammoth": "Rencontrez le Mammouth",
   "Middle battle": "Bataille du milieu",
+  "Mind control (v1)": "Contrôle télépathique (v1)",
+  "Mind control (v2)": "Contrôle télépathique (v2)",
   "Mongolian Horde (v1)": "Horde mongole (v1)",
   "Mongolian Horde (v2)": "Horde mongole (v2)",
   "Move like a knight (v1)": "Bouger comme un cavalier (v1)",

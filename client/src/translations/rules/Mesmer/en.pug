@@ -1,1 +1,31 @@
-p.boxed TODO
+p.boxed
+  | Pieces attacked by the Mesmerist can be controlled.
+
+p.
+  A new piece &mdash; the Mesmerist &mdash; has the power of mind control,
+  and may elect to move any enemy piece which he observes.
+  The Mesmerist moves like an orthodox queen, but cannot capture (except
+  through mind control). His victim is said to be mesmerized.
+
+p The Mesmerist is represented by an upside-down queen for now.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/3m4/8/8/3M4/PPPPPPPP/RNBQKBNR:
+  figcaption Deterministic initial position.
+
+p.
+  The mesmerized piece is temporarily frozen and thus cannot be moved by its
+  owner on the next turn.
+
+p The game is won by capturing the enemy King or Mesmerist.
+
+h3 Source
+
+p
+  | Mesmer Chess on 
+  a(href="https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html")
+    | chessvariants.com
+  | .
+
+p Inventor: W. D. Troyka (2003)

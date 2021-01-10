@@ -1,1 +1,29 @@
-p.boxed TODO
+p.boxed
+  | Puedes controlar las piezas enemigas qué son atacadas.
+
+p.
+  En lugar de mover una de sus piezas, un jugador puede decidir mover
+  una pieza del oponente que está atacando. La jugada debe ser legal al punto
+  de vista del adversario, con el detalle que la pieza (hipnotizada)
+  ahora captura sus amigos.
+
+p.
+  La pieza hipnotizada está temporalmente inmovilizada y, por lo tanto,
+  no puede movido por su dueño en el siguiente turno.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bnk1nr/pppp1ppp/8/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R:
+  figcaption Antes y después de Nxd8 (controlado por el alfil en b5).
+
+h3 Fuente
+
+p
+  | Hypnotic Chess en 
+  a(href="https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html")
+    | chessvariants.com
+  | .
+
+p Inventor: W. D. Troyka (2003)

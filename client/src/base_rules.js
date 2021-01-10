@@ -163,7 +163,6 @@ export const ChessRules = class ChessRules {
 
   // Check if FEN describes a board situation correctly
   static IsGoodFen(fen) {
-console.log("ddd");
     const fenParsed = V.ParseFen(fen);
     // 1) Check position
     if (!V.IsGoodPosition(fenParsed.position)) return false;
