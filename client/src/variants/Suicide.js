@@ -29,7 +29,8 @@ export class SuicideRules extends ChessRules {
         if (V.PIECES.includes(lowerRi)) {
           pieces[row[i] == lowerRi ? "b" : "w"]++;
           sumElts++;
-        } else {
+        }
+        else {
           const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;

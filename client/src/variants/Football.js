@@ -1,6 +1,5 @@
 import { ChessRules } from "@/base_rules";
-import { ArrayFun } from "@/utils/array";
-import { shuffle } from "@/utils/alea";
+import { SuicideRules } from "@/variants/Suicide";
 
 export class FootballRules extends ChessRules {
 
@@ -44,7 +43,8 @@ export class FootballRules extends ChessRules {
         if (V.PIECES.includes(lowerRi)) {
           pieces[row[i] == lowerRi ? "b" : "w"]++;
           sumElts++;
-        } else {
+        }
+        else {
           const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
@@ -82,36 +82,7 @@ export class FootballRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    if (randomness == 0)
-      return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 -";
-
-    let pieces = { w: new Array(8), b: new Array(8) };
-    for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
-        pieces['b'] = pieces['w'];
-        break;
-      }
-
-      // Get random squares for every piece, totally freely
-      let positions = shuffle(ArrayFun.range(8));
-      const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'k', 'q'];
-      const rem2 = positions[0] % 2;
-      if (rem2 == positions[1] % 2) {
-        // Fix bishops (on different colors)
-        for (let i=2; i<8; i++) {
-          if (positions[i] % 2 != rem2)
-            [positions[1], positions[i]] = [positions[i], positions[1]];
-        }
-      }
-      for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
-    }
-    return (
-      pieces["b"].join("") +
-      "/pppppppp/8/8/8/8/PPPPPPPP/" +
-      pieces["w"].join("").toUpperCase() +
-      // En-passant allowed, but no flags
-      " w 0 -"
-    );
+    return SuicideRules.GenRandInitFen(randomness);
   }
 
 };

@@ -12,6 +12,7 @@ insert or ignore into Variants (name, description, noProblems) values
 
 insert or ignore into Variants (name, description) values
   ('Absorption', 'Absorb powers'),
+  ('Alapo', 'Geometric Chess'),
   ('Alice', 'Both sides of the mirror'),
   ('Allmate1', 'Mate any piece (v1)'),
   ('Allmate2', 'Mate any piece (v2)'),
@@ -44,6 +45,7 @@ insert or ignore into Variants (name, description) values
   ('Coregal', 'Two royal pieces'),
   ('Coronation', 'Long live the Queen'),
   ('Crazyhouse', 'Captures reborn'),
+  ('Crossing', 'Cross the river'),
   ('Cylinder', 'Neverending rows'),
   ('Diamond', 'Rotating board'),
   ('Discoduel', 'Enter the disco'),
@@ -71,6 +73,7 @@ insert or ignore into Variants (name, description) values
   ('Isardam', 'No paralyzed pieces'),
   ('Janggi', 'Korean Chess'),
   ('Kinglet', 'Protect your pawns'),
+  ('Kingsmaker', 'Promote into kings'),
   ('Knightmate', 'Mate the knight'),
   ('Knightpawns', 'Knight versus pawns'),
   ('Knightrelay1', 'Move like a knight (v1)'),
@@ -120,6 +123,7 @@ insert or ignore into Variants (name, description) values
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),
   ('Sittuyin', 'Burmese Chess'),
+  ('Squatter', 'Squat last rank'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
   ('Swap', 'Dangerous captures'),

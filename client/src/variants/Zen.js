@@ -79,6 +79,7 @@ export class ZenRules extends ChessRules {
       }
       if (
         V.OnBoard(i, j) &&
+        this.board[i][j] != V.EMPTY &&
         this.getColor(i, j) == oppCol &&
         this.getPiece(i, j) == asA
       ) {
@@ -88,7 +89,8 @@ export class ZenRules extends ChessRules {
           promotionPieces.forEach(p => {
             moves.push(this.getBasicMove([x, y], [i, j], { c: color, p: p }));
           });
-        } else {
+        }
+        else {
           // All other cases
           moves.push(this.getBasicMove([x, y], [i, j]));
         }

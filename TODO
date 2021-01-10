@@ -3,24 +3,22 @@ Embedded rules language not updated when language is set (in Analyse, Game and P
 If new live game starts in background, "new game" notify OK but not first move.
 
 NEW VARIANTS:
-Squatter Chess: safe on last rank = win
-Crossing Chess = win when the king cross half-board
-Kingmaker: pawns can promote also into enemy king
---> no king tracking, getCheckSquares + underCheck test all kings
-
-https://boardgamegeek.com/boardgame/18661/alapo
-Alapo is a strategy game. Each player owns twelve abstract pieces, two each of six different kinds. Round pieces move in any of the eight directions on the 6 by 6 board; square pieces move only orthogonally and triangular pieces only diagonally. Large pieces move any distance, small pieces only one field per turn.
-Opponent pieces can be eliminated by moving onto their position. The goal is to reach the opponent's base line with one of your pieces without the opponent being able to eliminate your piece in his/her next move.
-
 https://www.chessvariants.com/mvopponent.dir/hypnotic-chess.html
 https://www.chessvariants.com/mvopponent.dir/mesmer-chess.html
 https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/
+--> replaced by "Joker" chess --> start on bishop of our color (instead),
+    moves like a Bishop + Dabbabah, can swap with a piece *on same color* (as a move) at anytime. hmm
+    or rather: start as in Antiking + Mesmer, in front of. moves like an amazon. swap with any color. better!
 http://history.chess.free.fr/rollerball.htm
+  https://www.chessvariants.com/40.dir/rollerball/index.html
 
+https://www.pychess.org/variant/shogun
 https://www.chessvariants.com/other.dir/fugue.html
 https://www.chessvariants.com/rules/spartan-chess
 https://www.chessvariants.com/incinf.dir/bario.html
-https://www.pychess.org/variant/shogun
+  https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario
+  https://www.bario-chess-checkers-chessphotography-spaceart.de/
+  https://le-cdn.website-editor.net/20ef5f800ea646c29f6852cfc5ceda07/dms3rep/multi/opt/BAR028-e15a849c-960w.jpg
 
 https://musketeerchess.net/games/musketeer/index.php Attention règle de promotion + SVG / PNG
 https://musketeerchess.net/games/cerebral/rules/rules.php : from Titan, should be easy
