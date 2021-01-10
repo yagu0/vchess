@@ -600,10 +600,23 @@ export class PacosakoRules extends ChessRules {
     // "positions" = array of FENs to detect infinite loops. Example:
     // r1q1k2r/p1Pb1ppp/5n2/1f1p4/AV5P/P1eDP3/3B1PP1/R3K1NR,
     // Bxd2 Bxc3 Bxb4 Bxc3 Bxb4 etc.
-    const newPos = { fen: super.getBaseFen(), piece: released };
-    if (positions.some(p => p.piece == newPos.piece && p.fen == newPos.fen))
+    const newPos = {
+      fen: super.getBaseFen(),
+      piece: released,
+      from: fromSquare
+    };
+    if (
+      positions.some(p => {
+        return (
+          p.piece == newPos.piece &&
+          p.fen == newPos.fen &&
+          p.from == newPos.from
+        );
+      })
+    ) {
       // Start of an infinite loop: exit
       return false;
+    }
     positions.push(newPos);
     const rank = (color == 'w' ? 0 : 7);
     const moves = this.getPotentialMovesFrom(fromSquare);
