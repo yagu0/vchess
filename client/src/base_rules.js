@@ -713,7 +713,7 @@ export const ChessRules = class ChessRules {
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep) continue outerLoop;
+        if (!!oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }

@@ -1,0 +1,91 @@
+p.boxed
+  | Two new pieces are introduced out of seven available.
+
+p
+  | Musketeer Chess was invented by Zied Haddad in 2011.
+  | You can read the rules of this game and order fairy pieces sets on the 
+  a(href="https://musketeerchess.net/home/index.html") official website
+  | . The corresponding 
+  a(href="https://www.jocly.com/#/games") playing area
+  | &nbsp;allows to play (really) many games, with nice 3-D pieces. It seems
+  | that for now you can only play against a AI, but this will change.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Musketeer/wd.svg")
+  img(src="/images/pieces/Musketeer/ww.svg")
+  img(src="/images/pieces/Musketeer/wx.svg")
+  img(src="/images/pieces/Musketeer/we.svg")
+  img(src="/images/pieces/Musketeer/wh.svg")
+  img(src="/images/pieces/Musketeer/wf.svg")
+  img(src="/images/pieces/Musketeer/wy.svg")
+  figcaption New pieces for Musketeer Chess.
+
+h3 Rules summary
+
+p.
+  At the very first turn of the game, White must choose a piece which will
+  be later introduced into play.
+  Play this move from the reserve below the board to any free square.
+  Then, Black must do the same with another of the remaining pieces.
+
+p.
+  At the second move, White brings the first chosen piece (still from the
+  reserve) to any location on its first rank.
+  Then Black do the same for this first piece,
+  and on the third turn a location for the second selected piece is decided.
+
+p.
+  The game now proceeds normally, following orthodox chess rules.
+  However, when a piece where you placed an extra figure is moved for the
+  first time, the new piece comes into play on the starting square &mdash;
+  as in Seirawan Chess.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/6P1/PPP1PP2/RMBQKC1R:
+  .diagram.diag22
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/2N3P1/PPP1PP2/RXBQKC1R:
+  figcaption Before and after Nc3, a Unicorn appears on b1: double check.
+
+h3 New pieces movements
+
+p
+  | They are detailed for example on the 
+  a(href="https://www.chessvariants.com/rules/musketeer-chess")
+    | chessvariants page
+  | , but let's sum up their behavior here as well.
+  | "Bishop[X]" indicates a piece moving like a limited range Bishop,
+  | restricted to X squares in any diagonal direction.
+
+ul
+  li Leopard (L) = Knight + Bishop[2]
+  li Cannon (C) = King + Wide Knight + Dabbabah
+  li Unicorn (U) = Knight + Camel
+  li Elephant (E) = King + Alfil + Dabbabh
+  li Hawk (H) = Alfil + Tripper
+  li Fortress (F) = Narrow Knight + Dabbabah + Bishop[3]
+  li Spider (S) = Knight + Dabbabah + Bishop[2]
+
+p With
+ul
+  li Alfil = two squares leaper in diagonal
+  li Dabbabah = 2 squares leaper orthogonally
+  li
+    a(href="http://gambiter.com/chess/variants/Tripper_chess.html") Tripper
+    | &nbsp;= 3 squares leaper diagonally
+  li.
+    Camel = extended Knight,
+    3 squares in one direction and then 1 to the side
+  li Wide Knight and Narrow Knight: restricted Knight, see the image below.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/3N4/8/8/8/8 b6,b4,f6,f4:
+  .diagram.diag22
+    | fen:8/8/8/8/4N3/8/8/8/8 d6,f6,d2,f2:
+  figcaption Movements of the Wide Knight (left) and Narrow Knight (right).
+
+p.
+  Note: the Dragon, Chancellor and Archbishop were removed, because these
+  pieces are already seen in several other variants, and, they are a bit
+  too powerful &mdash; especially the Dragon.

@@ -264,39 +264,39 @@ export class GrandRules extends ChessRules {
 
       // Get random squares for bishops
       let randIndex = 2 * randInt(4);
-      let bishop1Pos = positions[randIndex];
+      const bishop1Pos = positions[randIndex];
       // The second bishop must be on a square of different color
       let randIndex_tmp = 2 * randInt(4) + 1;
-      let bishop2Pos = positions[randIndex_tmp];
+      const bishop2Pos = positions[randIndex_tmp];
       // Remove chosen squares
       positions.splice(Math.max(randIndex, randIndex_tmp), 1);
       positions.splice(Math.min(randIndex, randIndex_tmp), 1);
 
       // Get random squares for knights
       randIndex = randInt(6);
-      let knight1Pos = positions[randIndex];
+      const knight1Pos = positions[randIndex];
       positions.splice(randIndex, 1);
       randIndex = randInt(5);
-      let knight2Pos = positions[randIndex];
+      const knight2Pos = positions[randIndex];
       positions.splice(randIndex, 1);
 
       // Get random square for queen
       randIndex = randInt(4);
-      let queenPos = positions[randIndex];
+      const queenPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
       // ...random square for marshall
       randIndex = randInt(3);
-      let marshallPos = positions[randIndex];
+      const marshallPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
       // ...random square for cardinal
       randIndex = randInt(2);
-      let cardinalPos = positions[randIndex];
+      const cardinalPos = positions[randIndex];
       positions.splice(randIndex, 1);
 
       // King position is now fixed,
-      let kingPos = positions[0];
+      const kingPos = positions[0];
 
       // Finally put the shuffled pieces in the board array
       pieces[c][knight1Pos] = "n";

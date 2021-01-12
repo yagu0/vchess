@@ -1,0 +1,94 @@
+p.boxed
+  | Se introducen dos nuevas piezas entre las siete disponibles.
+
+p
+  | El Ajedrez Mosquetero fue inventado por Zied Haddad en 2011.
+  | Puedes leer las reglas y ordenar juegos de piezas magicas en el 
+  a(href="https://musketeerchess.net/home/index.html") sitio oficial
+  | . La 
+  a(href="https://www.jocly.com/#/games") zona de juego
+  | & nbsp;correspondiente permite de jugar (realmente) muchos juegos,
+  | con bonitas piezas en 3-D. Parece limitado a partidos contra la IA,
+  | pero eso cambiará.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Musketeer/wd.svg")
+  img(src="/images/pieces/Musketeer/ww.svg")
+  img(src="/images/pieces/Musketeer/wx.svg")
+  img(src="/images/pieces/Musketeer/we.svg")
+  img(src="/images/pieces/Musketeer/wh.svg")
+  img(src="/images/pieces/Musketeer/wf.svg")
+  img(src="/images/pieces/Musketeer/wy.svg")
+  figcaption Nuevas piezas para el Ajedrez Mosquetero.
+
+h3 Resumen de reglas
+
+p.
+  En el primer movimiento del juego, las blancas deben elegir una pieza que
+  más tarde se introducirá en el juego.
+  Juega este movimiento desde la reserva debajo del tablero hasta
+  una casilla vacía. Entonces las negras deben hacer lo mismo con otra pieza
+  entre los que quedan.
+
+p.
+  En el segundo movimiento, las blancas traen la primera pieza seleccionada
+  (siempre desde la reserva) a cualquier casilla de su primer
+  fila. Entonces las negras hacen lo mismo con su primera pieza,
+  y en la tercera ronda se elige una ubicación para la segunda pieza
+  seleccionada.
+
+p.
+  El juego procede entonces normalmente, siguiendo las reglas del
+  Ajedrez ortodoxo. Sin embargo, cuando una pieza donde ha colocado
+  una unidad adicional se mueve por la primera vez, la pieza nueva
+  entra en juego en la casilla inicial &mdash; como en el Ajedrez Seirawan.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/6P1/PPP1PP2/RMBQKC1R:
+  .diagram.diag22
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/2N3P1/PPP1PP2/RXBQKC1R:
+  figcaption Antes y después de Nc3, aparece un Unicornio en b1: doble jaque.
+
+h3 Desplazamiento de piezas nuevas
+
+p
+  | Se detallan, por ejemplo, en la 
+  a(href="https://www.chessvariants.com/rules/musketeer-chess")
+    | página chessvariants
+  | , pero aquí también resumimos su comportamiento.
+  | "Alfil[X]" indica una pieza que se mueve como un Alfil a un alcance
+  | limitado, restringido a X casillas en cualquier dirección diagonal.
+
+ul
+  li Leopardo (L) = Caballo + Alfil [2]
+  li Canon (C) = Rey + Wide Knight + Dabbabah
+  li Unicornio (U) = Caballo + Camello
+  li Elefante (E) = Rey + Alfil + Dabbabah
+  li Halcón (H) = Alfil + Tripper
+  li Fortaleza (F) = Narrow Knight + Dabbabah + Alfil[3]
+  li Araña (S) = Caballo + Dabbabah + Alfil[2]
+
+p Con
+ul
+  li Alfil = saltar 2 casillas en diagonal
+  li Dabbabah = saltar 2 casillas ortogonalmente
+  li
+    a(href="http://gambiter.com/chess/variants/Tripper_chess.html") Tripper
+    | &nbsp;= saltar 3 casillas en diagonal
+  li Camel = Caballo acostado, 3 casillas en una dirección y luego 1 en el lado
+  li.
+    Wide Knight y Narrow Knight:
+    Caballo restringido, ver imagen a continuación.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/3N4/8/8/8/8 b6,b4,f6,f4:
+  .diagram.diag22
+    | fen:8/8/8/8/4N3/8/8/8/8 d6,f6,d2,f2:
+  figcaption Movimientos de Wide Knight (izquierda) y Narrow Knight (derecha).
+
+p.
+  Nota: se han eliminado el Dragón, el Canciller y el Arzobispo, ya que estas
+  piezas ya están presentes en otras variantes, y, son un poco
+  demasiado poderoso &mdash; especialmente el Dragón.

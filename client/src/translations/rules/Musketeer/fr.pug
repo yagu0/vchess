@@ -1,0 +1,95 @@
+p.boxed
+  | Deux nouvelles pièces sont introduites parmi sept disponibles.
+
+p
+  | Les Échecs Mousquetaires furent inventés par Zied Haddad en 2011.
+  | Vous pouvez lire les règles et commander
+  | des jeux de pièces féériques sur le 
+  a(href="https://musketeerchess.net/home/index.html") site officiel
+  | . La 
+  a(href="https://www.jocly.com/#/games") zone de jeu
+  | &nbsp;correspondante permet de jouer à (vraiment) beaucoup de jeux,
+  | avec de jolies pièces 3-D. Elle semble limitée à des matchs contre l'IA,
+  | mais cela va changer.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Musketeer/wd.svg")
+  img(src="/images/pieces/Musketeer/ww.svg")
+  img(src="/images/pieces/Musketeer/wx.svg")
+  img(src="/images/pieces/Musketeer/we.svg")
+  img(src="/images/pieces/Musketeer/wh.svg")
+  img(src="/images/pieces/Musketeer/wf.svg")
+  img(src="/images/pieces/Musketeer/wy.svg")
+  figcaption Nouvelles pièces pour les Échecs Mousquetaires.
+
+h3 Résumé des règles
+
+p.
+  Au tout premier coup de la partie, les blancs doivent choisir une pièce qui
+  sera plus tard introduite dans le jeu.
+  Jouez ce coup depuis la réserve sous l'échiquier vers une case vide.
+  Ensuite, les noirs doivent faire de même avec une autre pièce
+  parmi celles qui restent.
+
+p.
+  Au second coup, les blancs amènent la première pièce sélectionnée
+  (toujours depuis la réserve) vers n'importe quelle case de leur première
+  rangée. Ensuite les noirs procèdent de même pour leur première pièce,
+  et au troisième tour un emplacement est choisi pour la seconde pièce
+  sélectionnée.
+
+p.
+  Le jeu se déroule alors normalement, suivant les règles des
+  échecs orthodoxes. Cependant, quand une pièce où vous avez placé une
+  unité supplémentaire se déplace pour la première fois, la nouvelle pièce
+  entre en jeu sur la case de départ &mdash; comme aux Échecs Seirawan.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/6P1/PPP1PP2/RMBQKC1R:
+  .diagram.diag22
+    | fen:rnbs2or/ppp2ppp/3bp3/3pN3/k2P3P/2N3P1/PPP1PP2/RXBQKC1R:
+  figcaption Avant et après Nc3, une Licorne apparaît en b1 : échec double.
+
+h3 Déplacement des nouvelles pièces
+
+p
+  | Ils sont détaillés par exemple sur la 
+  a(href="https://www.chessvariants.com/rules/musketeer-chess")
+    | page chessvariants
+  | , mais on résume leur comportement ici aussi.
+  | "Fou[X]" indique une pièce se déplaçant comme un fou à portée limitée,
+  | restreint à X cases dans n'importe quelle direction diagonale.
+
+ul
+  li Léopard (L) = Cavalier + Fou[2]
+  li Canon (C) = Roi + Wide Knight + Dabbabah
+  li Licorne (U) = Cavalier + Chameau
+  li Éléphant (E) = Roi + Alfil + Dabbabah
+  li Faucon (H) = Alfil + Tripper
+  li Forteresse (F) = Narrow Knight + Dabbabah + Fou[3]
+  li Araignée (S) = Cavalier + Dabbabah + Fou[2]
+
+p Avec
+ul
+  li Alfil = saute de 2 cases en diagonale
+  li Dabbabah = saute de 2 cases orthogonalement
+  li
+    a(href="http://gambiter.com/chess/variants/Tripper_chess.html") Tripper
+    | &nbsp;= saute de 3 cases en diagonale
+  li Chameau = Cavalier allongé, 3 cases dans une direction puis 1 sur le côté
+  li.
+    Wide Knight et narrow Knight :
+    Cavalier restreint, voir l'image ci-dessous.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/3N4/8/8/8/8 b6,b4,f6,f4:
+  .diagram.diag22
+    | fen:8/8/8/8/4N3/8/8/8/8 d6,f6,d2,f2:
+  figcaption Déplacements du Wide Knight (gauche) et Narrow Knight (droite).
+
+p.
+  Note: le Dragon, le Chancelier et l'Archevêque ont été retirés, car ces
+  pièces sont déjà présentes dans d'autres variantes, et, elles sont un peu
+  trop puissantes &mdash; surtout le Dragon.

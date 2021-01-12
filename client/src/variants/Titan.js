@@ -145,8 +145,8 @@ export class TitanRules extends ChessRules {
     const initialPiece = this.getPiece(x, y);
     const color = this.turn;
     if (
-      V.AUGMENTED_PIECES.includes(this.board[x][y][1]) &&
-      ((color == 'w' && x == 7) || (color == "b" && x == 0))
+      ((color == 'w' && x == 7) || (color == "b" && x == 0)) &&
+      V.AUGMENTED_PIECES.includes(this.board[x][y][1])
     ) {
       const newPiece = this.getExtraPiece(this.board[x][y][1]);
       moves.forEach(m => {
@@ -160,28 +160,28 @@ export class TitanRules extends ChessRules {
           })
         );
       });
+      moves.forEach(m => {
+        if (m.vanish.length <= 1) return;
+        const [vx, vy] = [m.vanish[1].x, m.vanish[1].y];
+        if (
+          m.appear.length >= 2 && //3 if the king was also augmented
+          m.vanish.length == 2 &&
+          m.vanish[1].c == color &&
+          V.AUGMENTED_PIECES.includes(this.board[vx][vy][1])
+        ) {
+          // Castle, rook is an "augmented piece"
+          m.appear[1].p = V.ROOK;
+          m.appear.push(
+            new PiPo({
+              p: this.getExtraPiece(this.board[vx][vy][1]),
+              c: color,
+              x: vx,
+              y: vy
+            })
+          );
+        }
+      });
     }
-    moves.forEach(m => {
-      if (m.vanish.length <= 1) return;
-      const [vx, vy] = [m.vanish[1].x, m.vanish[1].y];
-      if (
-        m.appear.length >= 2 && //3 if the king was also augmented
-        m.vanish.length == 2 &&
-        m.vanish[1].c == color &&
-        V.AUGMENTED_PIECES.includes(this.board[vx][vy][1])
-      ) {
-        // Castle, rook is an "augmented piece"
-        m.appear[1].p = V.ROOK;
-        m.appear.push(
-          new PiPo({
-            p: this.getExtraPiece(this.board[vx][vy][1]),
-            c: color,
-            x: vx,
-            y: vy
-          })
-        );
-      }
-    });
     return moves;
   }
 
