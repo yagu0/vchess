@@ -275,6 +275,7 @@ export const translations = {
   "Queen versus pawns": "Queen versus pawns",
   "Reach the last rank (v1)": "Reach the last rank (v1)",
   "Reach the last rank (v2)": "Reach the last rank (v2)",
+  "Replace pieces": "Replace pieces",
   "Reposition pieces": "Reposition pieces",
   "Reuse pieces": "Reuse pieces",
   "Reverse captures": "Reverse captures",

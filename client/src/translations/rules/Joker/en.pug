@@ -1,1 +1,22 @@
-p.boxed TODO
+p.boxed
+  | A new piece can swap with any of your other pieces.
+
+p.
+  A new piece appears, starting in front of the pawns.
+  It moves like an Amazon: Queen + Knight, but doesn't capture.
+  Instead, it can swap its position with any piece.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/3j4/8/8/3J4/PPPPPPPP/RNBQKBNR:
+  figcaption Deterministic initial position.
+
+p Pawns can promote into a Joker if you have none on the board.
+
+h3 Source
+
+p
+  | This variant is inspired by 
+  a(href="https://www.reddit.com/r/TotemChess/comments/imi3v7/totem_rules/")
+    | Totem Chess
+  | , which seemed a bit too complicated.

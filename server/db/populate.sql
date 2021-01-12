@@ -74,6 +74,7 @@ insert or ignore into Variants (name, description) values
   ('Interweave', 'Interweaved colorbound teams'),
   ('Isardam', 'No paralyzed pieces'),
   ('Janggi', 'Korean Chess'),
+  ('Joker', 'Replace pieces'),
   ('Kinglet', 'Protect your pawns'),
   ('Kingsmaker', 'Promote into kings'),
   ('Knightmate', 'Mate the knight'),

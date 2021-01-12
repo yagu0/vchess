@@ -275,6 +275,7 @@ export const translations = {
   "Queen versus pawns": "Dame contre pions",
   "Reach the last rank (v1)": "Atteignez la dernière rangée (v1)",
   "Reach the last rank (v2)": "Atteignez la dernière rangée (v2)",
+  "Replace pieces": "Remplacer les pièces",
   "Reposition pieces": "Replacer les pièces",
   "Reuse pieces": "Réutiliser les pièces",
   "Reverse captures": "Captures inversées",
