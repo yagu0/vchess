@@ -128,6 +128,7 @@ insert or ignore into Variants (name, description) values
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),
   ('Sittuyin', 'Burmese Chess'),
+  ('Spartan', 'Spartan versus Persians'),
   ('Squatter', 'Squat last rank'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),

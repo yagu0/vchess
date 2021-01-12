@@ -289,6 +289,7 @@ export const translations = {
   "Shared pieces (v2)": "Shared pieces (v2)",
   "Shogi 5 x 5": "Shogi 5 x 5",
   "Shoot pieces": "Shoot pieces",
+  "Spartan versus Persians": "Spartan versus Persians",
   "Squares disappear": "Squares disappear",
   "Squat last rank": "Squat last rank",
   "Standard rules": "Standard rules",

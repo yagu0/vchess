@@ -1,1 +1,77 @@
-p.boxed TODO
+p.boxed
+  | Deux différentes armées : les Perses contre les Spartiates.
+
+p.
+  Le camp noir représente les spartiates, et le blanc les perses.
+  Les pions et pièces perses suivent les règles des échecs orthodoxes.
+  Les spartiates ont deux Rois et à l'exception de ces derniers,
+  chaque unité spartiate se déplace de façon non-orthodoxe.
+
+figure.diagram-container
+  .diagram
+    | fen:lgkcckwl/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Position initiale déterministe.
+
+p Correspondances approximatives
+table
+  tr
+    th Blancs
+    th Noirs
+  tr
+    td Tour
+    td Capitaine (sur d8 et e8)
+  tr
+    td Fou
+    td Lieutenant (sur a8 et h8)
+  tr
+    td Roi
+    td Rois (sur c8 et f8)
+  tr
+    td Pion
+    td Hoplite
+p.
+  Dame et Cavalier n'ont pas de contreparties côté noir, mais,
+  le Général en b8 ainsi que le "Chef de Guerre" (Warlord) en g8
+  sont deux pièces plutôt fortes.
+
+h3 Déplacements des pièces noires
+
+ul
+  li.
+    Hoplite (Pion) = pion Berolina, avec une option supplémentaire depuis sa
+    rangée initiale : il peut sauter par dessus un obstacle pour
+    l'avancée de deux cases.
+  li Capitaine = Tour limitée à deux cases maximum.
+  li.
+    Lieutenant = Fou limité à deux cases maximum.
+    Il peut aussi se mouvoir horizontalement d'une case, sans capturer.
+  li Général = Tour + Roi
+  li Warlord = Fou + Cavalier
+
+h3 Quelques détails
+
+p.
+  La partie suit essentiellement les règles usuelles des échecs,
+  à quelques exceptions près :
+ul
+  li.
+    Un Roi noir (spartiate) peut aller ou rester en échec, et même être
+    capturé, du moment qu'il reste un autre roi sur l'échiquier.
+  li.
+    Les blancs (perses) gagnent s'ils matent le seul roi noir restant, ou,
+    s'ils peuvent mater les deux rois en même temps.
+  li.
+    Les pions se promeuvent en une pièce de leur armée. Les hoplites peuvent
+    en outre être promus en Roi si un seul est présent.
+
+p Pas de prises en passant, et les noirs ne peuvent roquer.
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="https://www.chessvariants.com/rules/spartan-chess")
+    | page chessvariants
+  | .
+
+p Inventeur : Steven Streetman (2010)

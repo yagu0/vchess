@@ -1,1 +1,77 @@
-p.boxed TODO
+p.boxed
+  | Dos ejércitos diferentes: los persas contra los espartanos.
+
+p.
+  El campo negro representa a los espartanos y el blanco a los persas.
+  Los peones y piezas persas siguen las reglas del ajedrez ortodoxo.
+  Los espartanos tienen dos Reyes y, a excepción de este último,
+  cada unidad espartana se mueve de una manera poco ortodoxa.
+
+figure.diagram-container
+  .diagram
+    | fen:lgkcckwl/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Posición inicial determinista.
+
+p Coincidencias aproximadas
+table
+  tr
+    th Blancas
+    th Negras
+  tr
+    td Torre
+    td Capitán (en d8 y e8)
+  tr
+    td Alfil
+    td Teniente (en a8 y h8)
+  tr
+    td Rey
+    td Reyes (en c8 y f8)
+  tr
+    td Peón
+    td Hoplita
+p.
+  Dama y Caballo no tienen contrapartes del lado negro, pero,
+  el general en b8 y el "Señor de la Guerra" (Warlord) en g8
+  son dos piezas bastante fuertes.
+
+h3 Movimientos de piezas negras
+
+ul
+  li.
+    Hoplite (Peón) = peón Berolina, con una opción adicional de su
+    fila inicial: puede saltar un obstáculo para
+    el avance de dos casillas.
+  li Capitán = Torre limitada a dos casillas como máximo.
+  li.
+    Teniente = Loco limitado a dos casillas como máximo.
+    También puede moverse horizontalmente un cuadrado, sin capturar.
+  li General = Torre + Rey
+  li Warlord = Alfil + Caballo
+
+h3 Algunos detalles
+
+p.
+  El juego sigue esencialmente las reglas habituales del ajedrez,
+  con algunas excepciones:
+ul
+  li.
+    Un Rey negro (espartano) puede ir o permanecer en jaque, e incluso ser
+    capturado, siempre que quede otro rey en el tablero.
+  li.
+    Las blancas (persas) ganan si hacen jaque mate al único rey negro
+    restante, o si pueden matar a ambos reyes al mismo tiempo.
+  li.
+    Los peones se promocionan a una pieza de su ejército. Los hoplitas pueden
+    además, ser promovidos a Rey si solo hay uno presente.
+
+p No hay capturas en passant, y las negras no pueden enrocar.
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="https://www.chessvariants.com/rules/spartan-chess")
+    | página chessvariants
+  | .
+
+p Inventor: Steven Streetman (2010)

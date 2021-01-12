@@ -1,1 +1,73 @@
-p.boxed TODO
+p.boxed
+  | Two different armies: Persians versus Spartians.
+
+p.
+  The Black side represents the Spartans and the White the Persians.
+  The Persians pawns and pieces follow the rules of orthodox chess.
+  The Spartans have two Kings and with the exception of their Kings,
+  every Spartan playing piece moves in a non-orthodox fashion.
+
+figure.diagram-container
+  .diagram
+    | fen:lgkcckwl/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:
+  figcaption Initial deterministic position.
+
+p Approximative correspondances
+table
+  tr
+    th White
+    th Black
+  tr
+    td Rook
+    td Captain (on d8 and e8)
+  tr
+    td Bishop
+    td Lieutenant (on a8 and h8)
+  tr
+    td King
+    td Kings (on c8 and f8)
+  tr
+    td Pawn
+    td Hoplite
+p.
+  Queen and Knights don't have counterparts on black side, but,
+  the General on b8 and the Warlord on g8 are strong pieces.
+
+h3 Movements of black pieces
+
+ul
+  li.
+    Hoplite (Pawn) = Berolina pawn, with an extra option on its initial rank:
+    it can jump over an obstacle for the 2-squares advance.
+  li Captain = Rook limited to 2 squares maximum.
+  li.
+    Lieutenant = Bishop limted to two squares maximum.
+    It can also move horizontally by one square, without capturing.
+  li General = Rook + King
+  li Warlord = Bishop + Knight
+
+h3 Some details
+
+p The game essentially follow usual chess rules, with a few exceptions:
+ul
+  li.
+    A black (Spartian) King can go or remain under check, and even be captured,
+    as long as another king is still on the board.
+  li.
+    White (Persians) win either if only one checkmated black king remains,
+    or, if they can checkmate both kings at the same time.
+  li.
+    Pawns promote in a piece of their army. Hoplite can additionally
+    be promoted into King if only one remains.
+
+p No en passant captures, and Black cannot castle.
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.chessvariants.com/rules/spartan-chess")
+    | chessvariants page
+  | .
+
+p Inventor: Steven Streetman (2010)

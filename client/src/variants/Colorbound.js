@@ -63,16 +63,11 @@ export class ColorboundRules extends ChessRules {
 
   getPotentialMovesFrom([x, y]) {
     switch (this.getPiece(x, y)) {
-      case V.C_ROOK:
-        return this.getPotentialC_rookMoves([x, y]);
-      case V.C_KNIGHT:
-        return this.getPotentialC_knightMoves([x, y]);
-      case V.C_BISHOP:
-        return this.getPotentialC_bishopMoves([x, y]);
-      case V.C_QUEEN:
-        return this.getPotentialC_queenMoves([x, y]);
-      default:
-        return super.getPotentialMovesFrom([x, y]);
+      case V.C_ROOK: return this.getPotentialC_rookMoves([x, y]);
+      case V.C_KNIGHT: return this.getPotentialC_knightMoves([x, y]);
+      case V.C_BISHOP: return this.getPotentialC_bishopMoves([x, y]);
+      case V.C_QUEEN: return this.getPotentialC_queenMoves([x, y]);
+      default: return super.getPotentialMovesFrom([x, y]);
     }
     return [];
   }
