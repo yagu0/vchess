@@ -63,6 +63,7 @@ insert or ignore into Variants (name, description) values
   ('Football', 'Score a goal'),
   ('Forward', 'Moving forward'),
   ('Freecapture', 'Capture both colors'),
+  ('Fugue', 'Baroque Music'),
   ('Fullcavalry', 'Lancers everywhere'),
   ('Grand', 'Big board'),
   ('Grasshopper', 'Long jumps over pieces'),

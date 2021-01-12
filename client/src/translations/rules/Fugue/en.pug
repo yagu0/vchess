@@ -1,1 +1,74 @@
-p.boxed TODO
+p.boxed
+  | Exotic pieces capturing in quite unorthodox ways.
+
+p.
+  Based on Ultima (Baroque) and Rococo, this game has pieces that capture in
+  unusual ways. They are illustrated and then described below.
+  They all move like an orthodox queen &mdash; except the King and Pawns.
+
+figure.diagram-container
+  .diagram
+    | fen:wlqksaui/pppppppp/8/8/8/8/PPPPPPPP/IUASKQLW:
+  figcaption Deterministic initial position.
+
+p.
+  The object of the game is to capture the opposing king.
+  A player unable to move or who causes three time repetition loses as well.
+
+h3 Pieces description
+
+p From left to right on white side:
+ul
+  li.
+    The Immobilizer (I) (spider) immobilizes all adversary pieces adjacent
+    to it, except another immobilizer.
+  li.
+    The Pushme-Pullyu (U) (gnu) captures pieces which are on its line of
+    movement, either just below the first square or right after the final
+    square. It cannot capture both, however.
+  li.
+    The Archer (A) (bow) captures by "shooting": it can remove any enemy
+    piece P standing in its range, provided that
+    ul
+      li P is standing at most two squares from the archer, or,
+      li.
+        a friendly piece is at a distance of two squares or less from P,
+        without obstacle between it and P.
+    In both cases the archer must have a clear path until the target.
+  li.
+    The Shield (S) protects all friendly pieces adjacent to it: they
+    cannot be captured. The shield cannot capture.
+  li King and Queen moves and capture as in standard chess.
+  li.
+    The Long Leaper (L) (frog) captures by jumping over a piece,
+    as in Draughts. It can capture only one piece like this. It can land
+    on any square beyond the target.
+  li.
+    The Swapper (W) can exchange its position with any enemy piece at queen's
+    distance. Additionally, if it is sitting next to an enemy piece it might
+    capture it by mutual destruction: both pieces disappear.
+
+p.
+  (Cannon) Pawns move like a king, with an additional ability.
+  If a piece is standing just next (friendly or not), they can leap
+  over it to land just behind. If this last square is occupied by the enemy,
+  a capture occurs.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/3p4/3l4/1wLP4/4Q3/1p3q2/8 b4,d6,f2:
+  figcaption Possible pawn captures.
+
+p.
+  Pawns can promote, optionally, when reaching the last rank,
+  only in a piece which is currently out of the board.
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.chessvariants.com/other.dir/fugue.html")
+    | chessvariants page
+  | .
+
+p Inventor: Mike Nelson (2004)

@@ -1,1 +1,77 @@
-p.boxed TODO
+p.boxed
+  | Pièces exotiques capturant de manière peu orthodoxe.
+
+p.
+  Basé sur Ultima (Baroque) et Rococo, ce jeu comporte des pièces capturant
+  de manière inhabituelle. Elles sont illustrées puis décrites ci-après.
+  Elles se déplacent toutes comme une dame orthodoxe &mdash; excepté
+  le Roi et les Pions.
+
+figure.diagram-container
+  .diagram
+    | fen:wlqksaui/pppppppp/8/8/8/8/PPPPPPPP/IUASKQLW:
+  figcaption Deterministic initial position.
+
+p.
+  L'objectif du jeu est de capturer le roi adverse.
+  Un joueur n'ayant auun coup à disposition ou provoquant
+  une triple répétition perd également.
+
+h3 Description des pièces
+
+p De gauche à droite côté blancs :
+ul
+  li.
+    L'Immobiliseur (I) (araignée) immobilise toutes les pièces adverses
+    adjacentes, sauf un éventuel autre immobiliseur.
+  li.
+    Le "Pushme-Pullyu" (U) (gnou) capture les pièces se situant sur sa ligne
+    de déplacement, soit juste avant la première case soit juste après la
+    case finale. Il ne peut pas prendre les deux, ceci dit.
+  li.
+    L'Archer (A) (arc) capture en "tirant" : il peut supprimer n'importe
+    quelle pièce ennemie P à sa portée, à condition que
+    ul
+      li P se trouve à deux cases ou moins de l'archer, ou,
+      li.
+        une pièce amie est à deux cases ou moins de P (en ligne droite),
+        sans obstacle entre elle et P.
+    Dans les deux cas l'archer doit avoir un chemin dégagé jusqu'à sa cible.
+  li.
+    Le Bouclier (S) protège toute pièce amie à côté de lui : celles-ci ne
+    peuvent être capturées. Le bouclier ne peut pas capturer.
+  li Roi et Reine se déplacent et capturent comme aux échecs standard.
+  li.
+    Le Sauteur Long (L) (grenouille) capture en sautant par dessus une pièce,
+    comme aux Dames. Il ne peut capturer qu'une seule pièce ainsi. Il atterrit
+    sur n'importe quelle case au-delà de sa cible.
+  li.
+    L'Échangeur (W) peut échanger sa position avec celle de n'importe quelle
+    pièce ennemie à sa portée. De plus, s'il se trouve à côté d'une pièce
+    adverse il peut décider de la capturer par destruction mutuelle :
+    les deux pièces disparaissent.
+
+p.
+  Les Pions (Canons) se déplacent comme un roi, avec une aptitude
+  supplémentaire. Si une pièce (amie ou non) se trouve juste à côté,
+  ils peuvent sauter par dessus pour atterrir juste derrière.
+  Si cette dernière case est occupée par l'adversaire, une capture a lieu.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/3p4/3l4/1wLP4/4Q3/1p3q2/8 b4,d6,f2:
+  figcaption Possibles captures de pion.
+
+p.
+  Les pions peuvent se promouvoir, optionnellement, quand ils atteignent la
+  dernière rangée, seulement en une pièce actuellement hors de l'échiquier.
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="https://www.chessvariants.com/other.dir/fugue.html")
+    | page chessvariants
+  | .
+
+p Inventeur : Mike Nelson (2004)

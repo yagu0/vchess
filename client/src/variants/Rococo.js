@@ -290,13 +290,12 @@ export class RococoRules extends ChessRules {
     return super.getPotentialQueenMoves(sq).concat(this.getRookCaptures(sq));
   }
 
-  getKnightCaptures(startSquare, byChameleon) {
+  getKnightCaptures([x, y], byChameleon) {
     // Look in every direction for captures
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
     let moves = [];
-    const [x, y] = [startSquare[0], startSquare[1]];
     const piece = this.getPiece(x, y); //might be a chameleon!
     outerLoop: for (let step of steps) {
       let [i, j] = [x + step[0], y + step[1]];
@@ -336,7 +335,8 @@ export class RococoRules extends ChessRules {
             //TODO: redundant test
             continue outerLoop;
           }
-        } else {
+        }
+        else {
           moves.push(
             new Move({
               appear: [new PiPo({ x: cur[0], y: cur[1], c: color, p: piece })],
@@ -715,11 +715,14 @@ export class RococoRules extends ChessRules {
     if (move.appear[0].p == V.PAWN) {
       // Pawn: generally ambiguous short notation, so we use full description
       notation = "P" + initialSquare + finalSquare;
-    } else if (move.appear[0].p == V.KING)
+    }
+    else if (move.appear[0].p == V.KING)
       notation = "K" + (move.vanish.length > 1 ? "x" : "") + finalSquare;
-    else notation = move.appear[0].p.toUpperCase() + finalSquare;
-    // Add a capture mark (not describing what is captured...):
-    if (move.vanish.length > 1 && move.appear[0].p != V.KING) notation += "X";
+    else {
+      notation = move.appear[0].p.toUpperCase() + finalSquare;
+      // Add a capture mark (not describing what is captured...):
+      if (move.vanish.length > 1) notation += "X";
+    }
     return notation;
   }
 

@@ -174,6 +174,7 @@ export const translations = {
   "Attract opposite king": "Attract opposite king",
   "Augmented Queens": "Augmented Queens",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
+  "Baroque Music": "Baroque Music",
   "Big board": "Big board",
   "Bishop versus pawns": "Bishop versus pawns",
   "Board upside down": "Board upside down",

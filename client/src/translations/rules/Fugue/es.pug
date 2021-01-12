@@ -1,1 +1,77 @@
-p.boxed TODO
+p.boxed
+  | Piezas exóticas capturando de forma poco ortodoxa.
+
+p.
+  Basado en Ultima (Baroque) y Rococo, este juego presenta piezas capturando
+  de una manera inusual. Se ilustran y luego se describen a continuación.
+  Todos se mueven como una dama ortodoxa &mdash; excepto el Rey y los Peones.
+
+figure.diagram-container
+  .diagram
+    | fen:wlqksaui/pppppppp/8/8/8/8/PPPPPPPP/IUASKQLW:
+  figcaption Posición inicial determinista.
+
+p.
+  El objetivo del juego es capturar al rey contrario.
+  Un jugador que no tiene una jugada disponible o que provoca
+  una triple repetición también pierde.
+
+h3 Descripción de piezas
+
+p De izquierda a derecha del lado blanco:
+ul
+  li.
+    Inmovilizador (I) (araña) inmoviliza todas las piezas enemigas
+    adyacente, excepto por un posible otro inmovilizador.
+  li.
+    El "Pushme-Pullyu" (U) (ñu) captura las piezas que yacen en su línea
+    movimiento, ya sea justo antes del primer cuadro o justo después de la
+    casilla final. Sin embargo, no puede tomar ambos.
+  li.
+    El arquero (A) (arco) captura "disparando": puede suprimir cualquier
+    pieza enemiga P qué está dentro del alcance, siempre que
+    ul
+      li P está a dos casillas o menos del arquero, o
+      li.
+        una pieza amiga está a dos casillas o menos de P (en línea recta),
+        sin obstáculo entre ella y P.
+    En ambos casos, el arquero debe tener un
+    camino despejado hacia su objetivo.
+  li.
+    El Escudo (S) protege cualquier pieza amiga a su lado: estos no
+    puede ser capturado. El escudo no puede capturar.
+  li El Rey y la Dama se mueven y capturan como en el ajedrez estándar.
+  li.
+    El Saltador Largo (L) (rana) captura saltando sobre una habitación,
+    como à las Damas. Solo puede capturar una pieza de esta manera. Aterriza
+    en cualquier casilla más allá de su objetivo.
+  li.
+    El Intercambiador (W) puede intercambiar su posición con la de cualquier
+    pieza enemiga al alcance. Además, si está al lado de una pieza
+    oponente puede decidir capturarlo mediante destrucción mutua:
+    las dos piezas desaparecen.
+
+p.
+  Los Peones (Cañones) se mueven como un rey, con una habilidad
+  adicional. Si hay una pieza (amiga o no) junto a ella,
+  pueden saltar y aterrizar justo detrás.
+  Si esta última casilla está ocupada por el oponente, se realiza una captura.
+
+figure.diagram-container
+  .diagram
+    | fen:8/8/3p4/3l4/1wLP4/4Q3/1p3q2/8 b4,d6,f2:
+  figcaption Posibles capturas de peones.
+
+p.
+  Opcionalmente, los peones pueden promocionarse, opcionalmente, cuando
+  alcanzan el última fila, solo en una pieza actualmente fuera del tablero.
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="https://www.chessvariants.com/other.dir/fugue.html")
+    | página chessvariants
+  | .
+
+p Inventor: Mike Nelson (2004)

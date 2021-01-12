@@ -174,6 +174,7 @@ export const translations = {
   "Attract opposite king": "Attirer le roi adverse",
   "Augmented Queens": "Dames augmentées",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",
+  "Baroque Music": "Musique Baroque",
   "Big board": "Grand échiquier",
   "Bishop versus pawns": "Fou contre pions",
   "Board upside down": "Échiquier à l'envers",
