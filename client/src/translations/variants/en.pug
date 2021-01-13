@@ -89,6 +89,7 @@ p Standard pieces versus a team of different pieces.
     "Empire",
     "Horde",
     "Orda",
+    "Spartan",
     "Synochess"
   ]
 ul
@@ -115,6 +116,7 @@ p.
   Some very powerful like the Amazon, some rather weak like the Grasshopper.
 -
   var varlist = [
+    "Capablanca",
     "Eightpieces",
     "Fullcavalry",
     "Grand",
@@ -123,10 +125,22 @@ p.
     "Omega",
     "Ordamirror",
     "Perfect",
-    "Schess",
     "Shako",
     "Tencubed",
     "Wildebeest"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+p.
+  In the following variants, fairy (or not) pieces may
+  appear later in the game.
+-
+  var varlist = [
+    "Musketeer",
+    "Schess",
+    "Titan"
   ]
 ul
   for v in varlist
@@ -177,7 +191,7 @@ ul
   for v in varlist
     li #[a(href="/#/variants/"+v) #{v}]
 
-h3 Pieces changing side
+h3 Pieces changing side, shared pieces
 
 p Pieces' owners (color) may change during the game
 -
@@ -185,8 +199,10 @@ p Pieces' owners (color) may change during the game
     "Benedict",
     "Checkered1",
     "Checkered2",
+    "Otage",
     "Pacifist1",
-    "Pacifist2"
+    "Pacifist2",
+    "Pacosako"
   ]
 ul
   for v in varlist
@@ -242,9 +258,10 @@ ul
 
 h3 Unusual initial setup
 
-p Pawns and / or pieces are switched, which result in a very different game.
+p Initial setup causes a lot of captures early in the game.
 -
   var varlist = [
+    "Doublearmy",
     "Upsidedown",
     "Pawnmassacre"
   ]
@@ -260,6 +277,7 @@ p.
 -
   var varlist = [
     "Coronation",
+    "Freecapture",
     "Pocketknight"
   ]
 ul
@@ -272,16 +290,25 @@ p ...Or leading to a very different strategy:
     "Antimatter",
     "Atomic1",
     "Atomic2",
+    "Brotherhood",
     "Checkless"
   ]
 ul
   for v in varlist
     li #[a(href="/#/variants/"+v) #{v}]
 
-//h3 Initially empty board
-//
-//Parachute
-//"Crown chess" (place all units at move 1)
+h3 Initially empty board
+
+p.
+  All pieces are progressively added from an empty board.
+-
+  var varlist = [
+    "Parachute",
+    "Screen"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
 
 h3 Repositioning
 
@@ -299,13 +326,16 @@ ul
   for v in varlist
     li #[a(href="/#/variants/"+v) #{v}]
 
-h3 Immobilization
+h3 Immobilization, hypnotism
 
-p Pieces can be paralyzed under certain circumstances.
+p Pieces can be paralyzed or controlled under certain circumstances.
 -
   var varlist = [
+    "Hypnotic",
+    "Isardam",
     "Koopa",
-    "Madrasi"
+    "Madrasi",
+    "Mesmer"
   ]
 ul
   for v in varlist
@@ -347,11 +377,23 @@ h3 Several moves in one turn
 p In these variants, you can play two or more moves per turn.
 -
   var varlist = [
+    "Avalanche",
     "Doublemove1",
     "Doublemove2",
-    "Monster",
     "Progressive1",
     "Progressive2"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Single powerful piece versus army
+
+p Very few but powerful pieces against a full army.
+-
+  var varlist = [
+    "Maharajah",
+    "Monster"
   ]
 ul
   for v in varlist
@@ -362,6 +404,7 @@ h3 Exchanging pieces positions
 p Some or all pieces can be swapped.
 -
   var varlist = [
+    "Joker",
     "Suction",
     "Swap",
     "Switching"
@@ -375,10 +418,14 @@ h3 Different objective
 p Orthodox rules, but the goal is not checkmate (or not only).
 -
   var varlist = [
+    "Alapo",
+    "Castle",
+    "Crossing",
     "Extinction",
     "Threechecks",
     "Kinglet",
-    "Koth"
+    "Koth",
+    "Squatter"
   ]
 ul
   for v in varlist
@@ -391,39 +438,17 @@ p.
   one of their kind on this website.
 -
   var varlist = [
-    "Alapo",
     "Alice",
     "Ambiguous",
-    "Avalanche",
     "Bicolour",
-    "Brotherhood",
-    "Capablanca",
-    "Castle",
-    "Crossing",
-    "Doublearmy",
     "Evolution",
     "Forward",
-    "Freecapture",
-    "Fugue",
     "Gridolina",
     "Hamilton",
-    "Hypnotic",
-    "Isardam",
-    "Joker",
     "Kingsmaker",
     "Magnetic",
-    "Maharajah",
-    "Mesmer",
-    "Musketeer",
-    "Otage",
-    "Pacosako",
-    "Parachute",
     "Relayup",
-    "Screen",
-    "Spartan",
-    "Squatter",
     "Takenmake",
-    "Titan",
     "Wormhole"
   ]
 ul

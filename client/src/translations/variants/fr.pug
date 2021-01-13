@@ -92,6 +92,7 @@ p Pièces standard contre une équipe de pièces différentes.
     "Empire",
     "Horde",
     "Orda",
+    "Spartan",
     "Synochess"
   ]
 ul
@@ -121,6 +122,7 @@ p.
   d'autres plutôt faibles comme la Sauterelle.
 -
   var varlist = [
+    "Capablanca",
     "Eightpieces",
     "Fullcavalry",
     "Grand",
@@ -129,10 +131,22 @@ p.
     "Omega",
     "Ordamirror",
     "Perfect",
-    "Schess",
     "Shako",
     "Tencubed",
     "Wildebeest"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+p.
+  Dans les variantes suivantes, des pièces féériques (ou non)
+  peuvent apparaître plus tard dans le jeu :
+-
+  var varlist = [
+    "Musketeer",
+    "Schess",
+    "Titan"
   ]
 ul
   for v in varlist
@@ -183,7 +197,7 @@ ul
   for v in varlist
     li #[a(href="/#/variants/"+v) #{v}]
 
-h3 Pièces changeant de camp
+h3 Pièces changeant de camp, pièces partagées
 
 p Les propriétaires (couleurs) des pièces peuvent changer pendant la partie.
 -
@@ -191,8 +205,10 @@ p Les propriétaires (couleurs) des pièces peuvent changer pendant la partie.
     "Benedict",
     "Checkered1",
     "Checkered2",
+    "Otage",
     "Pacifist1",
-    "Pacifist2"
+    "Pacifist2",
+    "Pacosako"
   ]
 ul
   for v in varlist
@@ -248,11 +264,10 @@ ul
 
 h3 Arrangement initial inhabituel
 
-p.
-  Les pions et / ou les pièces sont échangés,
-  résultant en un jeu très différent.
+p L'agencement initial entraîne de nombreuses captures tôt dans la partie.
 -
   var varlist = [
+    "Doublearmy",
     "Upsidedown",
     "Pawnmassacre"
   ]
@@ -268,6 +283,7 @@ p.
 -
   var varlist = [
     "Coronation",
+    "Freecapture",
     "Pocketknight"
   ]
 ul
@@ -280,16 +296,25 @@ p ...Ou mène à des stratégies très différentes :
     "Antimatter",
     "Atomic1",
     "Atomic2",
+    "Brotherhood",
     "Checkless"
   ]
 ul
   for v in varlist
     li #[a(href="/#/variants/"+v) #{v}]
 
-//h3 Initially empty board
-//
-//Parachute
-//"Crown chess" (place all units at move 1)
+h3 Échiquier initialement vide
+
+p.
+  Toutes les pièces sont ajoutées progressivement depuis un échiquier vide.
+-
+  var varlist = [
+    "Parachute",
+    "Screen"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
 
 h3 Repositionnement
 
@@ -311,11 +336,14 @@ ul
 
 h3 Immobilisation
 
-p Les pièces peuvent être paralysées dans certaines circonstances.
+p Les pièces peuvent être paralysées ou contrôlées dans certaines circonstances.
 -
   var varlist = [
+    "Hypnotic",
+    "Isardam",
     "Koopa",
-    "Madrasi"
+    "Madrasi",
+    "Mesmer"
   ]
 ul
   for v in varlist
@@ -357,11 +385,23 @@ h3 Plusieurs coups par tour
 p Dans ces variantes, vous pouvez jouer deux coups ou plus par tour.
 -
   var varlist = [
+    "Avalanche",
     "Doublemove1",
     "Doublemove2",
-    "Monster",
     "Progressive1",
     "Progressive2"
+  ]
+ul
+  for v in varlist
+    li #[a(href="/#/variants/"+v) #{v}]
+
+h3 Une seule pièce puissante face à une armée
+
+p Très peu de pièces mais très puissantes face à une armée entière.
+-
+  var varlist = [
+    "Maharajah",
+    "Monster"
   ]
 ul
   for v in varlist
@@ -372,6 +412,7 @@ h3 Échange des positions des pièces
 p Certaines ou toutes les pièces peuvent être échangées.
 -
   var varlist = [
+    "Joker",
     "Suction",
     "Swap",
     "Switching"
@@ -385,10 +426,14 @@ h3 Objectif différent
 p Règles orthodoxes, mais le but n'est pas de mater (ou pas seulement).
 -
   var varlist = [
+    "Alapo",
+    "Castle",
+    "Crossing",
     "Extinction",
     "Threechecks",
     "Kinglet",
-    "Koth"
+    "Koth",
+    "Squatter"
   ]
 ul
   for v in varlist
@@ -401,39 +446,17 @@ p.
   l'unique représentant de leur type sur ce site.
 -
   var varlist = [
-    "Alapo",
     "Alice",
     "Ambiguous",
-    "Avalanche",
     "Bicolour",
-    "Brotherhood",
-    "Capablanca",
-    "Castle",
-    "Crossing",
-    "Doublearmy",
     "Evolution",
     "Forward",
-    "Freecapture",
-    "Fugue",
     "Gridolina",
     "Hamilton",
-    "Hypnotic",
-    "Isardam",
-    "Joker",
     "Kingsmaker",
     "Magnetic",
-    "Maharajah",
-    "Mesmer",
-    "Musketeer",
-    "Otage",
-    "Pacosako",
-    "Parachute",
     "Relayup",
-    "Screen",
-    "Spartan",
-    "Squatter",
     "Takenmake",
-    "Titan",
     "Wormhole"
   ]
 ul
