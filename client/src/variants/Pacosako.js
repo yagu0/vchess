@@ -43,7 +43,7 @@ export class PacosakoRules extends ChessRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
+    let kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '_'];
     let kings = { 'k': 0, 'K': 0 };
     for (let row of rows) {
       let sumElts = 0;
@@ -104,7 +104,7 @@ export class PacosakoRules extends ChessRules {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
-    const kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
+    const kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '_'];
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0;
       for (let j = 0; j < fenRows[i].length; j++) {
@@ -739,14 +739,23 @@ export class PacosakoRules extends ChessRules {
     const c = this.turn;
     const L = this.lastMoveEnd.length;
     const lm = this.lastMoveEnd[L-1];
-    const piece = (!!lm ? lm.p : move.vanish[0].p);
+    // NOTE: lm.p != V.KING, always.
+    const piece =
+      !!lm
+        ? lm.p :
+        this.getPiece(move.vanish[0].x, move.vanish[0].y);
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     this.updateCastleFlags(move, piece);
     const pawnFirstRank = (c == 'w' ? 6 : 1);
-    if (move.start.x == pawnFirstRank)
-      // This move (potentially) turns off a 2-squares pawn flag
+    if (
+      move.start.x == pawnFirstRank &&
+      piece == V.PAWN &&
+      Math.abs(move.end.x - move.start.x) == 2
+    ) {
+      // This move turns off a 2-squares pawn flag
       this.pawnFlags[c][move.start.y] = false;
+    }
   }
 
   play(move) {

@@ -55,19 +55,21 @@ export class OtageRules extends ChessRules {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
     let kings = { 'k': 0, 'K': 0 };
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        const lowR = row[i].toLowerCase
+        const lowR = row[i].toLowerCase();
         const readNext = !(ChessRules.PIECES.includes(lowR));
         if (!!(lowR.match(/[a-z_]/))) {
           sumElts++;
-          if (kingSymb.includes(row[i])) kings['k']++;
-          // Not "else if", if two kings dancing together
-          if (kingSymb.some(s => row[i] == s.toUpperCase())) kings['K']++;
-          if (readNext) i++;
+          if (lowR == 'k') kings[row[i]]++;
+          else if (readNext) {
+            const up = this.getUnionPieces(row[++i], lowR);
+            if (up.w == V.KING) kings['K']++;
+            // NOTE: not "else if" because two kings might be in union
+            if (up.b == V.KING) kings['k']++;
+          }
         }
         else {
           const num = parseInt(row[i], 10);
@@ -138,7 +140,6 @@ export class OtageRules extends ChessRules {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
-    const kingSymb = ['k', 'g', 'm', 'u', 'x', '_'];
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0;
       for (let j = 0; j < fenRows[i].length; j++) {
@@ -146,12 +147,12 @@ export class OtageRules extends ChessRules {
         const lowR = c.toLowerCase();
         const readNext = !(ChessRules.PIECES.includes(lowR));
         if (!!(lowR.match(/[a-z_]/))) {
-          if (kingSymb.includes(c))
-            this.kingPos["b"] = [i, k];
-          // Not "else if", in case of two kings dancing together
-          if (kingSymb.some(s => c == s.toUpperCase()))
-            this.kingPos["w"] = [i, k];
-          if (readNext) j++;
+          if (lowR == 'k') this.kingPos[c == 'k' ? 'b' : 'w'] = [i, k];
+          else if (readNext) {
+            const up = this.getUnionPieces(fenRows[i][++j], lowR);
+            if (up.w == V.KING) this.kingPos['w'] = [i, k];
+            if (up.b == V.KING) this.kingPos['b'] = [i, k];
+          }
         }
         else {
           const num = parseInt(fenRows[i].charAt(j), 10);
@@ -669,14 +670,22 @@ export class OtageRules extends ChessRules {
     const c = this.turn;
     const L = this.lastMoveEnd.length;
     const lm = this.lastMoveEnd[L-1];
-    const piece = (!!lm ? lm.p : move.vanish[0].p);
+    const piece =
+      !!lm
+        ? lm.p :
+        this.getPiece(move.vanish[0].x, move.vanish[0].y);
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     this.updateCastleFlags(move, piece);
     const pawnFirstRank = (c == 'w' ? 6 : 1);
-    if (move.start.x == pawnFirstRank)
-      // This move (potentially) turns off a 2-squares pawn flag
+    if (
+      move.start.x == pawnFirstRank &&
+      piece == V.PAWN &&
+      Math.abs(move.end.x - move.start.x) == 2
+    ) {
+      // This move turns off a 2-squares pawn flag
       this.pawnFlags[c][move.start.y] = false;
+    }
   }
 
   play(move) {
