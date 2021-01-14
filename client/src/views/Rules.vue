@@ -120,7 +120,12 @@ export default {
       this.gameInfo.mode = mode;
       if (this.gameInfo.mode == "versus") {
         CompgameStorage.get(this.gameInfo.vname, (game) => {
-          // NOTE: game might be null
+          // NOTE: game might be null (if none stored yet)
+          if (!!game && !V.IsGoodFen(game.fen)) {
+            // Some issues with stored game: delete
+            CompgameStorage.remove(game.vname);
+            game = null;
+          }
           this.$refs["compgame"].launchGame(game);
         });
       }

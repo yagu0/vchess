@@ -61,7 +61,7 @@ export default {
   methods: {
     launchGame: function(game) {
       this.compWorker.postMessage(["scripts", this.gameInfo.vname]);
-      if (!game || !V.IsGoodFen(game.fen)) {
+      if (!game) {
         game = {
           vname: this.gameInfo.vname,
           fenStart: V.GenRandInitFen(this.st.settings.randomness),
