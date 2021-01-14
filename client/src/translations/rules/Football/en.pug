@@ -1,21 +1,54 @@
-p.boxed.
-  Win by playing a move on the middle of last rank.
-  The king has no royal status.
+p.boxed
+  | Pieces don't capture but can kick a ball.
+  | The object of the game is to send the ball into the enemy goal.
 
 p.
-  The goal for White (resp. Black) are the squares d8 and e8 (resp. d1 and
-  e1) in the middle of the opposing rank. The first player to settle a
-  piece there wins, even if it is attacked.
+  At each turn, a player can first make a normal (non capturing) move.
+  If none of his pieces are adjacent to the ball, such move is mandatory.
+  But, if any of his pieces stand next to the ball he may then or right
+  away kick it, if the step defined by the arrow piece --> ball is
+  compatible with the piece's movement.
+
+p.
+  To play a kick, click on the ball and then on the desired square.
+  The knight send the ball at any knight-step away from its initial position,
+  except on squares adjacent to the knight.
+  However, when the ball is in a corner an exception to this rule is allowed:
+  on the following diagram "kick from g1 to h3" is allowed".
 
 figure.diagram-container
-  .diagram
-    | fen:2r5/p1p1b2p/1pbp4/5K2/P1PP4/1P6/4nPPP/3R1NR1 c3:
-  figcaption 1...Nc3 and 2...N(x)d1# wins for Black.
+  .diagram.diag12
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/9/7N1/RNB2K1Ba:
+  .diagram.diag22
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/7a1/7N1/RNB2K1B1:
+  figcaption Before and after (kick) g1-h3
 
-h3 Source
+h4 Some restrictions.
+
+p.
+  To avoid infinite cycles, each piece can kick the ball at most
+  once during a turn.
+
+p Pieces cannot stand in any goal square.
+
+p The ball may never reach or cross the goal horizontally.
+
+h4 Complete a move on the interface.
+
+p.
+  If at the end of an initial or intermediate move one of your pieces is
+  adjacent to the ball, you'll need to "capture" any of your pieces
+  with the ball to indicate that the move is over.
+
+h3 More information
 
 p
-  | This variant is mentioned 
-  a(href="http://abrobecker.free.fr/chess/fairyblitz.htm#football")
-    | on this page
-  | . It isn't specified if the winning piece needs to be safe from attacks.
+  | See the 
+  a(href="https://www.chessvariants.com/crossover.dir/football.html")
+    | chessvariants page
+  | , for example, and also the 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | Classified Encyclopedia of Chess Variants
+  | .
+
+p Inventor: Joseph Boyer (1951)

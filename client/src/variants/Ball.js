@@ -36,7 +36,7 @@ export class BallRules extends ChessRules {
   }
 
   static get BALL() {
-    // Ball is already taken:
+    // 'b' is already taken:
     return "aa";
   }
 
@@ -95,17 +95,18 @@ export class BallRules extends ChessRules {
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
     let pieces = { "w": 0, "b": 0 };
-    const withBall = Object.keys(V.HAS_BALL_DECODE).concat([V.BALL]);
+    const withBall = Object.keys(V.HAS_BALL_DECODE).concat(['a']);
     let ballCount = 0;
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
         const lowerRi = row[i].toLowerCase();
         if (V.PIECES.includes(lowerRi)) {
-          if (lowerRi != V.BALL) pieces[row[i] == lowerRi ? "b" : "w"]++;
+          if (lowerRi != 'a') pieces[row[i] == lowerRi ? "b" : "w"]++;
           if (withBall.includes(lowerRi)) ballCount++;
           sumElts++;
-        } else {
+        }
+        else {
           const num = parseInt(row[i], 10);
           if (isNaN(num)) return false;
           sumElts += num;
@@ -337,7 +338,8 @@ export class BallRules extends ChessRules {
             })
           );
         }
-      } else if (mv.vanish[1].c == mv.vanish[0].c) {
+      }
+      else if (mv.vanish[1].c == mv.vanish[0].c) {
         // Pass the ball: the passing unit does not disappear
         mv.appear.push(JSON.parse(JSON.stringify(mv.vanish[0])));
         mv.appear[0].p = V.HAS_BALL_CODE[mv.vanish[1].p];

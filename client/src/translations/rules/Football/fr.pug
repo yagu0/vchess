@@ -1,21 +1,57 @@
-p.boxed.
-  Gagnez en jouant un coup au centre de la dernière rangée.
-  Le roi n'a pas de statut royal.
+p.boxed
+  | Les pièces ne capturent pas mais peuvent frapper un ballon.
+  | L'objectif du jeu est d'envoyer le ballon dans le but adverse.
 
 p.
-  Le but des blancs (resp. des noirs) sont les cases d8 et e8 (resp. d1 et e1)
-  au milieu de la rangée opposée. Le premier joueur à y installer une pièce
-  gagne, même si celle-ci est attaquée.
+  À chaque tour, un jour peut d'abord effectuer un coup normal (non capturant).
+  Si aucune de ses pièces n'est à côté du ballon, un tel coup est obligatoire.
+  Mais, si une de ses pièces touche le ballon, alors il peut le frapper soit
+  après un déplacement initial soit tout de suite, à condition que le pas
+  défini par la flèche pièce --> ballon soit compatible avec les
+  mouvements de cette dernière.
+
+p.
+  Pour déplacer la balle, cliquez dessus puis sur la case d'arrivée.
+  Le cavalier peut envoyer le ballon vers n'importe quelle case située à
+  distance de cavalier de la position initiale du ballon, sauf sur les
+  cases adjacentes au cavalier.
+  Cependant, quand la balle est dans un coin on autorise une exception à cette
+  règle : sur le diagramme suivant, le cavalier peut envoyer le ballon
+  de g1 à h3 par exemple.
 
 figure.diagram-container
-  .diagram
-    | fen:2r5/p1p1b2p/1pbp4/5K2/P1PP4/1P6/4nPPP/3R1NR1 c3:
-  figcaption 1...Nc3 et 2...N(x)d1# gagne pour les noirs.
+  .diagram.diag12
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/9/7N1/RNB2K1Ba:
+  .diagram.diag22
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/7a1/7N1/RNB2K1B1:
+  figcaption Avant et après la frappe g1-h3
 
-h3 Source
+h4 Quelques restrictions
+
+p.
+  Afin d'éviter des cycles infinis, chaque pièce peut frapper le ballon
+  au plus une fois pendant un tour.
+
+p Aucune pièce ne peut se trouver sur une case but.
+
+p La balle ne peut jamais atteindre ou traverser le but horizontalement.
+
+h4 Compléter un coup sur l'interface.
+
+p.
+  Si à la fin d'un coup initial ou intermédiaire une de vos pièces est à côté
+  du ballon, alors vous devez "capturer" une de vos pièces avec la balle
+  pour indiquer la fin du tour.
+
+h3 Plus d'information
 
 p
-  | Cette variante est mentionnée 
-  a(href="http://abrobecker.free.fr/chess/fairyblitz.htm#football")
-    | sur cette page
-  | . Il n'est pas précisé si la pièce doit être à l'abri des attaques.
+  | Voir la 
+  a(href="https://www.chessvariants.com/crossover.dir/football.html")
+    | page chessvariants.com
+  | , par exemple, et également la 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | Classified Encyclopedia of Chess Variants
+  | .
+
+p Inventeur : Joseph Boyer (1951)

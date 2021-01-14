@@ -1,21 +1,58 @@
-p.boxed.
-  Gana haciendo un movimiento en el centro de la última fila.
-  El rey no tiene estatus real.
+p.boxed
+  | Las piezas no capturan pero pueden golpear una bola.
+  | El objetivo del juego es enviar el balón a la portería contraria.
 
 p.
-  El objetivo de las blancas (resp. negras) son las casillas d8 y e8
-  (resp. d1 y e1) en el medio de la fila opuesta.
-  El primer jugador que instala una pieza ahí gana, incluso si es atacada.
+  En cada ronda, un jugador puede realizar primero un movimiento normal
+  (sin captura). Si ninguna de sus piezas está al lado de la bola, tal
+  movimiento es obligatorio.
+  Pero, si una de sus piezas toque la pelota, entonces puede golpearla
+  después de un desplazamiento inicial o inmediatamente, siempre que el paso
+  definido por la flecha pieza --> globo es compatible con los
+  movimientos de este último.
+
+p.
+  Para mover la bola, haga clic en ella y luego en la casilla de llegada.
+  El caballo puede enviar la pelota a cualquier casilla dentro
+  distancia del saltador desde la posición inicial del balón, excepto en las
+  casillas adyacentes al caballo.
+  Sin embargo, cuando la pelota está en una esquina permitimos una excepción
+  a esto regla: en el siguiente diagrama, el caballo puede enviar la pelota
+  de g1 a h3 por ejemplo.
 
 figure.diagram-container
-  .diagram
-    | fen:2r5/p1p1b2p/1pbp4/5K2/P1PP4/1P6/4nPPP/3R1NR1 c3:
-  figcaption 1...Nc3 y 2...N(x)d1# gana para las negras.
+  .diagram.diag12
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/9/7N1/RNB2K1Ba:
+  .diagram.diag22
+    | fen:3q1k1br/r7R/2n2n3/3Q5/6b2/9/7a1/7N1/RNB2K1B1:
+  figcaption Antes y después del golpe g1-h3
 
-h3 Fuente
+h4 Algunas restricciones
+
+p.
+  Para evitar ciclos interminables, cada pieza puede golpear la pelota
+  como máximo una vez durante un turno.
+
+p Ninguna pieza puede estar en una casilla portería.
+
+p El balón nunca puede alcanzar o cruzar la portería horizontalmente.
+
+h4 Completa una jugada en la interfaz.
+
+p.
+  Si al final de un movimiento inicial o intermedio una de tus piezas es al
+  lado de la bola, entonces tienes que "capturar" una de tus piezas con la
+  bola para indicar el final de la ronda.
+
+h3 Más información
 
 p
-  | Esta variante se menciona 
-  a(href="http://abrobecker.free.fr/chess/fairyblitz.htm#football")
-    | en esta pagina
-  | . No está claro si la pieza debe estar a salvo de los ataques.
+  | Ver la 
+  a(href="https://www.chessvariants.com/crossover.dir/football.html")
+    | página chessvariants.com
+  | , por ejemplo, y también la 
+  a(href="https://www.jsbeasley.co.uk/encyc.htm")
+    | Classified Encyclopedia of Chess Variants
+  | .
+
+p Inventor: Joseph Boyer (1951)

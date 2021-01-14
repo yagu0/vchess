@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export class SquatterRules extends ChessRules {
+export class Squatter1Rules extends ChessRules {
 
   static get Lines() {
     return [
