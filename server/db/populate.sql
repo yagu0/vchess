@@ -119,6 +119,7 @@ insert or ignore into Variants (name, description) values
   ('Relayup', 'Upgrade pieces'),
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),
+  ('Rollerball', 'As in the movie'),
   ('Rococo', 'Capture on the edge'),
   ('Rookpawns', 'Rook versus pawns'),
   ('Royalrace', 'Kings cross the 11x11 board'),

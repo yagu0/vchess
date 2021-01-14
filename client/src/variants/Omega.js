@@ -278,12 +278,9 @@ export class OmegaRules extends ChessRules {
 
   getPotentialMovesFrom([x, y]) {
     switch (this.getPiece(x, y)) {
-      case V.CHAMPION:
-        return this.getPotentialChampionMoves([x, y]);
-      case V.WIZARD:
-        return this.getPotentialWizardMoves([x, y]);
-      default:
-        return super.getPotentialMovesFrom([x, y]);
+      case V.CHAMPION: return this.getPotentialChampionMoves([x, y]);
+      case V.WIZARD: return this.getPotentialWizardMoves([x, y]);
+      default: return super.getPotentialMovesFrom([x, y]);
     }
   }
 

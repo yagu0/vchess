@@ -1,1 +1,47 @@
-p.boxed TODO
+p.boxed
+  | Pieces turn around the board, they cannot go in the middle.
+
+p.
+  Each side has only a king, two rooks, one bishop and two pawns.
+  Pieces can never enter the central area.
+  Pawns can only move "clockwise", acording to the image below: they move
+  and capture forward straight and diagonally in the arrow direction.
+
+figure
+  img.img-center(src="/variants/Rollerball/rollerball_directions.gif")
+  figcaption.text-center.
+    Main directions on the board.
+    The squares where direction changes are enlighted with white arrows.
+
+p.
+  When a pawn reaches the starting square of an enemy pawn, it promotes
+  into a bishop or rook.
+
+p.
+  Rooks and bishop move as usual, but are restricted to one square only when
+  moving counter-clockwise.
+  Moreover, they are allowed one rebound in certain circumstances:
+ul
+  li a bishop rebounds on the first wall met,
+  li a rook rebounds (at 90 degrees) if it reaches a corner.
+
+figure
+  img.img-center(src="/variants/Rollerball/rook_example.gif")
+  figcaption.text-center Some rook movements.
+
+p.
+  The king moves as in orthodox chess.
+  The goal is either to bring your king on the initial square of the
+  opponent's king, or to checkmate him.
+
+h3 More information
+
+p
+  | See the 
+  a(href="http://history.chess.free.fr/rollerball.htm") author's presentation
+  | , and the 
+  a(href="https://www.chessvariants.com/40.dir/rollerball/index.html")
+    | chessvariants page
+  | .
+
+p Inventor: Jean-Louis Cazaux (1998)

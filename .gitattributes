@@ -1,4 +1,5 @@
 *.ico filter=fat
 *.pdf filter=fat
 *.png filter=fat
+*.gif filter=fat
 *.flac filter=fat

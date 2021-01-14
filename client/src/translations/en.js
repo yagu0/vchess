@@ -171,6 +171,7 @@ export const translations = {
   "Absorb powers": "Absorb powers",
   "All of the same color": "All of the same color",
   "Ancient rules": "Ancient rules",
+  "As in the movie": "As in the movie",
   "Attract opposite king": "Attract opposite king",
   "Augmented Queens": "Augmented Queens",
   "Balanced sliders & leapers": "Balanced sliders & leapers",

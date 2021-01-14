@@ -1,1 +1,50 @@
-p.boxed TODO
+p.boxed
+  | Les pièces tournent autour de l'échiquier,
+  | elles ne peuvent pas aller au centre.
+
+p.
+  Chaque camp dispose d'un roi, deux tours, un fou et deux pions.
+  Les pièces ne peuvent jamais aller dans la zone centrale.
+  Les pions ne se déplacent que dans le "sens horaire", selon l'image
+  ci-dessous : ils se déplacent et capturent tout droit ou en diagonale
+  dans la direction de la flèche.
+
+figure
+  img.img-center(src="/variants/Rollerball/rollerball_directions.gif")
+  figcaption.text-center.
+    Principales directions sur l'échiquier. Les cases où survient
+    un changement de direction sont marquées par des flèches blanches.
+
+p.
+  Quand un pion atteint la case de départ d'un pion ennemi, il est promu
+  en un fou ou une tour.
+
+p.
+  Les tours et fous se déplacent comme d'habitude, mais sont restreints d'une
+  case seulement quand ils se déplacent dans le sens anti-horaire.
+  De plus, ils peuvent rebondir une fois dans certaines circonstances :
+ul
+  li un fou rebondit sur le premier mur rencontré,
+  li une tour rebondit (à 90 degrés) si elle atteint un coin.
+
+figure
+  img.img-center(src="/variants/Rollerball/rook_example.gif")
+  figcaption.text-center Quelques déplacements de la tour.
+
+p.
+  Le roi se déplace comme aux échecs orthodoxes.
+  L'objectif est soit d'amener votre roi sur la case de départ du roi adverse,
+  ou bien de le mater.
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="http://history.chess.free.fr/rollerball.htm")
+    | présentation de l'auteur
+  | , et la 
+  a(href="https://www.chessvariants.com/40.dir/rollerball/index.html")
+    | page chessvariants
+  | .
+
+p Inventeur : Jean-Louis Cazaux (1998)

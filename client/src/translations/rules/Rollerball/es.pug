@@ -1,1 +1,49 @@
-p.boxed TODO
+p.boxed
+  | Las piezas giran alrededor del tablero, no pueden ir al centro.
+
+p.
+  Cada lado tiene un rey, dos torres, un alfil y dos peones.
+  Las piezas nunca pueden ir al área central.
+  Los peones solo se mueven siguiendo las "agujas del reloj", según la imagen
+  abajo: se mueven y capturan en línea recta o en diagonal
+  en la dirección de la flecha.
+
+figure
+  img.img-center(src="/variants/Rollerball/rollerball_directions.gif")
+  figcaption.text-center.
+    Direcciones principales en el tablero. Las casillas donde ocurre
+    los cambios de dirección están marcados con flechas blancas.
+
+p.
+  Cuando un peón llega a la casilla inicial de un peón enemigo, es promovido
+  en un alfil o en una torre.
+
+p.
+  Las torres y los alfiles se mueven como de costumbre, pero están
+  restringidos por una casilla solo cuando se mueven en sentido antihorario.
+  Además, pueden rebotar una vez en determinadas circunstancias:
+ul
+  li un loco rebota en la primera pared que encuentra,
+  li una torre rebota (90 grados) si golpea una esquina.
+
+figure
+  img.img-center(src="/variants/Rollerball/rook_example.gif")
+  figcaption.text-center Algunos movimientos de la torre.
+
+p.
+  El rey se mueve como en el ajedrez ortodoxo.
+  El objetivo es llevar a tu rey a la casilla de inicio del rey contrario,
+  o matarlo.
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="http://history.chess.free.fr/rollerball.htm")
+    | presentación del autor
+  | , y la 
+  a(href="https://www.chessvariants.com/40.dir/rollerball/index.html")
+    | página chessvariants
+  | .
+
+p Inventor: Jean-Louis Cazaux (1998)
