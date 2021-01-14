@@ -61,7 +61,7 @@ export default {
   methods: {
     launchGame: function(game) {
       this.compWorker.postMessage(["scripts", this.gameInfo.vname]);
-      if (!game) {
+      if (!game || !V.IsGoodFen(game.fen)) {
         game = {
           vname: this.gameInfo.vname,
           fenStart: V.GenRandInitFen(this.st.settings.randomness),
@@ -70,12 +70,6 @@ export default {
         game.fen = game.fenStart;
         if (this.gameInfo.mode == "versus") CompgameStorage.add(game);
       }
-
-// TODO: debug Hiddenqueen
-//game.fen = "rbnqbknr/pppptppp/8/8/8/8/TPPPPPPP/RBNQBKNR w 0 ahah -";
-//game.fenStart = "rbnqbknr/pppptppp/8/8/8/8/TPPPPPPP/RBNQBKNR w 0 ahah -";
-//game.mycolor = 'w';
-
       if (!game.mycolor) game.mycolor = (Math.random() < 0.5 ? "w" : "b");
       this.compWorker.postMessage(["init", game.fen]);
       this.vr = new V(game.fen);
