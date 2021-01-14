@@ -3,8 +3,9 @@ Embedded rules language not updated when language is set (in Analyse, Game and P
 If new live game starts in background, "new game" notify OK but not first move.
 
 NEW VARIANTS:
-http://history.chess.free.fr/rollerball.htm
-  https://www.chessvariants.com/40.dir/rollerball/index.html
+https://www.chessvariants.com/crossover.dir/football.html
+  ballon vers n'importe laquelle de nos pièces = 'j'ai terminé mes passes, à toi'
+  Also: rename current Football into Squatter2 (and Squatter into Squatter1)
 https://www.pychess.org/variant/shogun
 https://www.chessvariants.com/incinf.dir/bario.html
   https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario
