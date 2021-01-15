@@ -191,15 +191,45 @@ export class FootballRules extends ChessRules {
       let [i, j] = [bp[0] + step[0], bp[1] + step[1]];
       const horizontalStepOnGoalRow =
         ([0, 8].includes(bp[0]) && step.some(s => s == 0));
-      if (emptySquare(i, j) && (!horizontalStepOnGoalRow || j != 4)) {
+      if (
+        emptySquare(i, j) &&
+        (this.movesCount >= 2 || j != 4 || ![0, 8].includes(i)) &&
+        (!horizontalStepOnGoalRow || j != 4)
+      ) {
         moves.push(super.getBasicMove(bp, [i, j]));
         if (!oneStep) {
           do {
             i += step[0];
             j += step[1];
             if (!emptySquare(i, j)) break;
-            if (!horizontalStepOnGoalRow || j != 4)
+            if (
+              (this.movesCount >= 2 || j != 4 || ![0, 8].includes(i)) &&
+              (!horizontalStepOnGoalRow || j != 4)
+            ) {
               moves.push(super.getBasicMove(bp, [i, j]));
+            }
+          } while (true);
+        }
+      }
+      // Try the other direction (TODO: experimental)
+      [i, j] = [bp[0] - 2*step[0], bp[1] - 2*step[1]];
+      if (
+        emptySquare(i, j) &&
+        (this.movesCount >= 2 || j != 4 || ![0, 8].includes(i)) &&
+        (!horizontalStepOnGoalRow || j != 4)
+      ) {
+        moves.push(super.getBasicMove(bp, [i, j]));
+        if (!oneStep) {
+          do {
+            i -= step[0];
+            j -= step[1];
+            if (!emptySquare(i, j)) break;
+            if (
+              (this.movesCount >= 2 || j != 4 || ![0, 8].includes(i)) &&
+              (!horizontalStepOnGoalRow || j != 4)
+            ) {
+              moves.push(super.getBasicMove(bp, [i, j]));
+            }
           } while (true);
         }
       }
@@ -210,12 +240,43 @@ export class FootballRules extends ChessRules {
   }
 
   getPotentialMovesFrom([x, y], computer) {
-    if (V.PIECES.includes(this.getPiece(x, y))) {
+    const piece = this.getPiece(x, y);
+    if (V.PIECES.includes(piece)) {
       if (this.subTurn > 1) return [];
-      return (
-        super.getPotentialMovesFrom([x, y])
-        .filter(m => m.end.y != 4 || ![0, 8].includes(m.end.x))
-      );
+      const moves = super.getPotentialMovesFrom([x, y])
+                    .filter(m => m.end.y != 4 || ![0, 8].includes(m.end.x));
+      // If bishop stuck in a corner: allow to jump over the next obstacle
+      if (moves.length == 0 && piece == V.BISHOP) {
+        if (
+          x == 0 && y == 0 &&
+          this.board[1][1] != V.EMPTY &&
+          this.board[2][2] == V.EMPTY
+        ) {
+          return [super.getBasicMove([x, y], [2, 2])];
+        }
+        if (
+          x == 0 && y == 8 &&
+          this.board[1][7] != V.EMPTY &&
+          this.board[2][6] == V.EMPTY
+        ) {
+          return [super.getBasicMove([x, y], [2, 6])];
+        }
+        if (
+          x == 8 && y == 0 &&
+          this.board[7][1] != V.EMPTY &&
+          this.board[6][2] == V.EMPTY
+        ) {
+          return [super.getBasicMove([x, y], [6, 2])];
+        }
+        if (
+          x == 8 && y == 8 &&
+          this.board[7][7] != V.EMPTY &&
+          this.board[6][6] == V.EMPTY
+        ) {
+          return [super.getBasicMove([x, y], [6, 6])];
+        }
+      }
+      return moves;
     }
     // Kicking the ball: look for adjacent pieces.
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
