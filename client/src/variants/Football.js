@@ -235,7 +235,7 @@ export class FootballRules extends ChessRules {
       }
     }
     const kickedFrom = x + "-" + y;
-    moves.forEach(m => m.by = kickedFrom)
+    moves.forEach(m => m.start.by = kickedFrom)
     return moves;
   }
 
@@ -346,7 +346,7 @@ export class FootballRules extends ChessRules {
   filterValid(moves) {
     const L = this.kickedBy.length;
     const kb = this.kickedBy[L-1];
-    return moves.filter(m => !m.by || !kb[m.by]);
+    return moves.filter(m => !m.start.by || !kb[m.start.by]);
   }
 
   getCheckSquares() {
@@ -393,9 +393,9 @@ export class FootballRules extends ChessRules {
     }
     else {
       this.subTurn++;
-      if (!!move.by) {
+      if (!!move.start.by) {
         const L = this.kickedBy.length;
-        this.kickedBy[L-1][move.by] = true;
+        this.kickedBy[L-1][move.start.by] = true;
       }
     }
   }
@@ -409,9 +409,9 @@ export class FootballRules extends ChessRules {
     }
     else {
       this.subTurn--;
-      if (!!move.by) {
+      if (!!move.start.by) {
         const L = this.kickedBy.length;
-        delete this.kickedBy[L-1][move.by];
+        delete this.kickedBy[L-1][move.start.by];
       }
     }
     if (!passesOver) {
