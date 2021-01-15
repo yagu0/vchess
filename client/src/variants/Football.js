@@ -108,7 +108,6 @@ export class FootballRules extends ChessRules {
     if (randomness == 0)
       return "rnbq1knbr/9/9/9/4a4/9/9/9/RNBQ1KNBR w 0";
 
-    // TODO: following is mostly copy-paste from Suicide variant
     let pieces = { w: new Array(8), b: new Array(8) };
     for (let c of ["w", "b"]) {
       if (c == 'b' && randomness == 1) {
@@ -119,12 +118,16 @@ export class FootballRules extends ChessRules {
       // Get random squares for every piece, totally freely
       let positions = shuffle(ArrayFun.range(8));
       const composition = ['b', 'b', 'r', 'r', 'n', 'n', 'k', 'q'];
-      const rem2 = positions[0] % 2;
-      if (rem2 == positions[1] % 2) {
-        // Fix bishops (on different colors)
+      // Fix bishops (on different colors)
+      const realOddity =
+        (pos) => { return (pos <= 3 ? pos % 2 : (pos + 1) % 2); };
+      const rem2 = realOddity(positions[0]);
+      if (rem2 == realOddity(positions[1])) {
         for (let i=2; i<8; i++) {
-          if (positions[i] % 2 != rem2)
+          if (realOddity(positions[i]) != rem2) {
             [positions[1], positions[i]] = [positions[i], positions[1]];
+            break;
+          }
         }
       }
       for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];

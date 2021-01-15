@@ -205,8 +205,10 @@ export class BallRules extends ChessRules {
       if (rem2 == positions[1] % 2) {
         // Fix bishops (on different colors)
         for (let i=4; i<9; i++) {
-          if (positions[i] % 2 != rem2)
+          if (positions[i] % 2 != rem2) {
             [positions[1], positions[i]] = [positions[i], positions[1]];
+            break;
+          }
         }
       }
       rem2 = positions[2] % 2;

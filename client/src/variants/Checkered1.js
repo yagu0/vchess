@@ -504,9 +504,14 @@ export class Checkered1Rules extends ChessRules {
         this.kingPos[c][1] = move.appear[0].y;
       }
       super.updateCastleFlags(move, piece);
-      // Does this move turn off a 2-squares pawn flag?
-      if ([1, 6].includes(move.start.x) && move.vanish[0].p == V.PAWN)
+      if (
+        [1, 6].includes(move.start.x) &&
+        move.vanish[0].p == V.PAWN &&
+        Math.abs(move.end.x - move.start.x) == 2
+      ) {
+        // This move turns off a 2-squares pawn flag
         this.pawnFlags[move.start.x == 6 ? "w" : "b"][move.start.y] = false;
+      }
     }
     this.cmoves.push(this.getCmove(move));
   }

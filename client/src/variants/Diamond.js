@@ -28,8 +28,10 @@ export class DiamondRules extends ChessRules {
       if (rem2 == positions[1] % 2) {
         // Fix bishops (on different colors)
         for (let i=2; i<8; i++) {
-          if (positions[i] % 2 != rem2)
+          if (positions[i] % 2 != rem2) {
             [positions[1], positions[i]] = [positions[i], positions[1]];
+            break;
+          }
         }
       }
       for (let i = 0; i < 8; i++) pieces[c][positions[i]] = composition[i];
