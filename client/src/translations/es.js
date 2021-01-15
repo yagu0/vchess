@@ -215,6 +215,7 @@ export const translations = {
   "Friendly pieces": "Piezas amistosas",
   "In the shadow": "En la sombra",
   "Interweaved colorbound teams": "Equipos unicolores entrelazados",
+  "General's Chess": "Ajedrez de los Generales",
   "Geometric Chess": "Ajedrez geométrico",
   "Get strong at self-mate": "Progreso en mates asistidos",
   "Give three checks": "Dar tres jaques",

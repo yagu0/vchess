@@ -1,1 +1,41 @@
-p.boxed TODO
+p.boxed
+  | Each piece has a promoted form. Captured pieces can be dropped later.
+
+p
+  | Shogun Chess is a chess variant designed in 2019-2020 by Couch Tomato.
+  | It is explained, and playable 
+  a(href="https://www.pychess.org/variant/shogun") on pychess-variants
+  | .
+
+figure
+  img.img-center(src="/variants/Shogun/Promotions.png")
+  figcaption.text-center.
+    Pieces and their promoted forms, with movements summary.
+
+h3 General rules
+
+ul
+  li.
+    The three farthest ranks are the promotion zone.
+    Every starting piece except the king and queen may promote by moving into
+    the promotion zone or moving from within the promotion zone.
+  li.
+    However, only one of each major piece (queen, mortar, archbishop, or
+    general) can be out on each side at a time.
+  li.
+    Captured pieces may be dropped back into the board as your own piece.
+    Pieces can be dropped anywhere within the first 5 ranks.
+  li.
+    When promoted pieces are captured, they revert to their unpromoted side.
+    This is the only way that a queen becomes a duchess.
+
+p Note: pawns cannot promote if capturing en passant.
+
+h3 (New) Pieces
+
+ul
+  li Archbishop (A) = Bishop + Knight.
+  li Mortar (M) = Rook + Knight.
+  li General (G) = King (non-royal) + Knight.
+  li Captain (C) = King (non-royal).
+  li Duchess (F) = Ferz (one step diagonally).

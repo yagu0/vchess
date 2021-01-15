@@ -1,1 +1,42 @@
-p.boxed TODO
+p.boxed
+  | Chaque pièce a une forme promue.
+  | Les pièces capturées peuvent être parachutées plus tard.
+
+p
+  | Les Échecs Shogun sont une variante élaborée en 2019-2020 par Couch Tomato.
+  | Ils sont expliqué, et jouables 
+  a(href="https://www.pychess.org/variant/shogun") sur pychess-variants
+  | .
+
+figure
+  img.img-center(src="/variants/Shogun/Promotions.png")
+  figcaption.text-center.
+    Pièces et leurs formes promues, avec résumé des déplacements.
+
+h3 Règles générales
+
+ul
+  li.
+    Les trois dernières rangées définissent la zone de promotion.
+    Chaque pièce initiale à l'exception du roi et de la dame peuvent être
+    promue en se déplaçant vers ou depuis la zone de promotion.
+  li.
+    Cependant, une seule des pièces majeures (dame, mortier, achevêque ou
+    général) peut être présente sur l'échiquier pour chaque camp.
+  li.
+    Les pièces capturées changent de couleur puis peuvent être parachutées
+    sur l'échiquier, n'importe où sur les 5 premières rangées.
+  li.
+    Quand une pièce promue est capturée, elle reprend sa forme non promue.
+    C'est la seule façon pour une dame de devenir une duchesse.
+
+p Note : les pions ne peuvent pas se promouvoir via une capture en passant.
+
+h3 (Nouvelles) Pièces
+
+ul
+  li Archevêque (A) = Fou + Cavalier.
+  li Mortier (M) = Tour + Cavalier.
+  li Général (G) = Roi (non royal) + Cavalier.
+  li Capitaine (C) = Roi (non royal).
+  li Duchesse (F) = Ferz (un pas en diagonale).

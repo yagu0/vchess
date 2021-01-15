@@ -1,1 +1,43 @@
-p.boxed TODO
+p.boxed
+  | Cada pieza tiene una forma promocionada.
+  | Las piezas capturadas se pueden lanzar en paracaídas más tarde.
+
+p
+  | Shogun Chess es una variante desarrollada en 2019-2020 por Couch Tomato.
+  | Se explican y se puede jugar 
+  a(href="https://www.pychess.org/variant/shogun") en pychess-variants
+  | .
+
+figure
+  img.img-center(src="/variants/Shogun/Promotions.png")
+  figcaption.text-center.
+    Piezas y sus formas promocionadas, con resumen de movimientos.
+
+h3 Reglas generales
+
+ul
+  li.
+    Las últimas tres filas definen el área de promoción.
+    Cada pieza inicial, excepto el rey y la reina, puede ser
+    promovido moviéndose hacia o desde el área de promoción.
+  li.
+    Sin embargo, solo una de las piezas principales (dama, mortero, arzobispo
+    o general) pueden estar presentes en el tablero para cada lado.
+  li.
+    Las piezas capturadas cambian de color y luego se pueden lanzar en
+    paracaídas en el tablero, en cualquier lugar de las primeras 5 filas.
+  li.
+    Cuando se captura una pieza promocionada, vuelve a su forma no
+    promocionada. Esta es la única manera de
+    que una dama se convierta en duquesa.
+
+p Nota: los peones no pueden promocionarse mediante una captura en passant.
+
+h3 (Nuevas) Piezas
+
+ul
+  li Arzobispo (A) = Alfil + Caballo.
+  li Mortero (M) = Torre + Caballo.
+  li General (G) = Rey (no real) + Caballo.
+  li Capitán (C) = Rey (no real).
+  li Duquesa (F) = Ferz (un paso en diagonal).

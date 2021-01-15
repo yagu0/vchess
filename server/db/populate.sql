@@ -129,6 +129,7 @@ insert or ignore into Variants (name, description) values
   ('Shako', 'Non-conformism and utopia'),
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),
+  ('Shogun', 'General''s Chess'),
   ('Sittuyin', 'Burmese Chess'),
   ('Spartan', 'Spartan versus Persians'),
   ('Squatter1', 'Squat last rank (v1)'),

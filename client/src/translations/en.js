@@ -215,6 +215,7 @@ export const translations = {
   "Friendly pieces": "Friendly pieces",
   "In the shadow": "In the shadow",
   "Interweaved colorbound teams": "Interweaved colorbound teams",
+  "General's Chess": "General's Chess",
   "Geometric Chess": "Geometric Chess",
   "Get strong at self-mate": "Get strong at self-mate",
   "Give three checks": "Give three checks",
