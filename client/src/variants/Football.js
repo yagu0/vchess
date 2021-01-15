@@ -1,5 +1,6 @@
 import { ChessRules } from "@/base_rules";
-import { randInt } from "@/utils/alea";
+import { randInt, shuffle } from "@/utils/alea";
+import { ArrayFun } from "@/utils/array";
 
 export class FootballRules extends ChessRules {
 
