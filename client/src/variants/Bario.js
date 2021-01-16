@@ -350,7 +350,7 @@ export class BarioRules extends ChessRules {
       ];
       let [i, j] = [x1 + step[0], y1 + step[1]];
       while (i != x2 || j != y2) {
-        if (this.board[i][j] != V.EMPTY) return false;
+        if (!V.OnBoard(i, j) || this.board[i][j] != V.EMPTY) return false;
         i += step[0];
         j += step[1];
       }
@@ -426,6 +426,7 @@ export class BarioRules extends ChessRules {
     else {
       if (move.vanish.length == 2 && move.vanish[1].p == V.UNDEFINED)
         this.captureUndefined.push(move.end);
+      else this.captureUndefined.push(null);
       if (move.appear[0].p == V.KING) super.postPlay(move);
       else {
         // If now all my pieces are defined, back to undefined state,
@@ -538,8 +539,7 @@ export class BarioRules extends ChessRules {
       for (let j = 0; j < 8; j++) this.board[firstRank][j] = "";
     }
     else {
-      if (move.vanish.length == 2 && move.vanish[1].p == V.UNDEFINED)
-        this.captureUndefined.pop();
+      this.captureUndefined.pop();
       if (move.appear[0].p == V.KING) super.postUndo(move);
       else {
         if (!!move.position) {
