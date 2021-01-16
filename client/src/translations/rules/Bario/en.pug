@@ -1,6 +1,61 @@
-p.boxed TODO
+p.boxed
+  | Your pieces remain in an undefined state until they are moved.
 
-p Some links - rules unwritten yet - variant slightly buggish for now.
-p https://www.chessvariants.com/incinf.dir/bario.html
-p https://le-cdn.website-editor.net/20ef5f800ea646c29f6852cfc5ceda07/dms3rep/multi/opt/BAR028-e15a849c-960w.jpg
-p https://www.bario-chess-checkers-chessphotography-spaceart.de/
+p.
+  Queens, rooks, bishops and knights begin the game in a reserve below
+  the board, because their location isn't determined yet.
+  At each turn, you can either move something already defined on the board, or
+ol
+  li move a piece from your reserve to any question mark, and then
+  li move the now defined piece on the board.
+
+p An undefined piece gives check if some specialization giving check exists.
+
+figure.diagram-container
+  .diagram
+    | fen:uuuuu1uk/p2p1qp1/1p6/7p/7P/5N2/PP1P1PP1/UUUKU1UU:
+  figcaption The white king cannot move, a rook might be on c8 or e8
+
+h4 Details, special cases
+
+p.
+  At the first turn, you must select a square for the king anywhere on
+  first rank. This deviates from the original intention of the author,
+  because castling rules would be rather tedious to implement.
+  Thus, you can instead "castle on move 1" :-)
+
+p.
+  If one of your undefined pieces is captured, you first have to choose which
+  one was captured from the reserve: place it at the capture location.
+
+p.
+  If after your move all your pieces are defined (and weren't before), then
+  all pieces on board revert to undefined state, unless:
+ul
+  li.
+    all your pieces (board + reserve) are now of the same type,
+    in which case none is put back in reserve, or
+  li.
+    all opponent's pieces are of the same type, in which case
+    they also remain defined.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:uuu1kuuu/2p5/2n5/1p1ppppp/p4PPP/3N3Q/PPPPP1BB/1RRUK3:
+  .diagram.diag22
+    | fen:uuu1kuuu/2p5/2u5/1p1ppppp/p4PPP/3UU2U/PPPPP1UU/1UU1K3:
+  figcaption.
+    Before and after knight definition on d1 (moving to e3)
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.bario-chess-checkers-chessphotography-spaceart.de/")
+    | author's page
+  | &nbsp;with many examples and explanations, and the discussion 
+  a(href="https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario")
+    | on chessvariants.com
+  | .
+
+p Inventor: Panos Louridas (1998)

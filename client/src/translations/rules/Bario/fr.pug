@@ -1,1 +1,67 @@
-p.boxed TODO
+p.boxed
+  | Vos pièces restent dans un état indéfini jusqu'à leur premier déplacement.
+
+p.
+  Dames, tours, fous et cavaliers commencent la partie dans une réserve sous
+  l'échiquier, car leur emplacement n'est pas encore déterminé.
+  À chaque tour, vous pouvez soit bouger quelque chose
+  déjà sur l'échiquier, soit
+ol
+  li amener une pièce depuis votre réserve vers un point d'interrogation, puis
+  li déplacer la pièce nouvellement définie.
+
+p.
+  Une pièce indéfinie peut donner échec si
+  une spécialisation donnant échec existe.
+
+figure.diagram-container
+  .diagram
+    | fen:uuuuu1uk/p2p1qp1/1p6/7p/7P/5N2/PP1P1PP1/UUUKU1UU:
+  figcaption.
+    Le roi blanc ne peut pas bouger, une tour pourrait être en c8 ou e8
+
+h4 Détails, cas particuliers
+
+p.
+  Au premier tour, vous devez sélectionner une case pour le roi n'importe où
+  sur la première rangée. Cela dévie de l'intention initiale de l'auteur,
+  car les règles du roque seraient plutîot fastidieuses à implémenter.
+  Ainsi, au lieu de cela vous "roquez au premier coup" :-)
+
+p.
+  Si une de vos pièces indéfinie est capturée, il faudra d'abord choisir
+  laquelle fut capturée depuis la réserve : placez la pièce à l'endroit
+  de la capture.
+
+p.
+  Si après votre coup toutes vos pièces sont définies (et ne l'étaient pas
+  avant), alors toutes les pièces sur l'échiquier reviennent
+  à leur état indéfini, sauf si
+ul
+  li.
+    toutes vos pièces (échiquier + réserve) sont désormais du même type,
+    auquel cas aucune ne revient en réserve, ou
+  li.
+    toutes les pièces adverses sont du même type, auquel cas elles restent
+    également définies.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:uuu1kuuu/2p5/2n5/1p1ppppp/p4PPP/3N3Q/PPPPP1BB/1RRUK3:
+  .diagram.diag22
+    | fen:uuu1kuuu/2p5/2u5/1p1ppppp/p4PPP/3UU2U/PPPPP1UU/1UU1K3:
+  figcaption.
+    Avant et après la définition du cavalier en d1 (déplacé vers e3)
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="https://www.bario-chess-checkers-chessphotography-spaceart.de/")
+    | page de l'auteur
+  | &nbsp;avec beaucoup d'exemples et d'explications, ainsi que la discussion 
+  a(href="https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario")
+    | sur chessvariants.com
+  | .
+
+p Inventeur : Panos Louridas (1998)

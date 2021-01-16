@@ -2,13 +2,11 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-// TODO: issue with undo of specialisation to cover check, subTurn decremented to 0
-
 export class BarioRules extends ChessRules {
 
   // Does not really seem necessary (although the author mention it)
   // Instead, first move = pick a square for the king.
-  static get HasCastle() {
+  static get HasFlags() {
     return false;
   }
 
@@ -111,8 +109,8 @@ export class BarioRules extends ChessRules {
   getReserveFen() {
     let counts = new Array(8);
     for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-      counts[i] = this.reserve["w"][V.PIECES[i]];
-      counts[4 + i] = this.reserve["b"][V.PIECES[i]];
+      counts[i] = this.reserve["w"][V.RESERVE_PIECES[i]];
+      counts[4 + i] = this.reserve["b"][V.RESERVE_PIECES[i]];
     }
     return counts.join("");
   }
@@ -194,17 +192,15 @@ export class BarioRules extends ChessRules {
     if (this.subTurn == 0) {
       const L = this.captureUndefined.length;
       const cu = this.captureUndefined[L-1];
-      return (
+      return [
+        // Nothing changes on the board, just mark start.p for reserve update
         new Move({
-          appear: [
-            new PiPo({ x: cu.x, y: cu.y, c: color, p: p })
-          ],
-          vanish: [
-            new PiPo({ x: cu.x, y: cu.y, c: color, p: V.UNDEFINED })
-          ],
-          start: { x: x, y: y }
+          appear: [],
+          vanish: [],
+          start: { x: x, y: y, p: p },
+          end: { x: cu.x, y: cu.y }
         })
-      );
+      ];
     }
     // or, subTurn == 1 => target any undefined piece that we own.
     let moves = [];
@@ -252,10 +248,24 @@ export class BarioRules extends ChessRules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
-  getAllValidMoves() {
+  getAllPotentialMoves() {
+    const color = this.turn;
+    if (this.movesCount <= 1) {
+      // Just put the king on the board
+      let moves = [];
+      const firstRank = (color == 'w' ? 7 : 0);
+      return [...Array(8)].map((x, j) => {
+        return new Move({
+          appear: [
+            new PiPo({ x: firstRank, y: j, c: color, p: V.KING })
+          ],
+          vanish: [],
+          start: { x: -1, y: -1 }
+        });
+      });
+    }
     const getAllReserveMoves = () => {
       let moves = [];
-      const color = this.turn;
       for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
         moves = moves.concat(
           this.getReserveMoves([V.size.x + (color == "w" ? 0 : 1), i])
@@ -276,7 +286,21 @@ export class BarioRules extends ChessRules {
       if (m.vanish.length == 0) return true;
       const start = { x: m.vanish[0].x, y: m.vanish[0].y };
       const end = { x: m.appear[0].x, y: m.appear[0].y };
-      if (start.x == end.x && start.y == end.y) return true; //unfinished turn
+      if (start.x == end.x && start.y == end.y) {
+        // Unfinished turn: require careful check
+        this.play(m);
+        let res = false;
+        if (this.subTurn == 1)
+          // Can either play a move, or specialize a piece
+          res = this.filterValid(this.getAllPotentialMoves()).length > 0;
+        else {
+          // subTurn == 2: can only play a specialized piece
+          res = this.filterValid(
+            this.getPotentialMovesFrom([m.end.x, m.end.y])).length > 0;
+        }
+        this.undo(m);
+        return res;
+      }
       this.play(m);
       const res = !this.underCheck(color);
       this.undo(m);
@@ -356,6 +380,7 @@ export class BarioRules extends ChessRules {
   }
 
   play(move) {
+    move.turn = [this.turn, this.subTurn]; //easier undo (TODO?)
     const toNextPlayer = () => {
       V.PlayOnBoard(this.board, move);
       this.turn = V.GetOppCol(this.turn);
@@ -365,20 +390,21 @@ export class BarioRules extends ChessRules {
       this.postPlay(move);
     };
     if (move.vanish.length == 0) {
-      toNextPlayer();
+      if (move.appear.length == 1) toNextPlayer();
+      else {
+        // Removal (subTurn == 0 --> 1)
+        this.reserve[this.turn][move.start.p]--;
+        this.subTurn++;
+      }
       return;
     }
     const start = { x: move.vanish[0].x, y: move.vanish[0].y };
     const end = { x: move.appear[0].x, y: move.appear[0].y };
     if (start.x == end.x && start.y == end.y) {
-      // Specialisation (subTurn == 1 before 2), or Removal (subTurn == 0).
-      // In both cases, turn not over, and a piece removed from reserve
+      // Specialisation (subTurn == 1 before 2)
       this.reserve[this.turn][move.appear[0].p]--;
-      if (move.appear[0].c == move.vanish[0].c) {
-        // Specialisation: play "move" on board
-        V.PlayOnBoard(this.board, move);
-        this.definitions.push(move.end);
-      }
+      V.PlayOnBoard(this.board, move);
+      this.definitions.push(move.end);
       this.subTurn++;
     }
     else {
@@ -417,31 +443,55 @@ export class BarioRules extends ChessRules {
           })
         ) {
           const piecesList = [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN];
-          let myPieces = {};
+          const oppCol = this.turn;
+          let definedPieces = { w: {}, b: {} };
           for (let i=0; i<8; i++) {
             for (let j=0; j<8; j++) {
-              if (
-                this.board[i][j] != V.EMPTY &&
-                this.getColor(i, j) == color
-              ) {
+              if (this.board[i][j] != V.EMPTY) {
                 const p = this.getPiece(i, j);
-                if (piecesList.includes(p))
-                  myPieces[p] = (!myPieces[p] ? 1 : myPieces[p] + 1);
+                const c = this.getColor(i, j);
+                if (piecesList.includes(p)) {
+                  definedPieces[c][p] =
+                    (!definedPieces[c][p] ? 1 : definedPieces[c][p] + 1);
+                }
               }
             }
           }
-          const pk = Object.keys(myPieces);
-          if (pk.length >= 2) {
+          const my_pk = Object.keys(definedPieces[color]);
+          const opp_pk = Object.keys(definedPieces[oppCol]);
+          const oppRevert = (
+            opp_pk.length >= 2 ||
+            (
+              // Only one opponent's piece is defined, but
+              // at least a different piece wait in reserve:
+              opp_pk.length == 1 &&
+              Object.keys(this.reserve[oppCol]).some(k => {
+                return (k != opp_pk[0] && this.reserve[oppCol][k] >= 1);
+              })
+            )
+          );
+          if (my_pk.length >= 2 || oppRevert) {
+            // NOTE: necessary HACK... because the move is played already.
+            V.UndoOnBoard(this.board, move);
             move.position = this.getBaseFen();
-            for (let p of pk) this.reserve[color][p] = myPieces[p];
-            for (let i=0; i<8; i++) {
-              for (let j=0; j<8; j++) {
-                if (
-                  this.board[i][j] != V.EMPTY &&
-                  this.getColor(i, j) == color &&
-                  piecesList.includes(this.getPiece(i, j))
-                ) {
-                  this.board[i][j] = color + V.UNDEFINED;
+            move.reserve = JSON.parse(JSON.stringify(this.reserve));
+            V.PlayOnBoard(this.board, move);
+            for (
+              let cp of [{ c: color, pk: my_pk }, { c: oppCol, pk: opp_pk }]
+            ) {
+              if (cp.pk.length >= 2 || (cp.c == oppCol && oppRevert)) {
+                for (let p of cp.pk)
+                  this.reserve[cp.c][p] += definedPieces[cp.c][p];
+                for (let i=0; i<8; i++) {
+                  for (let j=0; j<8; j++) {
+                    if (
+                      this.board[i][j] != V.EMPTY &&
+                      this.getColor(i, j) == cp.c &&
+                      piecesList.includes(this.getPiece(i, j))
+                    ) {
+                      this.board[i][j] = cp.c + V.UNDEFINED;
+                    }
+                  }
                 }
               }
             }
@@ -454,23 +504,25 @@ export class BarioRules extends ChessRules {
   undo(move) {
     const toPrevPlayer = () => {
       V.UndoOnBoard(this.board, move);
-      this.turn = V.GetOppCol(this.turn);
+      [this.turn, this.subTurn] = move.turn;
       this.movesCount--;
       this.postUndo(move);
     };
     if (move.vanish.length == 0) {
-      toPrevPlayer();
+      if (move.appear.length == 1) toPrevPlayer();
+      else {
+        this.reserve[this.turn][move.start.p]++;
+        this.subTurn = move.turn[1];
+      }
       return;
     }
     const start = { x: move.vanish[0].x, y: move.vanish[0].y };
     const end = { x: move.appear[0].x, y: move.appear[0].y };
     if (start.x == end.x && start.y == end.y) {
       this.reserve[this.turn][move.appear[0].p]++;
-      if (move.appear[0].c == move.vanish[0].c) {
-        V.UndoOnBoard(this.board, move);
-        this.definitions.pop();
-      }
-      this.subTurn--;
+      V.UndoOnBoard(this.board, move);
+      this.definitions.pop();
+      this.subTurn = move.turn[1];
     }
     else {
       this.epSquares.pop();
@@ -492,29 +544,41 @@ export class BarioRules extends ChessRules {
       else {
         if (!!move.position) {
           this.board = V.GetBoard(move.position);
-          this.reserve[color] = {
-            [V.ROOK]: 0,
-            [V.KNIGHT]: 0,
-            [V.BISHOP]: 0,
-            [V.QUEEN]: 0
-          }
+          this.reserve = move.reserve;
         }
       }
     }
   }
 
   getComputerMove() {
+    let initMoves = this.getAllValidMoves();
+    if (initMoves.length == 0) return null;
+    // Loop until valid move is found (no un-specifiable piece...)
     const color = this.turn;
-    // Just play at random for now...
-    let mvArray = [];
-    while (this.turn == color) {
-      const moves = this.getAllValidMoves();
-      const choice = moves[randInt(moves.length)];
-      mvArray.push(choice);
-      this.play(choice);
+    while (true) {
+      let moves = JSON.parse(JSON.stringify(initMoves));
+      let mvArray = [];
+      let mv = null;
+      // Just play random moves (for now at least. TODO?)
+      while (moves.length > 0) {
+        mv = moves[randInt(moves.length)];
+        mvArray.push(mv);
+        this.play(mv);
+        if (this.turn == color) {
+          if (this.subTurn == 1) moves = this.getAllValidMoves();
+          else {
+            // subTurn == 2
+            moves = this.filterValid(
+              this.getPotentialMovesFrom([mv.end.x, mv.end.y]));
+          }
+        }
+        else break;
+      }
+      const thisIsTheEnd = (this.turn != color);
+      for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
+      if (thisIsTheEnd) return (mvArray.length > 1 ? mvArray : mvArray[0]);
     }
-    for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
-    return (mvArray.length == 1? mvArray[0] : mvArray);
+    return null; //never reached
   }
 
   static get VALUES() {
@@ -524,19 +588,16 @@ export class BarioRules extends ChessRules {
   // NOTE: evalPosition is wrong, but unused (random mover)
 
   getNotation(move) {
-    const end = { x: move.appear[0].x, y: move.appear[0].y };
+    const end = { x: move.end.x, y: move.end.y };
     const endSquare = V.CoordsToSquare(end);
+    if (move.appear.length == 0)
+      // Removal
+      return move.start.p.toUpperCase() + endSquare + "X";
     if (move.vanish.length == 0) return "K@" + endSquare;
     const start = { x: move.vanish[0].x, y: move.vanish[0].y };
-    if (start.x == end.x && start.y == end.y) {
-      // Something is specialized, or removed
-      const symbol = move.appear[0].p.toUpperCase();
-      if (move.appear[0].c == move.vanish[0].c)
-        // Specialisation
-        return symbol + "@" + endSquare;
-      // Removal:
-      return symbol + endSquare + "X";
-    }
+    if (start.x == end.x && start.y == end.y)
+      // Something is specialized
+      return move.appear[0].p.toUpperCase() + "@" + endSquare;
     // Normal move
     return super.getNotation(move);
   }

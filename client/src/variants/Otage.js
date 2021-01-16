@@ -761,6 +761,7 @@ export class OtageRules extends ChessRules {
       for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
       if (!mv.end.released) return (mvArray.length > 1 ? mvArray : mvArray[0]);
     }
+    return null; //never reached
   }
 
   // NOTE: evalPosition() is wrong, but unused since bot plays at random

@@ -1,9 +1,6 @@
 import { ChessRules } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-// TODO: Two moves, both promoting the same pawn, but to a different type of piece, count as two different moves.
-// ==> need to accept temporarily pawn promotions even if on forbidden square, and check afterward if promoted type changed (info in lastMove)
-
 export class RefusalRules extends ChessRules {
 
   static IsGoodFen(fen) {
@@ -50,7 +47,11 @@ export class RefusalRules extends ChessRules {
     if (this.getColor(x, y) != this.turn) {
       const L = this.lastMove.length;
       const lm = this.lastMove[L-1];
-      if (!!lm && !lm.noRef && x == lm.end.x && y == lm.end.y) {
+      const beforeLastRank = (this.turn == 'w' ? 1 : 6);
+      if (
+        !!lm && !lm.noRef && x == lm.end.x && y == lm.end.y &&
+        (this.getPiece(x, y) != V.PAWN || x != beforeLastRank)
+      ) {
         let revLm = JSON.parse(JSON.stringify(lm));
         let tmp = revLm.appear;
         revLm.appear = revLm.vanish;
@@ -94,7 +95,8 @@ export class RefusalRules extends ChessRules {
       if (
         !!lm && !!lm.refusal &&
         m.start.x == lm.end.x && m.start.y == lm.end.y &&
-        m.end.x == lm.start.x && m.end.y == lm.start.y
+        m.end.x == lm.start.x && m.end.y == lm.start.y &&
+        (m.vanish[0].p != V.PAWN || m.appear[0].p == lm.vanish[0].p)
       ) {
         return false;
       }

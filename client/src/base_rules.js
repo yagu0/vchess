@@ -22,8 +22,8 @@ export const Move = class Move {
   constructor(o) {
     this.appear = o.appear;
     this.vanish = o.vanish;
-    this.start = o.start ? o.start : { x: o.vanish[0].x, y: o.vanish[0].y };
-    this.end = o.end ? o.end : { x: o.appear[0].x, y: o.appear[0].y };
+    this.start = o.start || { x: o.vanish[0].x, y: o.vanish[0].y };
+    this.end = o.end || { x: o.appear[0].x, y: o.appear[0].y };
   }
 };
 

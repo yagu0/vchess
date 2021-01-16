@@ -1,1 +1,65 @@
-p.boxed TODO
+p.boxed
+  | Tus piezas permanecen en un estado indefinido hasta su primer movimiento.
+
+p.
+  Damas, torres, alfiles y caballos comienzan el juego en una reserva bajo
+  del tablero, porque su ubicación aún no está determinada.
+  En cada turno puedes mover algo ya en el tablero, ya sea
+ol
+  li traiga una pieza de su reserva a un signo de interrogación, luego
+  li mueva la pieza recién definida.
+
+p.
+  Una pieza indefinida puede dar jaque si
+  existe un especialización dando jaque.
+
+figure.diagram-container
+  .diagram
+    | fen:uuuuu1uk/p2p1qp1/1p6/7p/7P/5N2/PP1P1PP1/UUUKU1UU:
+  figcaption.
+    El rey blanco no puede moverse, una torre podría ser en c8 o e8
+
+h4 Detalles, casos especiales
+
+p.
+  En el primer turno, debes seleccionar una casilla para el rey en cualquier
+  lugar de la primera fila. Esto se desvía de la intención original del autor,
+  porque las reglas del enroque serían bastante tediosas de implementar.
+  Entonces, en cambio, "enroque en la primera jugada" :-)
+
+p.
+  Si se captura una de sus piezas indefinidas, primero debe elegir la que
+  fue capturado de la reserva: traer la pieza hacia el lugar de captura.
+
+p.
+  Si después de tu jugada todas tus piezas están definidas (y no fueron
+  antes), luego todas las piezas del tablero vuelven
+  en su estado indefinido, a menos que
+ul
+  li.
+    todas tus piezas (tablero + reserva) ahora son del mismo tipo,
+    en cuyo caso ninguno se devuelve a la reserva, o
+  li.
+    todas las piezas opuestas son del mismo tipo, en cuyo caso permanecen
+    también definido.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:uuu1kuuu/2p5/2n5/1p1ppppp/p4PPP/3N3Q/PPPPP1BB/1RRUK3:
+  .diagram.diag22
+    | fen:uuu1kuuu/2p5/2u5/1p1ppppp/p4PPP/3UU2U/PPPPP1UU/1UU1K3:
+  figcaption.
+    Antes y después de la definición del caballo en d1 (trasladado a e3)
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="https://www.bario-chess-checkers-chessphotography-spaceart.de/")
+    | página del autor
+  | &nbsp;con muchos ejemplos y explicaciones, así como debates 
+  a(href="https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario")
+    | en chessvariants.com
+  | .
+
+p Inventor: Panos Louridas (1998)
