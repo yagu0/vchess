@@ -871,8 +871,13 @@ export class PacosakoRules extends ChessRules {
     // Add potential promotion indications:
     const firstLastRank = (c == 'w' ? [7, 0] : [0, 7]);
     if (move.end.x == firstLastRank[1] && piece == V.PAWN) {
-      const up = this.getUnionPieces(move.appear[0].c, move.appear[0].p);
-      notation += "=" + up[c].toUpperCase();
+      notation += "=";
+      if (ChessRules.PIECES.includes(move.appear[0].p))
+        notation += move.appear[0].p.toUpperCase();
+      else {
+        const up = this.getUnionPieces(move.appear[0].c, move.appear[0].p);
+        notation += up[c].toUpperCase();
+      }
     }
     else if (
       move.end.x == firstLastRank[0] &&
