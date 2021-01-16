@@ -57,7 +57,8 @@ export class WormholeRules extends ChessRules {
       // A knight
       shift1 = movement[0];
       shift2 = movement[1];
-    } else {
+    }
+    else {
       shift1 = movement;
       shift2 = null;
     }

@@ -662,7 +662,7 @@ export const ChessRules = class ChessRules {
       case V.QUEEN: return this.getPotentialQueenMoves(sq);
       case V.KING: return this.getPotentialKingMoves(sq);
     }
-    return []; //never reached
+    return []; //never reached (but some variants may use it: Bario...)
   }
 
   // Build a regular move from its initial and destination squares.

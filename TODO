@@ -2,14 +2,7 @@ PROBABLY WON'T FIX:
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move.
 
-NEW VARIANTS:
-https://www.pychess.org/variant/shogun
-https://www.chessvariants.com/incinf.dir/bario.html
-  https://www.chessvariants.com/index/listcomments.php?order=DESC&itemid=Bario
-  https://www.bario-chess-checkers-chessphotography-spaceart.de/
-  https://le-cdn.website-editor.net/20ef5f800ea646c29f6852cfc5ceda07/dms3rep/multi/opt/BAR028-e15a849c-960w.jpg
-
-Non-chess: ( won't add draughts: https://lidraughts.org/ )
+NEW VARIANTS, Non-chess ( won't add draughts: https://lidraughts.org/ )
 Gomoku, Konane
 Fanorona https://fr.wikipedia.org/wiki/Fanorona
 Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi-bin/zilligames/submissions.cgi/92187?do=show;id=960
