@@ -1,2 +1,51 @@
 p.boxed
-  | TODO
+  | Move a stone or capture by jumping orthogonally.
+
+p Traditional game in some Western Africa countries.
+
+p
+  | The rules described here correspond to 
+  a(href="https://www.youtube.com/watch?v=yuqHy8GOZ_Q") this video
+  | , with the alternative voctory condition.
+  | See also 
+  a(href="http://www.cyningstan.com/game/342/yot") this introduction
+  | .
+
+p.
+  It seems that the color of pieces starting the game isn't really determined,
+  so I decided to start with black stones, as in Go game or Othello.
+  The following is mostly copy-paste from Wikipedia:
+
+p.
+  The game is played on a 5×6 board, which is empty at the beginning of the
+  game. Each player has twelve pieces in hand. Players alternate turns,
+  with Black moving first. In a move, a player may either:
+ul
+  li Place a piece in hand on any empty cell of the board.
+  li.
+    Move one of their pieces already on the board orthogonally to an empty
+    adjacent cell.
+  li.
+    Capture an opponent's piece if it is orthogonally adjacent to a player's
+    piece, by jumping to the empty cell immediately beyond it.
+    The captured piece is removed from the board, and the capturing player
+    removes another of the opponent's pieces of his choosing from the board.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:6/1p2P1/3p2/1p1P2/5P d2,d4:
+  .diagram.diag22
+    | fen:6/3PP1/6/1p4/5P:
+  figcaption Before and after the marked capture + removal of b4.
+
+p.
+  The game ends when a player has no stones on the board (after move 1),
+  or if he cannot play a move. He loses in both cases.
+  If only a low number of pieces remain on the board, captures might be
+  impossible and after a sequences of attempts players may agree on a draw.
+
+h4 Notes
+
+p Two consecutive normal moves cannot cancel each other.
+
+p To remove a stone after a capture, simply click on it.

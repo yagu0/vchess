@@ -569,7 +569,7 @@ export default {
           }
         }
         if (score != "*" && ["analyze", "versus"].includes(this.mode)) {
-          const message = getScoreMessage(score);
+          const message = getScoreMessage(score, V.ReverseColors);
           // Show score on screen
           this.showEndgameMsg(score + " . " + this.st.tr[message]);
         }

@@ -188,7 +188,7 @@ export class CrazyhouseRules extends ChessRules {
     if (!super.atLeastOneMove()) {
       // Search one reserve move
       for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-        let moves = this.filterValid(
+        const moves = this.filterValid(
           this.getReserveMoves([V.size.x + (this.turn == "w" ? 0 : 1), i])
         );
         if (moves.length > 0) return true;

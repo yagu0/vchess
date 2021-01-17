@@ -1,2 +1,52 @@
 p.boxed
-  | TODO
+  | Déplacez une pierre ou capturez via un saut orthogonal.
+
+p Jeu traditionnel dans certains pays d'Afrique de l'Ouest.
+
+p
+  | Les règles décrites ici correspondent à 
+  a(href="https://www.youtube.com/watch?v=yuqHy8GOZ_Q") cette vidéo
+  | , avec la condition de victoire alternative.
+  | Voir aussi 
+  a(href="http://www.cyningstan.com/game/342/yot") cette introduction
+  | .
+
+p.
+  Il semble que la couleur des pièces démarrant la partie ne soit pas vraiment
+  déterminée, donc j'ai décidé de commencer avec les pierres noires, comme au
+  jeu de Go ou à Othello. La suite est essentiellement reprise de Wikipedia :
+
+p.
+  Le jeu se déroule sur un plateau de taille 5x6 initialement vide.
+  Chaque joueur dispose de douze pièces en main. Les joueurs alternent les
+  tours, en commençant par les noirs. Lors d'un coup, on peut :
+ul
+  li Placer une pièce de la réserve sur une case vide.
+  li.
+    Déplacer une pierre déjà sur le plateau, orthogonalement vers une case vide.
+  li.
+    Capturer une pièce adverse si elle est orthogonalement adjacente à celle
+    du joueur, en sautant vers la case vide située immédiatement après.
+    La pierre capturée est retirée du jeu, et le joueur enlève aussi une autre
+    pièce adverse de son choix sur le plateau.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:6/1p2P1/3p2/1p1P2/5P d2,d4:
+  .diagram.diag22
+    | fen:6/3PP1/6/1p4/5P:
+  figcaption Avant et après la capture marquée + suppression en b4.
+
+p.
+  La partie se termine quand un joueur n'a plus de pierres sur le plateau
+  (après le premier coup), ou s'il est dans l'incapacité de jouer un coup.
+  Il perd dans les deux cas.
+  Si seulement un petit nombre de pièces restent en jeu, de nouvelles
+  captures pourraient être impossibles, et dans ce cas les joueurs peuvent
+  après quelques essais décider d'un match nul.
+
+h4 Notes
+
+p Deux coups normaux consécutifs ne peuvent s'annuler l'un l'autre.
+
+p Pour supprimer une pierre après capture, cliquez simplement dessus.

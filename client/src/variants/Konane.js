@@ -1,7 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-// TODO: Maybe more flexible end of game messages (V.ColorsReversed ?!)
-
 export class KonaneRules extends ChessRules {
 
   static get HasFlags() {
@@ -12,7 +10,15 @@ export class KonaneRules extends ChessRules {
     return false;
   }
 
+  static get ReverseColors() {
+    return true;
+  }
+
   static get PIECES() {
+    return V.PAWN;
+  }
+
+  getPiece() {
     return V.PAWN;
   }
 

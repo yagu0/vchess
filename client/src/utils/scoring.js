@@ -1,12 +1,12 @@
 // Default score message if none provided
-export function getScoreMessage(score) {
+export function getScoreMessage(score, reverseColors) {
   let eogMessage = "Undefined"; //not translated: unused
   switch (score) {
     case "1-0":
-      eogMessage = "White win";
+      eogMessage = (!reverseColors ? "White win" : "Black win");
       break;
     case "0-1":
-      eogMessage = "Black win";
+      eogMessage = (!reverseColors ? "Black win" : "White win");
       break;
     case "1/2":
       eogMessage = "Draw";

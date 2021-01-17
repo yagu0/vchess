@@ -1,2 +1,55 @@
 p.boxed
-  | TODO
+  | Mueve una piedra o captura mediante un salto ortogonal.
+
+p Juego tradicional en algunos países de África Occidental.
+
+p
+  | Las reglas descritas aquí corresponden a 
+  a(href="https://www.youtube.com/watch?v=yuqHy8GOZ_Q") este video
+  | , con la condición de victoria alternativa.
+  | Ver también 
+  a(href="http://www.cyningstan.com/game/342/yot") esta introducción
+  | .
+
+p.
+  Parece que el color de las piezas que comienzan el juego no es realmente
+  decidido, así que decidí comenzar con las piedras negras, como en
+  juego de Go u Othello. Lo siguiente se ha tomado principalmente de Wikipedia:
+
+p.
+  El juego tiene lugar en un tablero inicialmente vacío de 5x6.
+  Cada jugador tiene doce piezas en la mano. Los jugadores se alternan vueltas,
+  comenzando por las negras. Durante un movimiento, podemos:
+ul
+  li Coloque una pieza de la reserva en un espacio vacío.
+  li.
+    Mueve una piedra que ya esté en el tablero,
+    ortogonalmente a un cuadrado vacío.
+  li.
+    Capturar una pieza del oponente si está ortogonalmente adyacente a esa
+    del jugador, saltando al cuadrado vacío inmediatamente después.
+    La piedra capturada se elimina del juego y el jugador también elimina
+    otra pieza opuesta de su elección en el tablero.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:6/1p2P1/3p2/1p1P2/5P d2,d4:
+  .diagram.diag22
+    | fen:6/3PP1/6/1p4/5P:
+  figcaption Antes y después de la captura + eliminación marcada en b4.
+
+p.
+  El juego termina cuando un jugador no tiene más piedras en el tablero
+  (después del primer movimiento), o si no puede ejecutar una jugada.
+  Pierde en ambos casos.
+  Si solo quedan en juego un pequeño número de piezas,
+  las capturas pueden no ser posibles, y en este caso los jugadores pueden
+  después de algunos intentos, decida empatar.
+
+h4 Notas
+
+p Dos jugadas normales consecutivos no pueden anularse entre sí.
+
+p.
+  Para eliminar una piedra después de la captura,
+  simplemente haga clic en ella.

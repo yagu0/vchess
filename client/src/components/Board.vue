@@ -663,27 +663,29 @@ export default {
             this.$emit("click-square", sq);
             if (withPiece && !this.vr.onlyClick(sq)) {
               this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
-              // For potential drag'n drop, remember start coordinates
-              // (to center the piece on mouse cursor)
-              let parent = e.target.parentNode; //surrounding square
-              const rect = parent.getBoundingClientRect();
-              this.start = {
-                x: rect.x + rect.width / 2,
-                y: rect.y + rect.width / 2,
-                id: parent.id
-              };
-              // Add the moving piece to the board, just after current image
-              this.selectedPiece = e.target.cloneNode();
-              Object.assign(
-                this.selectedPiece.style,
-                {
-                  position: "absolute",
-                  top: 0,
-                  display: "inline-block",
-                  zIndex: 3000
-                }
-              );
-              parent.insertBefore(this.selectedPiece, e.target.nextSibling);
+              if (this.possibleMoves.length > 0) {
+                // For potential drag'n drop, remember start coordinates
+                // (to center the piece on mouse cursor)
+                let parent = e.target.parentNode; //surrounding square
+                const rect = parent.getBoundingClientRect();
+                this.start = {
+                  x: rect.x + rect.width / 2,
+                  y: rect.y + rect.width / 2,
+                  id: parent.id
+                };
+                // Add the moving piece to the board, just after current image
+                this.selectedPiece = e.target.cloneNode();
+                Object.assign(
+                  this.selectedPiece.style,
+                  {
+                    position: "absolute",
+                    top: 0,
+                    display: "inline-block",
+                    zIndex: 3000
+                  }
+                );
+                parent.insertBefore(this.selectedPiece, e.target.nextSibling);
+              }
             }
           }
         }
