@@ -657,7 +657,7 @@ export class OtageRules extends ChessRules {
             r.piece == newState.piece &&
             (
               r.square.x == newState.square.x &&
-              r.square.y == newState.square.y &&
+              r.square.y == newState.square.y
             ) &&
             r.position == newState.position
           );
