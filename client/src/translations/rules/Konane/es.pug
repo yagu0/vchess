@@ -1,0 +1,49 @@
+p.boxed
+  | Captura ortogonalmente en cada turno, "como a las Damas".
+  | Si no es posible la captura, ha perdido.
+
+p.
+  Para iniciar el juego, el primer jugador (negras) debe eliminar uno de
+  sus piedras en la esquina superior izquierda o inferior derecha,
+  ya sea en el centro, como se ilustra.
+  El segundo jugador (blancas) luego quita una piedra ortogonalmente
+  adyacente al primero eliminado, y comienza el juego.
+  Para quitar una piedra, haga clic en ella.
+
+figure.diagram-container
+  .diagram
+    | fen:PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP a8,d5,e4,h1:
+  figcaption Los primeros "movimientos" autorizado (eliminación de piedras).
+
+p.
+  Cada movimiento implica necesariamente la captura de al menos una pieza
+  enemiga. Captura saltando ortogonalmente sobre un obstáculo para aterrizar
+  en un cuadrado vacío justo detrás. Se quita así la pieza intermedia.
+  Tienes derecho a seguir capturando, pero solo en el mismo
+  dirección, con la misma piedra.
+  Para detener una cadena de capturas (mientras que otras son posibles),
+  hacer un movimiento de la captura actual a la ubicación de la última
+  pieza capturada: g4 en el ejemplo.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:PpPpPpPp/pPpPpPpP/PpPpP2p/pPpPp1pP/PpP1Pp1p/pPpPpP1P/PpPpPpPp/pPpPpPpP:
+  .diagram.diag22
+    | fen:PpPpPp1p/pPpPpP1P/PpPpP1Pp/pPpPp1pP/PpP1Pp1p/pPpPpP1P/PpPpPpPp/pPpPpPpP g4,g7:
+  figcaption.
+    Antes y después de una primera captura g8xg7.
+    Se indican las continuaciones disponibles.
+
+p Si un jugador no tiene más capturas disponibles, pierde.
+
+h3 Más información
+
+p
+  | Ver por ejemplo 
+  a(href="https://hawaiiancheckers.com/") hawaiiancheckers.com
+  | , y una 
+  a(href="https://www.youtube.com/watch?app=desktop&v=-_y-B2wAwyw")
+    | partida ejemplo
+  | . Konane también se puede jugar en 
+  a(href="https://brainking.com/en/GameRules?tp=94") brainking.com
+  | .

@@ -1,0 +1,49 @@
+p.boxed
+  | Capture orthogonally at each turn, "as in Draughts".
+  | If you cannot capture, you lose.
+
+p.
+  To initiate the game, the first player (black) must remove one of his stones
+  either in the upper left or lower right corner, or in the center,
+  as marked on the illustration.
+  The second player (white) then removes a stone orthogonally adjacent to
+  the first removed one, and the game starts.
+  To remove a stone at this stage, click it.
+
+figure.diagram-container
+  .diagram
+    | fen:PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP/PpPpPpPp/pPpPpPpP a8,d5,e4,h1:
+  figcaption Allowed first "moves" (stone removal).
+
+p.
+  Every move then is necessary a capture of at least one enemy piece.
+  Capture by jumping orthogonally over an adjacent stone to land right after
+  on an empty square. The intermediate piece is thus removed.
+  You may continue capturing, but only in the same direction,
+  with the same stone.
+  To stop a chain of captures (while more are available), play a move from the
+  current capturer until the location of the last captured stone:
+  g4 on this example.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:PpPpPpPp/pPpPpPpP/PpPpP2p/pPpPp1pP/PpP1Pp1p/pPpPpP1P/PpPpPpPp/pPpPpPpP:
+  .diagram.diag22
+    | fen:PpPpPp1p/pPpPpP1P/PpPpP1Pp/pPpPp1pP/PpP1Pp1p/pPpPpP1P/PpPpPpPp/pPpPpPpP g4,g7:
+  figcaption.
+    Before and after a first capture g8xg7.
+    The available continuations are indicated.
+
+p If a player has no possible capture, he loses.
+
+h3 More information
+
+p
+  | See for example 
+  a(href="https://hawaiiancheckers.com/") hawaiiancheckers.com
+  | , and an 
+  a(href="https://www.youtube.com/watch?app=desktop&v=-_y-B2wAwyw")
+    | example game
+  | . Konane is also playable on 
+  a(href="https://brainking.com/en/GameRules?tp=94") brainking.com
+  | .

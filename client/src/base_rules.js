@@ -136,6 +136,11 @@ export const ChessRules = class ChessRules {
     return false;
   }
 
+  // At some stages, some games could wait clicks only:
+  onlyClick() {
+    return false;
+  }
+
   // Some variants use click infos:
   doClick() {
     return null;

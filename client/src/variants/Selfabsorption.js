@@ -9,10 +9,14 @@ export class SelfabsorptionRules extends AbsorptionRules {
     const p2 = this.getPiece(x2, y2);
     return (
       p1 != p2 &&
-      [V.QUEEN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p1) &&
-      [V.QUEEN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p2) &&
+      [V.QUEEN, V.RN, V.BN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p1) &&
+      [V.QUEEN, V.RN, V.BN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p2) &&
       (p1 != V.QUEEN || p2 == V.KNIGHT) &&
-      (p2 != V.QUEEN || p1 == V.KNIGHT)
+      (p2 != V.QUEEN || p1 == V.KNIGHT) &&
+      (p1 != V.RN || p2 == V.BISHOP) &&
+      (p2 != V.RN || p1 == V.BISHOP) &&
+      (p1 != V.BN || p2 == V.ROOK) &&
+      (p2 != V.BN || p1 == V.ROOK)
     );
   }
 

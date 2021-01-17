@@ -659,8 +659,9 @@ export default {
             // Emit the click event which could be used by some variants
             const targetId =
               (withPiece ? e.target.parentNode.id : e.target.id);
-            this.$emit("click-square", getSquareFromId(targetId));
-            if (withPiece) {
+            const sq = getSquareFromId(targetId);
+            this.$emit("click-square", sq);
+            if (withPiece && !this.vr.onlyClick(sq)) {
               this.possibleMoves = this.vr.getPossibleMovesFrom(startSquare);
               // For potential drag'n drop, remember start coordinates
               // (to center the piece on mouse cursor)

@@ -46,6 +46,14 @@ export class BarioRules extends ChessRules {
     );
   }
 
+  onlyClick([x, y]) {
+    return (
+      this.movesCount <= 1 ||
+      // TODO: next line theoretically shouldn't be required...
+      (this.movesCount == 2 && this.getColor(x, y) != this.turn)
+    );
+  }
+
   // Initiate the game by choosing a square for the king:
   doClick(square) {
     const c = this.turn;
@@ -62,7 +70,9 @@ export class BarioRules extends ChessRules {
       appear: [
         new PiPo({ x: square[0], y: square[1], c: c, p: V.KING })
       ],
-      vanish: [],
+      vanish: [
+        new PiPo({ x: square[0], y: square[1], c: c, p: V.UNDEFINED })
+      ],
       start: { x: -1, y: -1 },
     });
   }
@@ -138,7 +148,7 @@ export class BarioRules extends ChessRules {
   }
 
   static GenRandInitFen() {
-    return "8/pppppppp/8/8/8/8/PPPPPPPP/8 w 0 - 22212221 -";
+    return "uuuuuuuu/pppppppp/8/8/8/8/PPPPPPPP/UUUUUUUU w 0 - 22212221 -";
   }
 
   setOtherVariables(fen) {
@@ -259,7 +269,9 @@ export class BarioRules extends ChessRules {
           appear: [
             new PiPo({ x: firstRank, y: j, c: color, p: V.KING })
           ],
-          vanish: [],
+          vanish: [
+            new PiPo({ x: firstRank, y: j, c: color, p: V.UNDEFINED })
+          ],
           start: { x: -1, y: -1 }
         });
       });
@@ -379,6 +391,11 @@ export class BarioRules extends ChessRules {
     return false;
   }
 
+  getCheckSquares() {
+    if (this.movesCount <= 2) return [];
+    return super.getCheckSquares();
+  }
+
   play(move) {
     move.turn = [this.turn, this.subTurn]; //easier undo (TODO?)
     const toNextPlayer = () => {
@@ -389,40 +406,33 @@ export class BarioRules extends ChessRules {
       this.movesCount++;
       this.postPlay(move);
     };
-    if (move.vanish.length == 0) {
-      if (move.appear.length == 1) toNextPlayer();
-      else {
-        // Removal (subTurn == 0 --> 1)
-        this.reserve[this.turn][move.start.p]--;
-        this.subTurn++;
-      }
-      return;
-    }
-    const start = { x: move.vanish[0].x, y: move.vanish[0].y };
-    const end = { x: move.appear[0].x, y: move.appear[0].y };
-    if (start.x == end.x && start.y == end.y) {
-      // Specialisation (subTurn == 1 before 2)
-      this.reserve[this.turn][move.appear[0].p]--;
-      V.PlayOnBoard(this.board, move);
-      this.definitions.push(move.end);
+    if (this.movesCount <= 1) toNextPlayer();
+    else if (move.vanish.length == 0) {
+      // Removal (subTurn == 0 --> 1)
+      this.reserve[this.turn][move.start.p]--;
       this.subTurn++;
     }
     else {
-      // Normal move (subTurn 1 or 2: change turn)
-      this.epSquares.push(this.getEpSquare(move));
-      toNextPlayer();
+      const start = { x: move.vanish[0].x, y: move.vanish[0].y };
+      const end = { x: move.appear[0].x, y: move.appear[0].y };
+      if (start.x == end.x && start.y == end.y) {
+        // Specialisation (subTurn == 1 before 2)
+        this.reserve[this.turn][move.appear[0].p]--;
+        V.PlayOnBoard(this.board, move);
+        this.definitions.push(move.end);
+        this.subTurn++;
+      }
+      else {
+        // Normal move (subTurn 1 or 2: change turn)
+        this.epSquares.push(this.getEpSquare(move));
+        toNextPlayer();
+      }
     }
   }
 
   postPlay(move) {
     const color = V.GetOppCol(this.turn);
-    if (move.vanish.length == 0) {
-      this.kingPos[color] = [move.end.x, move.end.y];
-      const firstRank = (color == 'w' ? 7 : 0);
-      for (let j = 0; j < 8; j++) {
-        if (j != move.end.y) this.board[firstRank][j] = color + V.UNDEFINED;
-      }
-    }
+    if (this.movesCount <= 2) this.kingPos[color] = [move.end.x, move.end.y];
     else {
       if (move.vanish.length == 2 && move.vanish[1].p == V.UNDEFINED)
         this.captureUndefined.push(move.end);
@@ -509,35 +519,30 @@ export class BarioRules extends ChessRules {
       this.movesCount--;
       this.postUndo(move);
     };
-    if (move.vanish.length == 0) {
-      if (move.appear.length == 1) toPrevPlayer();
-      else {
-        this.reserve[this.turn][move.start.p]++;
-        this.subTurn = move.turn[1];
-      }
-      return;
-    }
-    const start = { x: move.vanish[0].x, y: move.vanish[0].y };
-    const end = { x: move.appear[0].x, y: move.appear[0].y };
-    if (start.x == end.x && start.y == end.y) {
-      this.reserve[this.turn][move.appear[0].p]++;
-      V.UndoOnBoard(this.board, move);
-      this.definitions.pop();
+    if (this.movesCount <= 2) toPrevPlayer();
+    else if (move.vanish.length == 0) {
+      this.reserve[this.turn][move.start.p]++;
       this.subTurn = move.turn[1];
     }
     else {
-      this.epSquares.pop();
-      toPrevPlayer();
+      const start = { x: move.vanish[0].x, y: move.vanish[0].y };
+      const end = { x: move.appear[0].x, y: move.appear[0].y };
+      if (start.x == end.x && start.y == end.y) {
+        this.reserve[this.turn][move.appear[0].p]++;
+        V.UndoOnBoard(this.board, move);
+        this.definitions.pop();
+        this.subTurn = move.turn[1];
+      }
+      else {
+        this.epSquares.pop();
+        toPrevPlayer();
+      }
     }
   }
 
   postUndo(move) {
     const color = this.turn;
-    if (move.vanish.length == 0) {
-      this.kingPos[color] = [-1, -1];
-      const firstRank = (color == 'w' ? 7 : 0);
-      for (let j = 0; j < 8; j++) this.board[firstRank][j] = "";
-    }
+    if (this.movesCount <= 1) this.kingPos[color] = [-1, -1];
     else {
       this.captureUndefined.pop();
       if (move.appear[0].p == V.KING) super.postUndo(move);

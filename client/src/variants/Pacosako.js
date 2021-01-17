@@ -716,11 +716,19 @@ export class PacosakoRules extends ChessRules {
       if (!m.end.released) return true;
       // Check for repetitions:
       V.PlayOnBoard(this.board, m);
-      const newState = { piece: m.end.released, position: this.getBaseFen() };
+      const newState = {
+        piece: m.end.released,
+        square: { x: m.end.x, y: m.end.y },
+        position: this.getBaseFen()
+      };
       const repet =
         this.repetitions.some(r => {
           return (
             r.piece == newState.piece &&
+            (
+              r.square.x == newState.square.x &&
+              r.square.y == newState.square.y &&
+            ) &&
             r.position == newState.position
           );
         });
@@ -801,6 +809,7 @@ export class PacosakoRules extends ChessRules {
       this.repetitions.push(
         {
           piece: move.end.released,
+          square: { x: move.end.x, y: move.end.y },
           position: this.getBaseFen()
         }
       );
