@@ -91,10 +91,13 @@ export class AbsorptionRules extends ChessRules {
       );
     });
     moves.forEach(m => {
-      if (m.vanish.length == 2) {
+      if (
+        m.vanish.length == 2 &&
+        m.appear.length == 1 &&
+        piece != m.vanish[1].p
+      ) {
         // Augment pieces abilities in case of captures
-        const piece2 = m.vanish[1].p;
-        if (piece != piece2) m.appear[0].p = V.Fusion(piece, piece2);
+        m.appear[0].p = V.Fusion(piece, m.vanish[1].p);
       }
     });
     return moves;

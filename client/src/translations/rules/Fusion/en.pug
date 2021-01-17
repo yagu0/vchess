@@ -1,0 +1,84 @@
+p.boxed
+  | Pieces can fusion and also be split under certain circumstances.
+
+p Fusion Chess is played like FIDE Chess with the following exceptions:
+
+h3 Fusion
+
+p.
+  A non-royal simple piece (Knight, Bishop, or Rook) may combine with
+  another simple piece on the same side (including a King) by moving
+  onto its square.
+
+p The combined piece moves as either of the two pieces just combined:
+ul
+  li King + Bishop = Pontiff
+  li King + Rook = Dragon King
+  li King + Knight = Cavalier King
+  li Bishop + Rook = Queen
+  li Bishop + Knight = Paladin
+  li Rook + Knight = Marshall
+
+p A piece may not combine with
+ul
+  li another piece of the same type,
+  li a piece belonging to the opponent,
+  li a compound piece.
+
+p.
+  A King may not move to combine any piece, though other another
+  piece may move to combine with its King.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPPBPPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkbm1/pp1ppppp/2n5/2p5/4P3/5D2/PPPP1PPP/RNBQK2R:
+  figcaption Before and after moves BxNf3 and RxNg8.
+
+h3 Fission
+
+p.
+  An unattacked compound piece may split by moving one
+  of its components, under its own powers of movement, to an empty square.
+ul
+  li A Rook which separates from a piece must move away as a Rook moves.
+  li A Bishop which separates from a piece must move away as a Bishop moves.
+  li A Knight which separates from a piece must move away as a Knight moves.
+  li A King which separates from a piece must move away as a King moves.
+p The compound piece is replaced by the component which doesn't move away.
+
+h3 Other details
+
+p Any piece that has participated in fission or fusion may no longer castle.
+
+p Pawns may promote to Rook, Bishop, or Knight only.
+
+p.
+  The object is to checkmate your opponent's current royal piece, which may
+  be a King, Pontiff, Dragon King, or Cavalier King.
+
+p.
+  No royal piece may move through check when moving more than one space.
+  For the Cavalier King, the Knight move is understood as beginning
+  orthogonally and turning diagonally or vice versa. If both spaces
+  it might pass over to reach a square are checked, it cannot move there.
+  However, this does not limit its ability to check or attack a piece.
+
+figure.diagram-container
+  .diagram
+    | fen:r3br2/c2p4/1pd2pqp/p1B5/1D1P1QP1/8/PPP1P2P/2RG2N1 c8:
+
+p.
+  On the diagram above, the Cavalier King only non-splitting move as a Knight
+  is to c8. Indeed, a6 and b6 are under attack. b8 as well, but not b7.
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.chessvariants.com/other.dir/fusion.html")
+    | chessvariants page
+  | .
+
+p Inventor: Fergus Duniho (1999)

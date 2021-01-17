@@ -215,6 +215,8 @@ export const translations = {
   "Four new pieces": "Four new pieces",
   "Free initial setup": "Free initial setup",
   "Friendly pieces": "Friendly pieces",
+  "Fusion pieces (v1)": "Fusion pieces (v1)",
+  "Fusion pieces (v2)": "Fusion pieces (v2)",
   "In the shadow": "In the shadow",
   "Interweaved colorbound teams": "Interweaved colorbound teams",
   "General's Chess": "General's Chess",

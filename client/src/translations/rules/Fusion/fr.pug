@@ -1,0 +1,90 @@
+p.boxed
+  | Les pièces peuvent fusionner et également être divisées dans
+  | certaines circonstances.
+
+p.
+  Les Échecs Fusion se jouent comme le jeu habituel,
+  aux exceptions suivantes près :
+
+h3 Fusion
+
+p.
+  Une pièce non royale simple (Fou, Cavalier, ou Tour) peut se combiner avec
+  une autre pièce simple du même camp (incluant le Roi) en se déplaçant vers
+  sa case.
+
+p La pièce combinée évolue comme l'une ou l'autre des pièces réunies :
+ul
+  li Roi + Fou = Pontife
+  li Roi + Tour = Roi Dragon
+  li Roi + Cavalier = Roi Cavalier
+  li Fou + Tour = Dame
+  li Fou + Cavalier = Paladin
+  li Tour + Cavalier = Maréchal
+
+p Une pièce ne peut pas être combinée avec
+ul
+  li une autre pièce du même type,
+  li une pièce appartenant à l'adversaire,
+  li une pièce composée.
+
+p.
+  Un Roi ne peut pas se déplacer pour se combiner avec une pièce, mais une
+  pièce peut effectuer le déplacement menant à la fusion.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPPBPPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkbm1/pp1ppppp/2n5/2p5/4P3/5D2/PPPP1PPP/RNBQK2R:
+  figcaption Avant et après les coup BxNf3 et RxNg8.
+
+h3 Fission
+
+p.
+  Une pièce composée non attaquée peut se diviser en déplaçant une de ses
+  composantes, selon son type de mouvement, vers une case vide.
+ul
+  li Une Tour se séparant d'une pièce doit s'éloigner via un coup de Tour.
+  li Un Fou se séparant d'une pièce doit s'éloigner suivant un coup de Fou.
+  li.
+    Un Cavalier se séparant d'une pièce doit
+    s'éloigner suivant un coup de Cavalier.
+  li Un Roi se séparant d'une pièce doit s'éloigner via un coup de Roi.
+p La pièce composée est remplacée par la composante ne partant pas.
+
+h3 Autres détails
+
+p Toute pièce ayant participé à une fission ou fusion ne peut plus roquer.
+
+p Les pions sont promus en Tour, Fou ou Cavalier seulement.
+
+p.
+  L'objectif est de mater la pièce adverse actuellement royale, celle-ci
+  pouvant être un Roi, un Pontife, Un Roi Dragon ou Roi Cavalier.
+
+p.
+  Une pièce royale se déplaçant au-delà d'une case ne doit pas passer par
+  des cases attaquées. Concernant le Roi Cavalier, un coup de Cavalier
+  s'entend comme un premier pas orthogonal avant un virage diagonal,
+  ou vice-versa. Si les deux espaces pouvant être traversés afin d'atteindre
+  une case sont en échec, il ne peut pas se rendre sur cette case.
+  Cependant, cela ne l'empêche pas de donner échec ou d'attaquer une pièce.
+
+figure.diagram-container
+  .diagram
+    | fen:r3br2/c2p4/1pd2pqp/p1B5/1D1P1QP1/8/PPP1P2P/2RG2N1 c8:
+
+p.
+  Sur le diagramme ci-dessus, le seul coup non séparant du Roi Cavalier est
+  vers c8. En effet, a6 et b6 sont attaquées. b8 aussi, mais pas b7.
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="https://www.chessvariants.com/other.dir/fusion.html")
+    | page chessvariants
+  | .
+
+p Inventeur : Fergus Duniho (1999)

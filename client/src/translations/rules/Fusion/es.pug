@@ -1,0 +1,98 @@
+p.boxed
+  | Las piezas pueden fusionarse y también dividirse en
+  | ciertas circunstancias.
+
+p.
+  Ajedrez Fusión se juega como el juego habitual,
+  con las siguientes excepciones:
+
+h3 Fusión
+
+p.
+  Una sola pieza no real (Alfil, Caballo o Torre) se puede combinar con
+  otra pieza del mismo lado (incluido el Rey) moviéndose a su casilla.
+
+p La pieza combinada evoluciona como una u otra de las piezas unidas:
+ul
+  li Rey + Alfil = Pontífice
+  li Rey + Torre = Rey Dragón
+  li Rey + Caballo = Rey Caballero
+  li Alfil + Torre = Dama
+  li Alfil + Caballo = Paladín
+  li Torre + Caballo = Mariscal
+
+p Una pieza no se puede combinar con
+ul
+  li otra pieza del mismo tipo,
+  li una pieza que pertenece al oponente,
+  li una pieza compuesta.
+
+p.
+  Un Rey no puede moverse para combinar con una pieza, pero una
+  pieza puede realizar el desplazamiento que lleva a la fusión.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPPBPPP/RNBQK2R:
+  .diagram.diag22
+    | fen:r1bqkbm1/pp1ppppp/2n5/2p5/4P3/5D2/PPPP1PPP/RNBQK2R:
+  figcaption Antes y después de los movimientos BxNf3 y RxNg8.
+
+h3 Fisión
+
+p.
+  Una pieza compuesta no atacada puede partirse moviendo uno de sus
+  componentes, según su tipo de movimiento, a un cuadrado vacío.
+ul
+  li.
+    Una Torre que se separa de una pieza debe alejarse mediante
+    un movimiento de Torre.
+  li.
+    Un Alfil que se separa de una pieza debe alejarse después de un
+    movimiento de Alfil.
+  li.
+    Un Caballo que se separa de una pieza debe
+    alejarse después de un movimiento de Caballo.
+  li.
+    Un Rey que se separa de una pieza debe alejarse mediante
+    un movimiento de Rey.
+p La pieza compuesta se reemplaza por el componente no inicial.
+
+h3 Otros detalles
+
+p.
+  Cualquier pieza que haya participado en una fisión o fusión
+  ya no puede enrocarse.
+
+p Los peones solo se promueven a Torre, Alfil o Caballo.
+
+p.
+  El objetivo es matar a la actual pieza real opuesta, esta
+  puede ser un Rey, Pontífice, Rey Dragón o Rey Caballo.
+
+p.
+  Una pieza real que se mueva más allá de un cuadrado no debe pasar
+  plazas atacadas. Respecto al Rey Caballero, un movimiento de Caballo
+  se entiende como un primer paso ortogonal antes de un giro diagonal,
+  o viceversa. Si los dos espacios que se pueden cruzar para alcanzar
+  una casilla está bajo control, no puede ir a esa casilla.
+  Sin embargo, eso no le impide dar jaque o atacar una pieza.
+
+figure.diagram-container
+  .diagram
+    | fen:r3br2/c2p4/1pd2pqp/p1B5/1D1P1QP1/8/PPP1P2P/2RG2N1 c8:
+
+p.
+  En el diagrama anterior, el único movimiento que no se separa del Rey
+  Caballero es hacia c8. De hecho, a6 y b6 son atacados.
+  b8 también, pero no b7.
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="https://www.chessvariants.com/other.dir/fusion.html")
+    | página chessvariants
+  | .
+
+p Inventor: Fergus Duniho (1999)

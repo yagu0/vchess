@@ -215,6 +215,8 @@ export const translations = {
   "Four new pieces": "Quatro nuevas piezas",
   "Free initial setup": "Posición inicial libre",
   "Friendly pieces": "Piezas amistosas",
+  "Fusion pieces (v1)": "Fusionar piezas (v1)",
+  "Fusion pieces (v2)": "Fusionar piezas (v2)",
   "In the shadow": "En la sombra",
   "Interweaved colorbound teams": "Equipos unicolores entrelazados",
   "General's Chess": "Ajedrez de los Generales",
