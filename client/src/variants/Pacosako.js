@@ -817,7 +817,7 @@ export class PacosakoRules extends ChessRules {
       this.movesCount--;
     }
     this.umoves.pop();
-    if (!!move.end.releasd) this.repetitions.pop();
+    if (!!move.end.released) this.repetitions.pop();
     this.postUndo(move);
   }
 

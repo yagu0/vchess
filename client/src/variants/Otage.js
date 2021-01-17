@@ -739,7 +739,7 @@ export class OtageRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
-    if (!!move.end.releasd) this.repetitions.pop();
+    if (!!move.end.released) this.repetitions.pop();
     this.postUndo(move);
   }
 
