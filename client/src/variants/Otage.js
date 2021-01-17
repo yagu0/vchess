@@ -167,6 +167,7 @@ export class OtageRules extends ChessRules {
     super.setOtherVariables(fen);
     // Stack of "last move" only for intermediate chaining
     this.lastMoveEnd = [null];
+    this.repetitions = [];
   }
 
   static IsGoodFlags(flags) {
@@ -638,8 +639,24 @@ export class OtageRules extends ChessRules {
   getCheckSquares() {
     return [];
   }
+
   filterValid(moves) {
-    return moves;
+    if (moves.length == 0) return [];
+    return moves.filter(m => {
+      if (!m.end.released) return true;
+      // Check for repetitions:
+      V.PlayOnBoard(this.board, m);
+      const newState = { piece: m.end.released, position: this.getBaseFen() };
+      const repet =
+        this.repetitions.some(r => {
+          return (
+            r.piece == newState.piece &&
+            r.position == newState.position
+          );
+        });
+      V.UndoOnBoard(this.board, m);
+      return !repet;
+    });
   }
 
   updateCastleFlags(move, piece) {
@@ -702,6 +719,15 @@ export class OtageRules extends ChessRules {
     else
       this.lastMoveEnd.push(Object.assign({ p: move.end.released }, move.end));
     V.PlayOnBoard(this.board, move);
+    if (!move.end.released) this.repetitions = [];
+    else {
+      this.repetitions.push(
+        {
+          piece: move.end.released,
+          position: this.getBaseFen()
+        }
+      );
+    }
   }
 
   undo(move) {
@@ -713,6 +739,7 @@ export class OtageRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
+    if (!!move.end.releasd) this.repetitions.pop();
     this.postUndo(move);
   }
 

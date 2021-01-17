@@ -139,6 +139,8 @@ export class PacosakoRules extends ChessRules {
         end: ChessRules.SquareToCoords(umove.substr(2))
       });
     }
+    // Local stack of positions to avoid redundant moves:
+    this.repetitions = [];
   }
 
   static IsGoodFen(fen) {
@@ -705,10 +707,26 @@ export class PacosakoRules extends ChessRules {
   getCheckSquares() {
     return [];
   }
+
   filterValid(moves) {
     if (moves.length == 0) return [];
     const L = this.umoves.length; //at least 1: init from FEN
-    return moves.filter(m => !this.oppositeMoves(this.umoves[L - 1], m));
+    return moves.filter(m => {
+      if (this.oppositeMoves(this.umoves[L - 1], m)) return false;
+      if (!m.end.released) return true;
+      // Check for repetitions:
+      V.PlayOnBoard(this.board, m);
+      const newState = { piece: m.end.released, position: this.getBaseFen() };
+      const repet =
+        this.repetitions.some(r => {
+          return (
+            r.piece == newState.piece &&
+            r.position == newState.position
+          );
+        });
+      V.UndoOnBoard(this.board, m);
+      return !repet;
+    });
   }
 
   updateCastleFlags(move, piece) {
@@ -778,6 +796,15 @@ export class PacosakoRules extends ChessRules {
     }
     V.PlayOnBoard(this.board, move);
     this.umoves.push(this.getUmove(move));
+    if (!move.end.released) this.repetitions = [];
+    else {
+      this.repetitions.push(
+        {
+          piece: move.end.released,
+          position: this.getBaseFen()
+        }
+      );
+    }
   }
 
   undo(move) {
@@ -790,6 +817,7 @@ export class PacosakoRules extends ChessRules {
       this.movesCount--;
     }
     this.umoves.pop();
+    if (!!move.end.releasd) this.repetitions.pop();
     this.postUndo(move);
   }
 
