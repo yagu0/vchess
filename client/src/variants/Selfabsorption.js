@@ -10,7 +10,9 @@ export class SelfabsorptionRules extends AbsorptionRules {
     return (
       p1 != p2 &&
       [V.QUEEN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p1) &&
-      [V.QUEEN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p2)
+      [V.QUEEN, V.ROOK, V.KNIGHT, V.BISHOP].includes(p2) &&
+      (p1 != V.QUEEN || p2 == V.KNIGHT) &&
+      (p2 != V.QUEEN || p1 == V.KNIGHT)
     );
   }
 
