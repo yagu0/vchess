@@ -419,6 +419,10 @@ export class FusionRules extends ChessRules {
     );
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
   getNotation(move) {
     if (move.appear.length == 2 && move.vanish.length == 1) {
       // Fission (because no capture in this case)
