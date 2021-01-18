@@ -15,10 +15,6 @@ export class KonaneRules extends ChessRules {
     return true;
   }
 
-  static get PIECES() {
-    return V.PAWN;
-  }
-
   getPiece() {
     return V.PAWN;
   }
@@ -34,7 +30,7 @@ export class KonaneRules extends ChessRules {
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        if (V.PIECES.includes(row[i].toLowerCase())) sumElts++;
+        if (row[i].toLowerCase() == V.PAWN) sumElts++;
         else {
           const num = parseInt(row[i], 10);
           if (isNaN(num) || num <= 0) return false;

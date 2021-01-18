@@ -1,2 +1,60 @@
 p.boxed
-  | TODO
+  | Capture stones by approach or withdrawal.
+
+p The following is summarized from Wikipedia.
+
+p.
+  The Fanorona board consists of 5 rows and 9 columns.
+  A stone can only move to an adjacent intersection, following the lines.
+  This movement can lead to captures.
+
+h3 General rules
+
+ul
+  li Players alternate turns, starting with White.
+  li There are two kinds of moves: non-capturing ("paika") and capturing.
+  li.
+    If at the beginning of a turn a capturing move is possible,
+    then it has to be played.
+  li
+    | Capturing implies removing one or more pieces of the opponent, in one of
+    | two ways:
+    ul
+      li.
+        Approach &mdash; moving the capturing stone to a point adjacent to an
+        opponent's stone, located right after in the movement's direction.
+      li.
+        Withdrawal &mdash; the capturing stone moves away from an opponent's
+        stone, initially adjacent.
+  li.
+    When an opponent stone is captured, all opponent pieces in line beyond
+    that stone (and connected to it) are captured as well.
+    Another capture can then be achieved with the same stone.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:pppp1p1pp/pppppPppp/pP1PPp1pP/PPPpPPPPP/PPPP1PPPP:
+  .diagram.diag22
+    | fen:pppp1p1pp/pppppP1pp/pP1PPpppP/PPPpPP1PP/PPPP1P1PP:
+  figcaption Before and after g4g3 (capturing g2 and g1).
+
+h3 Some restrictions
+
+ul
+  li.
+    An approach capture and a withdrawal capture cannot be made at the same
+    time. The two locations will appear on the interface and you'll have
+    to make a choice.
+  li
+    | The capturing piece is allowed to continue making successive captures,
+    | with these restrictions:
+    ul
+      li The piece is not allowed to arrive at the same position twice.
+      li.
+        It is not permitted to capture twice consecutively in the same
+        direction (first by withdrawal, and then by approach).
+    | However, continuing the capturing sequence is optional.
+
+p.
+  The game ends when one player captures all stones of the opponent.
+  If neither player can achieve this, then the game is a draw.

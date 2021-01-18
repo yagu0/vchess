@@ -365,7 +365,7 @@ export default {
       const squareWidth = boardElt.offsetWidth / sizeY;
       const offset = [boardElt.offsetTop, boardElt.offsetLeft];
       const maxNbeltsPerRow = Math.min(this.choices.length, sizeY);
-      let topOffset = offset[0] + (sizeY / 2) * squareWidth - squareWidth / 2;
+      let topOffset = offset[0] + ((sizeX - 1) / 2) * squareWidth;
       let choicesHeight = squareWidth;
       if (this.choices.length >= sizeY) {
         // A second row is required (Eightpieces variant)

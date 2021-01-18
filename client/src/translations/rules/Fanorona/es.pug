@@ -1,2 +1,61 @@
 p.boxed
-  | TODO
+  | Captura piedras por percusión o succión.
+
+p El resto se resume en Wikipedia.
+
+p.
+  El tablero de Fanorona tiene 5 filas y 9 columnas.
+  Una piedra solo puede moverse a una intersección adyacente,
+  siguiendo las líneas. Este movimiento puede dar lugar a capturas.
+
+h3 Reglas generales
+
+ul
+  li Los jugadores alternan turnos, comenzando con las blancas.
+  li Hay dos tipos de jugadas: no capturadoras ("paika") y capturadoras.
+  li.
+    Si al comienzo de un turno es posible un movimiento de captura,
+    entonces debe jugarse.
+  li
+    | Capturar implica eliminar una o más piezas opuestas,
+    | una de las dos formas siguientes:
+    li.
+      Percusión &mdash; moviendo la piedra de captura a un punto
+      adyacente a una piedra enemiga, ubicada justo después en la dirección
+      del movimiento.
+    li.
+      Succión &mdash; la piedra capturadora se aleja de una piedra enemiga,
+      inicialmente adyacente.
+  li.
+    Cuando se captura una piedra enemiga, todas las demás piezas enemigas
+    en línea más allá de esta piedra (y conectados a ella) están
+    también capturado. Entonces es posible otra captura
+    con la misma piedra.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:pppp1p1pp/pppppPppp/pP1PPp1pP/PPPpPPPPP/PPPP1PPPP:
+  .diagram.diag22
+    | fen:pppp1p1pp/pppppP1pp/pP1PPpppP/PPPpPP1PP/PPPP1P1PP:
+  figcaption Antes y después de g4g3 (capturando g2 y g1).
+
+h3 Algunas restricciones
+
+ul
+  li.
+    No se puede realizar la captura por succión y percusión
+    al mismo tiempo. Ambas ubicaciones aparecerán en la pantalla y deberá
+    hacer una elección.
+  li
+    | Se permite que la pieza de captura continúe capturando, módulo el
+    | siguientes restricciones:
+    ul
+      li La pieza no se debe planchar dos veces en el mismo lugar.
+      li.
+        No puedes capturar dos veces consecutivas en la misma dirección
+        (primero por succión, luego por percusión).
+    | Sin embargo, continuar con la secuencia de captura es opcional.
+
+p.
+  El juego termina cuando uno de los jugadores ha capturado todos los
+  del otro. Si ninguno de ellos tiene éxito, entonces es un empate.

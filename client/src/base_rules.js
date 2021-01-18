@@ -1035,6 +1035,9 @@ export const ChessRules = class ChessRules {
 
   // Stop at the first move found
   // TODO: not really, it explores all moves from a square (one is enough).
+  // Possible fix: add extra arg "oneMove" to getPotentialMovesFrom,
+  // and then return only boolean true at first move found
+  // (in all getPotentialXXXMoves() ... for all variants ...)
   atLeastOneMove() {
     const color = this.turn;
     for (let i = 0; i < V.size.x; i++) {

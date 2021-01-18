@@ -2,7 +2,6 @@ PROBABLY WON'T FIX:
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move.
 
-NEW VARIANTS, Non-chess ( won't add draughts: https://lidraughts.org/ )
-Gomoku, Konane
-Fanorona https://fr.wikipedia.org/wiki/Fanorona
-Yoté https://fr.wikipedia.org/wiki/Yot%C3%A9 http://www.zillionsofgames.com/cgi-bin/zilligames/submissions.cgi/92187?do=show;id=960
+"FreeBoard", re-using a lot of Board logic, but with SVG (empty) board + SVG (empty) reserves.
+Will be used for variants with custom non-rectangular board (Hex, at least)
+Or, with other board shapes (see greenchess.net for example)

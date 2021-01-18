@@ -1,2 +1,61 @@
 p.boxed
-  | TODO
+  | Capturez des pierres par percussion ou aspiration.
+
+p La suite est résumée depuis Wikipedia.
+
+p.
+  Le plateau de Fanorona comporte 5 rangées et 9 colonnes.
+  Une pierre peut seulement se déplacer vers une intersection adjacente,
+  suivant les lignes. Ce mouvement peut donner lieu à des captures.
+
+h3 Règles générales
+
+ul
+  li Les joueurs alternent les tours, commençant avec les blancs.
+  li Il y a deux types de coups : non-capturants ("paika") et capturants.
+  li.
+    Si au début d'un tour un coup capturant est possible,
+    alors il doit être joué.
+  li
+    | Capturer implique retirer une ou plusieurs pièces adverses,
+    | d'une des deux manières suivantes :
+    li.
+      Percussion &mdash; en déplaçant la pierre capturante vers un point
+      adjacent à une pierre ennemie, située juste après dans la direction du
+      mouvement.
+    li.
+      Aspiration &mdash; la pierre capturante s'éloigne d'une pierre ennemie,
+      initialement adjacente.
+  li.
+    Quand une pierre ennemie est capturée, toutes les autres pièces adverses
+    en ligne au-delà de cette pierre (et connectées à celle-ci) sont
+    capturées également. Une autre capture est ensuite envisageable
+    avec la même pierre.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:pppp1p1pp/pppppPppp/pP1PPp1pP/PPPpPPPPP/PPPP1PPPP:
+  .diagram.diag22
+    | fen:pppp1p1pp/pppppP1pp/pP1PPpppP/PPPpPP1PP/PPPP1P1PP:
+  figcaption Avant et après g4g3 (capturant g2 et g1).
+
+h3 Quelques restrictions
+
+ul
+  li.
+    Une capture par percussion et une par aspiration ne peuvent être réalisées
+    en même temps. Les deux emplacements apparaitront à l'écran et vous devrez
+    faire un choix.
+  li
+    | La pièce capturante est autorisée à continuer de capturer, modulo les
+    | restrictions suivantes :
+    ul
+      li La pièce ne doit pas repasser deux fois au même endroit.
+      li.
+        On ne peut pas capturer deux fois consécutives dans la même direction
+        (d'abord par aspiration, puis par percussion).
+    | Cependant, continuer la séquence de capture est optionnel.
+
+p.
+  La partie s'achève quand un des joueurs a capturé toutes les pierres de
+  l'autre. Si aucun des deux n'y parvient, alors c'est un match nul.
