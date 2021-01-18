@@ -1,4 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class YoteRules extends ChessRules {
 
@@ -28,7 +29,7 @@ export class YoteRules extends ChessRules {
     // 3) Check reserves
     if (
       !fenParsed.reserve ||
-      !fenParsed.reserve.match(/^([0-9]{1,2},){2,2}$/)
+      !fenParsed.reserve.match(/^([0-9]{1,2},?){2,2}$/)
     ) {
       return false;
     }
@@ -151,6 +152,7 @@ export class YoteRules extends ChessRules {
     return (x < V.size.x && this.getColor(x, y) != side);
   }
 
+  // TODO: hoverHighlight() would well take an arg "side"...
   hoverHighlight(x, y) {
     const L = this.captures.length;
     if (!this.captures[L-1]) return false;
@@ -186,7 +188,14 @@ export class YoteRules extends ChessRules {
 
   getReserveMoves(x) {
     const color = this.turn;
-    if (this.reserve[color][V.PAWN] == 0) return [];
+    const L = this.captures.length;
+    if (
+      this.captures[L-1] ||
+      !this.reserve[color] ||
+      this.reserve[color][V.PAWN] == 0
+    ) {
+      return [];
+    }
     let moves = [];
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
@@ -218,8 +227,7 @@ export class YoteRules extends ChessRules {
       const mv = this.doClick([x, y]);
       return (!!mv ? [mv] : []);
     }
-    if (x >= V.size.x)
-      return this.getReserveMoves([x, y]);
+    if (x >= V.size.x) return this.getReserveMoves([x, y]);
     return this.getPotentialPawnMoves([x, y]);
   }
 
@@ -229,7 +237,7 @@ export class YoteRules extends ChessRules {
     const L = this.lastMove.length;
     const lm = this.lastMove[L-1];
     let forbiddenStep = null;
-    if (!!lm[color]) {
+    if (!!lm[color] && x == lm[color].end.x && y == lm[color].end.y) {
       forbiddenStep = [
         lm[color].start.x - lm[color].end.x,
         lm[color].start.y - lm[color].end.y
@@ -237,16 +245,17 @@ export class YoteRules extends ChessRules {
     }
     const oppCol = V.GetOppCol(color);
     for (let s of V.steps[V.ROOK]) {
-      if (
-        !!forbiddenStep &&
-        s[0] == forbiddenStep[0] && s[1] == forbiddenStep[1]
-      ) {
-        continue;
-      }
       const [i1, j1] = [x + s[0], y + s[1]];
       if (V.OnBoard(i1, j1)) {
-        if (this.board[i1][j1] == V.EMPTY)
-          moves.push(super.getBasicMove([x, y], [i1, j1]));
+        if (this.board[i1][j1] == V.EMPTY) {
+          if (
+            !forbiddenStep ||
+            s[0] != forbiddenStep[0] ||
+            s[1] != forbiddenStep[1]
+          ) {
+            moves.push(super.getBasicMove([x, y], [i1, j1]));
+          }
+        }
         else if (this.getColor(i1, j1) == oppCol) {
           const [i2, j2] = [i1 + s[0], j1 + s[1]];
           if (V.OnBoard(i2, j2) && this.board[i2][j2] == V.EMPTY) {
@@ -268,11 +277,22 @@ export class YoteRules extends ChessRules {
   }
 
   getAllPotentialMoves() {
-    let moves = super.getAllPotentialMoves();
-    const color = this.turn;
-    moves = moves.concat(
+    const L = this.captures.length;
+    const color = (this.captures[L-1] ? V.GetOppCol(this.turn) : this.turn);
+    let potentialMoves = [];
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          Array.prototype.push.apply(
+            potentialMoves,
+            this.getPotentialMovesFrom([i, j])
+          );
+        }
+      }
+    }
+    potentialMoves = potentialMoves.concat(
       this.getReserveMoves(V.size.x + (color == "w" ? 0 : 1)));
-    return moves;
+    return potentialMoves;
   }
 
   filterValid(moves) {
@@ -369,8 +389,50 @@ export class YoteRules extends ChessRules {
     return "*";
   }
 
-  static get SEARCH_DEPTH() {
-    return 4;
+  getComputerMove() {
+    const moves = super.getAllValidMoves();
+    if (moves.length == 0) return null;
+    const color = this.turn;
+    const oppCol = V.GetOppCol(color);
+    // Capture available? If yes, play it
+    const captures = moves.filter(m => m.vanish.length == 2);
+    if (captures.length >= 1) {
+      const m1 = captures[randInt(captures.length)];
+      this.play(m1);
+      const moves2 = super.getAllValidMoves();
+      // Remove a stone which was about to capture one of ours, if possible
+      let candidates = [];
+      for (let m2 of moves2) {
+        const [x, y] = [m2.start.x, m2.start.y];
+        for (let s of V.steps[V.ROOK]) {
+          const [i, j] = [x + 2*s[0], y + 2*s[1]];
+          if (
+            V.OnBoard(i, j) &&
+            this.board[i][j] == V.EMPTY &&
+            this.board[i - s[0], j - s[1]] != V.EMPTY &&
+            this.getColor(i - s[0], j - s[1]) == color
+          ) {
+            candidates.push(m2);
+            break;
+          }
+        }
+      }
+      this.undo(m1);
+      if (candidates.length >= 1)
+        return [m1, candidates[randInt(candidates.length)]];
+      return [m1, moves2[randInt(moves2.length)]];
+    }
+    // Just play a random move, which if possible do not let a capture
+    let candidates = [];
+    for (let m of moves) {
+      this.play(m);
+      const moves2 = super.getAllValidMoves();
+      if (moves2.every(m2 => m2.vanish.length <= 1))
+        candidates.push(m);
+      this.undo(m);
+    }
+    if (candidates.length >= 1) return candidates[randInt(candidates.length)];
+    return moves[randInt(moves.length)];
   }
 
   evalPosition() {

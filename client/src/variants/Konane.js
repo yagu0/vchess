@@ -1,4 +1,5 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
+import { randInt } from "@/utils/alea";
 
 export class KonaneRules extends ChessRules {
 
@@ -199,8 +200,27 @@ export class KonaneRules extends ChessRules {
     else this.captures.pop();
   }
 
-  static get SEARCH_DEPTH() {
-    return 4;
+  getComputerMove() {
+    const color = this.turn;
+    let mvArray = [];
+    let mv = null;
+    const undoAll = () => {
+      for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
+    };
+    // Just play random moves (for now at least. TODO?)
+    while (this.turn == color) {
+      let moves = super.getAllValidMoves();
+      if (moves.length == 0) {
+        // Shouldn't happen, but...
+        undoAll();
+        return null;
+      }
+      mv = moves[randInt(moves.length)];
+      mvArray.push(mv);
+      this.play(mv);
+    }
+    undoAll();
+    return (mvArray.length > 1 ? mvArray : mvArray[0]);
   }
 
   getNotation(move) {

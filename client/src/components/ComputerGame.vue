@@ -119,7 +119,7 @@ export default {
     },
     gameOver: function(score) {
       this.game.score = score;
-      this.game.scoreMsg = getScoreMessage(score);
+      this.game.scoreMsg = getScoreMessage(score, V.ReverseColors);
       // If comp is thinking, let him finish:
       if (!this.compThink) this.$emit("game-stopped");
     }

@@ -1602,7 +1602,7 @@ export default {
     // In corr games, callback to change page only after score is set:
     gameOver: function(score, scoreMsg, callback) {
       this.game.score = score;
-      if (!scoreMsg) scoreMsg = getScoreMessage(score);
+      if (!scoreMsg) scoreMsg = getScoreMessage(score, V.ReverseColors);
       this.game.scoreMsg = scoreMsg;
       document.getElementById("modalRules").checked = false;
       // Display result in a un-missable way:
