@@ -435,14 +435,6 @@ export class YoteRules extends ChessRules {
     return moves[randInt(moves.length)];
   }
 
-  evalPosition() {
-    let evaluation = super.evalPosition();
-    // Add reserves:
-    evaluation += this.reserve["w"][V.PAWN];
-    evaluation -= this.reserve["b"][V.PAWN];
-    return evaluation;
-  }
-
   getNotation(move) {
     if (move.vanish.length == 0)
       // Placement:
