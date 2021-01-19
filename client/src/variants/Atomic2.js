@@ -23,7 +23,7 @@ export class Atomic2Rules extends Atomic1Rules {
     return super.getPotentialMovesFrom([x, y]);
   }
 
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y]) {
     return this.movesCount == 0 && [1, 6].includes(x);
   }
 

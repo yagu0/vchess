@@ -19,7 +19,7 @@ export class HamiltonRules extends ChessRules {
     return "xx";
   }
 
-  hoverHighlight(x, y) {
+  hoverHighlight() {
     return this.movesCount == 0;
   }
 

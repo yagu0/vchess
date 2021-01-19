@@ -30,7 +30,7 @@ export class ChakartRules extends ChessRules {
     return true;
   }
 
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y]) {
     if (this.subTurn == 1) return false;
     const L = this.firstMove.length;
     const fm = this.firstMove[L-1];

@@ -185,7 +185,7 @@ export class TitanRules extends ChessRules {
     return moves;
   }
 
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y]) {
     const c = this.turn;
     return (
       this.movesCount <= 3 &&

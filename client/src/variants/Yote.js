@@ -167,8 +167,8 @@ export class YoteRules extends ChessRules {
     return (x < V.size.x && this.getColor(x, y) != side);
   }
 
-  // TODO: hoverHighlight() would well take an arg "side"...
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y], side) {
+    if (!!side && side != this.turn) return false;
     const L = this.captures.length;
     if (!this.captures[L-1]) return false;
     const oppCol = V.GetOppCol(this.turn);

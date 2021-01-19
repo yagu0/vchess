@@ -1,0 +1,52 @@
+p.boxed
+  | The first player to capture something wins.
+
+p
+  | This game follows the rules of 
+  a(href="https://en.wikipedia.org/wiki/Go_(game)") Weiqi
+  | , or Go in japanese. However, the first player to achieve a capture
+  | wins, and the board size is arbitrarily reduced to 12 x 12.
+
+h3 Rules summary
+
+p.
+  No diagonals are considered on the board.
+  Therefore, "adjacent" will mean "orthogonally adjacent".
+
+ul
+  li Players alternate turns, starting with Black.
+  li.
+    A move consists in putting a stone on an intersection of the board.
+    This stone will never move. However, it can be captured.
+  li.
+    A move adjacent to a connected group of enemy stones "kills" the group
+    if it has exactly one liberty left: its stones are removed from the board.
+    The capturing player thus wins.
+
+p.
+  Considering stones as vertices on a graph, linked by an edge if they
+  are adjacent, a connected group is a connected sub-graph.
+  On the diagram below, removing a stone at the marked location
+  breaks the connection.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:93/93/93/2PPP2p4/4P2p4/3PP2p4/3P2ppp3/2PP2p1p3/2P5pp2/93/93/93 d7,h6:
+  .diagram.diag22
+    | fen:93/93/93/2PPP2p4/4P2p4/4P2p4/3P2p1p3/2PP2p1p3/2P5pp2/93/93/93 d7,h6:
+  figcaption.
+    Left: both groups connected.
+    Right: "both disconnected" (2 groups for black, 3 for white).
+
+p.
+  The liberties of a group are all the free intersections adjacent to a stone
+  of the group, as illustrated.
+
+figure.diagram-container
+  .diagram
+    | fen:5pp5/93/93/93/3P8/3PP5pp/91p1/93/93/6P5/93/93 e12,f11,g11,h12,c7,c8,d9,e8,f7,e6,d6,g2,g4,f3,h3,k5,l6,j6,j7,k8,l8:
+  figcaption Surrounding marks indicate groups' liberties.
+
+p.
+  The initial configuration is formed by two pairs of groups of one stone
+  each, with only two liberties per group. Everything is disconnected.

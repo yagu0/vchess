@@ -1,0 +1,52 @@
+p.boxed
+  | El primer jugador en capturar algo gana.
+
+p
+  | Este juego sigue las reglas de 
+  a(href="https://en.wikipedia.org/wiki/Go_(game)") Weiqi
+  | o Go en japonés. Sin embargo, el primer jugador en capturar
+  | gana, y el tablero se reduce arbitrariamente a 12 x 12.
+
+h3 Resumen de reglas
+
+p.
+  Las diagonales no se consideran en el tablero.
+  Por tanto, "adyacente" significará "ortogonalmente adyacente".
+
+ul
+  li Los jugadores alternan turnos, comenzando con las negras.
+  li.
+    Un movimiento consiste en colocar una piedra en una intersección del
+    tablero. Esta piedra nunca se moverá. Sin embargo, se puede capturar.
+  li.
+    Un golpe adyacente a un grupo de piedras enemigas conectadas "mata" a este
+    grupo si sólo le queda una libertad: sus piedras se retiran del juego.
+    El jugador capturador gana.
+
+p.
+  Considerando piedras como vértices de un gráfico, conectados por un borde
+  si son adyacentes, un grupo conectado es un subgrafo conectado.
+  En el diagrama a continuación, retire una piedra en la ubicación marcada
+  romper la conexión.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:93/93/93/2PPP2p4/4P2p4/3PP2p4/3P2ppp3/2PP2p1p3/2P5pp2/93/93/93 d7,h6:
+  .diagram.diag22
+    | fen:93/93/93/2PPP2p4/4P2p4/4P2p4/3P2p1p3/2PP2p1p3/2P5pp2/93/93/93 d7,h6:
+  figcaption.
+    Izquierda: los dos grupos conectados.
+    Derecha: "ambos desconectados" (2 grupos para negro, 3 para blanco).
+
+p.
+  Las libertades de un grupo son todas las intersecciones libres adyacentes a
+  una piedra de grupo, como se muestra.
+
+figure.diagram-container
+  .diagram
+    | fen:5pp5/93/93/93/3P8/3PP5pp/91p1/93/93/6P5/93/93 e12,f11,g11,h12,c7,c8,d9,e8,f7,e6,d6,g2,g4,f3,h3,k5,l6,j6,j7,k8,l8:
+  figcaption Marcas circundantes que indican libertades grupales.
+
+p.
+  La configuración inicial está formada por dos pares de grupos de una piedra,
+  con solo dos libertades por grupo. Todo está desconectado.

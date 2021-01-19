@@ -194,7 +194,9 @@ export default {
                     showCheck && lightSquare && incheckSq[ci][cj],
                   "incheck-dark":
                     showCheck && !lightSquare && incheckSq[ci][cj],
-                  "hover-highlight": this.vr.hoverHighlight(ci, cj)
+                  "hover-highlight":
+                    this.vr.hoverHighlight(
+                      [ci, cj], !this.analyze ? this.userColor : null)
                 },
                 attrs: {
                   id: getSquareId({ x: ci, y: cj })
@@ -575,11 +577,12 @@ export default {
       return path;
     },
     re_setDrawings: function() {
+      // Add some drawing on board (for some variants + arrows and circles)
+      const boardElt = document.getElementById("gamePosition");
+      if (!boardElt) return;
       // Remove current canvas, if any
       const curCanvas = document.getElementById("arrowCanvas");
       if (!!curCanvas) curCanvas.parentNode.removeChild(curCanvas);
-      // Add some drawing on board (for some variants + arrows and circles)
-      const boardElt = document.getElementById("gamePosition");
       const squareWidth = boardElt.offsetWidth / V.size.y;
       const bPos = boardElt.getBoundingClientRect();
       let svgArrows = [];

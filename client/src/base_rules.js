@@ -442,8 +442,10 @@ export const ChessRules = class ChessRules {
       // if more than 9 consecutive free spaces, break the integer,
       // otherwise FEN parsing will fail.
       if (count <= 9) return count;
-      // Currently only boards of size up to 11 or 12:
-      return "9" + (count - 9);
+      // Most boards of size < 18:
+      if (count <= 18) return "9" + (count - 9);
+      // Except Gomoku:
+      return "99" + (count - 18);
     };
     let position = "";
     for (let i = 0; i < V.size.x; i++) {

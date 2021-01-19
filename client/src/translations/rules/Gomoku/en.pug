@@ -1,2 +1,16 @@
 p.boxed
-  | TODO
+  | Align five stones in any direction.
+
+p.
+  At each turn, put a stone on the board, on any empty intersection.
+  Once on the board, it will not move. The first player to align
+  five stones (or more) in any direction wins the game.
+  However, if White (playing in second) can achieve such an alignment right
+  after Black, the game is a draw.
+
+figure.diagram-container
+  .diagram
+    | fen:991/991/991/991/991/94P5/93p6/7ppp1p7/9Pp8/9pP8/7PPP1P7/93P6/94p5/991/991/991/991/991/991 k9,k12:
+  figcaption.
+    If black plays at the lower marked point,
+    White replies at the other mark: draw.

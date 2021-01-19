@@ -3,7 +3,7 @@ import { randInt } from "@/utils/alea";
 
 export class TeleportRules extends ChessRules {
 
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y]) {
     // Testing move validity results in an infinite update loop.
     // TODO: find a way to test validity anyway.
     return (this.subTurn == 2 && this.board[x][y] == V.EMPTY);

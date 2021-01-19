@@ -35,7 +35,7 @@ export class BarioRules extends ChessRules {
     );
   }
 
-  hoverHighlight(x, y) {
+  hoverHighlight([x, y]) {
     const c = this.turn;
     return (
       this.movesCount <= 1 &&

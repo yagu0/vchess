@@ -214,6 +214,7 @@ export const translations = {
   "Explosive captures (v2)": "Explosive captures (v2)",
   "Extra bishops and knights": "Extra bishops and knights",
   "Faster development": "Faster development",
+  "First capture wins": "First capture wins",
   "Four new pieces": "Four new pieces",
   "Free initial setup": "Free initial setup",
   "Friendly pieces": "Friendly pieces",

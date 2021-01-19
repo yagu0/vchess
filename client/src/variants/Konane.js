@@ -53,9 +53,9 @@ export class KonaneRules extends ChessRules {
     this.captures = []; //reinit for each move
   }
 
-  hoverHighlight(x, y) {
-    if (this.movesCount >= 2) return false;
+  hoverHighlight([x, y], side) {
     const c = this.turn;
+    if (this.movesCount >= 2 || (!!side && side != c)) return false;
     if (c == 'w') return (x == y && [0, 3, 4, 7].includes(x));
     // "Black": search for empty square and allow nearby
     for (let i of [0, 3, 4, 7]) {

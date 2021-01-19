@@ -21,6 +21,7 @@ insert or ignore into Variants (name, description) values
   ('Antiking2', 'Keep antiking in check (v2)'),
   ('Antimatter', 'Dangerous collisions'),
   ('Arena', 'Middle battle'),
+  ('Atarigo', 'First capture wins'),
   ('Atomic1', 'Explosive captures (v1)'),
   ('Atomic2', 'Explosive captures (v2)'),
   ('Avalanche', 'Pawnfalls'),

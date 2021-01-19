@@ -214,6 +214,7 @@ export const translations = {
   "Explosive captures (v2)": "Captures explosives (v2)",
   "Extra bishops and knights": "Fous et cavaliers supplémentaires",
   "Faster development": "Développement accéléré",
+  "First capture wins": "La première capture gagne",
   "Four new pieces": "Quatre nouvelles pièces",
   "Free initial setup": "Position initiale libre",
   "Friendly pieces": "Pièces amies",
