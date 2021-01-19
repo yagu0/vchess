@@ -103,7 +103,7 @@ export class GomokuRules extends ChessRules {
     let moves = [];
     for (let i = 0; i < 19; i++) {
       for (let j=0; j < 19; j++) {
-        if (this.board[i][j] == V.EMPTY) moves.push(this.doClick(i, j));
+        if (this.board[i][j] == V.EMPTY) moves.push(this.doClick([i, j]));
       }
     }
     return moves;

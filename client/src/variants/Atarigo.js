@@ -182,7 +182,7 @@ export class AtarigoRules extends ChessRules {
     for (let i = 0; i < V.size.x; i++) {
       for (let j=0; j < V.size.y; j++) {
         if (this.board[i][j] == V.EMPTY) {
-          const mv = this.doClick(i, j);
+          const mv = this.doClick([i, j]);
           if (!!mv) moves.push(mv);
         }
       }
@@ -211,10 +211,73 @@ export class AtarigoRules extends ChessRules {
     return "*";
   }
 
+  // Modified version to count liberties + find locations
+  countEmptySpaces([x, y], color, explored) {
+    if (explored[x][y]) return [];
+    explored[x][y] = true;
+    let res = [];
+    for (let s of V.steps[V.ROOK]) {
+      const [i, j] = [x + s[0], y + s[1]];
+      if (V.OnBoard(i, j)) {
+        if (!explored[i][j] && this.board[i][j] == V.EMPTY) {
+          res.push([i, j]);
+          explored[i][j] = true; //not counting liberties twice!
+        }
+        else if (this.getColor(i, j) == color)
+          res = res.concat(this.countEmptySpaces([i, j], color, explored));
+      }
+    }
+    return res;
+  }
+
   getComputerMove() {
     const moves = super.getAllValidMoves();
     if (moves.length == 0) return null;
-    // Just random mover for now... writing a good bot is far out of scope
+    // Any capture?
+    const captures = moves.filter(m => m.vanish.length >= 1);
+    if (captures.length > 0) return captures[randInt(captures.length)];
+    // Any group in immediate danger?
+    const color = this.turn;
+    let explored = ArrayFun.init(V.size.x, V.size.y, false);
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) == color &&
+          !explored[i][j]
+        ) {
+          // Before this search, reset liberties,
+          // because two groups might share them.
+          for (let ii = 0; ii < V.size.x; ii++) {
+            for (let jj = 0; jj < V.size.y; jj++) {
+              if (explored[ii][jj] && this.board[ii][jj] == V.EMPTY)
+                explored[ii][jj] = false;
+            }
+          }
+          const liberties = this.countEmptySpaces([i, j], color, explored);
+          if (liberties.length == 1) {
+            const L = liberties[0];
+            const toPlay = moves.find(m => m.end.x == L[0] && m.end.y == L[1]);
+            if (!!toPlay) return toPlay;
+          }
+        }
+      }
+    }
+    // At this point, pick a random move not far from current stones (TODO)
+    const candidates = moves.filter(m => {
+      const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
+      return (
+        steps.some(s => {
+          const [i, j] = [m.end.x + s[0], m.end.y + s[1]];
+          return (
+            V.OnBoard(i, j) &&
+            this.board[i][j] != V.EMPTY &&
+            this.getColor(i, j) == color
+          );
+        })
+      );
+    });
+    if (candidates.length > 0) return candidates[randInt(candidates.length)];
     return moves[randInt(moves.length)];
   }
 

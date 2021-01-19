@@ -6,6 +6,9 @@ Rename and edit src/parameters.js.dist into parameters.js. Then,
 download the folders and files listed in download\_objects file.
 (This is optional, most variants will work without it).
 
+For Emergo and Avalam, run generateSVG\*.py scripts in folder
+public/images/pieces/Emergo and Avalam (pieces SVGs).
+
 Finally install dependencies.
 ```
 npm install
