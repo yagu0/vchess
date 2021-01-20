@@ -37,6 +37,7 @@ export class FugueRules extends ChessRules {
 
   static get PIECES() {
     return [
+      V.PAWN,
       V.QUEEN,
       V.KING,
       V.IMMOBILIZER,

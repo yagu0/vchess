@@ -242,7 +242,7 @@ export class YoteRules extends ChessRules {
       const mv = this.doClick([x, y]);
       return (!!mv ? [mv] : []);
     }
-    if (x >= V.size.x) return this.getReserveMoves([x, y]);
+    if (x >= V.size.x) return this.getReserveMoves(x);
     return this.getPotentialPawnMoves([x, y]);
   }
 
