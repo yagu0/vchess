@@ -255,7 +255,14 @@ export class OtageRules extends ChessRules {
       // Transformation computed without taking union into account
       const up = this.getUnionPieces(initColor, initPiece);
       let args = [tr.p, up[oppCol]];
-      if (['a', 'v'].includes(initColor)) args = args.reverse();
+      if (
+        ['a', 'v'].includes(initColor) ||
+        // HACK: "ba" piece = two pawns, black controling.
+        // If promoting, must artificially imagine color was 'a':
+        (initPiece == 'a' && initColor == 'b')
+      ) {
+        args = args.reverse();
+      }
       const capturer = (['a', 'b'].includes(initColor) ? 'b' : 'w');
       const cp = this.getUnionCode(args[0], args[1], capturer);
       tr.c = cp.c;
