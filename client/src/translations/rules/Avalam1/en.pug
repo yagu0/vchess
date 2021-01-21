@@ -1,2 +1,33 @@
 p.boxed
-  | TODO
+  | Stack towers freely, so that your color appears on top.
+
+p.
+  There are initially 48 pieces placed on a 49 squares irregular board.
+  "White" takes yellow pieces, and "black" gets the red ones.
+
+figure.diagram-container
+  .diagram
+    | fen:xxBbxxxxx/xBbBbxxxx/xbBbBbBxx/xBbBbBbBb/BbBb1bBbB/bBbBbBbBx/xxBbBbBbx/xxxxbBbBx/xxxxxbBxx:
+  figcaption Deterministic initial position.
+
+p.
+  At each turn, take any tower of less than 5 pieces (the number
+  printed on it) and put it on an adjacent tower, such that
+  the resulting construction isn't more than 5 units tall.
+
+p.
+  When no moves are possible anymore, the game is over.
+  The winner is the player having the largest number of towers
+  of his color (on top)
+
+h3 More information
+
+p
+  | Few online resources about this game. The rules are explained
+  | for example on 
+  a(href="http://jeuxstrategie.free.fr/Avalam_complet.php") this page
+  | . See also the Avalam page on 
+  a(href="https://www.jeuxdenim.be/jeu-Avalam") jeuxdenim.be
+  | .
+
+p Inventor: Philippe Deweys (1995)

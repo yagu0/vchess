@@ -1,2 +1,100 @@
 p.boxed
-  | TODO
+  | Similaires aux Dames, avec des prisonniers empilés sous les captureurs.
+
+figure.diagram-container
+  img.img-center(src="/variants/Emergo/match_2004_U-con.jpg")
+  figcaption.text-center.
+    Partie jouée sur une représentation orthogonale
+    d'un plateau d'Emergo standard 9x9.
+
+p
+  | Rien ne disparaît dans ce jeu : les pièces capturées font ensuite partie
+  | des unités capturantes. Par conséquent, une pièce ou unité sera toujours
+  | compris comme une combinaison de W pièces (élémentaires) blanches et de
+  | B pièces noires (élémentaires), avec
+  br
+  | W >= 0, B >= 0 et W + B >= 1.
+
+p
+  | Le plateau 9x9 est initialement vide.
+  | Chaque joueur reçoit 12 pièces empilables, "en main".
+  | À chaque tour, un jour doit choisir une action parmi les suivantes :
+  ul
+    li Entrer une nouvelle pièce (W + B = 1) sur le plateau.
+    li Déplacer une unité d'une case le long des diagonales.
+    li Capturer quelque chose.
+
+h3 Coups d'introduction
+
+p.
+  Il est interdit d'entrer une pièce de telle façon que l'adversaire puisse
+  la capturer au tour suivant, à moins qu'une capture était déjà possible.
+
+p Au premier coup, les blancs ne peuvent pas poser de pièce au point central.
+
+p.
+  Si l'adversaire a déjà posé toutes ses pièces en main, alors une
+  "pièce ombre" entre dans le jeu, constituée de toutes les unités disponibles
+  (ainsi dans ce cas W + B > 1).
+
+h3 Captures
+
+p.
+  Les captures se déroulent exactement comme aux Dames : en sautant par dessus
+  une pièce diagonalement adjacente pour atterrir sur une case vide juste
+  derrière.
+  Si une capture est possible, alors elle doit être jouée ; dans ce cas
+  aucune pièce ne peut être introduite sur le plateau.
+  Si après une capture une autre est possible avec la même pièce, alors elle
+  doit être jouée &mdash; sauf si cela implique un virage à 180 degrés.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/9/5A@3/6b@2 e3:
+  .diagram.diag22
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/4ba4/9/9:
+  figcaption.
+    Avant et après que les noirs capturent,
+    sautant à l'emplacement marqué.
+    Il faut aussi capturer la pièce blanche suivante.
+
+p.
+  Les captures peuvent être décrites formellement comme suit.
+  Si, contrôlée par les blancs, W1/B1 saute par dessus W2/B2 situé en S2 pour
+  atterrir en S1', alors W1/(B1+1) arrive en S1' tandis que W2/(B2-1) reste
+  en S2. Si W2 = B2 - 1 = 0, alors rien ne subsiste à l'emplacement de la
+  pièce capturée.
+  Pour une pièce noire, inverser W et B.
+
+p.
+  En d'autres termes, chaque unité est composée d'une pile de pièces
+  (élémentaires) amies ou ennemies, les amies étant situées au dessus.
+  Après chaque capture, les prisonniers dans la pile sont augmentés d'un,
+  tandis que le nombre de geôliers à l'emplacement de la capture diminue d'un.
+
+p.
+  Quand un joueur a à disposition plusieurs chaînes de captures, il doit
+  sélectionner l'une des plus longues (comme aux Dames) :
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/2a@1a@4/9/2bb1a@4/3C@5/9/9/9:
+  figcaption.
+    Sur https://www.mindsports.nl/ :
+    les blancs doivent capturer dans le sens horaire.
+
+p.
+  On peut sauter par dessus une pièce plusieurs fois, du moment qu'elle
+  contient au moins une unité ennemie (qui la contrôle).
+
+h3 Plus d'information
+
+p
+  | Vous êtes invités à visiter le 
+  a(href="https://www.mindsports.nl/index.php/arena/emergo/88-rules")
+    | site des auteurs
+  | . Les règles sont également décrites sur 
+  a(href="http://www.iggamecenter.com/info/en/emergo.html") iggamecenter
+  | , où vous pouvez jouer à Emergo.
+
+p Inventeurs : Christian Freeling et Ed van Zon (1986)

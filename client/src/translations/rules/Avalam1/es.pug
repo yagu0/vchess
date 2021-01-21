@@ -1,2 +1,34 @@
 p.boxed
-  | TODO
+  | Apila libremente las torres, para que tu color
+  | aparece en la parte superior.
+
+p.
+  Inicialmente se distribuyen 48 piezas en un tablero irregular de 49 casillas.
+  Las "blancas" toman las piezas amarillas,
+  y las "negras" juegan con las rojas.
+
+figure.diagram-container
+  .diagram
+    | fen:xxBbxxxxx/xBbBbxxxx/xbBbBbBxx/xBbBbBbBb/BbBb1bBbB/bBbBbBbBx/xxBbBbBbx/xxxxbBbBx/xxxxxbBxx:
+  figcaption Posición inicial determinista.
+
+p.
+  En cada turno, tome cualquier torre con menos de 5 piezas (el número
+  indicado arriba) y colóquelo en una torre adyacente, de modo que
+  la construcción resultante no tiene más de 5 de altura.
+
+p.
+  Cuando no es posible realizar más movimientos, el juego termina.
+  El ganador es el jugador con más torres de su color (arriba).
+
+h3 Más información
+
+p
+  | Hay pocos recursos en línea sobre este juego. Se explican las reglas
+  | por ejemplo en 
+  a(href="http://jeuxstrategie.free.fr/Avalam_complet.php") cette page
+  | . Consulte también la página de Avalam en 
+  a(href="https://www.jeuxdenim.be/jeu-Avalam") jeuxdenim.be
+  | .
+
+p Inventor: Philippe Deweys (1995)

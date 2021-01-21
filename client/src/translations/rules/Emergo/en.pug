@@ -1,62 +1,96 @@
 p.boxed
   | Similar to Checkers, with prisoners stacked below capturers.
 
+figure.diagram-container
+  img.img-center(src="/variants/Emergo/match_2004_U-con.jpg")
+  figcaption.text-center.
+    Game played on an orthogonal depiction of a standard 9x9 Emergo board.
+
+p
+  | Nothing disappears in this game: captured pieces become part of the
+  | capturing unit. Therefore, a piece or unit will always be understood
+  | as a combination of W white (elementary) pieces and B (elementary) black
+  | ones, with
+  br
+  | W >= 0, B >= 0 and W + B >= 1.
+
 p
   | The 9x9 board is initially empty.
   | Each player receives 12 stackable pieces, "in hand".
-  | At each turn, a player must either
+  | At each turn, a player must pick an action among the followings:
   ul
-    li.
-      Enter a new piece on the board such that the opponent cannot capture it.
-      However, if a capture is already possible before the move, then
-      the piece can be dropped anywhere.
-      White cannot place a piece in the center at move 1.
-    li Play a move on the board, along diagonals.
+    li Enter a new piece (W + B = 1) on the board.
+    li Move a unit along diagonals, by one square.
+    li Capture something.
+
+h3 Entering moves
 
 p.
-  Simple moves are Ferz moves: one step diagonally.
+  Introducing a piece such that the opponent can take it on next turn is
+  forbidden, unless another capture is already available.
+
+p At first move, white cannot place a piece at the central point.
+
+p.
+  If the opponent already placed all his pieces in hand, then a
+  "shadow piece" enters, formed by all the remaining units available
+  (thus in this case W + B > 1).
+
+h3 Captures
+
+p.
   Captures work exactly as in Checkers: by jumping over a diagonally adjacent
   piece to land on a free square just behind.
-  However, the resulting situation is more complex. See below.
   If a capture is possible, then it must be played; in this case no piece can
   be introduced on the board.
+  If after a capture another is possible with the same piece, it must also be
+  played &mdash; except if that implies turning at 180 degrees.
 
-p TODO: diagram
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/9/5A@3/6b@2 e3:
+  .diagram.diag22
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/4ba4/9/9:
+  figcaption.
+    Before and after black captures, jumping at the marked location.
+    The next white piece must be captured too.
 
 p.
-  Let us consider each unit as a compound entity containing W white pieces
-  and B black ones (initially W = 1 and B = 0 for white units,
-  and vice-versa for black).
-  Captures can then be described formally as follows.
-
-p.
-  As white:
-  If W1/B1 jumps over W2/B2 at square S2 to land on S1', then
-  W1/(B1+1) arrives on S1' and W2/(B2-1) remains on S2.
+  Captures can be described formally as follows.
+  If, as white, W1/B1 jumps over W2/B2 at square S2 to land on S1', then
+  W1/(B1+1) arrives on S1' while W2/(B2-1) stays on S2.
   If W2 = B2 - 1 = 0, nothing remains at the captured unit location.
-  As black: exchange W and B above.
+  As black: exchange W and B.
 
 p.
   In other words, each unit is a stack of friendly and enemy pieces, with
   friendly pieces on top. After each capture, the prisoners part of the
-  stack is incremented, while the "jailers" counterpart at the captured
+  stack is incremented, while the jailers quantity at the captured
   location decreases by one.
 
 p.
   When several capturing chains are available,
-  the player has to select one of the longest (as in Checkers).
+  the player must select one of the longest (as in Checkers):
 
-p TODO: diagram (from mindsports.nl)
+figure.diagram-container
+  .diagram
+    | fen:9/9/2a@1a@4/9/2bb1a@4/3C@5/9/9/9:
+  figcaption.
+    From https://www.mindsports.nl/:
+    White's only option is to capture clockwise.
+
+p.
+  A piece can be jumped over several times, as long as it contains
+  at least one enemy unit (controling it).
 
 h3 More information
 
 p
-  | See the 
+  | You are invited to visit the 
   a(href="https://www.mindsports.nl/index.php/arena/emergo/88-rules")
-    | Emergo page
-  | &nbsp;on the author's website.
-  | Rules are also described on 
+    | authors' website
+  | . The rules are also described on 
   a(href="http://www.iggamecenter.com/info/en/emergo.html") iggamecenter
-  | , where you can also play this game.
+  | , where you can play Emergo.
 
 p Inventors: Christian Freeling and Ed van Zon (1986)

@@ -135,24 +135,28 @@ export class EmergoRules extends ChessRules {
   setOtherVariables(fen) {
     const reserve =
       V.ParseFen(fen).reserve.split(",").map(x => parseInt(x, 10));
-    this.reserve = {
-      w: { [V.PAWN]: reserve[0] },
-      b: { [V.PAWN]: reserve[1] }
-    };
+    this.reserve = { w: null, b: null };
+    if (reserve[0] > 0) this.reserve['w'] = { [V.PAWN]: reserve[0] };
+    if (reserve[1] > 0) this.reserve['b'] = { [V.PAWN]: reserve[1] };
     // Local stack of captures during a turn (squares + directions)
     this.captures = [ [] ];
   }
 
-  atLeastOneCaptureFrom([x, y], color) {
+  atLeastOneCaptureFrom([x, y], color, forbiddenStep) {
     for (let s of V.steps[V.BISHOP]) {
-      const [i, j] = [x + s[0], y + s[1]];
       if (
-        V.OnBoard(i + s[0], j + s[1]) &&
-        this.board[i][j] != V.EMPTY &&
-        this.getColor(i, j) != color &&
-        this.board[i + s[0]][j + s[1]] == V.EMPTY
+        !forbiddenStep ||
+        (s[0] != -forbiddenStep[0] || s[1] != -forbiddenStep[1])
       ) {
-        return true;
+        const [i, j] = [x + s[0], y + s[1]];
+        if (
+          V.OnBoard(i + s[0], j + s[1]) &&
+          this.board[i][j] != V.EMPTY &&
+          this.getColor(i, j) != color &&
+          this.board[i + s[0]][j + s[1]] == V.EMPTY
+        ) {
+          return true;
+        }
       }
     }
     return false;
@@ -162,7 +166,12 @@ export class EmergoRules extends ChessRules {
     const L0 = this.captures.length;
     const captures = this.captures[L0 - 1];
     const L = captures.length;
-    if (L > 0) return this.atLeastOneCaptureFrom(captures[L-1].square, color);
+    if (L > 0) {
+      return (
+        this.atLeastOneCaptureFrom(
+          captures[L-1].square, color, captures[L-1].step)
+      );
+    }
     for (let i = 0; i < V.size.x; i++) {
       for (let j=0; j< V.size.y; j++) {
         if (
@@ -190,12 +199,7 @@ export class EmergoRules extends ChessRules {
     return res;
   };
 
-  getLongestCapturesFrom([x, y], color, locSteps) {
-    //
-    // TODO: debug here, from
-    // 9/9/2a@1a@4/5A@3/9/3aa1A@3/9/9/8A@ w 10 8,9
-    // White to move, double capture.
-    //
+  getLongestCaptures_aux([x, y], color, locSteps) {
     let res = [];
     const L = locSteps.length;
     const lastStep = (L > 0 ? locSteps[L-1] : null);
@@ -211,50 +215,74 @@ export class EmergoRules extends ChessRules {
         const move = this.getBasicMove([x, y], [i + s[0], j + s[1]], [i, j]);
         locSteps.push(s);
         V.PlayOnBoard(this.board, move);
-        const sRes = this.getLongestCapturesFrom(
-                       [i + s[0], j + s[1]], color, locSteps);
-        res.push({
-          step: s,
-          length: 1 + (sRes.length == 0 ? 0 : sRes[0].length)
-        });
+        const nextRes =
+          this.getLongestCaptures_aux([i + s[0], j + s[1]], color, locSteps);
+        res.push(1 + nextRes);
         locSteps.pop();
         V.UndoOnBoard(this.board, move);
       }
     }
-    return this.maxLengthIndices(res).map(i => res[i]);
+    if (res.length == 0) return 0;
+    return Math.max(...res);
+  }
+
+  getLongestCapturesFrom([x, y], color, locSteps) {
+    let res = [];
+    const L = locSteps.length;
+    const lastStep = (L > 0 ? locSteps[L-1] : null);
+    for (let s of V.steps[V.BISHOP]) {
+      if (!!lastStep && s[0] == -lastStep[0] && s[1] == -lastStep[1]) continue;
+      const [i, j] = [x + s[0], y + s[1]];
+      if (
+        V.OnBoard(i + s[0], j + s[1]) &&
+        this.board[i + s[0]][j + s[1]] == V.EMPTY &&
+        this.board[i][j] != V.EMPTY &&
+        this.getColor(i, j) != color
+      ) {
+        const move = this.getBasicMove([x, y], [i + s[0], j + s[1]], [i, j]);
+        locSteps.push(s);
+        V.PlayOnBoard(this.board, move);
+        const stepRes =
+          this.getLongestCaptures_aux([i + s[0], j + s[1]], color, locSteps);
+        res.push({ step: s, length: 1 + stepRes });
+        locSteps.pop();
+        V.UndoOnBoard(this.board, move);
+      }
+    }
+    return this.maxLengthIndices(res).map(i => res[i]);;
   }
 
   getAllLongestCaptures(color) {
     const L0 = this.captures.length;
     const captures = this.captures[L0 - 1];
     const L = captures.length;
-    if (L > 0) {
-      let locSteps = [];
-      const caps = Object.assign(
-        { square: captures[L-1].square },
-        this.getLongestCapturesFrom(captures[L-1].square, color, locSteps)
-      );
-      return this.maxLengthIndices(caps).map(i => caps[i]);
-    }
     let caps = [];
-    for (let i = 0; i < V.size.x; i++) {
-      for (let j=0; j < V.size.y; j++) {
-        if (
-          this.board[i][j] != V.EMPTY &&
-          this.getColor(i, j) == color
-        ) {
-          let locSteps = [];
-          let res = this.getLongestCapturesFrom([i, j], color, locSteps);
-          Array.prototype.push.apply(
-            caps,
-            res.map(r => Object.assign({ square: [i, j] }, r))
-          );
+    if (L > 0) {
+      let locSteps = [ captures[L-1].step ];
+      let res =
+        this.getLongestCapturesFrom(captures[L-1].square, color, locSteps);
+      Array.prototype.push.apply(
+        caps,
+        res.map(r => Object.assign({ square: captures[L-1].square }, r))
+      );
+    }
+    else {
+      for (let i = 0; i < V.size.x; i++) {
+        for (let j=0; j < V.size.y; j++) {
+          if (
+            this.board[i][j] != V.EMPTY &&
+            this.getColor(i, j) == color
+          ) {
+            let locSteps = [];
+            let res = this.getLongestCapturesFrom([i, j], color, locSteps);
+            Array.prototype.push.apply(
+              caps,
+              res.map(r => Object.assign({ square: [i, j] }, r))
+            );
+          }
         }
       }
     }
-
-console.log(caps);
-
     return this.maxLengthIndices(caps).map(i => caps[i]);
   }
 
@@ -267,20 +295,32 @@ console.log(caps);
       });
     }
     // Compute resulting types based on jumped + jumping pieces
+    const color = this.getColor(x1, y1);
+    const firstCodes = (color == 'w' ? [65, 97] : [97, 65]);
     const cpCapt = this.board[capt[0]][capt[1]];
-    const newAtCapt = cpCapt.charCodeAt(0) - 1;
-    const newAtDest =
-      cp1[1] == '@'
-        ? (cp1.charCodeAt(0) < 97 ? 65 : 97)
-        : (cp1.charCodeAt(1) + 1);
-    const color = this.turn;
+    let count1 = [cp1.charCodeAt(0) - firstCodes[0], -1];
+    if (cp1[1] != '@') count1[1] = cp1.charCodeAt(1) - firstCodes[0];
+    let countC = [cpCapt.charCodeAt(0) - firstCodes[1], -1];
+    if (cpCapt[1] != '@') countC[1] = cpCapt.charCodeAt(1) - firstCodes[1];
+    count1[1]++;
+    countC[0]--;
+    let colorChange = false,
+        captVanish = false;
+    if (countC[0] < 0) {
+      if (countC[1] >= 0) {
+        colorChange = true;
+        countC = [countC[1], -1];
+      }
+      else captVanish = true;
+    }
+    const incPrisoners = String.fromCharCode(firstCodes[0] + count1[1]);
     let mv = new Move({
       appear: [
         new PiPo({
           x: x2,
           y: y2,
           c: cp1[0],
-          p: String.fromCharCode(newAtDest)
+          p: incPrisoners
         })
       ],
       vanish: [
@@ -288,27 +328,14 @@ console.log(caps);
         new PiPo({ x: capt[0], y: capt[1], c: cpCapt[0], p: cpCapt[1] })
       ]
     });
-    if ([64, 96].includes(newAtCapt)) {
-      // Enemy units vanish from capturing square
-      if (cpCapt.charAt(1) != '@') {
-        // Out units remain:
-        mv.appear.push(
-          new PiPo({
-            x: capt[0],
-            y: capt[1],
-            c: cpCapt[0],
-            p: '@'
-          })
-        );
-      }
-    }
-    else {
+    if (!captVanish) {
       mv.appear.push(
         new PiPo({
           x: capt[0],
           y: capt[1],
-          c: String.fromCharCode(newAtCapt),
-          p: cpCapt[1]
+          c: String.fromCharCode(
+               firstCodes[(colorChange ? 0 : 1)] + countC[0]),
+          p: (colorChange ? '@' : cpCapt[1]),
         })
       );
     }
@@ -443,11 +470,11 @@ console.log(caps);
       const L0 = this.captures.length;
       let captures = this.captures[L0 - 1];
       captures.push({
-        square: [move.start.x, move.start.y],
-        step: [move.end.x - move.start.x, move.end.y - move.start.y]
+        square: [move.end.x, move.end.y],
+        step: [(move.end.x - move.start.x)/2, (move.end.y - move.start.y)/2]
       });
-      if (this.atLeastOneCapture())
-        // There could be other captures (optional)
+      if (this.atLeastOneCapture(color))
+        // There could be other captures (mandatory)
         move.notTheEnd = true;
     }
     else if (move.vanish == 0) {
@@ -480,8 +507,8 @@ console.log(caps);
   }
 
   atLeastOneMove() {
-    if (this.atLeastOneCapture()) return true;
     const color = this.turn;
+    if (this.atLeastOneCapture(color)) return true;
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
         if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
@@ -498,16 +525,17 @@ console.log(caps);
   getCurrentScore() {
     const color = this.turn;
     // If no pieces on board + reserve, I lose
-    if (
-      !this.reserve[color] &&
-      this.board.every(b => {
-        return b.every(cell => {
-          return (cell == "" || cell[0] != color);
-        });
-      })
-    ) {
-      return (color == 'w' ? "0-1" : "1-0");
+    if (!!this.reserve[color]) return "*";
+    let atLeastOnePiece = false;
+    outerLoop: for (let i=0; i < V.size.x; i++) {
+      for (let j=0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+          atLeastOnePiece = true;
+          break outerLoop;
+        }
+      }
     }
+    if (!atLeastOnePiece) return (color == 'w' ? "0-1" : "1-0");
     if (!this.atLeastOneMove()) return "1/2";
     return "*";
   }
@@ -529,6 +557,8 @@ console.log(caps);
 
   getNotation(move) {
     if (move.vanish.length == 0) return "@" + V.CoordsToSquare(move.end);
+    const L0 = this.captures.length;
+    if (this.captures[L0 - 1].length > 0) return V.CoordsToSquare(move.end);
     return V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
   }
 

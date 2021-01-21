@@ -16,6 +16,10 @@ export class DobutsuRules extends ChessRules {
     return true;
   }
 
+  get showFirstTurn() {
+    return true;
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);

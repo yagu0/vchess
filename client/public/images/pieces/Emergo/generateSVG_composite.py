@@ -22,55 +22,55 @@ black_right = '<circle cx="115" cy="115" r="100" fill="black"/>'
 digits = {
     "left": [
         # 1
-        '<path d="M90,95 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M90,95 v40"',
         # 2
-        '<path d="M70,95 h20 v20 h-20 v20 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,95 h20 v20 h-20 v20 h20"',
         # 3
-        '<path d="M70,95 h20 v20 h-20 M90,115 v20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,95 h20 v20 h-20 M90,115 v20 h-20"',
         # 4
-        '<path d="M70,95 v20 h20 v20 M90,95 v20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,95 v20 h20 v20 M90,95 v20"',
         # 5
-        '<path d="M90,95 h-20 v20 h20 v20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M90,95 h-20 v20 h20 v20 h-20"',
         # 6
-        '<path d="M90,95 h-20 v40 h20 v-20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M90,95 h-20 v40 h20 v-20 h-20"',
         # 7
-        '<path d="M70,95 h20 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,95 h20 v40"',
         # 8
-        '<path d="M70,95 h20 v40 h-20 z M70,115 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,95 h20 v40 h-20 z M70,115 h20"',
         # 9
-        '<path d="M70,135 h20 v-40 h-20 v20 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M70,135 h20 v-40 h-20 v20 h20"',
         # 10
-        '<path d="M60,95 v40 M70,95 h20 v40 h-20 v-40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M60,95 v40 M70,95 h20 v40 h-20 v-40"',
         # 11
-        '<path d="M60,95 v40 M90,95 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M60,95 v40 M90,95 v40"',
         # 12
-        '<path d="M60,95 v40 M70,95 h20 v20 h-20 M90,115 v20 h-20" stroke="red" fill="none" stroke-width="2"/>'
+        '<path d="M60,95 v40 M70,95 h20 v20 h-20 M90,115 v20 h-20"'
     ],
     "right": [
         # 1
-        '<path d="M180,95 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M180,95 v40"',
         # 2
-        '<path d="M160,95 h20 v20 h-20 v20 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,95 h20 v20 h-20 v20 h20"',
         # 3
-        '<path d="M160,95 h20 v20 h-20 M180,115 v20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,95 h20 v20 h-20 M180,115 v20 h-20"',
         # 4
-        '<path d="M160,95 v20 h20 v20 M180,95 v20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,95 v20 h20 v20 M180,95 v20"',
         # 5
-        '<path d="M180,95 h-20 v20 h20 v20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M180,95 h-20 v20 h20 v20 h-20"',
         # 6
-        '<path d="M180,95 h-20 v40 h20 v-20 h-20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M180,95 h-20 v40 h20 v-20 h-20"',
         # 7
-        '<path d="M160,95 h20 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,95 h20 v40"',
         # 8
-        '<path d="M160,95 h20 v40 h-20 z M160,115 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,95 h20 v40 h-20 z M160,115 h20"',
         # 9
-        '<path d="M160,135 h20 v-40 h-20 v20 h20" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M160,135 h20 v-40 h-20 v20 h20"',
         # 10
-        '<path d="M150,95 v40 M160,95 h20 v40 h-20 v-40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M150,95 v40 M160,95 h20 v40 h-20 v-40"',
         # 11
-        '<path d="M150,95 v40 M180,95 v40" stroke="red" fill="none" stroke-width="2"/>',
+        '<path d="M150,95 v40 M180,95 v40"',
         # 12
-        '<path d="M150,95 v40 M160,95 h20 v20 h-20 M180,115 v20 h-20" stroke="red" fill="none" stroke-width="2"/>'
+        '<path d="M150,95 v40 M160,95 h20 v20 h-20 M180,115 v20 h-20"'
     ]
 }
 
@@ -83,14 +83,14 @@ for colorLeft in ["white", "black"]:
             filename = chr(65 + left + chrShift) + chr(65 + right + chrShift) + ".svg"
             f = open(filename, "w")
             f.write(preamble)
-            f.write("\n");
+            f.write("\n")
             f.write(black_right if colorLeft == "white" else white_right)
-            f.write("\n");
+            f.write("\n")
             f.write(white_left if colorLeft == "white" else black_left)
-            f.write("\n");
-            f.write(digits["left"][left])
-            f.write("\n");
-            f.write(digits["right"][right])
-            f.write("\n");
+            f.write("\n")
+            f.write(digits["left"][left] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if colorLeft == "white" else 'stroke="orange"') + '/>')
+            f.write("\n")
+            f.write(digits["right"][right] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if colorLeft == "black" else 'stroke="orange"') + '/>')
+            f.write("\n")
             f.write(final)
             f.close()

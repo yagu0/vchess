@@ -1,2 +1,101 @@
 p.boxed
-  | TODO
+  | Similar a las Damas, con prisioneros apilados debajo de los captores.
+
+figure.diagram-container
+  img.img-center(src="/variants/Emergo/match_2004_U-con.jpg")
+  figcaption.text-center.
+    Juego jugado en una representación ortogonal
+    de un tablero de Emergo estándar 9x9.
+
+p
+  | Nada desaparece en este juego: las piezas capturadas forman parte de las
+  | capturando unidades. Por lo tanto, una pieza o unidad siempre estará
+  | entendido como una combinación de W piezas blancas (elementales) y
+  | B piezas negras (elementales), con
+  br
+  | W >= 0, B >= 0 y W + B >= 1.
+
+p
+  | El tablero de 9x9 está inicialmente vacío.
+  | Cada jugador recibe 12 piezas apilables, "en la mano".
+  | En cada turno, un jugador debe elegir una de las siguientes acciones:
+  ul
+    li Introduzca una nueva pieza (W + B = 1) en el tablero.
+    li Mueve una unidad un cuadrado a lo largo de las diagonales.
+    li Capture algo.
+
+h3 Jugadas de introducción
+
+p.
+  Está prohibido introducir una pieza de forma que el oponente pueda
+  capturarlo en el siguiente turno, a menos que una captura ya fuera posible.
+
+p.
+  En el primer movimiento, las blancas no pueden colocar una pieza al
+  punto central.
+
+p.
+  Si el oponente ya ha colocado todas sus piezas en la mano, entonces
+  "pieza sombra" entra en el juego, que consta de todas las unidades
+  disponibles (así, en este caso, W + B > 1).
+
+h3 Capturas
+
+p.
+  Las capturas se realizan exactamente como en las Damas: saltando una pieza
+  diagonalmente adyacente para caer en una casilla vacía justo detrás.
+  Si una captura es posible, entonces debe jugarse; en este caso
+  ninguna pieza puede colocarse en el tablero.
+  Si después de una captura es posible otra con la misma pieza, entonces
+  debe ser jugado &mdash; a menos que implique un giro de 180 grados.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/9/5A@3/6b@2 e3:
+  .diagram.diag22
+    | fen:9/9/2a@1a@4/9/4a@4/3D@5/4ba4/9/9:
+  figcaption.
+    Antes y después de las capturas negras,
+    saltando a la ubicación marcada.
+    Tambien hay que capturar la unidad blanca siguente.
+
+p.
+  Las capturas pueden describirse formalmente como sigue.
+  Si, controlado por las blancas, W1/B1 salta sobre W2/B2 ubicado en S2 para
+  aterriza en S1', luego W1/(B1+1) llega a S1' mientras W2/(B2-1) permanece
+  en S2. Si W2 = B2 - 1 = 0, entonces no queda nada en la ubicación del
+  pieza capturada.
+  Para una pieza negra, invierta W y B.
+
+p.
+  En otras palabras, cada unidad está formada por una pila de piezas
+  (elementales) amigas o enemigas, las amigas se encuentran arriba.
+  Después de cada captura, los prisioneros en la pila aumentan en uno,
+  mientras que el número de carceleros en el lugar de captura se reduce en uno.
+
+p.
+  Cuando un jugador tiene varias cadenas de capturas disponibles, debe
+  seleccione uno de los más largos (como en Damas):
+
+figure.diagram-container
+  .diagram
+    | fen:9/9/2a@1a@4/9/2bb1a@4/3C@5/9/9/9:
+  figcaption.
+    En https://www.mindsports.nl/:
+    las blancas deben capturar en sentido horario.
+
+p.
+  Puede saltar sobre una pieza varias veces, siempre que
+  contiene al menos una unidad enemiga (que la controla).
+
+h3 Más información
+
+p
+  | Le invitamos a visitar el 
+  a(href="https://www.mindsports.nl/index.php/arena/emergo/88-rules")
+    | sitio de autores
+  | . Las reglas también se describen en 
+  a(href="http://www.iggamecenter.com/info/en/emergo.html") iggamecenter
+  | , donde puedes jugar Emergo.
+
+p Inventores: Christian Freeling y Ed van Zon (1986)

@@ -8,8 +8,8 @@ preamble = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="230" height="230">"""
 
-black = '<circle cx="115" cy="115" r="100" fill="black" stroke="orange"/>'
-white = '<circle cx="115" cy="115" r="100" fill="whitesmoke" stroke="orange"/>'
+black = '<circle cx="115" cy="115" r="100" fill="red" stroke="darkslategray"/>'
+white = '<circle cx="115" cy="115" r="100" fill="yellow" stroke="darkslategray"/>'
 
 digits = [
     # 1
@@ -21,35 +21,20 @@ digits = [
     # 4
     '<path d="M105,95 v20 h20 v20 M125,95 v20"',
     # 5
-    '<path d="M125,95 h-20 v20 h20 v20 h-20"',
-    # 6
-    '<path d="M125,95 h-20 v40 h20 v-20 h-20"',
-    # 7
-    '<path d="M105,95 h20 v40"',
-    # 8
-    '<path d="M105,95 h20 v40 h-20 z M105,115 h20"',
-    # 9
-    '<path d="M105,135 h20 v-40 h-20 v20 h20"',
-    # 10
-    '<path d="M100,95 v40 M110,95 h20 v40 h-20 v-40"',
-    # 11
-    '<path d="M100,95 v40 M130,95 v40"',
-    # 12
-    '<path d="M100,95 v40 M110,95 h20 v20 h-20 M130,115 v20 h-20"'
+    '<path d="M125,95 h-20 v20 h20 v20 h-20"'
 ]
 
 final = "</svg>"
 
 for color in ["white", "black"]:
-    chrShift = 0 if color == "white" else 32
-    for number in range(12):
-        filename = chr(65 + number + chrShift) + "@.svg"
+    for number in range(5):
+        filename = ('w' if color == "white" else 'b') + chr(97 + number + 1) + ".svg"
         f = open(filename, "w")
         f.write(preamble)
         f.write("\n")
         f.write(white if color == "white" else black)
         f.write("\n")
-        f.write(digits[number] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if color == "white" else 'stroke="orange"') + '/>')
+        f.write(digits[number] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if color == "white" else 'stroke="yellow"') + '/>')
         f.write("\n")
         f.write(final)
         f.close()
