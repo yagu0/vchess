@@ -13,29 +13,29 @@ white = '<circle cx="115" cy="115" r="100" fill="whitesmoke" stroke="orange"/>'
 
 digits = [
     # 1
-    '<path d="M125,95 v40"',
+    '<path d="M130,85 v60"',
     # 2
-    '<path d="M105,95 h20 v20 h-20 v20 h20"',
+    '<path d="M100,85 h30 v30 h-30 v30 h30"',
     # 3
-    '<path d="M105,95 h20 v20 h-20 M125,115 v20 h-20"',
+    '<path d="M100,85 h30 v30 h-30 M130,115 v30 h-30"',
     # 4
-    '<path d="M105,95 v20 h20 v20 M125,95 v20"',
+    '<path d="M100,85 v30 h30 v30 M130,85 v30"',
     # 5
-    '<path d="M125,95 h-20 v20 h20 v20 h-20"',
+    '<path d="M130,85 h-30 v30 h30 v30 h-30"',
     # 6
-    '<path d="M125,95 h-20 v40 h20 v-20 h-20"',
+    '<path d="M130,85 h-30 v60 h30 v-30 h-30"',
     # 7
-    '<path d="M105,95 h20 v40"',
+    '<path d="M100,85 h30 v60"',
     # 8
-    '<path d="M105,95 h20 v40 h-20 z M105,115 h20"',
+    '<path d="M100,85 h30 v60 h-30 z M100,115 h30"',
     # 9
-    '<path d="M105,135 h20 v-40 h-20 v20 h20"',
+    '<path d="M100,135 h30 v-60 h-30 v30 h30"',
     # 10
-    '<path d="M100,95 v40 M110,95 h20 v40 h-20 v-40"',
+    '<path d="M95,85 v60 M105,85 h30 v60 h-30 v-60"',
     # 11
-    '<path d="M100,95 v40 M130,95 v40"',
+    '<path d="M95,85 v60 M135,85 v60"',
     # 12
-    '<path d="M100,95 v40 M110,95 h20 v20 h-20 M130,115 v20 h-20"'
+    '<path d="M95,85 v60 M105,85 h30 v30 h-30 v30 h30"'
 ]
 
 final = "</svg>"
@@ -49,7 +49,7 @@ for color in ["white", "black"]:
         f.write("\n")
         f.write(white if color == "white" else black)
         f.write("\n")
-        f.write(digits[number] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if color == "white" else 'stroke="orange"') + '/>')
+        f.write(digits[number] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if color == "white" else 'stroke="orange"') + '/>')
         f.write("\n")
         f.write(final)
         f.close()

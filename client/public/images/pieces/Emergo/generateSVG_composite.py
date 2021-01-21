@@ -22,55 +22,55 @@ black_right = '<circle cx="115" cy="115" r="100" fill="black"/>'
 digits = {
     "left": [
         # 1
-        '<path d="M90,95 v40"',
+        '<path d="M95,85 v60"',
         # 2
-        '<path d="M70,95 h20 v20 h-20 v20 h20"',
+        '<path d="M65,85 h30 v30 h-30 v30 h30"',
         # 3
-        '<path d="M70,95 h20 v20 h-20 M90,115 v20 h-20"',
+        '<path d="M65,85 h30 v30 h-30 M95,115 v30 h-30"',
         # 4
-        '<path d="M70,95 v20 h20 v20 M90,95 v20"',
+        '<path d="M65,85 v30 h30 v30 M95,95 v30"',
         # 5
-        '<path d="M90,95 h-20 v20 h20 v20 h-20"',
+        '<path d="M95,85 h-30 v30 h30 v30 h-30"',
         # 6
-        '<path d="M90,95 h-20 v40 h20 v-20 h-20"',
+        '<path d="M95,85 h-30 v60 h30 v-30 h-30"',
         # 7
-        '<path d="M70,95 h20 v40"',
+        '<path d="M65,85 h30 v60"',
         # 8
-        '<path d="M70,95 h20 v40 h-20 z M70,115 h20"',
+        '<path d="M65,85 h30 v60 h-30 z M65,115 h30"',
         # 9
-        '<path d="M70,135 h20 v-40 h-20 v20 h20"',
+        '<path d="M65,145 h30 v-60 h-30 v30 h30"',
         # 10
-        '<path d="M60,95 v40 M70,95 h20 v40 h-20 v-40"',
+        '<path d="M55,85 v60 M65,85 h30 v60 h-30 v-60"',
         # 11
-        '<path d="M60,95 v40 M90,95 v40"',
+        '<path d="M55,85 v60 M95,85 v60"',
         # 12
-        '<path d="M60,95 v40 M70,95 h20 v20 h-20 M90,115 v20 h-20"'
+        '<path d="M55,85 v60 M65,85 h30 v30 h-30 v30 h30"'
     ],
     "right": [
         # 1
-        '<path d="M180,95 v40"',
+        '<path d="M185,85 v60"',
         # 2
-        '<path d="M160,95 h20 v20 h-20 v20 h20"',
+        '<path d="M155,85 h30 v30 h-30 v30 h30"',
         # 3
-        '<path d="M160,95 h20 v20 h-20 M180,115 v20 h-20"',
+        '<path d="M155,85 h30 v30 h-30 M185,115 v30 h-30"',
         # 4
-        '<path d="M160,95 v20 h20 v20 M180,95 v20"',
+        '<path d="M155,85 v30 h30 v30 M185,85 v30"',
         # 5
-        '<path d="M180,95 h-20 v20 h20 v20 h-20"',
+        '<path d="M185,85 h-30 v30 h30 v30 h-30"',
         # 6
-        '<path d="M180,95 h-20 v40 h20 v-20 h-20"',
+        '<path d="M185,85 h-30 v60 h30 v-30 h-30"',
         # 7
-        '<path d="M160,95 h20 v40"',
+        '<path d="M155,85 h30 v60"',
         # 8
-        '<path d="M160,95 h20 v40 h-20 z M160,115 h20"',
+        '<path d="M155,85 h30 v60 h-30 z M155,115 h30"',
         # 9
-        '<path d="M160,135 h20 v-40 h-20 v20 h20"',
+        '<path d="M155,145 h30 v-60 h-30 v30 h30"',
         # 10
-        '<path d="M150,95 v40 M160,95 h20 v40 h-20 v-40"',
+        '<path d="M145,85 v60 M155,85 h30 v60 h-30 v-60"',
         # 11
-        '<path d="M150,95 v40 M180,95 v40"',
+        '<path d="M145,85 v60 M185,85 v60"',
         # 12
-        '<path d="M150,95 v40 M160,95 h20 v20 h-20 M180,115 v20 h-20"'
+        '<path d="M145,85 v60 M155,85 h30 v30 h-30 v30 h30"'
     ]
 }
 
@@ -88,9 +88,9 @@ for colorLeft in ["white", "black"]:
             f.write("\n")
             f.write(white_left if colorLeft == "white" else black_left)
             f.write("\n")
-            f.write(digits["left"][left] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if colorLeft == "white" else 'stroke="orange"') + '/>')
+            f.write(digits["left"][left] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorLeft == "white" else 'stroke="orange"') + '/>')
             f.write("\n")
-            f.write(digits["right"][right] + ' fill="none" stroke-width="4" ' + ('stroke="red"' if colorLeft == "black" else 'stroke="orange"') + '/>')
+            f.write(digits["right"][right] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorLeft == "black" else 'stroke="orange"') + '/>')
             f.write("\n")
             f.write(final)
             f.close()
