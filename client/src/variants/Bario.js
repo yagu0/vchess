@@ -262,7 +262,6 @@ export class BarioRules extends ChessRules {
     const color = this.turn;
     if (this.movesCount <= 1) {
       // Just put the king on the board
-      let moves = [];
       const firstRank = (color == 'w' ? 7 : 0);
       return [...Array(8)].map((x, j) => {
         return new Move({
@@ -293,6 +292,7 @@ export class BarioRules extends ChessRules {
   }
 
   filterValid(moves) {
+    if (this.movesCount <= 1) return moves;
     const color = this.turn;
     return moves.filter(m => {
       if (m.vanish.length == 0) return true;
@@ -519,7 +519,7 @@ export class BarioRules extends ChessRules {
       this.movesCount--;
       this.postUndo(move);
     };
-    if (this.movesCount <= 2) toPrevPlayer();
+    if (this.movesCount <= 2 && move.appear[0].p == V.KING) toPrevPlayer();
     else if (move.vanish.length == 0) {
       this.reserve[this.turn][move.start.p]++;
       this.subTurn = move.turn[1];
