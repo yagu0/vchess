@@ -43,7 +43,7 @@ final = "</svg>"
 for color in ["white", "black"]:
     chrShift = 0 if color == "white" else 32
     for number in range(12):
-        filename = chr(65 + number + chrShift) + "_.svg"
+        filename = chr(65 + number + chrShift) + "@.svg"
         f = open(filename, "w")
         f.write(preamble)
         f.write("\n");

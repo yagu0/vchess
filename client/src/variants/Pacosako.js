@@ -30,25 +30,25 @@ export class PacosakoRules extends ChessRules {
       x: ['b', 'k'],
       y: ['q', 'q'],
       z: ['q', 'k'],
-      '_': ['k', 'k']
+      '@': ['k', 'k']
     };
   }
 
   static fen2board(f) {
-    // Underscore is character 95, in file w_
-    return f.charCodeAt() <= 95 ? "w" + f.toLowerCase() : "b" + f;
+    // Arobase is character 64
+    return f.charCodeAt() <= 90 ? "w" + f.toLowerCase() : "b" + f;
   }
 
   static IsGoodPosition(position) {
     if (position.length == 0) return false;
     const rows = position.split("/");
     if (rows.length != V.size.x) return false;
-    let kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '_'];
+    let kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '@'];
     let kings = { 'k': 0, 'K': 0 };
     for (let row of rows) {
       let sumElts = 0;
       for (let i = 0; i < row.length; i++) {
-        if (!!(row[i].toLowerCase().match(/[a-z_]/))) {
+        if (!!(row[i].toLowerCase().match(/[a-z@]/))) {
           sumElts++;
           if (kingSymb.includes(row[i])) kings['k']++;
           // Not "else if", if two kings dancing together
@@ -104,12 +104,12 @@ export class PacosakoRules extends ChessRules {
     this.kingPos = { w: [-1, -1], b: [-1, -1] };
     const fenRows = V.ParseFen(fen).position.split("/");
     const startRow = { 'w': V.size.x - 1, 'b': 0 };
-    const kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '_'];
+    const kingSymb = ['k', 'g', 'm', 'u', 'x', 'z', '@'];
     for (let i = 0; i < fenRows.length; i++) {
       let k = 0;
       for (let j = 0; j < fenRows[i].length; j++) {
         const c = fenRows[i].charAt(j);
-        if (!!(c.toLowerCase().match(/[a-z_]/))) {
+        if (!!(c.toLowerCase().match(/[a-z@]/))) {
           if (kingSymb.includes(c))
             this.kingPos["b"] = [i, k];
           // Not "else if", in case of two kings dancing together

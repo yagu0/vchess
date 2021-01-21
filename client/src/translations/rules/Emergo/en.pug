@@ -1,2 +1,62 @@
 p.boxed
-  | TODO
+  | Similar to Checkers, with prisoners stacked below capturers.
+
+p
+  | The 9x9 board is initially empty.
+  | Each player receives 12 stackable pieces, "in hand".
+  | At each turn, a player must either
+  ul
+    li.
+      Enter a new piece on the board such that the opponent cannot capture it.
+      However, if a capture is already possible before the move, then
+      the piece can be dropped anywhere.
+      White cannot place a piece in the center at move 1.
+    li Play a move on the board, along diagonals.
+
+p.
+  Simple moves are Ferz moves: one step diagonally.
+  Captures work exactly as in Checkers: by jumping over a diagonally adjacent
+  piece to land on a free square just behind.
+  However, the resulting situation is more complex. See below.
+  If a capture is possible, then it must be played; in this case no piece can
+  be introduced on the board.
+
+p TODO: diagram
+
+p.
+  Let us consider each unit as a compound entity containing W white pieces
+  and B black ones (initially W = 1 and B = 0 for white units,
+  and vice-versa for black).
+  Captures can then be described formally as follows.
+
+p.
+  As white:
+  If W1/B1 jumps over W2/B2 at square S2 to land on S1', then
+  W1/(B1+1) arrives on S1' and W2/(B2-1) remains on S2.
+  If W2 = B2 - 1 = 0, nothing remains at the captured unit location.
+  As black: exchange W and B above.
+
+p.
+  In other words, each unit is a stack of friendly and enemy pieces, with
+  friendly pieces on top. After each capture, the prisoners part of the
+  stack is incremented, while the "jailers" counterpart at the captured
+  location decreases by one.
+
+p.
+  When several capturing chains are available,
+  the player has to select one of the longest (as in Checkers).
+
+p TODO: diagram (from mindsports.nl)
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.mindsports.nl/index.php/arena/emergo/88-rules")
+    | Emergo page
+  | &nbsp;on the author's website.
+  | Rules are also described on 
+  a(href="http://www.iggamecenter.com/info/en/emergo.html") iggamecenter
+  | , where you can also play this game.
+
+p Inventors: Christian Freeling and Ed van Zon (1986)

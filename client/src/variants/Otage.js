@@ -36,7 +36,7 @@ export class OtageRules extends ChessRules {
       x: ['b', 'k'],
       y: ['q', 'q'],
       z: ['q', 'k'],
-      '_': ['k', 'k']
+      '@': ['k', 'k']
     };
   }
 
@@ -61,7 +61,7 @@ export class OtageRules extends ChessRules {
       for (let i = 0; i < row.length; i++) {
         const lowR = row[i].toLowerCase();
         const readNext = !(ChessRules.PIECES.includes(lowR));
-        if (!!(lowR.match(/[a-z_]/))) {
+        if (!!(lowR.match(/[a-z@]/))) {
           sumElts++;
           if (lowR == 'k') kings[row[i]]++;
           else if (readNext) {
@@ -146,7 +146,7 @@ export class OtageRules extends ChessRules {
         const c = fenRows[i].charAt(j);
         const lowR = c.toLowerCase();
         const readNext = !(ChessRules.PIECES.includes(lowR));
-        if (!!(lowR.match(/[a-z_]/))) {
+        if (!!(lowR.match(/[a-z@]/))) {
           if (lowR == 'k') this.kingPos[c == 'k' ? 'b' : 'w'] = [i, k];
           else if (readNext) {
             const up = this.getUnionPieces(fenRows[i][++j], lowR);

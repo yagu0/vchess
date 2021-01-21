@@ -185,17 +185,15 @@ export class CrazyhouseRules extends ChessRules {
   }
 
   atLeastOneMove() {
-    if (!super.atLeastOneMove()) {
-      // Search one reserve move
-      for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-        const moves = this.filterValid(
-          this.getReserveMoves([V.size.x + (this.turn == "w" ? 0 : 1), i])
-        );
-        if (moves.length > 0) return true;
-      }
-      return false;
+    if (super.atLeastOneMove()) return true;
+    // Search one reserve move
+    for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+      const moves = this.filterValid(
+        this.getReserveMoves([V.size.x + (this.turn == "w" ? 0 : 1), i])
+      );
+      if (moves.length > 0) return true;
     }
-    return true;
+    return false;
   }
 
   postPlay(move) {

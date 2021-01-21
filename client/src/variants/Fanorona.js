@@ -246,18 +246,16 @@ export class FanoronaRules extends ChessRules {
     const color = this.turn;
     move.turn = color; //for undo
     V.PlayOnBoard(this.board, move);
-    const L0 = this.captures.length;
-    let captures = this.captures[L0 - 1];
     if (move.vanish.length >= 2) {
+      const L0 = this.captures.length;
+      let captures = this.captures[L0 - 1];
       captures.push({
         square: move.start,
         step: [move.end.x - move.start.x, move.end.y - move.start.y]
       });
       if (this.atLeastOneCapture())
         // There could be other captures (optional)
-        // This field is mostly useful for computer play.
         move.notTheEnd = true;
-      else captures.pop(); //useless now
     }
     if (!move.notTheEnd) {
       this.turn = V.GetOppCol(color);
@@ -268,12 +266,12 @@ export class FanoronaRules extends ChessRules {
 
   undo(move) {
     V.UndoOnBoard(this.board, move);
-    if (move.turn != this.turn) {
+    if (!move.notTheEnd) {
       this.turn = move.turn;
       this.movesCount--;
       this.captures.pop();
     }
-    else {
+    if (move.vanish.length >= 2) {
       const L0 = this.captures.length;
       let captures = this.captures[L0 - 1];
       captures.pop();
