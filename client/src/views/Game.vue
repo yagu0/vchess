@@ -1064,8 +1064,15 @@ export default {
           // Also to MyGames page:
           this.notifyMyGames("newgame", gameInfo);
         };
-        if (this.game.type == "live")
+        if (this.game.type == "live") {
+          // Increment game stats counter in DB
+          ajax(
+            "/gamestat",
+            "POST",
+            { data: { vid: gameInfo.vid } }
+          );
           this.addAndGotoLiveGame(gameInfo, notifyNewGame);
+        }
         else {
           // corr game
           ajax(
