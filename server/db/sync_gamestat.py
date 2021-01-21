@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Manually (for now: TODO) add an entry in GameStat when a variant is added
+# TODO: also delete lines in GameStat not matching a variant (removed ones...)
 
 from dbconnect import create_connection
 
