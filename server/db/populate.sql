@@ -24,6 +24,8 @@ insert or ignore into Variants (name, description) values
   ('Atarigo', 'First capture wins'),
   ('Atomic1', 'Explosive captures (v1)'),
   ('Atomic2', 'Explosive captures (v2)'),
+  ('Avalam1', 'Build towers (v1)'),
+  ('Avalam2', 'Build towers (v2)'),
   ('Avalanche', 'Pawnfalls'),
   ('Ball', 'Score a goal'),
   ('Balaklava', 'Meet the Mammoth'),

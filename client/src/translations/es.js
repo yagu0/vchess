@@ -183,6 +183,8 @@ export const translations = {
   "Bishop versus pawns": "Alfil contra peones",
   "Board upside down": "Tablero al revés",
   "Both sides of the mirror": "Ambos lados del espejo",
+  "Build towers (v1)": "Construir torres (v1)",
+  "Build towers (v2)": "Construir torres (v2)",
   "Burmese Chess": "Ajedrez birmano",
   "Capablanca Chess": "Ajedrez Capablanca",
   "Capture all of a kind": "Capturar todo del mismo tipo",

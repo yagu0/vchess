@@ -183,6 +183,8 @@ export const translations = {
   "Bishop versus pawns": "Bishop versus pawns",
   "Board upside down": "Board upside down",
   "Both sides of the mirror": "Both sides of the mirror",
+  "Build towers (v1)": "Build towers (v1)",
+  "Build towers (v2)": "Build towers (v2)",
   "Burmese Chess": "Burmese Chess",
   "Capablanca Chess": "Capablanca Chess",
   "Capture all of a kind": "Capture all of a kind",
