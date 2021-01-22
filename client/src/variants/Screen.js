@@ -177,7 +177,13 @@ export class ScreenRules extends ChessRules {
         this.getPotentialMovesFrom([V.size.x + (color == "w" ? 0 : 1), i])
       );
     }
-    return this.filterValid(moves);
+    // Some setup moves may let the king en prise (thus game would be lost)
+    return moves;
+  }
+
+  filterValid(moves) {
+    if (this.movesCount <= 1) return moves;
+    return super.filterValid(moves);
   }
 
   play(move) {
@@ -206,6 +212,13 @@ export class ScreenRules extends ChessRules {
     }
   }
 
+  postPlay(move) {
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      // Only black king could be captured (theoretically...)
+      this.kingPos['b'] = [-1, -1];
+    super.postPlay(move);
+  }
+
   undo(move) {
     const color = move.appear[0].c;
     if (this.movesCount <= 2) {
@@ -226,6 +239,12 @@ export class ScreenRules extends ChessRules {
     else super.undo(move);
   }
 
+  postUndo(move) {
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      this.kingPos['b'] = [move.vanish[1].x, move.vanish[1].y];
+    super.postUndo(move);
+  }
+
   getCheckSquares() {
     if (this.movesCount <= 1) return [];
     return super.getCheckSquares();
@@ -233,6 +252,8 @@ export class ScreenRules extends ChessRules {
 
   getCurrentScore() {
     if (this.movesCount <= 1) return "*";
+    // Only black king could be eaten on move 2:
+    if (this.kingPos['b'][0] < 0) return "1-0";
     return super.getCurrentScore();
   }
 
