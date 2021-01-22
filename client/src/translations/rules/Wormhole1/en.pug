@@ -21,7 +21,7 @@ p.
 
 figure.diagram-container
   .diagram
-    | fen:rbkxxxbn/ppxppppx/2qxxB2/4x2p/3P1x2/3n1x2/PPPxPPPP/RBxxxNKR b2,f2,b4,c5,g5,f6:
+    | fen:cwkxxxwn/ppxppppx/2mxxW2/4x2p/3P1x2/3n1x2/PPPxPPPP/CWxxxNKC b2,f2,b4,c5,g5,f6:
   figcaption Possible moves for the knight on d3.
 
 p.
@@ -30,10 +30,24 @@ p.
 
 h3 Pieces movements
 
+p Three new pieces replace usual sliders:
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Wormhole/wc.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/ww.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/wm.png" style="width:60px")
+  figcaption Left to right: Champion, Wizard, Murray Lion.
+
 ul
-  li The rook moves one or two squares vertically or horizontally.
-  li The bishop moves one or two squares diagonally.
-  li The queen moves either like a rook or like a bishop.
+  li.
+    The champion moves two squares in any direction,
+    or one square orthogonally.
+  li.
+    The wizard moves like an extended knight: two squares in an orthogonal
+    direction, and then one diagonal step. Or, a single diagonal step.
+  li.
+    The Murray Lion can move two squares in any direction.
+    He can also capture (only) by one square like a king.
   li The other pieces move like in orthodox chess.
 p All pieces can jump over others when moving by two squares.
 
@@ -47,11 +61,9 @@ p
   a(href="https://www.chessvariants.com/32turn.dir/wormhole.html")
     | Wormhole chess
   | &nbsp;on chessvariants.com.
-  | I changed the pieces movements because I have a better feeling with the
-  | moves described earlier. It might evolve.
 
 p
-  | Inventor (with other pieces' movements): Fergus Duniho (2000).
+  | Inventor: Fergus Duniho (2000).
   | Similar to 
   a(href="https://www.chessvariants.com/boardrules.dir/cheshir.html")
     | Cheshire Cat Chess

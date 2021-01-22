@@ -1,7 +1,7 @@
 import { ChessRules } from "@/base_rules";
 import { AbsorptionRules } from "@/variants/Absorption";
 
-export class SelfabsorptionRules extends AbsorptionRules {
+export class SelfabsorbRules extends AbsorptionRules {
 
   canTake([x1, y1], [x2, y2]) {
     if (this.getColor(x1, y1) !== this.getColor(x2, y2)) return true;

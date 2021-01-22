@@ -22,7 +22,7 @@ p.
 
 figure.diagram-container
   .diagram
-    | fen:rbkxxxbn/ppxppppx/2qxxB2/4x2p/3P1x2/3n1x2/PPPxPPPP/RBxxxNKR b2,f2,b4,c5,g5,f6:
+    | fen:cwkxxxwn/ppxppppx/2mxxW2/4x2p/3P1x2/3n1x2/PPPxPPPP/CWxxxNKC b2,f2,b4,c5,g5,f6:
   figcaption Posibles movimientos para el caballo en d3.
 
 p.
@@ -31,10 +31,24 @@ p.
 
 h3 ¿Como las piezas se mueven?
 
+p Tres piezas nuevas reemplazan los "deslizadores" habituales:
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Wormhole/wc.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/ww.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/wm.png" style="width:60px")
+  figcaption De izquierda a derecha: Campeón, Hechicero, León "Murray".
+
 ul
-  li La torre se mueve de una o dos casillas verticalmente u horizontalmente.
-  li El alfil se mueve de una o dos casillas en diagonal.
-  li La dama puede moverse como una torre o un alfil.
+  li.
+    El campeón se mueve dos casillas en cualquier dirección,
+    o bien una casilla ortogonalmente.
+  li.
+    El hechicero se mueve como un caballo reclinado: dos cuadrados en uno
+    dirección ortogonal, luego un paso diagonal. O solo un paso en diagonal.
+  li.
+    El león "Murray" se mueve dos cuadrados en cualquier dirección.
+    También puede (solo) capturar de una casilla como un rey.
   li Las otras piezas se mueven como en el ajedrez ortodoxo.
 p Todas las piezas pueden saltar sobre otras cuando se mueven dos espacios.
 
@@ -48,11 +62,9 @@ h3 Fuente
   a(href="https://www.chessvariants.com/32turn.dir/wormhole.html")
     | variante Wormhole
   | &nbsp;en chessvariants.com.
-  | Cambié los movimientos de las piezas porque las descritas aquí
-  | Parece más adecuado. Esto podría evolucionar.
 
 p
-  | Inventor (con otros movimientos de piezas): Fergus Duniho (2000).
+  | Inventor: Fergus Duniho (2000).
   | Similar a 
   a(href="https://www.chessvariants.com/boardrules.dir/cheshir.html")
     | Cheshire Cat Chess

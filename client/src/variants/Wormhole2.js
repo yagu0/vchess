@@ -1,6 +1,6 @@
 import { ChessRules } from "@/base_rules";
 
-export class WormholeRules extends ChessRules {
+export class Wormhole2Rules extends ChessRules {
 
   static get HasFlags() {
     return false;
@@ -150,7 +150,7 @@ export class WormholeRules extends ChessRules {
           this.canTake([x, y], sq)
         )
       ) {
-          moves.push(this.getBasicMove([x, y], sq));
+        moves.push(this.getBasicMove([x, y], sq));
       }
     }
     return moves;
@@ -186,7 +186,7 @@ export class WormholeRules extends ChessRules {
         this.canTake([x, y], [sq[0], sq[1]])
       ) {
         const finalPieces = sq[0] == lastRank
-          ? [V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN]
+          ? V.PawnSpecs.promotions
           : [V.PAWN];
         for (let piece of finalPieces) {
           moves.push(

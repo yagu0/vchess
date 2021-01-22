@@ -136,7 +136,7 @@ insert or ignore into Variants (name, description) values
   ('Rugby', 'Transform an essay'),
   ('Schess', 'Seirawan-Harper Chess'),
   ('Screen', 'Free initial setup'),
-  ('Selfabsorption', 'Fusion pieces (v2)'),
+  ('Selfabsorb', 'Fusion pieces (v2)'),
   ('Shako', 'Non-conformism and utopia'),
   ('Shatranj', 'Ancient rules'),
   ('Shogi', 'Japanese Chess'),
@@ -159,7 +159,8 @@ insert or ignore into Variants (name, description) values
   ('Upsidedown', 'Board upside down'),
   ('Vchess', 'Pawns capture backward'),
   ('Wildebeest', 'Balanced sliders & leapers'),
-  ('Wormhole', 'Squares disappear'),
+  ('Wormhole1', 'Squares disappear (v1)'),
+  ('Wormhole2', 'Squares disappear (v2)'),
   ('Xiangqi', 'Chinese Chess'),
   ('Yote', 'African Draughts'),
   ('Zen', 'Reverse captures');

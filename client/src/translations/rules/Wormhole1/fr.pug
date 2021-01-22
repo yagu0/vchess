@@ -22,7 +22,7 @@ p.
 
 figure.diagram-container
   .diagram
-    | fen:rbkxxxbn/ppxppppx/2qxxB2/4x2p/3P1x2/3n1x2/PPPxPPPP/RBxxxNKR b2,f2,b4,c5,g5,f6:
+    | fen:cwkxxxwn/ppxppppx/2mxxW2/4x2p/3P1x2/3n1x2/PPPxPPPP/CWxxxNKC b2,f2,b4,c5,g5,f6:
   figcaption Coups possibles pour le cavalier en d3.
 
 p.
@@ -31,10 +31,24 @@ p.
 
 h3 Déplacement des pièces
 
+p Trois nouvelles pièces remplacent les "glisseurs" usuels :
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Wormhole/wc.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/ww.png" style="width:60px")
+  img(src="/images/pieces/Wormhole/wm.png" style="width:60px")
+  figcaption De gauche à droite : Champion, Sorcier, Lion "Murray".
+
 ul
-  li La tour se déplace d'une ou deux cases verticalement ou horizontalement.
-  li Le fous se déplace d'une ou deux cases en diagonale.
-  li La dame peut se mouvoir comme une tour ou un fou.
+  li.
+    Le champion se déplace de deux cases dans n'importe quelle direction,
+    ou bien d'une case orthogonalement.
+  li.
+    Le sorcier se déplace comme un cavalier allongé : deux cases dans une
+    direction orthogonale, puis un pas diagonal. Ou, un seul pas diagonal.
+  li.
+    Le lion "Murray" se déplace de deux cases dans n'importe quelle direction.
+    Il peut aussi (seulement) capturer d'une case comme un roi.
   li Les autres pièces se déplacent comme aux échecs orthodoxes.
 p.
   Toutes les pièces peuvent sauter par dessus d'autres
@@ -51,11 +65,9 @@ p
   a(href="https://www.chessvariants.com/32turn.dir/wormhole.html")
     | variante Wormhole
   | &nbsp;sur chessvariants.com.
-  | J'ai changé les déplacements des pièces car ceux décrits ici me
-  | paraissent mieux adaptés. Ceci pourrait évoluer.
 
 p
-  | Inventeur (avec d'autres déplacements de pièces) : Fergus Duniho (2000).
+  | Inventeur : Fergus Duniho (2000).
   | Similaire à 
   a(href="https://www.chessvariants.com/boardrules.dir/cheshir.html")
     | Cheshire Cat Chess
