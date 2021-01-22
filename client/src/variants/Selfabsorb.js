@@ -70,4 +70,8 @@ export class SelfabsorbRules extends AbsorptionRules {
     return moves;
   }
 
+  static get SEARCH_DEPTH() {
+    return 2;
+  }
+
 };

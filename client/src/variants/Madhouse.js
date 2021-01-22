@@ -3,16 +3,25 @@ import { randInt } from "@/utils/alea";
 
 export class MadhouseRules extends ChessRules {
 
-  hoverHighlight([x, y]) {
+  hoverHighlight([x, y], side) {
     // Testing move validity results in an infinite update loop.
     // TODO: find a way to test validity anyway.
-    return (this.subTurn == 2 && this.board[x][y] == V.EMPTY);
+    return (
+      (this.subTurn == 2 && this.board[x][y] == V.EMPTY) &&
+      (!side || side == this.turn)
+    );
   }
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     this.subTurn = 1;
     this.firstMove = [];
+  }
+
+  canIplay(side, [x, y]) {
+    if (this.subTurn == 1) return super.canIplay(side, [x, y]);
+    // subturn == 2, drop a piece:
+    return side == this.turn && this.board[x][y] == V.EMPTY;
   }
 
   getPotentialMovesFrom([x, y]) {

@@ -80,9 +80,9 @@ export class CrazyhouseRules extends ChessRules {
 
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
+    const fenParsed = V.ParseFen(fen);
     // Also init reserves (used by the interface to show landable pieces)
-    const reserve =
-      V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
+    const reserve = fenParsed.reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
         [V.PAWN]: reserve[0],

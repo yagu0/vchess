@@ -16,6 +16,10 @@ export class ShogiRules extends ChessRules {
     return true;
   }
 
+  get showFirstTurn() {
+    return true;
+  }
+
   static get Notoodark() {
     return true;
   }

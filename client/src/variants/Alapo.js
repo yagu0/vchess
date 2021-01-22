@@ -221,4 +221,15 @@ export class AlapoRules extends ChessRules {
     return super.getCurrentScore();
   }
 
+  static get VALUES() {
+    return {
+      r: 5,
+      b: 3,
+      q: 9,
+      t: 3,
+      c: 2,
+      s: 5
+    };
+  }
+
 };

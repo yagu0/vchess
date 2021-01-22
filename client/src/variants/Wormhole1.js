@@ -90,7 +90,7 @@ export class Wormhole1Rules extends Wormhole2Rules {
     return (
       baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
       baseFen.substr(8, 27) +
-      baseFen.substr(35, 43).split('')
+      baseFen.substr(35, 8).toLowerCase().split('')
         .map(p => piecesMap[p]).join('').toUpperCase() +
       " w 0"
     );

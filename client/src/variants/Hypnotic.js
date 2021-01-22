@@ -74,6 +74,21 @@ export class HypnoticRules extends ChessRules {
     return moves;
   }
 
+  getAllPotentialMoves() {
+    let potentialMoves = [];
+    for (let i = 0; i < V.size.x; i++) {
+      for (let j = 0; j < V.size.y; j++) {
+        if (this.board[i][j] != V.EMPTY) {
+          Array.prototype.push.apply(
+            potentialMoves,
+            this.getPotentialMovesFrom([i, j])
+          );
+        }
+      }
+    }
+    return potentialMoves;
+  }
+
   getEnpassantCaptures([x, y], shiftX) {
     const Lep = this.epSquares.length;
     const epSquare = this.epSquares[Lep - 1]; //always at least one element

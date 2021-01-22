@@ -61,7 +61,7 @@ export class ScreenRules extends ChessRules {
       for (let i=0; i<4; i++) {
         for (let j=0; j<8; j++) this.enlightened['b'][i][j] = true;
       }
-      for (let i=5; i<8; i++) {
+      for (let i=4; i<8; i++) {
         for (let j=0; j<8; j++) this.enlightened['w'][i][j] = true;
       }
     }

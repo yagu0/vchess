@@ -6,6 +6,10 @@ export class PawnmassacreRules extends ChessRules {
     return false;
   }
 
+  get showFirstTurn() {
+    return true;
+  }
+
   static GenRandInitFen(randomness) {
     const bFen =
       ChessRules.GenRandInitFen(randomness)

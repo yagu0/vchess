@@ -80,13 +80,14 @@ export class FanoronaRules extends ChessRules {
     return "Fanorona/" + b;
   }
 
-  getPPpath(m) {
+  getPPpath(m, orientation) {
     // m.vanish.length >= 2, first capture gives direction
     const ref = (Math.abs(m.vanish[1].x - m.start.x) == 1 ? m.start : m.end);
     const step = [m.vanish[1].x - ref.x, m.vanish[1].y - ref.y];
+    const multStep = (orientation == 'w' ? 1 : -1);
     const normalizedStep = [
-      step[0] / Math.abs(step[0]),
-      step[1] / Math.abs(step[1])
+      multStep * step[0] / Math.abs(step[0]),
+      multStep * step[1] / Math.abs(step[1])
     ];
     return (
       "Fanorona/arrow_" +

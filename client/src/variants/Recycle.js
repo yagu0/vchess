@@ -86,6 +86,14 @@ export class RecycleRules extends ChessRules {
     return this.board[i][j].charAt(1);
   }
 
+  getPPpath(m) {
+    if (m.vanish.length == 2 && m.appear.length == 2) {
+      // Castle: show castle symbol
+      return "Coregal/castle";
+    }
+    return super.getPPpath(m);
+  }
+
   // Used by the interface:
   getReservePpath(index, color) {
     return color + V.RESERVE_PIECES[index];

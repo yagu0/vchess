@@ -5,6 +5,17 @@ export class Atomic1Rules extends ChessRules {
   getPotentialMovesFrom([x, y]) {
     let moves = super.getPotentialMovesFrom([x, y]);
 
+    if (this.getPiece(x, y) == V.PAWN) {
+      // Promotions by captures can be reduced to only one deterministic
+      // move (because of the explosion).
+      moves = moves.filter(m => {
+        return (
+          m.vanish.length == 1 ||
+          [V.PAWN, V.QUEEN].includes(m.appear[0].p)
+        );
+      });
+    }
+
     // Handle explosions
     moves.forEach(m => {
       // NOTE: if vanish.length==2 and appear.length==2, this is castle

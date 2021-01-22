@@ -67,8 +67,10 @@ export class MinixiangqiRules extends XiangqiRules {
     let evaluation = 0;
     for (let i = 0; i < V.size.x; i++) {
       for (let j = 0; j < V.size.y; j++) {
-        if (this.board[i][j] != V.EMPTY)
-          evaluation += (c == 'w' ? 1 : -1) * V.VALUES[this.getPiece(i, j)];
+        if (this.board[i][j] != V.EMPTY) {
+          const sign = this.getColor(i, j) == "w" ? 1 : -1;
+          evaluation += sign * V.VALUES[this.getPiece(i, j)];
+        }
       }
     }
     return evaluation;

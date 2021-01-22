@@ -527,7 +527,7 @@ export class SynochessRules extends ChessRules {
 
   evalPosition() {
     let evaluation = super.evalPosition();
-    if (this.turn == 'b')
+    if (this.turn == 'b' && !!this.reserve)
       // Add reserves:
       evaluation += this.reserve['b'][V.SOLDIER] * V.VALUES[V.SOLDIER];
     return evaluation;
