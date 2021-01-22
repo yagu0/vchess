@@ -44,10 +44,14 @@ export default {
       setTimeout(() => {
         if (this.currentUrl != document.location.href) return; //page change
         self.$refs["basegame"].play(compMove, "received");
-        const animationLength =
+        let animationLength = 0;
+        const mvArray = (Array.isArray(compMove) ? compMove : [compMove]);
+        const realLength =
+          mvArray.filter(m => m.start.x >= 0 && !m.end.noHighlight).length;
+        if (realLength >= 1)
           // 250 = length of animation, 500 = delay between sub-moves
           // TODO: a callback would be cleaner.
-          250 + (Array.isArray(compMove) ? (compMove.length - 1) * 750 : 0);
+          animationLength = 250 + (realLength - 1) * 750;
         setTimeout(
           () => {
             self.compThink = false;
