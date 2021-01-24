@@ -109,6 +109,12 @@ export class MakrukRules extends ChessRules {
     );
   }
 
+  isAttacked(sq, color) {
+    return (
+      super.isAttacked(sq, color) || this.isAttackedByPromoted(sq, color)
+    );
+  }
+
   isAttackedByBishop(sq, color) {
     const forward = (color == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(
@@ -125,6 +131,16 @@ export class MakrukRules extends ChessRules {
       sq,
       color,
       V.QUEEN,
+      V.steps[V.BISHOP],
+      "oneStep"
+    );
+  }
+
+  isAttackedByPromoted(sq, color) {
+    return super.isAttackedBySlideNJump(
+      sq,
+      color,
+      V.PROMOTED,
       V.steps[V.BISHOP],
       "oneStep"
     );
