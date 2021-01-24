@@ -479,7 +479,11 @@ export class EmergoRules extends ChessRules {
         move.notTheEnd = true;
     }
     else if (move.vanish == 0) {
-      if (--this.reserve[color][V.PAWN] == 0) this.reserve[color] = null;
+      const firstCode = (color == 'w' ? 65 : 97);
+      // Generally, reserveCount == 1 (except for shadow piece)
+      const reserveCount = move.appear[0].c.charCodeAt() - firstCode + 1;
+      this.reserve[color][V.PAWN] -= reserveCount;
+      if (this.reserve[color][V.PAWN] == 0) this.reserve[color] = null;
     }
     if (!move.notTheEnd) {
       this.turn = V.GetOppCol(color);
@@ -497,8 +501,10 @@ export class EmergoRules extends ChessRules {
     }
     if (move.vanish.length == 0) {
       const color = (move.appear[0].c == 'A' ? 'w' : 'b');
-      if (!this.reserve[color]) this.reserve[color] = { [V.PAWN]: 1 };
-      else this.reserve[color][V.PAWN]++;
+      const firstCode = (color == 'w' ? 65 : 97);
+      const reserveCount = move.appear[0].c.charCodeAt() - firstCode + 1;
+      if (!this.reserve[color]) this.reserve[color] = { [V.PAWN]: 0 };
+      this.reserve[color][V.PAWN] += reserveCount;
     }
     else if (move.vanish.length == 2) {
       const L0 = this.captures.length;
