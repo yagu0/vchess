@@ -399,6 +399,7 @@ export class EmergoRules extends ChessRules {
       return [];
     }
     const color = this.turn;
+    if (!!this.reserve[color] && !this.atLeastOneCapture()) return [];
     const L0 = this.captures.length;
     const captures = this.captures[L0 - 1];
     const L = captures.length;
