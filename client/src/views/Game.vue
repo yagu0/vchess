@@ -1056,8 +1056,7 @@ export default {
           cadence: this.game.cadence
         };
         const notifyNewGame = () => {
-          const oppsid = this.getOppsid(); //may be null
-          this.send("rnewgame", { data: gameInfo, oppsid: oppsid });
+          this.send("rnewgame", { data: gameInfo });
           // To main Hall if corr game:
           if (this.game.type == "corr")
             this.send("newgame", { data: gameInfo, page: "/" });
@@ -1065,6 +1064,10 @@ export default {
           this.notifyMyGames("newgame", gameInfo);
         };
         if (this.game.type == "live") {
+          GameStorage.update(
+            this.gameRef,
+            { rematchOffer: "" }
+          );
           // Increment game stats counter in DB
           ajax(
             "/gamestat",
@@ -1075,15 +1078,16 @@ export default {
         }
         else {
           // corr game
+          this.updateCorrGame({ rematchOffer: 'n' });
           ajax(
             "/games",
             "POST",
             {
               data: { gameInfo: gameInfo },
               success: (response) => {
-                gameInfo.id = response.gameId;
+                gameInfo.id = response.id;
                 notifyNewGame();
-                this.$router.push("/game/" + response.gameId);
+                this.$router.push("/game/" + response.id);
               }
             }
           );

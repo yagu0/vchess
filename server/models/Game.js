@@ -85,9 +85,10 @@ const GameModel = {
       let query =
         "SELECT " +
           "g.id, g.fen, g.fenStart, g.cadence, g.created, " +
-          "g.white, g.black, g.score, g.scoreMsg, " +
-          "g.chatReadWhite, g.chatReadBlack, " +
-          "g.drawOffer, g.rematchOffer, v.name AS vname " +
+          "g.white, g.black, g.randomness, g.score, g.scoreMsg, " +
+          "g.chatReadWhite, g.chatReadBlack, g.drawOffer, " +
+          // TODO: vid and vname are redundant
+          "g.rematchOffer, v.id as vid, v.name AS vname " +
         "FROM Games g " +
         "JOIN Variants v " +
         "  ON g.vid = v.id " +
