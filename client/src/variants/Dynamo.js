@@ -739,6 +739,15 @@ export class DynamoRules extends ChessRules {
     return potentialMoves;
   }
 
+  getEmptyMove() {
+    return new Move({
+      start: { x: -1, y: -1 },
+      end: { x: -1, y: -1 },
+      appear: [],
+      vanish: []
+    });
+  }
+
   doClick(square) {
     // A click to promote a piece on subTurn 2 would trigger this.
     // For now it would then return [NaN, NaN] because surrounding squares
@@ -754,36 +763,55 @@ export class DynamoRules extends ChessRules {
       !this.underCheck(this.turn) &&
       (La == 0 || !this.oppositeMoves(this.amoves[La-1], this.firstMove[Lf-1]))
     ) {
-      return {
-        start: { x: -1, y: -1 },
-        end: { x: -1, y: -1 },
-        appear: [],
-        vanish: []
-      };
+      return this.getEmptyMove();
     }
     return null;
   }
 
   play(move) {
+    const color = this.turn;
+    move.subTurn = this.subTurn; //for undo
+    const gotoNext = (mv) => {
+      const L = this.firstMove.length;
+      this.amoves.push(this.getAmove(this.firstMove[L-1], mv));
+      this.turn = V.GetOppCol(color);
+      this.subTurn = 1;
+      this.movesCount++;
+    };
     move.flags = JSON.stringify(this.aggregateFlags());
     V.PlayOnBoard(this.board, move);
-    // NOTE; if subTurn == 1, there may be no available moves at subTurn == 2.
-    // However, it's quite easier to wait for a user click.
-    if (this.subTurn == 2) {
-      const L = this.firstMove.length;
-      this.amoves.push(this.getAmove(this.firstMove[L-1], move));
-      this.turn = V.GetOppCol(this.turn);
-      this.movesCount++;
+    if (this.subTurn == 2) gotoNext(move);
+    else {
+      this.subTurn = 2;
+      this.firstMove.push(move);
+      this.toNewKingPos(move);
+      if (
+        // Condition is true on empty arrays:
+        this.getAllPotentialMoves().every(m => {
+          V.PlayOnBoard(this.board, m);
+          this.toNewKingPos(m);
+          const res = this.underCheck(color);
+          V.UndoOnBoard(this.board, m);
+          this.toOldKingPos(m);
+          return res;
+        })
+      ) {
+        // No valid move at subTurn 2
+        gotoNext(this.getEmptyMove());
+      }
+      this.toOldKingPos(move);
     }
-    else this.firstMove.push(move);
-    this.subTurn = 3 - this.subTurn;
     this.postPlay(move);
+  }
+
+  toNewKingPos(move) {
+    for (let a of move.appear)
+      if (a.p == V.KING) this.kingPos[a.c] = [a.x, a.y];
   }
 
   postPlay(move) {
     if (move.start.x < 0) return;
-    for (let a of move.appear)
-      if (a.p == V.KING) this.kingPos[a.c] = [a.x, a.y];
+    this.toNewKingPos(move);
     this.updateCastleFlags(move);
   }
 
@@ -806,12 +834,12 @@ export class DynamoRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
-    else this.firstMove.pop();
-    this.subTurn = 3 - this.subTurn;
-    this.postUndo(move);
+    if (move.subTurn == 1) this.firstMove.pop();
+    this.subTurn = move.subTurn;
+    this.toOldKingPos(move);
   }
 
-  postUndo(move) {
+  toOldKingPos(move) {
     // (Potentially) Reset king position
     for (let v of move.vanish)
       if (v.p == V.KING) this.kingPos[v.c] = [v.x, v.y];
