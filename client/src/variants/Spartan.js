@@ -398,4 +398,26 @@ export class SpartanRules extends ChessRules {
     return 2;
   }
 
+  getNotation(move) {
+    const piece = this.getPiece(move.start.x, move.start.y);
+    if (piece == V.PAWN) {
+      // Pawn move
+      const finalSquare = V.CoordsToSquare(move.end);
+      let notation = "";
+      if (move.vanish.length == 2)
+        // Capture
+        notation = "Px" + finalSquare;
+      else {
+        // No capture: indicate the initial square for potential ambiguity
+        const startSquare = V.CoordsToSquare(move.start);
+        notation = startSquare + finalSquare;
+      }
+      if (move.appear[0].p != V.PAWN)
+        // Promotion
+        notation += "=" + move.appear[0].p.toUpperCase();
+      return notation;
+    }
+    return super.getNotation(move); //OK for all other pieces
+  }
+
 };
