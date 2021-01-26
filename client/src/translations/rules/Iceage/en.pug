@@ -1,0 +1,43 @@
+p.boxed
+  | Every 20 moves, most empty squares freeze and isolated pieces vanish.
+
+p
+  | Ice Age is a 
+  a(href="https://www.chessvariants.com/boardrules.dir/iceage.html")
+    | chess variant
+  | &nbsp;invented by Köksal Karakus in 2000.
+  | It can also be played on 
+  a(href="https://brainking.com/en/GameRules?tp=100") brainking.com
+  | .
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/cccccccc/cccccccc/cccccccc/cccccccc/PPPPPPPP/RNBQKBNR:
+  figcaption Deterministic initial position
+
+p.
+  If the board is filled with ice cubes, you can only move by capturing them.
+  Ice cubes behave as normal pieces, which cannot move.
+
+p.
+  Just after the 20th black move (and before the 21st white one),
+  "ice age is coming":
+ul
+  li all empty squares freeze, except those orthogonally surrounded by pieces.
+  li all pieces which are not adjacent to any other piece (black or white) vanish.
+p.
+  If only one king remains, the other side loses.
+  But if both disappeared, then the result is a draw.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:2rq1rk1/3bpp2/1c1p1bP1/1p2n3/4P2P/1NN2P1c/PPPQ4/1K1R3R:
+  .diagram.diag22
+    | fen:cccq1rkc/cccbppcc/cccp1bPc/ccccnccc/ccccPccc/cNrccPcc/PPPQcccc/1K1Rcccc:
+  figcaption Before and after 20...Rxc3
+
+p.
+  Then, every 20 moves ice age comes again: after move 40, 60, and so on.
+  This condition excepted, the game follows FIDE chess rules, without draws
+  on repetition: indeed, as the author notices, sometimes a win is possible
+  by "waiting until the enemy king freezes".

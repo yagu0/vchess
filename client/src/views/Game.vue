@@ -1406,18 +1406,20 @@ export default {
           // In corr games, just reset clock to mainTime:
           this.game.clocks[colorIdx] = extractTime(this.game.cadence).mainTime;
         }
-        // If repetition detected, consider that a draw offer was received:
-        const fenObj = this.vr.getFenForRepeat();
-        this.repeat[fenObj] =
-          !!this.repeat[fenObj]
-            ? this.repeat[fenObj] + 1
-            : 1;
-        if (this.repeat[fenObj] >= 3) {
-          if (V.LoseOnRepetition)
-            this.gameOver(moveCol == "w" ? "0-1" : "1-0", "Repetition");
-          else this.drawOffer = "threerep";
+        if (!V.IgnoreRepetition) {
+          // If repetition detected, consider that a draw offer was received:
+          const fenObj = this.vr.getFenForRepeat();
+          this.repeat[fenObj] =
+            !!this.repeat[fenObj]
+              ? this.repeat[fenObj] + 1
+              : 1;
+          if (this.repeat[fenObj] >= 3) {
+            if (V.LoseOnRepetition)
+              this.gameOver(moveCol == "w" ? "0-1" : "1-0", "Repetition");
+            else this.drawOffer = "threerep";
+          }
+          else if (this.drawOffer == "threerep") this.drawOffer = "";
         }
-        else if (this.drawOffer == "threerep") this.drawOffer = "";
         if (!!this.game.mycolor && !data.receiveMyMove) {
           // NOTE: 'var' to see that variable outside this block
           var filtered_move = getFilteredMove(move);

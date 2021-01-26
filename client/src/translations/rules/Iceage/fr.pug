@@ -1,0 +1,48 @@
+p.boxed
+  | Tous les 20 coups, la plupart des cases vides gèlent
+  | et les pièces isolées disparaissent.
+
+p
+  | Ice Age est 
+  a(href="https://www.chessvariants.com/boardrules.dir/iceage.html")
+    | une variante
+  | &nbsp;inventée par Köksal Karakus en 2000.
+  | On peut aussi y jouer sur 
+  a(href="https://brainking.com/en/GameRules?tp=100") brainking.com
+  | .
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/cccccccc/cccccccc/cccccccc/cccccccc/PPPPPPPP/RNBQKBNR:
+  figcaption Position initiale déterministe
+
+p.
+  Si l'échiquier est rempli de blocs de glace, vous ne pouvez bougez qu'en
+  les capturant. Ceux-ci se comportent comme des pièces normales, immobiles.
+
+p.
+  Immédiatement après le 20eme coup noir (et avant le 21 coup blanc),
+  "l'âge de glace arrive" :
+ul
+  li.
+    toutes les cases vides gèlent,
+    sauf celles orthogonalement entourées de pièces.
+  li.
+    toutes les pièces qui ne sont pas adjacentes à une autre pièce
+    (amie ou ennemie) disparaissent.
+p.
+  Si un seul roi subsiste, l'autre camp perd.
+  Mais si les deux ont disparu, alors la partie est nulle.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:2rq1rk1/3bpp2/1c1p1bP1/1p2n3/4P2P/1NN2P1c/PPPQ4/1K1R3R:
+  .diagram.diag22
+    | fen:cccq1rkc/cccbppcc/cccp1bPc/ccccnccc/ccccPccc/cNrccPcc/PPPQcccc/1K1Rcccc:
+  figcaption Avant et après 20...Rxc3
+
+p.
+  Ensuite, tous les 20 coups l'âge de glace revient : après le 40eme, 60eme,
+  etc. Cette condition exceptée, la partie suit les règles FIDE des échecs,
+  sans les nulles par répétition : en effet, comme l'auteur le fait remarquer,
+  on peut parfois gagner en "attendant que le roi adverse gèle".

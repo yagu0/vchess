@@ -80,6 +80,7 @@ insert or ignore into Variants (name, description) values
   ('Hoppelpoppel', 'Knibis and Bisknis'),
   ('Horde', 'A pawns cloud'),
   ('Hypnotic', 'Mind control (v1)'),
+  ('Iceage', 'Ice Age is coming!'),
   ('Interweave', 'Interweaved colorbound teams'),
   ('Isardam', 'No paralyzed pieces'),
   ('Janggi', 'Korean Chess'),

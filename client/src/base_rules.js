@@ -135,6 +135,10 @@ export const ChessRules = class ChessRules {
   static get LoseOnRepetition() {
     return false;
   }
+  // And in some others (Iceage), repetitions should be ignored:
+  static get IgnoreRepetition() {
+    return false;
+  }
 
   // At some stages, some games could wait clicks only:
   onlyClick() {

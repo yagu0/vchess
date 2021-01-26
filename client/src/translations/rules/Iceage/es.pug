@@ -1,0 +1,48 @@
+p.boxed
+  | Cada 20 movimientos, la mayoría de las casillas vacías se congelan
+  | y las piezas aisladas desaparecen.
+
+p
+  | Ice Age es 
+  a(href="https://www.chessvariants.com/boardrules.dir/iceage.html")
+    | una variante
+  | &nbsp;inventado por Köksal Karakus en 2000.
+  | También puedes jugarlo en 
+  a(href="https://brainking.com/en/GameRules?tp=100") brainking.com
+  | .
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkbnr/pppppppp/cccccccc/cccccccc/cccccccc/cccccccc/PPPPPPPP/RNBQKBNR:
+  figcaption Posición inicial determinista
+
+p.
+  Si el tablero está lleno de bloques de hielo, solo puedes mover
+  capturarlos. Se comportan como piezas estacionarias normales.
+
+p.
+  Inmediatamente después del 20mo movimiento negro (y antes del 20mo
+  movimiento blanco), "la edad de hielo se acerca":
+ul
+  li.
+    todas las casillas vacías se congelan,
+    excepto aquellas rodeadas ortogonalmente por piezas.
+  li.
+    todas las piezas que no están adyacentes a otra habitación
+    (amigo o enemigo) desaparece.
+p.
+  Si solo queda un rey, el otro lado pierde.
+  Pero si ambos se van, entonces el juego es un empate.
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:2rq1rk1/3bpp2/1c1p1bP1/1p2n3/4P2P/1NN2P1c/PPPQ4/1K1R3R:
+  .diagram.diag22
+    | fen:cccq1rkc/cccbppcc/cccp1bPc/ccccnccc/ccccPccc/cNrccPcc/PPPQcccc/1K1Rcccc:
+  figcaption Antes y después de 20...Rxc3
+
+p.
+  Luego, cada 20 jugadas regresa la edad de hielo: después del 40, 60,
+  etc. Salvo esta condición, el juego sigue las reglas de ajedrez de la FIDE,
+  sin los empates por repetición: de hecho, como señala el autor,
+  a veces puedes ganar "esperando que el rey contrario se congele".
