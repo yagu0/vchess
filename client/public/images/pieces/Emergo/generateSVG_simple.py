@@ -8,8 +8,8 @@ preamble = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="230" height="230">"""
 
-black = '<circle cx="115" cy="115" r="100" fill="black" stroke="orange"/>'
-white = '<circle cx="115" cy="115" r="100" fill="whitesmoke" stroke="orange"/>'
+black = '<circle cx="115" cy="115" r="100" fill="black"/>'
+white = '<circle cx="115" cy="115" r="100" fill="whitesmoke" stroke="saddlebrown"/>'
 
 digits = [
     # 1
