@@ -546,15 +546,20 @@ export default {
       }
     },
     addArrow: function(arrow) {
-      this.arrows.push(arrow);
-      // Also add to DOM:
-      const boardElt = document.getElementById("gamePosition");
-      const squareWidth = boardElt.offsetWidth / V.size.y;
-      const bPos = boardElt.getBoundingClientRect();
-      const newArrow =
-        this.getSvgArrow(arrow, bPos.top, bPos.left, squareWidth);
-      document.getElementById("arrowCanvas")
-        .insertAdjacentElement("beforeend", newArrow);
+      const arrowIdx = this.arrows.findIndex(a => {
+        return (
+          a.start[0] == arrow.start[0] && a.start[1] == arrow.start[1] &&
+          a.end[0] == arrow.end[0] && a.end[1] == arrow.end[1]
+        );
+      });
+      if (arrowIdx >= 0)
+        // Erase the arrow
+        this.arrows.splice(arrowIdx, 1);
+      else
+        // Add to arrows vector:
+        this.arrows.push(arrow);
+      // NOTE: no need to draw here, will be re-draw
+      // by updated() hook callong re_setDrawings()
     },
     getSvgArrow: function(arrow, top, left, squareWidth) {
       const aStart =
