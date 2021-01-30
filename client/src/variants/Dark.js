@@ -83,6 +83,11 @@ export class DarkRules extends ChessRules {
     }
   }
 
+  // To always allow castling:
+  isAttacked() {
+    return false;
+  }
+
   filterValid(moves) {
     // Used in the interface
     return moves;
