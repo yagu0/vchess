@@ -295,7 +295,13 @@ export class BarioRules extends ChessRules {
     if (this.movesCount <= 1) return moves;
     const color = this.turn;
     return moves.filter(m => {
-      if (m.vanish.length == 0) return true;
+      if (m.vanish.length == 0) {
+        // subTurn == 0: need to check if a move exists at subTurn == 1
+        this.play(m);
+        const res = this.filterValid(this.getAllPotentialMoves()).length > 0;
+        this.undo(m);
+        return res;
+      }
       const start = { x: m.vanish[0].x, y: m.vanish[0].y };
       const end = { x: m.appear[0].x, y: m.appear[0].y };
       if (start.x == end.x && start.y == end.y) {
@@ -330,9 +336,10 @@ export class BarioRules extends ChessRules {
       }
       return false;
     };
-    if (this.subTurn == 0) return true; //always one reserve for an undefined
-    if (!super.atLeastOneMove()) return atLeastOneReserveMove();
-    return true;
+    if (this.subTurn == 0) return atLeastOneReserveMove();
+    const canMoveSomething = super.atLeastOneMove();
+    if (this.subTurn == 2) return canMoveSomething;
+    return (canMoveSomething || atLeastOneReserveMove());
   }
 
   underCheck(color) {
