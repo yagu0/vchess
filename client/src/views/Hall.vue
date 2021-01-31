@@ -873,10 +873,6 @@ export default {
             let newGame = game;
             newGame.type = this.classifyObject(game);
             newGame.vname = this.getVname(game.vid);
-            
-
-console.log(newGame.vname);
-console.log(game.vid);
             if (!game.score)
               // New game from Hall
               newGame.score = "*";
