@@ -473,7 +473,7 @@ const GameModel = {
     const day = 86400000;
     db.serialize(function() {
       let query =
-        "SELECT id, created " +
+        "SELECT id, created, cadence, score " +
         "FROM Games";
       db.all(query, (err, games) => {
         query =
@@ -490,25 +490,50 @@ const GameModel = {
             };
           });
           // Remove games still not really started,
-          // with no action in the last 2 weeks:
+          // with no action in the last 2 weeks, or result != '*':
           let toRemove = [];
+          let lostOnTime = [ [], [] ];
           games.forEach(g => {
             if (
               (
                 !movesGroups[g.id] &&
-                tsNow - g.created > 14*day
+                (g.score != '*' || tsNow - g.created > 14*day)
               )
               ||
               (
                 !!movesGroups[g.id] &&
                 movesGroups[g.id].nbMoves == 1 &&
-                tsNow - movesGroups[g.id].lastMaj > 14*day
+                (g.score != '*' || tsNow - movesGroups[g.id].lastMaj > 14*day)
               )
             ) {
               toRemove.push(g.id);
             }
+            // Set score if lost on time and >= 2 moves:
+            else if (
+              !!movesGroups[g.id] &&
+              movesGroups[g.id].nbMoves >= 2 &&
+              tsNow - movesGroups[g.id].lastMaj >
+                // cadence in days * nb seconds per day:
+                parseInt(g.cadence.slice(0, -1), 10) * day
+            ) {
+              lostOnTime[movesGroups[g.id].nbMoves % 2].push(g.id);
+            }
           });
           if (toRemove.length > 0) GameModel.remove(toRemove);
+          if (lostOnTime.some(l => l.length > 0)) {
+            db.parallelize(function() {
+              for (let i of [0, 1]) {
+                if (lostOnTime[i].length > 0) {
+                  const score = (i == 0 ? "0-1" : "1-0");
+                  const query =
+                    "UPDATE Games " +
+                    "SET score = '" + score + "', scoreMsg = 'Time' " +
+                    "WHERE id IN (" + lostOnTime[i].join(',') + ")";
+                  db.run(query);
+                }
+              }
+            });
+          }
         });
       });
     });
