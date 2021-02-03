@@ -282,6 +282,7 @@ export class FootballRules extends ChessRules {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     const c = this.turn;
     let moves = [];
+    let atLeastOnePotentialKick = false;
     for (let s of steps) {
       const [i, j] = [x + s[0], y + s[1]];
       if (
@@ -289,15 +290,18 @@ export class FootballRules extends ChessRules {
         this.board[i][j] != V.EMPTY &&
         this.getColor(i, j) == c
       ) {
+        if (!atLeastOnePotentialKick) atLeastOnePotentialKick = true;
         Array.prototype.push.apply(moves, this.tryKickFrom([i, j]));
       }
     }
-    // And, always add the "end" move. For computer, keep only one
-    outerLoop: for (let i=0; i < V.size.x; i++) {
-      for (let j=0; j < V.size.y; j++) {
-        if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
-          moves.push(super.getBasicMove([x, y], [i, j]));
-          if (!!computer) break outerLoop;
+    if (atLeastOnePotentialKick) {
+      // And, always add the "end" move. For computer, keep only one
+      outerLoop: for (let i=0; i < V.size.x; i++) {
+        for (let j=0; j < V.size.y; j++) {
+          if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
+            moves.push(super.getBasicMove([x, y], [i, j]));
+            if (!!computer) break outerLoop;
+          }
         }
       }
     }
