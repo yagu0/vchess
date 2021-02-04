@@ -768,8 +768,8 @@ export class PacosakoRules extends ChessRules {
     // NOTE: lm.p != V.KING, always.
     const piece =
       !!lm
-        ? lm.p :
-        this.getPiece(move.vanish[0].x, move.vanish[0].y);
+        ? lm.p
+        : this.getPiece(move.vanish[0].x, move.vanish[0].y);
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     this.updateCastleFlags(move, piece);

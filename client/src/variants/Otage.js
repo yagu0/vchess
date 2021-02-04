@@ -704,8 +704,8 @@ export class OtageRules extends ChessRules {
     const lm = this.lastMoveEnd[L-1];
     const piece =
       !!lm
-        ? lm.p :
-        this.getPiece(move.vanish[0].x, move.vanish[0].y);
+        ? lm.p
+        : this.getPiece(move.vanish[0].x, move.vanish[0].y);
     if (piece == V.KING)
       this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
     this.updateCastleFlags(move, piece);
@@ -762,6 +762,13 @@ export class OtageRules extends ChessRules {
   postUndo(move) {
     if (this.getPiece(move.start.x, move.start.y) == V.KING)
       this.kingPos[this.turn] = [move.start.x, move.start.y];
+    else {
+      // Check if a king is being released: put it on releasing square
+      const L = this.lastMoveEnd.length;
+      const lm = this.lastMoveEnd[L-1];
+      if (!!lm && lm.p == V.KING)
+        this.kingPos[this.turn] = [move.start.x, move.start.y];
+    }
   }
 
   getCurrentScore() {
