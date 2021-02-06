@@ -256,9 +256,6 @@ export class SynochessRules extends ChessRules {
     // or if move.end.x == enemy king rank.
     const color = this.getColor(sq[0], sq[1]);
     const oppCol = V.GetOppCol(color);
-    // check == -1 if (row, or col) unchecked, 1 if checked and occupied,
-    //          0 if checked and clear
-    let check = [-1, -1];
     return moves.filter(m => {
       if (
         m.end.y != this.kingPos[oppCol][1] &&
@@ -266,13 +263,15 @@ export class SynochessRules extends ChessRules {
       ) {
         return true;
       }
+      // check == -1 if (row, or col) unchecked, 1 if checked and occupied,
+      //          0 if checked and clear
+      let check = [-1, -1];
       // TODO: factor two next "if"...
       if (m.end.x == this.kingPos[oppCol][0]) {
         if (check[0] < 0) {
           // Do the check:
           check[0] = 0;
-          let [kingPos1, kingPos2] =
-            [this.kingPos[color][1], this.kingPos[oppCol][1]];
+          let [kingPos1, kingPos2] = [m.end.y, this.kingPos[oppCol][1]];
           if (kingPos1 > kingPos2) [kingPos1, kingPos2] = [kingPos2, kingPos1];
           for (let i = kingPos1 + 1; i < kingPos2; i++) {
             if (this.board[m.end.x][i] != V.EMPTY) {
@@ -289,8 +288,7 @@ export class SynochessRules extends ChessRules {
       if (check[1] < 0) {
         // Do the check:
         check[1] = 0;
-        let [kingPos1, kingPos2] =
-          [this.kingPos[color][0], this.kingPos[oppCol][0]];
+        let [kingPos1, kingPos2] = [m.end.x, this.kingPos[oppCol][0]];
         if (kingPos1 > kingPos2) [kingPos1, kingPos2] = [kingPos2, kingPos1];
         for (let i = kingPos1 + 1; i < kingPos2; i++) {
           if (this.board[i][m.end.y] != V.EMPTY) {
