@@ -372,7 +372,7 @@ export class PacosakoRules extends ChessRules {
     }
     let baseMoves = [];
     const c = this.turn;
-    switch (piece || this.getPiece(x, y)) {
+    switch (piece) {
       case V.PAWN: {
         const firstRank = (c == 'w' ? 7 : 0);
         baseMoves = this.getPotentialPawnMoves([x, y]).filter(m => {

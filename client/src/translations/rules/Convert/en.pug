@@ -1,0 +1,30 @@
+p.boxed.
+  Capturing an enemy piece changes its color.
+  The converted piece must be moved immediatly.
+
+p.
+  Each capture transforms the captured piece into a friendly one
+  (changing color). Since it cannot remain on the capturing square,
+  it has to be moved immediately. This newly converted piece can now
+  capture (and thus "convert") another enemy piece, and so on.
+
+p.
+  Castling is impossible if any square traversed by the king is controlled
+  (directly or through a chain). Checks are ignored otherwise.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPPb1n/2B1N1N1/PPP2PPR/RQK5:
+  figcaption Black cannot castle because of the "check" Bxd5, Bxb7, Pxc8
+
+p.
+  The goal is to convert the enemy king. Note that capturing a king is
+  possible only if a king move is then available. However, a piece gives
+  check (concerning castle) even if it's impossible.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPP2n/2B1b1N1/PPn2PPR/Rrqk4:
+  figcaption Black wins from the first diagram: Bxe3, Nxc2, Pxb1=R, Qxc1, Ke1
+
+p If in a chain a converted piece cannot move, then you must reset the move.

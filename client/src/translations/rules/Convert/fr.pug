@@ -1,0 +1,35 @@
+p.boxed.
+  Capturer une pièce ennemie change sa couleur.
+  La pièce convertie doit être déplacée immédiatement.
+
+p.
+  Chaque capture transforme la pièce capturée en une pièce amie (changeant
+  de couleur). Puisqu'elle ne peut pas rester sur la case de capture, elle
+  doit tout de suite être déplacée. La pièce nouvellement convertie peut
+  alors capturer (et ainsi "convertir") une autre pièce adverse, etc.
+
+p.
+  Le roque est impossible si une case traversée par le roi est contrôlée
+  (directement ou via une chaîne). Les échecs sont ignorés le reste du temps.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPPb1n/2B1N1N1/PPP2PPR/RQK5:
+  figcaption Les noirs ne peuvent roquer à cause de l'"échec" Bxd5, Bxb7, Pxc8
+
+p.
+  L'objectof est de convertir le roi adverse. Notez qu'une capture de roi
+  n'est possible que si vous pouvez effectuer un coup de roi ensuite.
+  Cependant, une pièce donne échec (concernant le roque)
+  même si c'est impossible.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPP2n/2B1b1N1/PPn2PPR/Rrqk4:
+  figcaption.
+    Les noirs gagnent depuis le premier diagramme:
+    Bxe3, Nxc2, Pxb1=R, Qxc1, Ke1
+
+p.
+  Si dans une chaîne une pièce convertie ne peut pas bouger,
+  alors vous devez recommencer le coup.

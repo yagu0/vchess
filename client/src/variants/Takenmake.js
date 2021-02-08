@@ -13,10 +13,9 @@ export class TakenmakeRules extends ChessRules {
     const L = this.lastMoveEnd.length;
     if (!asA && !!this.lastMoveEnd[L-1]) {
       asA = this.lastMoveEnd[L-1].p;
-      if (x != this.lastMoveEnd[L-1].x || y != this.lastMoveEnd[L-1].y) {
+      if (x != this.lastMoveEnd[L-1].x || y != this.lastMoveEnd[L-1].y)
         // A capture was played: wrong square
         return [];
-      }
     }
     let moves = [];
     const piece = this.getPiece(x, y);

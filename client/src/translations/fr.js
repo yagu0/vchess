@@ -199,6 +199,7 @@ export const translations = {
   "Chinese Chess": "Échecs chinois",
   "Convert & support (v1)": "Convertir & soutenir (v1)",
   "Convert & support (v2)": "Convertir & soutenir (v2)",
+  "Convert enemy pieces": "Convertissez les pièces adverses",
   "Cross the river": "Traversez la rivière",
   "Dance with the King": "Dansez avec le Roi",
   "Dangerous captures": "Captures dangeureuses",

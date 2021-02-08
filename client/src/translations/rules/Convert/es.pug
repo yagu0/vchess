@@ -1,0 +1,36 @@
+p.boxed.
+  La captura de una pieza enemiga cambia su color.
+  La pieza convertida debe moverse inmediatamente.
+
+p.
+  Cada captura transforma la pieza capturada en una pieza amiga (cambiando
+  de color). Como no puede permanecer en la casilla de captura,
+  debe moverse de inmediato. La pieza recién convertida puede
+  luego capturar (y así "convertir") una otra pieza opuesta, etc.
+
+p.
+  El enroque es imposible si se controla una casilla cruzada por el rey
+  (directamente o mediante una cadena).
+  Los jaques se ignoran el resto del tiempo.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPPb1n/2B1N1N1/PPP2PPR/RQK5:
+  figcaption Las negras no pueden enrocar debido al "jaque" Bxd5, Bxb7, Pxc8
+
+p.
+  El objetivo es convertir al rey contrario. Tenga en cuenta que la captura
+  de un rey solo es posible si puedes realizar un movimiento de rey después.
+  Sin embargo, una pieza da jaque (en cuanto al enroque)
+  incluso si es imposible.
+
+figure.diagram-container
+  .diagram
+    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPP2n/2B1b1N1/PPn2PPR/Rrqk4:
+  figcaption.
+    Las negras ganan desde el primer diagrama:
+    Bxe3, Nxc2, Pxb1 = R, Qxc1, Ke1
+
+p.
+  Si en una cadena una pieza convertida no se puede mover,
+  entonces tienes que empezar de nuevo.
