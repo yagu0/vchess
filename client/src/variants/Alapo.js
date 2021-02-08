@@ -115,11 +115,12 @@ export class AlapoRules extends ChessRules {
       pieces[c][bishop2Pos] = "b";
       pieces[c][rook2Pos] = "r";
     }
+
     return (
       pieces["b"].join("") + "/" +
-      pieces["b"].map(p => piece2pawn[p]).join() +
-      "/8/8/8/8/" +
-      pieces["w"].map(p => piece2pawn[p].toUpperCase()).join() + "/" +
+      pieces["b"].map(p => piece2pawn[p]).join("") +
+      "/6/6/" +
+      pieces["w"].map(p => piece2pawn[p].toUpperCase()).join("") + "/" +
       pieces["w"].join("").toUpperCase() +
       " w 0"
     );
