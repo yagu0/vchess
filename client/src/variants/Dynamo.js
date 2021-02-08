@@ -67,7 +67,7 @@ export class DynamoRules extends ChessRules {
       for (let part of amoveParts) {
         if (part != "-") {
           for (let psq of part.split("."))
-            if (!psq.match(/^[a-r]{3}[1-8]$/)) return false;
+            if (!psq.match(/^[a-z]{3}[1-8]$/)) return false;
         }
       }
     }
@@ -607,19 +607,21 @@ export class DynamoRules extends ChessRules {
         // (not undoing a potential move + action of the opponent)
         this.play(m);
         let res = this.underCheck(color);
-        let isOpposite = La > 0 && this.oppositeMoves(this.amoves[La-1], m);
-        if (res || isOpposite) {
-          const moves2 = this.getAllPotentialMoves();
-          for (let m2 of moves2) {
-            this.play(m2);
-            const res2 = this.underCheck(color);
-            const amove = this.getAmove(m, m2);
-            isOpposite =
-              La > 0 && this.oppositeMoves(this.amoves[La-1], amove);
-            this.undo(m2);
-            if (!res2 && !isOpposite) {
-              res = false;
-              break;
+        if (this.subTurn == 2) {
+          let isOpposite = La > 0 && this.oppositeMoves(this.amoves[La-1], m);
+          if (res || isOpposite) {
+            const moves2 = this.getAllPotentialMoves();
+            for (let m2 of moves2) {
+              this.play(m2);
+              const res2 = this.underCheck(color);
+              const amove = this.getAmove(m, m2);
+              isOpposite =
+                La > 0 && this.oppositeMoves(this.amoves[La-1], amove);
+              this.undo(m2);
+              if (!res2 && !isOpposite) {
+                res = false;
+                break;
+              }
             }
           }
         }
@@ -859,26 +861,29 @@ export class DynamoRules extends ChessRules {
     };
     moves.forEach(m => {
       this.play(m);
-      m.eval = (color == "w" ? -1 : 1) * maxeval;
-      const moves2 = this.getAllValidMoves().concat([emptyMove]);
-      m.next = moves2[0];
-      moves2.forEach(m2 => {
-        this.play(m2);
-        const score = this.getCurrentScore();
-        let mvEval = 0;
-        if (score != "1/2") {
-          if (score != "*") mvEval = (score == "1-0" ? 1 : -1) * maxeval;
-          else mvEval = this.evalPosition();
-        }
-        if (
-          (color == 'w' && mvEval > m.eval) ||
-          (color == 'b' && mvEval < m.eval)
-        ) {
-          m.eval = mvEval;
-          m.next = m2;
-        }
-        this.undo(m2);
-      });
+      if (this.turn != color) m.eval = this.evalPosition();
+      else {
+        m.eval = (color == "w" ? -1 : 1) * maxeval;
+        const moves2 = this.getAllValidMoves().concat([emptyMove]);
+        m.next = moves2[0];
+        moves2.forEach(m2 => {
+          this.play(m2);
+          const score = this.getCurrentScore();
+          let mvEval = 0;
+          if (score != "1/2") {
+            if (score != "*") mvEval = (score == "1-0" ? 1 : -1) * maxeval;
+            else mvEval = this.evalPosition();
+          }
+          if (
+            (color == 'w' && mvEval > m.eval) ||
+            (color == 'b' && mvEval < m.eval)
+          ) {
+            m.eval = mvEval;
+            m.next = m2;
+          }
+          this.undo(m2);
+        });
+      }
       this.undo(m);
     });
     moves.sort((a, b) => {
@@ -888,6 +893,7 @@ export class DynamoRules extends ChessRules {
     for (let i = 1; i < moves.length && moves[i].eval == moves[0].eval; i++)
       candidates.push(i);
     const mIdx = candidates[randInt(candidates.length)];
+    if (!moves[mIdx].next) return moves[mIdx];
     const move2 = moves[mIdx].next;
     delete moves[mIdx]["next"];
     return [moves[mIdx], move2];
