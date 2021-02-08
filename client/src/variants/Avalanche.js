@@ -25,6 +25,7 @@ export class AvalancheRules extends ChessRules {
   }
 
   canIplay(side, [x, y]) {
+    if (side != this.turn) return false;
     if (this.subTurn == 0) return (x >= V.size.x);
     const c = this.getColor(x, y);
     return (
