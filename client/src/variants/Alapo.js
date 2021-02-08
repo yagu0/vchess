@@ -1,4 +1,6 @@
 import { ChessRules } from "@/base_rules";
+import { ArrayFun } from "@/utils/array";
+import { randInt } from "@/utils/alea";
 
 export class AlapoRules extends ChessRules {
 
