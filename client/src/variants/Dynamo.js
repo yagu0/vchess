@@ -771,6 +771,11 @@ export class DynamoRules extends ChessRules {
   }
 
   play(move) {
+    if (this.subTurn == 1 && move.vanish.length == 0) {
+      // Patch to work with old format: (TODO: remove later)
+      move.ignore = true;
+      return;
+    }
     const color = this.turn;
     move.subTurn = this.subTurn; //for undo
     const gotoNext = (mv) => {
@@ -829,6 +834,7 @@ export class DynamoRules extends ChessRules {
   }
 
   undo(move) {
+    if (!!move.ignore) return; //TODO: remove that later
     this.disaggregateFlags(JSON.parse(move.flags));
     V.UndoOnBoard(this.board, move);
     if (this.subTurn == 1) {
