@@ -510,6 +510,7 @@ const GameModel = {
             }
             // Set score if lost on time and >= 2 moves:
             else if (
+              g.score == '*' &&
               !!movesGroups[g.id] &&
               movesGroups[g.id].nbMoves >= 2 &&
               tsNow - movesGroups[g.id].lastMaj >
