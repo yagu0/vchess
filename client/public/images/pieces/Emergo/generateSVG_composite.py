@@ -21,7 +21,7 @@ black_bottom = '<circle cx="115" cy="115" r="100" fill="black"/>'
 
 digits = {
     "top": [
-        # 1
+        # 1 (unused here)
         '<path d="M130,35 v60"',
         # 2
         '<path d="M100,35 h30 v30 h-30 v30 h30"',
@@ -47,7 +47,7 @@ digits = {
         '<path d="M90,35 v60 M100,35 h30 v30 h-30 v30 h30"'
     ],
     "bottom": [
-        # 1
+        # 1 (unused here)
         '<path d="M130,135 v60"',
         # 2
         '<path d="M100,135 h30 v30 h-30 v30 h30"',
@@ -88,9 +88,11 @@ for colorTop in ["white", "black"]:
             f.write("\n")
             f.write(white_top if colorTop == "white" else black_top)
             f.write("\n")
-            f.write(digits["top"][top] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorTop == "white" else 'stroke="orange"') + '/>')
-            f.write("\n")
-            f.write(digits["bottom"][bottom] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorTop == "black" else 'stroke="orange"') + '/>')
-            f.write("\n")
+            if top >= 1:
+                f.write(digits["top"][top] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorTop == "white" else 'stroke="orange"') + '/>')
+                f.write("\n")
+            if bottom >= 1:
+                f.write(digits["bottom"][bottom] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if colorTop == "black" else 'stroke="orange"') + '/>')
+                f.write("\n")
             f.write(final)
             f.close()

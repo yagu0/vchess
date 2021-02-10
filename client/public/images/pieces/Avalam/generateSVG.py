@@ -12,7 +12,7 @@ black = '<circle cx="115" cy="115" r="100" fill="crimson" stroke="darkslategray"
 white = '<circle cx="115" cy="115" r="100" fill="gold" stroke="darkslategray"/>'
 
 digits = [
-    # 1
+    # 1 (unused here)
     '<path d="M130,85 v60"',
     # 2
     '<path d="M100,85 h30 v30 h-30 v30 h30"',
@@ -34,7 +34,8 @@ for color in ["white", "black"]:
         f.write("\n")
         f.write(white if color == "white" else black)
         f.write("\n")
-        f.write(digits[number] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if color == "white" else 'stroke="yellow"') + '/>')
-        f.write("\n")
+        if number >= 1:
+            f.write(digits[number] + ' fill="none" stroke-width="5" ' + ('stroke="red"' if color == "white" else 'stroke="yellow"') + '/>')
+            f.write("\n")
         f.write(final)
         f.close()

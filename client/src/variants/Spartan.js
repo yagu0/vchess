@@ -12,8 +12,7 @@ export class SpartanRules extends ChessRules {
   }
 
   getPpath(b) {
-    if ([V.LIEUTENANT, V.GENERAL, V.CAPTAIN, V.WARLORD].includes(b[1]))
-      return "Spartan/" + b;
+    if (b[0] == 'b' && b[1] != 'k') return "Spartan/" + b;
     return b;
   }
 
