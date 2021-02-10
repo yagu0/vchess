@@ -263,7 +263,7 @@ export class ConvertRules extends ChessRules {
         else break;
       }
       for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
-      if (!mv.end.released) return (mvArray.length > 1 ? mvArray : mvArray[0]);
+      if (!mv.end.converted) return (mvArray.length > 1 ? mvArray : mvArray[0]);
     }
     return null; //never reached
   }
