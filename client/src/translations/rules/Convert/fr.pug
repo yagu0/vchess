@@ -14,8 +14,14 @@ p.
 
 figure.diagram-container
   .diagram
-    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPPb1n/2B1N1N1/PPP2PPR/RQK5:
-  figcaption Les noirs ne peuvent roquer à cause de l'"échec" Bxd5, Bxb7, Pxc8
+    | fen:r1bqk2r/3nn1b1/pppppppp/8/5PQ1/PPPPPNPP/1B6/RN2KB1R:
+  figcaption.
+    Les noirs ne peuvent pas roquer car f8 est attaqué : Qxe6, Pxd7, Nxf8
+
+p.
+  Les pions démarrent sur la troisième rangée : c'est une tentative
+  d'équilibrage du jeu, car les blancs ont un trop grand avantage sinon,
+  menant à une victoire rapide.
 
 p.
   L'objectif est de convertir le roi adverse. Notez qu'une capture de roi
@@ -24,11 +30,13 @@ p.
   même si c'est impossible.
 
 figure.diagram-container
-  .diagram
-    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPP2n/2B1b1N1/PPn2PPR/Rrqk4:
+  .diagram.diag12
+    | fen:1nbr2nr/3q1kb1/ppppppp1/3P3p/P1P1N3/1P2PPPP/4K1BR/R1BQ2N1:
+  .diagram.diag12
+    | fen:1nbr2nr/3q1kb1/pppp1pp1/3p3p/P1P1p3/1P2PbnP/3kp1rp/R1BQ2N1:
   figcaption.
-    Les noirs gagnent depuis le premier diagramme:
-    Bxe3, Nxc2, Pxb1=R, Qxc1, Kd1
+    Les noirs gagnent par exemple via
+    exd5 xe4 xg3 xh2 xg2 xf3 xe2 et finalement Kd2.
 
 p.
   Si dans une chaîne une pièce convertie ne peut pas bouger,

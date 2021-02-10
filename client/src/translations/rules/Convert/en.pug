@@ -14,8 +14,12 @@ p.
 
 figure.diagram-container
   .diagram
-    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPPb1n/2B1N1N1/PPP2PPR/RQK5:
-  figcaption Black cannot castle because of the "check" Bxd5, Bxb7, Pxc8
+    | fen:r1bqk2r/3nn1b1/pppppppp/8/5PQ1/PPPPPNPP/1B6/RN2KB1R:
+  figcaption Black cannot castle because f8 is attacked: Qxe6, Pxd7, Nxf8
+
+p.
+  Pawns start on the third rank in an attempt to balance the game.
+  White has a large advantage otherwise, leading to a quick win.
 
 p.
   The goal is to convert the enemy king. Note that capturing a king is
@@ -23,8 +27,11 @@ p.
   check (concerning castle) even if it's impossible.
 
 figure.diagram-container
-  .diagram
-    | fen:qrk2r2/pp4pp/3pp2n/2pb1p1P/2BPP2n/2B1b1N1/PPn2PPR/Rrqk4:
-  figcaption Black wins from the first diagram: Bxe3, Nxc2, Pxb1=R, Qxc1, Kd1
+  .diagram.diag12
+    | fen:1nbr2nr/3q1kb1/ppppppp1/3P3p/P1P1N3/1P2PPPP/4K1BR/R1BQ2N1:
+  .diagram.diag12
+    | fen:1nbr2nr/3q1kb1/pppp1pp1/3p3p/P1P1p3/1P2PbnP/3kp1rp/R1BQ2N1:
+  figcaption.
+    Black wins for example with exd5 xe4 xg3 xh2 xg2 xf3 xe2 and finally Kd2.
 
 p If in a chain a converted piece cannot move, then you must reset the move.
