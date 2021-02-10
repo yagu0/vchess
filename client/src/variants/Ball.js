@@ -137,7 +137,7 @@ export class BallRules extends ChessRules {
     const withPrefix =
       Object.keys(V.HAS_BALL_DECODE)
       .concat([V.PHOENIX])
-      .concat(['a']);
+      .concat(['a', 'w']); //TODO: 'w' for backward compatibility - to remove
     if (withPrefix.includes(b[1])) prefix = "Ball/";
     return prefix + b;
   }
