@@ -3,10 +3,25 @@ import { randInt } from "@/utils/alea";
 
 export class ConvertRules extends ChessRules {
 
+  static get HasEnpassant() {
+    return false;
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     // Stack of "last move" only for intermediate chaining
     this.lastMoveEnd = [null];
+  }
+
+  static GenRandInitFen(randomness) {
+    if (randomness == 0)
+      return "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w 0 ahah";
+    const baseFen = ChessRules.GenRandInitFen(randomness);
+    return (
+      baseFen.substr(0, 8) +
+      "/8/pppppppp/8/8/PPPPPPPP/8/" +
+      baseFen.substr(35, 17)
+    );
   }
 
   getBasicMove([sx, sy], [ex, ey], tr) {
@@ -166,9 +181,23 @@ export class ConvertRules extends ChessRules {
     return [];
   }
 
+  prePlay(move) {
+    const c = this.turn;
+    // Extra conditions to avoid tracking converted kings:
+    if (
+      move.appear[0].p == V.KING &&
+      move.vanish.length >= 1 &&
+      move.vanish[0].p == V.KING
+    ) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+    }
+  }
+
   play(move) {
+    this.prePlay(move);
+    const c = this.turn;
     move.flags = JSON.stringify(this.aggregateFlags());
-    this.epSquares.push(this.getEpSquare(move));
     V.PlayOnBoard(this.board, move);
     if (!move.end.converted) {
       // Not a capture: change turn
@@ -181,29 +210,29 @@ export class ConvertRules extends ChessRules {
         Object.assign({}, move.end, { p: move.end.converted })
       );
     }
-    this.postPlay(move);
-  }
-
-  postPlay(move) {
-    const c = (!move.end.converted ? V.GetOppCol(this.turn) : this.turn);
-    const piece = move.appear[0].p;
-    if (piece == V.KING) {
-      this.kingPos[c][0] = move.appear[0].x;
-      this.kingPos[c][1] = move.appear[0].y;
-    }
-    super.updateCastleFlags(move, piece, c);
+    super.updateCastleFlags(move, move.appear[0].p, c);
   }
 
   undo(move) {
     this.disaggregateFlags(JSON.parse(move.flags));
-    this.epSquares.pop();
     this.lastMoveEnd.pop();
     V.UndoOnBoard(this.board, move);
     if (!move.end.converted) {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
-    super.postUndo(move);
+    this.postUndo(move);
+  }
+
+  postUndo(move) {
+    const c = this.getColor(move.start.x, move.start.y);
+    if (
+      move.appear[0].p == V.KING &&
+      move.vanish.length >= 1 &&
+      move.vanish[0].p == V.KING
+    ) {
+      this.kingPos[c] = [move.start.x, move.start.y];
+    }
   }
 
   getCurrentScore() {
