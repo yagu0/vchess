@@ -722,7 +722,10 @@ export class PandemoniumRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
+      {},
+      ChessRules.VALUES,
       {
+        n: 2.5, //knight is weaker
         g: 9,
         s: 5,
         h: 6,
@@ -731,8 +734,7 @@ export class PandemoniumRules extends ChessRules {
         w: 9,
         m: 8,
         a: 9
-      },
-      ChessRules.VALUES
+      }
     );
   }
 
