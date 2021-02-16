@@ -648,7 +648,7 @@ export class PandemoniumRules extends ChessRules {
   }
 
   updateCastleFlags(move, piece) {
-    if (move.appear.length == 2) {
+    if (piece == V.KING && move.appear.length == 2) {
       // Castling (only move which disable flags)
       this.castleFlags[move.appear[0].c][0] = 10;
       this.castleFlags[move.appear[0].c][1] = 10;
