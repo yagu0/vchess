@@ -63,4 +63,8 @@ export class RugbyRules extends ChessRules {
     return "1/2";
   }
 
+  getNotation(move) {
+    return V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
+  }
+
 };
