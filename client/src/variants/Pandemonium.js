@@ -585,11 +585,13 @@ export class PandemoniumRules extends ChessRules {
 
   getAllValidMoves() {
     let moves = super.getAllPotentialMoves();
-    const color = this.turn;
-    for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-      moves = moves.concat(
-        this.getReserveMoves([V.size.x + (color == "w" ? 0 : 1), i])
-      );
+    if (this.movesCount >= 2) {
+      const color = this.turn;
+      for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+        moves = moves.concat(
+          this.getReserveMoves([V.size.x + (color == "w" ? 0 : 1), i])
+        );
+      }
     }
     return this.filterValid(moves);
   }
@@ -656,7 +658,7 @@ export class PandemoniumRules extends ChessRules {
     if (move.vanish.length == 0)
       // Drop unpromoted piece:
       this.reserve[color][move.appear[0].p]--;
-    else if (move.vanish.length == 2)
+    else if (move.vanish.length == 2 && move.appear.length == 1)
       // May capture a promoted piece:
       this.reserve[color][V.MayDecode(move.vanish[1].p)]++;
   }
@@ -679,7 +681,7 @@ export class PandemoniumRules extends ChessRules {
     const color = move.appear[0].c;
     if (move.vanish.length == 0)
       this.reserve[color][move.appear[0].p]++;
-    else if (move.vanish.length == 2)
+    else if (move.vanish.length == 2 && move.appear.length == 1)
       this.reserve[color][V.MayDecode(move.vanish[1].p)]--;
   }
 
