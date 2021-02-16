@@ -542,7 +542,7 @@ export class PandemoniumRules extends ChessRules {
     const steps =
       V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]);
     return (
-      super.isAttackedBySlideNJump(sq, color, steps, V.SCEPTER, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.SCEPTER, steps, "oneStep")
     );
   }
 
@@ -550,7 +550,7 @@ export class PandemoniumRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.steps[V.BISHOP], V.HORSE) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.steps[V.ROOK], V.HORSE, "oneStep")
+        sq, color, V.HORSE, V.steps[V.ROOK], "oneStep")
     );
   }
 
@@ -558,7 +558,7 @@ export class PandemoniumRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.steps[V.ROOK], V.DRAGON) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.steps[V.BISHOP], V.DRAGON, "oneStep")
+        sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
     );
   }
 
