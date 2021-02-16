@@ -107,8 +107,12 @@ export class JanggiRules extends ChessRules {
     if (this.movesCount <= 1) {
       const firstRank = (this.movesCount == 0 ? 9 : 0);
       const initDestFile = new Map([[1, 2], [7, 6]]);
-      // Only option is knight / elephant swap:
-      if (x == firstRank && !!initDestFile.get(y)) {
+      // Only option is knight --> elephant swap:
+      if (
+        x == firstRank &&
+        !!initDestFile.get(y) &&
+        this.getPiece(x, y) == V.KNIGHT
+      ) {
         const destFile = initDestFile.get(y);
         moves.push(
           new Move({

@@ -287,8 +287,12 @@ export class PandemoniumRules extends ChessRules {
       const firstRank = (this.movesCount == 0 ? 9 : 0);
       // TODO: initDestFile currently hardcoded for deterministic setup
       const initDestFile = new Map([[1, 2], [8, 7]]);
-      // Only option is knight / bishop swap:
-      if (x == firstRank && !!initDestFile.get(y)) {
+      // Only option is knight --> bishop swap:
+      if (
+        x == firstRank &&
+        !!initDestFile.get(y) &&
+        this.getPiece(x, y) == V.KNIGHT
+      ) {
         const destFile = initDestFile.get(y);
         return [
           new Move({
