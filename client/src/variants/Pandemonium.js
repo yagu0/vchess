@@ -223,6 +223,7 @@ export class PandemoniumRules extends ChessRules {
 
   getReserveMoves([x, y]) {
     const color = this.turn;
+    const oppCol = V.GetOppCol(color);
     const p = V.RESERVE_PIECES[y];
     if (this.reserve[color][p] == 0) return [];
     const bounds = (p == V.PAWN ? [1, V.size.x - 1] : [0, V.size.x]);
