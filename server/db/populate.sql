@@ -116,6 +116,7 @@ insert or ignore into Variants (name, description) values
   ('Pacifist1', 'Convert & support (v1)'),
   ('Pacifist2', 'Convert & support (v2)'),
   ('Pacosako', 'Dance with the King'),
+  ('Pandemonium', 'Noise and confusion'),
   ('Parachute', 'Landing on the board'),
   ('Pawnmassacre', 'Pieces upside down'),
   ('Pawns', 'Reach the last rank (v1)'),

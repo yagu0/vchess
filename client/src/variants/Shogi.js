@@ -282,7 +282,9 @@ export class ShogiRules extends ChessRules {
           if (p == V.PAWN) {
             // Do not drop on checkmate:
             this.play(mv);
-            const res = (this.underCheck(oppCol) && !this.atLeastOneMove());
+            const res = (
+              this.underCheck(oppCol) && !this.atLeastOneMove("noReserve")
+            );
             this.undo(mv);
             if (res) continue;
           }
@@ -548,14 +550,16 @@ export class ShogiRules extends ChessRules {
     return this.filterValid(moves);
   }
 
-  atLeastOneMove() {
+  atLeastOneMove(noReserve) {
     if (!super.atLeastOneMove()) {
-      // Search one reserve move
-      for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
-        let moves = this.filterValid(
-          this.getReserveMoves([V.size.x + (this.turn == "w" ? 0 : 1), i])
-        );
-        if (moves.length > 0) return true;
+      if (!noReserve) {
+        // Search one reserve move
+        for (let i = 0; i < V.RESERVE_PIECES.length; i++) {
+          let moves = this.filterValid(
+            this.getReserveMoves([V.size.x + (this.turn == "w" ? 0 : 1), i])
+          );
+          if (moves.length > 0) return true;
+        }
       }
       return false;
     }

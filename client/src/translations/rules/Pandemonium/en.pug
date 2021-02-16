@@ -1,0 +1,63 @@
+p.boxed
+  | All pieces can promote. Captured units can be dropped later.
+  | 10x10 board. Some new pieces.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR:
+  figcaption Initial deterministic position.
+
+p.
+  At the very first move, players may decide to swap positions of adjacent
+  knights and bishops. Either on both sides, or on one only. To bypass this
+  step (or end it after a first swap), move your king to the opponent's king.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pandemonium/wc.svg" style="width:60px")
+  img(src="/images/pieces/Pandemonium/bm.svg" style="width:60px")
+  figcaption Cardinal = Bishop + Knight, Marshal = Rook + Knight.
+
+p.
+  Known pieces move as usual, with one exception: the pawn only promotes
+  to a queen (named "Gilding" in this game). Additionally, all pieces can
+  promote &mdash; except queen and king:
+ul
+  li Rook promotes into Dragon = Rook + King.
+  li Knight promotes into Scepter = Knight + King.
+  li Bishop promotes into Horse = Bishop + King.
+  li Cardinal promotes into Queen (called "Whole" here).
+  li Marshal promotes into Queen (called "Apricot" here).
+p.
+  All these promotions are optional. They are available after a move ending
+  at or starting from the last rank.
+
+p.
+  Each captured piece is first returned to its unpromoted version (if
+  applicable), and then added to a reserve. It can be dropped later
+  in place of a move.
+
+h3 Some details
+
+p.
+  Pawns can initially advance three squares.
+  On the third rank, they can still advance two squares.
+  A dropped pawn cannot give checkmate.
+
+p.
+  While castling, the king moves three squares lateraly.
+  Castling is possible even if the king or the rooks moved.
+  However, it can only be done once.
+
+p.
+  If after a move both kings are facing each other (on a rank or file)
+  without intervening pieces, then the player who made the move loses.
+
+h3 More information
+
+p
+  | See the 
+  a(href="https://www.chessvariants.com/rules/pandemonium")
+    | chessvariants page
+  | .
+
+p Inventor: Daphne Snowmoon (2020).

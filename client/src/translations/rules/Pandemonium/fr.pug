@@ -1,0 +1,65 @@
+p.boxed
+  | Toutes les pièces peuvent être promues. Les unités capturées sont
+  | parachutées plus tard. Échiquier 10x10. Quelques nouvelles pièces.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR:
+  figcaption Position initiale déterministe.
+
+p.
+  Au tout premier coup, les joueurs peuvent décider d'échanger les positions
+  de cavaliers et fous adjacents. Soit des deux côtés, soit d'un seul.
+  Pour sauter cette étape (ou terminer après un premier échange),
+  amenez votre roi sur le roi adverse.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pandemonium/wc.svg" style="width:60px")
+  img(src="/images/pieces/Pandemonium/bm.svg" style="width:60px")
+  figcaption Cardinal = Fou + Cavalier, Maréchal = Tour + Cavalier.
+
+p.
+  Les pièces connues se déplacent comme d'habitude, à une exception près :
+  les pions ne se promeuvent qu'en dame (appelée "Gilding" dans ce jeu).
+  De plus, toutes les pièces peuvent se promouvoir &mdash; sauf roi et dame :
+ul
+  li Tour promue en Dragon = Tour + Roi.
+  li Cavalier promu en Sceptre = Cavalier + Roi.
+  li Fou promu en Cheval = Fou + Roi.
+  li Cardinal promu en Dame (appelée "Whole" ici).
+  li Maréchal promu en Dame (appelée "Apricot" ici).
+p.
+  Toutes ces promotions sont optionnelles. Elles sont disponibles après un
+  coup terminant ou commençant sur la dernière rangée.
+
+p.
+  Chaque pièce capturée est d'abord ramenée à sa forme non promue (le cas
+  échéant), puis ajoutée à une réserve. Elle peut être parachutée plus tard
+  à la place d'un coup.
+
+h3 Quelques détails.
+
+p.
+  Les pions peuvent initialement avancer de trois cases.
+  Sur la troisième rangée, ils peuvent encore avancer de deux cases.
+  Un pion parachuté ne peut pas donner échec et mat.
+
+p.
+  Lors du roque, le roi se déplace de trois cases latéralement.
+  Le roque est possible même si le roi ou les tours ont bougé.
+  Cependant, il ne peut être exécuté qu'une fois.
+
+p.
+  Si après un coup les deux rois se retrouvent face à face (sur une rangée
+  ou une colonne) sans pièces intermédiaires, alors le joueur ayant effectué
+  le coup perd.
+
+h3 Plus d'information
+
+p
+  | Voir la 
+  a(href="https://www.chessvariants.com/rules/pandemonium")
+    | page chessvariants
+  | .
+
+p Inventeur : Daphne Snowmoon (2020).

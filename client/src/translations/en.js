@@ -269,6 +269,7 @@ export const translations = {
   "New fairy pieces": "New fairy pieces",
   "No paralyzed pieces": "No paralyzed pieces",
   "No-check mode": "No-check mode",
+  "Noise and confusion": "Noise and confusion",
   "Non-conformism and utopia": "Non-conformism and utopia",
   "Occupy the enemy palace": "Occupy the enemy palace",
   "Paralyzed pieces": "Paralyzed pieces",

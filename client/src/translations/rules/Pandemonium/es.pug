@@ -1,0 +1,65 @@
+p.boxed
+  | Todas las piezas pueden promocionarse. Las unidades capturadas son
+  | en paracaídas más tarde. Tablero de ajedrez 10x10. Algunas piezas nuevas.
+
+figure.diagram-container
+  .diagram
+    | fen:rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR:
+  figcaption Posición inicial determinista.
+
+p.
+  En el primer movimiento, los jugadores pueden decidir intercambiar
+  posiciones de caballos y alfiles adyacentes. O en ambos lados o solo en uno.
+  Para omitir este paso (o finalizar después de un primer intercambio),
+  lleva a tu rey al rey contrario.
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Pandemonium/wc.svg" style="width:60px")
+  img(src="/images/pieces/Pandemonium/bm.svg" style="width:60px")
+  figcaption Cardenal = Alfil + Caballo, Mariscal = Torre + Caballo.
+
+p.
+  Las piezas conocidas se mueven como de costumbre, con una excepción:
+  los peones solo se promueven en una reina (llamado "Gilding" en este juego).
+  Además, todas las piezas pueden promocionarse &mdash; excepto rey y reina:
+ul
+  li Tower ascendido a Dragón = Torre + Rey.
+  li Caballo ascendido a Cetro = Cavalier + Rey.
+  li Alfil ascendido a Jinete = Alfil + Rey.
+  li Cardenal ascendido a Dama (llamado "Whole" aquí).
+  li Mariscal ascendió a Dama (aquí se llama "Apricot").
+p.
+  Todas estas promociones son opcionales. Están disponibles después de un
+  movimiento que termina o comienza en la última fila.
+
+p.
+  Cada pieza capturada se devuelve primero a su forma no promocionada (el caso
+  aplicable), luego se agrega a una reserva. Se puede lanzar en paracaídas
+  más tarde en lugar de una jugada.
+
+h3 Algunos detalles.
+
+p.
+  Los peones pueden avanzar inicialmente tres espacios.
+  En la tercera fila, todavía pueden avanzar dos espacios.
+  Un peón lanzado en paracaídas no puede dar jaque mate.
+
+p.
+  Durante el enroque, el rey mueve tres casillas hacia los lados.
+  El enroque es posible incluso si el rey o las torres se han movido.
+  Sin embargo, solo se puede realizar una vez.
+
+p.
+  Si después de una jugada los dos reyes se encuentran cara a cara (en fila
+  o una columna) sin piezas intermedias, entonces el jugador que hizo
+  el movimiento pierde.
+
+h3 Más información
+
+p
+  | Ver la 
+  a(href="https://www.chessvariants.com/rules/pandemonium")
+    | página chessvariants
+  | .
+
+p Inventor: Daphne Snowmoon (2020).

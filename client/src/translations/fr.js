@@ -269,6 +269,7 @@ export const translations = {
   "New fairy pieces": "Nouvelles pièces féériques",
   "No paralyzed pieces": "Pas de pièces paralysées",
   "No-check mode": "Mode sans échec",
+  "Noise and confusion": "Bruit et confusion",
   "Non-conformism and utopia": "Non-conformisme et utopie",
   "Occupy the enemy palace": "Occuper le palais ennemi",
   "Paralyzed pieces": "Pièces paralysées",
