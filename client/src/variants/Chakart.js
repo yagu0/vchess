@@ -1422,7 +1422,7 @@ export class ChakartRules extends ChessRules {
     let notation = undefined;
     if (piece == V.PAWN) {
       // Pawn move
-      if (move.vanish.length >= 2) {
+      if (this.board[move.end.x][move.end.y] != V.EMPTY) {
         // Capture
         const startColumn = V.CoordToColumn(move.start.y);
         notation = startColumn + "x" + finalSquare;
@@ -1435,7 +1435,7 @@ export class ChakartRules extends ChessRules {
     else {
       notation =
         piece.toUpperCase() +
-        (move.vanish.length >= 2 ? "x" : "") +
+        (this.board[move.end.x][move.end.y] != V.EMPTY ? "x" : "") +
         finalSquare;
     }
     if (!!move.end.effect) {
