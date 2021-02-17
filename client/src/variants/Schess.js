@@ -342,7 +342,14 @@ export class SchessRules extends ChessRules {
       const nothingAppear = (move.appear[0].p == V.NOTHING);
       if (pPieceAppear || nothingAppear) {
         let suffix = "";
-        if (pPieceAppear) suffix = "/" + move.appear[0].p.toUpperCase();
+        if (pPieceAppear) {
+          suffix = "/" + move.appear[0].p.toUpperCase();
+          if (move.appear.length == 3) {
+            // Castling; indicate square
+            suffix +=
+              V.CoordsToSquare({ x: move.appear[0].x, y: move.appear[0].y });
+          }
+        }
         let cmove = JSON.parse(JSON.stringify(move));
         cmove.appear.shift();
         return super.getNotation(cmove) + suffix;
