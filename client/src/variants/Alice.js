@@ -169,7 +169,8 @@ export class AliceRules extends ChessRules {
             return false;
           }
         }
-      } else if (this.board[m.end.x][m.end.y] != V.EMPTY) {
+      }
+      else if (this.board[m.end.x][m.end.y] != V.EMPTY) {
         // Attempt to capture
         const piece = this.getPiece(m.end.x, m.end.y);
         if (
@@ -347,7 +348,7 @@ export class AliceRules extends ChessRules {
   }
 
   getNotation(move) {
-    if (move.appear.length == 2 && move.appear[0].p == V.KING) {
+    if (move.appear.length == 2) {
       if (move.end.y < move.start.y) return "0-0-0";
       return "0-0";
     }
