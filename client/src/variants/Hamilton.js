@@ -138,6 +138,9 @@ export class HamiltonRules extends ChessRules {
     for (let psq of move.appear) board[psq.x][psq.y] = psq.c + psq.p;
   }
 
+  postPlay() {}
+  postUndo() {}
+
   getCheckSquares() {
     return [];
   }
