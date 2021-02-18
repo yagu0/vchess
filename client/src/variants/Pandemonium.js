@@ -1,5 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
+import { ArrayFun } from "@/utils/array";
 
 export class PandemoniumRules extends ChessRules {
 
@@ -150,13 +151,73 @@ export class PandemoniumRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
-    // No randomization here for now (but initial setup choice)
+    if (randomness == 0) {
+      return (
+        "rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
+        "w 0 ajaj - 00000000000000"
+      );
+    }
+
+    let pieces = { w: new Array(10), b: new Array(10) };
+    let flags = "";
+    for (let c of ["w", "b"]) {
+      if (c == 'b' && randomness == 1) {
+        pieces['b'] = pieces['w'];
+        flags += flags;
+        break;
+      }
+
+      let positions = ArrayFun.range(10);
+
+      // Get random squares for bishops (different colors)
+      let randIndex = 2 * randInt(5);
+      let bishop1Pos = positions[randIndex];
+      let randIndex_tmp = 2 * randInt(5) + 1;
+      let bishop2Pos = positions[randIndex_tmp];
+      positions.splice(Math.max(randIndex, randIndex_tmp), 1);
+      positions.splice(Math.min(randIndex, randIndex_tmp), 1);
+
+      randIndex = randInt(8);
+      let knight1Pos = positions[randIndex];
+      positions.splice(randIndex, 1);
+      randIndex = randInt(7);
+      let knight2Pos = positions[randIndex];
+      positions.splice(randIndex, 1);
+
+      randIndex = randInt(6);
+      let queenPos = positions[randIndex];
+      positions.splice(randIndex, 1);
+
+      // Random squares for cardinal + marshal
+      randIndex = randInt(5);
+      let cardinalPos = positions[randIndex];
+      positions.splice(randIndex, 1);
+      randIndex = randInt(4);
+      let marshalPos = positions[randIndex];
+      positions.splice(randIndex, 1);
+
+      let rook1Pos = positions[0];
+      let kingPos = positions[1];
+      let rook2Pos = positions[2];
+
+      pieces[c][rook1Pos] = "r";
+      pieces[c][knight1Pos] = "n";
+      pieces[c][bishop1Pos] = "b";
+      pieces[c][queenPos] = "q";
+      pieces[c][kingPos] = "k";
+      pieces[c][marshalPos] = "m";
+      pieces[c][cardinalPos] = "c";
+      pieces[c][bishop2Pos] = "b";
+      pieces[c][knight2Pos] = "n";
+      pieces[c][rook2Pos] = "r";
+      flags += V.CoordToColumn(rook1Pos) + V.CoordToColumn(rook2Pos);
+    }
     return (
-      "rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
-      "w 0 ajaj - 00000000000000"
+      pieces["b"].join("") +
+      "/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/" +
+      pieces["w"].join("").toUpperCase() +
+      " w 0 " + flags + " -"
     );
-    // TODO later: randomization too --> 2 bishops, not next to each other.
-    // then knights next to bishops. Then other pieces (...).
   }
 
   getEnpassantFen() {
@@ -279,51 +340,50 @@ export class PandemoniumRules extends ChessRules {
         ];
       }
       const firstRank = (this.movesCount == 0 ? 9 : 0);
-      // TODO: initDestFile currently hardcoded for deterministic setup
-      const initDestFile = new Map([[1, 2], [8, 7]]);
-      // Only option is knight --> bishop swap:
-      if (
-        x == firstRank &&
-        !!initDestFile.get(y) &&
-        this.getPiece(x, y) == V.KNIGHT
-      ) {
-        const destFile = initDestFile.get(y);
-        return [
-          new Move({
-            appear: [
-              new PiPo({
-                x: x,
-                y: destFile,
-                c: c,
-                p: V.KNIGHT
-              }),
-              new PiPo({
-                x: x,
-                y: y,
-                c: c,
-                p: V.BISHOP
-              })
-            ],
-            vanish: [
-              new PiPo({
-                x: x,
-                y: y,
-                c: c,
-                p: V.KNIGHT
-              }),
-              new PiPo({
-                x: x,
-                y: destFile,
-                c: c,
-                p: V.BISHOP
-              })
-            ],
-            start: { x: x, y: y },
-            end: { x: x, y: destFile }
-          })
-        ];
+      if (x != firstRank || this.getPiece(x, y) != V.KNIGHT) return [];
+      // Swap with who? search for matching bishop:
+      let knights = [],
+          bishops = [];
+      for (let i = 0; i < 10; i++) {
+        const elt = this.board[x][i][1];
+        if (elt == 'n') knights.push(i);
+        else if (elt == 'b') bishops.push(i);
       }
-      return [];
+      const destFile = (knights[0] == y ? bishops[0] : bishops[1]);
+      return [
+        new Move({
+          appear: [
+            new PiPo({
+              x: x,
+              y: destFile,
+              c: c,
+              p: V.KNIGHT
+            }),
+            new PiPo({
+              x: x,
+              y: y,
+              c: c,
+              p: V.BISHOP
+            })
+          ],
+          vanish: [
+            new PiPo({
+              x: x,
+              y: y,
+              c: c,
+              p: V.KNIGHT
+            }),
+            new PiPo({
+              x: x,
+              y: destFile,
+              c: c,
+              p: V.BISHOP
+            })
+          ],
+          start: { x: x, y: y },
+          end: { x: x, y: destFile }
+        })
+      ];
     }
     // Normal move (after initial setup)
     if (x >= V.size.x) return this.getReserveMoves([x, y]);
