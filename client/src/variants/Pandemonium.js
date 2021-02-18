@@ -329,7 +329,7 @@ export class PandemoniumRules extends ChessRules {
       return [];
     }
     // Normal move (after initial setup)
-    if (x >= V.size.x) return this.getReserveMoves(x, y);
+    if (x >= V.size.x) return this.getReserveMoves([x, y]);
     const p = this.getPiece(x, y);
     const sq = [x, y];
     let moves = [];
