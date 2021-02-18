@@ -7,10 +7,7 @@ export class PandemoniumRules extends ChessRules {
     return Object.assign(
       {},
       ChessRules.PawnSpecs,
-      {
-        threeSquares: true,
-        promotions: [V.GILDING]
-      }
+      { promotions: [V.GILDING] }
     );
   }
 
@@ -373,17 +370,17 @@ export class PandemoniumRules extends ChessRules {
 
   getPotentialPawnMoves([x, y]) {
     const color = this.turn;
-    const shiftX = V.PawnSpecs.directions[color];
+    const shiftX = (color == 'w' ? -1 : 1);
     let moves = [];
     if (this.board[x + shiftX][y] == V.EMPTY) {
       this.addPawnMoves([x, y], [x + shiftX, y], moves);
-      if ((color == 'w' && x >= V.size.x - 3) || (color == 'b' && x <= 3)) {
+      if ((color == 'w' && x >= V.size.x - 3) || (color == 'b' && x <= 2)) {
         if (this.board[x + 2 * shiftX][y] == V.EMPTY) {
           moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
           if (
             (
-              (color == 'w' && x >= V.size.x - 2) ||
-              (color == 'b' && x <= 2)
+              (color == 'w' && x == V.size.x - 2) ||
+              (color == 'b' && x == 1)
             )
             &&
             this.board[x + 3 * shiftX][y] == V.EMPTY
