@@ -216,7 +216,7 @@ export class PandemoniumRules extends ChessRules {
       pieces["b"].join("") +
       "/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/" +
       pieces["w"].join("").toUpperCase() +
-      " w 0 " + flags + " -"
+      " w 0 " + flags + " - 00000000000000"
     );
   }
 
