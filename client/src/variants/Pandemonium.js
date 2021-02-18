@@ -609,7 +609,8 @@ export class PandemoniumRules extends ChessRules {
       s: 'n',
       h: 'b',
       w: 'c',
-      a: 'm'
+      a: 'm',
+      g: 'p'
     };
   }
 
