@@ -147,20 +147,11 @@ export class PandemoniumRules extends ChessRules {
     return counts.join("");
   }
 
-  setFlags(fenflags) {
-    // white a-castle, h-castle, king pos, then same for black.
-    this.castleFlags = { w: [-1, -1, -1], b: [-1, -1, -1] };
-    for (let i = 0; i < 6; i++) {
-      this.castleFlags[i < 3 ? "w" : "b"][i % 3] =
-        V.ColumnToCoord(fenflags.charAt(i));
-    }
-  }
-
   static GenRandInitFen(randomness) {
     // No randomization here for now (but initial setup choice)
     return (
       "rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
-      "w 0 ajeaje - 00000000000000"
+      "w 0 ajaj - 00000000000000"
     );
     // TODO later: randomization too --> 2 bishops, not next to each other.
     // then knights next to bishops. Then other pieces (...).
@@ -479,24 +470,13 @@ export class PandemoniumRules extends ChessRules {
       this.castleFlags[c][0] < V.size.y ||
       this.castleFlags[c][1] < V.size.y
     ) {
-      moves = moves.concat(this.getCastleMoves(sq));
-    }
-    return moves;
-  }
-
-  getCastleMoves([x, y]) {
-    const c = this.getColor(x, y);
-    if (
-      ((c == 'w' && x == 9) || (c == 'b' && x == 0)) &&
-      y == this.castleFlags[c][2]
-    ) {
       const finalSquares = [
         [1, 2],
         [7, 6]
       ];
-      return super.getCastleMoves([x, y], finalSquares, false, [V.ROOK]);
+      moves = moves.concat(super.getCastleMoves(sq, finalSquares));
     }
-    return [];
+    return moves;
   }
 
   isAttacked(sq, color) {
@@ -648,14 +628,6 @@ export class PandemoniumRules extends ChessRules {
     this.postPlay(move);
   }
 
-  updateCastleFlags(move, piece) {
-    if (piece == V.KING && move.appear.length == 2) {
-      // Castling (only move which disable flags)
-      this.castleFlags[move.appear[0].c][0] = 10;
-      this.castleFlags[move.appear[0].c][1] = 10;
-    }
-  }
-
   postPlay(move) {
     if (move.vanish.length == 0 && move.appear.length == 0) return;
     super.postPlay(move);
@@ -688,37 +660,6 @@ export class PandemoniumRules extends ChessRules {
       this.reserve[color][move.appear[0].p]++;
     else if (move.vanish.length == 2 && move.appear.length == 1)
       this.reserve[color][V.MayDecode(move.vanish[1].p)]--;
-  }
-
-  getCurrentScore() {
-    const c = this.turn,
-          oppCol = V.GetOppCol(this.turn);
-    let facingKings = false;
-    if (
-      this.kingPos[c][0] == this.kingPos[oppCol][0] ||
-      this.kingPos[c][1] == this.kingPos[oppCol][1]
-    ) {
-      facingKings = true;
-      let step = [
-        this.kingPos[oppCol][0] - this.kingPos[c][0],
-        this.kingPos[oppCol][1] - this.kingPos[c][1]
-      ];
-      if (step[0] != 0) step[0] /= Math.abs(step[0]);
-      else step[1] /= Math.abs(step[1]);
-      let [x, y] =
-        [ this.kingPos[c][0] + step[0], this.kingPos[c][1] + step[1] ];
-      while (x != this.kingPos[oppCol][0] || y != this.kingPos[oppCol][1]) {
-        if (this.board[x][y] != V.EMPTY) {
-          facingKings = false;
-          break;
-        }
-        x += step[0];
-        y += step[1];
-      }
-    }
-    if (facingKings) return (c == "w" ? "1-0" : "0-1");
-    if (!this.atLeastOneMove()) return (c == "w" ? "0-1" : "1-0");
-    return "*";
   }
 
   static get VALUES() {
