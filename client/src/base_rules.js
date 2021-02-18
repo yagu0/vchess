@@ -139,6 +139,10 @@ export const ChessRules = class ChessRules {
   static get IgnoreRepetition() {
     return false;
   }
+  loseOnRepetition() {
+    // In some variants, result depends on the position:
+    return V.LoseOnRepetition;
+  }
 
   // At some stages, some games could wait clicks only:
   onlyClick() {

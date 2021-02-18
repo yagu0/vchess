@@ -1414,7 +1414,7 @@ export default {
               ? this.repeat[fenObj] + 1
               : 1;
           if (this.repeat[fenObj] >= 3) {
-            if (V.LoseOnRepetition)
+            if (this.vr.loseOnRepetition())
               this.gameOver(moveCol == "w" ? "0-1" : "1-0", "Repetition");
             else this.drawOffer = "threerep";
           }

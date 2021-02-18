@@ -24,6 +24,11 @@ export class ShogiRules extends ChessRules {
     return true;
   }
 
+  loseOnRepetition() {
+    // If current side is under check: lost
+    return this.underCheck(this.turn);
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);

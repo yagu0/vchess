@@ -3,21 +3,30 @@ import { ArrayFun } from "@/utils/array";
 
 export class CrazyhouseRules extends ChessRules {
 
+  static get PawnSpecs() {
+    return Object.assign(
+      {},
+      ChessRules.PawnSpecs,
+      // Change names to know that this goes back to pawn after capture:
+      { promotions: ['u', 'o', 'c', 't'] }
+    );
+  }
+
+  static get PIECES() {
+    return ChessRules.PIECES.concat(['u', 'o', 'c', 't']);
+  }
+
+  getPpath(b) {
+    const prefix = (ChessRules.PIECES.includes(b[1]) ? "" : "Crazyhouse/");
+    return prefix + b;
+  }
+
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check reserves
     if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{10,10}$/))
       return false;
-    // 6) Check promoted array
-    if (!fenParsed.promoted) return false;
-    if (fenParsed.promoted == "-") return true; //no promoted piece on board
-    const squares = fenParsed.promoted.split(",");
-    for (let square of squares) {
-      const c = V.SquareToCoords(square);
-      if (c.y < 0 || c.y > V.size.y || isNaN(c.x) || c.x < 0 || c.x > V.size.x)
-        return false;
-    }
     return true;
   }
 
@@ -25,10 +34,7 @@ export class CrazyhouseRules extends ChessRules {
     const fenParts = fen.split(" ");
     return Object.assign(
       ChessRules.ParseFen(fen),
-      {
-        reserve: fenParts[5],
-        promoted: fenParts[6]
-      }
+      { reserve: fenParts[5] }
     );
   }
 
@@ -37,19 +43,11 @@ export class CrazyhouseRules extends ChessRules {
   }
 
   getFen() {
-    return (
-      super.getFen() + " " +
-      this.getReserveFen() + " " +
-      this.getPromotedFen()
-    );
+    return super.getFen() + " " + this.getReserveFen();
   }
 
   getFenForRepeat() {
-    return (
-      super.getFenForRepeat() + "_" +
-      this.getReserveFen() + "_" +
-      this.getPromotedFen()
-    );
+    return super.getFenForRepeat() + "_" + this.getReserveFen();
   }
 
   getReserveFen() {
@@ -63,19 +61,6 @@ export class CrazyhouseRules extends ChessRules {
       counts[5 + i] = this.reserve["b"][V.PIECES[i]];
     }
     return counts.join("");
-  }
-
-  getPromotedFen() {
-    let res = "";
-    for (let i = 0; i < V.size.x; i++) {
-      for (let j = 0; j < V.size.y; j++) {
-        if (this.promoted[i][j]) res += V.CoordsToSquare({ x: i, y: j }) + ",";
-      }
-    }
-    // Remove last comma:
-    if (res.length > 0) res = res.slice(0, -1);
-    else res = "-";
-    return res;
   }
 
   setOtherVariables(fen) {
@@ -99,13 +84,6 @@ export class CrazyhouseRules extends ChessRules {
         [V.QUEEN]: reserve[9]
       }
     };
-    this.promoted = ArrayFun.init(V.size.x, V.size.y, false);
-    if (fenParsed.promoted != "-") {
-      for (let square of fenParsed.promoted.split(",")) {
-        const coords = V.SquareToCoords(square);
-        this.promoted[coords.x][coords.y] = true;
-      }
-    }
   }
 
   getColor(i, j) {
@@ -113,9 +91,22 @@ export class CrazyhouseRules extends ChessRules {
     return this.board[i][j].charAt(0);
   }
 
+  // Pieces types after pawn promotion
+  static get PromotionMap() {
+    return {
+      u: 'r',
+      o: 'n',
+      c: 'b',
+      t: 'q'
+    };
+  }
+
   getPiece(i, j) {
     if (i >= V.size.x) return V.RESERVE_PIECES[j];
-    return this.board[i][j].charAt(1);
+    const p = this.board[i][j].charAt(1);
+    if (ChessRules.PIECES.includes(p)) return p;
+    // Pawn promotion:
+    return V.PromotionMap[p];
   }
 
   // Used by the interface:
@@ -205,14 +196,11 @@ export class CrazyhouseRules extends ChessRules {
       this.reserve[color][move.appear[0].p]--;
       return;
     }
-    move.movePromoted = this.promoted[move.start.x][move.start.y];
-    move.capturePromoted = this.promoted[move.end.x][move.end.y];
-    this.promoted[move.start.x][move.start.y] = false;
-    this.promoted[move.end.x][move.end.y] =
-      move.movePromoted ||
-      (move.vanish[0].p == V.PAWN && move.appear[0].p != V.PAWN);
-    if (move.capturePromoted) this.reserve[color][V.PAWN]++;
-    else if (move.vanish.length == 2) this.reserve[color][move.vanish[1].p]++;
+    if (move.vanish.length == 2) {
+      if (V.PawnSpecs.promotions.includes(move.vanish[1].p))
+        this.reserve[color][V.PAWN]++;
+      else this.reserve[color][move.vanish[1].p]++;
+    }
   }
 
   postUndo(move) {
@@ -223,10 +211,11 @@ export class CrazyhouseRules extends ChessRules {
       this.reserve[color][move.appear[0].p]++;
       return;
     }
-    if (move.movePromoted) this.promoted[move.start.x][move.start.y] = true;
-    this.promoted[move.end.x][move.end.y] = move.capturePromoted;
-    if (move.capturePromoted) this.reserve[color][V.PAWN]--;
-    else if (move.vanish.length == 2) this.reserve[color][move.vanish[1].p]--;
+    if (move.vanish.length == 2) {
+      if (V.PawnSpecs.promotions.includes(move.vanish[1].p))
+        this.reserve[color][V.PAWN]--;
+      else this.reserve[color][move.vanish[1].p]--;
+    }
   }
 
   static get SEARCH_DEPTH() {
@@ -247,8 +236,11 @@ export class CrazyhouseRules extends ChessRules {
   getNotation(move) {
     if (move.vanish.length > 0) return super.getNotation(move);
     // Rebirth:
-    const piece =
-      move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
+    let piece = move.appear[0].p;
+    if (ChessRules.PIECES.includes(piece)) {
+      if (move.appear[0].p != V.PAWN) piece = move.appear[0].p.toUpperCase();
+    }
+    else piece = V.PromotionMap[piece].toUpperCase();
     return piece + "@" + V.CoordsToSquare(move.end);
   }
 
