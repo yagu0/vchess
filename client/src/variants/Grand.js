@@ -4,17 +4,8 @@ import { randInt } from "@/utils/alea";
 
 export class GrandRules extends ChessRules {
 
-  static get HasCastle() {
+  static get HasFlags() {
     return false;
-  }
-
-  static IsGoodFen(fen) {
-    if (!ChessRules.IsGoodFen(fen)) return false;
-    const fenParsed = V.ParseFen(fen);
-    // 5) Check captures
-    if (!fenParsed.captured || !fenParsed.captured.match(/^[0-9]{12,12}$/))
-      return false;
-    return true;
   }
 
   static IsGoodEnpassant(enpassant) {
@@ -22,63 +13,8 @@ export class GrandRules extends ChessRules {
     return true;
   }
 
-  static ParseFen(fen) {
-    const fenParts = fen.split(" ");
-    return Object.assign(
-      ChessRules.ParseFen(fen),
-      { captured: fenParts[4] }
-    );
-  }
-
   getPpath(b) {
     return ([V.MARSHALL, V.CARDINAL].includes(b[1]) ? "Grand/" : "") + b;
-  }
-
-  getFen() {
-    return super.getFen() + " " + this.getCapturedFen();
-  }
-
-  getFenForRepeat() {
-    return super.getFenForRepeat() + "_" + this.getCapturedFen();
-  }
-
-  getCapturedFen() {
-    let counts = [...Array(12).fill(0)];
-    let i = 0;
-    for (let j = 0; j < V.PIECES.length; j++) {
-      if ([V.KING, V.PAWN].includes(V.PIECES[j]))
-        // No king captured, and pawns don't promote in pawns
-        continue;
-      counts[i] = this.captured["w"][V.PIECES[j]];
-      counts[6 + i] = this.captured["b"][V.PIECES[j]];
-      i++;
-    }
-    return counts.join("");
-  }
-
-  setOtherVariables(fen) {
-    super.setOtherVariables(fen);
-    const captured =
-      V.ParseFen(fen).captured.split("").map(x => parseInt(x, 10));
-    // Initialize captured pieces' counts from FEN
-    this.captured = {
-      w: {
-        [V.ROOK]: captured[0],
-        [V.KNIGHT]: captured[1],
-        [V.BISHOP]: captured[2],
-        [V.QUEEN]: captured[3],
-        [V.MARSHALL]: captured[4],
-        [V.CARDINAL]: captured[5]
-      },
-      b: {
-        [V.ROOK]: captured[6],
-        [V.KNIGHT]: captured[7],
-        [V.BISHOP]: captured[8],
-        [V.QUEEN]: captured[9],
-        [V.MARSHALL]: captured[10],
-        [V.CARDINAL]: captured[11]
-      }
-    };
   }
 
   static get size() {
@@ -120,22 +56,31 @@ export class GrandRules extends ChessRules {
     const startRank = (color == "w" ? sizeX - 3 : 2);
     const lastRanks =
       color == "w" ? [0, 1, 2] : [sizeX - 1, sizeX - 2, sizeX - 3];
-    const promotionPieces = [
-      V.ROOK,
-      V.KNIGHT,
-      V.BISHOP,
-      V.QUEEN,
-      V.MARSHALL,
-      V.CARDINAL
-    ];
-
     // Always x+shiftX >= 0 && x+shiftX < sizeX, because no pawns on last rank
-    let finalPieces = undefined;
+    let finalPieces = [V.PAWN];
     if (lastRanks.includes(x + shiftX)) {
-      finalPieces = promotionPieces.filter(p => this.captured[color][p] > 0);
-      if (x + shiftX != lastRanks[0]) finalPieces.push(V.PAWN);
+      // Determine which promotion pieces are available:
+      let promotionPieces = {
+        [V.ROOK]: 2,
+        [V.KNIGHT]: 2,
+        [V.BISHOP]: 2,
+        [V.QUEEN]: 1,
+        [V.MARSHALL]: 1,
+        [V.CARDINAL]: 1
+      };
+      for (let i=0; i<10; i++) {
+        for (let j=0; j<10; j++) {
+          if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == color) {
+            const p = this.getPiece(i, j);
+            if (![V.PAWN, V.KING].includes(p)) promotionPieces[p]--;
+          }
+        }
+      }
+      const availablePieces =
+        Object.keys(promotionPieces).filter(k => promotionPieces[k] > 0);
+      if (x + shiftX == lastRanks[0]) finalPieces = availablePieces;
+      else Array.prototype.push.apply(finalPieces, availablePieces);
     }
-    else finalPieces = [V.PAWN];
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward
       for (let piece of finalPieces)
@@ -220,19 +165,6 @@ export class GrandRules extends ChessRules {
     );
   }
 
-  postPlay(move) {
-    super.postPlay(move);
-    if (move.vanish.length == 2 && move.appear.length == 1)
-      // Capture: update this.captured
-      this.captured[move.vanish[1].c][move.vanish[1].p]++;
-  }
-
-  postUndo(move) {
-    super.postUndo(move);
-    if (move.vanish.length == 2 && move.appear.length == 1)
-      this.captured[move.vanish[1].c][move.vanish[1].p]--;
-  }
-
   static get VALUES() {
     return Object.assign(
       { c: 5, m: 7 }, //experimental
@@ -248,7 +180,7 @@ export class GrandRules extends ChessRules {
     if (randomness == 0) {
       return (
         "r8r/1nbqkmcbn1/pppppppppp/91/91/91/91/PPPPPPPPPP/1NBQKMCBN1/R8R " +
-        "w 0 - 00000000000000"
+        "w 0 -"
       );
     }
 
@@ -312,7 +244,7 @@ export class GrandRules extends ChessRules {
       "r8r/1" + pieces["b"].join("") + "1/" +
       "pppppppppp/91/91/91/91/PPPPPPPPPP/" +
       "1" + pieces["w"].join("").toUpperCase() + "1/R8R" +
-      " w 0 " + " - 00000000000000"
+      " w 0 -"
     );
   }
 
