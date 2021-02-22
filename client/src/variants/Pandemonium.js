@@ -590,7 +590,7 @@ export class PandemoniumRules extends ChessRules {
 
   isAttackedByHorse(sq, color) {
     return (
-      super.isAttackedBySlideNJump(sq, color, V.steps[V.BISHOP], V.HORSE) ||
+      super.isAttackedBySlideNJump(sq, color, V.HORSE, V.steps[V.BISHOP]) ||
       super.isAttackedBySlideNJump(
         sq, color, V.HORSE, V.steps[V.ROOK], "oneStep")
     );
@@ -598,7 +598,7 @@ export class PandemoniumRules extends ChessRules {
 
   isAttackedByDragon(sq, color) {
     return (
-      super.isAttackedBySlideNJump(sq, color, V.steps[V.ROOK], V.DRAGON) ||
+      super.isAttackedBySlideNJump(sq, color, V.DRAGON, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
         sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
     );
