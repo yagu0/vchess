@@ -399,16 +399,17 @@ export class FusionRules extends ChessRules {
 
   postPlay(move) {
     const c = V.GetOppCol(this.turn);
-    const piece = move.appear[0].p;
-    if ([V.KING, V.KN, V.KB, V.KR].includes(piece))
-      this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
-    this.updateCastleFlags(move, piece);
+    move.kingMove = (
+      [V.KING, V.KN, V.KB, V.KR].includes(move.appear[0].p) &&
+      [V.KING, V.KN, V.KB, V.KR].includes(move.vanish[0].p)
+    );
+    if (move.kingMove) this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
+    this.updateCastleFlags(move, move.appear[0].p);
   }
 
   postUndo(move) {
     const c = this.getColor(move.start.x, move.start.y);
-    if ([V.KING, V.KN, V.KB, V.KR].includes(move.appear[0].p))
-      this.kingPos[c] = [move.start.x, move.start.y];
+    if (!!move.kingMove) this.kingPos[c] = [move.start.x, move.start.y];
   }
 
   static get VALUES() {
