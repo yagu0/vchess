@@ -2,9 +2,15 @@ p.boxed
   | Black wins by lining up 4 pawns. Infinite pawns supply.
 
 p.
-  Black initially has only the king, and can only land pawns on the board
-  (or play a regular move); if four are aligned in any direction, it's a win.
-  Of course black could also win by checkmate, but it's rather unlikely.
-  White wins by checkmating the enemy king.
+  Black initially has only the king, but an infinite reserve of pawns can be
+  dropped on the board instead of playing a move.
+  If four pawns are aligned in any direction, it's a win.
+
+figure.diagram-container
+  .diagram
+    | fen:4k3/2pp1p2/4p3/7Q/2BPP3/8/PPP2PPP/RNB1K1NR e7:
+  figcaption Black threatens to win by @e7. White can play Qh8+ to prevent it.
+
+p White wins by checkmating the enemy king.
 
 p This variant was invented by madi (2021) on vchess Discord.

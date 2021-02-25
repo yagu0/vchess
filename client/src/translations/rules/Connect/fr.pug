@@ -2,10 +2,18 @@ p.boxed
   | Les noirs gagnent en alignant 4 pions. Réserve de pions infinie.
 
 p.
-  Les noirs n'ont initialement que leur roi, et ne peuvent parachuter que des
-  pions sur l'échiquier (ou jouer un coup normal) ; si quatre sont alignés
-  dans n'importe quelle direction, c'est gagné. Bien sûr les noirs pourraient
-  aussi gagner par échec et mat, mais c'est assez improbable.
-  Les blancs gagnent en matant le roi adverse.
+  Les noirs n'ont initialement que leur roi, mais disposent d'une réserve de
+  pions infinie qu'ils peuvent parachuter sur l'échiquier
+  au lieu de jouer un coup.
+  Si quatre pions sont alignés dans n'importe quelle direction, c'est gagné.
+
+figure.diagram-container
+  .diagram
+    | fen:4k3/2pp1p2/4p3/7Q/2BPP3/8/PPP2PPP/RNB1K1NR e7:
+  figcaption.
+    Les noirs menacent de gagner par @e7.
+    Les blancs peuvent l'empêcher avec Qh8+
+
+p Les blancs gagnent en matant le roi adverse.
 
 p Cette variante a été inventée par madi (2021) sur le Discord vchess.
