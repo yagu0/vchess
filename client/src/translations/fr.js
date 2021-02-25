@@ -171,6 +171,7 @@ export const translations = {
   "A wizard in the corner": "Un sorcier dans le coin",
   "Absorb powers": "Absorber les pouvoirs",
   "African Draughts": "Dames africaines",
+  "Align four pawns": "Alignez quatre pions",
   "Align five stones": "Alignez cinq pierres",
   "All of the same color": "Tout de la même couleur",
   "Ancient rules": "Règles anciennes",

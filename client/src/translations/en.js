@@ -172,6 +172,7 @@ export const translations = {
   "Absorb powers": "Absorb powers",
   "African Draughts": "African Draughts",
   "Align five stones": "Align five stones",
+  "Align four pawns": "Align four pawns",
   "All of the same color": "All of the same color",
   "Ancient rules": "Ancient rules",
   "As in the movie": "As in the movie",
