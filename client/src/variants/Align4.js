@@ -1,6 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class ConnectRules extends ChessRules {
+export class Align4Rules extends ChessRules {
 
   static GenRandInitFen(randomness) {
     const baseFen = ChessRules.GenRandInitFen(Math.min(randomness, 1));
