@@ -102,7 +102,7 @@ export class Synchrone2Rules extends Synchrone1Rules {
       );
     });
     const passTarget =
-      (x != this.kingPos[c][0] || y != this.kingPos[c][0]) ? c : oppCol;
+      (x != this.kingPos[c][0] || y != this.kingPos[c][1]) ? c : oppCol;
     movesNow.push(
       new Move({
         start: { x: x, y: y },
