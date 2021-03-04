@@ -223,12 +223,15 @@ export class Synchrone2Rules extends Synchrone1Rules {
   }
 
   getCurrentScore() {
-    if (this.movesCount % 4 != 0)
-      // Turn (2 x [white + black]) not over yet
+    if (this.movesCount % 2 != 0)
+      // Turn [white + black] not over yet
       return "*";
     // Was a king captured?
     if (this.kingPos['w'][0] < 0) return "0-1";
     if (this.kingPos['b'][0] < 0) return "1-0";
+    if (this.movesCount % 4 == 2)
+      // Turn (2 x [white + black]) not over yet
+      return "*";
     const whiteCanMove = this.atLeastOneMove('w');
     const blackCanMove = this.atLeastOneMove('b');
     if (whiteCanMove && blackCanMove) return "*";
