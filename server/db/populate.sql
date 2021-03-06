@@ -87,7 +87,7 @@ insert or ignore into Variants (name, description) values
   ('Isardam', 'No paralyzed pieces'),
   ('Janggi', 'Korean Chess'),
   ('Joker', 'Replace pieces'),
-  ('Karouk', 'Thai chess (v3)'),
+  ('Karouk', 'Thai Chess (v3)'),
   ('Kinglet', 'Protect your pawns'),
   ('Kingsmaker', 'Promote into kings'),
   ('Knightmate', 'Mate the knight'),
