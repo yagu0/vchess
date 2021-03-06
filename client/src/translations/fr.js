@@ -316,6 +316,7 @@ export const translations = {
   "Stun & kick pieces": "Étourdissez & frappez les pièces",
   "Thai Chess (v1)": "Échecs thai (v1)",
   "Thai Chess (v2)": "Échecs thai (v2)",
+  "Thai Chess (v3)": "Échecs thai (v3)",
   "The colorbound clobberers": "Les tabasseurs unicolores",
   "The end of the world": "La fin du monde",
   "Transform an essay": "Transformer un essai",

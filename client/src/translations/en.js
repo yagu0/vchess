@@ -317,6 +317,7 @@ export const translations = {
   "Stun & kick pieces": "Stun & kick pieces",
   "Thai Chess (v1)": "Thai Chess (v1)",
   "Thai Chess (v2)": "Thai Chess (v2)",
+  "Thai Chess (v3)": "Thai Chess (v3)",
   "The colorbound clobberers": "The colorbound clobberers",
   "The end of the world": "The end of the world",
   "Transform an essay": "Transform an essay",
