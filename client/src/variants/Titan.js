@@ -257,6 +257,7 @@ export class TitanRules extends ChessRules {
       if (
         V.AUGMENTED_PIECES.includes(move.vanish[0].p) ||
         (
+          move.appear.length >= 2 &&
           move.vanish.length >= 2 &&
           V.AUGMENTED_PIECES.includes(move.vanish[1].p)
         )
