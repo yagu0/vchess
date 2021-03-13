@@ -1,16 +1,20 @@
 p.boxed
-  | Puedes evitar que el oponente haga cualquier movimiento que quiera.
+  | Puedes evitar que el oponente haga cualquier movimiento que quiera,
+  | incluso si solo tiene un movimiento legal.
 
 p.
   Todo va como en el ajedrez ortodoxo, excepto por un detalle:
   en cada turno, un jugador tiene derecho a rechazar como máximo una jugada
   del oponente. Para rechazar un movimiento, vuelva a reproducirlo al revés.
+  Para evitar complicaciones innecesarias, no se permite el enroque.
 
 p.
   Dos movimientos, cada uno promoviendo un peón en la misma casilla,
   pero en dos piezas diferentes, se ven como jugadas diferentes.
 
-p Si un jugador tiene solo un movimiento legal, debe ser aceptado.
+p.
+  Si un jugador tiene solo un movimiento legal, su rechazo conduce al final
+  del juego, con jaque mate o empate (dibujar).
 
 h3 Más información
 

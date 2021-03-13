@@ -1,16 +1,20 @@
 p.boxed
-  | You can forbid the opponent to play the move he wanted.
+  | You can forbid the opponent to play the move he wanted,
+  | even if only one move is available.
 
 p.
   All rules are as in normal chess, except for the following: each turn,
   a player has the right to refuse at most one move of the opponent.
   To refuse a move, re-play it from end to starting square.
+  To avoid unnecessary complications, castle is not allowed.
 
 p.
   Two moves promoting the same pawn on the same square, but to a
   different type of piece, count as two different moves.
 
-p If a player has only one legal move, this move must be accepted.
+p.
+  If a player has only one legal move, refusing it will end the game,
+  either by checkmate or stalemate (draw).
 
 h3 More information
 
