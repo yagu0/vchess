@@ -326,9 +326,10 @@ export default {
               cadence: this.$route.query["cadence"],
               // Tournament: no randomness (TODO: for now at least)
               randomness: 0,
-              memorize: false
+              memorize: true //TODO...
             };
-            this.issueNewChallenge();
+            window.doClick("modalNewgame");
+            //this.issueNewChallenge(); //NOTE: doesn't work yet.
           },
           this.$route.query["variant"]
         );
