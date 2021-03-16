@@ -274,9 +274,9 @@ export class SpartanRules extends ChessRules {
 
   isAttackedByWarlord(sq) {
     return (
-      super.isAttackedBySlideNJump(sq, 'b', V.GENERAL,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep") ||
-      super.isAttackedBySlideNJump(sq, 'b', V.GENERAL, V.steps[V.ROOK])
+      super.isAttackedBySlideNJump(
+        sq, 'b', V.WARLORD, V.steps[V.KNIGHT], "oneStep") ||
+      super.isAttackedBySlideNJump(sq, 'b', V.WARLORD, V.steps[V.BISHOP])
     );
   }
 
