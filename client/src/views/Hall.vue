@@ -326,7 +326,7 @@ export default {
               cadence: this.$route.query["cadence"],
               // Tournament: no randomness (TODO: for now at least)
               randomness: 0,
-              memorize: true //TODO...
+              memorize: false
             };
             window.doClick("modalNewgame");
             //this.issueNewChallenge(); //NOTE: doesn't work yet.
