@@ -315,19 +315,22 @@ export default {
         // Automatic challenge sending, for tournaments
         this.loadNewchallVariant(
           () => {
-            this.newchallenge = {
-              fen: "",
-              vid:
-                this.st.variants
-                .find(v => v.name == this.$route.query["variant"])
-                .id,
-              to: this.$route.query["challenge"],
-              color: this.$route.query["color"] || '',
-              cadence: this.$route.query["cadence"],
-              // Tournament: no randomness (TODO: for now at least)
-              randomness: 0,
-              memorize: false
-            };
+            this.newchallenge = Object.assign(
+              this.newchallenge,
+              {
+                fen: "",
+                vid:
+                  this.st.variants
+                  .find(v => v.name == this.$route.query["variant"])
+                  .id,
+                to: this.$route.query["challenge"],
+                color: this.$route.query["color"] || '',
+                cadence: this.$route.query["cadence"],
+                // Tournament: no randomness (TODO: for now at least)
+                randomness: 0,
+                memorize: false
+              }
+            );
             window.doClick("modalNewgame");
             //this.issueNewChallenge(); //NOTE: doesn't work yet.
           },
