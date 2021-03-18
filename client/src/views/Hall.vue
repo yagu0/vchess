@@ -1309,6 +1309,7 @@ export default {
         // on game just after, the main Hall will be notified.
       };
       if (c.type == "live") {
+        // TODO: ask my IP + opp IP, to add to game infos? (potential bans)
         notifyNewgame();
         this.startNewGame(gameInfo);
         // Increment game stats counter in DB

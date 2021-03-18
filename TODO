@@ -5,9 +5,3 @@ If new live game starts in background, "new game" notify OK but not first move.
 "FreeBoard", re-using a lot of Board logic, but with SVG (empty) board + SVG (empty) reserves.
 Will be used for variants with custom non-rectangular board (Hex, at least)
 Or, with other board shapes (see greenchess.net for example)
-
-=====
-
-New variants:
-Hidden2: Hidden with free initial setup (as in Screen)
-Shinobi Chess
