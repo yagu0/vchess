@@ -174,7 +174,7 @@ export class ShinobiRules extends ChessRules {
     if ([V.ROOK, V.KNIGHT, V.BISHOP, V.QUEEN].includes(piece))
       return super.getPotentialMovesFrom(sq);
     switch (piece) {
-      case V.KING: return super.getPotentialKingMoves(sq);
+      case V.KING: return this.getPotentialKingMoves(sq);
       case V.CAPTAIN: return this.getPotentialCaptainMoves(sq);
       case V.NINJA: return this.getPotentialNinjaMoves(sq);
       case V.SAMURAI: return this.getPotentialSamuraiMoves(sq);
