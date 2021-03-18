@@ -167,6 +167,7 @@ export const translations = {
   "64 pieces on the board": "64 pieces on the board",
   "A Clockwork Orange": "A Clockwork Orange",
   "A pawns cloud": "A pawns cloud",
+  "A story of invasion": "A story of invasion",
   "A quantum story": "A quantum story",
   "A wizard in the corner": "A wizard in the corner",
   "Absorb powers": "Absorb powers",

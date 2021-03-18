@@ -299,7 +299,8 @@ export default {
         (!myReserveTop && !!this.vr.reserve[playingColor])
       );
       // Center reserves, assuming same number of pieces for each side:
-      const nbReservePieces = myReservePiecesArray.length;
+      const nbReservePieces =
+        Math.max(myReservePiecesArray.length, oppReservePiecesArray.length);
       const marginLeft =
         ((100 - nbReservePieces * (100 / reserveSquareNb)) / 2) + "%";
       if (hasReserveTop) {

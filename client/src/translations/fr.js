@@ -167,6 +167,7 @@ export const translations = {
   "64 pieces on the board": "64 pièces sur l'échiquier",
   "A Clockwork Orange": "Orange Mécanique",
   "A pawns cloud": "Une nuée de pions",
+  "A story of invasion": "Une histoire d'invasion",
   "A quantum story": "Une histoire quantique",
   "A wizard in the corner": "Un sorcier dans le coin",
   "Absorb powers": "Absorber les pouvoirs",

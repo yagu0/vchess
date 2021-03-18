@@ -146,6 +146,7 @@ insert or ignore into Variants (name, description) values
   ('Selfabsorb', 'Fusion pieces (v2)'),
   ('Shako', 'Non-conformism and utopia'),
   ('Shatranj', 'Ancient rules'),
+  ('Shinobi', 'A story of invasion'),
   ('Shogi', 'Japanese Chess'),
   ('Shogun', 'General''s Chess'),
   ('Sittuyin', 'Burmese Chess'),
