@@ -183,6 +183,7 @@ export const translations = {
   "Big board": "Gran tablero",
   "Bishop versus pawns": "Alfil contra peones",
   "Board upside down": "Tablero al revés",
+  "Borrow powers": "Pedir prestado poderes",
   "Both sides of the mirror": "Ambos lados del espejo",
   "Build towers (v1)": "Construir torres (v1)",
   "Build towers (v2)": "Construir torres (v2)",

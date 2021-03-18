@@ -49,6 +49,7 @@ insert or ignore into Variants (name, description) values
   ('Clorange', 'A Clockwork Orange'),
   ('Colorbound', 'The colorbound clobberers'),
   ('Convert', 'Convert enemy pieces'),
+  ('Copycat', 'Borrow powers'),
   ('Coregal', 'Two royal pieces'),
   ('Coronation', 'Long live the Queen'),
   ('Crazyhouse', 'Captures reborn'),

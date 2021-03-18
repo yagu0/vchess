@@ -183,6 +183,7 @@ export const translations = {
   "Big board": "Big board",
   "Bishop versus pawns": "Bishop versus pawns",
   "Board upside down": "Board upside down",
+  "Borrow powers": "Borrow powers",
   "Both sides of the mirror": "Both sides of the mirror",
   "Build towers (v1)": "Build towers (v1)",
   "Build towers (v2)": "Build towers (v2)",

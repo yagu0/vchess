@@ -183,6 +183,7 @@ export const translations = {
   "Big board": "Grand échiquier",
   "Bishop versus pawns": "Fou contre pions",
   "Board upside down": "Échiquier à l'envers",
+  "Borrow powers": "Empruntez les pouvoir",
   "Both sides of the mirror": "Les deux côté du miroir",
   "Build towers (v1)": "Bâtissez des tours (v1)",
   "Build towers (v2)": "Bâtissez des tours (v2)",
