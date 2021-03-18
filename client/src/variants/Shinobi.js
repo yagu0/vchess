@@ -60,7 +60,7 @@ export class ShinobiRules extends ChessRules {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check reserve
-    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{6,6}$/))
+    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{5,5}$/))
       return false;
     return true;
   }
@@ -73,12 +73,12 @@ export class ShinobiRules extends ChessRules {
     );
   }
 
-  // In hand initially: captain, ninja, samurai + 2 x monk, horse, lance.
+  // In hand initially: ninja, samurai + 2 x monk, horse, lance.
   static GenRandInitFen(randomness) {
     const baseFen = ChessRules.GenRandInitFen(Math.min(randomness, 1));
     return (
       baseFen.substr(0, 35) + "3CK3 " +
-      "w 0 " + baseFen.substr(48, 2) + " - 111222"
+      "w 0 " + baseFen.substr(48, 2) + " - 11222"
     );
   }
 
@@ -101,12 +101,11 @@ export class ShinobiRules extends ChessRules {
       V.ParseFen(fen).reserve.split("").map(x => parseInt(x, 10));
     this.reserve = {
       w: {
-        [V.CAPTAIN]: reserve[0],
-        [V.NINJA]: reserve[1],
-        [V.SAMURAI]: reserve[2],
-        [V.MONK]: reserve[3],
-        [V.HORSE]: reserve[4],
-        [V.LANCE]: reserve[5]
+        [V.NINJA]: reserve[0],
+        [V.SAMURAI]: reserve[1],
+        [V.MONK]: reserve[2],
+        [V.HORSE]: reserve[3],
+        [V.LANCE]: reserve[4]
       }
     };
   }
@@ -122,7 +121,7 @@ export class ShinobiRules extends ChessRules {
   }
 
   static get RESERVE_PIECES() {
-    return [V.CAPTAIN, V.NINJA, V.SAMURAI, V.MONK, V.HORSE, V.LANCE];
+    return [V.NINJA, V.SAMURAI, V.MONK, V.HORSE, V.LANCE];
   }
 
   getReserveMoves([x, y]) {
