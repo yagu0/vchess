@@ -249,6 +249,7 @@ export class ShinobiRules extends ChessRules {
     // Attacked by white:
     return (
       super.isAttackedByKing(sq, 'w') ||
+      super.isAttackedByPawn(sq, 'w') ||
       this.isAttackedByCaptain(sq, 'w') ||
       this.isAttackedByNinja(sq, 'w') ||
       this.isAttackedBySamurai(sq, 'w') ||
