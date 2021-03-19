@@ -1,0 +1,28 @@
+p.boxed
+  | Captures turn the capturer into the captured piece.
+
+p.
+  Everything is the same as in orthodox rules, with one exception:
+  after each capture, the capturer takes the nature of the captured piece.
+  The goal is still to checkmate, and stalemate is a draw.
+
+p.
+  For example after 1.e4 e5 2.Nf3 b6 3.Nxe5, e5 is now a white pawn.
+  This capture seems bad, but anything which capture e5 later
+  will turn into a pawn...
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:rnbqkbnr/p1pp1ppp/1p6/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R:
+  .diagram.diag22
+    | fen:rnbqkbnr/p1pp1ppp/1p6/4P3/4P3/8/PPPP1PPP/RNBQKB1R:
+  figcaption After 1.e4 e5 2.Nf3 b6 (left) with 3.Nxe5 (right)
+
+p If the king captures, it transforms as well but stays royal.
+
+h3 More information
+
+p
+  a(href="https://www.chessvariants.com/difftaking.dir/cannibal.html")
+    | Cannibal Chess
+  | &nbsp;on chessvariants.com.
