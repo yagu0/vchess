@@ -1,4 +1,3 @@
-import { ChessRules, Move, PiPo } from "@/base_rules";
 import { Cannibal1Rules } from "@/variants/Cannibal1";
 
 export class Cannibal2Rules extends Cannibal1Rules {
