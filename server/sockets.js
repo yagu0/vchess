@@ -220,10 +220,9 @@ module.exports = function(wss) {
           notifyRoom(
             obj.page || page, obj.code, {data: obj.data}, obj.excluded);
           if (!!discordChannel && obj.code == "newchallenge") {
-            discordChannel.send("New challenge: " +
+            discordChannel.send("New challenge: **" +
               obj.data.vname +
-              " [" + obj.data.cadence + "]" +
-              " - https://vchess.club");
+              "** [" + obj.data.cadence + "]");
           }
           break;
 
