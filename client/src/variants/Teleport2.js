@@ -13,7 +13,7 @@ export class Teleport2Rules extends Teleport1Rules {
   }
 
   postPlay(move) {
-    if (move.vaish.length > 0) {
+    if (move.vanish.length > 0) {
       // Standard method:
       if (move.appear[0].p == V.KING)
         this.kingPos[move.appear[0].c] = [move.appear[0].x, move.appear[0].y];
@@ -23,11 +23,11 @@ export class Teleport2Rules extends Teleport1Rules {
 
   updateCastleFlags(move) {
     // Standard method: TODO = find a better way... (not rewriting)
-    const c = color || V.GetOppCol(this.turn);
+    const c = move.vanish[0].c;
     const firstRank = (c == "w" ? V.size.x - 1 : 0);
     const oppCol = this.turn;
     const oppFirstRank = V.size.x - 1 - firstRank;
-    if (piece == V.KING && move.appear.length > 0)
+    if (move.vanish[0].p == V.KING && move.appear.length > 0)
       this.castleFlags[c] = [V.size.y, V.size.y];
     else if (
       move.start.x == firstRank &&

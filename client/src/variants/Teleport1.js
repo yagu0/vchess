@@ -1,7 +1,7 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 
-export class TeleportRules extends ChessRules {
+export class Teleport1Rules extends ChessRules {
 
   hoverHighlight([x, y]) {
     // Testing move validity results in an infinite update loop.
