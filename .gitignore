@@ -3,6 +3,7 @@
 /server/db/dbconnect.py
 /server/db/__pycache__/
 /server/config/parameters.js
+/server/config/discord.json
 /server/fallback/*
 !/server/fallback/README
 /client/dist/*

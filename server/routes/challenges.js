@@ -35,7 +35,8 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
           }
         }
       );
-    } else insertChallenge();
+    }
+    else insertChallenge();
   }
 });
 

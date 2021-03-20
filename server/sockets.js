@@ -1,3 +1,6 @@
+const Discord = require('discord.js');
+const { token, channel } = require('./config/discord.json');
+
 // Node version in Ubuntu 16.04 does not know about URL class
 function getJsonFromUrl(url) {
   const query = url.substr(2); //starts with "/?"
@@ -24,6 +27,13 @@ module.exports = function(wss) {
   // NOTE: only purpose of sidToPages = know when to delete keys in idToSid
   let sidToPages = {};
   let idToSid = {};
+  const discordClient = new Discord.Client();
+  let discordChannel = null;
+  if (token.length > 0) {
+    discordClient.login(token).then( () => {
+      discordChannel = discordClient.channels.cache.get(channel);
+    });
+  }
   wss.on("connection", (socket, req) => {
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
@@ -209,6 +219,12 @@ module.exports = function(wss) {
           // "newgame" message can provide a page (corr Game --> Hall)
           notifyRoom(
             obj.page || page, obj.code, {data: obj.data}, obj.excluded);
+          if (!!discordChannel && obj.code == "newchallenge") {
+            discordChannel.send("New challenge: " +
+              obj.data.vname +
+              " [" + obj.data.cadence + "]" +
+              " - https://vchess.club");
+          }
           break;
 
         case "rnewgame":
