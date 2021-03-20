@@ -219,10 +219,19 @@ module.exports = function(wss) {
           // "newgame" message can provide a page (corr Game --> Hall)
           notifyRoom(
             obj.page || page, obj.code, {data: obj.data}, obj.excluded);
-          if (!!discordChannel && obj.code == "newchallenge") {
-            discordChannel.send("New challenge: **" +
-              obj.data.vname +
-              "** [" + obj.data.cadence + "]");
+          if (
+            obj.code == "newchallenge" &&
+            !obj.data.to && //filter out targeted challenges
+            obj.data.cadence.indexOf('d') < 0 //and correspondance games
+          ) {
+            const challMsg = (
+              "New challenge: **" + obj.data.vname + "** " +
+              "[" + obj.data.cadence + "]"
+            );
+            if (!!discordChannel) discordChannel.send(challMsg);
+            else
+              // Log when running locally (dev, debug):
+              console.log(challMsg);
           }
           break;
 

@@ -201,7 +201,7 @@ export class TeleportRules extends ChessRules {
       this.kingPos[move.vanish[1].c] = [-1, -1];
     else if (move.appear[0].p == V.KING)
       this.kingPos[move.appear[0].c] = [move.appear[0].x, move.appear[0].y];
-    this.updateCastleFlags(move);
+    if (move.vanish.length > 0) this.updateCastleFlags(move);
   }
 
   // NOTE: no need to update if castleFlags already off
