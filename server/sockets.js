@@ -30,7 +30,8 @@ module.exports = function(wss) {
   const discordClient = new Discord.Client();
   let discordChannel = null;
   if (token.length > 0) {
-    discordClient.login(token).then( () => {
+    discordClient.login(token);
+    discordClient.once("ready", () => {
       discordChannel = discordClient.channels.cache.get(channel);
     });
   }
@@ -217,22 +218,23 @@ module.exports = function(wss) {
         case "rematchoffer":
         case "draw":
           // "newgame" message can provide a page (corr Game --> Hall)
+          if (obj.code == "newchallenge") {
+            // Filter out targeted challenges and correspondance games:
+            if (!obj.data.to && obj.data.cadence.indexOf('d') < 0) {
+              const challMsg = (
+                (obj.data.sender || "@nonymous") + " : " +
+                "**" + obj.data.vname + "** " +
+                "[" + obj.data.cadence + "] "
+              );
+              if (!!discordChannel) discordChannel.send(challMsg);
+              else
+                // Log when running locally (dev, debug):
+                console.log(challMsg);
+            }
+            delete obj.data["sender"];
+          }
           notifyRoom(
             obj.page || page, obj.code, {data: obj.data}, obj.excluded);
-          if (
-            obj.code == "newchallenge" &&
-            !obj.data.to && //filter out targeted challenges
-            obj.data.cadence.indexOf('d') < 0 //and correspondance games
-          ) {
-            const challMsg = (
-              "New challenge: **" + obj.data.vname + "** " +
-              "[" + obj.data.cadence + "]"
-            );
-            if (!!discordChannel) discordChannel.send(challMsg);
-            else
-              // Log when running locally (dev, debug):
-              console.log(challMsg);
-          }
           break;
 
         case "rnewgame":

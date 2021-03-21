@@ -1134,7 +1134,9 @@ export default {
           this.challenges.splice(challToDelIdx, 1);
         }
         this.send("newchallenge", {
-          data: Object.assign({ from: this.st.user.sid }, chall)
+          data: Object.assign(
+            // Temporarily add sender infos to display challenge on Discord.
+            { from: this.st.user.sid, sender: this.st.user.name }, chall)
         });
         // Add new challenge:
         chall.from = {
