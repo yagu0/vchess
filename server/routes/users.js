@@ -51,7 +51,7 @@ router.post('/register', access.unlogged, access.ajax, (req,res) => {
         };
         setAndSendLoginToken("Welcome to " + params.siteURL, user);
         // Update tournament DB (TODO: if error, log it)
-        exec(params.tourneyPath + "/dbsync/update_users.py");
+        exec(params.tourneyPath + "/dbsync/insert_user.py " + ret.id);
         res.json({});
       }
     });
@@ -105,6 +105,7 @@ router.put('/update', access.logged, access.ajax, (req,res) => {
       notify: !!req.body.notify,
     };
     UserModel.updateSettings(user);
+    exec(params.tourneyPath + "/dbsync/update_user.py " + ret.id);
     res.json({});
   }
 });
