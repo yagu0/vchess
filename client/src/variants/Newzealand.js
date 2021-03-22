@@ -52,7 +52,7 @@ export class NewzealandRules extends ChessRules {
     );
   }
 
-  isAttackedByROOK([x, y], color) {
+  isAttackedByRook([x, y], color) {
     return super.isAttackedBySlideNJump(
       [x, y],
       color,
