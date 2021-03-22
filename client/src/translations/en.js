@@ -245,6 +245,7 @@ export const translations = {
   "Kings cross the 8x8 board": "Kings cross the 8x8 board",
   "Kings cross the 11x11 board": "Kings cross the 11x11 board",
   "Knibis and Bisknis": "Knibis and Bisknis",
+  "Kniros and Rosknis": "Kniros and Rosknis",
   "Knight in pocket": "Knight in pocket",
   "Knight versus pawns": "Knight versus pawns",
   "Korean Chess": "Korean Chess",

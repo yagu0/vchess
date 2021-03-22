@@ -114,6 +114,7 @@ insert or ignore into Variants (name, description) values
   ('Monocolor', 'All of the same color'),
   ('Monster', 'White move twice'),
   ('Musketeer', 'New fairy pieces'),
+  ('Newzealand', 'Kniros and Rosknis'),
   ('Omega', 'A wizard in the corner'),
   ('Orda', 'Mongolian Horde (v1)'),
   ('Ordamirror', 'Mongolian Horde (v2)'),
