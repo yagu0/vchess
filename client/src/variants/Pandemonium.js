@@ -4,14 +4,6 @@ import { ArrayFun } from "@/utils/array";
 
 export class PandemoniumRules extends ChessRules {
 
-  static get PawnSpecs() {
-    return Object.assign(
-      {},
-      ChessRules.PawnSpecs,
-      { promotions: [V.GILDING] }
-    );
-  }
-
   loseOnRepetition() {
     // If current side is under check: lost
     return this.underCheck(this.turn);
@@ -414,10 +406,10 @@ export class PandemoniumRules extends ChessRules {
     // Maybe apply promotions:
     if (Object.keys(V.PromoteMap).includes(p)) {
       const promoted = V.PromoteMap[p];
-      const lastRank = (c == 'w' ? 0 : 9);
+      const lastRanks = (c == 'w' ? [0, 1] : [9, 8]);
       let promotions = [];
       moves.forEach(m => {
-        if (m.start.x == lastRank || m.end.x == lastRank) {
+        if (lastRanks.includes(m.start.x) || lastRanks.includes(m.end.x)) {
           let pMove = JSON.parse(JSON.stringify(m));
           pMove.appear[0].p = promoted;
           promotions.push(pMove);
@@ -426,6 +418,21 @@ export class PandemoniumRules extends ChessRules {
       Array.prototype.push.apply(moves, promotions);
     }
     return moves;
+  }
+
+  addPawnMoves([x1, y1], [x2, y2], moves) {
+    const color = this.turn;
+    const lastRanks = (color == "w" ? [0, 1] : [9, 8]);
+    if (!lastRanks.includes(x2)) {
+      moves.push(this.getBasicMove([x1, y1], [x2, y2]));
+      return;
+    }
+    let finalPieces = [V.GILDING];
+    if (x2 == lastRanks[1]) finalPieces.push(V.PAWN);
+    for (let piece of finalPieces) {
+      const tr = (piece != V.PAWN ? { c: color, p: piece } : null);
+      moves.push(this.getBasicMove([x1, y1], [x2, y2], tr));
+    }
   }
 
   getPotentialPawnMoves([x, y]) {

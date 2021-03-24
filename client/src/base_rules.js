@@ -769,9 +769,8 @@ export const ChessRules = class ChessRules {
       if (!!promotions) finalPieces = promotions;
       else if (!!V.PawnSpecs.promotions) finalPieces = V.PawnSpecs.promotions;
     }
-    let tr = null;
     for (let piece of finalPieces) {
-      tr = (piece != V.PAWN ? { c: color, p: piece } : null);
+      const tr = (piece != V.PAWN ? { c: color, p: piece } : null);
       moves.push(this.getBasicMove([x1, y1], [x2, y2], tr));
     }
   }
