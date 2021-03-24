@@ -131,7 +131,7 @@ export class Knightmate2Rules extends ChessRules {
     for (let i of [0, 1]) {
       if (
         kings.length >= i+1 &&
-        super.isAttacked([kings[i].x, kings[i].y], oppCol)
+        this.isAttacked([kings[i].x, kings[i].y], oppCol)
       ) {
         res.push([kings[i].x, kings[i].y]);
       }
@@ -154,7 +154,7 @@ export class Knightmate2Rules extends ChessRules {
           this.board[k.x][k.y] == V.EMPTY
             ? [m.appear[0].x, m.appear[0].y] //king moved
             : [k.x, k.y]
-        if (super.isAttacked(curKingPos, oppCol)) attacks++;
+        if (this.isAttacked(curKingPos, oppCol)) attacks++;
         else break; //no need to check further
       }
       this.undo(m);
@@ -172,8 +172,8 @@ export class Knightmate2Rules extends ChessRules {
     const oppCol = V.GetOppCol(color);
     const kings = this.getKingsPos(color);
     if (
-      super.isAttacked([kings[0].x, kings[0].y], oppCol) ||
-      (kings.length == 2 && super.isAttacked([kings[1].x, kings[1].y], oppCol))
+      this.isAttacked([kings[0].x, kings[0].y], oppCol) ||
+      (kings.length == 2 && this.isAttacked([kings[1].x, kings[1].y], oppCol))
     ) {
       return (color == 'w' ? "0-1" : "1-0");
     }
