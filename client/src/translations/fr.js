@@ -181,6 +181,7 @@ export const translations = {
   "Augmented Queens": "Dames augmentées",
   "Balanced sliders & leapers": "Modes de déplacement équilibrés",
   "Baroque Music": "Musique Baroque",
+  "Beware the bomb": "Attention à la bombe",
   "Big board": "Grand échiquier",
   "Bishop versus pawns": "Fou contre pions",
   "Board upside down": "Échiquier à l'envers",

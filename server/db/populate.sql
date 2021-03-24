@@ -156,6 +156,7 @@ insert or ignore into Variants (name, description) values
   ('Spartan', 'Spartan versus Persians'),
   ('Squatter1', 'Squat last rank (v1)'),
   ('Squatter2', 'Squat last rank (v2)'),
+  ('Stealthbomb', 'Beware the bomb'),
   ('Suicide', 'Lose all pieces'),
   ('Suction', 'Attract opposite king'),
   ('Swap', 'Dangerous captures'),

@@ -181,6 +181,7 @@ export const translations = {
   "Augmented Queens": "Augmented Queens",
   "Balanced sliders & leapers": "Balanced sliders & leapers",
   "Baroque Music": "Baroque Music",
+  "Beware the bomb": "Beware the bomb",
   "Big board": "Big board",
   "Bishop versus pawns": "Bishop versus pawns",
   "Board upside down": "Board upside down",

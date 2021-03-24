@@ -73,7 +73,7 @@ export class BarioRules extends ChessRules {
       vanish: [
         new PiPo({ x: square[0], y: square[1], c: c, p: V.UNDEFINED })
       ],
-      start: { x: -1, y: -1 },
+      start: { x: -1, y: -1 }
     });
   }
 
