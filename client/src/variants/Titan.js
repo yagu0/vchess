@@ -120,26 +120,68 @@ export class TitanRules extends ChessRules {
     }
   }
 
+  canIplay(side, [x, y]) {
+    if (this.movesCount >= 4) return super.canIplay(side, [x, y]);
+    return (
+      this.turn == side &&
+      (
+        (side == 'w' && x == 7) ||
+        (side == 'b' && x == 0)
+      )
+    );
+  }
+
+  hoverHighlight([x, y]) {
+    const c = this.turn;
+    return (
+      this.movesCount <= 3 &&
+      ((c == 'w' && x == 7) || (c == 'b' && x == 0))
+    );
+  }
+
+  onlyClick([x, y]) {
+    return (
+      this.movesCount <= 3 ||
+      // TODO: next line theoretically shouldn't be required...
+      (this.movesCount == 4 && this.getColor(x, y) != this.turn)
+    );
+  }
+
+  // Special case of move 1 = choose squares, knight first, then bishop
+  doClick(square) {
+    if (this.movesCount >= 4) return null;
+    const color = this.turn;
+    const [x, y] = [square[0], square[1]];
+    if ((color == 'w' && x != 7) || (color == 'b' && x != 0)) return null;
+    const selectedPiece = this.board[x][y][1];
+    return new Move({
+      appear: [
+        new PiPo({
+          x: x,
+          y: y,
+          c: color,
+          p: this.getAugmented(selectedPiece)
+        })
+      ],
+      vanish: [
+        new PiPo({
+          x: x,
+          y: y,
+          c: color,
+          p: selectedPiece
+        })
+      ],
+      start: { x: x, y: y },
+      end: { x: x, y: y }
+    });
+  }
+
   // If piece not in usual list, bishop or knight appears.
   getPotentialMovesFrom([x, y]) {
     if (this.movesCount <= 3) {
       // Setup stage
-      const color = this.getColor(x, y);
-      const firstRank = (color == 'w' ? 7 : 0);
-      if (x != firstRank || V.AUGMENTED_PIECES.includes(this.board[x][y][1]))
-        return [];
-      const piece = this.getPiece(x, y);
-      const move = new Move({
-        appear: [
-          new PiPo({ x: x, y: y, c: color, p: this.getAugmented(piece) })
-        ],
-        vanish: [
-          new PiPo({ x: x, y: y, c: color, p: piece })
-        ],
-        start: { x: x, y: y },
-        end: { x: x, y: y }
-      });
-      return [move];
+      const move = this.doClick([x, y]);
+      return (!move ? [] : [move]);
     }
     let moves = super.getPotentialMovesFrom([x, y]);
     const initialPiece = this.getPiece(x, y);
@@ -183,43 +225,6 @@ export class TitanRules extends ChessRules {
       });
     }
     return moves;
-  }
-
-  hoverHighlight([x, y]) {
-    const c = this.turn;
-    return (
-      this.movesCount <= 3 &&
-      ((c == 'w' && x == 7) || (c == 'b' && x == 0))
-    );
-  }
-
-  // Special case of move 1 = choose squares, knight first, then bishop
-  doClick(square) {
-    if (this.movesCount >= 4) return null;
-    const color = this.turn;
-    const [x, y] = [square[0], square[1]];
-    if ((color == 'w' && x != 7) || (color == 'b' && x != 0)) return null;
-    const selectedPiece = this.board[x][y][1];
-    return new Move({
-      appear: [
-        new PiPo({
-          x: x,
-          y: y,
-          c: color,
-          p: this.getAugmented(selectedPiece)
-        })
-      ],
-      vanish: [
-        new PiPo({
-          x: x,
-          y: y,
-          c: color,
-          p: selectedPiece
-        })
-      ],
-      start: { x: x, y: y },
-      end: { x: x, y: y }
-    });
   }
 
   postPlay(move) {

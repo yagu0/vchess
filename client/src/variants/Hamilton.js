@@ -19,10 +19,6 @@ export class HamiltonRules extends ChessRules {
     return "xx";
   }
 
-  hoverHighlight() {
-    return this.movesCount == 0;
-  }
-
   static board2fen(b) {
     if (b[0] == 'x') return 'x';
     return ChessRules.board2fen(b);
@@ -69,6 +65,10 @@ export class HamiltonRules extends ChessRules {
     return side == this.turn;
   }
 
+  hoverHighlight() {
+    return this.movesCount == 0;
+  }
+
   // Initiate the game by choosing a square for the knight:
   doClick(square) {
     if (this.movesCount > 0) return null;
@@ -86,13 +86,7 @@ export class HamiltonRules extends ChessRules {
       return [...Array(64).keys()].map(k => {
         const i = k % 8;
         const j = (k - i) / 8;
-        return new Move({
-          appear: [
-            new PiPo({ x: i, y: j, c: 'w', p: V.KNIGHT })
-          ],
-          vanish: [],
-          start: { x: -1, y: -1 }
-        });
+        return this.doClick([i, j]);
       });
     }
     for (let i=0; i<8; i++) {
