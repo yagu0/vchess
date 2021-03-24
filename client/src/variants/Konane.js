@@ -49,10 +49,6 @@ export class KonaneRules extends ChessRules {
     );
   }
 
-  setOtherVariables(fen) {
-    this.captures = []; //reinit for each move
-  }
-
   hoverHighlight([x, y], side) {
     const c = this.turn;
     if (this.movesCount >= 2 || (!!side && side != c)) return false;
@@ -101,57 +97,31 @@ export class KonaneRules extends ChessRules {
       const mv = this.doClick([x, y]);
       return (!!mv ? [mv] : []);
     }
-    const L = this.captures.length;
-    const c = (L > 0 ? this.captures[L-1] : null);
     const color = this.turn;
     const oppCol = V.GetOppCol(color);
-    let step = null;
     let moves = [];
-    if (!!c) {
-      if (x != c.end.x || y != c.end.y) return [];
-      step = [(c.end.x - c.start.x) / 2, (c.end.y - c.start.y) / 2];
-      // Add move to adjacent empty square to mark "end of capture"
-      moves.push(
-        new Move({
-          appear: [],
-          vanish: [],
-          start: { x: x, y: y },
-          end: { x: x - step[0], y: y - step[1] }
-        })
-      );
-    }
-    // Examine captures from here
-    for (let s of (!!step ? [step] : V.steps[V.ROOK])) {
-      let [i, j] = [x + 2*s[0], y + 2*s[1]];
-      if (
-        !!c || //avoid redundant checks if continuation
-        (
-          V.OnBoard(i, j) &&
-          this.board[i][j] == V.EMPTY &&
-          this.board[i - s[0]][j - s[1]] != V.EMPTY &&
-          this.getColor(i - s[0], j - s[1]) == oppCol
-        )
-      ) {
-        let mv = new Move({
-          appear: [
-            new PiPo({ x: i, y: j, c: color, p: V.PAWN })
-          ],
-          vanish: [
-            new PiPo({ x: x, y: y, c: color, p: V.PAWN }),
-            new PiPo({ x: i - s[0], y: j - s[1], c: oppCol, p: V.PAWN })
-          ]
-        });
-        // Is there another capture possible then?
-        [i, j] = [i + 2*s[0], j + 2*s[1]];
+    for (let s of V.steps[V.ROOK]) {
+      let curmv = new Move({
+        appear: [ new PiPo({ x: -1, y: -1, c: color, p: V.PAWN }) ],
+        vanish: [ new PiPo({ x: x, y: y, c: color, p: V.PAWN }) ]
+      });
+      for (let mult = 2; ; mult += 2) {
+        let [i, j] = [x + mult * s[0], y + mult * s[1]];
         if (
           V.OnBoard(i, j) &&
           this.board[i][j] == V.EMPTY &&
           this.board[i - s[0]][j - s[1]] != V.EMPTY &&
           this.getColor(i - s[0], j - s[1]) == oppCol
         ) {
-          mv.end.moreCapture = true;
+          curmv.vanish.push(
+            new PiPo({ x: i - s[0], y: j - s[1], c: oppCol, p: V.PAWN }));
+          let mv = JSON.parse(JSON.stringify(curmv));
+          mv.appear[0].x = i;
+          mv.appear[0].y = j;
+          mv.end = { x: i, y: j };
+          moves.push(mv);
         }
-        moves.push(mv);
+        else break;
       }
     }
     return moves;
@@ -170,59 +140,14 @@ export class KonaneRules extends ChessRules {
     return (this.turn == "w" ? "0-1" : "1-0");
   }
 
-  play(move) {
-    V.PlayOnBoard(this.board, move);
-    if (!move.end.moreCapture) {
-      this.turn = V.GetOppCol(this.turn);
-      this.movesCount++;
-      this.captures = [];
-    }
-    else {
-      this.captures.push(
-        {
-          start: move.start,
-          end: { x: move.end.x, y: move.end.y }
-        }
-      );
-    }
-  }
-
-  undo(move) {
-    V.UndoOnBoard(this.board, move);
-    if (!move.end.moreCapture) {
-      this.turn = V.GetOppCol(this.turn);
-      this.movesCount--;
-    }
-    else this.captures.pop();
-  }
-
-  getComputerMove() {
-    const color = this.turn;
-    let mvArray = [];
-    let mv = null;
-    const undoAll = () => {
-      for (let i = mvArray.length - 1; i >= 0; i--) this.undo(mvArray[i]);
-    };
-    // Just play random moves (for now at least. TODO?)
-    while (this.turn == color) {
-      let moves = super.getAllValidMoves();
-      if (moves.length == 0) {
-        // Shouldn't happen, but...
-        undoAll();
-        return null;
-      }
-      mv = moves[randInt(moves.length)];
-      mvArray.push(mv);
-      this.play(mv);
-    }
-    undoAll();
-    return (mvArray.length > 1 ? mvArray : mvArray[0]);
+  static get SEARCH_DEPTH() {
+    return 4;
   }
 
   getNotation(move) {
     if (this.movesCount <= 1) return V.CoordsToSquare(move.start) + "X";
     if (move.vanish.length == 0) return "end";
-    return V.CoordsToSquare(move.start) + "x" + V.CoordsToSquare(move.end);
+    return V.CoordsToSquare(move.start) + V.CoordsToSquare(move.end);
   }
 
 };
