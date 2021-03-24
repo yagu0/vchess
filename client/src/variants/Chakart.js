@@ -1018,7 +1018,11 @@ export class ChakartRules extends ChessRules {
     if (move.end.effect == "toadette") this.reserve = this.captured;
     else this.reserve = undefined;
     const color = move.turn[0];
-    if (move.vanish.length == 2 && move.vanish[1].c != 'a') {
+    if (
+      move.vanish.length == 2 &&
+      move.vanish[1].c != 'a' &&
+      move.appear.length == 1 //avoid king Boo!
+    ) {
       // Capture: update this.captured
       let capturedPiece = move.vanish[1].p;
       if (capturedPiece == V.INVISIBLE_QUEEN) capturedPiece = V.QUEEN;
