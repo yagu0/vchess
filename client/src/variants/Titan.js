@@ -231,17 +231,16 @@ export class TitanRules extends ChessRules {
     if (this.movesCount > 4) {
       let piece = move.vanish[0].p;
       if (['j', 'l'].includes(piece)) piece = V.KING;
-      if (piece == V.KING && move.appear.length > 0)
-        this.kingPos[c] = [move.appear[0].x, move.appear[0].y];
+      if (piece == V.KING)
+        this.kingPos[move.appear[0].c] = [move.appear[0].x, move.appear[0].y];
       this.updateCastleFlags(move, piece);
     }
   }
 
   postUndo(move) {
     if (this.movesCount >= 4) {
-      const c = this.getColor(move.start.x, move.start.y);
       if (['j', 'k', 'l'].includes(this.getPiece(move.start.x, move.start.y)))
-        this.kingPos[c] = [move.start.x, move.start.y];
+        this.kingPos[move.vanish[0].c] = [move.start.x, move.start.y];
     }
   }
 
