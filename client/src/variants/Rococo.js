@@ -142,7 +142,8 @@ export class RococoRules extends ChessRules {
     // Pre-check: is thing on this square immobilized?
     const imSq = this.isImmobilized([x, y]);
     const piece = this.getPiece(x, y);
-    if (!!imSq && piece != V.KING) {
+    if (!!imSq) {
+      if (piece == V.KING) return [];
       // Only option is suicide, if I'm not a king:
       return [
         new Move({
