@@ -112,10 +112,12 @@ export class WildebeestRules extends ChessRules {
     const [sizeX, sizeY] = [V.size.x, V.size.y];
     const shiftX = color == "w" ? -1 : 1;
     const startRanks = color == "w" ? [sizeX - 2, sizeX - 3] : [1, 2];
-    const lastRank = color == "w" ? 0 : sizeX - 1;
-    const finalPieces = x + shiftX == lastRank
-      ? [V.WILDEBEEST, V.QUEEN]
-      : [V.PAWN];
+    const lastRanks = color == "w" ? [0, 1] : [sizeX - 1, sizeX  -2];
+    let finalPieces = [V.PAWN];
+    if (x + shiftX == lastRanks[1])
+      Array.prototype.push.apply(finalPieces, [V.WILDEBEEST, V.QUEEN]);
+    else if (x + shiftX == lastRanks[0])
+      finalPieces = [V.WILDEBEEST, V.QUEEN];
 
     if (this.board[x + shiftX][y] == V.EMPTY) {
       // One square forward

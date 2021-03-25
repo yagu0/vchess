@@ -1,6 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class StealthbombRules extends ChessRules {
+export class Stealthbomb1Rules extends ChessRules {
 
   static get CanAnalyze() {
     return false;
@@ -84,7 +84,7 @@ export class StealthbombRules extends ChessRules {
       this.movesCount >= 2 ||
       (
         (c == 'w' && square[0] < 6) ||
-        (c == 'b' && square[0] > 2)
+        (c == 'b' && square[0] > 1)
       )
     ) {
       return null;
@@ -94,7 +94,8 @@ export class StealthbombRules extends ChessRules {
     return new Move({
       appear: [ new PiPo({ x: x, y: y, c: c, p: V.BOMB_CODE[piece] }) ],
       vanish: [ new PiPo({ x: x, y: y, c: c, p: piece }) ],
-      start: { x: -1, y: -1 }
+      start: { x: -1, y: -1 },
+      end: { x: x, y: y, noHighlight: true }
     });
   }
 

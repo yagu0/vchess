@@ -2,7 +2,15 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { randInt } from "@/utils/alea";
 import { ArrayFun } from "@/utils/array";
 
-export class PandemoniumRules extends ChessRules {
+export class Pandemonium2Rules extends ChessRules {
+
+  static get PawnSpecs() {
+    return Object.assign(
+      { },
+      ChessRules.PawnSpecs,
+      { promotions: [V.GILDING] }
+    );
+  }
 
   loseOnRepetition() {
     // If current side is under check: lost
@@ -55,7 +63,7 @@ export class PandemoniumRules extends ChessRules {
   }
 
   static get size() {
-    return { x: 10, y: 10};
+    return { x: 8, y: 10};
   }
 
   getColor(i, j) {
@@ -97,17 +105,6 @@ export class PandemoniumRules extends ChessRules {
     };
   }
 
-  static IsGoodEnpassant(enpassant) {
-    if (enpassant != "-") {
-      const squares = enpassant.split(",");
-      if (squares.length > 2) return false;
-      for (let sq of squares) {
-        if (!sq.match(/[a-j0-9]/)) return false;
-      }
-    }
-    return true;
-  }
-
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
@@ -145,7 +142,7 @@ export class PandemoniumRules extends ChessRules {
   static GenRandInitFen(randomness) {
     if (randomness == 0) {
       return (
-        "rnbqkmcbnr/pppppppppp/91/91/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
+        "rnbqkmcbnr/pppppppppp/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
         "w 0 ajaj - 00000000000000"
       );
     }
@@ -212,48 +209,6 @@ export class PandemoniumRules extends ChessRules {
     );
   }
 
-  getEnpassantFen() {
-    const L = this.epSquares.length;
-    if (!this.epSquares[L - 1]) return "-"; //no en-passant
-    let res = "";
-    this.epSquares[L - 1].forEach(sq => {
-      res += V.CoordsToSquare(sq) + ",";
-    });
-    return res.slice(0, -1); //remove last comma
-  }
-
-  getEpSquare(moveOrSquare) {
-    if (!moveOrSquare) return undefined;
-    if (typeof moveOrSquare === "string") {
-      const square = moveOrSquare;
-      if (square == "-") return undefined;
-      let res = [];
-      square.split(",").forEach(sq => {
-        res.push(V.SquareToCoords(sq));
-      });
-      return res;
-    }
-    // Argument is a move:
-    const move = moveOrSquare;
-    const [sx, sy, ex] = [move.start.x, move.start.y, move.end.x];
-    if (this.getPiece(sx, sy) == V.PAWN && Math.abs(sx - ex) >= 2) {
-      const step = (ex - sx) / Math.abs(ex - sx);
-      let res = [{
-        x: sx + step,
-        y: sy
-      }];
-      if (sx + 2 * step != ex) {
-        // 3-squares jump
-        res.push({
-          x: sx + 2 * step,
-          y: sy
-        });
-      }
-      return res;
-    }
-    return undefined; //default
-  }
-
   getReservePpath(index, color) {
     const p = V.RESERVE_PIECES[index];
     const prefix = (ChessRules.PIECES.includes(p) ? "" : "Pandemonium/");
@@ -316,6 +271,19 @@ export class PandemoniumRules extends ChessRules {
     };
   }
 
+  applyPromotions(moves, promoted) {
+    const lastRank = (this.turn == 'w' ? 0 : V.size.x - 1);
+    let promotions = [];
+    moves.forEach(m => {
+      if ([m.start.x, m.end.x].includes(lastRank)) {
+        let pMove = JSON.parse(JSON.stringify(m));
+        pMove.appear[0].p = promoted;
+        promotions.push(pMove);
+      }
+    });
+    Array.prototype.push.apply(moves, promotions);
+  }
+
   getPotentialMovesFrom([x, y]) {
     const c = this.getColor(x, y);
     const oppCol = V.GetOppCol(c);
@@ -331,12 +299,12 @@ export class PandemoniumRules extends ChessRules {
           })
         ];
       }
-      const firstRank = (this.movesCount == 0 ? 9 : 0);
+      const firstRank = (this.movesCount == 0 ? V.size.x - 1 : 0);
       if (x != firstRank || this.getPiece(x, y) != V.KNIGHT) return [];
       // Swap with who? search for matching bishop:
       let knights = [],
           bishops = [];
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < V.size.y; i++) {
         const elt = this.board[x][i][1];
         if (elt == 'n') knights.push(i);
         else if (elt == 'b') bishops.push(i);
@@ -404,73 +372,8 @@ export class PandemoniumRules extends ChessRules {
         break;
     }
     // Maybe apply promotions:
-    if (Object.keys(V.PromoteMap).includes(p)) {
-      const promoted = V.PromoteMap[p];
-      const lastRanks = (c == 'w' ? [0, 1] : [9, 8]);
-      let promotions = [];
-      moves.forEach(m => {
-        if (lastRanks.includes(m.start.x) || lastRanks.includes(m.end.x)) {
-          let pMove = JSON.parse(JSON.stringify(m));
-          pMove.appear[0].p = promoted;
-          promotions.push(pMove);
-        }
-      });
-      Array.prototype.push.apply(moves, promotions);
-    }
-    return moves;
-  }
-
-  addPawnMoves([x1, y1], [x2, y2], moves) {
-    const color = this.turn;
-    const lastRanks = (color == "w" ? [0, 1] : [9, 8]);
-    if (!lastRanks.includes(x2)) {
-      moves.push(this.getBasicMove([x1, y1], [x2, y2]));
-      return;
-    }
-    let finalPieces = [V.GILDING];
-    if (x2 == lastRanks[1]) finalPieces.push(V.PAWN);
-    for (let piece of finalPieces) {
-      const tr = (piece != V.PAWN ? { c: color, p: piece } : null);
-      moves.push(this.getBasicMove([x1, y1], [x2, y2], tr));
-    }
-  }
-
-  getPotentialPawnMoves([x, y]) {
-    const color = this.turn;
-    const shiftX = (color == 'w' ? -1 : 1);
-    let moves = [];
-    if (this.board[x + shiftX][y] == V.EMPTY) {
-      this.addPawnMoves([x, y], [x + shiftX, y], moves);
-      if ((color == 'w' && x >= V.size.x - 3) || (color == 'b' && x <= 2)) {
-        if (this.board[x + 2 * shiftX][y] == V.EMPTY) {
-          moves.push(this.getBasicMove([x, y], [x + 2 * shiftX, y]));
-          if (
-            (
-              (color == 'w' && x == V.size.x - 2) ||
-              (color == 'b' && x == 1)
-            )
-            &&
-            this.board[x + 3 * shiftX][y] == V.EMPTY
-          ) {
-            moves.push(this.getBasicMove([x, y], [x + 3 * shiftX, y]));
-          }
-        }
-      }
-    }
-    for (let shiftY of [-1, 1]) {
-      if (y + shiftY >= 0 && y + shiftY < V.size.y) {
-        if (
-          this.board[x + shiftX][y + shiftY] != V.EMPTY &&
-          this.canTake([x, y], [x + shiftX, y + shiftY])
-        ) {
-          this.addPawnMoves([x, y], [x + shiftX, y + shiftY], moves);
-        }
-      }
-    }
-    Array.prototype.push.apply(
-      moves,
-      this.getEnpassantCaptures([x, y], shiftX)
-    );
+    if (Object.keys(V.PromoteMap).includes(p))
+      this.applyPromotions(moves, V.PromoteMap[p]);
     return moves;
   }
 
@@ -500,31 +403,6 @@ export class PandemoniumRules extends ChessRules {
   getPotentialDragonMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
       this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep"));
-  }
-
-  getEnpassantCaptures([x, y], shiftX) {
-    const Lep = this.epSquares.length;
-    const epSquare = this.epSquares[Lep - 1];
-    let moves = [];
-    if (!!epSquare) {
-      for (let epsq of epSquare) {
-        // TODO: some redundant checks
-        if (epsq.x == x + shiftX && Math.abs(epsq.y - y) == 1) {
-          let enpassantMove = this.getBasicMove([x, y], [epsq.x, epsq.y]);
-          // WARNING: the captured pawn may be diagonally behind us,
-          // if it's a 3-squares jump and we take on 1st passing square
-          const px = this.board[x][epsq.y] != V.EMPTY ? x : x - shiftX;
-          enpassantMove.vanish.push({
-            x: px,
-            y: epsq.y,
-            p: "p",
-            c: this.getColor(px, epsq.y)
-          });
-          moves.push(enpassantMove);
-        }
-      }
-    }
-    return moves;
   }
 
   getPotentialKingMoves(sq) {
