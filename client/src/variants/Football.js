@@ -282,7 +282,7 @@ export class FootballRules extends ChessRules {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     const c = this.turn;
     let moves = [];
-    let atLeastOnePotentialKick = false;
+    let kicks = {};
     for (let s of steps) {
       const [i, j] = [x + s[0], y + s[1]];
       if (
@@ -290,11 +290,17 @@ export class FootballRules extends ChessRules {
         this.board[i][j] != V.EMPTY &&
         this.getColor(i, j) == c
       ) {
-        if (!atLeastOnePotentialKick) atLeastOnePotentialKick = true;
-        Array.prototype.push.apply(moves, this.tryKickFrom([i, j]));
+        const kmoves = this.tryKickFrom([i, j]);
+        kmoves.forEach(km => {
+          const key = V.CoordsToSquare(km.start) + V.CoordsToSquare(km.end);
+          if (!kicks[km]) {
+            moves.push(km);
+            kicks[km] = true;
+          }
+        });
       }
     }
-    if (atLeastOnePotentialKick) {
+    if (Object.keys(kicks).length > 0) {
       // And, always add the "end" move. For computer, keep only one
       outerLoop: for (let i=0; i < V.size.x; i++) {
         for (let j=0; j < V.size.y; j++) {
