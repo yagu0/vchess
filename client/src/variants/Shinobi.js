@@ -12,8 +12,8 @@ export class ShinobiRules extends ChessRules {
   static get NINJA() {
     return 'j';
   }
-  static get SAMURAI() {
-    return 's';
+  static get DRAGON() {
+    return 'd';
   }
   static get MONK() {
     return 'm';
@@ -33,7 +33,7 @@ export class ShinobiRules extends ChessRules {
   static get PIECES() {
     return (
       ChessRules.PIECES
-      .concat([V.CAPTAIN, V.NINJA, V.SAMURAI, V.MONK, V.HORSE, V.LANCE])
+      .concat([V.CAPTAIN, V.NINJA, V.DRAGON, V.MONK, V.HORSE, V.LANCE])
     );
   }
 
@@ -60,7 +60,7 @@ export class ShinobiRules extends ChessRules {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const fenParsed = V.ParseFen(fen);
     // 5) Check reserve
-    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-9]{5,5}$/))
+    if (!fenParsed.reserve || !fenParsed.reserve.match(/^[0-2]{6,6}$/))
       return false;
     return true;
   }
@@ -73,12 +73,12 @@ export class ShinobiRules extends ChessRules {
     );
   }
 
-  // In hand initially: ninja, samurai + 2 x monk, horse, lance.
+  // In hand initially: ninja, dragon, 2 x (monk, horse), lance, pawn.
   static GenRandInitFen(randomness) {
     const baseFen = ChessRules.GenRandInitFen(Math.min(randomness, 1));
     return (
       baseFen.substr(0, 35) + "3CK3 " +
-      "w 0 " + baseFen.substr(48, 2) + " - 11222"
+      "w 0 " + baseFen.substr(48, 2) + " - 112211"
     );
   }
 
@@ -102,10 +102,11 @@ export class ShinobiRules extends ChessRules {
     this.reserve = {
       w: {
         [V.NINJA]: reserve[0],
-        [V.SAMURAI]: reserve[1],
+        [V.DRAGON]: reserve[1],
         [V.MONK]: reserve[2],
         [V.HORSE]: reserve[3],
-        [V.LANCE]: reserve[4]
+        [V.LANCE]: reserve[4],
+        [V.PAWN]: reserve[5]
       }
     };
   }
@@ -121,7 +122,7 @@ export class ShinobiRules extends ChessRules {
   }
 
   static get RESERVE_PIECES() {
-    return [V.NINJA, V.SAMURAI, V.MONK, V.HORSE, V.LANCE];
+    return [V.NINJA, V.DRAGON, V.MONK, V.HORSE, V.LANCE, V.PAWN];
   }
 
   getReserveMoves([x, y]) {
@@ -176,7 +177,7 @@ export class ShinobiRules extends ChessRules {
       case V.KING: return this.getPotentialKingMoves(sq);
       case V.CAPTAIN: return this.getPotentialCaptainMoves(sq);
       case V.NINJA: return this.getPotentialNinjaMoves(sq);
-      case V.SAMURAI: return this.getPotentialSamuraiMoves(sq);
+      case V.DRAGON: return this.getPotentialDragonMoves(sq);
     }
     let moves = [];
     switch (piece) {
@@ -194,7 +195,7 @@ export class ShinobiRules extends ChessRules {
         moves = this.getPotentialLanceMoves(sq);
         break;
     }
-    const promotionZone = (this.turn == 'w' ? [0, 1, 2] : [5, 6, 7]);
+    const promotionZone = (this.turn == 'w' ? [0, 1] : [7, 6]);
     const promotedForm = V.MapUnpromoted[piece];
     moves.forEach(m => {
       if (promotionZone.includes(m.end.x)) m.appear[0].p = promotedForm;
@@ -224,10 +225,10 @@ export class ShinobiRules extends ChessRules {
     );
   }
 
-  getPotentialSamuraiMoves(sq) {
+  getPotentialDragonMoves(sq) {
     return (
       super.getSlideNJumpMoves(sq, V.steps[V.ROOK])
-      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep"))
     );
   }
 
@@ -252,7 +253,7 @@ export class ShinobiRules extends ChessRules {
       super.isAttackedByPawn(sq, 'w') ||
       this.isAttackedByCaptain(sq, 'w') ||
       this.isAttackedByNinja(sq, 'w') ||
-      this.isAttackedBySamurai(sq, 'w') ||
+      this.isAttackedByDragon(sq, 'w') ||
       this.isAttackedByMonk(sq, 'w') ||
       this.isAttackedByHorse(sq, 'w') ||
       this.isAttackedByLance(sq, 'w') ||
@@ -277,11 +278,11 @@ export class ShinobiRules extends ChessRules {
     );
   }
 
-  isAttackedBySamurai(sq, color) {
+  isAttackedByDragon(sq, color) {
     return (
-      super.isAttackedBySlideNJump(sq, color, V.SAMURAI, V.steps[V.ROOK]) ||
+      super.isAttackedBySlideNJump(sq, color, V.DRAGON, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.SAMURAI, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
     );
   }
 
@@ -385,7 +386,7 @@ export class ShinobiRules extends ChessRules {
         {
           c: 4,
           j: 7,
-          s: 8,
+          d: 7,
           m: 2,
           h: 2,
           l: 2
@@ -406,7 +407,12 @@ export class ShinobiRules extends ChessRules {
   }
 
   getNotation(move) {
-    if (move.vanish.length > 0) return super.getNotation(move);
+    if (move.vanish.length > 0) {
+      let notation = super.getNotation(move);
+      if (move.vanish[0].p != V.PAWN && move.appear[0].p != move.vanish[0].p)
+        notation += "=" + move.appear[0].p.toUpperCase();
+      return notation;
+    }
     // Drop:
     const piece =
       move.appear[0].p != V.PAWN ? move.appear[0].p.toUpperCase() : "";
