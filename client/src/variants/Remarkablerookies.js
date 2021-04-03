@@ -21,6 +21,7 @@ export class RemarkablerookiesRules extends ChessRules {
   }
 
   static GenRandInitFen(randomness) {
+    return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/DHASKAHD w 0 ahah -";
     if (randomness == 0)
       return "dhaskahd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
@@ -150,22 +151,22 @@ export class RemarkablerookiesRules extends ChessRules {
   }
 
   isAttackedByShortRook(sq, color) {
-    return this.isAttackedBySlideNJumpLimited(sq, color, V.EMPRESS, V.steps[V.ROOK], 4);
+    return this.isAttackedBySlideNJumpLimited(sq, color, V.SHORT_ROOK, V.steps[V.ROOK], 4);
   }
 
   isAttackedByWoodyRook(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps.$d, "oneStep") ||
-      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps.$w, "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.WOODY_ROOK, V.steps.$d, "oneStep") ||
+      this.isAttackedBySlideNJump(sq, color, V.WOODY_ROOK, V.steps.$w, "oneStep")
     );
 
   }
 
   isAttackedByHalfDuck(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps.$d, "oneStep") ||
-      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps.$f, "oneStep") ||
-      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps.$3, "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.HALF_DUCK, V.steps.$d, "oneStep") ||
+      this.isAttackedBySlideNJump(sq, color, V.HALF_DUCK, V.steps.$f, "oneStep") ||
+      this.isAttackedBySlideNJump(sq, color, V.HALF_DUCK, V.steps.$3, "oneStep")
     );
 
   }
@@ -173,11 +174,11 @@ export class RemarkablerookiesRules extends ChessRules {
   isAttackedByChancellor(sq, color) {
     // Copied from Schess.js
     return (
-      this.isAttackedBySlideNJump(sq, color, V.ELEPHANT, V.steps[V.ROOK]) ||
+      this.isAttackedBySlideNJump(sq, color, V.CHANCELLOR, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
         sq,
         color,
-        V.ELEPHANT,
+        V.CHANCELLOR,
         V.steps[V.KNIGHT],
         "oneStep"
       )
