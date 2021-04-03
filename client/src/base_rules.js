@@ -738,6 +738,28 @@ export const ChessRules = class ChessRules {
     return moves;
   }
 
+  // Similar to getSlideNJumpMoves, but limited range
+  // TODO: DRY or combine with getSlideNJumpMoves
+  getSlideNJumpMovesLimited([x, y], steps, maxRange) {
+    // TODO probably rename maxRange to range
+    let moves = [];
+    outerLoop: for (let step of steps) {
+      let i = x + step[0];
+      let j = y + step[1];
+      let k = 1;
+      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
+        moves.push(this.getBasicMove([x, y], [i, j]));
+        if (k >= maxRange) continue outerLoop;
+        i += step[0];
+        j += step[1];
+        k++;
+      }
+      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
+        moves.push(this.getBasicMove([x, y], [i, j]));
+    }
+    return moves;
+  }
+
   // Special case of en-passant captures: treated separately
   getEnpassantCaptures([x, y], shiftX) {
     const Lep = this.epSquares.length;
@@ -1085,6 +1107,30 @@ export const ChessRules = class ChessRules {
       while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
         rx += step[0];
         ry += step[1];
+      }
+      if (
+        V.OnBoard(rx, ry) &&
+        this.board[rx][ry] != V.EMPTY &&
+        this.getPiece(rx, ry) == piece &&
+        this.getColor(rx, ry) == color
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Similar to isAttackedBySlideNJump, but limited range
+  // TODO: DRY or combine with isAttackedBySlideNJump
+  isAttackedBySlideNJumpLimited([x, y], color, piece, steps, range) {
+    for (let step of steps) {
+      let rx = x + step[0],
+          ry = y + step[1],
+          i = 1;
+      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && i < range) {
+        rx += step[0];
+        ry += step[1];
+        i++;
       }
       if (
         V.OnBoard(rx, ry) &&

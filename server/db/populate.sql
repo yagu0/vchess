@@ -134,6 +134,7 @@ insert or ignore into Variants (name, description) values
   ('Racingkings', 'Kings cross the 8x8 board'),
   ('Rampage', 'Move under cover'),
   ('Relayup', 'Upgrade pieces'),
+  ('Remarkablerookies', 'The remarkable rookies'),
   ('Rifle', 'Shoot pieces'),
   ('Recycle', 'Reuse pieces'),
   ('Refusal1', 'Do not play that! (v1)'),
