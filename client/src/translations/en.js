@@ -326,6 +326,7 @@ export const translations = {
   "Thai Chess (v3)": "Thai Chess (v3)",
   "The colorbound clobberers": "The colorbound clobberers",
   "The end of the world": "The end of the world",
+  "The remarkable rookies": "The remarkable rookies",
   "Transform an essay": "Transform an essay",
   "Two kings": "Two kings",
   "Two royal pieces": "Two royal pieces",
