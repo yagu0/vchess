@@ -7,7 +7,7 @@ main
   )
     .card
       label.modal-close(for="modalRules")
-      a#variantNameInGame(:href="'/#/variants/'+game.vname") {{ game.vname }}
+      a#variantNameInGame(:href="'/#/variants/'+game.vname") {{ game.vdisp }}
       div(v-html="rulesContent")
   input#modalScore.modal(type="checkbox")
   div#scoreDiv(
@@ -707,7 +707,7 @@ export default {
           const gameToSend = Object.keys(this.game)
             .filter(k =>
               [
-                "id","fen","players","vid","cadence","fenStart","vname",
+                "id","fen","players","vid","cadence","fenStart",
                 "moves","clocks","score","drawOffer","rematchOffer"
               ].includes(k))
             .reduce(
@@ -1024,7 +1024,6 @@ export default {
         {
           // (other) Game infos: constant
           fenStart: gameInfo.fen,
-          vname: this.game.vname,
           created: Date.now(),
           // Game state (including FEN): will be updated
           moves: [],
@@ -1282,18 +1281,33 @@ export default {
       if (!!callback) callback();
     },
     loadVariantThenGame: async function(game, callback) {
-      await import("@/variants/" + game.vname + ".js")
-      .then((vModule) => {
-        window.V = vModule[game.vname + "Rules"];
-        this.loadGame(game, callback);
-      });
-      this.rulesContent =
-        afterRawLoad(
-          require(
-            "raw-loader!@/translations/rules/" +
-            game.vname + "/" + this.st.lang + ".pug"
-          ).default
-        ).replace(/(fen:)([^:]*):/g, replaceByDiag);
+      const afterSetVname = async () => {
+        await import("@/variants/" + game.vname + ".js")
+        .then((vModule) => {
+          window.V = vModule[game.vname + "Rules"];
+          this.loadGame(game, callback);
+        });
+        this.rulesContent =
+          afterRawLoad(
+            require(
+              "raw-loader!@/translations/rules/" +
+              game.vname + "/" + this.st.lang + ".pug"
+            ).default
+          ).replace(/(fen:)([^:]*):/g, replaceByDiag);
+      };
+      let variant = undefined;
+      const trySetVname = setInterval(
+        () => {
+          // this.st.variants might be uninitialized (variant == null)
+          variant = this.st.variants.find(v => v.id == game.vid);
+          if (!!variant) {
+            clearInterval(trySetVname);
+            game.vname = variant.name;
+            game.vdisp = variant.display;
+            afterSetVname();
+          }
+        }, 500
+      );
     },
     // 3 cases for loading a game:
     //  - from indexedDB (running or completed live game I play)

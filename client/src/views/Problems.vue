@@ -8,7 +8,7 @@ main
     .card
       label.modal-close(for="modalRules")
       a#variantNameInProblems(:href="'/#/variants/'+game.vname")
-        | {{ game.vname }}
+        | {{ curproblem.vdisp }}
       div(v-html="rulesContent")
   input#modalNewprob.modal(
     type="checkbox"
@@ -63,7 +63,7 @@ main
         .button-group(v-if="canIedit(curproblem.uid)")
           button(@click="editProblem(curproblem)") {{ st.tr["Edit"] }}
           button(@click="deleteProblem(curproblem)") {{ st.tr["Delete"] }}
-        span.vname {{ curproblem.vname }}
+        span.vname {{ curproblem.vdisp }}
         span.uname ({{ curproblem.uname }})
         button.marginleft(@click="backToList()") {{ st.tr["Back to list"] }}
         button.nomargin(@click="gotoPrevNext(curproblem,1)")
@@ -108,7 +108,7 @@ main
           v-show="onlyMine || !selectedVar || p.vid == selectedVar"
           @click="setHrefPid(p)"
         )
-          td {{ p.vname }}
+          td {{ p.vdisp }}
           td {{ firstChars(p.instruction) }}
           td {{ p.id }}
       button#loadMoreBtn(
@@ -141,10 +141,7 @@ export default {
   data: function() {
     return {
       st: store.state,
-      emptyVar: {
-        vid: 0,
-        vname: ""
-      },
+      emptyVar: { vid: 0 },
       // Problem currently showed, or edited:
       curproblem: {
         id: 0, //used in case of edit
@@ -220,7 +217,9 @@ export default {
       t.style.height = (t.scrollHeight + 3) + "px";
     },
     setVname: function(prob) {
-      prob.vname = this.st.variants.find(v => v.id == prob.vid).name;
+      const variant = this.st.variants.find(v => v.id == prob.vid);
+      prob.vname = variant.name;
+      prob.vdisp = variant.display;
     },
     // Add vname and user names:
     decorate: function(problems, callback) {
@@ -250,7 +249,8 @@ export default {
             }
           }
         );
-      } else if (!!callback) callback();
+      }
+      else if (!!callback) callback();
     },
     firstChars: function(text) {
       let preparedText = text
@@ -282,6 +282,7 @@ export default {
       this.curproblem.uid = 0;
       this.curproblem.vid = "";
       this.curproblem.vname = "";
+      this.curproblem.vdisp = "";
       this.curproblem.fen = "";
       this.curproblem.diag = "";
       this.curproblem.instruction = "";
@@ -378,7 +379,8 @@ export default {
             }
           }
         );
-      } else processWhenWeHaveProb();
+      }
+      else processWhenWeHaveProb();
     },
     gotoPrevNext: function(prob, dir) {
       const mode = (this.onlyMine ? "mine" : "others");
@@ -495,7 +497,8 @@ export default {
                 // (Unless the user navigated several times by URL to show a
                 // single problem...)
                 .sort((p1, p2) => p2.added - p1.added);
-            } else this.hasMore[mode] = false;
+            }
+            else this.hasMore[mode] = false;
             if (!!cb) cb(L);
           }
         }
@@ -570,7 +573,7 @@ button#loadMoreBtn
   display: inline-block
 
 #topPage
-  span.vname
+  span.vdisp
     font-weight: bold
     padding-left: var(--universal-margin)
   span.uname

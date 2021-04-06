@@ -84,6 +84,14 @@ export default {
   watch: {
     $route: function(to, from) {
       if (to.path != "/mygames") this.cleanBeforeDestroy();
+    },
+    // st.variants changes only once, at loading from [] to [...]
+    "st.variants": function() {
+      // Set potential games variant names + display:
+      this.livesGames.concat(this.corrGames).concat(this.importGames)
+      .forEach(o => {
+        if (!o.vname) this.setVname(o);
+      });
     }
   },
   created: function() {
@@ -191,6 +199,14 @@ export default {
           document.getElementById(t + "Games").classList.remove("active");
       }
     },
+    // TODO: duplicated from Hall.vue:
+    setVname: function(obj) {
+      const variant = this.st.variants.find(v => v.id == obj.vid);
+      if (!!variant) {
+        obj.vname = variant.name;
+        obj.vdisp = variant.display;
+      }
+    },
     addGameImport(game) {
       game.type = "import";
       ImportgameStorage.add(game, (err) => {
@@ -230,6 +246,7 @@ export default {
           if ((rem == 0 && g.myColor == 'w') || (rem == 1 && g.myColor == 'b'))
             g.myTurn = true;
         }
+        this.setVname(g);
       });
     },
     socketMessageListener: function(msg) {
@@ -260,15 +277,11 @@ export default {
           break;
         }
         case "notifynewgame": {
-          const gameInfo = data.data;
-          // st.variants might be uninitialized,
-          // if unlucky and newgame right after connect:
-          const v = this.st.variants.find(v => v.id == gameInfo.vid);
-          const vname = !!v ? v.name : "";
+          let gameInfo = data.data;
+          this.setVname(gameInfo);
           const type = (gameInfo.cadence.indexOf('d') >= 0 ? "corr": "live");
           let game = Object.assign(
             {
-              vname: vname,
               type: type,
               score: "*",
               created: Date.now()
@@ -385,7 +398,10 @@ export default {
           if (L > 0) {
             // Add "-1" because IDBKeyRange.upperBound includes boundary
             this.cursor["import"] = importGames[L - 1].created - 1;
-            importGames.forEach(g => g.type = "import");
+            importGames.forEach(g => {
+              g.type = "import";
+              this.setVname(g);
+            });
             this.importGames = this.importGames.concat(importGames);
           }
           else this.hasMore["import"] = false;

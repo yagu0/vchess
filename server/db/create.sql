@@ -3,6 +3,8 @@
 create table Variants (
   id integer primary key,
   name varchar unique,
+  display varchar,
+  groupe integer,
   description text,
   noProblems boolean
 );

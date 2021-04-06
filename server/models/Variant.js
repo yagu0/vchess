@@ -4,7 +4,10 @@ const db = require("../utils/database");
  * Structure:
  *   id: integer
  *   name: varchar
+ *   display: varchar
+ *   groupe: integer
  *   description: varchar
+ *   noProblems: boolean
  */
 
 const VariantModel = {

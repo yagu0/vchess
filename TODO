@@ -6,9 +6,18 @@ If new live game starts in background, "new game" notify OK but not first move.
 Will be used for variants with custom non-rectangular board (Hex, at least)
 Or, with other board shapes (see greenchess.net for example)
 
-Would be nice to display some better variants names (Pacosako -> Paco-Ŝako etc),
-but the "formatted" name with uppercase + all lower cases would still be required.
-(For example in variants list, or tournament variant field).
+Merge variants 1, 2 (3) into one with sub-variant selection when starting a game (New Game + vs engine + analyse)
+E.g. Checkered 1 & 2 into one, and so on.
+Need additional field in variant code... in a generic way (radiobutton or select or checkbox?)
 
+#New variants:
 Chessplode
 Tablut
+
+https://brainking.com/fr/GameRules?tp=128 Massacre Chess
+
+CWDA : need game options (also useful at least for Monster)
+PizzaKings https://www.chessvariants.com/unequal.dir/pizza-kings.html
+https://en.m.wikipedia.org/wiki/Chess_with_different_armies#Pizza_Kings%5B11%5D_(John_Lawson)
+
+https://www.chessvariants.com/other.dir/nemoroth.html :-)

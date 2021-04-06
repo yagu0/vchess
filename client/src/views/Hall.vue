@@ -48,7 +48,7 @@ main
               :value="v.id"
               :selected="newchallenge.vid==v.id"
             )
-              | {{ v.name }}
+              | {{ v.display }}
         fieldset
           label(for="cadence") {{ st.tr["Cadence"] }} *
           div#predefinedCadences
@@ -279,7 +279,7 @@ export default {
     "st.variants": function() {
       // Set potential challenges and games variant names:
       this.challenges.concat(this.games).forEach(o => {
-        if (!o.vname) o.vname = this.getVname(o.vid);
+        if (!o.vname) this.setVname(o);
       });
       if (!this.newchallenge.V && this.newchallenge.vid > 0)
         this.loadNewchallVariant();
@@ -315,7 +315,7 @@ export default {
         // Automatic challenge sending, for tournaments
         this.loadNewchallVariant(
           () => {
-            this.newchallenge = Object.assign(
+            Object.assign(
               this.newchallenge,
               {
                 fen: "",
@@ -419,7 +419,6 @@ export default {
                 const type = this.classifyObject(c);
                 const vname = this.getVname(c.vid);
                 return Object.assign(
-                  {},
                   {
                     type: type,
                     vname: vname,
@@ -554,10 +553,15 @@ export default {
         this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
       }
     },
-    getVname: function(vid) {
-      const variant = this.st.variants.find(v => v.id == vid);
+    setVname: function(obj) {
+      const variant = this.st.variants.find(v => v.id == obj.vid);
       // this.st.variants might be uninitialized (variant == null)
-      return variant ? variant.name : "";
+      if (!!variant) {
+        obj.vname = variant.name;
+        obj.vdisp = variant.display;
+      }
+      // NOTE: Next line is used in loadNewchallVariant
+      return (!variant ? "" : variant.name);
     },
     filterChallenges: function(type) {
       return this.challenges.filter(c => c.type == type);
@@ -876,7 +880,7 @@ export default {
           ) {
             let newGame = game;
             newGame.type = this.classifyObject(game);
-            newGame.vname = this.getVname(game.vid);
+            this.setVname(game);
             if (!game.score)
               // New game from Hall
               newGame.score = "*";
@@ -944,15 +948,9 @@ export default {
               }
               this.cursor = res.games[L - 1].created;
               let moreGames = res.games.map(g => {
-                const vname = this.getVname(g.vid);
-                return Object.assign(
-                  {},
-                  g,
-                  {
-                    type: "corr",
-                    vname: vname
-                  }
-                );
+                this.setVname(g);
+                g.type = "corr";
+                return g;
               });
               this.games = this.games.concat(moreGames);
             }
@@ -976,7 +974,7 @@ export default {
         let fromValues = Object.assign({}, this.people[chall.from]);
         delete fromValues["pages"]; //irrelevant in this context
         newChall.from = Object.assign({ sid: chall.from }, fromValues);
-        newChall.vname = this.getVname(newChall.vid);
+        this.setVname(newChall);
         this.challenges.push(newChall);
         if (
           (newChall.type == "live" && this.cdisplay == "corr") ||
@@ -998,12 +996,11 @@ export default {
       }
     },
     loadNewchallVariant: async function(cb, vname) {
-      vname = vname || this.getVname(this.newchallenge.vid);
+      vname = vname || this.setVname(this.newchallenge);
       await import("@/variants/" + vname + ".js")
       .then((vModule) => {
         window.V = vModule[vname + "Rules"];
         this.newchallenge.V = window.V;
-        this.newchallenge.vname = vname;
         if (!!cb) cb();
       });
     },
@@ -1343,13 +1340,13 @@ export default {
     },
     // NOTE: for live games only (corr games start on the server)
     startNewGame: function(gameInfo) {
+      this.setVname(gameInfo);
       const game = Object.assign(
         {},
         gameInfo,
         {
           // (other) Game infos: constant
           fenStart: gameInfo.fen,
-          vname: this.getVname(gameInfo.vid),
           created: Date.now(),
           // Game state (including FEN): will be updated
           moves: [],

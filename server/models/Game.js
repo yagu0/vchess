@@ -84,15 +84,11 @@ const GameModel = {
     db.serialize(function() {
       let query =
         "SELECT " +
-          "g.id, g.fen, g.fenStart, g.cadence, g.created, " +
-          "g.white, g.black, g.randomness, g.score, g.scoreMsg, " +
-          "g.chatReadWhite, g.chatReadBlack, g.drawOffer, " +
-          // TODO: vid and vname are redundant
-          "g.rematchOffer, v.id as vid, v.name AS vname " +
-        "FROM Games g " +
-        "JOIN Variants v " +
-        "  ON g.vid = v.id " +
-        "WHERE g.id = " + id;
+          "id, vid, fen, fenStart, cadence, created, " +
+          "white, black, randomness, score, scoreMsg, " +
+          "chatReadWhite, chatReadBlack, drawOffer, rematchOffer " +
+        "FROM Games " +
+        "WHERE id = " + id;
       db.get(query, (err, gameInfo) => {
         if (!gameInfo) {
           cb(err || { errmsg: "Game not found" }, undefined);
@@ -118,13 +114,12 @@ const GameModel = {
               "WHERE gid = " + id;
             db.all(query, (err4, chats) => {
               const game = Object.assign(
-                {},
-                gameInfo,
                 {
                   players: players,
                   moves: moves,
                   chats: chats
-                }
+                },
+                gameInfo
               );
               cb(null, game);
             });
@@ -186,11 +181,8 @@ const GameModel = {
   getRunning: function(uid, cb) {
     db.serialize(function() {
       let query =
-        "SELECT g.id, g.cadence, g.created, " +
-          "g.white, g.black, v.name AS vname " +
-        "FROM Games g " +
-        "JOIN Variants v " +
-        "  ON g.vid = v.id " +
+        "SELECT id, vid, cadence, created, white, black " +
+        "FROM Games " +
         "WHERE score = '*' AND (white = " + uid + " OR black = " + uid + ")";
       db.all(query, (err, games) => {
         // Get movesCount (could be done in // with next query)
@@ -240,12 +232,9 @@ const GameModel = {
   getCompleted: function(uid, cursor, cb) {
     db.serialize(function() {
       let query =
-        "SELECT g.id, g.cadence, g.created, g.score, g.scoreMsg, " +
-          "g.white, g.black, g.deletedByWhite, g.deletedByBlack, " +
-          "v.name AS vname " +
-        "FROM Games g " +
-        "JOIN Variants v " +
-        "  ON g.vid = v.id " +
+        "SELECT id, vid, cadence, created, score, scoreMsg, " +
+          "white, black, deletedByWhite, deletedByBlack " +
+        "FROM Games " +
         "WHERE " +
         "  score <> '*' AND" +
         "  created < " + cursor + " AND" +
@@ -279,7 +268,7 @@ const GameModel = {
               g => {
                 return {
                   id: g.id,
-                  vname: g.vname,
+                  vid: g.vid,
                   cadence: g.cadence,
                   created: g.created,
                   score: g.score,

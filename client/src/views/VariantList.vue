@@ -12,7 +12,7 @@ main
       :class="getVclasses(filteredVariants, idx)"
     )
       router-link(:to="getLink(v.name)")
-        h4.boxtitle.text-center {{ v.name }}
+        h4.boxtitle.text-center {{ v.display }}
         p.description.text-center {{ st.tr[v.desc] }}
 </template>
 
@@ -41,7 +41,8 @@ export default {
         .map(v => {
           return {
             name: v.name,
-            desc: v.description
+            desc: v.description,
+            display: v.display
           };
         })
         .sort((a, b) => {

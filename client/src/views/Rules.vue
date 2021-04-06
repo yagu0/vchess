@@ -26,7 +26,7 @@ main
           | {{ st.tr["Analysis mode"] }}
   .row
     .col-sm-12.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
-      h4#variantName(v-show="display=='rules'") {{ gameInfo.vname }}
+      h4#variantName(v-show="display=='rules'") {{ getVariantDisplay }}
       div(
         v-show="display=='rules'"
         v-html="content"
@@ -75,6 +75,10 @@ export default {
   computed: {
     showAnalyzeBtn: function() {
       return !!this.V && this.V.CanAnalyze;
+    },
+    getVariantDisplay: function() {
+      if (!this.gameInfo.vname) return ""; //variant not set yet
+      return this.st.variants.find(v => v.name == this.gameInfo.vname).display;
     },
     content: function() {
       if (!this.gameInfo.vname) return ""; //variant not set yet
