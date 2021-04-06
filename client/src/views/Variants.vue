@@ -19,7 +19,7 @@ main
           li(v-for="v of variantGroup.get(g)")
             a(:href="getLink(v)") {{ v.display }}
             | &nbsp&ndash;&nbsp;
-            | {{ v.description }}
+            | {{ st.tr[v.description] }}
 </template>
 
 <script>

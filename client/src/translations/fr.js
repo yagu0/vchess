@@ -343,7 +343,7 @@ export const translations = {
   // Variants by categories:
   "What is a chess variant?": "Qu'est-ce qu'une variante ?",
   "Why play chess variants?": "Pourquoi jouer aux variantes ?",
-  "chess_v": "&nbsp;: pour jouer avec les règles standard, depuis une position initiale aléatoire (ou non) symétrique (ou non).",
+  "chess_v": " : pour jouer avec les règles standard, depuis une position initiale aléatoire (ou non) symétrique (ou non).",
   "vt0": "Jeux simplifiés pour apprendre les échecs",
   "vg0": "Variantes avec très peu de pièces différentes, et un but simplifié.",
   "vt1": "Captures obligatoires",
