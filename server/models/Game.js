@@ -209,7 +209,7 @@ const GameModel = {
                 g => {
                   return {
                     id: g.id,
-                    vname: g.vname,
+                    vid: g.vid,
                     cadence: g.cadence,
                     created: g.created,
                     score: g.score,
