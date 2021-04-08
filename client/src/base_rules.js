@@ -34,6 +34,30 @@ export const ChessRules = class ChessRules {
   //////////////
   // MISC UTILS
 
+  static get Options() {
+    return {
+      select: [
+        {
+          label: "Randomness",
+          variable: "randomness",
+          defaut: 2,
+          options: [
+            { label: "Deterministic", value: 0 },
+            { label: "Symmetric random", value: 1 },
+            { label: "Asymmetric random", value: 2 }
+          ]
+        }
+      ],
+      check: []
+    };
+  }
+
+  static AbbreviateOptions(opts) {
+    return "";
+    // Randomness is a special option: (TODO?)
+    //return "R" + opts.randomness;
+  }
+
   // Some variants don't have flags:
   static get HasFlags() {
     return true;
@@ -343,8 +367,8 @@ export const ChessRules = class ChessRules {
   // FEN UTILS
 
   // Setup the initial random (asymmetric) position
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (!options.randomness || options.randomness == 0)
       // Deterministic:
       return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
@@ -352,7 +376,7 @@ export const ChessRules = class ChessRules {
     let flags = "";
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;

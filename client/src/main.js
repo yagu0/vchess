@@ -22,8 +22,8 @@ new Vue({
         modalBoxes.forEach(m => {
           if (
             m.checked &&
-            !["modalAccept", "modalConfirm", "modalChat", "modalPeople"]
-              .includes(m.id)
+            !["Accept", "Confirm", "Chat", "People"]
+              .includes(m.id.substr(5)) //modalThing --> Thing
           ) {
             m.checked = false;
           }

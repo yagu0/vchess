@@ -6,7 +6,7 @@ div
         th {{ st.tr["Variant"] }}
         th {{ st.tr["With"] }}
         th {{ st.tr["Cadence"] }}
-        th {{ st.tr["Random?"] }}
+        th {{ st.tr["Options"] }}
     tbody
       tr(
         v-for="c in sortedChallenges"
@@ -16,7 +16,7 @@ div
         td {{ c.vname }}
         td {{ withWho(c) }}
         td {{ c.cadence }}
-        td(:class="getRandomnessClass(c)")
+        td(:class="getRandomnessClass(c)") {{ c.options.abridged }}
   p(v-else)
     | {{ st.tr["No challenges found :( Click on 'New game'!"] }}
 </template>
@@ -63,8 +63,9 @@ export default {
       return c.from.name || "@nonymous";
     },
     getRandomnessClass: function(c) {
+      if (!c.options.randomness) return {};
       return {
-        ["random-" + c.randomness]: true
+        ["random-" + c.options.randomness]: true
       };
     }
   }
@@ -84,9 +85,9 @@ tr.toyou > td
 
 tr > td:last-child
   &.random-0
-    background-color: #FF5733
+    background-color: #FEAF9E
   &.random-1
-    background-color: #2B63B4
+    background-color: #9EB2FE
   &.random-2
-    background-color: #33B42B
+    background-color: #A5FE9E
 </style>

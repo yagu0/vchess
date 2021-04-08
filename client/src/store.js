@@ -90,11 +90,7 @@ export const store = {
       hints: getItemDefaultTrue("hints"),
       highlight: getItemDefaultTrue("highlight"),
       gotonext: getItemDefaultTrue("gotonext"),
-      randomness: parseInt(localStorage.getItem("randomness"), 10)
     };
-    if (isNaN(this.state.settings.randomness))
-      // Default: random asymmetric
-      this.state.settings.randomness = 2;
     const supportedLangs = ["en", "es", "fr"];
     const navLanguage = navigator.language.substr(0, 2);
     this.state.lang =

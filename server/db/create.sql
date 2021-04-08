@@ -39,7 +39,7 @@ create table Challenges (
   uid integer,
   target integer,
   vid integer,
-  randomness integer,
+  options varchar,
   fen varchar,
   cadence varchar,
   foreign key (uid) references Users(id),
@@ -62,7 +62,7 @@ create table Games (
   score varchar default '*',
   scoreMsg varchar,
   cadence varchar,
-  randomness integer, --for rematch
+  options varchar, --for rematch
   created datetime,
   drawOffer character default '',
   rematchOffer character default '',

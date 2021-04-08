@@ -44,7 +44,8 @@ export default {
       rulesContent: "",
       gameRef: {
         vname: "",
-        fen: ""
+        fen: "",
+        options: {}
       },
       game: {
         players: [{ name: "Analyse" }, { name: "Analyse" }],

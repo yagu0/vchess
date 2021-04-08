@@ -9,6 +9,7 @@ router.post("/challenges", access.logged, access.ajax, (req,res) => {
     let challenge = {
       fen: req.body.chall.fen,
       cadence: req.body.chall.cadence,
+      options: req.body.chall.options,
       randomness: req.body.chall.randomness,
       vid: req.body.chall.vid,
       uid: req.userId,

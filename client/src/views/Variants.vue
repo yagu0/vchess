@@ -10,8 +10,8 @@ main
         a(href="https://www.chessvariants.com/why.html")
           | {{ st.tr["Why play chess variants?"] }}
       p
-        a(href="/#/variants/Chess") Chess
-        | {{ st.tr["chess_v"] }}
+        a(href="/#/variants/Chess960") Chess960
+        | {{ st.tr["chess960_v"] }}
       div(v-for="g of sortedGroups")
         h3 {{ st.tr["vt" + g] }}
         p {{ st.tr["vg" + g] }}

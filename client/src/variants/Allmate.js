@@ -1,6 +1,6 @@
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
-export class Allmate1Rules extends ChessRules {
+export class AllmateRules extends ChessRules {
 
   static get HasEnpassant() {
     return false;

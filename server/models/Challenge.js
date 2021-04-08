@@ -8,9 +8,10 @@ const UserModel = require("./User");
  *   uid: user id (int)
  *   target: recipient id (optional)
  *   vid: variant id (int)
- *   randomness: integer in 0..2
+ *   options: varchar
  *   fen: varchar (optional)
  *   cadence: string (3m+2s, 7d ...)
+ *   options: string (js object)
  */
 
 const ChallengeModel = {
@@ -19,7 +20,6 @@ const ChallengeModel = {
     return (
       c.vid.toString().match(/^[0-9]+$/) &&
       c.cadence.match(/^[0-9dhms +]+$/) &&
-      c.randomness.toString().match(/^[0-2]$/) &&
       c.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
       (!c.to || UserModel.checkNameEmail({ name: c.to }))
     );
@@ -30,11 +30,10 @@ const ChallengeModel = {
       const query =
         "INSERT INTO Challenges " +
           "(added, uid, " + (c.to ? "target, " : "") +
-          "vid, randomness, fen, cadence) " +
-        "VALUES " +
-          "(" + Date.now() + "," + c.uid + "," + (c.to ? c.to + "," : "") +
-          c.vid + "," + c.randomness + ",'" + c.fen + "','" + c.cadence + "')";
-      db.run(query, function(err) {
+          "vid, options, fen, cadence) " +
+        "VALUES (" + Date.now() + "," + c.uid + "," + (c.to ? c.to + "," : "")
+          + c.vid + ",?,'" + c.fen + "','" + c.cadence + "')";
+      db.run(query, c.options, function(err) {
         cb(err, { id: this.lastID });
       });
     });

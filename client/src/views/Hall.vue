@@ -12,7 +12,9 @@ main
   div#acceptDiv(role="dialog")
     .card
       p.text-center
-        span.variantName {{ curChallToAccept.vname }} 
+        span.variantName
+          | {{ curChallToAccept.vname }}
+          | {{ curChallToAccept.options.abridged }} 
         span {{ curChallToAccept.cadence }} 
         span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
       p.text-center(v-if="!!curChallToAccept.color")
@@ -49,6 +51,23 @@ main
               :selected="newchallenge.vid==v.id"
             )
               | {{ v.display }}
+        // Variant-specific options (often at least randomness)
+        fieldset(v-if="!!newchallenge.V")
+          div(v-for="select of newchallenge.V.Options.select")
+            label(:for="select.variable + '_opt'") {{ st.tr[select.label] }} *
+            select(:id="select.variable + '_opt'")
+              option(
+                v-for="o of select.options"
+                :value="o.value"
+                :selected="o.value == select.defaut"
+              )
+                | {{ st.tr[o.label] }}
+          div(v-for="check of newchallenge.V.Options.check")
+            label(:for="check.variable + '_opt'") {{ st.tr[check.label] }} *
+            input(
+              :id="check.variable + '_opt'"
+              type="checkbox"
+              :checked="check.defaut")
         fieldset
           label(for="cadence") {{ st.tr["Cadence"] }} *
           div#predefinedCadences
@@ -61,12 +80,6 @@ main
             v-model="newchallenge.cadence"
             placeholder="5+0, 1h+30s, 5d ..."
           )
-        fieldset
-          label(for="selectRandomLevel") {{ st.tr["Randomness"] }} *
-          select#selectRandomLevel(v-model="newchallenge.randomness")
-            option(value="0") {{ st.tr["Deterministic"] }}
-            option(value="1") {{ st.tr["Symmetric random"] }}
-            option(value="2") {{ st.tr["Asymmetric random"] }}
         fieldset
           label(for="memorizeChall") {{ st.tr["Memorize"] }}
           input#memorizeChall(
@@ -156,7 +169,7 @@ main
           tr
             th {{ st.tr["Variant"] }}
             th {{ st.tr["Cadence"] }}
-            th {{ st.tr["Random?"] }}
+            th {{ st.tr["Options"] }}
             th
         tbody
           tr(
@@ -165,7 +178,7 @@ main
           )
             td {{ pc.vname }}
             td {{ pc.cadence }}
-            td(:class="getRandomnessClass(pc)")
+            td(:class="getRandomnessClass(pc)") {{ pc.options.abridged }}
             td.remove-preset(@click="removePresetChall($event, pc)")
               img(src="/images/icons/delete.svg")
   .row
@@ -253,11 +266,9 @@ export default {
         to: "", //name of challenged player (if any)
         color: '',
         cadence: localStorage.getItem("cadence") || "",
-        randomness:
-          // Warning: randomness can be 0, then !!randomness is false
-          (parseInt(localStorage.getItem("challRandomness"),10)+1 || 3) - 1,
+        options: {},
         // VariantRules object, stored to not interfere with
-        // diagrams of targetted challenges:
+        // diagrams of targeted challenges:
         V: null,
         vname: "",
         diag: "", //visualizing FEN
@@ -265,7 +276,7 @@ export default {
       },
       focus: true,
       tchallDiag: "",
-      curChallToAccept: { from: {} },
+      curChallToAccept: { from: {}, options: {} },
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
       conn: null,
       connexionString: "",
@@ -326,13 +337,11 @@ export default {
                 to: this.$route.query["challenge"],
                 color: this.$route.query["color"] || '',
                 cadence: this.$route.query["cadence"],
-                // Tournament: no randomness (TODO: for now at least)
-                randomness: 0,
+                options: {},
                 memorize: false
               }
             );
             window.doClick("modalNewgame");
-            //this.issueNewChallenge(); //NOTE: doesn't work yet.
           },
           this.$route.query["variant"]
         );
@@ -417,15 +426,16 @@ export default {
               response.challenges.map(c => {
                 const from = { name: names[c.uid], id: c.uid }; //or just name
                 const type = this.classifyObject(c);
-                const vname = this.getVname(c.vid);
+                this.setVname(c);
                 return Object.assign(
+                  {},
+                  c,
                   {
                     type: type,
-                    vname: vname,
                     from: from,
-                    to: c.target ? names[c.target] : ""
-                  },
-                  c
+                    to: c.target ? names[c.target] : "",
+                    options: JSON.parse(c.options)
+                  }
                 );
               })
             );
@@ -465,8 +475,9 @@ export default {
       this.conn = null;
     },
     getRandomnessClass: function(pc) {
+      if (!pc.options.randomness) return {};
       return {
-        ["random-" + pc.randomness]: true
+        ["random-" + pc.options.randomness]: true
       };
     },
     anonymousCount: function() {
@@ -506,12 +517,22 @@ export default {
       this.partialResetNewchallenge();
       window.doClick("modalNewgame");
     },
+    sameOptions: function(opt1, opt2) {
+      const keys1 = Object.keys(opt1),
+            keys2 = Object.keys(opt2);
+      if (keys1.length != keys2.length) return false;
+      for (const key1 of keys1) {
+        if (!keys2.includes(key1)) return false;
+        if (opt1[key1] != opt2[key1]) return false;
+      }
+      return true;
+    },
     addPresetChall: function(chall) {
       // Add only if not already existing:
       if (this.presetChalls.some(c =>
         c.vid == chall.vid &&
         c.cadence == chall.cadence &&
-        c.randomness == chall.randomness
+        this.sameOptions(c.options, chall.options)
       )) {
         return;
       }
@@ -521,7 +542,7 @@ export default {
         vid: chall.vid,
         vname: chall.vname, //redundant, but easier
         cadence: chall.cadence,
-        randomness: chall.randomness
+        options: chall.options
       });
       localStorage.setItem("presetChalls", JSON.stringify(this.presetChalls));
     },
@@ -825,7 +846,7 @@ export default {
                 id: c.id,
                 from: this.st.user.sid,
                 to: c.to,
-                randomness: c.randomness,
+                options: c.options,
                 fen: c.fen,
                 vid: c.vid,
                 cadence: c.cadence,
@@ -969,7 +990,7 @@ export default {
       ) {
         let newChall = Object.assign({}, chall);
         newChall.type = this.classifyObject(chall);
-        newChall.randomness = chall.randomness;
+        newChall.options = chall.options;
         newChall.added = Date.now();
         let fromValues = Object.assign({}, this.people[chall.from]);
         delete fromValues["pages"]; //irrelevant in this context
@@ -1028,7 +1049,7 @@ export default {
       this.partialResetNewchallenge();
       this.newchallenge.vid = pchall.vid;
       this.newchallenge.cadence = pchall.cadence;
-      this.newchallenge.randomness = pchall.randomness;
+      this.newchallenge.options = pchall.options;
       this.loadNewchallVariant(this.issueNewChallenge);
     },
     issueNewChallenge: async function() {
@@ -1071,6 +1092,17 @@ export default {
       }
       // NOTE: "from" information is not required here
       let chall = Object.assign({}, this.newchallenge);
+      chall.options = {};
+      // Get/set options variables (if any) / TODO: v-model?!
+      for (const check of this.newchallenge.V.Options.check) {
+        const elt = document.getElementById(check.variable + "_opt");
+        if (elt.checked) chall.options[check.variable] = true;
+      }
+      for (const select of this.newchallenge.V.Options.select) {
+        const elt = document.getElementById(select.variable + "_opt");
+        chall.options[select.variable] = elt.value;
+      }
+      chall.options.abridged = V.AbbreviateOptions(chall.options);
       // Add only if not already issued (not counting FEN):
       if (this.challenges.some(c =>
         (
@@ -1085,7 +1117,7 @@ export default {
         &&
         c.vid == chall.vid &&
         c.cadence == chall.cadence &&
-        c.randomness == chall.randomness
+        this.sameOptions(c.options, chall.options)
       )) {
         alert(this.st.tr["Challenge already exists"]);
         return;
@@ -1146,10 +1178,9 @@ export default {
         chall.type = ctype;
         chall.vname = this.newchallenge.vname;
         this.challenges.push(chall);
-        // Remember cadence  + vid for quicker further challenges:
+        // Remember cadence + vid for quicker further challenges:
         localStorage.setItem("cadence", chall.cadence);
         localStorage.setItem("vid", chall.vid);
-        localStorage.setItem("challRandomness", chall.randomness);
         document.getElementById("modalNewgame").checked = false;
         // Show the challenge if not on current display
         if (
@@ -1169,7 +1200,13 @@ export default {
           "/challenges",
           "POST",
           {
-            data: { chall: chall },
+            data: {
+              chall: Object.assign(
+                {},
+                chall,
+                { options: JSON.stringify(chall.options) }
+              )
+            },
             success: (response) => {
               finishAddChallenge(response.id);
             }
@@ -1275,8 +1312,8 @@ export default {
       // These game informations will be shared
       let gameInfo = {
         id: getRandString(),
-        fen: c.fen || V.GenRandInitFen(c.randomness),
-        randomness: c.randomness, //for rematch
+        fen: c.fen || V.GenRandInitFen(c.options),
+        options: c.options, //for rematch
         players: players,
         vid: c.vid,
         cadence: c.cadence
@@ -1326,7 +1363,11 @@ export default {
           {
             // cid is useful to delete the challenge:
             data: {
-              gameInfo: gameInfo,
+              gameInfo: Object.assign(
+                {},
+                gameInfo,
+                { options: JSON.stringify(gameInfo.options) }
+              ),
               cid: c.id
             },
             success: (response) => {
@@ -1478,11 +1519,11 @@ button.refuseBtn
 
 tr > td
   &.random-0
-    background-color: #FF5733
+    background-color: #FEAF9E
   &.random-1
-    background-color: #2B63B4
+    background-color: #9EB2FE
   &.random-2
-    background-color: #33B42B
+    background-color: #A5FE9E
 
 @media screen and (max-width: 767px)
   h4

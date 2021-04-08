@@ -63,12 +63,12 @@ export default {
     };
   },
   methods: {
-    launchGame: function(game) {
+    launchGame: function(game, options) {
       this.compWorker.postMessage(["scripts", this.gameInfo.vname]);
       if (!game) {
         game = {
           vname: this.gameInfo.vname,
-          fenStart: V.GenRandInitFen(this.st.settings.randomness),
+          fenStart: V.GenRandInitFen(options),
           moves: []
         };
         game.fen = game.fenStart;

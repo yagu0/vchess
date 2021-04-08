@@ -15,7 +15,7 @@ const UserModel = require("./User");
  *   created: datetime
  *   drawOffer: char ('w','b' or '' for none)
  *   rematchOffer: char (similar to drawOffer)
- *   randomness: integer
+ *   options: varchar
  *   deletedByWhite: boolean
  *   deletedByBlack: boolean
  *   chatReadWhite: datetime
@@ -40,7 +40,6 @@ const GameModel = {
     return (
       g.vid.toString().match(/^[0-9]+$/) &&
       g.cadence.match(/^[0-9dhms +]+$/) &&
-      g.randomness.toString().match(/^[0-2]$/) &&
       g.fen.match(/^[a-zA-Z0-9, /-]*$/) &&
       g.players.length == 2 &&
       g.players.every(p => p.id.toString().match(/^[0-9]+$/))
@@ -57,22 +56,22 @@ const GameModel = {
     });
   },
 
-  create: function(vid, fen, randomness, cadence, players, cb) {
+  create: function(vid, fen, options, cadence, players, cb) {
     db.serialize(function() {
       let query =
         "INSERT INTO Games " +
         "(" +
-          "vid, fenStart, fen, randomness, " +
+          "vid, fenStart, fen, options, " +
           "white, black, " +
           "cadence, created" +
         ") " +
         "VALUES " +
         "(" +
-          vid + ",'" + fen + "','" + fen + "'," + randomness + "," +
+          vid + ",'" + fen + "','" + fen + "',?," +
           players[0].id + "," + players[1].id + "," +
           "'" + cadence + "'," + Date.now() +
         ")";
-      db.run(query, function(err) {
+      db.run(query, options, function(err) {
         cb(err, { id: this.lastID });
       });
     });
@@ -85,7 +84,7 @@ const GameModel = {
       let query =
         "SELECT " +
           "id, vid, fen, fenStart, cadence, created, " +
-          "white, black, randomness, score, scoreMsg, " +
+          "white, black, options, score, scoreMsg, " +
           "chatReadWhite, chatReadBlack, drawOffer, rematchOffer " +
         "FROM Games " +
         "WHERE id = " + id;

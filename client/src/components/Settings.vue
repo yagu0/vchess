@@ -60,12 +60,6 @@ div
             type="checkbox"
             v-model="st.settings.gotonext"
           )
-        fieldset
-          label(for="setRandomness") {{ st.tr["Randomness"] }}
-          select#setRandomness(v-model="st.settings.randomness")
-            option(value="0") {{ st.tr["Deterministic"] }}
-            option(value="1") {{ st.tr["Symmetric random"] }}
-            option(value="2") {{ st.tr["Asymmetric random"] }}
 </template>
 
 <script>
@@ -100,7 +94,7 @@ export default {
       const propName = event.target.id
         .substr(3)
         .replace(/^\w/, c => c.toLowerCase());
-      const value = ["bcolor","randomness"].includes(propName)
+      const value = propName == "bcolor"
         ? event.target.value
         : event.target.checked;
       store.updateSetting(propName, value);

@@ -1,6 +1,6 @@
 import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class Checkered1Rules extends ChessRules {
+export class CheckeredRules extends ChessRules {
 
   static board2fen(b) {
     const checkered_codes = {
@@ -41,6 +41,26 @@ export class Checkered1Rules extends ChessRules {
     return (b[0] == "c" ? "Checkered/" : "") + b;
   }
 
+  static get Options() {
+    return Object.assign(
+      {},
+      ChessRules.Options,
+      {
+        check: [
+          {
+            label: "With switch",
+            defaut: true,
+            variable: "switch"
+          }
+        ]
+      }
+    );
+  }
+
+  static AbbreviateOptions(opts) {
+    return (!opts["switch"] ? "NS" : "");
+  }
+
   setOtherVariables(fen) {
     super.setOtherVariables(fen);
     // Local stack of non-capturing checkered moves:
@@ -56,6 +76,7 @@ export class Checkered1Rules extends ChessRules {
     // Stage 1: as Checkered2. Stage 2: checkered pieces are autonomous
     const stageInfo = V.ParseFen(fen).stage;
     this.stage = parseInt(stageInfo[0], 10);
+    this.canSwitch = (this.stage == 1 && stageInfo[1] != '-');
     this.sideCheckered = (this.stage == 2 ? stageInfo[1] : undefined);
   }
 
@@ -65,7 +86,7 @@ export class Checkered1Rules extends ChessRules {
     if (fenParts.length != 7) return false;
     if (fenParts[5] != "-" && !fenParts[5].match(/^([a-h][1-8]){2}$/))
       return false;
-    if (!fenParts[6].match(/^[12][wb]?$/)) return false;
+    if (!fenParts[6].match(/^[12][wb-]?$/)) return false;
     return true;
   }
 
@@ -143,7 +164,7 @@ export class Checkered1Rules extends ChessRules {
       if (this.getPiece(x, y) == V.KING) {
         // If at least one checkered piece, allow switching:
         if (
-          !noswitch &&
+          this.canSwitch && !noswitch &&
           this.board.some(b => b.some(cell => cell[0] == 'c'))
         ) {
           const oppCol = V.GetOppCol(color);
@@ -592,10 +613,13 @@ export class Checkered1Rules extends ChessRules {
     return evaluation;
   }
 
-  static GenRandInitFen(randomness) {
-    // Add 16 pawns flags + empty cmove + stage == 1:
-    return ChessRules.GenRandInitFen(randomness)
-      .slice(0, -2) + "1111111111111111 - - 1";
+  static GenRandInitFen(options) {
+    const baseFen = ChessRules.GenRandInitFen(options.randomness);
+    return (
+      // Add 16 pawns flags + empty cmove + stage == 1:
+      baseFen.slice(0, -2) + "1111111111111111 - - 1" +
+      (!options["switch"] ? '-' : "")
+    );
   }
 
   static ParseFen(fen) {
@@ -620,7 +644,9 @@ export class Checkered1Rules extends ChessRules {
   }
 
   getStageFen() {
-    return (this.stage == 1 ? "1" : "2" + this.sideCheckered);
+    if (this.stage == 1) return "1" + (!this.canSwitch ? '-' : "");
+    // Stage == 2:
+    return "2" + this.sideCheckered;
   }
 
   getFen() {

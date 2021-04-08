@@ -44,10 +44,6 @@
           a.menuitem(href="https://github.com/yagu0/vchess")
             span {{ st.tr["Code"] }}
             img(src="/images/icons/github.svg")
-          //a.menuitem(href="https://www.facebook.com/Variants-Chess-Club-112565840437886")
-            img(src="/images/icons/facebook.svg")
-          //a.menuitem(href="https://twitter.com/VchessC")
-            img(src="/images/icons/twitter.svg")
 </template>
 
 <script>

@@ -78,7 +78,10 @@ main
   .row
     #aboveBoard.col-sm-12
       span.variant-cadence(v-if="game.type!='import'") {{ game.cadence }}
-      span.variant-name {{ game.vname }}
+      span.variant-name
+        | {{ game.vname }}
+        | -
+        | {{ vr.constructor.AbbreviateOptions(game.options) }}
       span#nextGame(
         v-if="nextIds.length > 0"
         @click="showNextGame()"
@@ -408,8 +411,15 @@ export default {
           this.conn.onopen = () => callback();
       };
       this.fetchGame((game) => {
-        if (!!game)
+        if (!!game) {
+          if (!game.options) {
+            // Patch for retro-compatibility (TODO: remove it)
+            game.options = { randomness: game.randomness };
+            delete game["randomness"];
+          }
+          else game.options = JSON.parse(game.options);
           this.loadVariantThenGame(game, () => socketInit(this.roomInit));
+        }
         else
           // Live game stored remotely: need socket to retrieve it
           // NOTE: the callback "roomInit" will be lost, so it's not provided.
@@ -707,7 +717,7 @@ export default {
           const gameToSend = Object.keys(this.game)
             .filter(k =>
               [
-                "id","fen","players","vid","cadence","fenStart",
+                "id","fen","players","vid","cadence","fenStart","options",
                 "moves","clocks","score","drawOffer","rematchOffer"
               ].includes(k))
             .reduce(
@@ -1048,8 +1058,8 @@ export default {
         // Start a new game!
         let gameInfo = {
           id: getRandString(), //ignored if corr
-          fen: V.GenRandInitFen(this.game.randomness),
-          randomness: this.game.randomness,
+          fen: V.GenRandInitFen(this.game.options),
+          options: this.game.options,
           players: [this.game.players[1], this.game.players[0]],
           vid: this.game.vid,
           cadence: this.game.cadence
@@ -1082,7 +1092,11 @@ export default {
             "/games",
             "POST",
             {
-              data: { gameInfo: gameInfo },
+              data: Object.assign(
+                {},
+                gameInfo,
+                { options: JSON.stringify(this.game.options) }
+              ),
               success: (response) => {
                 gameInfo.id = response.id;
                 notifyNewGame();

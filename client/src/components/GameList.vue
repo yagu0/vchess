@@ -13,7 +13,7 @@ div
         @click="$emit('show-game',g)"
         :class="{'my-turn': !!g.myTurn}"
       )
-        td {{ g.vname }}
+        td {{ g.vname + '-' + g.options.abridged }}
         td {{ player_s(g) }}
         td(v-if="showCadence") {{ g.cadence }}
         td(
