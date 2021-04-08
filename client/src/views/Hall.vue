@@ -300,6 +300,10 @@ export default {
     }
   },
   created: function() {
+    // TODO: remove this patch soon:
+    this.presetChalls.forEach(pc => {
+      if (!pc.options) pc.options = { randomness: pc.randomness };
+    });
     document.addEventListener('visibilitychange', this.visibilityChange);
     window.addEventListener('focus', this.onFocus);
     window.addEventListener('blur', this.onBlur);
