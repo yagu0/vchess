@@ -14,7 +14,7 @@ main
       p.text-center
         span.variantName
           | {{ curChallToAccept.vname }}
-          | {{ curChallToAccept.options.abridged }} 
+          | {{ curChallToAccept.options.abridged || '' }} 
         span {{ curChallToAccept.cadence }} 
         span {{ st.tr["with"] + " " + curChallToAccept.from.name }}
       p.text-center(v-if="!!curChallToAccept.color")
@@ -178,7 +178,7 @@ main
           )
             td {{ pc.vname }}
             td {{ pc.cadence }}
-            td(:class="getRandomnessClass(pc)") {{ pc.options.abridged }}
+            td(:class="getRandomnessClass(pc)") {{ pc.options.abridged || '' }}
             td.remove-preset(@click="removePresetChall($event, pc)")
               img(src="/images/icons/delete.svg")
   .row

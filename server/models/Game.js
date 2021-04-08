@@ -132,7 +132,7 @@ const GameModel = {
   getObserved: function(uid, cursor, cb) {
     db.serialize(function() {
       let query =
-        "SELECT id, vid, cadence, created, score, white, black " +
+        "SELECT id, vid, cadence, options, created, score, white, black " +
         "FROM Games " +
         "WHERE created < " + cursor + " ";
       if (uid > 0) {
@@ -161,6 +161,7 @@ const GameModel = {
                   id: g.id,
                   vid: g.vid,
                   cadence: g.cadence,
+                  options: g.options,
                   created: g.created,
                   score: g.score,
                   players: [
@@ -180,7 +181,7 @@ const GameModel = {
   getRunning: function(uid, cb) {
     db.serialize(function() {
       let query =
-        "SELECT id, vid, cadence, created, white, black " +
+        "SELECT id, vid, cadence, options, created, white, black " +
         "FROM Games " +
         "WHERE score = '*' AND (white = " + uid + " OR black = " + uid + ")";
       db.all(query, (err, games) => {
@@ -210,6 +211,7 @@ const GameModel = {
                     id: g.id,
                     vid: g.vid,
                     cadence: g.cadence,
+                    options: g.options,
                     created: g.created,
                     score: g.score,
                     movesCount: movesCounts[g.id] || 0,
@@ -231,7 +233,7 @@ const GameModel = {
   getCompleted: function(uid, cursor, cb) {
     db.serialize(function() {
       let query =
-        "SELECT id, vid, cadence, created, score, scoreMsg, " +
+        "SELECT id, vid, cadence, options, created, score, scoreMsg, " +
           "white, black, deletedByWhite, deletedByBlack " +
         "FROM Games " +
         "WHERE " +
@@ -269,6 +271,7 @@ const GameModel = {
                   id: g.id,
                   vid: g.vid,
                   cadence: g.cadence,
+                  options: g.options,
                   created: g.created,
                   score: g.score,
                   scoreMsg: g.scoreMsg,

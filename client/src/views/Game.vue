@@ -80,8 +80,7 @@ main
       span.variant-cadence(v-if="game.type!='import'") {{ game.cadence }}
       span.variant-name
         | {{ game.vname }}
-        | -
-        | {{ vr.constructor.AbbreviateOptions(game.options) }}
+        | {{ !!vr ? vr.constructor.AbbreviateOptions(game.options) : '' }}
       span#nextGame(
         v-if="nextIds.length > 0"
         @click="showNextGame()"

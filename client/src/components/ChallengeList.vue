@@ -16,7 +16,7 @@ div
         td {{ c.vname }}
         td {{ withWho(c) }}
         td {{ c.cadence }}
-        td(:class="getRandomnessClass(c)") {{ c.options.abridged }}
+        td(:class="getRandomnessClass(c)") {{ c.options.abridged || '' }}
   p(v-else)
     | {{ st.tr["No challenges found :( Click on 'New game'!"] }}
 </template>
