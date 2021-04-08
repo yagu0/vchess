@@ -48,7 +48,7 @@ export default {
         }
         if (c.added < minAdded) minAdded = c.added;
         if (c.added > maxAdded) maxAdded = c.added;
-        return Object.assign({}, c, { priority: priority });
+        return Object.assign({ priority: priority }, c);
       });
       const deltaAdded = maxAdded - minAdded;
       return augmentedChalls.sort((c1, c2) => {
@@ -63,7 +63,7 @@ export default {
       return c.from.name || "@nonymous";
     },
     getRandomnessClass: function(c) {
-      if (!c.options.randomness) return {};
+      if (!Number.isInteger(c.options.randomness)) return {};
       return {
         ["random-" + c.options.randomness]: true
       };
