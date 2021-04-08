@@ -63,7 +63,13 @@ export default {
       return c.from.name || "@nonymous";
     },
     getRandomnessClass: function(c) {
-      if (!Number.isInteger(c.options.randomness)) return {};
+      if (
+        // TODO: one extra test here
+        !Number.isInteger(c.options.randomness) &&
+        !parseInt(c.options.randomness, 10)
+      ) {
+        return {};
+      }
       return {
         ["random-" + c.options.randomness]: true
       };

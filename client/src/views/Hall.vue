@@ -479,7 +479,13 @@ export default {
       this.conn = null;
     },
     getRandomnessClass: function(pc) {
-      if (!Number.isInteger(pc.options.randomness)) return {};
+      if (
+        // TODO: one extra test here
+        !Number.isInteger(pc.options.randomness) &&
+        !parseInt(pc.options.randomness, 10)
+      ) {
+        return {};
+      }
       return {
         ["random-" + pc.options.randomness]: true
       };
