@@ -1403,7 +1403,8 @@ export default {
           moves: [],
           clocks: [-1, -1], //-1 = unstarted
           chats: [],
-          score: "*"
+          score: "*",
+          options: JSON.stringify(gameInfo.options)
         }
       );
       setTimeout(
