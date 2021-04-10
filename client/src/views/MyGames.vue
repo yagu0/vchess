@@ -88,7 +88,7 @@ export default {
     // st.variants changes only once, at loading from [] to [...]
     "st.variants": function() {
       // Set potential games variant names + display:
-      this.livesGames.concat(this.corrGames).concat(this.importGames)
+      this.liveGames.concat(this.corrGames).concat(this.importGames)
       .forEach(o => {
         if (!o.vname) this.setVname(o);
       });
