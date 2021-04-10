@@ -26,7 +26,7 @@ router.post("/games", access.logged, access.ajax, (req,res) => {
   ) {
     if (!!cid) ChallengeModel.remove(cid);
     GameModel.create(
-      gameInfo.vid, gameInfo.fen, gameInfo.randomness,
+      gameInfo.vid, gameInfo.fen, gameInfo.options,
       gameInfo.cadence, gameInfo.players,
       (err, ret) => {
         const oppIdx = (gameInfo.players[0].id == req.userId ? 1 : 0);
