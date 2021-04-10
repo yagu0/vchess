@@ -384,7 +384,10 @@ export default {
           if (L > 0) {
             // Add "-1" because IDBKeyRange.upperBound includes boundary
             this.cursor["live"] = localGames[L - 1].created - 1;
-            localGames.forEach(g => g.type = "live");
+            localGames.forEach(g => {
+              g.type = "live";
+              if (!g.options) g.options = {}; //TODO: remove patch
+            });
             this.decorate(localGames);
             this.liveGames = this.liveGames.concat(localGames);
           }
@@ -400,6 +403,7 @@ export default {
             this.cursor["import"] = importGames[L - 1].created - 1;
             importGames.forEach(g => {
               g.type = "import";
+              if (!g.options) g.options = {}; //TODO: remove patch
               this.setVname(g);
             });
             this.importGames = this.importGames.concat(importGames);
