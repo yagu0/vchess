@@ -174,20 +174,16 @@ export class SuctionRules extends ChessRules {
 
   postPlay(move) {
     super.postPlay(move);
-    if (move.vanish.length == 2) {
-      // Was opponent king swapped?
-      if (move.vanish[1].p == V.KING)
-        this.kingPos[this.turn] = [move.appear[1].x, move.appear[1].y];
-    }
+    // Was opponent king swapped?
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      this.kingPos[this.turn] = [move.appear[1].x, move.appear[1].y];
     this.cmoves.push(this.getCmove(move));
   }
 
   postUndo(move) {
     super.postUndo(move);
-    if (move.appear.length == 2) {
-      if (move.appear[1].p == V.KING)
-        this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
-    }
+    if (move.appear.length == 2 && move.appear[1].p == V.KING)
+      this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
     this.cmoves.pop();
   }
 

@@ -76,6 +76,19 @@ export class JokerRules extends ChessRules {
     return moving.concat(swapping);
   }
 
+  postPlay(move) {
+    super.postPlay(move);
+    // Was my king swapped?
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      this.kingPos[move.appear[1].c] = [move.appear[1].x, move.appear[1].y];
+  }
+
+  postUndo(move) {
+    super.postUndo(move);
+    if (move.vanish.length == 2 && move.vanish[1].p == V.KING)
+      this.kingPos[move.vanish[1].c] = [move.vanish[1].x, move.vanish[1].y];
+  }
+
   static get VALUES() {
     return Object.assign({ j: 2 }, ChessRules.VALUES);
   }

@@ -2,7 +2,7 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 import { ArrayFun } from "@/utils/array";
 import { randInt } from "@/utils/alea";
 
-export class ColorboundRules extends ChessRules {
+export class CwdaRules extends ChessRules {
 
   static get PawnSpecs() {
     return Object.assign(
@@ -18,7 +18,7 @@ export class ColorboundRules extends ChessRules {
 
   getPpath(b) {
     if ([V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN].includes(b[1]))
-      return "Colorbound/" + b;
+      return "Cwda/" + b;
     return b;
   }
 
