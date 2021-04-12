@@ -2,6 +2,10 @@ import { ChessRules } from "@/base_rules";
 
 export class DiscoduelRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},

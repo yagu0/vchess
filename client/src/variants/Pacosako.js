@@ -199,9 +199,9 @@ export class PacosakoRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add 16 pawns flags + empty umove:
-    return ChessRules.GenRandInitFen(randomness)
+    return ChessRules.GenRandInitFen(options)
       .slice(0, -2) + "1111111111111111 - -";
   }
 

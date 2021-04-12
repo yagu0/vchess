@@ -38,8 +38,8 @@ export class CrazyhouseRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " 0000000000 -";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + " 0000000000 -";
   }
 
   getFen() {
@@ -237,11 +237,13 @@ export class CrazyhouseRules extends ChessRules {
     if (move.vanish.length > 0) return super.getNotation(move);
     // Rebirth:
     let piece = move.appear[0].p;
-    if (ChessRules.PIECES.includes(piece)) {
-      if (move.appear[0].p != V.PAWN) piece = move.appear[0].p.toUpperCase();
+    let prefix = "";
+    const endNotation = "@" + V.CoordsToSquare(move.end);
+    if (piece != V.PAWN) {
+      if (ChessRules.PIECES.includes(piece)) prefix = piece.toUpperCase();
+      else piece = V.PromotionMap[piece].toUpperCase();
     }
-    else piece = V.PromotionMap[piece].toUpperCase();
-    return piece + "@" + V.CoordsToSquare(move.end);
+    return prefix + endNotation;
   }
 
 };

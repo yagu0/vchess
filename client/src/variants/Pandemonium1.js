@@ -25,8 +25,8 @@ export class Pandemonium1Rules extends Pandemonium2Rules {
     return true;
   }
 
-  static GenRandInitFen(randomness) {
-    const baseFen = Pandemonium2Rules.GenRandInitFen(randomness)
+  static GenRandInitFen(options) {
+    const baseFen = Pandemonium2Rules.GenRandInitFen(options)
     return baseFen.substr(0, 22) + "91/91/" + baseFen.substr(22);
   }
 

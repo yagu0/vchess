@@ -39,7 +39,7 @@ export class MinixiangqiRules extends XiangqiRules {
     if (!lastRank) steps.push([shiftX, 0]);
     if (y > 0) steps.push([0, -1]);
     if (y < 9) steps.push([0, 1]);
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   insidePalace(x, y, c) {

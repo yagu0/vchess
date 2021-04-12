@@ -323,31 +323,6 @@ export class MusketeerRules extends ChessRules {
     return moves;
   }
 
-  getSlideNJumpMoves([x, y], steps, nbSteps) {
-    let moves = [];
-    outerLoop: for (let step of steps) {
-      let i = x + step[0];
-      let j = y + step[1];
-      let stepCounter = 0;
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        stepCounter++;
-        if (
-          !!nbSteps &&
-          // Next condition to remain compatible with super method
-          (stepCounter >= nbSteps || isNaN(parseInt(nbSteps, 10)))
-        ) {
-          continue outerLoop;
-        }
-        i += step[0];
-        j += step[1];
-      }
-      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
-    }
-    return moves;
-  }
-
   // All types of leaps used here:
   static get Leap2Ortho() {
     return [ [-2, 0], [0, -2], [2, 0], [0, 2] ];
@@ -385,13 +360,13 @@ export class MusketeerRules extends ChessRules {
     const steps =
       V.steps[V.ROOK].concat(V.steps[V.BISHOP])
       .concat(V.Leap2Ortho).concat(V.HorizontalKnight);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialUnicornMoves(sq) {
     return (
       super.getPotentialKnightMoves(sq)
-      .concat(super.getSlideNJumpMoves(sq, V.CamelSteps, "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.CamelSteps, 1))
     );
   }
 
@@ -400,20 +375,20 @@ export class MusketeerRules extends ChessRules {
       V.steps[V.ROOK].concat(V.steps[V.BISHOP])
       .concat(V.Leap2Ortho)
       .concat(V.Leap2Diago);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialHawkMoves(sq) {
     const steps =
       V.Leap2Ortho.concat(V.Leap2Diago)
       .concat(V.Leap3Ortho).concat(V.Leap3Diago);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialFortressMoves(sq) {
     const steps = V.Leap2Ortho.concat(V.VerticalKnight)
     return (
-      super.getSlideNJumpMoves(sq, steps, "oneStep")
+      super.getSlideNJumpMoves(sq, steps, 1)
       .concat(this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 3))
     );
   }
@@ -421,7 +396,7 @@ export class MusketeerRules extends ChessRules {
   getPotentialSpiderMoves(sq) {
     const steps = V.Leap2Ortho.concat(V.steps[V.KNIGHT])
     return (
-      super.getSlideNJumpMoves(sq, steps, "oneStep")
+      super.getSlideNJumpMoves(sq, steps, 1)
       .concat(this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 2))
     );
   }
@@ -496,37 +471,10 @@ export class MusketeerRules extends ChessRules {
     return false;
   }
 
-  // Modify because of the limiyted steps options of some of the pieces here
-  isAttackedBySlideNJump([x, y], color, piece, steps, nbSteps) {
-    if (!!nbSteps && isNaN(parseInt(nbSteps, 10))) nbSteps = 1;
-    for (let step of steps) {
-      let rx = x + step[0],
-          ry = y + step[1];
-      let stepCounter = 1;
-      while (
-        V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY &&
-        (!nbSteps || stepCounter < nbSteps)
-      ) {
-        rx += step[0];
-        ry += step[1];
-        stepCounter++;
-      }
-      if (
-        V.OnBoard(rx, ry) &&
-        this.board[rx][ry] != V.EMPTY &&
-        this.getPiece(rx, ry) == piece &&
-        this.getColor(rx, ry) == color
-      ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   isAttackedByLeopard(sq, color) {
     return (
       super.isAttackedBySlideNJump(
-        sq, color, V.LEOPARD, V.steps[V.KNIGHT], "oneStep") ||
+        sq, color, V.LEOPARD, V.steps[V.KNIGHT], 1) ||
       this.isAttackedBySlideNJump(sq, color, V.LEOPARD, V.steps[V.BISHOP], 2)
     );
   }
@@ -535,13 +483,13 @@ export class MusketeerRules extends ChessRules {
     const steps =
       V.steps[V.ROOK].concat(V.steps[V.BISHOP])
       .concat(V.Leap2Ortho).concat(V.HorizontalKnight);
-    return super.isAttackedBySlideNJump(sq, color, V.CANNON, steps, "oneStep");
+    return super.isAttackedBySlideNJump(sq, color, V.CANNON, steps, 1);
   }
 
   isAttackedByUnicorn(sq, color) {
     const steps = V.steps[V.KNIGHT].concat(V.CamelSteps)
     return (
-      super.isAttackedBySlideNJump(sq, color, V.UNICORN, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.UNICORN, steps, 1)
     );
   }
 
@@ -551,7 +499,7 @@ export class MusketeerRules extends ChessRules {
       .concat(V.Leap2Ortho)
       .concat(V.Leap2Diago);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.ELEPHANT, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.ELEPHANT, steps, 1)
     );
   }
 
@@ -559,13 +507,13 @@ export class MusketeerRules extends ChessRules {
     const steps =
       V.Leap2Ortho.concat(V.Leap2Diago)
       .concat(V.Leap3Ortho).concat(V.Leap3Diago);
-    return super.isAttackedBySlideNJump(sq, color, V.HAWK, steps, "oneStep");
+    return super.isAttackedBySlideNJump(sq, color, V.HAWK, steps, 1);
   }
 
   isAttackedByFortress(sq, color) {
     const steps = V.Leap2Ortho.concat(V.VerticalKnight)
     return (
-      super.isAttackedBySlideNJump(sq, color, V.FORTRESS, steps, "oneStep") ||
+      super.isAttackedBySlideNJump(sq, color, V.FORTRESS, steps, 1) ||
       this.isAttackedBySlideNJump(sq, color, V.FORTRESS, V.steps[V.BISHOP], 3)
     );
   }
@@ -573,7 +521,7 @@ export class MusketeerRules extends ChessRules {
   isAttackedBySpider(sq, color) {
     const steps = V.Leap2Ortho.concat(V.steps[V.KNIGHT])
     return (
-      super.isAttackedBySlideNJump(sq, color, V.SPIDER, steps, "oneStep") ||
+      super.isAttackedBySlideNJump(sq, color, V.SPIDER, steps, 1) ||
       this.isAttackedBySlideNJump(sq, color, V.SPIDER, V.steps[V.BISHOP], 2)
     );
   }

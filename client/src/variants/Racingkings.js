@@ -2,6 +2,10 @@ import { ChessRules } from "@/base_rules";
 
 export class RacingkingsRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }

@@ -152,8 +152,8 @@ export class HiddenqueenRules extends ChessRules {
     return this.filterValid(this.getPotentialMovesFrom(sq));
   }
 
-  static GenRandInitFen(randomness) {
-    let fen = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    let fen = ChessRules.GenRandInitFen(options);
     // Place hidden queens at random (always):
     let hiddenQueenPos = randInt(8);
     let pawnRank = "PPPPPPPP".split("");

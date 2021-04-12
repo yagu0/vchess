@@ -4,6 +4,11 @@ import { randInt } from "@/utils/alea";
 
 export class HiddenRules extends ChessRules {
 
+  static get Options() {
+    // TODO: later, option "free placement"
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }

@@ -81,8 +81,8 @@ export class Squatter2Rules extends ChessRules {
     return "1/2";
   }
 
-  static GenRandInitFen(randomness) {
-    return SuicideRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    return SuicideRules.GenRandInitFen(options);
   }
 
 };

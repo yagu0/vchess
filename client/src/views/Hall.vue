@@ -52,8 +52,8 @@ main
             )
               | {{ v.display }}
         // Variant-specific options (often at least randomness)
-        fieldset(v-if="!!newchallenge.V")
-          div(v-for="select of newchallenge.V.Options.select")
+        fieldset(v-if="!!newchallenge.V && newchallenge.V.Options")
+          div(v-for="select of newchallenge.V.Options.select || []")
             label(:for="select.variable + '_opt'") {{ st.tr[select.label] }} *
             select(:id="select.variable + '_opt'")
               option(
@@ -62,7 +62,7 @@ main
                 :selected="o.value == select.defaut"
               )
                 | {{ st.tr[o.label] }}
-          div(v-for="check of newchallenge.V.Options.check")
+          div(v-for="check of newchallenge.V.Options.check || []")
             label(:for="check.variable + '_opt'") {{ st.tr[check.label] }} *
             input(
               :id="check.variable + '_opt'"
@@ -300,10 +300,6 @@ export default {
     }
   },
   created: function() {
-    // TODO: remove this patch soon:
-    this.presetChalls.forEach(pc => {
-      if (!pc.options) pc.options = { randomness: pc.randomness };
-    });
     document.addEventListener('visibilitychange', this.visibilityChange);
     window.addEventListener('focus', this.onFocus);
     window.addEventListener('blur', this.onBlur);
@@ -479,16 +475,12 @@ export default {
       this.conn = null;
     },
     getRandomnessClass: function(pc) {
-      if (
-        // TODO: one extra test here
-        !Number.isInteger(pc.options.randomness) &&
-        !parseInt(pc.options.randomness, 10)
-      ) {
+      const opts = pc.options;
+      if (opts.randomness === undefined && opts.random === undefined)
         return {};
-      }
-      return {
-        ["random-" + pc.options.randomness]: true
-      };
+      if (opts.randomness !== undefined)
+        return { ["random-" + opts.randomness]: true };
+      return { ["random-" + (opts.random ? 2 : 0)]: true };
     },
     anonymousCount: function() {
       let count = 0;
@@ -1090,30 +1082,29 @@ export default {
           error = this.st.tr["Wrong color"];
         }
       }
-      if (!!error) {
-        alert(error);
-        return;
-      }
-      window.V = this.newchallenge.V;
-      error = checkChallenge(this.newchallenge);
       if (error) {
         alert(error);
         return;
       }
-      // NOTE: "from" information is not required here
-      let chall = Object.assign({}, this.newchallenge);
-      chall.options = {};
+      window.V = this.newchallenge.V;
+      let chall = Object.assign({ options: {} }, this.newchallenge);
       // Get/set options variables (if any) / TODO: v-model?!
-      for (const check of this.newchallenge.V.Options.check) {
+      for (const check of this.newchallenge.V.Options.check || []) {
         const elt = document.getElementById(check.variable + "_opt");
         if (elt.checked) chall.options[check.variable] = true;
       }
-      for (const select of this.newchallenge.V.Options.select) {
+      for (const select of this.newchallenge.V.Options.select || []) {
         const elt = document.getElementById(select.variable + "_opt");
-        chall.options[select.variable] = elt.value;
+        chall.options[select.variable] = parseInt(elt.value, 10) || elt.value;
+      }
+      error = checkChallenge(chall);
+      if (error) {
+        alert(this.st.tr[error]);
+        return;
       }
       chall.options.abridged = V.AbbreviateOptions(chall.options);
       // Add only if not already issued (not counting FEN):
+      // NOTE: "from" information is not required here
       if (this.challenges.some(c =>
         (
           c.from.sid == this.st.user.sid ||

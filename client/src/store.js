@@ -79,17 +79,18 @@ export const store = {
       this.state.user.notify = json.notify;
     });
     // Settings initialized with values from localStorage
-    const getItemDefaultTrue = (item) => {
+    const getItemDefault = (item, defaut) => {
       const value = localStorage.getItem(item);
-      if (!value) return true;
+      if (!value) return defaut;
       return value == "true";
     };
     this.state.settings = {
       bcolor: localStorage.getItem("bcolor") || "lichess",
-      sound: getItemDefaultTrue("sound"),
-      hints: getItemDefaultTrue("hints"),
-      highlight: getItemDefaultTrue("highlight"),
-      gotonext: getItemDefaultTrue("gotonext"),
+      sound: getItemDefault("sound", true),
+      hints: getItemDefault("hints", true),
+      highlight: getItemDefault("highlight", true),
+      gotonext: getItemDefault("gotonext", true),
+      scrollmove: getItemDefault("scrollmove", false)
     };
     const supportedLangs = ["en", "es", "fr"];
     const navLanguage = navigator.language.substr(0, 2);

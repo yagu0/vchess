@@ -4,6 +4,10 @@ import { ArrayFun } from "@/utils/array";
 
 export class AtarigoRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get Monochrome() {
     return true;
   }

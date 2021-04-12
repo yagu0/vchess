@@ -12,12 +12,7 @@ export class VchessRules extends ChessRules {
 
   isAttackedByPawn(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.PAWN,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+      sq, color, V.PAWN, V.steps[V.BISHOP], 1);
   }
 
   getNotation(move) {

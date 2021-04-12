@@ -2,8 +2,21 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class Align4Rules extends ChessRules {
 
-  static GenRandInitFen(randomness) {
-    const baseFen = ChessRules.GenRandInitFen(Math.min(randomness, 1));
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Random",
+          defaut: false,
+          variable: "random"
+        }
+      ]
+    };
+  }
+
+  static GenRandInitFen(options) {
+    const baseFen = ChessRules.GenRandInitFen(
+      { randomness: (options.random ? 1 : 0) });
     return "4k3/8" + baseFen.substring(17, 50) + " -";
   }
 
@@ -80,10 +93,7 @@ export class Align4Rules extends ChessRules {
     if (this.getColor(x, y) == 'w') return super.getPotentialKingMoves([x, y]);
     // Black doesn't castle:
     return super.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getAllValidMoves() {

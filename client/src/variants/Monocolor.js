@@ -156,9 +156,9 @@ export class MonocolorRules extends ChessRules {
     return "1/2";
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Remove the en-passant + castle part of the FEN
-    let fen = ChessRules.GenRandInitFen(randomness).slice(0, -6);
+    let fen = ChessRules.GenRandInitFen(options).slice(0, -6);
     // Replace kings with queens
     fen = fen.replace("k", "q").replace("K", "Q");
     // Move pawns up:

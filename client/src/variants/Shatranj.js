@@ -43,57 +43,40 @@ export class ShatranjRules extends ChessRules {
     ];
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Remove castle flags and en-passant indication
-    return ChessRules.GenRandInitFen(randomness).slice(0, -7);
+    return ChessRules.GenRandInitFen(options).slice(0, -7);
   }
 
   getPotentialBishopMoves(sq) {
-    let moves = this.getSlideNJumpMoves(sq, V.ElephantSteps, "oneStep");
+    let moves = this.getSlideNJumpMoves(sq, V.ElephantSteps, 1);
     // Complete with "repositioning moves": like a queen, without capture
-    let repositioningMoves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP],
-      "oneStep"
-    ).filter(m => m.vanish.length == 1);
+    let repositioningMoves =
+      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1)
+      .filter(m => m.vanish.length == 1);
     return moves.concat(repositioningMoves);
   }
 
   getPotentialQueenMoves(sq) {
     // Diagonal capturing moves
-    let captures = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP],
-      "oneStep"
-    ).filter(m => m.vanish.length == 2);
+    let captures =
+      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1)
+      .filter(m => m.vanish.length == 2);
     return captures.concat(
       // Orthogonal non-capturing moves
-      this.getSlideNJumpMoves(
-        sq,
-        V.steps[V.ROOK],
-        "oneStep"
-      ).filter(m => m.vanish.length == 1)
+      this.getSlideNJumpMoves(sq, V.steps[V.ROOK], 1)
+      .filter(m => m.vanish.length == 1)
     );
   }
 
   isAttackedByBishop(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.BISHOP,
-      V.ElephantSteps,
-      "oneStep"
-    );
+      sq, color, V.BISHOP, V.ElephantSteps, 1);
   }
 
   isAttackedByQueen(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.QUEEN,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+      sq, color, V.QUEEN, V.steps[V.BISHOP], 1);
   }
 
   getCurrentScore() {

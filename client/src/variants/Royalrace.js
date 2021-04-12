@@ -24,14 +24,14 @@ export class RoyalraceRules extends ChessRules {
     return (b[1] == V.KNIGHT ? "Enpassant/" : "") + b;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "92/92/92/92/92/92/92/92/92/qrbnp1PNBRQ/krbnp1PNBRK w 0";
 
     let pieces = { w: new Array(10), b: new Array(10) };
     // Shuffle pieces on first and second rank
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = JSON.parse(JSON.stringify(pieces['w'])).reverse();
         pieces['b'] =
           pieces['b'].splice(5,10).reverse().concat(
@@ -109,6 +109,7 @@ export class RoyalraceRules extends ChessRules {
     );
   }
 
+  // TODO: simplify this when base function is more general.
   getPotentialPawnMoves([x, y]) {
     // Normal moves (as a rook)
     let moves =
@@ -153,30 +154,13 @@ export class RoyalraceRules extends ChessRules {
 
   isAttackedByPawn([x, y], color) {
     // Pawns can capture forward and backward:
-    for (let pawnShift of [-1, 1]) {
-      if (0 < x + pawnShift && x + pawnShift < V.size.x) {
-        for (let i of [-1, 1]) {
-          if (
-            y + i >= 0 &&
-            y + i < V.size.y &&
-            this.getPiece(x + pawnShift, y + i) == V.PAWN &&
-            this.getColor(x + pawnShift, y + i) == color
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    return this.isAttackedBySlideNJump(
+      sq, color, V.PAWN, V.steps[V.BISHOP], 1);
   }
 
   isAttackedByKnight(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.KNIGHT,
-      V.steps[V.KNIGHT]
-    );
+      sq, color, V.KNIGHT, V.steps[V.KNIGHT]);
   }
 
   getCurrentScore() {

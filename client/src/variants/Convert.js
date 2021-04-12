@@ -13,10 +13,8 @@ export class ConvertRules extends ChessRules {
     this.lastMoveEnd = [null];
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
-      return "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w 0 ahah";
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const baseFen = ChessRules.GenRandInitFen(options);
     return (
       baseFen.substr(0, 8) +
       "/8/pppppppp/8/8/PPPPPPPP/8/" +

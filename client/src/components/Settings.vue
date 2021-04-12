@@ -60,6 +60,13 @@ div
             type="checkbox"
             v-model="st.settings.gotonext"
           )
+        fieldset(v-if="desktopBrowser")
+          label(for="setScrollmove")
+            | {{ st.tr["Mouse scroll to replay moves"] }}
+          input#setScrollmove(
+            type="checkbox"
+            v-model="st.settings.scrollmove"
+          )
 </template>
 
 <script>
@@ -83,6 +90,9 @@ export default {
   computed: {
     flagImage: function() {
       return `/images/flags/${this.st.lang}.svg`;
+    },
+    desktopBrowser: function() {
+      return !("ontouchstart" in window);
     }
   },
   methods: {

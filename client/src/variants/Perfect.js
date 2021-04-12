@@ -58,19 +58,19 @@ export class PerfectRules extends ChessRules {
 
   getPotentialAmazonMoves(sq) {
     return super.getPotentialQueenMoves(sq).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialEmpressMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialPrincessMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -87,39 +87,21 @@ export class PerfectRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.AMAZON, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(sq, color, V.AMAZON, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.AMAZON,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.AMAZON, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByEmpress(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.EMPRESS,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByPrincess(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.PRINCESS, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.PRINCESS,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.PRINCESS, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -134,11 +116,11 @@ export class PerfectRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "esqakbnr/pppppppp/8/8/8/8/PPPPPPPP/ESQAKBNR w 0 ahah -";
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     const fenParts = baseFen.split(' ');
     const posParts = fenParts[0].split('/');
 

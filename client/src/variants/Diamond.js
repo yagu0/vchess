@@ -12,12 +12,12 @@ export class DiamondRules extends ChessRules {
     return false;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "krbp4/rqnp4/nbpp4/pppp4/4PPPP/4PPBN/4PNQR/4PBRK w 0";
     let pieces = { w: new Array(8), b: new Array(8) };
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }

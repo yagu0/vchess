@@ -181,15 +181,12 @@ export class WildebeestRules extends ChessRules {
   }
 
   getPotentialCamelMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.CAMEL], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.CAMEL], 1);
   }
 
   getPotentialWildebeestMoves(sq) {
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]),
-      "oneStep"
-    );
+      sq, V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), 1);
   }
 
   getPPpath(m) {
@@ -276,22 +273,12 @@ export class WildebeestRules extends ChessRules {
 
   isAttackedByCamel(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.CAMEL,
-      V.steps[V.CAMEL],
-      "oneStep"
-    );
+      sq, color, V.CAMEL, V.steps[V.CAMEL], 1);
   }
 
   isAttackedByWildebeest(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.WILDEBEEST,
-      V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]),
-      "oneStep"
-    );
+      sq, color, V.WILDEBEEST, V.steps[V.KNIGHT].concat(V.steps[V.CAMEL]), 1);
   }
 
   getCurrentScore() {
@@ -311,8 +298,8 @@ export class WildebeestRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "rnccwkqbbnr/ppppppppppp/92/92/92/92/92/92/PPPPPPPPPPP/RNBBQKWCCNR " +
         "w 0 akak -"
@@ -322,7 +309,7 @@ export class WildebeestRules extends ChessRules {
     let pieces = { w: new Array(11), b: new Array(11) };
     let flags = "";
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;

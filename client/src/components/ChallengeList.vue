@@ -62,17 +62,14 @@ export default {
         return c.to || this.st.tr["Any player"];
       return c.from.name || "@nonymous";
     },
+    // TODO: duplicated from Hall
     getRandomnessClass: function(c) {
-      if (
-        // TODO: one extra test here
-        !Number.isInteger(c.options.randomness) &&
-        !parseInt(c.options.randomness, 10)
-      ) {
+      const opts = c.options;
+      if (opts.randomness === undefined && opts.random === undefined)
         return {};
-      }
-      return {
-        ["random-" + c.options.randomness]: true
-      };
+      if (opts.randomness !== undefined)
+        return { ["random-" + opts.randomness]: true };
+      return { ["random-" + (opts.random ? 2 : 0)]: true };
     }
   }
 };

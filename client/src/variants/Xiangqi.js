@@ -2,6 +2,10 @@ import { ChessRules } from "@/base_rules";
 
 export class XiangqiRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   // NOTE (TODO?) scanKings() could be more efficient (in Jangqi too)
 
   static get Monochrome() {
@@ -154,7 +158,7 @@ export class XiangqiRules extends ChessRules {
       if (y > 0) steps.push([0, -1]);
       if (y < 9) steps.push([0, 1]);
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   knightStepsFromRookStep(step) {
@@ -172,7 +176,7 @@ export class XiangqiRules extends ChessRules {
           this.knightStepsFromRookStep(rookStep));
       }
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   getPotentialElephantMoves([x, y]) {
@@ -188,7 +192,7 @@ export class XiangqiRules extends ChessRules {
           // "out of board" checks delayed to next method
       }
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   getPotentialAdvisorMoves([x, y]) {
@@ -212,11 +216,11 @@ export class XiangqiRules extends ChessRules {
         if (y == 3) step = [-direction, 1];
         else step = [-direction, -1];
       }
-      return super.getSlideNJumpMoves([x, y], [step], "oneStep");
+      return super.getSlideNJumpMoves([x, y], [step], 1);
     }
     // In the middle of the palace:
     return (
-      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.BISHOP], "oneStep")
+      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.BISHOP], 1)
     );
   }
 
@@ -234,11 +238,11 @@ export class XiangqiRules extends ChessRules {
       if (x > (c == 'w' ? V.size.x - 3 : 0)) steps.push([-1, 0]);
       if (y > 3) steps.push([0, -1]);
       if (y < 5) steps.push([0, 1]);
-      return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+      return super.getSlideNJumpMoves([x, y], steps, 1);
     }
     // In the middle of the palace:
     return (
-      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.ROOK], "oneStep")
+      super.getSlideNJumpMoves([x, y], ChessRules.steps[V.ROOK], 1)
     );
   }
 
@@ -283,7 +287,7 @@ export class XiangqiRules extends ChessRules {
     // The pawn necessarily crossed the river (attack on king)
     const shiftX = (color == 'w' ? 1 : -1); //shift from king
     return super.isAttackedBySlideNJump(
-      [x, y], color, V.PAWN, [[shiftX, 0], [0, 1], [0, -1]], "oneStep");
+      [x, y], color, V.PAWN, [[shiftX, 0], [0, 1], [0, -1]], 1);
   }
 
   knightStepsFromBishopStep(step) {
@@ -303,7 +307,7 @@ export class XiangqiRules extends ChessRules {
       }
     }
     return (
-      super.isAttackedBySlideNJump([x, y], color, V.KNIGHT, steps, "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.KNIGHT, steps, 1)
     );
   }
 

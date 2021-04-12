@@ -25,14 +25,14 @@ export class OrdamirrorRules extends OrdaRules {
     return "Orda/" + b;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "lhafkahl/8/pppppppp/8/8/PPPPPPPP/8/LHAFKAHL w 0 ah -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }
@@ -106,17 +106,9 @@ export class OrdamirrorRules extends OrdaRules {
 
   getPotentialFalconMoves(sq) {
     const onlyMoves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      null,
-      { onlyMove: true }
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), null, { onlyMove: true });
     const onlyTakes = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT],
-      "oneStep",
-      { onlyTake: true }
-    );
+      sq, V.steps[V.KNIGHT], "oneStep", { onlyTake: true });
     return onlyMoves.concat(onlyTakes);
   }
 
@@ -133,7 +125,7 @@ export class OrdamirrorRules extends OrdaRules {
 
   isAttackedByFalcon(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq, color, V.FALCON, V.steps[V.KNIGHT], "oneStep");
+      sq, color, V.FALCON, V.steps[V.KNIGHT], 1);
   }
 
   static get VALUES() {

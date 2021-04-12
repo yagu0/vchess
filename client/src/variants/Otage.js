@@ -197,9 +197,9 @@ export class OtageRules extends ChessRules {
     this.pawnFlags = flags[1];
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add 16 pawns flags:
-    return ChessRules.GenRandInitFen(randomness)
+    return ChessRules.GenRandInitFen(options)
       .slice(0, -2) + "1111111111111111 -";
   }
 
@@ -390,10 +390,7 @@ export class OtageRules extends ChessRules {
         break;
       case V.KING:
         baseMoves = this.getSlideNJumpMoves(
-          [x, y],
-          V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-          "oneStep"
-        );
+          [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
         if (!noCastle && this.castleFlags[this.turn].some(v => v < V.size.y))
           baseMoves = baseMoves.concat(this.getCastleMoves([x, y]));
         break;

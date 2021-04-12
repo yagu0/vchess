@@ -78,15 +78,15 @@ export class CoregalRules extends ChessRules {
     return squares;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       // Castle flags here indicate pieces positions (if can castle)
       return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 adehadeh -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     let flags = "";
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;
@@ -186,10 +186,7 @@ export class CoregalRules extends ChessRules {
 
   getPotentialKingMoves([x, y]) {
     let moves = this.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
     const c = this.getColor(x, y);
     if (this.castleFlags[c].slice(1, 3).includes(y))
       moves = moves.concat(this.getCastleMoves([x, y]));

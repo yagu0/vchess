@@ -48,9 +48,9 @@ export class ThreechecksRules extends ChessRules {
     return super.getCurrentScore();
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add check flags (at 0)
-    return ChessRules.GenRandInitFen(randomness).slice(0, -2) + "00";
+    return ChessRules.GenRandInitFen(options).slice(0, -2) + "00";
   }
 
   getFlagsFen() {

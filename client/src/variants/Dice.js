@@ -35,8 +35,8 @@ export class DiceRules extends ChessRules {
     return (L > 0 ? this.p2play[L-1] : "-");
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " -";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + " -";
   }
 
   canMove(piece, color, [x, y]) {

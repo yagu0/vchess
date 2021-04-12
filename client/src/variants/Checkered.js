@@ -2,6 +2,26 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class CheckeredRules extends ChessRules {
 
+  static get Options() {
+    return Object.assign(
+      {},
+      ChessRules.Options,
+      {
+        check: [
+          {
+            label: "With switch",
+            defaut: true,
+            variable: "switch"
+          }
+        ]
+      }
+    );
+  }
+
+  static AbbreviateOptions(opts) {
+    return (!opts["switch"] ? "NS" : "");
+  }
+
   static board2fen(b) {
     const checkered_codes = {
       p: "s",
@@ -39,26 +59,6 @@ export class CheckeredRules extends ChessRules {
 
   getPpath(b) {
     return (b[0] == "c" ? "Checkered/" : "") + b;
-  }
-
-  static get Options() {
-    return Object.assign(
-      {},
-      ChessRules.Options,
-      {
-        check: [
-          {
-            label: "With switch",
-            defaut: true,
-            variable: "switch"
-          }
-        ]
-      }
-    );
-  }
-
-  static AbbreviateOptions(opts) {
-    return (!opts["switch"] ? "NS" : "");
   }
 
   setOtherVariables(fen) {
@@ -433,12 +433,7 @@ export class CheckeredRules extends ChessRules {
 
   isAttackedByKnight(sq, colors) {
     return this.isAttackedBySlideNJump(
-      sq,
-      colors,
-      V.KNIGHT,
-      V.steps[V.KNIGHT],
-      "oneStep"
-    );
+      sq, colors, V.KNIGHT, V.steps[V.KNIGHT], "oneStep");
   }
 
   isAttackedByBishop(sq, colors) {
@@ -448,20 +443,13 @@ export class CheckeredRules extends ChessRules {
 
   isAttackedByQueen(sq, colors) {
     return this.isAttackedBySlideNJump(
-      sq,
-      colors,
-      V.QUEEN,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    );
+      sq, colors, V.QUEEN, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
   }
 
   isAttackedByKing(sq, colors) {
     return this.isAttackedBySlideNJump(
-      sq,
-      colors,
-      V.KING,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
+      sq, colors, V.KING,
+      V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep"
     );
   }
 

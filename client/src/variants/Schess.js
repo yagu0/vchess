@@ -78,9 +78,9 @@ export class SchessRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     return (
-      ChessRules.GenRandInitFen(randomness).slice(0, -2) +
+      ChessRules.GenRandInitFen(options).slice(0, -2) +
       // Add pieceFlags + pocket
       "1111111111111111 - 1111"
     );
@@ -221,13 +221,13 @@ export class SchessRules extends ChessRules {
 
   getPotentialHawkMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialElephantMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -242,26 +242,14 @@ export class SchessRules extends ChessRules {
   isAttackedByHawk(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.HAWK, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.HAWK,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.HAWK, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByElephant(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.ELEPHANT, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.ELEPHANT,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.ELEPHANT, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -330,9 +318,11 @@ export class SchessRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
-      {},
-      ChessRules.VALUES,
-      { 'h': 5, 'e': 7 }
+      {
+        'h': 5,
+        'e': 7
+      },
+      ChessRules.VALUES
     );
   }
 

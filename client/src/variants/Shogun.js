@@ -51,8 +51,8 @@ export class ShogunRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " 0000000000";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + " 0000000000";
   }
 
   getFen() {
@@ -257,31 +257,31 @@ export class ShogunRules extends ChessRules {
   }
 
   getPotentialDuchessMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
 
   getPotentialCaptainMoves(sq) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialMortarMoves(sq) {
     return (
       super.getSlideNJumpMoves(sq, V.steps[V.ROOK])
-      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1))
     );
   }
 
   getPotentialGeneralMoves(sq) {
     const steps =
       V.steps[V.BISHOP].concat(V.steps[V.ROOK]).concat(V.steps[V.KNIGHT]);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialArchbishopMoves(sq) {
     return (
       super.getSlideNJumpMoves(sq, V.steps[V.BISHOP])
-      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1))
     );
   }
 
@@ -299,14 +299,14 @@ export class ShogunRules extends ChessRules {
   isAttackedByDuchess(sq, color) {
     return (
       super.isAttackedBySlideNJump(
-        sq, color, V.DUCHESS, V.steps[V.BISHOP], "oneStep")
+        sq, color, V.DUCHESS, V.steps[V.BISHOP], 1)
     );
   }
 
   isAttackedByCaptain(sq, color) {
     const steps = V.steps[V.BISHOP].concat(V.steps[V.ROOK]);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.DUCHESS, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.DUCHESS, steps, 1)
     );
   }
 
@@ -314,7 +314,7 @@ export class ShogunRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.MORTAR, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.MORTAR, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.MORTAR, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -322,7 +322,7 @@ export class ShogunRules extends ChessRules {
     const steps =
       V.steps[V.BISHOP].concat(V.steps[V.ROOK]).concat(V.steps[V.KNIGHT]);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.GENERAL, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.GENERAL, steps, 1)
     );
   }
 
@@ -331,7 +331,7 @@ export class ShogunRules extends ChessRules {
       super.isAttackedBySlideNJump(sq, color, V.ARCHBISHOP, V.steps[V.BISHOP])
       ||
       super.isAttackedBySlideNJump(
-        sq, color, V.ARCHBISHOP, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.ARCHBISHOP, V.steps[V.KNIGHT], 1)
     );
   }
 

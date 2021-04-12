@@ -24,8 +24,8 @@ export class OrdaRules extends ChessRules {
     return b;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "lhaykahl/8/pppppppp/8/8/8/PPPPPPPP/RNBQKBNR w 0 ah -";
 
     // Mapping kingdom --> horde:
@@ -37,7 +37,7 @@ export class OrdaRules extends ChessRules {
       'k': 'k'
     };
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     return (
       baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
       // Skip 3 first rows + black castle flags
@@ -89,6 +89,7 @@ export class OrdaRules extends ChessRules {
     return [];
   }
 
+  // TODO: merge this extension into base_rules.js
   getSlideNJumpMoves([x, y], steps, oneStep, options) {
     options = options || {};
     let moves = [];
@@ -97,7 +98,7 @@ export class OrdaRules extends ChessRules {
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         if (!options.onlyTake) moves.push(this.getBasicMove([x, y], [i, j]));
-        if (!!oneStep) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -109,60 +110,36 @@ export class OrdaRules extends ChessRules {
 
   getPotentialLancerMoves(sq) {
     const onlyMoves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT],
-      "oneStep",
-      { onlyMove: true }
-    );
+      sq, V.steps[V.KNIGHT], "oneStep", { onlyMove: true });
     const onlyTakes = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK],
-      null,
-      { onlyTake: true }
-    );
+      sq, V.steps[V.ROOK], null, { onlyTake: true });
     return onlyMoves.concat(onlyTakes);
   }
 
   getPotentialArcherMoves(sq) {
     const onlyMoves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT],
-      "oneStep",
-      { onlyMove: true }
-    );
+      sq, V.steps[V.KNIGHT], "oneStep", { onlyMove: true });
     const onlyTakes = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP],
-      null,
-      { onlyTake: true }
-    );
+      sq, V.steps[V.BISHOP], null, { onlyTake: true });
     return onlyMoves.concat(onlyTakes);
   }
 
   getPotentialKheshigMoves(sq) {
-    return super.getSlideNJumpMoves(
-      sq,
-      V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+    const steps =
+      V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]);
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialYurtMoves(sq) {
     return super.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP].concat([ [1, 0] ]),
-      "oneStep"
-    );
+      sq, V.steps[V.BISHOP].concat([ [1, 0] ]), 1);
   }
 
   getPotentialKingMoves([x, y]) {
     if (this.getColor(x, y) == 'w') return super.getPotentialKingMoves([x, y]);
     // Horde doesn't castle:
     return super.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttacked(sq, color) {
@@ -193,23 +170,14 @@ export class OrdaRules extends ChessRules {
   }
 
   isAttackedByKheshig(sq, color) {
-    return super.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.KHESHIG,
-      V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+    const steps =
+      V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]);
+    return super.isAttackedBySlideNJump(sq, color, V.KHESHIG, steps, 1);
   }
 
   isAttackedByYurt(sq, color) {
     return super.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.YURT,
-      V.steps[V.BISHOP].concat([ [1, 0] ]),
-      "oneStep"
-    );
+      sq, color, V.YURT, V.steps[V.BISHOP].concat([ [1, 0] ]), 1);
   }
 
   updateCastleFlags(move, piece) {

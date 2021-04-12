@@ -146,9 +146,9 @@ export class SwapRules extends ChessRules {
     });
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add empty smove:
-    return ChessRules.GenRandInitFen(randomness) + " -";
+    return ChessRules.GenRandInitFen(options) + " -";
   }
 
   getSmoveFen() {

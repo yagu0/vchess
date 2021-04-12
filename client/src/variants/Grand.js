@@ -121,13 +121,13 @@ export class GrandRules extends ChessRules {
 
   getPotentialMarshallMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialCardinalMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -142,26 +142,14 @@ export class GrandRules extends ChessRules {
   isAttackedByMarshall(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.MARSHALL,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByCardinal(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.CARDINAL,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -176,8 +164,8 @@ export class GrandRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "r8r/1nbqkmcbn1/pppppppppp/91/91/91/91/PPPPPPPPPP/1NBQKMCBN1/R8R " +
         "w 0 -"
@@ -187,7 +175,7 @@ export class GrandRules extends ChessRules {
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on second and before-last rank
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }

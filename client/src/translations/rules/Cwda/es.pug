@@ -1,50 +1,109 @@
 p.boxed
-  | Las piezas negras son reemplazadas por un nuevo equipo, que incluye
-  | la mayoría de las piezas se estiraron para evolucionar en un solo color.
+  | Las piezas blancas y negras son reemplazadas por diferentes ejércitos.
 
 p.
-  Los peones negros y el rey mantienen sus movimientos habituales, pero este
-  no es el caso para las otras piezas:
+  Los peones y los reyes se mueven como de costumbre, pero normalmente no
+  las otras piezas. De hecho, antes del inicio del juego debes
+  seleccionar dos ejércitos, definiendo nuevos movimientos para los
+  "torres", "caballos", "alfiles" y "damas".
+
+p Los movimientos de las piezas se describen utilizando estas piezas básicas:
 ul
-  li Torre = alfil + dabbabah (D),
-  li Caballo = wazir + alfil = "phoenix" (H),
-  li Alfil = ferz + elefante + dabbabah (A),
-  li Dama = alfil + caballo = "princesa" (S).
+  li Dabbabah = saltar dos casillas ortogonalmente
+  li Alfil_A = saltar dos casillas en diagonal
+  li Wazir = una casilla ortogonalmente
+  li Ferz = una casilla diagonal
+  li Three leaper (L3) = saltar tres casillas ortogonalmente
+  li Narrow knight = Caballo sin "movimientos laterales 2+1"
+
 p.
-  El Ferz y el Wazir viajan respectivamente como un alfil y una torre,
-  pero de una casilla solamente. El Elefante y el Dabbabah se mueven
-  respectivamente de dos casillas como un alfil y una torre,
-  posiblemente saltando sobre una pieza.
+  Los peones pueden promocionarse en una pieza de cualquier
+  cuál de los ejércitos presentes.
+
+h3 Los Batidores Unicolor
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bd.svg")
+  img(src="/images/pieces/Cwda/ww.svg")
+  img(src="/images/pieces/Cwda/bf.svg")
+  img(src="/images/pieces/Cwda/wc.svg")
+
+ul
+  li Torre = alfil_A + dabbabah = "bede" (D),
+  li Caballo = wazir + alfil = "gofre" (W),
+  li Alfil = ferz + alfil_A + dabbabah = "fad" (F),
+  li Dama = alfil + caballo = "cardenal" (C).
 
 figure.diagram-container
   .diagram.diag12
-    | fen:8/8/8/3d4/8/8/8/8 a8,b7,c6,e4,f3,g2,h1,c4,b3,a2,e6,f7,g8,f5,d3,b5,d7:
+    | fen:8/8/8/3D4/8/8/8/8 a8,b7,c6,e4,f3,g2,h1,c4,b3,a2,e6,f7,g8,f5,d3,b5,d7:
   .diagram.diag22
-    | fen:8/8/8/4h3/8/8/8/8 e6,f5,e4,d5,c7,g7,g3,c3:
-  figcaption.
-    Jugadas de la torre negra a la izquierda y del caballo negro a la derecha.
+    | fen:8/8/8/4w3/8/8/8/8 e6,f5,e4,d5,c7,g7,g3,c3:
+  figcaption Jugadas del Bede a la izquierda y del Gofre a la derecha.
+
+p.
+  Después del gran enroque, el rey y la torre llegan respectivamente en b1/b8
+  y c1/c8 para que la torre permanezca al mismo color.
+
+h3 Los Caballeros Locos
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bg.svg")
+  img(src="/images/pieces/Cwda/wi.svg")
+  img(src="/images/pieces/Cwda/bt.svg")
+  img(src="/images/pieces/Cwda/wl.svg")
+
+ul
+  li.
+    Torre = torre hacia adelante y hacia los lados + rey atrás =
+    "torre de carga" (G),
+  li Caballo = narrow knight + ferz = "fibnif" (I),
+  li.
+    Alfil = caballo hacia adelante + rey lateralmente y hacia atrás =
+    "caballo de carga" (T),
+  li.
+    Dama = torre hacia adelante y hacia los lados + caballo hacia adelante
+    + rey = "coronel" (L).
 
 figure.diagram-container
   .diagram.diag12
-    | fen:8/8/8/3a4/8/8/8/8 c6,b7,e6,f7,e4,f3,c4,b3,d7,f5,d3,b5:
+    | fen:8/8/8/3i4/8/8/8/8 c7,c3,e7,e3,c4,c6,e6,e4:
   .diagram.diag22
-    | fen:8/8/8/4s3/8/8/8/8 a1,b2,c3,d4,f6,g7,h8,b8,c7,d6,f4,g3,h2,c6,d7,f7,g6,g4,f3,d3,c4:
+    | fen:8/8/8/4T3/8/8/8/8 c6,d7,f7,g6,d5,f5,d4,e4,f4:
   figcaption.
-    Jugadas del alfil negro a la izquierda, y de la dama negra a la derecha.
+    Jugadas del Fibnif a la izquierda, y del Caballo de carga a la derecha.
 
-p.
-  Los peones pueden ser promovidos a cualquier piezas (incluidos las del
-  otro equipo)
+h3 Las Reclutas Notables
 
-p.
-  Después del gran enroque, el rey negro llega en b8 y la torre a8 entra en c8,
-  para permanecer en el mismo color.
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bs.svg")
+  img(src="/images/pieces/Cwda/wy.svg")
+  img(src="/images/pieces/Cwda/bh.svg")
+  img(src="/images/pieces/Cwda/wo.svg")
+
+ul
+  li Torre = torre limitada a 4 casillas = "torre corta" (S),
+  li Caballo = dabbabah + wazir = "torre arbolada" (Y),
+  li Alfil = dabbabah + ferz + L3 = "medio-pato" (H),
+  li Dama = torre + caballo = "canciller" (O).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/3y4/8/8/8/8 d3,b5,d7,f5,c5,d6,e5,d4:
+  .diagram.diag22
+    | fen:8/8/8/4H3/8/8/8/8 c5,e7,g5,e3,b5,e8,h5,e2,d4,d6,f6,f4:
+  figcaption.
+    Jugadas de la Torre arbolada a la izquierda y del Medio-pato a la derecha.
+
+h3 Ejército Fide
+
+p Piezas de ajedrez estándar.
 
 h3 Fuente
 
 p
-  a(href="https://www.chessvariants.com/d.betza/chessvar/dan/colclob.html")
-    | Los "batidores unicolor"
+  a(href="https://www.chessvariants.com/unequal.dir/cwda.html")
+    | Ajedrez con diferentes ejércitos.
   | &nbsp;en chessvariants.com.
 
 p Inventor: Ralph Betza (1996)

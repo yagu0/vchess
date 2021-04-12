@@ -16,8 +16,7 @@ export class Stealthbomb1Rules extends ChessRules {
       t: "q",
       u: "r",
       c: "b",
-      o: "n",
-      l: "k"
+      o: "n"
     };
   }
   static get BOMB_CODE() {
@@ -26,8 +25,7 @@ export class Stealthbomb1Rules extends ChessRules {
       q: "t",
       r: "u",
       b: "c",
-      n: "o",
-      k: "l"
+      n: "o"
     };
   }
 
@@ -77,7 +75,7 @@ export class Stealthbomb1Rules extends ChessRules {
     );
   }
 
-  // Initiate the game by choosing a square for the bomb:
+  // Initiate the game by choosing a piece holding the bomb:
   doClick(square) {
     const c = this.turn;
     if (
@@ -91,6 +89,7 @@ export class Stealthbomb1Rules extends ChessRules {
     }
     const [x, y] = square;
     const piece = super.getPiece(x, y);
+    if (piece == V.KING) return null; //no bomb on king!
     return new Move({
       appear: [ new PiPo({ x: x, y: y, c: c, p: V.BOMB_CODE[piece] }) ],
       vanish: [ new PiPo({ x: x, y: y, c: c, p: piece }) ],

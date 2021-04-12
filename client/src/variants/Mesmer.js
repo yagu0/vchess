@@ -36,8 +36,8 @@ export class MesmerRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    const antikingFen = Antiking2Rules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const antikingFen = Antiking2Rules.GenRandInitFen(options);
     return antikingFen.replace('a', 'M').replace('A', 'm') + " -";
   }
 
@@ -113,7 +113,7 @@ export class MesmerRules extends ChessRules {
       piece == V.KING
         // No castling with enemy king (...yes, should eat it but...)
         ? super.getSlideNJumpMoves(
-          [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep")
+          [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1)
         : super.getPotentialMovesFrom([x, y]);
     return moves;
   }

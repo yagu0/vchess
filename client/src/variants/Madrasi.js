@@ -25,8 +25,8 @@ export class MadrasiRules extends ChessRules {
         steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
         break;
     }
-    return super.isAttackedBySlideNJump(
-      sq, oppCol, piece, steps, [V.KING, V.PAWN, V.KNIGHT].includes(piece))
+    const nbSteps = [V.KING, V.PAWN, V.KNIGHT].includes(piece) ? 1 : null;
+    return super.isAttackedBySlideNJump(sq, oppCol, piece, steps, nbSteps);
   }
 
   getPotentialMovesFrom([x, y]) {

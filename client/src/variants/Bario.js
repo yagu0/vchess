@@ -4,6 +4,10 @@ import { randInt } from "@/utils/alea";
 
 export class BarioRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   // Does not really seem necessary (although the author mention it)
   // Instead, first move = pick a square for the king.
   static get HasFlags() {

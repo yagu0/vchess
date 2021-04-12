@@ -15,8 +15,7 @@ export class Chess960Rules extends ChessRules {
             { label: "Asymmetric random", value: 2 }
           ]
         }
-      ],
-      check: []
+      ]
     };
   }
 

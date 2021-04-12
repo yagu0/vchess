@@ -4,6 +4,10 @@ import { sample, shuffle } from "@/utils/alea";
 
 export class DobutsuRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -207,15 +211,15 @@ export class DobutsuRules extends ChessRules {
     const c = this.turn;
     const forward = (c == 'w' ? -1 : 1);
     const steps = V.steps[V.ROOK].concat([[forward, 1], [forward, -1]]);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialElephantMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
 
   getPotentialGiraffeMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.ROOK], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.ROOK], 1);
   }
 
   getAllValidMoves() {

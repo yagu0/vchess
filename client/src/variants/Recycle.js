@@ -28,8 +28,8 @@ export class RecycleRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " 0000000000";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + " 0000000000";
   }
 
   getFen() {

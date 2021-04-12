@@ -140,8 +140,8 @@ export class OmegaRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "wxxxxxxxxxxw/xcrnbqkbnrcx/xppppppppppx/x91x/x91x/x91x/" +
         "x91x/x91x/x91x/xPPPPPPPPPPx/xCRNBQKBNRCx/WxxxxxxxxxxW " +
@@ -153,7 +153,7 @@ export class OmegaRules extends ChessRules {
     let flags = "";
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;
@@ -320,11 +320,11 @@ export class OmegaRules extends ChessRules {
   }
 
   getPotentialChampionMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], 1);
   }
 
   getPotentialWizardMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.WIZARD], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.WIZARD], 1);
   }
 
   getCastleMoves([x, y]) {
@@ -346,14 +346,14 @@ export class OmegaRules extends ChessRules {
   isAttackedByWizard(sq, color) {
     return (
       this.isAttackedBySlideNJump(
-        sq, color, V.WIZARD, V.steps[V.WIZARD], "oneStep")
+        sq, color, V.WIZARD, V.steps[V.WIZARD], 1)
     );
   }
 
   isAttackedByChampion(sq, color) {
     return (
       this.isAttackedBySlideNJump(
-        sq, color, V.CHAMPION, V.steps[V.CHAMPION], "oneStep")
+        sq, color, V.CHAMPION, V.steps[V.CHAMPION], 1)
     );
   }
 

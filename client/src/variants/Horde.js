@@ -2,6 +2,18 @@ import { ChessRules } from "@/base_rules";
 
 export class HordeRules extends ChessRules {
 
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Random",
+          defaut: false,
+          variable: "random"
+        }
+      ]
+    };
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -36,9 +48,9 @@ export class HordeRules extends ChessRules {
     return true;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 2) randomness--;
-    const fen = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const fen =
+      ChessRules.GenRandInitFen({ randomness: (options.random ? 1 : 0) });
     return (
       // 20 first chars are 3 rows + 3 slashes
       fen.substr(0, 20)

@@ -64,6 +64,9 @@ export default {
           case "Cadence":
             game.cadence = value;
             break;
+          case "Options":
+            game.options = value;
+            break;
         }
         idx++;
       }

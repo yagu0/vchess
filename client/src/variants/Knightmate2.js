@@ -43,9 +43,9 @@ export class Knightmate2Rules extends ChessRules {
 
   scanKings() {}
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     return (
-      ChessRules.GenRandInitFen(randomness)
+      ChessRules.GenRandInitFen(options)
       .replace(/k/g, 'c').replace(/K/g, 'C')
       .replace(/n/g, 'k').replace(/N/g, 'K')
     );
@@ -62,10 +62,7 @@ export class Knightmate2Rules extends ChessRules {
 
   getPotentialCommonerMoves(sq) {
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialKingMoves(sq) {
@@ -85,22 +82,12 @@ export class Knightmate2Rules extends ChessRules {
 
   isAttackedByKing(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.KING,
-      V.steps[V.KNIGHT],
-      "oneStep"
-    );
+      sq, color, V.KING, V.steps[V.KNIGHT], 1);
   }
 
   isAttackedByCommoner(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.COMMONER,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, color, V.COMMONER, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   postPlay() {}

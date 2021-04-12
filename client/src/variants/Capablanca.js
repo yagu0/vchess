@@ -51,13 +51,13 @@ export class CapablancaRules extends ChessRules {
 
   getPotentialEmpressMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialPrincessMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -72,26 +72,14 @@ export class CapablancaRules extends ChessRules {
   isAttackedByEmpress(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.EMPRESS,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.EMPRESS, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByPrincess(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.PRINCESS, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.PRINCESS,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.PRINCESS, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -106,8 +94,8 @@ export class CapablancaRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "rnsbqkbenr/pppppppppp/91/91/91/91/PPPPPPPPPP/RNSBQKBENR w 0 ajaj -"
       );
@@ -116,7 +104,7 @@ export class CapablancaRules extends ChessRules {
     let pieces = { w: new Array(10), b: new Array(10) };
     let flags = "";
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;

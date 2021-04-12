@@ -10,9 +10,9 @@ export class PawnmassacreRules extends ChessRules {
     return true;
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     const bFen =
-      ChessRules.GenRandInitFen(randomness)
+      ChessRules.GenRandInitFen(options)
       // Remove castle flags
       .slice(0, -6).concat("-");
     const splitIdx = bFen.indexOf(' ');

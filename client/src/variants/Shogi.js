@@ -113,8 +113,8 @@ export class ShogiRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL " +
         "w 0 00000000000000"
@@ -125,7 +125,7 @@ export class ShogiRules extends ChessRules {
     let pieces1 = { w: new Array(4), b: new Array(4) };
     let positions2 = { w: new Array(2), b: new Array(2) };
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces1['b'] = JSON.parse(JSON.stringify(pieces1['w'])).reverse();
         positions2['b'] =
           JSON.parse(JSON.stringify(positions2['w'])).reverse()
@@ -426,7 +426,7 @@ export class ShogiRules extends ChessRules {
     const forward = (this.turn == 'w' ? -1 : 1);
     return this.getSlideNJumpMoves(
       sq,
-      [[forward, 0]],
+      [ [forward, 0] ],
       {
         promote: V.P_LANCE,
         force: true
@@ -492,35 +492,19 @@ export class ShogiRules extends ChessRules {
 
   isAttackedBySilver([x, y], color) {
     const shift = (color == 'w' ? 1 : -1);
-    for (let step of V.steps[V.BISHOP].concat([[shift, 0]])) {
-      const [i, j] = [x + step[0], y + step[1]];
-      if (
-        V.OnBoard(i, j) &&
-        this.board[i][j] != V.EMPTY &&
-        this.getColor(i, j) == color &&
-        this.getPiece(i, j) == V.SILVER_G
-      ) {
-        return true;
-      }
-    }
-    return false;
+    return this.isAttackedBySlideNJump(
+      sq, color, V.SILVER, V.steps[V.BISHOP].concat([ [shift, 0] ]), 1);
   }
 
   isAttackedByPawn([x, y], color) {
     const shift = (color == 'w' ? 1 : -1);
-    const [i, j] = [x + shift, y];
-    return (
-      V.OnBoard(i, j) &&
-      this.board[i][j] != V.EMPTY &&
-      this.getColor(i, j) == color &&
-      this.getPiece(i, j) == V.PAWN
-    );
+    return this.isAttackedBySlideNJump(sq, color, V.PAWN, [ [shift, 0] ], 1);
   }
 
   isAttackedByKnight(sq, color) {
     const forward = (color == 'w' ? 2 : -2);
     return this.isAttackedBySlideNJump(
-      sq, color, V.KNIGHT, [[forward, 1], [forward, -1]], "oneStep");
+      sq, color, V.KNIGHT, [ [forward, 1], [forward, -1] ], 1);
   }
 
   isAttackedByLance(sq, color) {
@@ -531,16 +515,14 @@ export class ShogiRules extends ChessRules {
   isAttackedByDragon(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.P_ROOK, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq, color, V.P_ROOK, V.steps[V.BISHOP], "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.P_ROOK, V.steps[V.BISHOP], 1)
     );
   }
 
   isAttackedByHorse(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.P_BISHOP, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq, color, V.P_BISHOP, V.steps[V.ROOK], "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.P_BISHOP, V.steps[V.ROOK], 1)
     );
   }
 

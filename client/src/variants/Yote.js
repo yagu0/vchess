@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class YoteRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -72,7 +76,7 @@ export class YoteRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen() {
     return "6/6/6/6/6 w 0 12,12 -,-";
   }
 

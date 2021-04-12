@@ -208,37 +208,34 @@ export class ShinobiRules extends ChessRules {
     if (this.getColor(x, y) == 'b') return super.getPotentialKingMoves([x, y]);
     // Clan doesn't castle:
     return super.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialCaptainMoves(sq) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialNinjaMoves(sq) {
     return (
       super.getSlideNJumpMoves(sq, V.steps[V.BISHOP])
-      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1))
     );
   }
 
   getPotentialDragonMoves(sq) {
     return (
       super.getSlideNJumpMoves(sq, V.steps[V.ROOK])
-      .concat(super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep"))
+      .concat(super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1))
     );
   }
 
   getPotentialMonkMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
 
   getPotentialHorseMoves(sq) {
-    return super.getSlideNJumpMoves(sq, [ [-2, 1], [-2, -1] ], "oneStep");
+    return super.getSlideNJumpMoves(sq, [ [-2, 1], [-2, -1] ], 1);
   }
 
   getPotentialLanceMoves(sq) {
@@ -267,7 +264,7 @@ export class ShinobiRules extends ChessRules {
   isAttackedByCaptain(sq, color) {
     const steps = V.steps[V.BISHOP].concat(V.steps[V.ROOK]);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.CAPTAIN, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.CAPTAIN, steps, 1)
     );
   }
 
@@ -275,7 +272,7 @@ export class ShinobiRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.NINJA, V.steps[V.BISHOP]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.NINJA, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.NINJA, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -283,21 +280,21 @@ export class ShinobiRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.DRAGON, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
+        sq, color, V.DRAGON, V.steps[V.BISHOP], 1)
     );
   }
 
   isAttackedByMonk(sq, color) {
     return (
       super.isAttackedBySlideNJump(
-        sq, color, V.MONK, V.steps[V.BISHOP], "oneStep")
+        sq, color, V.MONK, V.steps[V.BISHOP], 1)
     );
   }
 
   isAttackedByHorse(sq, color) {
     return (
       super.isAttackedBySlideNJump(
-        sq, color, V.HORSE, [ [2, 1], [2, -1] ], "oneStep")
+        sq, color, V.HORSE, [ [2, 1], [2, -1] ], 1)
     );
   }
 

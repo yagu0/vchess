@@ -1149,9 +1149,9 @@ export class ChakartRules extends ChessRules {
     return "*";
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     return (
-      SuicideRules.GenRandInitFen(randomness).slice(0, -1) +
+      SuicideRules.GenRandInitFen(options).slice(0, -1) +
       // Add Peach + Mario flags + capture counts
       "1111 000000000000"
     );

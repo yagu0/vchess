@@ -4,6 +4,10 @@ import { ArrayFun } from "@/utils/array";
 
 export class ScreenRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }

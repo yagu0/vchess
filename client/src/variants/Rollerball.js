@@ -2,6 +2,10 @@ import { ChessRules } from "@/base_rules";
 
 export class RollerballRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -121,14 +125,14 @@ export class RollerballRules extends ChessRules {
       const forward = (y <= 1 ? -1 : 1);
       return (
         super.getSlideNJumpMoves(
-          [x, y], [[forward, -1], [forward, 0], [forward, 1]], "oneStep")
+          [x, y], [[forward, -1], [forward, 0], [forward, 1]], 1)
       );
     }
     if (inMiddleY) {
       const forward = (x <= 1 ? 1 : -1);
       let moves =
         super.getSlideNJumpMoves(
-          [x, y], [[-1, forward], [0, forward], [1, forward]], "oneStep");
+          [x, y], [[-1, forward], [0, forward], [1, forward]], 1);
       // Promotions may happen:
       let extraMoves = [];
       moves.forEach(m => {
@@ -154,13 +158,13 @@ export class RollerballRules extends ChessRules {
       const forward = (toRight ? 1 : -1);
       return (
         super.getSlideNJumpMoves(
-          [x, y], [[-1, forward], [0, forward], [1, forward]], "oneStep")
+          [x, y], [[-1, forward], [0, forward], [1, forward]], 1)
       );
     }
     const forward = (toUp ? -1 : 1);
     return (
       super.getSlideNJumpMoves(
-        [x, y], [[forward, -1], [forward, 0], [forward, 1]], "oneStep")
+        [x, y], [[forward, -1], [forward, 0], [forward, 1]], 1)
     );
   }
 
@@ -176,7 +180,7 @@ export class RollerballRules extends ChessRules {
     if (y >= 5) multiStep.push([1, 0]);
     else oneStep.push([1, 0]);
     const c = this.turn;
-    let moves = super.getSlideNJumpMoves([x, y], oneStep, "oneStep");
+    let moves = super.getSlideNJumpMoves([x, y], oneStep, 1);
     for (let step of multiStep) {
       let [i, j] = [x + step[0], y + step[1]];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
@@ -248,7 +252,7 @@ export class RollerballRules extends ChessRules {
       if (!multiStep[str]) oneStep.push(V.DictBishopSteps[str]);
     });
     const c = this.turn;
-    let moves = super.getSlideNJumpMoves([x, y], oneStep, "oneStep");
+    let moves = super.getSlideNJumpMoves([x, y], oneStep, 1);
     for (let step of Object.values(multiStep)) {
       let [i, j] = [x + step[0], y + step[1]];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
@@ -345,7 +349,7 @@ export class RollerballRules extends ChessRules {
           ? [ [forward, -1], [forward, 0], [forward, 1] ]
           : [ [-1, forward], [0, forward], [1, forward] ];
       return (
-        super.isAttackedBySlideNJump([x, y], color, V.PAWN, steps, "oneStep")
+        super.isAttackedBySlideNJump([x, y], color, V.PAWN, steps, 1)
       );
     }
     // In a corner: can be attacked by one square only
@@ -359,7 +363,7 @@ export class RollerballRules extends ChessRules {
       else step = [-1, 0];
     }
     return (
-      super.isAttackedBySlideNJump([x, y], color, V.PAWN, [step], "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.PAWN, [step], 1)
     );
   }
 
@@ -376,7 +380,7 @@ export class RollerballRules extends ChessRules {
     if (y >= 5) multiStep.push([-1, 0]);
     else oneStep.push([-1, 0]);
     if (
-      super.isAttackedBySlideNJump([x, y], color, V.ROOK, oneStep, "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.ROOK, oneStep, 1)
     ) {
       return true;
     }
@@ -444,7 +448,7 @@ export class RollerballRules extends ChessRules {
       if (!multiStep[str]) oneStep.push(V.DictBishopSteps[str]);
     });
     if (
-      super.isAttackedBySlideNJump([x, y], color, V.BISHOP, oneStep, "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.BISHOP, oneStep, 1)
     ) {
       return true;
     }

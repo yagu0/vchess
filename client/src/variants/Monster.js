@@ -3,21 +3,53 @@ import { randInt } from "@/utils/alea";
 
 export class MonsterRules extends ChessRules {
 
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Random",
+          defaut: false,
+          variable: "random"
+        }
+      ],
+      select: [
+        {
+          label: "Number of pawns",
+          variable: "pawnsCount",
+          defaut: 4,
+          options: [
+            { label: "Two", value: 2 },
+            { label: "Four", value: 4 },
+            { label: "Six", value: 6 }
+          ]
+        }
+      ]
+    };
+  }
+
+  static AbbreviateOptions(opts) {
+    return opts["pawnsCount"];
+  }
+
   static IsGoodFlags(flags) {
     // Only black can castle
     return !!flags.match(/^[a-z]{2,2}$/);
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 2) randomness--;
-    const fen = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const baseFen = ChessRules.GenRandInitFen(
+      { randomness: (options.random ? 1 : 0) });
+    let pawnsLine = "";
+    switch (options.pawnsCount) {
+      case 2: pawnsLine = "3PP3"; break;
+      case 4: pawnsLine = "2PPPP2"; break;
+      case 6: pawnsLine = "1PPPPPP1"; break;
+    }
     return (
       // 26 first chars are 6 rows + 6 slashes
-      fen.substr(0, 26)
+      baseFen.substr(0, 26) + pawnsLine + "/4K3 w 0 " +
       // En passant available, and "half-castle"
-      .concat("1PPPPPP1/4K3 w 0 ")
-      .concat(fen.substr(-6, 2))
-      .concat(" -")
+      baseFen.substr(-6, 2) + " -"
     );
   }
 
@@ -40,10 +72,7 @@ export class MonsterRules extends ChessRules {
     if (this.getColor(x, y) == 'b') return super.getPotentialKingMoves([x, y]);
     // White doesn't castle:
     return this.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttacked() {

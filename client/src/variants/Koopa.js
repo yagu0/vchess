@@ -216,9 +216,7 @@ export class KoopaRules extends ChessRules {
   getPotentialKingMoves(sq) {
     return (
       this.getSlideNJumpMoves(
-        sq,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-        "oneStep"
+        sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1
       ).concat(super.getCastleMoves(sq, null, true, ['r']))
     );
   }

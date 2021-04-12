@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class ApocalypseRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},

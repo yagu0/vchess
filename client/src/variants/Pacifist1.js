@@ -154,21 +154,9 @@ export class Pacifist1Rules extends ChessRules {
     return moves;
   }
 
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    let moves = [];
-    outerLoop: for (let loop = 0; loop < steps.length; loop++) {
-      const step = steps[loop];
-      let i = x + step[0];
-      let j = y + step[1];
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep) continue outerLoop;
-        i += step[0];
-        j += step[1];
-      }
-      // No captures
-    }
-    return moves;
+  canTake() {
+    // No captures
+    return false;
   }
 
   underCheck(color) {

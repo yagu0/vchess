@@ -34,16 +34,14 @@ export class AlapoRules extends ChessRules {
   }
 
   getPotentialMinirookMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.ROOK], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.ROOK], 1);
   }
   getPotentialMinibishopMoves(sq) {
-    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
   getPotentialMiniqueenMoves(sq) {
-    return (
-      super.getSlideNJumpMoves(
-        sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep")
-    );
+    return super.getSlideNJumpMoves(
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialMovesFrom(sq) {
@@ -68,8 +66,8 @@ export class AlapoRules extends ChessRules {
     return "Alapo/" + b + suffix;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rbqqbr/tcssct/6/6/TCSSCT/RBQQBR w 0";
 
     const piece2pawn = {
@@ -81,7 +79,7 @@ export class AlapoRules extends ChessRules {
     let pieces = { w: new Array(6), b: new Array(6) };
     // Shuffle pieces on first (and last rank if randomness == 2)
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }

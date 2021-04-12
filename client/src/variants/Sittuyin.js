@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class SittuyinRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -260,18 +264,11 @@ export class SittuyinRules extends ChessRules {
   getPotentialBishopMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP].concat([ [forward, 0] ]),
-      "oneStep"
-    );
+      sq, V.steps[V.BISHOP].concat([ [forward, 0] ]), 1);
   }
 
   getPotentialQueenMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+    return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
 
   getAllValidMoves() {
@@ -289,22 +286,12 @@ export class SittuyinRules extends ChessRules {
   isAttackedByBishop(sq, color) {
     const forward = (this.turn == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.BISHOP,
-      V.steps[V.BISHOP].concat([ [forward, 0] ]),
-      "oneStep"
-    );
+      sq, color, V.BISHOP, V.steps[V.BISHOP].concat([ [forward, 0] ]), 1);
   }
 
   isAttackedByQueen(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.QUEEN,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+      sq, color, V.QUEEN, V.steps[V.BISHOP], 1);
   }
 
   underCheck(color) {

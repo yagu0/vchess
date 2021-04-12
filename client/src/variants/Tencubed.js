@@ -60,8 +60,6 @@ export class TencubedRules extends ChessRules {
 
   static get steps() {
     return Object.assign(
-      {},
-      ChessRules.steps,
       {
         w: [
           [-3, -1],
@@ -91,12 +89,13 @@ export class TencubedRules extends ChessRules {
           [2, 0],
           [0, 2]
         ]
-      }
+      },
+      ChessRules.steps,
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "2cwamwc2/1rnbqkbnr1/pppppppppp/91/91/" +
         "91/91/PPPPPPPPPP/1RNBQKBNR1/2CWAMWC2/ " +
@@ -104,7 +103,7 @@ export class TencubedRules extends ChessRules {
       );
     }
 
-    const baseFen = V.ParseFen(ChessRules.GenRandInitFen(randomness));
+    const baseFen = V.ParseFen(ChessRules.GenRandInitFen(options));
     const positionParts = baseFen.position.split("/");
     const bFen = (
       "1" + positionParts[0] +
@@ -164,22 +163,22 @@ export class TencubedRules extends ChessRules {
 
   getPotentialMarshallMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialArchbishopMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialChampionMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.CHAMPION], 1);
   }
 
   getPotentialWizardMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.WIZARD], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.WIZARD], 1);
   }
 
   isAttacked(sq, color) {
@@ -195,41 +194,28 @@ export class TencubedRules extends ChessRules {
   isAttackedByMarshall(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.MARSHALL,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+      this.isAttackedBySlideNJump(sq, color, V.MARSHALL, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByArchbishop(sq, color) {
     return (
-      this.isAttackedBySlideNJump(sq, color, V.ARCHBISHOP, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.ARCHBISHOP,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+        sq, color, V.ARCHBISHOP, V.steps[V.BISHOP])
+      ||
+      this.isAttackedBySlideNJump(
+        sq, color, V.ARCHBISHOP, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByWizard(sq, color) {
-    return (
-      this.isAttackedBySlideNJump(
-        sq, color, V.WIZARD, V.steps[V.WIZARD], "oneStep")
-    );
+    return this.isAttackedBySlideNJump(
+      sq, color, V.WIZARD, V.steps[V.WIZARD], 1);
   }
 
   isAttackedByChampion(sq, color) {
-    return (
-      this.isAttackedBySlideNJump(
-        sq, color, V.CHAMPION, V.steps[V.CHAMPION], "oneStep")
-    );
+    return this.isAttackedBySlideNJump(
+      sq, color, V.CHAMPION, V.steps[V.CHAMPION], 1);
   }
 
   static get SEARCH_DEPTH() {
@@ -238,9 +224,13 @@ export class TencubedRules extends ChessRules {
 
   static get VALUES() {
     return Object.assign(
-      {},
-      ChessRules.VALUES,
-      { c: 4, w: 3, a: 6, m: 8 }
+      {
+        c: 4,
+        w: 3,
+        a: 6,
+        m: 8
+      },
+      ChessRules.VALUES
     );
   }
 

@@ -2,6 +2,18 @@ import { ChessRules } from "@/base_rules";
 
 export class MaharajahRules extends ChessRules {
 
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Random",
+          defaut: false,
+          variable: "random"
+        }
+      ]
+    };
+  }
+
   static get HasEnpassant() {
     return false;
   }
@@ -84,9 +96,10 @@ export class MaharajahRules extends ChessRules {
     }
   }
 
-  static GenRandInitFen(randomness) {
-    const sFen = ChessRules.GenRandInitFen(Math.max(randomness, 1));
-    return "3mm3/8/" + sFen.substring(18, 50);
+  static GenRandInitFen(options) {
+    const baseFen = ChessRules.GenRandInitFen(
+      { randomness: (options.random ? 1 : 0) });
+    return "3mm3/8/" + baseFen.substring(18, 50);
   }
 
   getFlagsFen() {
@@ -108,7 +121,7 @@ export class MaharajahRules extends ChessRules {
     let moves = super.getPotentialQueenMoves(sq);
     moves = moves.concat(super.getPotentialKnightMoves(sq));
     const otherJumpMoves =
-      super.getSlideNJumpMoves(sq, V.M_EXTRA_STEPS, "oneStep")
+      super.getSlideNJumpMoves(sq, V.M_EXTRA_STEPS, 1)
       .filter(m =>
         moves.every(mv => mv.end.x != m.end.x || mv.end.y != m.end.y));
     return moves.concat(otherJumpMoves);

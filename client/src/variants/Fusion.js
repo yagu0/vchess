@@ -185,7 +185,7 @@ export class FusionRules extends ChessRules {
             ]
           })
         );
-        if (!!oneStep) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -326,32 +326,29 @@ export class FusionRules extends ChessRules {
   isAttackedByBN(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.BN, V.steps[V.BISHOP]) ||
-      this.isAttackedBySlideNJump(
-        sq, color, V.BN, V.steps[V.KNIGHT], "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.BN, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByRN(sq, color) {
     return (
       this.isAttackedBySlideNJump(sq, color, V.RN, V.steps[V.ROOK]) ||
-      this.isAttackedBySlideNJump(
-        sq, color, V.RN, V.steps[V.KNIGHT], "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.RN, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByKN(sq, color) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     return (
-      this.isAttackedBySlideNJump(sq, color, V.KN, steps, "oneStep") ||
-      this.isAttackedBySlideNJump(
-        sq, color, V.KN, V.steps[V.KNIGHT], "oneStep")
+      this.isAttackedBySlideNJump(sq, color, V.KN, steps, 1) ||
+      this.isAttackedBySlideNJump(sq, color, V.KN, V.steps[V.KNIGHT], 1)
     );
   }
 
   isAttackedByKB(sq, color) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     return (
-      this.isAttackedBySlideNJump(sq, color, V.KB, steps, "oneStep") ||
+      this.isAttackedBySlideNJump(sq, color, V.KB, steps, 1) ||
       this.isAttackedBySlideNJump(sq, color, V.KB, V.steps[V.BISHOP])
     );
   }
@@ -359,7 +356,7 @@ export class FusionRules extends ChessRules {
   isAttackedByKR(sq, color) {
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
     return (
-      this.isAttackedBySlideNJump(sq, color, V.KR, steps, "oneStep") ||
+      this.isAttackedBySlideNJump(sq, color, V.KR, steps, 1) ||
       this.isAttackedBySlideNJump(sq, color, V.KR, V.steps[V.ROOK])
     );
   }

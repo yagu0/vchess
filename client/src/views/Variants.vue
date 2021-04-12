@@ -16,7 +16,7 @@ main
         h3 {{ st.tr["vt" + g] }}
         p {{ st.tr["vg" + g] }}
         ul
-          li(v-for="v of variantGroup.get(g)")
+          li(v-for="v of sortVariants(variantGroup.get(g))")
             a(:href="getLink(v)") {{ v.display }}
             | &nbsp&ndash;&nbsp;
             | {{ st.tr[v.description] }}
@@ -59,6 +59,9 @@ export default {
     }
   },
   methods: {
+    sortVariants: function(group) {
+      return group.sort( (v1, v2) => v1.name.localeCompare(v2.name) );
+    },
     // oninput listener, required for smartphones:
     setCurPrefix: function(e) {
       this.curPrefix = e.target.value;

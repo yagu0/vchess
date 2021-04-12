@@ -29,8 +29,8 @@ export class Refusal1Rules extends ChessRules {
   // NOTE: with this variant's special rule,
   // some extra repetitions could be detected... TODO (...)
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).slice(0, -6)  + "- null";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options).slice(0, -6)  + "- null";
   }
 
   setOtherVariables(fen) {

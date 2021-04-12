@@ -35,8 +35,8 @@ export class CircularRules extends ChessRules {
     this.pawnFlags = flags;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return "8/8/pppppppp/rnbqkbnr/8/8/PPPPPPPP/RNBQKBNR " +
         "w 0 1111111111111111";
     }
@@ -44,7 +44,7 @@ export class CircularRules extends ChessRules {
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }
@@ -92,7 +92,7 @@ export class CircularRules extends ChessRules {
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep !== undefined) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i = V.ComputeX(i + step[0]);
         j += step[1];
       }

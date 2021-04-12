@@ -167,11 +167,11 @@ export class EightpiecesRules extends ChessRules {
     }
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "jfsqkbnr/pppppppp/8/8/8/8/PPPPPPPP/JDSQKBNR w 0 ahah - -";
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     const fenParts = baseFen.split(' ');
     const posParts = fenParts[0].split('/');
 
@@ -671,10 +671,7 @@ export class EightpiecesRules extends ChessRules {
 
   getPotentialKingMoves(sq) {
     const moves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
     return (
       this.subTurn == 1
         ? moves.concat(this.getCastleMoves(sq))

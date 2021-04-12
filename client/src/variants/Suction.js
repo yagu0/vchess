@@ -149,9 +149,9 @@ export class SuctionRules extends ChessRules {
     });
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add empty cmove:
-    return SuicideRules.GenRandInitFen(randomness) + " -";
+    return SuicideRules.GenRandInitFen(options) + " -";
   }
 
   getCmoveFen() {

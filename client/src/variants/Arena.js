@@ -2,6 +2,13 @@ import { ChessRules } from "@/base_rules";
 
 export class ArenaRules extends ChessRules {
 
+  static get Lines() {
+    return [
+      [[2, 0], [2, 8]],
+      [[6, 0], [6, 8]]
+    ];
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -45,8 +52,8 @@ export class ArenaRules extends ChessRules {
 
   scanKings() {}
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).slice(0, -6) + "-";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options).slice(0, -6) + "-";
   }
 
   static InArena(x) {
@@ -69,27 +76,13 @@ export class ArenaRules extends ChessRules {
   }
 
   getPotentialQueenMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    ).filter(m => {
-      // Filter out moves longer than 3 squares
-      return Math.max(
-        Math.abs(m.end.x - m.start.x),
-        Math.abs(m.end.y - m.start.y)) <= 3;
-    });
+    return super.getSlideNJumpMoves(
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 3);
   }
 
   getPotentialKingMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    ).filter(m => {
-      // Filter out moves longer than 3 squares
-      return Math.max(
-        Math.abs(m.end.x - m.start.x),
-        Math.abs(m.end.y - m.start.y)) <= 3;
-    });
+    return super.getSlideNJumpMoves(
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 3);
   }
 
   getCheckSquares() {

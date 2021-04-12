@@ -46,7 +46,7 @@ export class RelayupRules extends ChessRules {
       else steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
       const extraMoves =
         super.getSlideNJumpMoves(
-          sq, steps, oneStep || [V.KNIGHT, V.KING].includes(pg))
+          sq, steps, (oneStep || [V.KNIGHT, V.KING].includes(pg) ? 1 : null))
         .filter(m => {
           return (
             (piece != V.PAWN || m.end.x != lastRank) &&

@@ -340,6 +340,7 @@ export class AvalancheRules extends ChessRules {
       this.play(moves[3]); //HACK... 3 = queen index
       const res = this.getComputerMove();
       this.undo(moves[3]);
+      if (Array.isArray(res)) return [moves[3]].concat(res);
       return [moves[3], res];
     }
     // subTurn == 1 (necessarily)

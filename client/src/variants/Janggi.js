@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class JanggiRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get Monochrome() {
     return true;
   }
@@ -193,7 +197,7 @@ export class JanggiRules extends ChessRules {
       if (y == 3) steps.push([shiftX, 1]);
       else if (y == 5) steps.push([shiftX, -1]);
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   knightStepsFromRookStep(step) {
@@ -211,7 +215,7 @@ export class JanggiRules extends ChessRules {
           this.knightStepsFromRookStep(rookStep));
       }
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   elephantStepsFromRookStep(step) {
@@ -234,7 +238,7 @@ export class JanggiRules extends ChessRules {
         }
       }
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   palacePeopleMoves([x, y]) {
@@ -278,7 +282,7 @@ export class JanggiRules extends ChessRules {
       // At the middle: all directions available
       Array.prototype.push.apply(steps, ChessRules.steps[V.BISHOP]);
     }
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   getPotentialAdvisorMoves(sq) {
@@ -310,9 +314,7 @@ export class JanggiRules extends ChessRules {
       // In the middle of a palace: 4 one-diagonal-step to check
       Array.prototype.push.apply(
         moves,
-        super.getSlideNJumpMoves([x, y],
-                                 ChessRules.steps[V.BISHOP],
-                                 "oneStep")
+        super.getSlideNJumpMoves([x, y], ChessRules.steps[V.BISHOP], 1)
       );
     }
     return moves;
@@ -391,7 +393,7 @@ export class JanggiRules extends ChessRules {
   isAttackedByPawn([x, y], color) {
     const shiftX = (color == 'w' ? 1 : -1); //shift from king
     if (super.isAttackedBySlideNJump(
-      [x, y], color, V.PAWN, [[shiftX, 0], [0, 1], [0, -1]], "oneStep")
+      [x, y], color, V.PAWN, [[shiftX, 0], [0, 1], [0, -1]], 1)
     ) {
       return true;
     }
@@ -428,7 +430,7 @@ export class JanggiRules extends ChessRules {
       }
     }
     return (
-      super.isAttackedBySlideNJump([x, y], color, V.KNIGHT, steps, "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.KNIGHT, steps, 1)
     );
   }
 
@@ -450,7 +452,7 @@ export class JanggiRules extends ChessRules {
       }
     }
     return (
-      super.isAttackedBySlideNJump([x, y], color, V.ELEPHANT, steps, "oneStep")
+      super.isAttackedBySlideNJump([x, y], color, V.ELEPHANT, steps, 1)
     );
   }
 

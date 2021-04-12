@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class Avalam2Rules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }

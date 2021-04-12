@@ -40,7 +40,7 @@ export const ChessRules = class ChessRules {
         {
           label: "Randomness",
           variable: "randomness",
-          defaut: 2,
+          defaut: 0,
           options: [
             { label: "Deterministic", value: 0 },
             { label: "Symmetric random", value: 1 },
@@ -56,6 +56,10 @@ export const ChessRules = class ChessRules {
     return "";
     // Randomness is a special option: (TODO?)
     //return "R" + opts.randomness;
+  }
+
+  static IsValidOptions(opts) {
+    return true;
   }
 
   // Some variants don't have flags:
@@ -368,8 +372,7 @@ export const ChessRules = class ChessRules {
 
   // Setup the initial random (asymmetric) position
   static GenRandInitFen(options) {
-    const randomness = parseInt(options.randomness, 10);
-    if (!randomness || randomness == 0)
+    if (!options.randomness || options.randomness == 0)
       // Deterministic:
       return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
@@ -746,14 +749,15 @@ export const ChessRules = class ChessRules {
 
   // Generic method to find possible moves of non-pawn pieces:
   // "sliding or jumping"
-  getSlideNJumpMoves([x, y], steps, oneStep) {
+  getSlideNJumpMoves([x, y], steps, nbSteps) {
     let moves = [];
     outerLoop: for (let step of steps) {
       let i = x + step[0];
       let j = y + step[1];
+      let stepCounter = 0;
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (!!oneStep) continue outerLoop;
+        if (nbSteps && ++stepCounter >= nbSteps) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -895,7 +899,7 @@ export const ChessRules = class ChessRules {
 
   // What are the knight moves from square x,y ?
   getPotentialKnightMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1);
   }
 
   // What are the bishop moves from square x,y ?
@@ -906,19 +910,14 @@ export const ChessRules = class ChessRules {
   // What are the queen moves from square x,y ?
   getPotentialQueenMoves(sq) {
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP])
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]));
   }
 
   // What are the king moves from square x,y ?
   getPotentialKingMoves(sq) {
     // Initialize with normal moves
     let moves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
     if (V.HasCastle && this.castleFlags[this.turn].some(v => v < V.size.y))
       moves = moves.concat(this.getCastleMoves(sq));
     return moves;
@@ -1102,13 +1101,18 @@ export const ChessRules = class ChessRules {
 
   // Generic method for non-pawn pieces ("sliding or jumping"):
   // is x,y attacked by a piece of given color ?
-  isAttackedBySlideNJump([x, y], color, piece, steps, oneStep) {
+  isAttackedBySlideNJump([x, y], color, piece, steps, nbSteps) {
     for (let step of steps) {
       let rx = x + step[0],
           ry = y + step[1];
-      while (V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY && !oneStep) {
+      let stepCounter = 1;
+      while (
+        V.OnBoard(rx, ry) && this.board[rx][ry] == V.EMPTY &&
+        (!nbSteps || stepCounter < nbSteps)
+      ) {
         rx += step[0];
         ry += step[1];
+        stepCounter++;
       }
       if (
         V.OnBoard(rx, ry) &&

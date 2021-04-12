@@ -1,50 +1,107 @@
 p.boxed
-  | Les pièces noires sont remplacées par une nouvelle équipe, dont
-  | la plupart des pièces tendent à évoluer sur une seule couleur.
+  | Les pièces noires et blanches sont remplacées par des armées différentes.
 
 p.
-  Les pions et le roi noirs conservent leur déplacements habituels, mais ce
-  n'est pas le cas des autres pièces :
+  Les pions et rois se déplacent comme d'habitude, mais en général pas
+  les autres pièces. En effet, avant le début de la partie vous devez
+  sélectionner deux armées, définissant de nouveaux déplacements pour les
+  "tours", "cavaliers", "fous" et "dames".
+
+p Les mouvements des pièces sont décrits en utilisant ces pièces élmentaires :
 ul
-  li Tour = fou + dabbabah (D),
-  li Cavalier = wazir + alfil = "phoenix" (H),
-  li Fou = ferz + alfil + dabbabah (A),
-  li Dame = fou + cavalier = "princesse" (S).
+  li Dabbabah = saute deux cases orthogonalement
+  li Alfil = saute deux cases en diagonale
+  li Wazir = une case orthogonalement
+  li Ferz = une case en diagonale
+  li Three leaper (L3) = saute trois cases orthogonalement
+  li Narrow knight = cavalier sans "coups latéraux 2+1"
+
 p.
-  Le Ferz et le Wazir se déplacent respectivement comme un fou et une tour
-  mais d'une seule case. L'Alfil et le Dabbabah se déplacent respectivement
-  de deux cases comme un fou et une tour,
-  en sautant éventuellement par dessus une pièce.
+  Les pions peuvent se promouvoir en une pièce de n'importe
+  laquelle des armées présentes.
+
+h3 Les Tabasseurs Unicolores
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bd.svg")
+  img(src="/images/pieces/Cwda/ww.svg")
+  img(src="/images/pieces/Cwda/bf.svg")
+  img(src="/images/pieces/Cwda/wc.svg")
+
+ul
+  li Tour = fou + dabbabah = "bede" (D),
+  li Cavalier = wazir + alfil = "gaufre" (W),
+  li Fou = ferz + alfil + dabbabah = "fad" (F),
+  li Dame = fou + cavalier = "cardinal" (C).
 
 figure.diagram-container
   .diagram.diag12
-    | fen:8/8/8/3d4/8/8/8/8 a8,b7,c6,e4,f3,g2,h1,c4,b3,a2,e6,f7,g8,f5,d3,b5,d7:
+    | fen:8/8/8/3D4/8/8/8/8 a8,b7,c6,e4,f3,g2,h1,c4,b3,a2,e6,f7,g8,f5,d3,b5,d7:
   .diagram.diag22
-    | fen:8/8/8/4h3/8/8/8/8 e6,f5,e4,d5,c7,g7,g3,c3:
-  figcaption.
-    Coups de la tour noire à gauche, et du cavalier noir à droite.
+    | fen:8/8/8/4w3/8/8/8/8 e6,f5,e4,d5,c7,g7,g3,c3:
+  figcaption Coups du Bede à gauche, et de la Gaufre à droite.
+
+p.
+  Après le grand roque, roi et tour arrivent respectivement en b1/b8 et c1/c8
+  afin que la tour reste sur la même couleur.
+
+h3 Les Chevaliers Fous
+
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bg.svg")
+  img(src="/images/pieces/Cwda/wi.svg")
+  img(src="/images/pieces/Cwda/bt.svg")
+  img(src="/images/pieces/Cwda/wl.svg")
+
+ul
+  li.
+    Tour = tour vers l'avant et latéralement + roi vers l'arrière =
+    "tour chargeante" (G),
+  li Cavalier = narrow knight + ferz = "fibnif" (I),
+  li.
+    Fou = cavalier vers l'avant + roi latéralement et vers l'arrière =
+    "cavalier chargeant" (T),
+  li.
+    Dame = tour vers l'avant et latéralement + cavalier vers l'avant + roi =
+    "colonel" (L).
 
 figure.diagram-container
   .diagram.diag12
-    | fen:8/8/8/3a4/8/8/8/8 c6,b7,e6,f7,e4,f3,c4,b3,d7,f5,d3,b5:
+    | fen:8/8/8/3i4/8/8/8/8 c7,c3,e7,e3,c4,c6,e6,e4:
   .diagram.diag22
-    | fen:8/8/8/4s3/8/8/8/8 a1,b2,c3,d4,f6,g7,h8,b8,c7,d6,f4,g3,h2,c6,d7,f7,g6,g4,f3,d3,c4:
-  figcaption.
-    Coups du fou noir à gauche, et de la dame noire à droite.
+    | fen:8/8/8/4T3/8/8/8/8 c6,d7,f7,g6,d5,f5,d4,e4,f4:
+  figcaption Coups du Fibnif à gauche, et du Cavalier chargeant à droite.
 
-p.
-  Les pions peuvent être promus en n'importe quelle pièce (incluant celles
-  de l'autre équipe).
+h3 Les Recrues Remarquables
 
-p.
-  Après le grand roque, le roi noir arrive en b8 et la tour a8 vient en c8,
-  afin de rester sur la même couleur.
+figure.showPieces.text-center
+  img(src="/images/pieces/Cwda/bs.svg")
+  img(src="/images/pieces/Cwda/wy.svg")
+  img(src="/images/pieces/Cwda/bh.svg")
+  img(src="/images/pieces/Cwda/wo.svg")
+
+ul
+  li Tour = tour limitée à 4 cases = "tour courte" (S),
+  li Cavalier = dabbabah + wazir = "tour boisée" (Y),
+  li Fou = dabbabah + ferz + L3 = "demi-canard" (H),
+  li Dame = tour + cavalier = "chancelier" (O).
+
+figure.diagram-container
+  .diagram.diag12
+    | fen:8/8/8/3y4/8/8/8/8 d3,b5,d7,f5,c5,d6,e5,d4:
+  .diagram.diag22
+    | fen:8/8/8/4H3/8/8/8/8 c5,e7,g5,e3,b5,e8,h5,e2,d4,d6,f6,f4:
+  figcaption Coups de la Tour boisée à gauche, et du Demi-canard à droite.
+
+h3 Armée Fide
+
+p Les pièces d'échecs standard.
 
 h3 Source
 
 p
-  a(href="https://www.chessvariants.com/d.betza/chessvar/dan/colclob.html")
-    | Les "tabasseurs unicolores"
-    | &nbsp;sur chessvariants.com.
+  a(href="https://www.chessvariants.com/unequal.dir/cwda.html")
+    | Échecs avec armées différentes
+  | &nbsp;sur chessvariants.com.
 
 p Inventeur : Ralph Betza (1996)

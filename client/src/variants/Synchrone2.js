@@ -47,8 +47,8 @@ export class Synchrone2Rules extends Synchrone1Rules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    const res = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const res = ChessRules.GenRandInitFen(options);
     // Add initFen field:
     return res.slice(0, -1) + res.split(' ')[0] + " -";
   }

@@ -22,7 +22,7 @@ export class CylinderRules extends ChessRules {
       let j = V.ComputeY(y + step[1]);
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep !== undefined) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j = V.ComputeY(j + step[1]);
       }

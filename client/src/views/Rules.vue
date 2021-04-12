@@ -8,9 +8,9 @@ main
     .card
       label.modal-close(for="modalOptions")
       h3 {{ st.tr["Options"] }}
-      fieldset(v-if="!!V")
-        div(v-for="select of V.Options.select")
-          label(:for="select.variable + '_opt'") {{ st.tr[select.label] }} *
+      fieldset(v-if="!!V && V.Options")
+        div(v-for="select of V.Options.select || []")
+          label(:for="select.variable + '_opt'") {{ st.tr[select.label] }}
           select(:id="select.variable + '_opt'")
             option(
               v-for="o of select.options"
@@ -18,8 +18,8 @@ main
               :selected="o.value == select.defaut"
             )
               | {{ st.tr[o.label] }}
-        div(v-for="check of V.Options.check")
-          label(:for="check.variable + '_opt'") {{ st.tr[check.label] }} *
+        div(v-for="check of V.Options.check || []")
+          label(:for="check.variable + '_opt'") {{ st.tr[check.label] }}
           input(
             :id="check.variable + '_opt'"
             type="checkbox"
@@ -150,13 +150,17 @@ export default {
     setOptions: function() {
       let options = {};
       // Get/set options variables / TODO: v-model?!
-      for (const check of this.V.Options.check) {
+      for (const check of this.V.Options.check || []) {
         const elt = document.getElementById(check.variable + "_opt");
         if (elt.checked) options[check.variable] = true;
       }
-      for (const select of this.V.Options.select) {
+      for (const select of this.V.Options.select || []) {
         const elt = document.getElementById(select.variable + "_opt");
-        options[select.variable] = elt.value;
+        options[select.variable] = parseInt(elt.value, 10) || elt.value;
+      }
+      if (!V.IsValidOptions(options)) {
+        alert(this.st.tr["Invalid options"]);
+        return;
       }
       document.getElementById("modalOptions").checked = false;
       if (this.whatNext == "analyze") this.gotoAnalyze(options);
@@ -186,12 +190,12 @@ export default {
             CompgameStorage.remove(game.vname);
             game = null;
           }
-          if (!!game || Object.keys(V.Options).length == 0) next(game);
+          if (!!game || !V.Options) next(game);
           else askOptions();
         });
       }
       else {
-        if (Object.keys(V.Options).length == 0) next();
+        if (!V.Options) next();
         else askOptions();
       }
     },
@@ -206,7 +210,7 @@ export default {
         CompgameStorage.remove(this.gameInfo.vname);
     },
     gotoAnalyze: function(options) {
-      if (!options && Object.keys(V.Options).length > 0) {
+      if (!options && V.Options) {
         this.whatNext = "analyze";
         doClick("modalOptions");
       }

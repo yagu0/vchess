@@ -2,6 +2,11 @@ import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class ParachuteRules extends ChessRules {
 
+  static get Options() {
+    // TODO: later, allow variant, placing piece giving check maybe...
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }

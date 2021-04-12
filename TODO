@@ -6,9 +6,18 @@ If new live game starts in background, "new game" notify OK but not first move.
 Will be used for variants with custom non-rectangular board (Hex, at least)
 Or, with other board shapes (see greenchess.net for example)
 
-Merge variants 1, 2 (3) into one with sub-variant selection when starting a game (New Game + vs engine + analyse)
-E.g. Checkered 1 & 2 into one, and so on.
-Need additional field in variant code... in a generic way (radiobutton or select or checkbox?)
+debug import game + load
+
+TODEBUG: Avalanche computer play from here
+game.fen = "r2q1bnr/3pp3/n3k1p1/6Pp/3p1B1P/p5R1/1p6/4K1NR w 26 ihii 0";
+game.fenStart = "r2q1bnr/3pp3/n3k1p1/6Pp/3p1B1P/p5R1/1p6/4K1NR w 26 ihii 0";
+game.mycolor = 'w';
+Bd6,b1 then black promotes and win, but UI freezes.
+
+Merge Orda + Empire + Hoppelpoppel + Newzealand getSlideNJumpMoves() into base_rules.js
+=> allow to simplify getPawnMoves in RoyalRace (and some getXMoves in Shatranj)
+
+Option "free placement" in Hidden
 
 #New variants:
 Chessplode
@@ -16,7 +25,6 @@ Tablut
 
 https://brainking.com/fr/GameRules?tp=128 Massacre Chess
 
-CWDA : need game options (also useful at least for Monster)
 PizzaKings https://www.chessvariants.com/unequal.dir/pizza-kings.html
 https://en.m.wikipedia.org/wiki/Chess_with_different_armies#Pizza_Kings%5B11%5D_(John_Lawson)
 

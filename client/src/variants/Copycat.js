@@ -8,7 +8,6 @@ export class CopycatRules extends ChessRules {
     const piece = this.getPiece(x,y);
     if ([V.PAWN, V.KING].includes(piece)) return moves;
     const color = this.turn;
-    const oneStep = (piece == V.PAWN);
     let movements = {},
         steps = [];
     if (piece == V.QUEEN) steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
@@ -39,8 +38,9 @@ export class CopycatRules extends ChessRules {
         (piece != V.QUEEN && type != piece) ||
         (piece == V.QUEEN && type == V.KNIGHT)
       ) {
+        const nbSteps = (type == V.KNIGHT ? 1 : undefined);
         Array.prototype.push.apply(moves,
-          this.getSlideNJumpMoves([x, y], V.steps[type], type == V.KNIGHT));
+          super.getSlideNJumpMoves([x, y], V.steps[type], nbSteps));
       }
     });
     return moves;

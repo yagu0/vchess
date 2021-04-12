@@ -33,10 +33,9 @@ export class PocketknightRules extends ChessRules {
     this.subTurn = 1;
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Add 2 knight flags
-    return ChessRules.GenRandInitFen(randomness)
-      .slice(0, -2) + "11 -";
+    return ChessRules.GenRandInitFen(options).slice(0, -2) + "11 -";
   }
 
   getFlagsFen() {

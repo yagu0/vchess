@@ -3,6 +3,10 @@ import { ArrayFun } from "@/utils/array";
 
 export class RugbyRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -29,7 +33,7 @@ export class RugbyRules extends ChessRules {
       this.turn == 'w'
         ? [ [-1,-1], [-1,1], [0,1], [0,-1], [1,-1], [1,0], [1,1] ]
         : [ [1,-1], [1,1], [0,1], [0,-1], [-1,-1], [-1,0], [-1,1] ];
-    let addMoves = this.getSlideNJumpMoves(sq, steps, "oneStep");
+    let addMoves = this.getSlideNJumpMoves(sq, steps, 1);
     return moves.concat(addMoves.filter(m => m.vanish.length == 1));
   }
 

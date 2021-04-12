@@ -20,9 +20,9 @@ export class ClorangeRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // Capturing and non-capturing reserves:
-    return ChessRules.GenRandInitFen(randomness) + " 00000000000000000000";
+    return ChessRules.GenRandInitFen(options) + " 00000000000000000000";
   }
 
   getFen() {
@@ -195,22 +195,11 @@ export class ClorangeRules extends ChessRules {
     return moves;
   }
 
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    let moves = [];
-    const canTake = ChessRules.PIECES.includes(this.getPiece(x, y));
-    outerLoop: for (let step of steps) {
-      let i = x + step[0];
-      let j = y + step[1];
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep) continue outerLoop;
-        i += step[0];
-        j += step[1];
-      }
-      if (V.OnBoard(i, j) && canTake && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
-    }
-    return moves;
+  canTake([x1, y1], [x2, y2]) {
+    return (
+      this.getColor(x1, y1) !== this.getColor(x2, y2) &&
+      ChessRules.PIECES.includes(this.getPiece(x1, y1))
+    );
   }
 
   getAllValidMoves() {

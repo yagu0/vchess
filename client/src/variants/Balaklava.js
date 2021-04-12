@@ -46,11 +46,10 @@ export class BalaklavaRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen(options) {
     // No collision between 'n' and castle flags, so next replacement is fine
     return (
-      ChessRules.GenRandInitFen(randomness)
-        .replace(/n/g, 'm').replace(/N/g, 'M')
+      ChessRules.GenRandInitFen(options).replace(/n/g, 'm').replace(/N/g, 'M')
     );
   }
 
@@ -90,7 +89,7 @@ export class BalaklavaRules extends ChessRules {
   }
 
   getPotentialMammothMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.MAMMOTH], "oneStep");
+    return this.getSlideNJumpMoves(sq, V.steps[V.MAMMOTH], 1);
   }
 
   isAttacked(sq, color) {
@@ -101,10 +100,8 @@ export class BalaklavaRules extends ChessRules {
   }
 
   isAttackedByMammoth(sq, color) {
-    return (
-      this.isAttackedBySlideNJump(
-        sq, color, V.MAMMOTH, V.steps[V.MAMMOTH], "oneStep")
-    );
+    return this.isAttackedBySlideNJump(
+      sq, color, V.MAMMOTH, V.steps[V.MAMMOTH], 1);
   }
 
   static get SEARCH_DEPTH() {

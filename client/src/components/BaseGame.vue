@@ -167,7 +167,8 @@ export default {
       baseGameDiv.tabIndex = 0;
       baseGameDiv.addEventListener("click", this.focusBg);
       baseGameDiv.addEventListener("keydown", this.handleKeys);
-      baseGameDiv.addEventListener("wheel", this.handleScroll);
+      if (this.st.settings.scrollmove)
+        baseGameDiv.addEventListener("wheel", this.handleScroll);
     }
     document.getElementById("eogDiv")
       .addEventListener("click", processModalClick);
@@ -340,6 +341,7 @@ export default {
         pgn += '[Url "' + params.serverUrl + '/game/' + this.game.id + '"]\n';
       if (!!this.game.cadence)
         pgn += '[Cadence "' + this.game.cadence + '"]\n';
+      pgn += '[Options "' + JSON.stringify(this.game.options) + '"]\n';
       pgn += '\n';
       for (let i = 0; i < this.moves.length; i += 2) {
         if (i > 0) pgn += " ";

@@ -19,8 +19,8 @@ export class DoublearmyRules extends ChessRules {
     return (b[1] == V.COMMONER ? "Doublearmy/" : "") + b;
   }
 
-  static GenRandInitFen(randomness) {
-    const fen = ChessRules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const fen = ChessRules.GenRandInitFen(options);
     const rows = fen.split(" ")[0].split("/");
     return (
       rows[0] + "/" +
@@ -45,10 +45,7 @@ export class DoublearmyRules extends ChessRules {
 
   getPotentialCommonerMoves(sq) {
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttacked(sq, color) {
@@ -60,19 +57,13 @@ export class DoublearmyRules extends ChessRules {
 
   isAttackedByCommoner(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.COMMONER,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, color, V.COMMONER, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   static get VALUES() {
     return Object.assign(
-      {},
-      ChessRules.VALUES,
-      { c: 5 }
+      { c: 5 },
+      ChessRules.VALUES
     );
   }
 

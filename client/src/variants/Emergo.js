@@ -8,6 +8,10 @@ export class EmergoRules extends ChessRules {
   // Lowercase if black controls.
   // Single piece (no prisoners): A@ to L@ (+ lowercase)
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -105,7 +109,7 @@ export class EmergoRules extends ChessRules {
     return { x: 9, y: 9 };
   }
 
-  static GenRandInitFen(randomness) {
+  static GenRandInitFen() {
     return "9/9/9/9/9/9/9/9/9 w 0 12,12";
   }
 

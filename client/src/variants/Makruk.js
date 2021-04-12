@@ -36,13 +36,13 @@ export class MakrukRules extends ChessRules {
     return 'f';
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBKQBNR w 0";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }
@@ -95,18 +95,11 @@ export class MakrukRules extends ChessRules {
   getPotentialBishopMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP].concat([ [forward, 0] ]),
-      "oneStep"
-    );
+      sq, V.steps[V.BISHOP].concat([ [forward, 0] ]), 1);
   }
 
   getPotentialQueenMoves(sq) {
-    return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+    return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1);
   }
 
   isAttacked(sq, color) {
@@ -118,32 +111,17 @@ export class MakrukRules extends ChessRules {
   isAttackedByBishop(sq, color) {
     const forward = (color == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.BISHOP,
-      V.steps[V.BISHOP].concat([ [forward, 0] ]),
-      "oneStep"
-    );
+      sq, color, V.BISHOP, V.steps[V.BISHOP].concat([ [forward, 0] ]), 1);
   }
 
   isAttackedByQueen(sq, color) {
     return this.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.QUEEN,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+      sq, color, V.QUEEN, V.steps[V.BISHOP], 1);
   }
 
   isAttackedByPromoted(sq, color) {
     return super.isAttackedBySlideNJump(
-      sq,
-      color,
-      V.PROMOTED,
-      V.steps[V.BISHOP],
-      "oneStep"
-    );
+      sq, color, V.PROMOTED, V.steps[V.BISHOP], 1);
   }
 
   static get VALUES() {

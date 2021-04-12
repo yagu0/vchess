@@ -2,6 +2,7 @@ import { ChessRules } from "@/base_rules";
 
 export class HoppelpoppelRules extends ChessRules {
 
+  // TODO: merge with base_rules.js (see also Orda, Empire)
   getSlideNJumpMoves_([x, y], steps, oneStep, options) {
     options = options || {};
     let moves = [];
@@ -10,7 +11,7 @@ export class HoppelpoppelRules extends ChessRules {
       let j = y + step[1];
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         if (!options.onlyTake) moves.push(this.getBasicMove([x, y], [i, j]));
-        if (!!oneStep) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -44,21 +45,12 @@ export class HoppelpoppelRules extends ChessRules {
 
   isAttackedByKnight([x, y], color) {
     return super.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.KNIGHT,
-      V.steps[V.BISHOP]
-    );
+      [x, y], color, V.KNIGHT, V.steps[V.BISHOP]);
   }
 
   isAttackedByBishop([x, y], color) {
     return super.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.BISHOP,
-      V.steps[V.KNIGHT],
-      "oneStep"
-    );
+      [x, y], color, V.BISHOP, V.steps[V.KNIGHT], 1);
   }
 
 };

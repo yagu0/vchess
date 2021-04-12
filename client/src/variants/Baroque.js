@@ -107,23 +107,11 @@ export class BaroqueRules extends ChessRules {
     }
   }
 
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    const piece = this.getPiece(x, y);
-    let moves = [];
-    outerLoop: for (let step of steps) {
-      let i = x + step[0];
-      let j = y + step[1];
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep !== undefined) continue outerLoop;
-        i += step[0];
-        j += step[1];
-      }
-      // Only king can take on occupied square:
-      if (piece == V.KING && V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
-    }
-    return moves;
+  canTake([x1, y1], [x2, y2]) {
+    return (
+      this.getPiece(x1, y1) == V.KING &&
+      this.getColor(x1, y1) != this.getColor(x2, y2)
+    );
   }
 
   // Modify capturing moves among listed pawn moves
@@ -531,15 +519,15 @@ export class BaroqueRules extends ChessRules {
     return false;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       // Deterministic:
       return "rnbkqbnm/pppppppp/8/8/8/8/PPPPPPPP/MNBQKBNR w 0";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     // Shuffle pieces on first and last rank
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }

@@ -333,6 +333,29 @@ export default {
         )
       );
     },
+    requestLastate: function(sid) {
+      // TODO: maybe also find opponent SID ?
+      //const oppSid =
+      //  this.game.players.find(p => p.sid != this.st.user.sid).sid;
+      this.send("asklastate", { target: sid });
+      let counter = 1;
+      this.askLastate = setInterval(
+        () => {
+          // Ask at most 3 times:
+          // if no reply after that there should be a network issue.
+          if (
+            counter < 3 &&
+            !this.gotLastate &&
+            !!this.people[sid]
+          ) {
+            this.send("asklastate", { target: sid });
+            counter++;
+          }
+          else clearInterval(this.askLastate);
+        },
+        1500
+      );
+    },
     atCreation: function() {
       document.addEventListener('visibilitychange', this.visibilityChange);
       window.addEventListener('focus', this.onFocus);
@@ -395,6 +418,8 @@ export default {
               "message", this.socketMessageListener);
             this.conn = new WebSocket(this.connexionString);
             this.conn.addEventListener("message", this.socketMessageListener);
+            const oppSid = this.getOppsid();
+            if (!!oppSid) this.requestLaststate(oppSid); //in case of
           }
         },
         1000
@@ -672,24 +697,7 @@ export default {
             this.game.type == "live" &&
             this.game.players.some(p => p.sid == user.sid)
           ) {
-            this.send("asklastate", { target: user.sid });
-            let counter = 1;
-            this.askLastate = setInterval(
-              () => {
-                // Ask at most 3 times:
-                // if no reply after that there should be a network issue.
-                if (
-                  counter < 3 &&
-                  !this.gotLastate &&
-                  !!this.people[user.sid]
-                ) {
-                  this.send("asklastate", { target: user.sid });
-                  counter++;
-                }
-                else clearInterval(this.askLastate);
-              },
-              1500
-            );
+            this.requestLaststate(user.sid);
           }
           break;
         }

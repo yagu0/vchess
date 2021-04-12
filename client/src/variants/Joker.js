@@ -11,8 +11,8 @@ export class JokerRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    const antikingFen = Antiking2Rules.GenRandInitFen(randomness);
+  static GenRandInitFen(options) {
+    const antikingFen = Antiking2Rules.GenRandInitFen(options);
     return antikingFen.replace('a', 'J').replace('A', 'j');
   }
 
@@ -48,7 +48,7 @@ export class JokerRules extends ChessRules {
 
   getPotentialJokerMoves([x, y]) {
     const moving =
-      super.getSlideNJumpMoves([x, y], V.steps[V.KNIGHT], "oneStep")
+      super.getSlideNJumpMoves([x, y], V.steps[V.KNIGHT], 1)
       .concat(super.getSlideNJumpMoves([x, y],
         V.steps[V.ROOK].concat(V.steps[V.BISHOP])));
     let swapping = [];

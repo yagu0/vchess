@@ -14,22 +14,8 @@ export class BenedictRules extends ChessRules {
     );
   }
 
-  // TODO(?): some duplicated code in 2 next functions
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    let moves = [];
-    outerLoop: for (let loop = 0; loop < steps.length; loop++) {
-      const step = steps[loop];
-      let i = x + step[0];
-      let j = y + step[1];
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep) continue outerLoop;
-        i += step[0];
-        j += step[1];
-      }
-      // No capture check: handled elsewhere (next method)
-    }
-    return moves;
+  canTake() {
+    return false;
   }
 
   // Find possible captures from a square

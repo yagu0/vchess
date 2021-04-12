@@ -3,7 +3,7 @@ import { Stealthbomb1Rules } from "@/variants/Stealthbomb1";
 
 export class Stealthbomb2Rules extends Stealthbomb1Rules {
 
-  // Initiate the game by choosing a square for the bomb:
+  // Initiate the game by choosing a pawn holding the bomb:
   doClick(square) {
     const c = this.turn;
     if (

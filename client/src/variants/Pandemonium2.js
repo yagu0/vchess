@@ -139,8 +139,8 @@ export class Pandemonium2Rules extends ChessRules {
     return counts.join("");
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "rnbqkmcbnr/pppppppppp/91/91/91/91/PPPPPPPPPP/RNBQKMCBNR " +
         "w 0 ajaj - 00000000000000"
@@ -150,7 +150,7 @@ export class Pandemonium2Rules extends ChessRules {
     let pieces = { w: new Array(10), b: new Array(10) };
     let flags = "";
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;
@@ -379,39 +379,36 @@ export class Pandemonium2Rules extends ChessRules {
 
   getPotentialMarshalMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialCardinalMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], "oneStep")
+      this.getSlideNJumpMoves(sq, V.steps[V.KNIGHT], 1)
     );
   }
 
   getPotentialScepterMoves(sq) {
     const steps =
       V.steps[V.KNIGHT].concat(V.steps[V.BISHOP]).concat(V.steps[V.ROOK]);
-    return this.getSlideNJumpMoves(sq, steps, "oneStep");
+    return this.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialHorseMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.ROOK], "oneStep"));
+      this.getSlideNJumpMoves(sq, V.steps[V.ROOK], 1));
   }
 
   getPotentialDragonMoves(sq) {
     return this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], "oneStep"));
+      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], 1));
   }
 
   getPotentialKingMoves(sq) {
     // Initialize with normal moves
     let moves = this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
     const c = this.turn;
     if (
       this.castleFlags[c][0] < V.size.y ||
@@ -469,7 +466,7 @@ export class Pandemonium2Rules extends ChessRules {
     const steps =
       V.steps[V.KNIGHT].concat(V.steps[V.ROOK]).concat(V.steps[V.BISHOP]);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.SCEPTER, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, color, V.SCEPTER, steps, 1)
     );
   }
 
@@ -477,7 +474,7 @@ export class Pandemonium2Rules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.HORSE, V.steps[V.BISHOP]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.HORSE, V.steps[V.ROOK], "oneStep")
+        sq, color, V.HORSE, V.steps[V.ROOK], 1)
     );
   }
 
@@ -485,7 +482,7 @@ export class Pandemonium2Rules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.DRAGON, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
-        sq, color, V.DRAGON, V.steps[V.BISHOP], "oneStep")
+        sq, color, V.DRAGON, V.steps[V.BISHOP], 1)
     );
   }
 
@@ -493,12 +490,7 @@ export class Pandemonium2Rules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.MARSHAL, V.steps[V.ROOK]) ||
       super.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.MARSHAL,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+        sq, color, V.MARSHAL, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -506,12 +498,7 @@ export class Pandemonium2Rules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(sq, color, V.CARDINAL, V.steps[V.BISHOP]) ||
       super.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.CARDINAL,
-        V.steps[V.KNIGHT],
-        "oneStep"
-      )
+        sq, color, V.CARDINAL, V.steps[V.KNIGHT], 1)
     );
   }
 

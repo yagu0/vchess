@@ -23,8 +23,8 @@ export class HypnoticRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness) + " -";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + " -";
   }
 
   setOtherVariables(fen) {
@@ -69,7 +69,7 @@ export class HypnoticRules extends ChessRules {
       this.getPiece(x, y) == V.KING
         // No castling with enemy king (...yes, should eat it but...)
         ? super.getSlideNJumpMoves(
-          [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep")
+          [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1)
         : super.getPotentialMovesFrom([x, y]);
     return moves;
   }

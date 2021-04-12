@@ -19,5 +19,7 @@ export function checkChallenge(c) {
   }
   else c.fen = "";
 
+  if (!V.IsValidOptions(c.options)) return "Invalid options";
+
   return "";
 }

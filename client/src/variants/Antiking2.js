@@ -79,10 +79,7 @@ export class Antiking2Rules extends ChessRules {
   getPotentialAntikingMoves(sq) {
     // The antiking moves like a king (only captured colors differ)
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttacked(sq, color) {
@@ -102,12 +99,7 @@ export class Antiking2Rules extends ChessRules {
     // (Anti)King is not attacked by antiking
     if ([V.KING, V.ANTIKING].includes(this.getPiece(x, y))) return false;
     return this.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.ANTIKING,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], color, V.ANTIKING, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   underCheck(color) {
@@ -154,15 +146,15 @@ export class Antiking2Rules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rnbqkbnr/pppppppp/3A4/8/8/3a4/PPPPPPPP/RNBQKBNR w 0 ahah -";
 
     let pieces = { w: new Array(8), b: new Array(8) };
     let flags = "";
     let antikingPos = { w: -1, b: -1 };
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         antikingPos['b'] = antikingPos['w'];
         flags += flags;

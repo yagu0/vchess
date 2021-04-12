@@ -23,8 +23,8 @@ export class EmpireRules extends ChessRules {
     return (b[0] == 'w' ? "Empire/" : "") + b;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rnbqkbnr/pppppppp/8/8/8/PPPSSPPP/8/TECDKCET w 0 ah -";
 
     // Mapping kingdom --> empire:
@@ -36,7 +36,7 @@ export class EmpireRules extends ChessRules {
       'K': 'K'
     };
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     return (
       baseFen.substr(0, 24) + "PPPSSPPP/8/" +
       baseFen.substr(35, 8).split('').map(p => piecesMap[p]).join('') +
@@ -211,6 +211,7 @@ export class EmpireRules extends ChessRules {
     });
   }
 
+  // TODO: some merging to do with Orda method (and into base_rules.js)
   getSlideNJumpMoves_([x, y], steps, oneStep) {
     let moves = [];
     outerLoop: for (let step of steps) {
@@ -221,7 +222,7 @@ export class EmpireRules extends ChessRules {
         if (!step.onlyTake) moves.push(this.getBasicMove([x, y], [i, j]));
         // NOTE: (bad) HACK here, since onlyTake is true only for Eagle
         // capturing moves, which are oneStep...
-        if (!!oneStep || !!step.onlyTake) continue outerLoop;
+        if (oneStep || step.onlyTake) continue outerLoop;
         i += s[0];
         j += s[1];
       }
@@ -318,10 +319,7 @@ export class EmpireRules extends ChessRules {
     if (this.getColor(x, y) == 'b') return super.getPotentialKingMoves([x, y]);
     // Empire doesn't castle:
     return super.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialSoldierMoves([x, y]) {
@@ -332,7 +330,7 @@ export class EmpireRules extends ChessRules {
     if (!lastRank) steps.push([shiftX, 0]);
     if (y > 0) steps.push([0, -1]);
     if (y < 9) steps.push([0, 1]);
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   isAttacked(sq, color) {
@@ -356,7 +354,7 @@ export class EmpireRules extends ChessRules {
 
   isAttackedByEagle(sq, color) {
     return super.isAttackedBySlideNJump(
-      sq, color, V.EAGLE, V.steps[V.KNIGHT], "oneStep");
+      sq, color, V.EAGLE, V.steps[V.KNIGHT], 1);
   }
 
   isAttackedByCardinal(sq, color) {
@@ -368,7 +366,7 @@ export class EmpireRules extends ChessRules {
     return (
       super.isAttackedBySlideNJump(
         sq, color, V.DUKE,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep"
+        V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1
       )
     );
   }
@@ -376,7 +374,7 @@ export class EmpireRules extends ChessRules {
   isAttackedBySoldier([x, y], color) {
     const shiftX = (color == 'w' ? 1 : -1); //shift from king
     return super.isAttackedBySlideNJump(
-      [x, y], color, V.SOLDIER, [[shiftX, 0], [0, 1], [0, -1]], "oneStep");
+      [x, y], color, V.SOLDIER, [[shiftX, 0], [0, 1], [0, -1]], 1);
   }
 
   updateCastleFlags(move, piece) {

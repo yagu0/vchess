@@ -14,8 +14,8 @@ export class BicolourRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rqbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/RQBNKBNR w 0 -";
 
     // Place pieces at random but the king cannot be next to a rook or queen.
@@ -23,7 +23,7 @@ export class BicolourRules extends ChessRules {
     let pieces = { w: new Array(8), b: new Array(8) };
     let flags = "";
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }

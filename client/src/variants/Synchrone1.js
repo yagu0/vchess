@@ -53,8 +53,8 @@ export class Synchrone1Rules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).slice(0, -1) + "-,- -";
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options).slice(0, -1) + "-,- -";
   }
 
   getFen() {

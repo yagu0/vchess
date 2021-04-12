@@ -101,8 +101,8 @@ export class GrasshopperRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness)
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options)
       .slice(0, -2)
       .replace(
         "/pppppppp/8/8/8/8/PPPPPPPP/",

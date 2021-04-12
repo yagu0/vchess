@@ -88,12 +88,12 @@ export class FullcavalryRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       // Deterministic:
       return "enbqkbnm/pppppppp/8/8/8/8/PPPPPPPP/ENBQKBNM w 0 ahah -";
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     // Replace rooks by lancers with expected orientation:
     const firstBlackRook = baseFen.indexOf('r'),
           lastBlackRook = baseFen.lastIndexOf('r'),

@@ -186,13 +186,13 @@ export class BallRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "hbnrqrnhb/ppppppppp/9/9/4a4/9/9/PPPPPPPPP/HBNRQRNHB w 0 - -";
 
     let pieces = { w: new Array(9), b: new Array(9) };
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         break;
       }
@@ -411,28 +411,13 @@ export class BallRules extends ChessRules {
     return moves;
   }
 
-  // "Sliders": at most 3 steps
-  getSlideNJumpMoves([x, y], steps, oneStep) {
-    let moves = [];
-    outerLoop: for (let step of steps) {
-      let i = x + step[0];
-      let j = y + step[1];
-      let stepCount = 1;
-      while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
-        moves.push(this.getBasicMove([x, y], [i, j]));
-        if (oneStep || stepCount == 3) continue outerLoop;
-        i += step[0];
-        j += step[1];
-        stepCount++;
-      }
-      if (V.OnBoard(i, j) && this.canTake([x, y], [i, j]))
-        moves.push(this.getBasicMove([x, y], [i, j]));
-    }
-    return moves;
+  getSlideNJumpMoves(sq, steps, nbSteps) {
+    // "Sliders": at most 3 steps
+    return super.getSlideNJumpMoves(sq, steps, !nbSteps ? 3 : 1);
   }
 
   getPotentialPhoenixMoves(sq) {
-    return this.getSlideNJumpMoves(sq, V.steps[V.PHOENIX], "oneStep");
+    return super.getSlideNJumpMoves(sq, V.steps[V.PHOENIX], 1);
   }
 
   getPmove(move) {

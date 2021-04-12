@@ -2,6 +2,18 @@ import { ChessRules, Move, PiPo } from "@/base_rules";
 
 export class SynochessRules extends ChessRules {
 
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Random",
+          defaut: false,
+          variable: "random"
+        }
+      ]
+    };
+  }
+
   static get LoseOnRepetition() {
     return true;
   }
@@ -28,8 +40,8 @@ export class SynochessRules extends ChessRules {
     );
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (!options.random)
       return "rneakenr/8/1c4c1/1ss2ss1/8/8/PPPPPPPP/RNBQKBNR w 0 ah - 2";
 
     // Mapping kingdom --> dynasty:
@@ -42,7 +54,7 @@ export class SynochessRules extends ChessRules {
     };
 
     // Always symmetric (randomness = 1), because open files.
-    const baseFen = ChessRules.GenRandInitFen(1);
+    const baseFen = ChessRules.GenRandInitFen({ randomness: 1 });
     return (
       baseFen.substr(0, 8).split("").map(p => piecesMap[p]).join("") +
       "/8/1c4c1/1ss2ss1/" + baseFen.substr(22, 28) + " - 2"
@@ -305,17 +317,14 @@ export class SynochessRules extends ChessRules {
 
   getPotentialAdvisorMoves(sq) {
     return super.getSlideNJumpMoves(
-      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialKingMoves([x, y]) {
     if (this.getColor(x, y) == 'w') return super.getPotentialKingMoves([x, y]);
     // Dynasty doesn't castle:
     return super.getSlideNJumpMoves(
-      [x, y],
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getPotentialSoldierMoves([x, y]) {
@@ -326,11 +335,11 @@ export class SynochessRules extends ChessRules {
     if (!lastRank) steps.push([shiftX, 0]);
     if (y > 0) steps.push([0, -1]);
     if (y < 9) steps.push([0, 1]);
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep");
+    return super.getSlideNJumpMoves([x, y], steps, 1);
   }
 
   getPotentialElephantMoves([x, y]) {
-    return this.getSlideNJumpMoves([x, y], V.steps[V.ELEPHANT], "oneStep");
+    return this.getSlideNJumpMoves([x, y], V.steps[V.ELEPHANT], 1);
   }
 
   // NOTE: (mostly) duplicated from Shako (TODO?)
@@ -417,26 +426,19 @@ export class SynochessRules extends ChessRules {
   }
 
   isAttackedByAdvisor(sq, color) {
-    return (
-      super.isAttackedBySlideNJump(
-        sq, color, V.ADVISOR,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep"
-      )
-    );
+    return super.isAttackedBySlideNJump(
+      sq, color, V.ADVISOR, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttackedByElephant(sq, color) {
-    return (
-      this.isAttackedBySlideNJump(
-        sq, color, V.ELEPHANT, V.steps[V.ELEPHANT], "oneStep"
-      )
-    );
+    return this.isAttackedBySlideNJump(
+      sq, color, V.ELEPHANT, V.steps[V.ELEPHANT], 1);
   }
 
   isAttackedBySoldier([x, y], color) {
     const shiftX = (color == 'w' ? 1 : -1); //shift from king
     return super.isAttackedBySlideNJump(
-      [x, y], color, V.SOLDIER, [[shiftX, 0], [0, 1], [0, -1]], "oneStep");
+      [x, y], color, V.SOLDIER, [[shiftX, 0], [0, 1], [0, -1]], 1);
   }
 
   getAllValidMoves() {

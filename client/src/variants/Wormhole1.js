@@ -73,8 +73,8 @@ export class Wormhole1Rules extends Wormhole2Rules {
     };
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "cnwmkwnc/pppppppp/8/8/8/8/PPPPPPPP/CNWMKWNC w 0";
 
     // Mapping new --> standard:
@@ -86,7 +86,7 @@ export class Wormhole1Rules extends Wormhole2Rules {
       'k': 'k'
     };
 
-    const baseFen = ChessRules.GenRandInitFen(randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     return (
       baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
       baseFen.substr(8, 27) +

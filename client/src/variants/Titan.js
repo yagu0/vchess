@@ -154,6 +154,8 @@ export class TitanRules extends ChessRules {
     const [x, y] = [square[0], square[1]];
     if ((color == 'w' && x != 7) || (color == 'b' && x != 0)) return null;
     const selectedPiece = this.board[x][y][1];
+    // Prevent re-augmenting a chosen piece:
+    if (!ChessRules.PIECES.includes(selectedPiece)) return null;
     return new Move({
       appear: [
         new PiPo({

@@ -11,8 +11,8 @@ export class AllmateRules extends ChessRules {
     return [];
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).slice(0, -2);
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options).slice(0, -2);
   }
 
   getPotentialMovesFrom([x, y]) {
@@ -69,10 +69,7 @@ export class AllmateRules extends ChessRules {
                 case V.KING:
                   // Do not allow castling to escape from check
                   oppMoves = super.getSlideNJumpMoves(
-                    [i, j],
-                    V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-                    "oneStep"
-                  );
+                    [i, j], V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
                   break;
               }
               for (let om of oppMoves) {

@@ -55,8 +55,8 @@ export class TwokingsRules extends CoregalRules {
     return squares;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "rnqkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNQKKBNR w 0 adehadeh -";
 
     const replaceBishop = (fen, first, ch1, ch2) => {
@@ -84,7 +84,7 @@ export class TwokingsRules extends CoregalRules {
     };
 
     const fen =
-      CoregalRules.GenRandInitFen(randomness)
+      CoregalRules.GenRandInitFen(options)
       .replace("q", "k").replace("Q", "K");
     // Now replace a bishop by the queen,
     // so that bishops are of different colors:

@@ -5,6 +5,10 @@ import { randInt } from "@/utils/alea";
 
 export class Antiking1Rules extends BerolinaRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get PawnSpecs() {
     return Object.assign(
       {},
@@ -132,10 +136,7 @@ export class Antiking1Rules extends BerolinaRules {
   getPotentialAntikingMoves(sq) {
     // The antiking moves like a king (only captured colors differ)
     return this.getSlideNJumpMoves(
-      sq,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttacked(sq, color) {
@@ -149,24 +150,14 @@ export class Antiking1Rules extends BerolinaRules {
     // Antiking is not attacked by king:
     if (this.getPiece(x, y) == V.ANTIKING) return false;
     return this.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.KING,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], color, V.KING, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   isAttackedByAntiking([x, y], color) {
     // (Anti)King is not attacked by antiking
     if ([V.KING, V.ANTIKING].includes(this.getPiece(x, y))) return false;
     return this.isAttackedBySlideNJump(
-      [x, y],
-      color,
-      V.ANTIKING,
-      V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-      "oneStep"
-    );
+      [x, y], color, V.ANTIKING, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   underCheck(color) {

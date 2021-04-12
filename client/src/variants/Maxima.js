@@ -4,6 +4,10 @@ import { shuffle } from "@/utils/alea";
 
 export class MaximaRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get HasFlags() {
     return false;
   }
@@ -192,7 +196,7 @@ export class MaximaRules extends ChessRules {
       if (piece == V.KING) j = j % V.size.y;
       while (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY) {
         moves.push(this.getBasicMove(initSquare, [i, j]));
-        if (!!oneStep) continue outerLoop;
+        if (oneStep) continue outerLoop;
         i += step[0];
         j += step[1];
       }
@@ -450,14 +454,8 @@ export class MaximaRules extends ChessRules {
   }
 
   getPotentialGuardMoves(sq) {
-    return (
-      this.getSlideNJumpMoves(
-        sq,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-        "oneStep",
-        null
-      )
-    );
+    return this.getSlideNJumpMoves(
+      sq, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), "oneStep");
   }
 
   getNextMageSteps(step) {
@@ -679,15 +677,8 @@ export class MaximaRules extends ChessRules {
   }
 
   isAttackedByGuard(sq, color) {
-    return (
-      super.isAttackedBySlideNJump(
-        sq,
-        color,
-        V.GUARD,
-        V.steps[V.ROOK].concat(V.steps[V.BISHOP]),
-        "oneStep"
-      )
-    );
+    return super.isAttackedBySlideNJump(
+      sq, color, V.GUARD, V.steps[V.ROOK].concat(V.steps[V.BISHOP]), 1);
   }
 
   getNextMageCheck(step) {

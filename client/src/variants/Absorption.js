@@ -116,7 +116,7 @@ export class AbsorptionRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.BN, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.BN, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.BN, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -124,7 +124,7 @@ export class AbsorptionRules extends ChessRules {
     return (
       this.isAttackedBySlideNJump(sq, color, V.RN, V.steps[V.ROOK]) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.RN, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.RN, V.steps[V.KNIGHT], 1)
     );
   }
 
@@ -133,7 +133,7 @@ export class AbsorptionRules extends ChessRules {
       this.isAttackedBySlideNJump(
         sq, color, V.QN, V.steps[V.BISHOP].concat(V.steps[V.ROOK])) ||
       this.isAttackedBySlideNJump(
-        sq, color, V.QN, V.steps[V.KNIGHT], "oneStep")
+        sq, color, V.QN, V.steps[V.KNIGHT], 1)
     );
   }
 

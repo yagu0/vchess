@@ -3,6 +3,10 @@ import { randInt } from "@/utils/alea";
 
 export class GomokuRules extends ChessRules {
 
+  static get Options() {
+    return null;
+  }
+
   static get Monochrome() {
     return true;
   }

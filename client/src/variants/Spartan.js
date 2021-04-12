@@ -16,8 +16,8 @@ export class SpartanRules extends ChessRules {
     return b;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0)
+  static GenRandInitFen(options) {
+    if (options.randomness == 0)
       return "lgkcckwl/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 0 ah";
 
     // Mapping white --> black (first knight --> general; TODO):
@@ -30,7 +30,7 @@ export class SpartanRules extends ChessRules {
       'g': 'g'
     };
 
-    const baseFen = ChessRules.GenRandInitFen(randomness).replace('n', 'g');
+    const baseFen = ChessRules.GenRandInitFen(options).replace('n', 'g');
     return (
       baseFen.substr(0, 8).split('').map(p => piecesMap[p]).join('') +
       baseFen.substr(8)
@@ -154,7 +154,7 @@ export class SpartanRules extends ChessRules {
   getPotentialSpartanKingMoves(sq) {
     // No castle:
     const steps = V.steps[V.ROOK].concat(V.steps[V.BISHOP]);
-    return super.getSlideNJumpMoves(sq, steps, "oneStep");
+    return super.getSlideNJumpMoves(sq, steps, 1);
   }
 
   getPotentialHopliteMoves([x, y]) {
@@ -212,26 +212,26 @@ export class SpartanRules extends ChessRules {
     const steps = V.steps[V.BISHOP].concat(V.steps['a']);
     Array.prototype.push.apply(
       moves,
-      super.getSlideNJumpMoves([x, y], steps, "oneStep")
+      super.getSlideNJumpMoves([x, y], steps, 1)
     );
     return moves;
   }
 
   getPotentialCaptainMoves([x, y]) {
     const steps = V.steps[V.ROOK].concat(V.steps['d']);
-    return super.getSlideNJumpMoves([x, y], steps, "oneStep")
+    return super.getSlideNJumpMoves([x, y], steps, 1)
   }
 
   getPotentialGeneralMoves([x, y]) {
     return (
-      super.getSlideNJumpMoves([x, y], V.steps[V.BISHOP], "oneStep")
+      super.getSlideNJumpMoves([x, y], V.steps[V.BISHOP], 1)
       .concat(super.getSlideNJumpMoves([x, y], V.steps[V.ROOK]))
     );
   }
 
   getPotentialWarlordMoves([x, y]) {
     return (
-      super.getSlideNJumpMoves([x, y], V.steps[V.KNIGHT], "oneStep")
+      super.getSlideNJumpMoves([x, y], V.steps[V.KNIGHT], 1)
       .concat(super.getSlideNJumpMoves([x, y], V.steps[V.BISHOP]))
     );
   }
@@ -249,25 +249,25 @@ export class SpartanRules extends ChessRules {
   }
 
   isAttackedByHoplite(sq) {
-    return super.isAttackedBySlideNJump(sq, 'b', V.PAWN, [[-1,0]], "oneStep");
+    return super.isAttackedBySlideNJump(sq, 'b', V.PAWN, [[-1,0]], 1);
   }
 
   isAttackedByLieutenant(sq) {
     const steps = V.steps[V.BISHOP].concat(V.steps['a']);
     return (
-      super.isAttackedBySlideNJump(sq, 'b', V.LIEUTENANT, steps, "oneStep")
+      super.isAttackedBySlideNJump(sq, 'b', V.LIEUTENANT, steps, 1)
     );
   }
 
   isAttackedByCaptain(sq) {
     const steps = V.steps[V.ROOK].concat(V.steps['d']);
-    return super.isAttackedBySlideNJump(sq, 'b', V.CAPTAIN, steps, "oneStep");
+    return super.isAttackedBySlideNJump(sq, 'b', V.CAPTAIN, steps, 1);
   }
 
   isAttackedByGeneral(sq) {
     return (
       super.isAttackedBySlideNJump(
-        sq, 'b', V.GENERAL, V.steps[V.BISHOP], "oneStep") ||
+        sq, 'b', V.GENERAL, V.steps[V.BISHOP], 1) ||
       super.isAttackedBySlideNJump(sq, 'b', V.GENERAL, V.steps[V.ROOK])
     );
   }
@@ -275,7 +275,7 @@ export class SpartanRules extends ChessRules {
   isAttackedByWarlord(sq) {
     return (
       super.isAttackedBySlideNJump(
-        sq, 'b', V.WARLORD, V.steps[V.KNIGHT], "oneStep") ||
+        sq, 'b', V.WARLORD, V.steps[V.KNIGHT], 1) ||
       super.isAttackedBySlideNJump(sq, 'b', V.WARLORD, V.steps[V.BISHOP])
     );
   }

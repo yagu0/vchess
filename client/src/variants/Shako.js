@@ -68,7 +68,7 @@ export class ShakoRules extends ChessRules {
   }
 
   getPotentialElephantMoves([x, y]) {
-    return this.getSlideNJumpMoves([x, y], V.steps[V.ELEPHANT], "oneStep");
+    return this.getSlideNJumpMoves([x, y], V.steps[V.ELEPHANT], 1);
   }
 
   getPotentialCannonMoves([x, y]) {
@@ -115,7 +115,7 @@ export class ShakoRules extends ChessRules {
   isAttackedByElephant(sq, color) {
     return (
       this.isAttackedBySlideNJump(
-        sq, color, V.ELEPHANT, V.steps[V.ELEPHANT], "oneStep"
+        sq, color, V.ELEPHANT, V.steps[V.ELEPHANT], 1
       )
     );
   }
@@ -185,8 +185,8 @@ export class ShakoRules extends ChessRules {
     return 2;
   }
 
-  static GenRandInitFen(randomness) {
-    if (randomness == 0) {
+  static GenRandInitFen(options) {
+    if (options.randomness == 0) {
       return (
         "c8c/ernbqkbnre/pppppppppp/91/91/91/91/PPPPPPPPPP/ERNBQKBNRE/C8C " +
         "w 0 bibi -"
@@ -197,7 +197,7 @@ export class ShakoRules extends ChessRules {
     let flags = "";
     // Shuffle pieces on second (and before-last rank if randomness == 2)
     for (let c of ["w", "b"]) {
-      if (c == 'b' && randomness == 1) {
+      if (c == 'b' && options.randomness == 1) {
         pieces['b'] = pieces['w'];
         flags += flags;
         break;

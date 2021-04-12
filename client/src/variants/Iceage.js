@@ -47,8 +47,8 @@ export class IceageRules extends ChessRules {
     return true;
   }
 
-  static GenRandInitFen(randomness) {
-    return ChessRules.GenRandInitFen(randomness).replace(/8/g, "cccccccc");
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options).replace(/8/g, "cccccccc");
   }
 
   play(move) {
