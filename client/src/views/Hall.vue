@@ -1095,7 +1095,9 @@ export default {
       }
       for (const select of this.newchallenge.V.Options.select || []) {
         const elt = document.getElementById(select.variable + "_opt");
-        chall.options[select.variable] = parseInt(elt.value, 10) || elt.value;
+        const tryIntVal = parseInt(elt.value, 10);
+        chall.options[select.variable] =
+          (isNaN(tryIntVal) ? elt.value : tryIntVal);
       }
       error = checkChallenge(chall);
       if (error) {

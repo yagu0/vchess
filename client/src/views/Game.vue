@@ -1320,7 +1320,9 @@ export default {
       const trySetVname = setInterval(
         () => {
           // this.st.variants might be uninitialized (variant == null)
-          variant = this.st.variants.find(v => v.id == game.vid);
+          variant = this.st.variants.find(v => {
+            return v.id == game.vid || v.name == game.vname
+          });
           if (!!variant) {
             clearInterval(trySetVname);
             game.vname = variant.name;

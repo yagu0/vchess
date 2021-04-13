@@ -6,14 +6,6 @@ If new live game starts in background, "new game" notify OK but not first move.
 Will be used for variants with custom non-rectangular board (Hex, at least)
 Or, with other board shapes (see greenchess.net for example)
 
-debug import game + load
-
-TODEBUG: Avalanche computer play from here
-game.fen = "r2q1bnr/3pp3/n3k1p1/6Pp/3p1B1P/p5R1/1p6/4K1NR w 26 ihii 0";
-game.fenStart = "r2q1bnr/3pp3/n3k1p1/6Pp/3p1B1P/p5R1/1p6/4K1NR w 26 ihii 0";
-game.mycolor = 'w';
-Bd6,b1 then black promotes and win, but UI freezes.
-
 Merge Orda + Empire + Hoppelpoppel + Newzealand getSlideNJumpMoves() into base_rules.js
 => allow to simplify getPawnMoves in RoyalRace (and some getXMoves in Shatranj)
 

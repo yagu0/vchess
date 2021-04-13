@@ -104,7 +104,7 @@ export class AvalancheRules extends ChessRules {
       vanish: [
         new PiPo({ x: rank, y: file, c: color, p: V.PAWN })
       ],
-      start: { x: 8, y: y },
+      start: { x: 8 + (color == 'b' ? 1 : 0), y: y },
       end: { x: rank, y: file }
     });
   }
