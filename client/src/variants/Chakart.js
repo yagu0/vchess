@@ -310,7 +310,7 @@ export class ChakartRules extends ChessRules {
       const L = this.effects.length;
       switch (this.effects[L-1]) {
         case "kingboo":
-          // Exchange position with any piece,
+          // Exchange position with any visible piece,
           // except pawns if arriving on last rank.
           const lastRank = { 'w': 0, 'b': 7 };
           const color = this.turn;
@@ -318,12 +318,13 @@ export class ChakartRules extends ChessRules {
           for (let i=0; i<8; i++) {
             for (let j=0; j<8; j++) {
               const colIJ = this.getColor(i, j);
+              const pieceIJ = this.getPiece(i, j);
               if (
                 (i != x || j != y) &&
                 this.board[i][j] != V.EMPTY &&
+                pieceIJ != V.INVISIBLE_QUEEN &&
                 colIJ != 'a'
               ) {
-                const pieceIJ = this.getPiece(i, j);
                 if (
                   (pieceIJ != V.PAWN || x != lastRank[colIJ]) &&
                   (allowLastRank || i != lastRank[color])
@@ -355,19 +356,9 @@ export class ChakartRules extends ChessRules {
     return moves;
   }
 
-  // Helper for getBasicMove()
+  // Helper for getBasicMove(): banana/bomb effect
   getRandomSquare([x, y], steps) {
-    const color = this.turn;
-    const validSteps = steps.filter(s => {
-      const [i, j] = [x + s[0], y + s[1]];
-      return (
-        V.OnBoard(i, j) &&
-        (this.board[i][j] == V.EMPTY || this.getColor(i, j) != color)
-      );
-    });
-    if (validSteps.length == 0)
-      // Can happen after mushroom jump
-      return [x, y];
+    const validSteps = steps.filter(s => V.OnBoard(x + s[0], y + s[1]));
     const step = validSteps[randInt(validSteps.length)];
     return [x + step[0], y + step[1]];
   }
@@ -487,12 +478,13 @@ export class ChakartRules extends ChessRules {
       const oppLastRank = (color == 'w' ? 7 : 0);
       for (let i=0; i<8; i++) {
         for (let j=0; j<8; j++) {
+          const piece = this.getPiece(i, j);
           if (
             (i != move.vanish[0].x || j != move.vanish[0].y) &&
             this.board[i][j] != V.EMPTY &&
+            piece != V.INVISIBLE_QUEEN &&
             this.getColor(i, j) == color
           ) {
-            const piece = this.getPiece(i, j);
             if (piece != V.KING && (piece != V.PAWN || i != oppLastRank))
               pieces.push({ x: i, y: j, p: piece });
           }
@@ -596,17 +588,22 @@ export class ChakartRules extends ChessRules {
         ];
         if (
           V.OnBoard(i, j) &&
-          (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a')
+          (
+            this.board[i][j] == V.EMPTY ||
+            this.getPiece(i, j) == V.INVISIBLE_QUEEN ||
+            this.getColor(i, j) == 'a'
+          )
         ) {
           move.appear[0].x = i;
           move.appear[0].y = j;
           if (this.board[i][j] != V.EMPTY) {
             const object = this.getPiece(i, j);
+            const color = this.getColor(i, j);
             move.vanish.push(
               new PiPo({
                 x: i,
                 y: j,
-                c: 'a',
+                c: color,
                 p: object
               })
             );
@@ -636,11 +633,12 @@ export class ChakartRules extends ChessRules {
         if (
           V.OnBoard(next[0], next[1]) &&
           this.board[next[0]][next[1]] != V.EMPTY &&
+          this.getPiece(next[0], next[1]) != V.INVISIBLE_QUEEN &&
           this.getColor(next[0], next[1]) != 'a'
         ) {
           const afterNext = [next[0] + step[0], next[1] + step[1]];
           if (V.OnBoard(afterNext[0], afterNext[1])) {
-            const afterColor = this.getColor(afterNext[0], afterNext[1])
+            const afterColor = this.getColor(afterNext[0], afterNext[1]);
             if (
               this.board[afterNext[0]][afterNext[1]] == V.EMPTY ||
               afterColor != color1
@@ -715,13 +713,15 @@ export class ChakartRules extends ChessRules {
             const [i, j] = [finalSquare[0] + s[0], finalSquare[1] + s[1]];
             return (
               V.OnBoard(i, j) &&
+              // NOTE: do not place a bomb or banana on the invisible queen!
               (this.board[i][j] == V.EMPTY || this.getColor(i, j) == 'a')
             );
           });
         if (validSteps.length >= 1) {
+          const randIdx = randInt(validSteps.length);
           const [x, y] = [
-            finalSquare[0] + validSteps[0][0],
-            finalSquare[1] + validSteps[0][1]
+            finalSquare[0] + validSteps[randIdx][0],
+            finalSquare[1] + validSteps[randIdx][1]
           ];
           move.appear.push(
             new PiPo({
@@ -821,14 +821,16 @@ export class ChakartRules extends ChessRules {
     let moves = [];
     if (
       this.board[x + shiftX][y] == V.EMPTY ||
-      this.getColor(x + shiftX, y) == 'a'
+      this.getColor(x + shiftX, y) == 'a' ||
+      this.getPiece(x + shiftX, y) == V.INVISIBLE_QUEEN
     ) {
       this.addPawnMoves([x, y], [x + shiftX, y], moves);
       if (
         [firstRank, firstRank + shiftX].includes(x) &&
         (
           this.board[x + 2 * shiftX][y] == V.EMPTY ||
-          this.getColor(x + 2 * shiftX, y) == 'a'
+          this.getColor(x + 2 * shiftX, y) == 'a' ||
+          this.getPiece(x + 2 * shiftX, y) == V.INVISIBLE_QUEEN
         )
       ) {
         moves.push(this.getBasicMove({ x: x, y: y }, [x + 2 * shiftX, y]));
@@ -839,6 +841,8 @@ export class ChakartRules extends ChessRules {
         y + shiftY >= 0 &&
         y + shiftY < sizeY &&
         this.board[x + shiftX][y + shiftY] != V.EMPTY &&
+        // Pawns cannot capture invisible queen this way!
+        this.getPiece(x + shiftX, y + shiftY) != V.INVISIBLE_QUEEN &&
         ['a', oppCol].includes(this.getColor(x + shiftX, y + shiftY))
       ) {
         this.addPawnMoves([x, y], [x + shiftX, y + shiftY], moves);
@@ -880,6 +884,7 @@ export class ChakartRules extends ChessRules {
           V.OnBoard(i, j) &&
           (
             this.board[i][j] == V.EMPTY ||
+            this.getPiece(i, j) == V.INVISIBLE_QUEEN ||
             (
               this.getColor(i, j) == 'a' &&
               [V.EGG, V.MUSHROOM].includes(this.getPiece(i, j))
@@ -950,12 +955,14 @@ export class ChakartRules extends ChessRules {
         for (let i=0; i<8; i++) {
           for (let j=0; j<8; j++) {
             const colIJ = this.getColor(i, j);
+            const pieceIJ = this.getPiece(i, j);
             if (
               i != x && j != y &&
               this.board[i][j] != V.EMPTY &&
-              colIJ != 'a'
+              colIJ != 'a' &&
+              pieceIJ != V.INVISIBLE_QUEEN
             ) {
-              allPieces.push({ x: i, y: j, c: colIJ, p: this.getPiece(i, j) });
+              allPieces.push({ x: i, y: j, c: colIJ, p: pieceIJ });
             }
           }
         }
