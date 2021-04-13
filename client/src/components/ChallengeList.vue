@@ -49,8 +49,6 @@ export default {
         if (c.added < minAdded) minAdded = c.added;
         if (c.added > maxAdded) maxAdded = c.added;
         return Object.assign({ priority: priority }, c);
-        // TODO: remove patch soon
-        if (!c.options) c.options = {}
       });
       const deltaAdded = maxAdded - minAdded;
       return augmentedChalls.sort((c1, c2) => {

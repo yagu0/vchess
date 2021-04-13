@@ -59,7 +59,7 @@ export default {
           case "Result":
             // Allow importing unfinished games, but mark them as
             // "unknown result" to avoid running the clocks...
-            game.result = (value != "*" ? value : "?");
+            game.score = (value != "*" ? value : "?");
             break;
           case "Cadence":
             game.cadence = value;

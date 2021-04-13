@@ -304,13 +304,9 @@ export class CwdaRules extends ChessRules {
   }
 
   getPotentialN_knightMoves(sq) {
-    const backward = (this.turn == 'w' ? 1 : -1);
-    const kingSteps = [
-      [0, -1], [0, 1], [backward, -1], [backward, 0], [backward, 1]
-    ];
     return (
       this.getSlideNJumpMoves(sq, V.steps.$n, 1).concat(
-      this.getSlideNJumpMoves(sq, kingSteps, 1))
+      this.getSlideNJumpMoves(sq, V.steps.f, 1))
     );
   }
 
@@ -445,13 +441,9 @@ export class CwdaRules extends ChessRules {
   }
 
   isAttackedByN_knight(sq, color) {
-    const backward = (color == 'w' ? -1 : 1);
-    const kingSteps = [
-      [0, -1], [0, 1], [backward, -1], [backward, 0], [backward, 1]
-    ];
     return (
-      this.isAttackedBySlideNJump(sq, color, V.N_KNIGHT, V.steps.$n) ||
-      this.isAttackedBySlideNJump(sq, color, V.N_KNIGHT, kingSteps, 1)
+      this.isAttackedBySlideNJump(sq, color, V.N_KNIGHT, V.steps.$n, 1) ||
+      this.isAttackedBySlideNJump(sq, color, V.N_KNIGHT, V.steps.f, 1)
     );
   }
 

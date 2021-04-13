@@ -848,7 +848,7 @@ export default {
                 id: c.id,
                 from: this.st.user.sid,
                 to: c.to,
-                options: c.options,
+                options: JSON.stringify(c.options),
                 fen: c.fen,
                 vid: c.vid,
                 cadence: c.cadence,
@@ -907,6 +907,8 @@ export default {
             if (!game.score)
               // New game from Hall
               newGame.score = "*";
+            // TODO: remove patch on next line (options || "{}")
+            newGame.options = JSON.parse(newGame.options || "{}");
             this.games.push(newGame);
             if (
               newGame.score == '*' &&
@@ -927,9 +929,12 @@ export default {
         }
         case "startgame": {
           // New game just started, I'm involved
-          const gameInfo = data.data;
-          if (this.classifyObject(gameInfo) == "live")
+          let gameInfo = data.data;
+          if (this.classifyObject(gameInfo) == "live") {
+            // TODO: remove patch on next line (+ const gameInfo)
+            if (!gameInfo.options) gameInfo.options = "{}";
             this.startNewGame(gameInfo);
+          }
           else {
             this.infoMessage =
               this.st.tr["New correspondence game:"] + " " +
@@ -973,6 +978,7 @@ export default {
               let moreGames = res.games.map(g => {
                 this.setVname(g);
                 g.type = "corr";
+                g.options = JSON.parse(g.options);
                 return g;
               });
               this.games = this.games.concat(moreGames);
@@ -992,7 +998,8 @@ export default {
       ) {
         let newChall = Object.assign({}, chall);
         newChall.type = this.classifyObject(chall);
-        newChall.options = chall.options;
+        // TODO: remove patch on next line (options || "{}")
+        newChall.options = JSON.parse(chall.options || "{}");
         newChall.added = Date.now();
         let fromValues = Object.assign({}, this.people[chall.from]);
         delete fromValues["pages"]; //irrelevant in this context
@@ -1091,7 +1098,7 @@ export default {
       // Get/set options variables (if any) / TODO: v-model?!
       for (const check of this.newchallenge.V.Options.check || []) {
         const elt = document.getElementById(check.variable + "_opt");
-        if (elt.checked) chall.options[check.variable] = true;
+        chall.options[check.variable] = elt.checked;
       }
       for (const select of this.newchallenge.V.Options.select || []) {
         const elt = document.getElementById(select.variable + "_opt");
@@ -1168,7 +1175,10 @@ export default {
         this.send("newchallenge", {
           data: Object.assign(
             // Temporarily add sender infos to display challenge on Discord.
-            { from: this.st.user.sid, sender: this.st.user.name }, chall)
+            { from: this.st.user.sid, sender: this.st.user.name },
+            chall,
+            { options: JSON.stringify(chall.options) }
+          )
         });
         // Add new challenge:
         chall.from = {
@@ -1204,10 +1214,8 @@ export default {
           "POST",
           {
             data: {
-              chall: Object.assign(
-                {},
-                chall,
-                { options: JSON.stringify(chall.options) }
+              chall: Object.assign({},
+                chall, { options: JSON.stringify(chall.options) }
               )
             },
             success: (response) => {
@@ -1316,7 +1324,7 @@ export default {
       let gameInfo = {
         id: getRandString(),
         fen: c.fen || V.GenRandInitFen(c.options),
-        options: c.options, //for rematch
+        options: JSON.stringify(c.options), //for rematch
         players: players,
         vid: c.vid,
         cadence: c.cadence
@@ -1366,11 +1374,7 @@ export default {
           {
             // cid is useful to delete the challenge:
             data: {
-              gameInfo: Object.assign(
-                {},
-                gameInfo,
-                { options: JSON.stringify(gameInfo.options) }
-              ),
+              gameInfo: gameInfo,
               cid: c.id
             },
             success: (response) => {
@@ -1396,8 +1400,7 @@ export default {
           moves: [],
           clocks: [-1, -1], //-1 = unstarted
           chats: [],
-          score: "*",
-          options: JSON.stringify(gameInfo.options)
+          score: "*"
         }
       );
       setTimeout(

@@ -157,6 +157,7 @@ export default {
               this.corrGames.forEach(g => {
                 g.type = "corr";
                 g.score = "*";
+                g.options = JSON.parse(g.options);
               });
               this.decorate(this.corrGames);
               // Now ask completed games (partial list)
@@ -279,6 +280,8 @@ export default {
         case "notifynewgame": {
           let gameInfo = data.data;
           this.setVname(gameInfo);
+          // TODO: remove patch on next line (options || "{}")
+          gameInfo.options = JSON.parse(gameInfo.options || "{}");
           const type = (gameInfo.cadence.indexOf('d') >= 0 ? "corr": "live");
           let game = Object.assign(
             {
@@ -368,7 +371,10 @@ export default {
               if (L > 0) {
                 this.cursor["corr"] = res.games[L - 1].created;
                 let moreGames = res.games;
-                moreGames.forEach(g => g.type = "corr");
+                moreGames.forEach(g => {
+                  g.type = "corr";
+                  g.options = JSON.parse(g.options);
+                });
                 this.decorate(moreGames);
                 this.corrGames = this.corrGames.concat(moreGames);
               }
@@ -386,7 +392,8 @@ export default {
             this.cursor["live"] = localGames[L - 1].created - 1;
             localGames.forEach(g => {
               g.type = "live";
-              if (!g.options) g.options = {}; //TODO: remove patch
+              // TODO: remove patch on next line (options || "{}")
+              g.options = JSON.parse(g.options || "{}");
             });
             this.decorate(localGames);
             this.liveGames = this.liveGames.concat(localGames);
@@ -403,7 +410,7 @@ export default {
             this.cursor["import"] = importGames[L - 1].created - 1;
             importGames.forEach(g => {
               g.type = "import";
-              if (!g.options) g.options = {}; //TODO: remove patch
+              g.options = JSON.parse(g.options);
               this.setVname(g);
             });
             this.importGames = this.importGames.concat(importGames);

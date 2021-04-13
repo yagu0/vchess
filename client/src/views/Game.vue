@@ -1066,7 +1066,7 @@ export default {
         let gameInfo = {
           id: getRandString(), //ignored if corr
           fen: V.GenRandInitFen(this.game.options),
-          options: this.game.options,
+          options: JSON.stringify(this.game.options),
           players: [this.game.players[1], this.game.players[0]],
           vid: this.game.vid,
           cadence: this.game.cadence
@@ -1099,11 +1099,7 @@ export default {
             "/games",
             "POST",
             {
-              data: Object.assign(
-                {},
-                gameInfo,
-                { options: JSON.stringify(this.game.options) }
-              ),
+              data: { gameInfo: gameInfo },
               success: (response) => {
                 gameInfo.id = response.id;
                 notifyNewGame();
