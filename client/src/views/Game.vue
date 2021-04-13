@@ -419,7 +419,7 @@ export default {
             this.conn = new WebSocket(this.connexionString);
             this.conn.addEventListener("message", this.socketMessageListener);
             const oppSid = this.getOppsid();
-            if (!!oppSid) this.requestLaststate(oppSid); //in case of
+            if (!!oppSid) this.requestLastate(oppSid); //in case of
           }
         },
         1000
@@ -697,7 +697,7 @@ export default {
             this.game.type == "live" &&
             this.game.players.some(p => p.sid == user.sid)
           ) {
-            this.requestLaststate(user.sid);
+            this.requestLastate(user.sid);
           }
           break;
         }
