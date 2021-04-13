@@ -172,9 +172,11 @@ main
             th {{ st.tr["Options"] }}
             th
         tbody
+          // TODO: remove the check !!pc.options
           tr(
             v-for="pc in presetChalls"
             @click="newChallFromPreset(pc)"
+            v-if="!!pc.options"
           )
             td {{ pc.vname }}
             td {{ pc.cadence }}
