@@ -410,7 +410,8 @@ export default {
             this.cursor["import"] = importGames[L - 1].created - 1;
             importGames.forEach(g => {
               g.type = "import";
-              g.options = JSON.parse(g.options);
+              // TODO: remove following patch (options || "{}")
+              g.options = JSON.parse(g.options || "{}");
               this.setVname(g);
             });
             this.importGames = this.importGames.concat(importGames);
