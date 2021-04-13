@@ -63,7 +63,7 @@ insert or ignore into Variants (name, description, groupe, display) values
   ('Doublemove1', 'Double moves (v1)', 24, 'Doublemove 1'),
   ('Doublemove2', 'Double moves (v2)', 24, 'Doublemove 2'),
   ('Dynamo', 'Push and pull', 11, 'Dynamo'),
-  ('Eightpieces', 'Each piece is unique', 7, '8 pieces'),
+  ('Eightpieces', 'Each piece is unique', 7, '8-Pieces'),
   ('Emergo', 'Stacking Checkers variant', 28, 'Emergo'),
   ('Empire', 'Empire versus Kingdom', 5, 'Empire Chess'),
   ('Enpassant', 'Capture en passant', 10, 'En-passant'),

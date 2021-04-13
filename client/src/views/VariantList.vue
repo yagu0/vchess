@@ -36,7 +36,7 @@ export default {
       );
       const variants = this.st.variants
         .filter(v => {
-          return v.name.startsWith(capitalizedPrefix);
+          return v.display.startsWith(capitalizedPrefix);
         })
         .map(v => {
           return {
@@ -46,7 +46,7 @@ export default {
           };
         })
         .sort((a, b) => {
-          return a.name.localeCompare(b.name);
+          return a.display.localeCompare(b.display);
         });
       return variants;
     }
