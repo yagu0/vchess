@@ -306,7 +306,7 @@ export class ShogunRules extends ChessRules {
   isAttackedByCaptain(sq, color) {
     const steps = V.steps[V.BISHOP].concat(V.steps[V.ROOK]);
     return (
-      super.isAttackedBySlideNJump(sq, color, V.DUCHESS, steps, 1)
+      super.isAttackedBySlideNJump(sq, color, V.CAPTAIN, steps, 1)
     );
   }
 
