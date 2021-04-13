@@ -514,6 +514,20 @@ export class CwdaRules extends ChessRules {
     );
   }
 
+  // [HACK] So that the function above works also on Fide army:
+  isAttackedByF_rook(sq, color) {
+    return super.isAttackedByRook(sq, color);
+  }
+  isAttackedByF_knight(sq, color) {
+    return super.isAttackedByKnight(sq, color);
+  }
+  isAttackedByF_bishop(sq, color) {
+    return super.isAttackedByBishop(sq, color);
+  }
+  isAttackedByF_queen(sq, color) {
+    return super.isAttackedByQueen(sq, color);
+  }
+
   static get VALUES() {
     return Object.assign(
       {
