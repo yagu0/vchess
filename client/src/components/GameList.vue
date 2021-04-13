@@ -83,6 +83,8 @@ export default {
           if (!!g.myColor) g.priority++;
           if (!!g.myTurn) g.priority++;
         }
+        // TODO: remove patch soon
+        if (!g.options) g.options = {}
       });
       const deltaCreated = maxCreated - minCreated;
       return remGames.sort((g1, g2) => {
