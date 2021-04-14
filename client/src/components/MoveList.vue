@@ -79,13 +79,10 @@ export default {
     document.getElementById("adjuster")
       .addEventListener("click", processModalClick);
     // Take full width on small screens:
-    let boardSize = parseInt(localStorage.getItem("boardSize"), 10);
-    if (!boardSize) {
-      boardSize =
-        window.innerWidth >= 768
-          ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
-          : window.innerWidth;
-    }
+    let boardSize =
+      window.innerWidth >= 768
+        ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
+        : window.innerWidth;
     const movesWidth = window.innerWidth >= 768 ? 280 : 0;
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
@@ -93,6 +90,9 @@ export default {
     document.getElementById("boardSize").value =
       (boardSize * 100) / (window.innerWidth - movesWidth);
     window.addEventListener("resize", this.adjustBoard);
+    // TODO: find sometjhing better than next height adjustment...
+    // maybe each variant could give its ratio (?!)
+    setTimeout( () => { this.adjustBoard("vertical"); }, 1000);
   },
   beforeDestroy: function() {
     window.removeEventListener("resize", this.adjustBoard);
@@ -160,21 +160,35 @@ export default {
       // Goto move except if click on current move:
       if (this.cursor != index) this.$emit("goto-move", index);
     },
-    adjustBoard: function() {
+    adjustBoard: function(vertical) {
       const boardContainer = document.getElementById("boardContainer");
       if (!boardContainer) return; //no board on page
-      const k = document.getElementById("boardSize").value;
       const movesWidth = window.innerWidth >= 768 ? 280 : 0;
-      const minBoardWidth = 240; //TODO: these 240 and 280 are arbitrary...
-      // Value of 0 is board min size; 100 is window.width [- movesWidth]
-      const boardSize =
-        minBoardWidth +
-        (k * (window.innerWidth - (movesWidth + minBoardWidth))) / 100;
-      localStorage.setItem("boardSize", boardSize);
-      boardContainer.style.width = boardSize + "px";
-      document.getElementById("gameContainer").style.width =
-        boardSize + movesWidth + "px";
-      this.$emit("redraw-board");
+      let gameContainer = document.getElementById("gameContainer");
+      if (vertical) {
+        const bRect =
+          document.getElementById("rootBoardElement").getBoundingClientRect();
+        if (bRect.bottom > window.innerHeight) {
+          const maxHeight = window.innerHeight - 20;
+          gameContainer.style.height = maxHeight + "px";
+          const boardSize = maxHeight * bRect.width / bRect.height;
+          boardContainer.style.width = boardSize + "px";
+          gameContainer.style.width = boardSize + movesWidth + "px";
+          this.$emit("redraw-board");
+          setTimeout( () => window.scroll(0, bRect.top), 1000);
+        }
+      }
+      else {
+        const k = document.getElementById("boardSize").value;
+        const minBoardWidth = 160; //TODO: these 160 and 280 are arbitrary...
+        // Value of 0 is board min size; 100 is window.width [- movesWidth]
+        const boardSize =
+          minBoardWidth +
+          (k * (window.innerWidth - (movesWidth + minBoardWidth))) / 100;
+        boardContainer.style.width = boardSize + "px";
+        gameContainer.style.width = boardSize + movesWidth + "px";
+        this.$emit("redraw-board");
+      }
     }
   }
 };
