@@ -1096,7 +1096,7 @@ export default {
         return;
       }
       window.V = this.newchallenge.V;
-      let chall = Object.assign({ options: {} }, this.newchallenge);
+      let chall = Object.assign({}, this.newchallenge, { options: {} });
       // Get/set options variables (if any) / TODO: v-model?!
       for (const check of this.newchallenge.V.Options.check || []) {
         const elt = document.getElementById(check.variable + "_opt");
@@ -1216,8 +1216,10 @@ export default {
           "POST",
           {
             data: {
-              chall: Object.assign({},
-                chall, { options: JSON.stringify(chall.options) }
+              chall: Object.assign(
+                {},
+                chall,
+                { options: JSON.stringify(chall.options) }
               )
             },
             success: (response) => {
