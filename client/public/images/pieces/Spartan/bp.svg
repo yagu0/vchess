@@ -28,7 +28,7 @@
    guidetolerance="10"
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
-   inkscape:window-width="1920"
+   inkscape:window-width="960"
    inkscape:window-height="1060"
    id="namedview19"
    showgrid="false"
@@ -46,7 +46,7 @@
 </style>
 <g
    id="g16"
-   transform="matrix(0.9,0,0,0.9,21.6,21.6)">
+   transform="matrix(0.9,0,0,0.85,21.6,32.4)">
 	<path
    d="m 162.58,131.56 c 0,0 0,28 -16.56,106.31 -9.95,47.06 -37.34,78.82 -46.64,112.01 -2.25,8.02 -6.29,36.37 -6.29,36.37 l -18.11,20.71 v 17.6 h 282.04 v -17.6 l -18.11,-20.71 c 0,0 -4.05,-28.35 -6.3,-36.37 -9.3,-33.19 -36.68,-64.95 -46.64,-112.01 -16.56,-78.31 -16.56,-106.31 -16.56,-106.31 z"
    id="path4" />
