@@ -7,62 +7,75 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="20"
-   height="20"
-   viewBox="0 0 20 20"
    version="1.1"
-   id="svg6"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 432 432"
+   style="enable-background:new 0 0 432 432;"
+   xml:space="preserve"
    sodipodi:docname="bp.svg"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
-  <metadata
-     id="metadata12">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs10" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="960"
-     inkscape:window-height="1060"
-     id="namedview8"
-     showgrid="false"
-     inkscape:zoom="31.218764"
-     inkscape:cx="10"
-     inkscape:cy="10"
-     inkscape:window-x="0"
-     inkscape:window-y="20"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg6"
-     inkscape:document-rotation="0" />
-  <title
-     id="title2">Hoplite</title>
-  <path
-     d="m 15.954393,8.9177205 a 5.38,5.38 0 0 0 -4.46,-4.85 c 0.06,-0.69 -0.01,-2.15 -1.5399992,-2.15 -1.53,0 -1.6,1.46 -1.54,2.15 a 5.38,5.38 0 0 0 -4.46,4.85 v 6.0000005 l -2,2 v 1 H 17.954393 v -1 l -2,-2 z"
-     id="path4" />
-  <text
-     x="7.837368"
-     y="13.043901"
-     fill="#808080"
-     style="font-size:7.98644px;font-family:'DejaVu Sans', 'Bitstream Vera Sans';stroke-width:0.532429"
-     xml:space="preserve"
-     id="text4"
-     transform="scale(0.95601811,1.0460053)"><tspan
-       x="7.837368"
-       y="13.043901"
-       id="tspan2"
-       style="stroke-width:0.532429">v</tspan></text>
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"><metadata
+   id="metadata23"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs21" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1060"
+   id="namedview19"
+   showgrid="false"
+   inkscape:zoom="2.0439815"
+   inkscape:cx="216"
+   inkscape:cy="216"
+   inkscape:window-x="0"
+   inkscape:window-y="20"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="Layer_1" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{fill:#888787;}
+</style>
+<g
+   id="g16"
+   transform="matrix(0.9,0,0,0.9,21.6,21.6)">
+	<path
+   d="m 162.58,131.56 c 0,0 0,28 -16.56,106.31 -9.95,47.06 -37.34,78.82 -46.64,112.01 -2.25,8.02 -6.29,36.37 -6.29,36.37 l -18.11,20.71 v 17.6 h 282.04 v -17.6 l -18.11,-20.71 c 0,0 -4.05,-28.35 -6.3,-36.37 -9.3,-33.19 -36.68,-64.95 -46.64,-112.01 -16.56,-78.31 -16.56,-106.31 -16.56,-106.31 z"
+   id="path4" />
+	<circle
+   cx="216"
+   cy="57.619999"
+   r="36.389999"
+   id="circle6" />
+	<rect
+   x="207.02"
+   y="7.4400001"
+   class="st0"
+   width="17.959999"
+   height="19.25"
+   id="rect8" />
+	<circle
+   class="st0"
+   cx="216"
+   cy="218.25"
+   r="144.62"
+   id="circle10" />
+	<circle
+   cx="216"
+   cy="219.57001"
+   r="132.46001"
+   id="circle12" />
+	<polygon
+   class="st0"
+   points="271.93,283.81 298.1,283.81 216,132.24 133.9,283.81 160.07,283.81 216,173.74 "
+   id="polygon14" />
+</g>
 </svg>
