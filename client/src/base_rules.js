@@ -135,16 +135,15 @@ export const ChessRules = class ChessRules {
     return V.CanFlip;
   }
 
+  // NOTE: these will disappear once each variant has its dedicated SVG board.
   // For (generally old) variants without checkered board
   static get Monochrome() {
     return false;
   }
-
   // Some games are drawn unusually (bottom right corner is black)
   static get DarkBottomRight() {
     return false;
   }
-
   // Some variants require lines drawing
   static get Lines() {
     if (V.Monochrome) {

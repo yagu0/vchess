@@ -1,10 +1,98 @@
-import { ChessRules, PiPo } from "@/base_rules";
+import { ChessRules, Move, PiPo } from "@/base_rules";
 
-export class Atomic1Rules extends ChessRules {
+export class AtomicRules extends ChessRules {
+
+  static get Options() {
+    return {
+      check: [
+        {
+          label: "Balanced",
+          defaut: false,
+          variable: "balanced"
+        }
+      ],
+      select: ChessRules.Options.select
+    };
+  }
+
+  static AbbreviateOptions(opts) {
+    return opts["balanced"] ? 'B' : '';
+  }
+
+  static GenRandInitFen(options) {
+    return ChessRules.GenRandInitFen(options) + (options.balanced ? " B" : "");
+  }
+
+  setOtherVariables(fen) {
+    super.setOtherVariables(fen);
+    this.balanced = !!V.ParseFen(fen).balanced;
+  }
+
+  static ParseFen(fen) {
+    return Object.assign(
+      { balanced: fen.split(" ")[5] },
+      ChessRules.ParseFen(fen)
+    );
+  }
+
+  static IsGoodFen(fen) {
+    if (!ChessRules.IsGoodFen(fen)) return false;
+    const balanced = V.ParseFen(fen).balanced;
+    return (!balanced || balanced == 'B');
+  }
+
+  getFen() {
+    return super.getFen() + (this.balanced ? " B" : "");
+  }
+
+  hoverHighlight([x, y]) {
+    return this.balanced && this.movesCount == 0 && [1, 6].includes(x);
+  }
+
+  canIplay(side, [x, y]) {
+    if (this.balanced && this.movesCount == 0)
+      return (this.turn == side && this.getPiece(x, y) == V.PAWN);
+    return super.canIplay(side, [x, y]);
+  }
+
+  doClick(square) {
+    if (!this.balanced || this.movesCount >= 1) return null;
+    const [x, y] = [square[0], square[1]];
+    if (![1, 6].includes(x)) return null;
+    return new Move({
+      appear: [],
+      vanish: [
+        new PiPo({
+          x: x,
+          y: y,
+          c: this.getColor(x, y),
+          p: V.PAWN
+        })
+      ],
+      start: { x: x, y: y },
+      end: { x: x, y: y }
+    });
+  }
 
   getPotentialMovesFrom([x, y]) {
-    let moves = super.getPotentialMovesFrom([x, y]);
+    if (this.balanced && this.movesCount == 0) {
+      if ([1, 6].includes(x)) {
+        const c = this.getColor(x, y);
+        return [
+          new Move({
+            appear: [],
+            vanish: [
+              new PiPo({ x: x, y: y, p: V.PAWN, c: c })
+            ],
+            start: { x: x, y: y },
+            end: { x: x, y: y }
+          })
+        ];
+      }
+      return [];
+    }
 
+    let moves = super.getPotentialMovesFrom([x, y]);
     if (this.getPiece(x, y) == V.PAWN) {
       // Promotions by captures can be reduced to only one deterministic
       // move (because of the explosion).
@@ -15,7 +103,6 @@ export class Atomic1Rules extends ChessRules {
         );
       });
     }
-
     // Handle explosions
     moves.forEach(m => {
       // NOTE: if vanish.length==2 and appear.length==2, this is castle
@@ -53,7 +140,6 @@ export class Atomic1Rules extends ChessRules {
         m.appear.pop(); //Nothin appears in this case
       }
     });
-
     return moves;
   }
 
@@ -120,7 +206,7 @@ export class Atomic1Rules extends ChessRules {
     super.postUndo(move);
     const c = this.turn;
     const oppCol = V.GetOppCol(c);
-    // NOTE: condition on movesCount for Atomic2
+    // NOTE: condition on movesCount for balanced setting
     if (
       this.movesCount >= 1 &&
       [this.kingPos[c][0], this.kingPos[oppCol][0]].some(e => e < 0)
@@ -166,6 +252,13 @@ export class Atomic1Rules extends ChessRules {
     if (this.atLeastOneMove()) return "*";
     if (!this.isAttacked(kp, V.GetOppCol(color))) return "1/2";
     return color == "w" ? "0-1" : "1-0"; //checkmate
+  }
+
+  getNotation(move) {
+    if (move.appear.length == 0 && move.vanish.length == 1)
+      // First move in game (balanced == true)
+      return V.CoordsToSquare(move.start) + "X";
+    return super.getNotation(move);
   }
 
 };

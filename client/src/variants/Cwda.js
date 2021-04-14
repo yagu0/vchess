@@ -112,8 +112,7 @@ export class CwdaRules extends ChessRules {
   static IsGoodFen(fen) {
     if (!ChessRules.IsGoodFen(fen)) return false;
     const armies = V.ParseFen(fen).armies;
-    if (!armies || !armies.match(/^[CNRF]{2,2}$/)) return false;
-    return true;
+    return (!!armies && armies.match(/^[CNRF]{2,2}$/));
   }
 
   getFen() {

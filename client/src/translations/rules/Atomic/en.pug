@@ -29,11 +29,26 @@ ol
 p Explosions have priority: a checkmate followed by a king explosion loses.
 
 figure.diagram-container
-  .diagram
-    | fen:r3kbnr/pp3ppp/3p4/4p3/8/8/PPPPPPPP/R1BQKBNR:
-  figcaption.
-    After the moves 1.Nc3 d6?? 2.Nd5 e5 (forced to avoid king explosion)
-    3.Nxc7
+  .diagram.diag12
+    | fen:3rkbnr/pb1pp2p/npp5/q4ppQ/P1B1P3/NP5N/1BPP1PPP/R3K2R:
+  .diagram.diag22
+    | fen:3rkbnr/pb1pp2p/npp5/5ppQ/P1B1P3/NP5N/1BP2PPP/R6R:
+  figcaption 1.Qh5+ (left) 1...Qxd2# (right), black wins.
+
+h3 Balancing
+
+p.
+  White has a big advantage in this variant. In order to balance the odds,
+  you can select "Balanced" to let white choose any pawn (any color) to
+  remove before the game starts.
+  The game then continues normally, black playing first.
+
+p
+  | This was suggested (relayed?) and analyzed recently (2020) by a strong
+  | Atomic player (Gannet on Discord). See 
+  a(href="https://discord.com/channels/686736099959504907/687076744095858762/762398439043498046")
+    | the messages
+  | &nbsp;on Discord vchess server.
 
 h3 More information
 
