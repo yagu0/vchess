@@ -12,6 +12,10 @@ export class DiamondRules extends ChessRules {
     return false;
   }
 
+  getPpath(b) {
+    return (b[1] == 'p' ? "Berolina/" : "") + b;
+  }
+
   static GenRandInitFen(options) {
     if (options.randomness == 0)
       return "krbp4/rqnp4/nbpp4/pppp4/4PPPP/4PPBN/4PNQR/4PBRK w 0";

@@ -30,7 +30,7 @@ export class Antiking1Rules extends BerolinaRules {
   }
 
   getPpath(b) {
-    return b[1] == "a" ? "Antiking/" + b : b;
+    return (['a', 'p'].includes(b[1]) ? "Antiking/" : "") + b;
   }
 
   static IsGoodPosition(position) {

@@ -2,6 +2,10 @@ import { ChessRules } from "@/base_rules";
 
 export class BerolinaRules extends ChessRules {
 
+  getPpath(b) {
+    return (b[1] == 'p' ? "Berolina/" : "") + b;
+  }
+
   // En-passant after 2-sq jump
   getEpSquare(moveOrSquare) {
     if (!moveOrSquare) return undefined;
