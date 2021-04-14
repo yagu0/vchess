@@ -81,7 +81,7 @@ export default {
     // Take full width on small screens:
     let boardSize =
       window.innerWidth >= 768
-        ? 0.75 * Math.min(window.innerWidth, window.innerHeight)
+        ? 0.7 * Math.min(window.innerWidth, window.innerHeight)
         : window.innerWidth;
     const movesWidth = window.innerWidth >= 768 ? 280 : 0;
     document.getElementById("boardContainer").style.width = boardSize + "px";
@@ -89,10 +89,12 @@ export default {
     gameContainer.style.width = boardSize + movesWidth + "px";
     document.getElementById("boardSize").value =
       (boardSize * 100) / (window.innerWidth - movesWidth);
-    window.addEventListener("resize", this.adjustBoard);
-    // TODO: find sometjhing better than next height adjustment...
-    // maybe each variant could give its ratio (?!)
-    setTimeout( () => { this.adjustBoard("vertical"); }, 1000);
+    window.addEventListener("resize", () => this.adjustBoard());
+    if ("ontouchstart" in window) {
+      // TODO: find something better than next height adjustment...
+      // maybe each variant could give its ratio (?!)
+      setTimeout( () => { this.adjustBoard("vertical"); }, 1000);
+    }
   },
   beforeDestroy: function() {
     window.removeEventListener("resize", this.adjustBoard);
