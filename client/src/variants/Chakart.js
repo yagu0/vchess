@@ -658,12 +658,12 @@ export class ChakartRules extends ChessRules {
             const afterColor = this.getColor(afterNext[0], afterNext[1]);
             if (
               this.board[afterNext[0]][afterNext[1]] == V.EMPTY ||
-              afterColor != color1
+              afterColor == 'a'
             ) {
               move.appear[0].x = afterNext[0];
               move.appear[0].y = afterNext[1];
               if (this.board[afterNext[0]][afterNext[1]] != V.EMPTY) {
-                // The "object" could also be an opponent's piece
+                // object = banana, bomb, mushroom or egg
                 const object = this.getPiece(afterNext[0], afterNext[1]);
                 move.vanish.push(
                   new PiPo({
