@@ -109,6 +109,24 @@ export class CwdaRules extends ChessRules {
     this.army2 = armies.charAt(1);
   }
 
+  scanKings(fen) {
+    this.kingPos = { w: [-1, -1], b: [-1, -1] };
+    const fenRows = V.ParseFen(fen).position.split("/");
+    for (let i = 0; i < fenRows.length; i++) {
+      let k = 0;
+      for (let j = 0; j < fenRows[i].length; j++) {
+        const newChar = fenRows[i].charAt(j);
+        if (['a', 'e', 'k'].includes(newChar)) this.kingPos["b"] = [i, k];
+        else if (['A', 'E', 'K'].includes(newChar)) this.kingPos["w"] = [i, k];
+        else {
+          const num = parseInt(fenRows[i].charAt(j), 10);
+          if (!isNaN(num)) k += num - 1;
+        }
+        k++;
+      }
+    }
+  }
+
   static ParseFen(fen) {
     return Object.assign(
       { armies: fen.split(" ")[5] },
@@ -570,6 +588,28 @@ export class CwdaRules extends ChessRules {
   }
   isAttackedByF_queen(sq, color) {
     return super.isAttackedByQueen(sq, color);
+  }
+
+  postPlay(move) {
+    const c = V.GetOppCol(this.turn);
+    const piece = move.appear[0].p;
+    // Update king position + flags
+    if (['k', 'a', 'e'].includes(piece)) {
+      this.kingPos[c][0] = move.appear[0].x;
+      this.kingPos[c][1] = move.appear[0].y;
+      this.castleFlags[c] = [V.size.y, V.size.y];
+    }
+    // Next call is still required because the king may eat an opponent's rook
+    // TODO: castleFlags will be turned off twice then.
+    super.updateCastleFlags(move, piece);
+  }
+
+  postUndo(move) {
+    // (Potentially) Reset king position
+    const c = this.getColor(move.start.x, move.start.y);
+    const piece = move.appear[0].p;
+    if (['k', 'a', 'e'].includes(piece))
+      this.kingPos[c] = [move.start.x, move.start.y];
   }
 
   static get VALUES() {
