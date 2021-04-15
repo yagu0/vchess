@@ -192,6 +192,30 @@ export class CwdaRules extends ChessRules {
     );
   }
 
+  getEpSquare(moveOrSquare) {
+    if (!moveOrSquare) return undefined; //TODO: necessary line?!
+    if (typeof moveOrSquare === "string") {
+      const square = moveOrSquare;
+      if (square == "-") return undefined;
+      return V.SquareToCoords(square);
+    }
+    // Argument is a move:
+    const move = moveOrSquare;
+    const s = move.start,
+          e = move.end;
+    if (
+      s.y == e.y &&
+      Math.abs(s.x - e.x) == 2 &&
+      ['p', 'u', 'v'].includes(move.appear[0].p)
+    ) {
+      return {
+        x: (s.x + e.x) / 2,
+        y: s.y
+      };
+    }
+    return undefined; //default
+  }
+
   getPotentialMovesFrom(sq) {
     switch (this.getPiece(sq[0], sq[1])) {
       case V.C_ROOK: return this.getPotentialC_rookMoves(sq);
@@ -570,6 +594,13 @@ export class CwdaRules extends ChessRules {
 
   static get SEARCH_DEPTH() {
     return 2;
+  }
+
+  getNotation(move) {
+    let notation = super.getNotation(move);
+    if (['u', 'v'].includes(move.appear[0].p))
+      notation = notation.slice(0, -2);
+    return notation;
   }
 
 };
