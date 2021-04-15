@@ -1134,7 +1134,7 @@ export default {
         alert(this.st.tr["Challenge already exists"]);
         return;
       }
-      if (this.newchallenge.memorize) this.addPresetChall(this.newchallenge);
+      if (this.newchallenge.memorize) this.addPresetChall(chall);
       delete chall["V"];
       delete chall["diag"];
       const finishAddChallenge = cid => {
