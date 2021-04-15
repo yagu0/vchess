@@ -55,7 +55,8 @@ export class CwdaRules extends ChessRules {
         'n': 'w',
         'b': 'f',
         'q': 'c',
-        'k': 'k'
+        'k': 'k',
+        'p': 'p'
       },
       // Nutty Knights
       'N': {
@@ -63,7 +64,8 @@ export class CwdaRules extends ChessRules {
         'n': 'i',
         'b': 't',
         'q': 'l',
-        'k': 'k'
+        'k': 'k', //TODO: e
+        'p': 'p' //TODO: v
       },
       // Remarkable Rookies
       'R': {
@@ -71,26 +73,31 @@ export class CwdaRules extends ChessRules {
         'n': 'y',
         'b': 'h',
         'q': 'o',
-        'k': 'k'
+        'k': 'a',
+        'p': 'u'
       }
     };
   }
 
   static GenRandInitFen(options) {
     const baseFen = ChessRules.GenRandInitFen(options.randomness);
-    let blackLine = baseFen.substr(0, 8);
+    let blackLine = baseFen.substr(0, 8), blackPawns = "pppppppp";
     if (options.army2 != 'F') {
       blackLine = blackLine.split('')
         .map(p => V.PiecesMap[options.army2][p]).join('');
+      blackPawns = V.PiecesMap[options.army2]['p'].repeat(8);
     }
-    let whiteLine = baseFen.substr(35, 8);
+    let whiteLine = baseFen.substr(35, 8), whitePawns = "PPPPPPPP";
     if (options.army1 != 'F') {
       whiteLine = whiteLine.split('')
         .map(p => V.PiecesMap[options.army1][p.toLowerCase()])
         .join('').toUpperCase();
+      whitePawns = V.PiecesMap[options.army1]['p'].toUpperCase().repeat(8);
     }
     return (
-      blackLine + baseFen.substring(8, 35) + whiteLine +
+      blackLine + "/" + blackPawns +
+      baseFen.substring(17, 26) +
+      whitePawns + "/" + whiteLine +
       baseFen.substr(43) + " " + options.army1 + options.army2
     );
   }
@@ -143,6 +150,12 @@ export class CwdaRules extends ChessRules {
   static get N_QUEEN() {
     return 'l';
   }
+  static get N_KING() {
+    return 'e';
+  }
+  static get N_PAWN() {
+    return 'v';
+  }
   static get R_ROOK() {
     return 's';
   }
@@ -155,12 +168,28 @@ export class CwdaRules extends ChessRules {
   static get R_QUEEN() {
     return 'o';
   }
+  static get R_KING() {
+    return 'a';
+  }
+  static get R_PAWN() {
+    return 'u';
+  }
+
+  getPiece(x, y) {
+    const p = this.board[x][y][1];
+    if (['u', 'v'].includes(p)) return 'p';
+    if (['a', 'e'].includes(p)) return 'k';
+    return p;
+  }
 
   static get PIECES() {
     return ChessRules.PIECES.concat(
-      [V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN]).concat(
-      [V.N_ROOK, V.N_KNIGHT, V.N_BISHOP, V.N_QUEEN]).concat(
-      [V.R_ROOK, V.R_KNIGHT, V.R_BISHOP, V.R_QUEEN]);
+      [
+        V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN,
+        V.N_ROOK, V.N_KNIGHT, V.N_BISHOP, V.N_QUEEN, V.N_KING, V.N_PAWN,
+        V.R_ROOK, V.R_KNIGHT, V.R_BISHOP, V.R_QUEEN, V.R_KING, V.R_PAWN
+      ]
+    );
   }
 
   getPotentialMovesFrom(sq) {

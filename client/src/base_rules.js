@@ -47,8 +47,7 @@ export const ChessRules = class ChessRules {
             { label: "Asymmetric random", value: 2 }
           ]
         }
-      ],
-      check: []
+      ]
     };
   }
 

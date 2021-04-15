@@ -5,6 +5,23 @@ import { randInt } from "@/utils/alea";
 
 export class ChakartRules extends ChessRules {
 
+  static get Options() {
+    return {
+      select: [
+        {
+          label: "Randomness",
+          variable: "randomness",
+          defaut: 2,
+          options: [
+            { label: "Deterministic", value: 0 },
+            { label: "Symmetric random", value: 1 },
+            { label: "Asymmetric random", value: 2 }
+          ]
+        }
+      ]
+    };
+  }
+
   static get PawnSpecs() {
     return SuicideRules.PawnSpecs;
   }
