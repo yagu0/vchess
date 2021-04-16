@@ -16,8 +16,8 @@
    viewBox="0 0 50 50"
    version="1.1"
    id="svg10137"
-   sodipodi:docname="WhiteHalfDuck.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="wh.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    inkscape:export-filename="D:\Pictures\Chess Variants\Chess\pieces\Shogun\WhiteMortar.png"
    inkscape:export-xdpi="198.53"
    inkscape:export-ydpi="198.53">
@@ -29,7 +29,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -42,15 +42,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3360"
-     inkscape:window-height="1780"
+     inkscape:window-width="1920"
+     inkscape:window-height="1060"
      id="namedview10139"
      showgrid="false"
      inkscape:zoom="5.3282158"
      inkscape:cx="61.078655"
-     inkscape:cy="61.369678"
-     inkscape:window-x="6708"
-     inkscape:window-y="1085"
+     inkscape:cy="98.905695"
+     inkscape:window-x="0"
+     inkscape:window-y="20"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg10137"
      inkscape:document-rotation="0" />
@@ -74,6 +74,6 @@
   </defs>
   <path
      id="path3569"
-     style="fill:#ffff80;fill-opacity:1;stroke:#000000;stroke-width:1.75439;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;paint-order:normal"
-     d="m 24.835195,7.171194 -3.313819,12.733842 -5.071048,-1.358159 1.540607,4.838992 -12.5271422,3.486346 12.7332912,3.313268 -1.358159,5.071599 4.839543,-1.540607 3.486345,12.527143 3.313268,-12.733292 5.07105,1.35816 -1.540608,-4.839544 12.527694,-3.486345 -12.733844,-3.313269 1.35816,-5.071048 -4.838993,1.540055 z m 0.164809,18.159312 a 1.4565678,1.3771186 0 0 1 1.456273,1.3769 1.4565678,1.3771186 0 0 1 -1.456273,1.376899 1.4565678,1.3771186 0 0 1 -1.456824,-1.376899 1.4565678,1.3771186 0 0 1 1.456824,-1.3769 z" />
+     style="fill:#ffff80;fill-opacity:1;stroke:#000000;stroke-width:1.84211;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;paint-order:normal"
+     d="m 24.701167,4.5677593 -3.47951,13.3705347 -5.324601,-1.426067 1.617638,5.080941 -13.1534996,3.660663 13.3699556,3.478932 -1.426067,5.325179 5.08152,-1.617638 3.660663,13.153501 3.478931,-13.369957 5.324603,1.426068 -1.617639,-5.081521 13.154079,-3.660662 -13.370536,-3.478933 1.426068,-5.3246 -5.080943,1.617057 z m 0.173049,19.0672777 a 1.5293962,1.4459745 0 0 1 1.529087,1.445745 1.5293962,1.4459745 0 0 1 -1.529087,1.445744 1.5293962,1.4459745 0 0 1 -1.529665,-1.445744 1.5293962,1.4459745 0 0 1 1.529665,-1.445745 z" />
 </svg>

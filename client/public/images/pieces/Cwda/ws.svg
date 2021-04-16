@@ -16,8 +16,8 @@
    viewBox="0 0 50 50"
    version="1.1"
    id="svg861"
-   sodipodi:docname="WhiteShortRook.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+   sodipodi:docname="ws.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
   <metadata
      id="metadata865">
     <rdf:RDF>
@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,17 +39,18 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1650"
-     inkscape:window-height="1393"
+     inkscape:window-width="960"
+     inkscape:window-height="1060"
      id="namedview863"
      showgrid="false"
      inkscape:zoom="2.4637354"
-     inkscape:cx="40.278587"
-     inkscape:cy="156.6533"
+     inkscape:cx="72.537369"
+     inkscape:cy="124.18228"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="20"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg861" />
+     inkscape:current-layer="svg861"
+     inkscape:document-rotation="0" />
   <defs
      id="defs855">
     <linearGradient
@@ -73,7 +74,7 @@
        x2="77.739998"
        y2="37.429001"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-36.987106,-0.70167688)">
+       gradientTransform="matrix(1.1,0,0,1.05,-42.375,-5.3235595)">
       <stop
          stop-color="#fff"
          id="stop884" />
@@ -103,20 +104,20 @@
   </defs>
   <path
      fill="#1f1a17"
-     d="m 28.408,14.775556 h 4.216 v -3.395 h 6.796 v 9.295 l -5.5,4.243 0,6.301444 4.22,4.221 v 5.08 h 3.789 V 46.45 H 8.07 v -5.929 h 3.794 v -5.08 l 4.246,-4.221 0,-6.301444 -5.508,-4.243 v -9.295 h 6.774 v 3.395 h 4.242 v -3.395 h 6.79 z"
+     d="m 29.559616,10.927535 h 4.6376 V 7.3627851 h 7.4756 v 9.7597499 l -6.05,4.45515 v 6.616516 l 4.642,4.43205 v 5.334 h 4.1679 v 6.22545 H 7.1878159 v -6.22545 h 4.1734001 v -5.334 l 4.6706,-4.43205 V 21.577685 L 9.9730156,17.122535 V 7.3627851 h 7.4514004 v 3.5647499 h 4.6662 V 7.3627851 h 7.469 z"
      id="path857"
      sodipodi:nodetypes="ccccccccccccccccccccccccc"
-     style="fill:#000000" />
+     style="fill:#000000;stroke-width:1.07471" />
   <path
      fill="url(#0)"
-     d="m 33.07,23.233556 3.15,-2.557 H 13.8 l 3.175,2.557 h 16.1 M 40.272,42.206 H 9.758 v 2.557 h 30.514 v -2.557 m -3.844,-5.05 H 13.602 v 3.37 h 22.826 v -3.37 M 32.212,24.923556 H 17.819 l 0,6.306444 h 14.393 l 0,-6.306444 m 5.503,-5.927 v -5.927 H 34.32 v 3.395 h -7.645 v -3.395 h -3.344 v 3.395 h -7.62 v -3.395 h -3.395 v 5.927 h 25.4 M 35.803,35.441 33.255,32.909 H 16.804 l -2.599,2.532 h 21.598"
+     d="m 34.687816,19.808435 3.465,-2.68485 h -24.662 l 3.4925,2.68485 h 17.71 m 7.9167,19.921066 H 9.0446159 v 2.68485 H 42.610016 v -2.68485 m -4.2284,-5.3025 h -25.1086 v 3.5385 h 25.1086 v -3.5385 m -4.6376,-12.844066 h -15.8323 v 6.621766 h 15.8323 v -6.621766 m 6.0533,-6.22335 V 9.1362351 h -3.7345 v 3.5647499 h -8.4095 V 9.1362351 h -3.6784 v 3.5647499 h -8.382 V 9.1362351 h -3.7345 v 6.2233499 h 27.94 m -2.1043,17.266666 -2.8028,-2.6586 h -18.0961 l -2.8589,2.6586 h 23.7578"
      id="path859"
-     style="fill:#ffff80;fill-opacity:1"
+     style="fill:#ffff80;fill-opacity:1;stroke-width:1.07471"
      sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccc" />
   <path
      fill="url(#0)"
-     d="m -11.977106,34.338324 h -10.27 l -1.143,1.067 v 1.438999 h 22.82599999 v -1.438999 l -1.14299999,-1.067 h -10.27 m -11.413,5.079999 v 2.532 h 22.82599999 v -2.532 H -23.390106 m 11.413,-23.310159 h -12.7 v 1.143 l 1.812,1.363 h 21.802 l 1.76099999,-1.363 v -1.143 H -11.977106 m 0,4.191 h -8.678 l 1.482,1.168 v 1.414 h 14.393 v -1.414 l 1.482,-1.168 h -8.678 m 0,9.777159 h -7.197 v 1.143 l -1.482,1.439001 h 17.357 l -1.482,-1.439001 v -1.143 h -7.197"
+     d="m -14.864,31.468441 h -11.297 l -1.2573,1.12035 v 1.510949 h 25.1085993 v -1.510949 l -1.2573,-1.12035 H -14.864 m -12.5543,5.333999 v 2.6586 h 25.1085993 v -2.6586 H -27.4183 M -14.864,12.326773 h -13.97 v 1.20015 l 1.9932,1.43115 h 23.9821993 l 1.93709998,-1.43115 v -1.20015 H -14.864 m 0,4.40055 h -9.5458 l 1.6302,1.2264 v 1.4847 h 15.8322993 v -1.4847 l 1.6302,-1.2264 H -14.8629 m 0,10.266017 h -7.9167 v 1.20015 l -1.6302,1.510951 h 19.0926993 l -1.6302,-1.510951 V 26.99334 H -14.864"
      id="path893"
      sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccccc"
-     style="fill:url(#0-7);stroke-width:1" />
+     style="fill:url(#0-7);stroke-width:1.07471" />
 </svg>

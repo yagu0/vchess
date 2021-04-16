@@ -16,8 +16,8 @@
    viewBox="0 0 50 50"
    version="1.1"
    id="svg10137"
-   sodipodi:docname="WhiteWoodyRook.svg"
-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="wy.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    inkscape:export-filename="D:\Pictures\Chess Variants\Chess\pieces\Shogun\WhiteMortar.png"
    inkscape:export-xdpi="198.53"
    inkscape:export-ydpi="198.53">
@@ -29,7 +29,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -42,15 +42,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3360"
-     inkscape:window-height="1780"
+     inkscape:window-width="960"
+     inkscape:window-height="1060"
      id="namedview10139"
      showgrid="false"
-     inkscape:zoom="5.3282158"
+     inkscape:zoom="2.6641079"
      inkscape:cx="61.078655"
      inkscape:cy="61.369678"
-     inkscape:window-x="6708"
-     inkscape:window-y="1085"
+     inkscape:window-x="0"
+     inkscape:window-y="20"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg10137"
      inkscape:document-rotation="0" />
@@ -74,7 +74,7 @@
   </defs>
   <g
      id="g10710"
-     transform="matrix(0.88963841,-0.16235103,0.16235103,0.88963841,-4.0197626,6.8524838)">
+     transform="matrix(0.97860225,-0.17858613,0.17858613,0.97860225,-6.6501131,1.4752142)">
     <path
        sodipodi:nodetypes="cccsssc"
        inkscape:connector-curvature="0"
@@ -89,21 +89,21 @@
        style="fill:#ffff80;fill-opacity:1;stroke:#000000;stroke-width:1.56035;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
   <path
-     style="fill:#ffff80;fill-opacity:1;stroke:#000000;stroke-width:1.69329;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="m 16.938415,33.741618 2.202811,-8.650492 c 0.995427,-3.909066 11.466536,-3.745608 12.470169,0 l 2.339932,8.732741 v 3.958562 H 16.880875 Z"
+     style="fill:#ffff80;fill-opacity:1;stroke:#000000;stroke-width:1.86262;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 16.403882,31.053262 2.423093,-9.515542 c 1.094969,-4.299972 12.613189,-4.120168 13.717185,0 l 2.573926,9.606016 v 4.354418 H 16.340588 Z"
      id="path10686"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="csscccc" />
   <path
-     d="m 28.849283,36.335748 h 4.216 v -3.395 h 6.796 v 9.295 l -5.5,4.243 h -17.81 l -5.508,-4.243 v -9.295 h 6.774 v 3.395 h 4.242 v -3.395 h 6.79 z"
+     d="m 29.505837,33.906805 h 4.6376 v -3.7345 h 7.4756 v 10.2245 l -6.05,4.6673 h -19.591 l -6.0588,-4.6673 v -10.2245 h 7.4514 v 3.7345 h 4.6662 v -3.7345 h 7.469 z"
      id="path10133"
      inkscape:connector-curvature="0"
-     style="fill:#000000"
+     style="fill:#000000;stroke-width:1.1"
      sodipodi:nodetypes="ccccccccccccccc" />
   <path
-     d="m 33.511283,44.793748 3.15,-2.557 h -22.42 l 3.175,2.557 h 16.1 m 4.64,-4.237 v -5.927 h -3.395 v 3.395 h -7.645 v -3.395 h -3.344 v 3.395 h -7.62 v -3.395 h -3.395 v 5.927 h 25.4"
+     d="m 34.634037,43.210605 3.465,-2.8127 h -24.662 l 3.4925,2.8127 h 17.71 m 5.104,-4.6607 v -6.5197 h -3.7345 v 3.7345 h -8.4095 v -3.7345 h -3.6784 v 3.7345 h -8.382 v -3.7345 h -3.7345 v 6.5197 h 27.94"
      id="path10135"
      inkscape:connector-curvature="0"
-     style="fill:#ffff80;fill-opacity:1"
+     style="fill:#ffff80;fill-opacity:1;stroke-width:1.1"
      sodipodi:nodetypes="cccccccccccccccccc" />
 </svg>
