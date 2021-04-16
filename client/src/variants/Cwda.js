@@ -55,8 +55,8 @@ export class CwdaRules extends ChessRules {
         'n': 'w',
         'b': 'f',
         'q': 'c',
-        'k': 'k',
-        'p': 'p'
+        'k': 'm',
+        'p': 'z'
       },
       // Nutty Knights
       'N': {
@@ -64,8 +64,8 @@ export class CwdaRules extends ChessRules {
         'n': 'i',
         'b': 't',
         'q': 'l',
-        'k': 'k', //TODO: e
-        'p': 'p' //TODO: v
+        'k': 'e',
+        'p': 'v'
       },
       // Remarkable Rookies
       'R': {
@@ -116,8 +116,10 @@ export class CwdaRules extends ChessRules {
       let k = 0;
       for (let j = 0; j < fenRows[i].length; j++) {
         const newChar = fenRows[i].charAt(j);
-        if (['a', 'e', 'k'].includes(newChar)) this.kingPos["b"] = [i, k];
-        else if (['A', 'E', 'K'].includes(newChar)) this.kingPos["w"] = [i, k];
+        if (['a', 'e', 'k', 'm'].includes(newChar))
+          this.kingPos["b"] = [i, k];
+        else if (['A', 'E', 'K', 'M'].includes(newChar))
+          this.kingPos["w"] = [i, k];
         else {
           const num = parseInt(fenRows[i].charAt(j), 10);
           if (!isNaN(num)) k += num - 1;
@@ -155,6 +157,12 @@ export class CwdaRules extends ChessRules {
   }
   static get C_QUEEN() {
     return 'c';
+  }
+  static get C_KING() {
+    return 'm';
+  }
+  static get C_PAWN() {
+    return 'z';
   }
   static get N_ROOK() {
     return 'g';
@@ -195,15 +203,15 @@ export class CwdaRules extends ChessRules {
 
   getPiece(x, y) {
     const p = this.board[x][y][1];
-    if (['u', 'v'].includes(p)) return 'p';
-    if (['a', 'e'].includes(p)) return 'k';
+    if (['u', 'v', 'z'].includes(p)) return 'p';
+    if (['a', 'e', 'm'].includes(p)) return 'k';
     return p;
   }
 
   static get PIECES() {
     return ChessRules.PIECES.concat(
       [
-        V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN,
+        V.C_ROOK, V.C_KNIGHT, V.C_BISHOP, V.C_QUEEN, V.C_KING, V.C_PAWN,
         V.N_ROOK, V.N_KNIGHT, V.N_BISHOP, V.N_QUEEN, V.N_KING, V.N_PAWN,
         V.R_ROOK, V.R_KNIGHT, V.R_BISHOP, V.R_QUEEN, V.R_KING, V.R_PAWN
       ]
@@ -594,7 +602,7 @@ export class CwdaRules extends ChessRules {
     const c = V.GetOppCol(this.turn);
     const piece = move.appear[0].p;
     // Update king position + flags
-    if (['k', 'a', 'e'].includes(piece)) {
+    if (['k', 'a', 'e', 'm'].includes(piece)) {
       this.kingPos[c][0] = move.appear[0].x;
       this.kingPos[c][1] = move.appear[0].y;
       this.castleFlags[c] = [V.size.y, V.size.y];
@@ -608,7 +616,7 @@ export class CwdaRules extends ChessRules {
     // (Potentially) Reset king position
     const c = this.getColor(move.start.x, move.start.y);
     const piece = move.appear[0].p;
-    if (['k', 'a', 'e'].includes(piece))
+    if (['k', 'a', 'e', 'm'].includes(piece))
       this.kingPos[c] = [move.start.x, move.start.y];
   }
 
@@ -638,7 +646,7 @@ export class CwdaRules extends ChessRules {
 
   getNotation(move) {
     let notation = super.getNotation(move);
-    if (['u', 'v'].includes(move.appear[0].p))
+    if (['u', 'v', 'z'].includes(move.appear[0].p))
       notation = notation.slice(0, -2);
     return notation;
   }

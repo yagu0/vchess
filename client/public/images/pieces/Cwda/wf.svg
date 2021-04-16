@@ -18,7 +18,7 @@
    version="1.1"
    id="svg974"
    sodipodi:docname="wFAD.svg"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata978">
     <rdf:RDF>
@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,19 +40,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1060"
+     inkscape:window-width="3360"
+     inkscape:window-height="1780"
      id="namedview976"
      showgrid="false"
-     inkscape:zoom="1.6922351"
-     inkscape:cx="-130.52172"
-     inkscape:cy="183.98903"
-     inkscape:window-x="0"
-     inkscape:window-y="20"
-     inkscape:window-maximized="0"
+     inkscape:zoom="2.3931818"
+     inkscape:cx="-70.121431"
+     inkscape:cy="95.08602"
+     inkscape:window-x="6708"
+     inkscape:window-y="1085"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg974"
      showguides="false"
-     inkscape:snap-nodes="false" />
+     inkscape:snap-nodes="false"
+     inkscape:document-rotation="0" />
   <defs
      id="defs968">
     <linearGradient
@@ -125,14 +126,14 @@
   </defs>
   <g
      id="g14601"
-     transform="matrix(0.95,0,0,0.95,79.104503,1.6608693)">
+     transform="translate(81.952108,0.43249404)">
     <rect
        y="1.9701072"
        x="-79.549507"
        height="45.194798"
        width="45.194798"
        id="rect14589"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#1f1a17;stroke-width:1.5555681;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
+       style="opacity:1;fill:#80ff80;fill-opacity:1;fill-rule:nonzero;stroke:#1f1a17;stroke-width:1.55556811;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
     <path
        inkscape:connector-curvature="0"
        id="path14591"
