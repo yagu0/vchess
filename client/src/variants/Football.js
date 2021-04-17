@@ -159,7 +159,7 @@ export class FootballRules extends ChessRules {
           V.OnBoard(i, j) &&
           this.board[i][j] == V.EMPTY &&
           (
-            // In a corner? The, allow all ball moves
+            // In a corner? Then, allow all ball moves
             ([0, 8].includes(bp[0]) && [0, 8].includes(bp[1])) ||
             // Do not end near the knight
             (Math.abs(i - x) >= 2 || Math.abs(j - y) >= 2)
@@ -246,34 +246,17 @@ export class FootballRules extends ChessRules {
       const moves = super.getPotentialMovesFrom([x, y])
                     .filter(m => m.end.y != 4 || ![0, 8].includes(m.end.x));
       // If bishop stuck in a corner: allow to jump over the next obstacle
-      if (moves.length == 0 && piece == V.BISHOP) {
+      if (
+        moves.length == 0 && piece == V.BISHOP &&
+        [0, 8].includes(x) && [0, 8].includes(y)
+      ) {
+        const indX = x == 0 ? [1, 2] : [7, 6];
+        const indY = y == 0 ? [1, 2] : [7, 6];
         if (
-          x == 0 && y == 0 &&
-          this.board[1][1] != V.EMPTY &&
-          this.board[2][2] == V.EMPTY
+          this.board[indX[0]][indY[0]] != V.EMPTY &&
+          this.board[indX[1]][indY[1]] == V.EMPTY
         ) {
-          return [super.getBasicMove([x, y], [2, 2])];
-        }
-        if (
-          x == 0 && y == 8 &&
-          this.board[1][7] != V.EMPTY &&
-          this.board[2][6] == V.EMPTY
-        ) {
-          return [super.getBasicMove([x, y], [2, 6])];
-        }
-        if (
-          x == 8 && y == 0 &&
-          this.board[7][1] != V.EMPTY &&
-          this.board[6][2] == V.EMPTY
-        ) {
-          return [super.getBasicMove([x, y], [6, 2])];
-        }
-        if (
-          x == 8 && y == 8 &&
-          this.board[7][7] != V.EMPTY &&
-          this.board[6][6] == V.EMPTY
-        ) {
-          return [super.getBasicMove([x, y], [6, 6])];
+          return [super.getBasicMove([x, y], [indX[1], indY[1]])];
         }
       }
       return moves;
@@ -293,9 +276,9 @@ export class FootballRules extends ChessRules {
         const kmoves = this.tryKickFrom([i, j]);
         kmoves.forEach(km => {
           const key = V.CoordsToSquare(km.start) + V.CoordsToSquare(km.end);
-          if (!kicks[km]) {
+          if (!kicks[key]) {
             moves.push(km);
-            kicks[km] = true;
+            kicks[key] = true;
           }
         });
       }
@@ -306,7 +289,7 @@ export class FootballRules extends ChessRules {
         for (let j=0; j < V.size.y; j++) {
           if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
             moves.push(super.getBasicMove([x, y], [i, j]));
-            if (!!computer) break outerLoop;
+            if (computer) break outerLoop;
           }
         }
       }
