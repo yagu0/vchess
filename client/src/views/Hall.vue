@@ -1097,16 +1097,18 @@ export default {
       }
       window.V = this.newchallenge.V;
       let chall = Object.assign({}, this.newchallenge, { options: {} });
-      // Get/set options variables (if any) / TODO: v-model?!
-      for (const check of this.newchallenge.V.Options.check || []) {
-        const elt = document.getElementById(check.variable + "_opt");
-        chall.options[check.variable] = elt.checked;
-      }
-      for (const select of this.newchallenge.V.Options.select || []) {
-        const elt = document.getElementById(select.variable + "_opt");
-        const tryIntVal = parseInt(elt.value, 10);
-        chall.options[select.variable] =
-          (isNaN(tryIntVal) ? elt.value : tryIntVal);
+      if (V.Options) {
+        // Get/set options variables (if any) / TODO: v-model?!
+        for (const check of this.newchallenge.V.Options.check || []) {
+          const elt = document.getElementById(check.variable + "_opt");
+          chall.options[check.variable] = elt.checked;
+        }
+        for (const select of this.newchallenge.V.Options.select || []) {
+          const elt = document.getElementById(select.variable + "_opt");
+          const tryIntVal = parseInt(elt.value, 10);
+          chall.options[select.variable] =
+            (isNaN(tryIntVal) ? elt.value : tryIntVal);
+        }
       }
       error = checkChallenge(chall);
       if (error) {

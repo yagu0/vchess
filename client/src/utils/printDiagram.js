@@ -73,6 +73,7 @@ export function getDiagram(args) {
   // Obtain the array of pieces images names:
   const board = V.GetBoard(args.position);
   const orientation = args.orientation || "w";
+  const darkBottomRight = !!args.darkBottomRight;
   const markArray = getMarkArray(args.marks);
   const shadowArray = getShadowArray(args.shadow);
   const vr = new V(); //just for pieces images paths
