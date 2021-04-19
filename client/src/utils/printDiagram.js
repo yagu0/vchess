@@ -73,13 +73,14 @@ export function getDiagram(args) {
   // Obtain the array of pieces images names:
   const board = V.GetBoard(args.position);
   const orientation = args.orientation || "w";
-  const darkBottomRight = !!args.darkBottomRight;
   const markArray = getMarkArray(args.marks);
   const shadowArray = getShadowArray(args.shadow);
-  const vr = new V(); //just for pieces images paths
+  const vr = new V(); //TODO: just for pieces images paths
   let boardDiv = "";
   const [startX, startY, inc] =
     orientation == "w" ? [0, 0, 1] : [V.size.x - 1, V.size.y - 1, -1];
+  let lightOddity = (V.size.x + V.size.y) % 2;
+  if (V.DarkBottomRight) lightOddity = 1 - lightOddity;
   for (let i = startX; i >= 0 && i < V.size.x; i += inc) {
     boardDiv += "<div class='row";
     if (i == startX && V.Monochrome) boardDiv += " border-top";
@@ -91,16 +92,8 @@ export function getDiagram(args) {
           (V.Notoodark ? "middle-square" : "dark-square");
         if (j == startY) boardDiv += " border-left";
       }
-      else {
-        const oddity = (i + j) % 2;
-        if (
-          (oddity == 0 && !V.DarkBottomRight) ||
-          (oddity == 1 && V.DarkBottomRight)
-        ) {
-          boardDiv += "light-square";
-        }
-        else boardDiv += "dark-square";
-      }
+      else if ((i + j) % 2 == lightOddity) boardDiv += "light-square";
+      else boardDiv += "dark-square";
       boardDiv += " " + store.state.settings.bcolor;
       if (shadowArray.length > 0 && shadowArray[i][j])
         boardDiv += " in-shadow";
