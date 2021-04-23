@@ -363,7 +363,7 @@ export class FootballRules extends ChessRules {
 
   play(move) {
     // Special message saying "passes are over"
-    const passesOver = (move.vanish.length == 2);
+    const passesOver = (move.vanish.length == 0);
     if (!passesOver) {
       this.prePlay(move);
       V.PlayOnBoard(this.board, move);
@@ -385,7 +385,7 @@ export class FootballRules extends ChessRules {
   }
 
   undo(move) {
-    const passesOver = (move.vanish.length == 2);
+    const passesOver = (move.vanish.length == 0);
     if (move.turn[0] != this.turn) {
       [this.turn, this.subTurn] = move.turn;
       this.movesCount--;
@@ -439,7 +439,7 @@ export class FootballRules extends ChessRules {
   // NOTE: evalPosition() is wrong, but unused since bot plays at random
 
   getNotation(move) {
-    if (move.vanish.length == 2) return "pass";
+    if (move.vanish.length == 0) return "pass";
     if (move.vanish[0].p != 'a') return super.getNotation(move);
     // Kick: simple notation (TODO?)
     return V.CoordsToSquare(move.end);
