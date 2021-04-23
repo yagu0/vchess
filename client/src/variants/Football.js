@@ -290,7 +290,10 @@ export class FootballRules extends ChessRules {
       outerLoop: for (let i=0; i < V.size.x; i++) {
         for (let j=0; j < V.size.y; j++) {
           if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
-            moves.push(super.getBasicMove([x, y], [i, j]));
+            moves.push({
+              appear: [], vanish: [],
+              start: { x: x, y: y }, end: { x: i, y: j }
+            });
             if (computer) break outerLoop; //no choice for computer
           }
         }
