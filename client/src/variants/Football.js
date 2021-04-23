@@ -266,6 +266,7 @@ export class FootballRules extends ChessRules {
     const c = this.turn;
     let moves = [];
     let kicks = {};
+    let adjacentPieces = false;
     for (let s of steps) {
       const [i, j] = [x + s[0], y + s[1]];
       if (
@@ -281,15 +282,16 @@ export class FootballRules extends ChessRules {
             kicks[key] = true;
           }
         });
+        if (!adjacentPieces) adjacentPieces = true;
       }
     }
-    if (Object.keys(kicks).length > 0) {
-      // And, always add the "end" move. For computer, keep only one
+    if (adjacentPieces) {
+      // Add the "end" move (even if no valid kicks)
       outerLoop: for (let i=0; i < V.size.x; i++) {
         for (let j=0; j < V.size.y; j++) {
           if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
             moves.push(super.getBasicMove([x, y], [i, j]));
-            if (computer) break outerLoop;
+            if (computer) break outerLoop; //no choice for computer
           }
         }
       }
