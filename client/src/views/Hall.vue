@@ -507,7 +507,7 @@ export default {
     },
     invColor: function(c) {
       if (c == 'w') return this.st.tr["Black"];
-      return this.tr.tr["White"];
+      return this.st.tr["White"];
     },
     partialResetNewchallenge: function() {
       // Reset potential target and custom FEN:
