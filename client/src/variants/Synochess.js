@@ -475,7 +475,7 @@ export class SynochessRules extends ChessRules {
 
   updateCastleFlags(move, piece) {
     // Only white can castle:
-    const firstRank = 0;
+    const firstRank = 7;
     if (piece == V.KING && move.appear[0].c == 'w')
       this.castleFlags['w'] = [8, 8];
     else if (
@@ -495,18 +495,19 @@ export class SynochessRules extends ChessRules {
   }
 
   postPlay(move) {
-    super.postPlay(move);
     // After black move, turn == 'w':
-    if (!!this.reserve && this.turn == 'w' && move.vanish.length == 0)
+    if (!!this.reserve && this.turn == 'w' && move.vanish.length == 0) {
       if (--this.reserve['b'][V.SOLDIER] == 0) this.reserve = null;
+    }
+    else super.postPlay(move);
   }
 
   postUndo(move) {
-    super.postUndo(move);
     if (this.turn == 'b' && move.vanish.length == 0) {
       if (!this.reserve) this.reserve = { 'b': { [V.SOLDIER]: 1 } };
       else this.reserve['b'][V.SOLDIER]++;
     }
+    else super.postUndo(move);
   }
 
   static get VALUES() {
@@ -531,6 +532,11 @@ export class SynochessRules extends ChessRules {
       // Add reserves:
       evaluation += this.reserve['b'][V.SOLDIER] * V.VALUES[V.SOLDIER];
     return evaluation;
+  }
+
+  getNotation(move) {
+    if (move.vanish.length == 0) return "@" + V.CoordsToSquare(move.end);
+    return super.getNotation(move);
   }
 
 };
