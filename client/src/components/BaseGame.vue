@@ -22,6 +22,7 @@ div#baseGame
         :incheck="incheck"
         @play-move="play"
         @click-square="clickSquare"
+        @rendered="adjustSize"
       )
       #turnIndicator(v-if="showTurn") {{ turn }}
       #controls.button-group
@@ -43,6 +44,7 @@ div#baseGame
       p#fenAnalyze(v-show="showFen") {{ (!!vr ? vr.getFen() : "") }}
     #movesList
       MoveList(
+        ref="moveslist"
         :show="showMoves"
         :canAnalyze="canAnalyze"
         :canDownload="allowDownloadPGN"
@@ -205,6 +207,9 @@ export default {
       e.preventDefault();
       if (e.deltaY < 0) this.undo();
       else if (e.deltaY > 0) this.play();
+    },
+    adjustSize: function() {
+      this.$refs["moveslist"].adjustBoard("vertical");
     },
     redrawBoard: function() {
       this.$refs["board"].re_setDrawings();

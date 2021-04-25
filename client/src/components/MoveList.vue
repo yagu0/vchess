@@ -79,22 +79,16 @@ export default {
     document.getElementById("adjuster")
       .addEventListener("click", processModalClick);
     // Take full width on small screens:
-    let boardSize =
-      window.innerWidth >= 768
-        ? 0.7 * Math.min(window.innerWidth, window.innerHeight)
-        : window.innerWidth;
+    const winBound = Math.min(window.innerWidth, window.innerHeight);
+    let boardSize = (window.innerWidth >= 768 ? 0.7 : 1.0) * winBound;
     const movesWidth = window.innerWidth >= 768 ? 280 : 0;
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
     gameContainer.style.width = boardSize + movesWidth + "px";
-    document.getElementById("boardSize").value =
-      (boardSize * 100) / (window.innerWidth - movesWidth);
+    const maxWidth =
+      Math.min(window.innerHeight, window.innerWidth - movesWidth);
+    document.getElementById("boardSize").value = (boardSize * 100) / maxWidth;
     window.addEventListener("resize", () => this.adjustBoard());
-    if ("ontouchstart" in window) {
-      // TODO: find something better than next height adjustment...
-      // maybe each variant could give its ratio (?!)
-      setTimeout( () => { this.adjustBoard("vertical"); }, 1000);
-    }
   },
   beforeDestroy: function() {
     window.removeEventListener("resize", this.adjustBoard);
@@ -182,11 +176,14 @@ export default {
       }
       else {
         const k = document.getElementById("boardSize").value;
-        const minBoardWidth = 160; //TODO: these 160 and 280 are arbitrary...
+        // TODO: these 160 and 280 are arbitrary...
+        const minBoardWidth =
+          (window.innerWidth <= 767 || "ontouchstart" in window) ? 160 : 240;
         // Value of 0 is board min size; 100 is window.width [- movesWidth]
+        const maxWidth =
+          Math.min(window.innerHeight, window.innerWidth - movesWidth);
         const boardSize =
-          minBoardWidth +
-          (k * (window.innerWidth - (movesWidth + minBoardWidth))) / 100;
+          minBoardWidth + (k * (maxWidth - minBoardWidth)) / 100;
         boardContainer.style.width = boardSize + "px";
         gameContainer.style.width = boardSize + movesWidth + "px";
         this.$emit("redraw-board");

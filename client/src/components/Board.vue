@@ -31,6 +31,7 @@ export default {
       circles: {}, //object of squares' ID --> true (TODO: use a set?)
       click: "",
       clickTime: 0,
+      initialized: 0,
       settings: store.state.settings
     };
   },
@@ -463,6 +464,8 @@ export default {
         }
       };
     }
+    if (this.initialized == 1) this.$emit("rendered");
+    if (this.initialized <= 1) this.initialized++;
     return (
       h(
         "div",

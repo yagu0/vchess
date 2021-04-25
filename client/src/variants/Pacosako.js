@@ -16,6 +16,10 @@ export class PacosakoRules extends ChessRules {
     };
   }
 
+  static AbbreviateOptions(opts) {
+    return (opts["pacoplay"] ? "PP" : "");
+  }
+
   static get IMAGE_EXTENSION() {
     return ".png";
   }
