@@ -58,18 +58,21 @@ export class JokerRules extends ChessRules {
         // Following test is OK because only one Joker on board at a time
         if (this.board[i][j] != V.EMPTY && this.getColor(i, j) == c) {
           const p = this.getPiece(i, j);
-          swapping.push(
-            new Move({
-              vanish: [
-                new PiPo({ x: x, y: y, c: c, p: V.JOKER }),
-                new PiPo({ x: i, y: j, c: c, p: p })
-              ],
-              appear: [
-                new PiPo({ x: i, y: j, c: c, p: V.JOKER }),
-                new PiPo({ x: x, y: y, c: c, p: p })
-              ]
-            })
-          );
+          const lastRank = (c == 'w' ? 0 : 7);
+          if (p != V.KING && (p != V.PAWN || x != lastRank)) {
+            swapping.push(
+              new Move({
+                vanish: [
+                  new PiPo({ x: x, y: y, c: c, p: V.JOKER }),
+                  new PiPo({ x: i, y: j, c: c, p: p })
+                ],
+                appear: [
+                  new PiPo({ x: i, y: j, c: c, p: V.JOKER }),
+                  new PiPo({ x: x, y: y, c: c, p: p })
+                ]
+              })
+            );
+          }
         }
       }
     }
