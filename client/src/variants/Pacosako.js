@@ -3,6 +3,19 @@ import { randInt } from "@/utils/alea";
 
 export class PacosakoRules extends ChessRules {
 
+  static get Options() {
+    return {
+      select: ChessRules.Options.select,
+      check: [
+        {
+          label: "pacoplay mode",
+          variable: "pacoplay",
+          defaut: false
+        }
+      ]
+    };
+  }
+
   static get IMAGE_EXTENSION() {
     return ".png";
   }
@@ -126,21 +139,24 @@ export class PacosakoRules extends ChessRules {
   }
 
   setOtherVariables(fen) {
-    super.setOtherVariables(fen);
     // Stack of "last move" only for intermediate chaining
     this.lastMoveEnd = [null];
     // Local stack of non-capturing union moves:
     this.umoves = [];
     const umove = V.ParseFen(fen).umove;
-    if (umove == "-") this.umoves.push(null);
-    else {
-      this.umoves.push({
-        start: ChessRules.SquareToCoords(umove.substr(0, 2)),
-        end: ChessRules.SquareToCoords(umove.substr(2))
-      });
+    this.pacoplay = !umove; //"pacoplay.com mode" ?
+    if (!this.pacoplay) {
+      if (umove == "-") this.umoves.push(null);
+      else {
+        this.umoves.push({
+          start: ChessRules.SquareToCoords(umove.substr(0, 2)),
+          end: ChessRules.SquareToCoords(umove.substr(2))
+        });
+      }
     }
     // Local stack of positions to avoid redundant moves:
     this.repetitions = [];
+    super.setOtherVariables(fen);
   }
 
   static IsGoodFen(fen) {
@@ -153,12 +169,13 @@ export class PacosakoRules extends ChessRules {
   }
 
   static IsGoodFlags(flags) {
-    // 4 for castle + 16 for pawns
-    return !!flags.match(/^[a-z]{4,4}[01]{16,16}$/);
+    // 4 for castle + 16 for pawns (more permissive, for pacoplay mode)
+    return !!flags.match(/^[a-z]{4,4}[01]{0,16}$/);
   }
 
   setFlags(fenflags) {
     super.setFlags(fenflags); //castleFlags
+    if (this.pacoplay) return;
     this.pawnFlags = {
       w: [...Array(8)], //pawns can move 2 squares?
       b: [...Array(8)]
@@ -171,12 +188,16 @@ export class PacosakoRules extends ChessRules {
   }
 
   aggregateFlags() {
+    if (!this.pacoplay) return super.aggregateFlags();
     return [this.castleFlags, this.pawnFlags];
   }
 
   disaggregateFlags(flags) {
-    this.castleFlags = flags[0];
-    this.pawnFlags = flags[1];
+    if (!this.pacoplay) super.disaggregateFlags(flags);
+    else {
+      this.castleFlags = flags[0];
+      this.pawnFlags = flags[1];
+    }
   }
 
   getUmove(move) {
@@ -201,15 +222,18 @@ export class PacosakoRules extends ChessRules {
 
   static GenRandInitFen(options) {
     // Add 16 pawns flags + empty umove:
-    return ChessRules.GenRandInitFen(options)
-      .slice(0, -2) + "1111111111111111 - -";
+    const pawnFlags = (options.pacoplay ? "" : "1111111111111111");
+    return ChessRules.GenRandInitFen(options).slice(0, -2) +
+      pawnFlags + " -" + (!options.pacoplay ? " -" : "");
   }
 
   getFlagsFen() {
     let fen = super.getFlagsFen();
-    // Add pawns flags
-    for (let c of ["w", "b"])
-      for (let i = 0; i < 8; i++) fen += (this.pawnFlags[c][i] ? "1" : "0");
+    if (!this.pacoplay) {
+      // Add pawns flags
+      for (let c of ["w", "b"])
+        for (let i = 0; i < 8; i++) fen += (this.pawnFlags[c][i] ? "1" : "0");
+    }
     return fen;
   }
 
@@ -224,11 +248,13 @@ export class PacosakoRules extends ChessRules {
   }
 
   getFen() {
-    return super.getFen() + " " + this.getUmoveFen();
+    const umoveFen = this.pacoplay ? "" : (" " + this.getUmoveFen());
+    return super.getFen() + umoveFen;
   }
 
   getFenForRepeat() {
-    return super.getFenForRepeat() + "_" + this.getUmoveFen();
+    const umoveFen = this.pacoplay ? "" : ("_" + this.getUmoveFen());
+    return super.getFenForRepeat() + umoveFen;
   }
 
   getColor(i, j) {
@@ -382,7 +408,8 @@ export class PacosakoRules extends ChessRules {
             (
               m.start.x == firstRank ||
               Math.abs(m.end.x - m.start.x) == 1 ||
-              this.pawnFlags[c][m.start.y]
+              this.pacoplay ||
+              (!this.pacoplay && this.pawnFlags[c][m.start.y])
             )
             &&
             (
@@ -468,6 +495,20 @@ export class PacosakoRules extends ChessRules {
       }
     });
     if (!!lm) this.board[x][y] = saveSquare;
+    return moves;
+  }
+
+  getPotentialKingMoves(sq) {
+    if (!this.pacoplay) return super.getPotentialKingMoves(sq);
+    // Initialize with normal moves, without captures
+    let moves = [];
+    for (let s of V.steps[V.ROOK].concat(V.steps[V.BISHOP])) {
+      const [i, j] = [sq[0] + s[0], sq[1] + s[1]];
+      if (V.OnBoard(i, j) && this.board[i][j] == V.EMPTY)
+        moves.push(this.getBasicMove(sq, [i, j]));
+    }
+    if (this.castleFlags[this.turn].some(v => v < V.size.y))
+      moves = moves.concat(this.getCastleMoves(sq));
     return moves;
   }
 
@@ -710,9 +751,9 @@ export class PacosakoRules extends ChessRules {
 
   filterValid(moves) {
     if (moves.length == 0) return [];
-    const L = this.umoves.length; //at least 1: init from FEN
+    const L = (!this.pacoplay ? this.umoves.length : 0);
     return moves.filter(m => {
-      if (this.oppositeMoves(this.umoves[L - 1], m)) return false;
+      if (L > 0 && this.oppositeMoves(this.umoves[L - 1], m)) return false;
       if (!m.end.released) return true;
       // Check for repetitions:
       V.PlayOnBoard(this.board, m);
@@ -775,6 +816,7 @@ export class PacosakoRules extends ChessRules {
     this.updateCastleFlags(move, piece);
     const pawnFirstRank = (c == 'w' ? 6 : 1);
     if (
+      !this.pacoplay &&
       move.start.x == pawnFirstRank &&
       piece == V.PAWN &&
       Math.abs(move.end.x - move.start.x) == 2
@@ -803,7 +845,7 @@ export class PacosakoRules extends ChessRules {
       });
     }
     V.PlayOnBoard(this.board, move);
-    this.umoves.push(this.getUmove(move));
+    if (!this.pacoplay) this.umoves.push(this.getUmove(move));
     if (!move.end.released) this.repetitions = [];
     else {
       this.repetitions.push(
@@ -825,7 +867,7 @@ export class PacosakoRules extends ChessRules {
       this.turn = V.GetOppCol(this.turn);
       this.movesCount--;
     }
-    this.umoves.pop();
+    if (!this.pacoplay) this.umoves.pop();
     if (!!move.end.released) this.repetitions.pop();
     this.postUndo(move);
   }

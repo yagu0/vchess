@@ -119,6 +119,7 @@ export const translations = {
   Previous_p: "Previous",
   "Processing... Please wait": "Processing... Please wait",
   Problems: "Problems",
+  "pacoplay mode": "pacoplay mode",
   Random: "Random",
   Randomness: "Randomness",
   Refuse: "Refuse",
