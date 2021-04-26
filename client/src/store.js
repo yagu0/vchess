@@ -1,6 +1,7 @@
 // NOTE: do not use ajax() here because ajax.js requires the store
 import params from "./parameters"; //for server URL
 import { getRandString } from "./utils/alea";
+import { delCookie } from "./utils/cookie";
 
 // Global store: see
 // https://medium.com/fullstackio/managing-state-in-vue-js-23a0352b1c87
@@ -48,7 +49,6 @@ export const store = {
       sid: mysid
     };
     // Slow verification through the server:
-    // NOTE: still superficial identity usurpation possible, but difficult.
     fetch(
       params.serverUrl + "/whoami",
       {
@@ -59,24 +59,30 @@ export const store = {
     )
     .then(res => res.json())
     .then(json => {
-      this.state.user.id = json.id;
-      const storedId = localStorage.getItem("myid");
-      if (json.id > 0 && !storedId)
-        // User cleared localStorage
-        localStorage.setItem("myid", json.id);
-      else if (json.id == 0 && !!storedId)
-        // User cleared cookie
-        localStorage.removeItem("myid");
-      this.state.user.name = json.name;
-      const storedName = localStorage.getItem("myname");
-      if (!!json.name && !storedName)
-        // User cleared localStorage
-        localStorage.setItem("myname", json.name);
-      else if (!json.name && !!storedName)
-        // User cleared cookie
-        localStorage.removeItem("myname");
-      this.state.user.email = json.email;
-      this.state.user.notify = json.notify;
+      if (!json.id) {
+        // Removed, or wrong token
+        if (this.state.user.id > 0) {
+          this.state.user.id = 0;
+          localStorage.removeItem("myid");
+        }
+        if (!!this.state.user.name) {
+          this.state.user.name = "";
+          localStorage.removeItem("myname");
+        }
+        if (document.cookie.indexOf("token") >= 0) delCookie("token");
+      }
+      else {
+        if (this.state.user.id != json.id) {
+          this.state.user.id = json.id;
+          localStorage.setItem("myid", json.id);
+        }
+        if (this.state.user.name != json.name) {
+          this.state.user.name = json.name;
+          localStorage.setItem("myname", json.name);
+        }
+        this.state.user.email = json.email;
+        this.state.user.notify = json.notify;
+      }
     });
     // Settings initialized with values from localStorage
     const getItemDefault = (item, defaut) => {
