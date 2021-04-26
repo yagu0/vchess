@@ -42,7 +42,7 @@ export const store = {
     }
     // Quick user setup using local storage:
     this.state.user = {
-      id: localStorage.getItem("myid") || 0,
+      id: parseInt(localStorage.getItem("myid") || "0", 10),
       name: localStorage.getItem("myname") || "", //"" for "anonymous"
       email: "", //unknown yet
       notify: false, //email notifications
