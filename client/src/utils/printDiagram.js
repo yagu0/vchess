@@ -102,7 +102,7 @@ export function getDiagram(args) {
         boardDiv +=
           "<img " +
           "src='/images/pieces/" +
-          vr.getPpath(board[i][j], null, null, orientation) +
+          vr.getPpath(board[i][j], args.color, args.score, orientation) +
           V.IMAGE_EXTENSION + "' " +
           "class='piece'/>";
       }

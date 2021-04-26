@@ -1618,7 +1618,9 @@ export default {
         if (["all","byrow"].includes(V.ShowMoves)) {
           this.curDiag = getDiagram({
             position: position,
-            orientation: V.CanFlip ? this.game.mycolor : "w"
+            orientation: V.CanFlip ? this.game.mycolor : "w",
+            color: this.game.mycolor,
+            score: "*"
           });
           document.querySelector("#confirmDiv > .card").style.width =
             boardDiv.offsetWidth + "px";
