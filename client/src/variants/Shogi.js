@@ -490,13 +490,13 @@ export class ShogiRules extends ChessRules {
     return false;
   }
 
-  isAttackedBySilver([x, y], color) {
+  isAttackedBySilver(sq, color) {
     const shift = (color == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(
       sq, color, V.SILVER, V.steps[V.BISHOP].concat([ [shift, 0] ]), 1);
   }
 
-  isAttackedByPawn([x, y], color) {
+  isAttackedByPawn(sq, color) {
     const shift = (color == 'w' ? 1 : -1);
     return this.isAttackedBySlideNJump(sq, color, V.PAWN, [ [shift, 0] ], 1);
   }
