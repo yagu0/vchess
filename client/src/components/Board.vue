@@ -651,7 +651,6 @@ export default {
       document.getElementById("rootBoardElement").appendChild(arrowCanvas);
     },
     mousedown: function(e) {
-      e.preventDefault();
       if (!this.mobileBrowser && e.which != 3)
         // Cancel current drawing and circles, if any
         this.cancelResetArrows();
@@ -662,6 +661,7 @@ export default {
             document.getElementById("boardContainer").getBoundingClientRect();
           // NOTE: classList[0] is enough: 'piece' is the first assigned class
           const withPiece = (e.target.classList[0] == "piece");
+          if (withPiece) e.preventDefault();
           // Show possible moves if current player allowed to play
           const startSquare =
             getSquareFromId(withPiece ? e.target.parentNode.id : e.target.id);
@@ -705,6 +705,7 @@ export default {
       }
       else if (e.which == 3) {
         // Mouse right button
+        e.preventDefault();
         this.containerPos =
           document.getElementById("gamePosition").getBoundingClientRect();
         let elem = e.target;
@@ -712,6 +713,7 @@ export default {
         while (elem.tagName == "IMG") elem = elem.parentNode;
         this.startArrow = getSquareFromId(elem.id);
       }
+      else e.preventDefault();
     },
     mousemove: function(e) {
       if (!this.selectedPiece && !this.startArrow) return;
@@ -772,15 +774,17 @@ export default {
       }
     },
     mouseup: function(e) {
-      e.preventDefault();
       if (this.mobileBrowser || e.which == 1) {
         if (!this.selectedPiece) return;
+        e.preventDefault();
         // Drag'n drop. Selected piece is no longer needed:
         this.selectedPiece.parentNode.removeChild(this.selectedPiece);
         delete this.selectedPiece;
         this.selectedPiece = null;
         this.processMoveAttempt(e);
-      } else if (e.which == 3) {
+      }
+      else if (e.which == 3) {
+        e.preventDefault();
         if (!this.startArrow) return;
         // Mouse right button
         this.movingArrow = null;
