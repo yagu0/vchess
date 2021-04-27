@@ -335,7 +335,7 @@ export class ShogiRules extends ChessRules {
   }
 
   // Modified to take promotions into account
-  getSlideNJumpMoves([x, y], steps, options) {
+  getSlideNJumpMoves_opt([x, y], steps, options) {
     options = options || {};
     const color = this.turn;
     const oneStep = options.oneStep;
@@ -375,7 +375,7 @@ export class ShogiRules extends ChessRules {
 
   getPotentialGoldMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq,
       V.steps[V.ROOK].concat([ [forward, 1], [forward, -1] ]),
       { oneStep: true }
@@ -385,7 +385,7 @@ export class ShogiRules extends ChessRules {
   getPotentialPawnMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
     return (
-      this.getSlideNJumpMoves(
+      this.getSlideNJumpMoves_opt(
         sq,
         [[forward, 0]],
         {
@@ -399,7 +399,7 @@ export class ShogiRules extends ChessRules {
 
   getPotentialSilverMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq,
       V.steps[V.BISHOP].concat([ [forward, 0] ]),
       {
@@ -411,7 +411,7 @@ export class ShogiRules extends ChessRules {
 
   getPotentialKnightMoves(sq) {
     const forward = (this.turn == 'w' ? -2 : 2);
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq,
       [ [forward, 1], [forward, -1] ],
       {
@@ -424,7 +424,7 @@ export class ShogiRules extends ChessRules {
 
   getPotentialLanceMoves(sq) {
     const forward = (this.turn == 'w' ? -1 : 1);
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq,
       [ [forward, 0] ],
       {
@@ -435,26 +435,26 @@ export class ShogiRules extends ChessRules {
   }
 
   getPotentialRookMoves(sq) {
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq, V.steps[V.ROOK], { promote: V.P_ROOK });
   }
 
   getPotentialBishopMoves(sq) {
-    return this.getSlideNJumpMoves(
+    return this.getSlideNJumpMoves_opt(
       sq, V.steps[V.BISHOP], { promote: V.P_BISHOP });
   }
 
   getPotentialDragonMoves(sq) {
     return (
-      this.getSlideNJumpMoves(sq, V.steps[V.ROOK]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP], { oneStep: true }))
+      this.getSlideNJumpMoves_opt(sq, V.steps[V.ROOK]).concat(
+      this.getSlideNJumpMoves_opt(sq, V.steps[V.BISHOP], { oneStep: true }))
     );
   }
 
   getPotentialHorseMoves(sq) {
     return (
-      this.getSlideNJumpMoves(sq, V.steps[V.BISHOP]).concat(
-      this.getSlideNJumpMoves(sq, V.steps[V.ROOK], { oneStep: true }))
+      this.getSlideNJumpMoves_opt(sq, V.steps[V.BISHOP]).concat(
+      this.getSlideNJumpMoves_opt(sq, V.steps[V.ROOK], { oneStep: true }))
     );
   }
 
@@ -524,6 +524,25 @@ export class ShogiRules extends ChessRules {
       this.isAttackedBySlideNJump(sq, color, V.P_BISHOP, V.steps[V.BISHOP]) ||
       this.isAttackedBySlideNJump(sq, color, V.P_BISHOP, V.steps[V.ROOK], 1)
     );
+  }
+
+  filterValid(moves) {
+    if (moves.length == 0) return [];
+    const color = this.turn;
+    const lastRanks = (color == 'w' ? [0, 1] : [8, 7]);
+    return moves.filter(m => {
+      if (
+        (m.appear[0].p == V.KNIGHT && lastRanks.includes(m.end.x)) ||
+        ([V.PAWN, V.LANCE].includes(m.appear[0].p) && lastRanks[0] == m.end.x)
+      ) {
+        // Forbid moves resulting in a blocked piece
+        return false;
+      }
+      this.play(m);
+      const res = !this.underCheck(color);
+      this.undo(m);
+      return res;
+    });
   }
 
   getAllValidMoves() {
