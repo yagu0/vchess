@@ -128,7 +128,7 @@ export class MinishogiRules extends ShogiRules {
     return moves;
   }
 
-  getSlideNJumpMoves([x, y], steps, options) {
+  getSlideNJumpMoves_opt([x, y], steps, options) {
     options = options || {};
     const color = this.turn;
     const oneStep = options.oneStep;
