@@ -821,8 +821,8 @@ export class EightpiecesRules extends ChessRules {
     const oppCol = V.GetOppCol(color);
     const sliderAttack = (allowedSteps, lancer) => {
       const deltaX = x2 - x1,
-            absDeltaX = Math.abs(deltaX);
-      const deltaY = y2 - y1,
+            deltaY = y2 - y1;
+      const absDeltaX = Math.abs(deltaX),
             absDeltaY = Math.abs(deltaY);
       const step = [ deltaX / absDeltaX || 0, deltaY / absDeltaY || 0 ];
       if (
@@ -834,12 +834,18 @@ export class EightpiecesRules extends ChessRules {
       }
       let sq = [ x1 + step[0], y1 + step[1] ];
       while (sq[0] != x2 || sq[1] != y2) {
-        if (
-          // NOTE: no need to check OnBoard in this special case
-          (!lancer && this.board[sq[0]][sq[1]] != V.EMPTY) ||
-          (!!lancer && this.getColor(sq[0], sq[1]) == oppCol)
-        ) {
-          return false;
+        // NOTE: no need to check OnBoard in this special case
+        if (this.board[sq[0]][sq[1]] != V.EMPTY) {
+          const p = this.getPiece(sq[0], sq[1]);
+          const pc = this.getColor(sq[0], sq[1]);
+          if (
+            // Enemy sentry on the way will be gone:
+            (p != V.SENTRY || pc != oppCol) &&
+            // Lancer temporarily "changed color":
+            (!lancer || pc == color)
+          ) {
+            return false;
+          }
         }
         sq[0] += step[0];
         sq[1] += step[1];
