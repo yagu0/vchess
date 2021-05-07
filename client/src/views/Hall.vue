@@ -1098,7 +1098,7 @@ export default {
       }
       window.V = this.newchallenge.V;
       let chall = Object.assign({}, this.newchallenge);
-      if (!this.newchallenge.options) chall.options = { options: {} };
+      if (!this.newchallenge.fromPreset) chall.options = { options: {} };
       if (V.Options && !this.newchallenge.fromPreset) {
         // Get/set options variables (if any) / TODO: v-model?!
         for (const check of this.newchallenge.V.Options.check || []) {
