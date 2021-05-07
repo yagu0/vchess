@@ -1061,6 +1061,7 @@ export default {
       this.newchallenge.vid = pchall.vid;
       this.newchallenge.cadence = pchall.cadence;
       this.newchallenge.options = pchall.options;
+      this.newchallenge.fromPreset = true;
       this.loadNewchallVariant(this.issueNewChallenge);
     },
     issueNewChallenge: async function() {
@@ -1096,8 +1097,9 @@ export default {
         return;
       }
       window.V = this.newchallenge.V;
-      let chall = Object.assign({}, this.newchallenge, { options: {} });
-      if (V.Options) {
+      let chall = Object.assign({}, this.newchallenge);
+      if (!this.newchallenge.options) chall.options = { options: {} };
+      if (V.Options && !this.newchallenge.fromPreset) {
         // Get/set options variables (if any) / TODO: v-model?!
         for (const check of this.newchallenge.V.Options.check || []) {
           const elt = document.getElementById(check.variable + "_opt");
