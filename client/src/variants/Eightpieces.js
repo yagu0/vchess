@@ -1,4 +1,4 @@
-import { randInt } from "@/utils/alea";
+import { randInt, sample } from "@/utils/alea";
 import { ChessRules, PiPo, Move } from "@/base_rules";
 
 export class EightpiecesRules extends ChessRules {
@@ -178,49 +178,43 @@ export class EightpiecesRules extends ChessRules {
     // Replace one bishop by sentry, so that sentries on different colors
     // Also replace one random rook by jailer,
     // and one random knight by lancer (facing north/south)
-
-    // "replaced" array contains -2 initially, then either -1 if skipped,
-    // or (eventually) the index of replacement:
-    let newPos = { 0: "", 7: "" };
-    let sentryOddity = -1;
-    let replaced = {};
-    if (options.randomness == 1) replaced = { 'b': -2, 'n': -2, 'r': -2 };
-    for (let rank of [0, 7]) {
-      if (options.randomness == 2) replaced = { 'b': -2, 'n': -2, 'r': -2 };
-      for (let i = 0; i < 8; i++) {
-        const curChar = posParts[rank].charAt(i).toLowerCase();
-        if (['b', 'n', 'r'].includes(curChar)) {
-          if (
-            replaced[curChar] == -1 ||
-            (curChar == 'b' && rank == 7 && i % 2 == sentryOddity) ||
-            (
-              (curChar != 'b' || rank == 0) &&
-              replaced[curChar] == -2 &&
-              randInt(2) == 0
-            )
-          ) {
-            replaced[curChar] = i;
-            if (curChar == 'b') {
-              if (sentryOddity < 0) sentryOddity = i % 2;
-              newPos[rank] += 's';
-            }
-            else if (curChar == 'r') newPos[rank] += 'j';
-            else
-              // Lancer: orientation depends on side
-              newPos[rank] += (rank == 0 ? 'g' : 'c');
-          }
-          else {
-            if (replaced[curChar] == -2) replaced[curChar]++;
-            newPos[rank] += curChar;
-          }
-        }
-        else newPos[rank] += curChar;
+    let pieceLine = { b: posParts[0], w: posParts[7].toLowerCase() };
+    let posBlack = { r: -1, n: -1, b: -1 };
+    const mapP = { r: 'j', n: 'l', b: 's' };
+    ['w', 'b'].forEach(c => {
+      ['r', 'n', 'b'].forEach(p => {
+        let pl = pieceLine[c];
+        let pos = -1;
+        if (options.randomness == 2 || c == 'b')
+          pos = (randInt(2) == 0 ? pl.indexOf(p) : pl.lastIndexOf(p));
+        else pos = posBlack[p];
+        pieceLine[c] =
+          pieceLine[c].substr(0, pos) + mapP[p] + pieceLine[c].substr(pos+1);
+        if (options.randomness == 1 && c == 'b') posBlack[p] = pos;
+      });
+    });
+    // Rename 'l' into 'g' (black) or 'c' (white)
+    pieceLine['w'] = pieceLine['w'].replace('l', 'c');
+    pieceLine['b'] = pieceLine['b'].replace('l', 'g');
+    if (options.randomness == 2) {
+      const ws = pieceLine['w'].indexOf('s');
+      const bs = pieceLine['b'].indexOf('s');
+      if (ws % 2 != bs % 2) {
+        // Fix sentry: should be on different colors.
+        // => move sentry on other bishop for random color
+        const c = sample(['w', 'b'], 1);
+        pieceLine[c] = pieceLine[c]
+                       .replace('b', 't'); //tmp
+                       .replace('s', 'b');
+                       .replace('t', 's');
       }
     }
 
     return (
-      newPos[0] + "/" + posParts.slice(1, 7).join('/') + "/" +
-      newPos[7].toUpperCase() + " " + fenParts.slice(1, 5).join(' ') + " -"
+      pieceLine['b'] + "/" +
+      posParts.slice(1, 7).join('/') + "/" +
+      pieceLine['w'].toUpperCase() + " " +
+      fenParts.slice(1, 5).join(' ') + " -"
     );
   }
 
