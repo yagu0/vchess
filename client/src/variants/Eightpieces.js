@@ -204,8 +204,8 @@ export class EightpiecesRules extends ChessRules {
         // => move sentry on other bishop for random color
         const c = sample(['w', 'b'], 1);
         pieceLine[c] = pieceLine[c]
-                       .replace('b', 't'); //tmp
-                       .replace('s', 'b');
+                       .replace('b', 't') //tmp
+                       .replace('s', 'b')
                        .replace('t', 's');
       }
     }
