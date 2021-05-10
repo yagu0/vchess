@@ -1480,8 +1480,8 @@ div#peopleWrap > .card
 
 #chat > .card
   max-width: 100%
-  margin: 0;
-  border: none;
+  margin: 0
+  border: none
 
 #players > p
   margin-left: 5px

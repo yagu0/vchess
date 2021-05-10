@@ -894,7 +894,7 @@ export default {
 </style>
 
 <style lang="sass" scoped>
-@import "@/styles/_board_squares_img.sass";
+@import "@/styles/_board_squares_img.sass"
 
 //.game.reserve-div
   // TODO: would be cleaner to restrict width so that it doesn't overflow

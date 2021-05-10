@@ -181,7 +181,7 @@ export class EightpiecesRules extends ChessRules {
     let pieceLine = { b: posParts[0], w: posParts[7].toLowerCase() };
     let posBlack = { r: -1, n: -1, b: -1 };
     const mapP = { r: 'j', n: 'l', b: 's' };
-    ['w', 'b'].forEach(c => {
+    ['b', 'w'].forEach(c => {
       ['r', 'n', 'b'].forEach(p => {
         let pl = pieceLine[c];
         let pos = -1;

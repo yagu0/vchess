@@ -27,7 +27,7 @@ export default {
 <!-- Not scoped, because code is injected -->
 <style lang="sass">
 #links
-  margin: var(--universal-margin);
+  margin: var(--universal-margin)
   & > a
     display: block
 </style>
