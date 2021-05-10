@@ -183,8 +183,10 @@ export class EightpiecesRules extends ChessRules {
     // or (eventually) the index of replacement:
     let newPos = { 0: "", 7: "" };
     let sentryOddity = -1;
+    let replaced = {};
+    if (options.randomness == 1) replaced = { 'b': -2, 'n': -2, 'r': -2 };
     for (let rank of [0, 7]) {
-      let replaced = { 'b': -2, 'n': -2, 'r': -2 };
+      if (options.randomness == 2) replaced = { 'b': -2, 'n': -2, 'r': -2 };
       for (let i = 0; i < 8; i++) {
         const curChar = posParts[rank].charAt(i).toLowerCase();
         if (['b', 'n', 'r'].includes(curChar)) {
