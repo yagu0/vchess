@@ -73,7 +73,8 @@ export class Pandemonium1Rules extends Pandemonium2Rules {
   }
 
   applyPromotions(moves, promoted) {
-    const lastRanks = (this.turn == 'w' ? [0, 1] : [V.size.x - 1, V.size.x]);
+    const lastRanks =
+      (this.turn == 'w' ? [0, 1] : [V.size.x - 1, V.size.x - 2]);
     let promotions = [];
     moves.forEach(m => {
       if (lastRanks.includes(m.start.x) || lastRanks.includes(m.end.x)) {
