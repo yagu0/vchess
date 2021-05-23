@@ -79,15 +79,15 @@ export default {
     document.getElementById("adjuster")
       .addEventListener("click", processModalClick);
     // Take full width on small screens:
-    const winBound = Math.min(window.innerWidth, window.innerHeight);
-    let boardSize = (window.innerWidth >= 768 ? 0.7 : 1.0) * winBound;
     const movesWidth = window.innerWidth >= 768 ? 280 : 0;
+    const winBound = Math.min(window.innerWidth - movesWidth, window.innerHeight);
+    let boardSize = (window.innerWidth >= 768 ? 0.7 : 1.0) * winBound;
     document.getElementById("boardContainer").style.width = boardSize + "px";
     let gameContainer = document.getElementById("gameContainer");
     gameContainer.style.width = boardSize + movesWidth + "px";
-    const maxWidth =
-      Math.min(window.innerHeight, window.innerWidth - movesWidth);
-    document.getElementById("boardSize").value = (boardSize * 100) / maxWidth;
+    const minBoardWidth =
+      (window.innerWidth <= 767 || "ontouchstart" in window) ? 160 : 240;
+    document.getElementById("boardSize").value = (boardSize - minBoardWidth) * 100 / (winBound - minBoardWidth);
     window.addEventListener("resize", () => this.adjustBoard());
   },
   beforeDestroy: function() {
@@ -166,9 +166,9 @@ export default {
           document.getElementById("rootBoardElement").getBoundingClientRect();
         if (bRect.bottom > window.innerHeight) {
           const maxHeight = window.innerHeight - 20;
-          gameContainer.style.height = maxHeight + "px";
+          document.getElementById("boardContainer").style.height = maxHeight + "px";
           const boardSize = maxHeight * bRect.width / bRect.height;
-          boardContainer.style.width = boardSize + "px";
+          boardContainer.style.width = Math.min(boardSize, boardContainer.style.width) + "px";
           gameContainer.style.width = boardSize + movesWidth + "px";
           this.$emit("redraw-board");
           setTimeout( () => window.scroll(0, bRect.top), 1000);
