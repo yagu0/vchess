@@ -236,7 +236,8 @@ export default {
       // If newmove got no pingback, send again:
       opponentGotMove: false,
       connexionString: "",
-      socketCloseListener: 0,
+      reopenTimeout: 0,
+      reconnectTimeout: 0,
       // Incomplete info games: show move played
       moveNotation: "",
       // Intervals from setInterval():
@@ -289,14 +290,13 @@ export default {
   },
   methods: {
     cleanBeforeDestroy: function() {
-      clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
       window.removeEventListener('focus', this.onFocus);
       window.removeEventListener('blur', this.onBlur);
       if (!!this.askLastate) clearInterval(this.askLastate);
       if (!!this.retrySendmove) clearInterval(this.retrySendmove);
       if (!!this.clockUpdate) clearInterval(this.clockUpdate);
-      this.conn.removeEventListener("message", this.socketMessageListener);
+      clearTimeout(this.reopenTimeout);
       this.send("disconnect");
       this.conn = null;
     },
@@ -374,7 +374,7 @@ export default {
           id: my.id,
           name: my.name,
           tmpIds: {
-            tmpId: { focus: true }
+            [tmpId]: { focus: true }
           }
         }
       );
@@ -409,30 +409,41 @@ export default {
         "&page=" +
         // Discard potential "/?next=[...]" for page indication:
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
+      openConnection();
+    },
+    openConnection: function() {
       this.conn = new WebSocket(this.connexionString);
-      this.conn.addEventListener("message", this.socketMessageListener);
-      this.socketCloseListener = setInterval(
-        () => {
-          if (this.conn.readyState == 3) {
-            this.conn.removeEventListener(
-              "message", this.socketMessageListener);
-            this.conn = new WebSocket(this.connexionString);
-            this.conn.addEventListener("message", this.socketMessageListener);
-            const oppSid = this.getOppsid();
-            if (!!oppSid) this.requestLastate(oppSid); //in case of
-          }
-        },
-        1000
-      );
+      const onOpen = () => {
+        this.reconnectTimeout = 250;
+        const oppSid = this.getOppsid();
+        if (!!oppSid) this.requestLastate(oppSid); //in case of
+      };
+      this.conn.onopen = onOpen;
+      this.conn.onmessage = this.socketMessageListener;
+      const closeConnection = () => {
+        this.reopenTimeout = setTimeout(
+          () => {
+            this.openConnection();
+            this.reconnectTimeout = Math.min(2*this.reconnectTimeout, 30000);
+          },
+          this.reconnectTimeout
+        );
+      };
+      this.conn.onerror = closeConnection;
+      this.conn.onclose = closeConnection;
       // Socket init required before loading remote game:
       const socketInit = callback => {
         if (this.conn.readyState == 1)
           // 1 == OPEN state
           callback();
-        else
+        else {
           // Socket not ready yet (initial loading)
           // NOTE: first arg is Websocket object, unused here:
-          this.conn.onopen = () => callback();
+          this.conn.onopen = () => {
+            onOpen();
+            callback();
+          };
+        }
       };
       this.fetchGame((game) => {
         if (!!game) {
