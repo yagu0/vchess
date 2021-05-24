@@ -409,7 +409,7 @@ export default {
         "&page=" +
         // Discard potential "/?next=[...]" for page indication:
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
-      openConnection();
+      this.openConnection();
     },
     openConnection: function() {
       this.conn = new WebSocket(this.connexionString);
