@@ -144,6 +144,7 @@ const GameModel = {
         "ORDER BY created DESC " +
         "LIMIT 20"; //TODO: 20 hard-coded...
       db.all(query, (err, games) => {
+        games = games || [];
         // Query players names
         let pids = {};
         games.forEach(g => {
@@ -151,6 +152,7 @@ const GameModel = {
           if (!pids[g.black]) pids[g.black] = true;
         });
         UserModel.getByIds(Object.keys(pids), (err2, users) => {
+          users = users || [];
           let names = {};
           users.forEach(u => { names[u.id] = u.name; });
           cb(
@@ -185,6 +187,7 @@ const GameModel = {
         "FROM Games " +
         "WHERE score = '*' AND (white = " + uid + " OR black = " + uid + ")";
       db.all(query, (err, games) => {
+        games = games || [];
         // Get movesCount (could be done in // with next query)
         query =
           "SELECT gid, COUNT(*) AS nbMoves " +
@@ -201,6 +204,7 @@ const GameModel = {
             if (!pids[g.black]) pids[g.black] = true;
           });
           UserModel.getByIds(Object.keys(pids), (err2, users) => {
+            users = users || [];
             let names = {};
             users.forEach(u => { names[u.id] = u.name; });
             cb(
@@ -254,6 +258,7 @@ const GameModel = {
         "ORDER BY created DESC " +
         "LIMIT 20";
       db.all(query, (err, games) => {
+        games = games || [];
         // Query player names
         let pids = {};
         games.forEach(g => {
@@ -261,6 +266,7 @@ const GameModel = {
           if (!pids[g.black]) pids[g.black] = true;
         });
         UserModel.getByIds(Object.keys(pids), (err2, users) => {
+          users = users || [];
           let names = {};
           users.forEach(u => { names[u.id] = u.name; });
           cb(
