@@ -1,3 +1,5 @@
+Game.vue: detecter coups invalides ? --> ou au moins le tour : move.mine = true/false
+
 PROBABLY WON'T FIX:
 Embedded rules language not updated when language is set (in Analyse, Game and Problems)
 If new live game starts in background, "new game" notify OK but not first move.
