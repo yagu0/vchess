@@ -282,8 +282,7 @@ export default {
       presetChalls: JSON.parse(localStorage.getItem("presetChalls") || "[]"),
       conn: null,
       connexionString: "",
-      reopenTimeout: 0,
-      reconnectTimeout: 0,
+      socketCloseListener: 0,
       // Related to (killing of) self multi-connects:
       newConnect: {}
     };
@@ -322,31 +321,35 @@ export default {
         }
       }
     );
-    if (!!this.$route.query["challenge"]) {
-      // Automatic challenge sending, for tournaments
-      this.loadNewchallVariant(
-        () => {
-          Object.assign(
-            this.newchallenge,
-            {
-              fen: "",
-              vid:
-                this.st.variants
-                .find(v => v.name == this.$route.query["variant"])
-                .id,
-              to: this.$route.query["challenge"],
-              color: this.$route.query["color"] || '',
-              cadence: this.$route.query["cadence"],
-              options: {},
-              memorize: false
-            }
-          );
-          window.doClick("modalNewgame");
-        },
-        this.$route.query["variant"]
-      );
-    }
-    // Connexion string won't change if disconnect/reconnect
+    const connectAndPoll = () => {
+      this.send("connect");
+      this.send("pollclientsandgamers");
+      if (!!this.$route.query["challenge"]) {
+        // Automatic challenge sending, for tournaments
+        this.loadNewchallVariant(
+          () => {
+            Object.assign(
+              this.newchallenge,
+              {
+                fen: "",
+                vid:
+                  this.st.variants
+                  .find(v => v.name == this.$route.query["variant"])
+                  .id,
+                to: this.$route.query["challenge"],
+                color: this.$route.query["color"] || '',
+                cadence: this.$route.query["cadence"],
+                options: {},
+                memorize: false
+              }
+            );
+            window.doClick("modalNewgame");
+          },
+          this.$route.query["variant"]
+        );
+      }
+    };
+    // Initialize connection
     this.connexionString =
       params.socketUrl +
       "/?sid=" + this.st.user.sid +
@@ -355,7 +358,19 @@ export default {
       "&page=" +
       // Hall: path is "/" (TODO: could be hard-coded as well)
       encodeURIComponent(this.$route.path);
-    this.openConnection();
+    this.conn = new WebSocket(this.connexionString);
+    this.conn.onopen = connectAndPoll;
+    this.conn.addEventListener("message", this.socketMessageListener);
+    this.socketCloseListener = setInterval(
+      () => {
+        if (this.conn.readyState == 3) {
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn = new WebSocket(this.connexionString);
+          this.conn.addEventListener("message", this.socketMessageListener);
+        }
+      },
+      1000
+    );
   },
   mounted: function() {
     document.getElementById("peopleWrap")
@@ -451,36 +466,13 @@ export default {
     this.cleanBeforeDestroy();
   },
   methods: {
-    openConnection: function() {
-      const connectAndPoll = () => {
-        this.send("connect");
-        this.send("pollclientsandgamers");
-      };
-      // Initialize connection
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.onopen = () => {
-        this.reconnectTimeout = 250;
-        connectAndPoll();
-      };
-      this.conn.onmessage = this.socketMessageListener;
-      const closeConnection = () => {
-        this.reopenTimeout = setTimeout(
-          () => {
-            this.openConnection();
-            this.reconnectTimeout = Math.min(2*this.reconnectTimeout, 30000);
-          },
-          this.reconnectTimeout
-        );
-      };
-      this.conn.onerror = closeConnection;
-      this.conn.onclose = closeConnection;
-    },
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
       window.removeEventListener('focus', this.onFocus);
       window.removeEventListener('blur', this.onBlur);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
-      clearTimeout(this.reopenTimeout);
+      this.conn.removeEventListener("message", this.socketMessageListener);
       this.send("disconnect");
       this.conn = null;
     },

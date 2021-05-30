@@ -18,12 +18,6 @@ function send(socket, message) {
     socket.send(JSON.stringify(message));
 }
 
-// https://www.npmjs.com/package/ws - detect lost connections...
-function noop() {}
-function heartbeat() {
-  this.isAlive = true;
-}
-
 module.exports = function(wss) {
   // Associative array page --> sid --> tmpId --> socket
   // "page" is either "/" for hall or "/game/some_gid" for Game,
@@ -42,8 +36,6 @@ module.exports = function(wss) {
     });
   }
   wss.on("connection", (socket, req) => {
-    socket.isAlive = true;
-    socket.on('pong', heartbeat);
     const query = getJsonFromUrl(req.url);
     const sid = query["sid"];
     const id = query["id"];
@@ -376,15 +368,4 @@ module.exports = function(wss) {
     socket.on("message", messageListener);
     socket.on("close", closeListener);
   });
-  const interval = setInterval(
-    () => {
-      wss.clients.forEach(ws => {
-        if (ws.isAlive === false) return ws.terminate();
-        ws.isAlive = false;
-        ws.ping(noop);
-      });
-    },
-    30000
-  );
-  wss.on('close', () => clearInterval(interval));
 }

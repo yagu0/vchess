@@ -78,8 +78,7 @@ export default {
       },
       conn: null,
       connexionString: "",
-      reopenTimeout: 0,
-      reconnectTimeout: 0
+      socketCloseListener: 0
     };
   },
   watch: {
@@ -97,6 +96,7 @@ export default {
   },
   created: function() {
     window.addEventListener("beforeunload", this.cleanBeforeDestroy);
+    // Initialize connection
     this.connexionString =
       params.socketUrl +
       "/?sid=" + this.st.user.sid +
@@ -104,7 +104,19 @@ export default {
       "&tmpId=" + getRandString() +
       "&page=" +
       encodeURIComponent(this.$route.path);
-    this.openConnection();
+    this.conn = new WebSocket(this.connexionString);
+    this.conn.onmessage = this.socketMessageListener;
+    this.socketCloseListener = setInterval(
+      () => {
+        if (this.conn.readyState == 3) {
+          // Connexion is closed: re-open
+          this.conn.removeEventListener("message", this.socketMessageListener);
+          this.conn = new WebSocket(this.connexionString);
+          this.conn.addEventListener("message", this.socketMessageListener);
+        }
+      },
+      1000
+    );
   },
   mounted: function() {
     const adjustAndSetDisplay = () => {
@@ -170,26 +182,10 @@ export default {
     this.cleanBeforeDestroy();
   },
   methods: {
-    openConnection: function() {
-      // Initialize connection
-      this.conn = new WebSocket(this.connexionString);
-      this.conn.onopen = () => { this.reconnectTimeout = 250; };
-      this.conn.onmessage = this.socketMessageListener;
-      const closeConnection = () => {
-        this.reopenTimeout = setTimeout(
-          () => {
-            this.openConnection();
-            this.reconnectTimeout = Math.min(2*this.reconnectTimeout, 30000);
-          },
-          this.reconnectTimeout
-        );
-      };
-      this.conn.onerror = closeConnection;
-      this.conn.onclose = closeConnection;
-    },
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       window.removeEventListener("beforeunload", this.cleanBeforeDestroy);
-      clearTimeout(this.reopenTimeout);
+      this.conn.removeEventListener("message", this.socketMessageListener);
       this.conn.send(JSON.stringify({code: "disconnect"}));
       this.conn = null;
     },

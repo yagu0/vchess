@@ -231,13 +231,17 @@ export default {
       conn: null,
       roomInitialized: false,
       // If asklastate got no reply, ask again:
+      gotLastate: false,
       gotMoveIdx: -1, //last move index received
-      opponentGotMove: false, //used to freeze clock
+      // If newmove got no pingback, send again:
+      opponentGotMove: false,
       connexionString: "",
-      reopenTimeout: 0,
-      reconnectTimeout: 0,
-      // Incomplete info games: show move played:
+      socketCloseListener: 0,
+      // Incomplete info games: show move played
       moveNotation: "",
+      // Intervals from setInterval():
+      askLastate: null,
+      retrySendmove: null,
       clockUpdate: null,
       // Related to (killing of) self multi-connects:
       newConnect: {}
@@ -285,11 +289,14 @@ export default {
   },
   methods: {
     cleanBeforeDestroy: function() {
+      clearInterval(this.socketCloseListener);
       document.removeEventListener('visibilitychange', this.visibilityChange);
       window.removeEventListener('focus', this.onFocus);
       window.removeEventListener('blur', this.onBlur);
+      if (!!this.askLastate) clearInterval(this.askLastate);
+      if (!!this.retrySendmove) clearInterval(this.retrySendmove);
       if (!!this.clockUpdate) clearInterval(this.clockUpdate);
-      clearTimeout(this.reopenTimeout);
+      this.conn.removeEventListener("message", this.socketMessageListener);
       this.send("disconnect");
       this.conn = null;
     },
@@ -331,6 +338,23 @@ export default {
       //const oppSid =
       //  this.game.players.find(p => p.sid != this.st.user.sid).sid;
       this.send("asklastate", { target: sid });
+      let counter = 1;
+      this.askLastate = setInterval(
+        () => {
+          // Ask at most 3 times:
+          // if no reply after that there should be a network issue.
+          if (
+            counter < 3 &&
+            !this.gotLastate &&
+            !!this.people[sid]
+          ) {
+            this.send("asklastate", { target: sid });
+            counter++;
+          }
+          else clearInterval(this.askLastate);
+        },
+        1500
+      );
     },
     atCreation: function() {
       document.addEventListener('visibilitychange', this.visibilityChange);
@@ -369,8 +393,11 @@ export default {
       this.rematchOffer = "";
       this.lastate = undefined;
       this.roomInitialized = false;
+      this.gotLastate = false;
       this.gotMoveIdx = -1;
       this.opponentGotMove = false;
+      this.askLastate = null;
+      this.retrySendmove = null;
       this.clockUpdate = null;
       this.newConnect = {};
       // 1] Initialize connection
@@ -382,41 +409,30 @@ export default {
         "&page=" +
         // Discard potential "/?next=[...]" for page indication:
         encodeURIComponent(this.$route.path.match(/\/game\/[a-zA-Z0-9]+/)[0]);
-      this.openConnection();
-    },
-    openConnection: function() {
       this.conn = new WebSocket(this.connexionString);
-      const onOpen = () => {
-        this.reconnectTimeout = 250;
-        const oppSid = this.getOppsid();
-        if (!!oppSid) this.send("asklastate", { target: oppSid });
-      };
-      this.conn.onopen = onOpen;
-      this.conn.onmessage = this.socketMessageListener;
-      const closeConnection = () => {
-        this.reopenTimeout = setTimeout(
-          () => {
-            this.openConnection();
-            this.reconnectTimeout = Math.min(2*this.reconnectTimeout, 30000);
-          },
-          this.reconnectTimeout
-        );
-      };
-      this.conn.onerror = closeConnection;
-      this.conn.onclose = closeConnection;
+      this.conn.addEventListener("message", this.socketMessageListener);
+      this.socketCloseListener = setInterval(
+        () => {
+          if (this.conn.readyState == 3) {
+            this.conn.removeEventListener(
+              "message", this.socketMessageListener);
+            this.conn = new WebSocket(this.connexionString);
+            this.conn.addEventListener("message", this.socketMessageListener);
+            const oppSid = this.getOppsid();
+            if (!!oppSid) this.requestLastate(oppSid); //in case of
+          }
+        },
+        1000
+      );
       // Socket init required before loading remote game:
       const socketInit = callback => {
         if (this.conn.readyState == 1)
           // 1 == OPEN state
           callback();
-        else {
+        else
           // Socket not ready yet (initial loading)
           // NOTE: first arg is Websocket object, unused here:
-          this.conn.onopen = () => {
-            onOpen();
-            callback();
-          };
-        }
+          this.conn.onopen = () => callback();
       };
       this.fetchGame((game) => {
         if (!!game) {
@@ -447,13 +463,8 @@ export default {
       }
     },
     send: function(code, obj) {
-      let timeout = 0;
-      const trySend = () => {
-        if (!!this.conn && this.conn.readyState == 1)
-          this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
-        else setTimeout(trySend, timeout = (timeout > 0 ? 2 * timeout : 250));
-      }
-      setTimeout(trySend, timeout);
+      if (!!this.conn && this.conn.readyState == 1)
+        this.conn.send(JSON.stringify(Object.assign({ code: code }, obj)));
     },
     isConnected: function(index) {
       const player = this.game.players[index];
@@ -681,11 +692,12 @@ export default {
           }
           // Ask potentially missed last state, if opponent and I play
           if (
+            !this.gotLastate &&
             !!this.game.mycolor &&
             this.game.type == "live" &&
             this.game.players.some(p => p.sid == user.sid)
           ) {
-            this.send("asklastate", { target: user.sid });
+            this.requestLastate(user.sid);
           }
           break;
         }
@@ -745,6 +757,7 @@ export default {
         // Confirm scenario? Fix?
         case "lastate": {
           // Got opponent infos about last move
+          this.gotLastate = true;
           this.lastate = data.data;
           if (this.lastate.movesCount - 1 > this.gotMoveIdx)
             this.gotMoveIdx = this.lastate.movesCount - 1;
@@ -1300,7 +1313,6 @@ export default {
           ).replace(/(fen:)([^:]*):/g, replaceByDiag);
       };
       let variant = undefined;
-      // TODO: avoid setInterval() here
       const trySetVname = setInterval(
         () => {
           // this.st.variants might be uninitialized (variant == null)
@@ -1529,7 +1541,33 @@ export default {
             sendMove["clock"] = this.game.clocks[colorIdx];
           // (Live) Clocks will re-start when the opponent pingback arrive
           this.opponentGotMove = false;
-          this.send("newmove", { data: sendMove });
+          this.send("newmove", {data: sendMove});
+          // If the opponent doesn't reply gotmove soon enough, re-send move:
+          // Do this at most 2 times, because more would mean network issues,
+          // opponent would then be expected to disconnect/reconnect.
+          let counter = 1;
+          const currentUrl = document.location.href;
+          this.retrySendmove = setInterval(
+            () => {
+              if (
+                counter >= 3 ||
+                this.opponentGotMove ||
+                document.location.href != currentUrl //page change
+              ) {
+                clearInterval(this.retrySendmove);
+                return;
+              }
+              const oppsid = this.getOppsid();
+              if (!oppsid)
+                // Opponent is disconnected: he'll ask last state
+                clearInterval(this.retrySendmove);
+              else {
+                this.send("newmove", { data: sendMove, target: oppsid });
+                counter++;
+              }
+            },
+            1500
+          );
         }
         else
           // Not my move or I'm an observer: just start other player's clock
