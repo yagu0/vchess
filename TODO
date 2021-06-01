@@ -56,3 +56,41 @@ each piece transformation has an equally likely chance of happening
 
 Recycle: pions posés sur 1ere rangée !
 Teleport: pawns falling on rank 8?!
+
+Followking Rules
+The whole army moves when the King does.
+When the King makes a move, all pieces of the same color move one square in the same direction (parallel to the King's move.)
+If by doing so, any piece moves onto an opposing piece's square, the opposing piece is captured.
+If a piece moves off of the board, it is lost.
+No castling.
+Tip: Having your King next to an opposing piece is not considered check, even if your opponent could capture your King using a whole-army King move. It's up to you to prevent this.
+Ed Pegg (1999)
+
+Werewolf Rules
+Convert by capturing.
+Werewolf moves up to 3 squares as a Queen.
+Capturing a werewolf with any piece sacrifices that piece and changes the werewolf to your color, except...
+When the capturer is a King, the werewolf is captured normally.
+Pawn cannot promote to Werewolf.
+H. G. Muller (2015)
+
+Pawnside Rules
+Pawns can move sideways one square without capturing.
+Pawns can execute the initial double-move as long as they are on their starting rank.
+Checkmate to win.
+As far as I know, the first appearance of this variant is in the recent paper due to Tomašev, Paquet, Hassabis, and Kramnik, "Assessing Game Balance with AlphaZero: Exploring Alternative Rule Sets in Chess." However, if this is not the case, please let me know.
+
+Golemchess Rules
+So nice, you gotta capture twice.
+Each side has a Golem (rhino) which moves as a Queen, but only a maximum of two squares in any direction.
+The first time it gets captured, the capturer is removed from the board and the Golem becomes a Half-Golem (small rhino) with the same movement.
+If a Golem captures a Golem, the captured Golem is destroyed, but the capturer becomes a Half-Golem.
+Peter Aronson and Ben Good
+
+Knighthood Rules
+Pieces can demote to Knights.
+Any non-pawn piece can also move and capture as a Knight, but it becomes a Knight permanently.
+King can move as a Knight and becomes a Royal Knight.
+A Royal Knight is a Knight that has the obligations of a King to move out of check, and you lose if it is checkmated.
+Tip: Remember that it's illegal to move your King or Royal Knight a Knight's move away from any non-pawn piece.
+Pretentious chess, by Adrian Alvarez de la Campa (2006)
