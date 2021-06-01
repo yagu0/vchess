@@ -88,7 +88,7 @@ export class TwokingsRules extends CoregalRules {
       .replace("q", "k").replace("Q", "K");
     // Now replace a bishop by the queen,
     // so that bishops are of different colors:
-    if (randomness == 1) return sameIndexReplace(fen);
+    if (options.randomness == 1) return sameIndexReplace(fen);
     const wOdd = fen.indexOf('B') % 2;
     const bOdd = fen.indexOf('b') % 2;
     // Since there are 7 slashes, different oddities means symmetric
