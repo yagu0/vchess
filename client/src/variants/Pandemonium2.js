@@ -12,7 +12,7 @@ export class Pandemonium2Rules extends ChessRules {
     );
   }
 
-  loseOnRepetition() {
+  get loseOnRepetition() {
     // If current side is under check: lost
     return this.underCheck(this.turn);
   }

@@ -24,7 +24,7 @@ export class ShogiRules extends ChessRules {
     return true;
   }
 
-  loseOnRepetition() {
+  get loseOnRepetition() {
     // If current side is under check: lost
     return this.underCheck(this.turn);
   }
