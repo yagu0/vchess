@@ -94,3 +94,7 @@ King can move as a Knight and becomes a Royal Knight.
 A Royal Knight is a Knight that has the obligations of a King to move out of check, and you lose if it is checkmated.
 Tip: Remember that it's illegal to move your King or Royal Knight a Knight's move away from any non-pawn piece.
 Pretentious chess, by Adrian Alvarez de la Campa (2006)
+
+Btw @Jeff K we'll need (real) SVG images for 8-pieces (not embedded PNG).
+Maybe starting from what I had https://github.com/yagu0/vchess/tree/master/client/public/images/pieces/Eightpieces/SVG_TODO - or based on the current design.
+...or maybe PNGs will work too (just larger base64-encoded image?)
