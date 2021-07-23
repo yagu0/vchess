@@ -602,7 +602,7 @@ export class CheckeredRules extends ChessRules {
   }
 
   static GenRandInitFen(options) {
-    const baseFen = ChessRules.GenRandInitFen(options.randomness);
+    const baseFen = ChessRules.GenRandInitFen(options);
     return (
       // Add 16 pawns flags + empty cmove + stage == 1:
       baseFen.slice(0, -2) + "1111111111111111 - - 1" +
