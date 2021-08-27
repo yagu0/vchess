@@ -98,3 +98,6 @@ Pretentious chess, by Adrian Alvarez de la Campa (2006)
 Btw @Jeff K we'll need (real) SVG images for 8-pieces (not embedded PNG).
 Maybe starting from what I had https://github.com/yagu0/vchess/tree/master/client/public/images/pieces/Eightpieces/SVG_TODO - or based on the current design.
 ...or maybe PNGs will work too (just larger base64-encoded image?)
+
+https://www.chessvariants.com/rules/epic-chess
+Вадря Покштя / Vadrya Pokshtya
