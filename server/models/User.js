@@ -177,8 +177,6 @@ const UserModel = {
             "DELETE FROM Users " +
             "WHERE id IN (" + remArg + ")"
           );
-          // Update tournament DB:
-          exec(params.tourneyPath + "/dbsync/delete_users.py " + remArg);
         }
       });
     });
