@@ -18,4 +18,4 @@ If you feel comfortable with the code a pull request is a good start too.
 
 ### Running the website locally
 
-Follow the instructions in server/README.md first, and then in client/README.md.
+Follow the instructions in INSTALL\_INSTRUCTIONS.

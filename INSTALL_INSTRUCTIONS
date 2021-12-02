@@ -1,0 +1,59 @@
+### DOWNLOAD REPO ###
+
+git clone git@github.com:yagu0/vchess.git
+# or https version: git clone https://github.com/yagu0/vchess.git
+cd vchess
+
+### SERVER ###
+
+cd server/db
+# Next line doesn't work, but should (?!); anyway typing in SQLite works.
+sqlite3 vchess.sqlite '.read create.sql ; .read populate.sql'
+# Rename dbconnect.py.dist --> dbconnect.py and edit DB path on line 7
+# Then synchronize the GameStat table:
+./sync_gamestat.py
+
+cd ../config
+# Rename and edit parameters.js.dist --> parameters.js
+# Rename and edit discord.json.dist --> discord.json
+# NOTE: token *must be empty* locally in dev mode
+
+cd ..
+npm i
+npm start
+
+### CLIENT ###
+
+cd client/src
+# Rename and edit parameters.js.dist --> parameters.js
+# NOTE: parameters here and in server/config should be intuitive enough.
+#       if not, ask me or check in code :)
+
+# Next step is just "git fat init && git fat pull" if I have your ssh key.
+# NOTE: you should use your own strategy then, for binary files.
+wget -r --no-parent https://xogo.fr/images/pieces/Eightpieces/tmp_png/
+wget -r --no-parent https://xogo.fr/images/pieces/Otage/
+wget -r --no-parent https://xogo.fr/images/pieces/Pacosako/
+wget -r --no-parent https://xogo.fr/images/pieces/Titan/
+rsync -a --exclude=index.html xogo.fr/images/ public/images/
+wget -r --no-parent https://xogo.fr/variants/Empire/
+wget -r --no-parent https://xogo.fr/variants/Orda/
+wget -r --no-parent https://xogo.fr/variants/Xiangqi/
+rsync -a --exclude=index.html xogo.fr/variants/ public/variants/
+wget -r --no-parent https://xogo.fr/sounds/
+rsync -a --exclude=index.html xogo.fr/sounds/ public/sounds/
+rm -rf xogo.fr
+wget -O public/favicon.ico https://xogo.fr/favicon.ico
+
+# Generate Emergo + Avalam pieces
+cd public/images/pieces/Emergo
+./generateSVG_simple.py
+./generateSVG_composite.py
+cd ../Avalam
+./generateSVG.py
+
+cd ../../../../
+npm i
+npm run serve
+# In production, use 'npm run build' and serve dist/ folder
+# NOTE: this dist/ folder is symlinked as server/static.
