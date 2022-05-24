@@ -19,7 +19,7 @@ export const store = {
       "X-Requested-With": "XMLHttpRequest"
     };
     fetch(
-      params.serverUrl + "/variants",
+      params.serverUrl + "/allvarslist",
       {
         method: "GET",
         headers: headers

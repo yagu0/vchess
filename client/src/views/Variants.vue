@@ -35,7 +35,7 @@ export default {
   },
   created: function() {
     ajax(
-      "/variants",
+      "/allvarslist",
       "GET",
       {
         success: (res) => {
