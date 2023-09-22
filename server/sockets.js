@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const { token, channel } = require('./config/discord.json');
 
 // Node version in Ubuntu 16.04 does not know about URL class
@@ -27,7 +27,8 @@ module.exports = function(wss) {
   // NOTE: only purpose of sidToPages = know when to delete keys in idToSid
   let sidToPages = {};
   let idToSid = {};
-  const discordClient = new Discord.Client();
+  const discordClient = new Client(
+    { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
   let discordChannel = null;
   if (token.length > 0) {
     discordClient.login(token);

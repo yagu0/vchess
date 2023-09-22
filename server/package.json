@@ -6,20 +6,20 @@
     "start": "gulp start"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.5",
-    "debug": "^4.3.1",
-    "discord.js": "^12.5.3",
-    "express": "^4.17.1",
-    "http-errors": "^1.8.0",
-    "morgan": "^1.10.0",
-    "node-cron": "^2.0.3",
-    "nodemailer": "^6.4.16",
-    "sanitize-html": "^2.2.0",
-    "serve-favicon": "^2.5.0",
-    "sqlite3": "^5.0.0",
-    "ws": "^7.4.1"
+    "cookie-parser": "1.4.6",
+    "debug": "4.3.4",
+    "discord.js": "14.13.0",
+    "express": "4.18.2",
+    "http-errors": "2.0.0",
+    "morgan": "1.10.0",
+    "node-cron": "3.0.2",
+    "nodemailer": "6.9.5",
+    "sanitize-html": "2.11.0",
+    "serve-favicon": "2.5.0",
+    "sqlite3": "5.1.6",
+    "ws": "8.14.2"
   },
   "devDependencies": {
-    "gulp-nodemon": "^2.5.0"
+    "gulp-nodemon": "2.5.0"
   }
 }
