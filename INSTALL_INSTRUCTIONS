@@ -33,7 +33,7 @@ npm start
 
 ### CLIENT ###
 
-cd client/src
+cd ../client/src
 # Rename and edit parameters.js.dist --> parameters.js
 # NOTE: parameters here and in server/config should be intuitive enough.
 #       if not, ask me or check in code :)
@@ -55,9 +55,9 @@ rm -rf xogo.fr
 wget -O public/favicon.ico https://xogo.fr/favicon.ico
 
 # Generate Emergo + Avalam pieces
-cd public/images/pieces/Emergo
-./generateSVG_simple.py
-./generateSVG_composite.py
+cd ../public/images/pieces/Emergo
+#./generateSVG_simple.py #NOTE: lead to error at runtime
+#./generateSVG_composite.py #NOTE: lead to error at runtime
 cd ../Avalam
 ./generateSVG.py
 
