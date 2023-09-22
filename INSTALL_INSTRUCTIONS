@@ -17,7 +17,7 @@ sqlite3 vchess.sqlite
 # And then within sqlite invite command:
 .read create.sql
 .read populate.sql
-# Then exit sqlite (\q works)
+# Then exit sqlite with ".quit"
 # Rename dbconnect.py.dist --> dbconnect.py and edit DB path on line 7
 # Then synchronize the GameStat table:
 ./sync_gamestat.py
